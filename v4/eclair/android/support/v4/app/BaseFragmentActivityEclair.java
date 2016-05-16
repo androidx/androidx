@@ -22,6 +22,8 @@ import android.support.annotation.Nullable;
 
 /**
  * Base class for {@code FragmentActivity} to be able to use v5 APIs.
+ *
+ * @hide
  */
 abstract class BaseFragmentActivityEclair extends BaseFragmentActivityDonut {
 

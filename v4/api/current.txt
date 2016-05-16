@@ -105,18 +105,6 @@ package android.support.v4.app {
     field public static final int MODE_IGNORED = 1; // 0x1
   }
 
-   abstract class BaseFragmentActivityDonut extends android.app.Activity {
-  }
-
-   abstract class BaseFragmentActivityEclair extends android.support.v4.app.BaseFragmentActivityDonut {
-  }
-
-   abstract class BaseFragmentActivityHoneycomb extends android.support.v4.app.BaseFragmentActivityEclair {
-  }
-
-   abstract class BaseFragmentActivityJB extends android.support.v4.app.BaseFragmentActivityHoneycomb {
-  }
-
   public final class BundleCompat {
     method public static android.os.IBinder getBinder(android.os.Bundle, java.lang.String);
     method public static void putBinder(android.os.Bundle, java.lang.String, android.os.IBinder);
@@ -256,7 +244,7 @@ package android.support.v4.app {
     field public static final android.os.Parcelable.Creator<android.support.v4.app.Fragment.SavedState> CREATOR;
   }
 
-  public class FragmentActivity extends android.support.v4.app.BaseFragmentActivityJB implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback {
+  public class FragmentActivity extends android.app.Activity implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
