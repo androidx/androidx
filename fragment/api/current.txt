@@ -110,9 +110,9 @@ package android.support.v4.app {
     method public void setAllowEnterTransitionOverlap(boolean);
     method public void setAllowReturnTransitionOverlap(boolean);
     method public void setArguments(android.os.Bundle);
-    method public void setEnterSharedElementCallback(SharedElementCallback);
+    method public void setEnterSharedElementCallback(android.support.v4.app.SharedElementCallback);
     method public void setEnterTransition(java.lang.Object);
-    method public void setExitSharedElementCallback(SharedElementCallback);
+    method public void setExitSharedElementCallback(android.support.v4.app.SharedElementCallback);
     method public void setExitTransition(java.lang.Object);
     method public void setHasOptionsMenu(boolean);
     method public void setInitialSavedState(android.support.v4.app.Fragment.SavedState);
@@ -148,14 +148,14 @@ package android.support.v4.app {
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
     method public android.support.v4.app.LoaderManager getSupportLoaderManager();
-    method public final MediaControllerCompat getSupportMediaController();
+    method public final android.support.v4.media.session.MediaControllerCompat getSupportMediaController();
     method public void onAttachFragment(android.support.v4.app.Fragment);
     method protected void onResumeFragments();
     method public java.lang.Object onRetainCustomNonConfigurationInstance();
     method public final java.lang.Object onRetainNonConfigurationInstance();
-    method public void setEnterSharedElementCallback(SharedElementCallback);
-    method public void setExitSharedElementCallback(SharedElementCallback);
-    method public final void setSupportMediaController(MediaControllerCompat);
+    method public void setEnterSharedElementCallback(android.support.v4.app.SharedElementCallback);
+    method public void setExitSharedElementCallback(android.support.v4.app.SharedElementCallback);
+    method public final void setSupportMediaController(android.support.v4.media.session.MediaControllerCompat);
     method public void startActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int);
     method public void startActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int, android.os.Bundle);
     method public void startIntentSenderFromFragment(android.support.v4.app.Fragment, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) throws android.content.IntentSender.SendIntentException;
@@ -208,8 +208,8 @@ package android.support.v4.app {
     method public void reportLoaderStart();
     method public deprecated void restoreAllState(android.os.Parcelable, java.util.List<android.support.v4.app.Fragment>);
     method public void restoreAllState(android.os.Parcelable, android.support.v4.app.FragmentManagerNonConfig);
-    method public void restoreLoaderNonConfig(<any>);
-    method public <any> retainLoaderNonConfig();
+    method public void restoreLoaderNonConfig(android.support.v4.util.SimpleArrayMap<java.lang.String, android.support.v4.app.LoaderManager>);
+    method public android.support.v4.util.SimpleArrayMap<java.lang.String, android.support.v4.app.LoaderManager> retainLoaderNonConfig();
     method public android.support.v4.app.FragmentManagerNonConfig retainNestedNonConfig();
     method public deprecated java.util.List<android.support.v4.app.Fragment> retainNonConfig();
     method public android.os.Parcelable saveAllState();
@@ -274,31 +274,17 @@ package android.support.v4.app {
   public class FragmentManagerNonConfig {
   }
 
-  public abstract class FragmentPagerAdapter extends PagerAdapter {
+  public abstract class FragmentPagerAdapter extends android.support.v4.view.PagerAdapter {
     ctor public FragmentPagerAdapter(android.support.v4.app.FragmentManager);
-    method public void destroyItem(android.view.ViewGroup, int, java.lang.Object);
-    method public void finishUpdate(android.view.ViewGroup);
     method public abstract android.support.v4.app.Fragment getItem(int);
     method public long getItemId(int);
-    method public java.lang.Object instantiateItem(android.view.ViewGroup, int);
     method public boolean isViewFromObject(android.view.View, java.lang.Object);
-    method public void restoreState(android.os.Parcelable, java.lang.ClassLoader);
-    method public android.os.Parcelable saveState();
-    method public void setPrimaryItem(android.view.ViewGroup, int, java.lang.Object);
-    method public void startUpdate(android.view.ViewGroup);
   }
 
-  public abstract class FragmentStatePagerAdapter extends PagerAdapter {
+  public abstract class FragmentStatePagerAdapter extends android.support.v4.view.PagerAdapter {
     ctor public FragmentStatePagerAdapter(android.support.v4.app.FragmentManager);
-    method public void destroyItem(android.view.ViewGroup, int, java.lang.Object);
-    method public void finishUpdate(android.view.ViewGroup);
     method public abstract android.support.v4.app.Fragment getItem(int);
-    method public java.lang.Object instantiateItem(android.view.ViewGroup, int);
     method public boolean isViewFromObject(android.view.View, java.lang.Object);
-    method public void restoreState(android.os.Parcelable, java.lang.ClassLoader);
-    method public android.os.Parcelable saveState();
-    method public void setPrimaryItem(android.view.ViewGroup, int, java.lang.Object);
-    method public void startUpdate(android.view.ViewGroup);
   }
 
   public class FragmentTabHost extends android.widget.TabHost implements android.widget.TabHost.OnTabChangeListener {
@@ -367,16 +353,26 @@ package android.support.v4.app {
     method public abstract void destroyLoader(int);
     method public abstract void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public static void enableDebugLogging(boolean);
-    method public abstract <any> getLoader(int);
+    method public abstract android.support.v4.content.Loader<D> getLoader(int);
     method public boolean hasRunningLoaders();
-    method public abstract <any> initLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
-    method public abstract <any> restartLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
+    method public abstract android.support.v4.content.Loader<D> initLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
+    method public abstract android.support.v4.content.Loader<D> restartLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
   }
 
   public static abstract interface LoaderManager.LoaderCallbacks {
-    method public abstract <any> onCreateLoader(int, android.os.Bundle);
-    method public abstract void onLoadFinished(<any>, D);
-    method public abstract void onLoaderReset(<any>);
+    method public abstract android.support.v4.content.Loader<D> onCreateLoader(int, android.os.Bundle);
+    method public abstract void onLoadFinished(android.support.v4.content.Loader<D>, D);
+    method public abstract void onLoaderReset(android.support.v4.content.Loader<D>);
+  }
+
+  public abstract class SharedElementCallback {
+    ctor public SharedElementCallback();
+    method public android.os.Parcelable onCaptureSharedElementSnapshot(android.view.View, android.graphics.Matrix, android.graphics.RectF);
+    method public android.view.View onCreateSnapshotView(android.content.Context, android.os.Parcelable);
+    method public void onMapSharedElements(java.util.List<java.lang.String>, java.util.Map<java.lang.String, android.view.View>);
+    method public void onRejectSharedElements(java.util.List<android.view.View>);
+    method public void onSharedElementEnd(java.util.List<java.lang.String>, java.util.List<android.view.View>, java.util.List<android.view.View>);
+    method public void onSharedElementStart(java.util.List<java.lang.String>, java.util.List<android.view.View>, java.util.List<android.view.View>);
   }
 
 }

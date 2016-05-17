@@ -19,16 +19,16 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-fragment-gingerbread
 LOCAL_SDK_VERSION := 9
 LOCAL_SRC_FILES := $(call all-java-files-under, gingerbread)
-LOCAL_STATIC_JAVA_LIBRARIES := \
+LOCAL_JAVA_LIBRARIES := \
     android-support-annotations \
     android-support-compat \
     android-support-core-utils \
-    android-support-media-compat
+    android-support-media-compat \
+    android-support-core-ui
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files := $(LOCAL_SRC_FILES)
-support_module_java_libraries := android-support-annotations android-support-compat android-support-media-compat
 
 # -----------------------------------------------------------------------
 
@@ -51,6 +51,12 @@ LOCAL_MODULE := android-support-fragment-jellybean
 LOCAL_SDK_VERSION := 16
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-fragment-honeycomb
+LOCAL_JAVA_LIBRARIES := \
+    android-support-annotations \
+    android-support-compat \
+    android-support-media-compat \
+    android-support-core-ui \
+    android-support-core-utils
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -68,7 +74,8 @@ LOCAL_JAVA_LIBRARIES := \
     android-support-annotations \
     android-support-compat \
     android-support-media-compat \
-    android-support-core-ui
+    android-support-core-ui \
+    android-support-core-utils
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -86,22 +93,31 @@ LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-fragment-api21
-LOCAL_SHARED_ANDROID_LIBRARIES := \
+LOCAL_JAVA_LIBRARIES := \
     android-support-annotations \
     android-support-compat \
     android-support-media-compat \
-    android-support-core-ui
+    android-support-core-ui \
+    android-support-core-utils
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
 support_module_aidl_includes := $(LOCAL_AIDL_INCLUDES)
 
+# We're asking doclava to generate stubs for android.support.v4.app
+# so we'll have to point doclava at the sources for additional classes
+# in that package. Note that this API definition will overlap with that
+# of those classes in compat module.
+support_module_src_files += \
+  ../compat/java/android/support/v4/app/SharedElementCallback.java
+
 # API Check
 # ---------------------------------------------
 support_module := $(LOCAL_MODULE)
 support_module_api_dir := $(LOCAL_PATH)/api
-support_module_java_libraries :=
-support_module_java_packages := android.support.v4.*
+support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES)
+support_module_java_packages := android.support.v4.app
 include $(SUPPORT_API_CHECK)
