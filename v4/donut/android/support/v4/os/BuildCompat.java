@@ -18,6 +18,7 @@
 package android.support.v4.os;
 
 import android.os.Build.VERSION;
+import android.text.TextUtils;
 
 /**
  * BuildCompat contains additional platform version checking methods for
@@ -35,6 +36,10 @@ public class BuildCompat {
      * @return true if N APIs are available for use
      */
     public static boolean isAtLeastN() {
-        return "N".equals(VERSION.CODENAME);
+        if (TextUtils.isEmpty(VERSION.CODENAME)) {
+            return false;
+        }
+        final char prefix = VERSION.CODENAME.charAt(0);
+        return prefix >= 'N' && prefix <= 'Z';
     }
 }
