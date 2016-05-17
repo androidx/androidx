@@ -77,13 +77,14 @@ public class CustomTabsClient {
     /**
      * Returns the preferred package to use for Custom Tabs.
      *
-     * Unless <code>ignoreDefault</code> is true, if the default VIEW handler supports Custom Tabs,
-     * its package name will be returned, irrespective of the content of <code>packages</code>.
+     * The preferred package name is the default VIEW intent handler as long as it supports Custom
+     * Tabs. To modify this preferred behavior, set <code>ignoreDefault</code> to true and give a
+     * non empty list of package names in <code>packages</code>.
      *
      * @param context       {@link Context} to use for querying the packages.
      * @param packages      Ordered list of packages to test for Custom Tabs support, in
      *                      decreasing order of priority.
-     * @param ignoreDefault If set, don't systematically prefer the default VIEW handler.
+     * @param ignoreDefault If set, the default VIEW handler won't get priority over other browsers.
      * @return The preferred package name for handling Custom Tabs, or <code>null</code>.
      */
     public static String getPackageName(
