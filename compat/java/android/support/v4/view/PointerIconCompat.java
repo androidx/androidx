@@ -102,10 +102,6 @@ public final class PointerIconCompat {
         mPointerIcon = pointerIcon;
     }
 
-    private static PointerIconCompat create(Object pointerIcon) {
-        return new PointerIconCompat(pointerIcon);
-    }
-
     /**
      * @hide
      */
@@ -115,8 +111,8 @@ public final class PointerIconCompat {
 
     interface PointerIconCompatImpl {
         Object getSystemIcon(Context context, int style);
-        Object createCustomIcon(Bitmap bitmap, float hotSpotX, float hotSpotY);
-        Object loadCustomIcon(Resources resources, int resourceId);
+        Object create(Bitmap bitmap, float hotSpotX, float hotSpotY);
+        Object load(Resources resources, int resourceId);
     }
 
     static class BasePointerIconCompatImpl implements PointerIconCompatImpl {
@@ -126,12 +122,12 @@ public final class PointerIconCompat {
         }
 
         @Override
-        public Object createCustomIcon(Bitmap bitmap, float hotSpotX, float hotSpotY) {
+        public Object create(Bitmap bitmap, float hotSpotX, float hotSpotY) {
             return null;
         }
 
         @Override
-        public Object loadCustomIcon(Resources resources, int resourceId) {
+        public Object load(Resources resources, int resourceId) {
             return null;
         }
     }
@@ -143,13 +139,13 @@ public final class PointerIconCompat {
         }
 
         @Override
-        public Object createCustomIcon(Bitmap bitmap, float hotSpotX, float hotSpotY) {
-            return PointerIconCompatApi24.createCustomIcon(bitmap, hotSpotX, hotSpotY);
+        public Object create(Bitmap bitmap, float hotSpotX, float hotSpotY) {
+            return PointerIconCompatApi24.create(bitmap, hotSpotX, hotSpotY);
         }
 
         @Override
-        public Object loadCustomIcon(Resources resources, int resourceId) {
-            return PointerIconCompatApi24.loadCustomIcon(resources, resourceId);
+        public Object load(Resources resources, int resourceId) {
+            return PointerIconCompatApi24.load(resources, resourceId);
         }
     }
 
@@ -173,7 +169,7 @@ public final class PointerIconCompat {
      * @throws IllegalArgumentException if context is null.
      */
     public static PointerIconCompat getSystemIcon(Context context, int style) {
-        return create(IMPL.getSystemIcon(context, style));
+        return new PointerIconCompat(IMPL.getSystemIcon(context, style));
     }
 
     /**
@@ -189,8 +185,8 @@ public final class PointerIconCompat {
      * @throws IllegalArgumentException if bitmap is null, or if the x/y hotspot
      *         parameters are invalid.
      */
-    public static PointerIconCompat createCustomIcon(Bitmap bitmap, float hotSpotX, float hotSpotY) {
-        return create(IMPL.createCustomIcon(bitmap, hotSpotX, hotSpotY));
+    public static PointerIconCompat create(Bitmap bitmap, float hotSpotX, float hotSpotY) {
+        return new PointerIconCompat(IMPL.create(bitmap, hotSpotX, hotSpotY));
     }
 
     /**
@@ -214,7 +210,7 @@ public final class PointerIconCompat {
      * @throws Resources.NotFoundException if the resource was not found or the drawable
      * linked in the resource was not found.
      */
-    public static PointerIconCompat loadCustomIcon(Resources resources, int resourceId) {
-        return create(IMPL.loadCustomIcon(resources, resourceId));
+    public static PointerIconCompat load(Resources resources, int resourceId) {
+        return new PointerIconCompat(IMPL.load(resources, resourceId));
     }
 }
