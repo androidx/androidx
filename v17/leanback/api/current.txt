@@ -851,7 +851,6 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.VerticalGridPresenter getGridPresenter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
-    method public void onViewCreated(android.view.View, android.os.Bundle);
     method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setGridPresenter(android.support.v17.leanback.widget.VerticalGridPresenter);
@@ -866,7 +865,6 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.VerticalGridPresenter getGridPresenter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
-    method public void onViewCreated(android.view.View, android.os.Bundle);
     method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setGridPresenter(android.support.v17.leanback.widget.VerticalGridPresenter);
