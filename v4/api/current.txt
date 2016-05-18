@@ -648,6 +648,9 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Builder setContentIntent(android.app.PendingIntent);
     method public android.support.v4.app.NotificationCompat.Builder setContentText(java.lang.CharSequence);
     method public android.support.v4.app.NotificationCompat.Builder setContentTitle(java.lang.CharSequence);
+    method public android.support.v4.app.NotificationCompat.Builder setCustomBigContentView(android.widget.RemoteViews);
+    method public android.support.v4.app.NotificationCompat.Builder setCustomContentView(android.widget.RemoteViews);
+    method public android.support.v4.app.NotificationCompat.Builder setCustomHeadsUpContentView(android.widget.RemoteViews);
     method public android.support.v4.app.NotificationCompat.Builder setDefaults(int);
     method public android.support.v4.app.NotificationCompat.Builder setDeleteIntent(android.app.PendingIntent);
     method public android.support.v4.app.NotificationCompat.Builder setExtras(android.os.Bundle);

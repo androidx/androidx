@@ -56,6 +56,9 @@ class NotificationCompatApi21 {
             NotificationBuilderWithActions {
         private Notification.Builder b;
         private Bundle mExtras;
+        private RemoteViews mContentView;
+        private RemoteViews mBigContentView;
+        private RemoteViews mHeadsUpContentView;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -65,7 +68,8 @@ class NotificationCompatApi21 {
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 String category, ArrayList<String> people, Bundle extras, int color,
                 int visibility, Notification publicVersion, String groupKey, boolean groupSummary,
-                String sortKey) {
+                String sortKey, RemoteViews contentView, RemoteViews bigContentView,
+                RemoteViews headsUpContentView) {
             b = new Notification.Builder(context)
                     .setWhen(n.when)
                     .setShowWhen(showWhen)
@@ -107,6 +111,9 @@ class NotificationCompatApi21 {
             for (String person: people) {
                 b.addPerson(person);
             }
+            mContentView = contentView;
+            mBigContentView = bigContentView;
+            mHeadsUpContentView = headsUpContentView;
         }
 
         @Override
@@ -122,7 +129,11 @@ class NotificationCompatApi21 {
         @Override
         public Notification build() {
             b.setExtras(mExtras);
-            return b.build();
+            Notification notification = b.build();
+            notification.contentView =  mContentView;
+            notification.bigContentView = mBigContentView;
+            notification.headsUpContentView = mHeadsUpContentView;
+            return notification;
         }
     }
 
