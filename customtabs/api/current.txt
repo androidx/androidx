@@ -65,7 +65,7 @@ package android.support.customtabs {
     method public android.support.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, java.lang.String, android.app.PendingIntent);
     method public android.support.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
     method public android.support.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, int, int);
-    method public deprecated android.support.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(int);
+    method public android.support.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(int);
     method public android.support.customtabs.CustomTabsIntent.Builder setSecondaryToolbarViews(android.widget.RemoteViews, int[], android.app.PendingIntent);
     method public android.support.customtabs.CustomTabsIntent.Builder setShowTitle(boolean);
     method public android.support.customtabs.CustomTabsIntent.Builder setStartAnimations(android.content.Context, int, int);
