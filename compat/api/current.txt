@@ -810,6 +810,24 @@ package android.support.v4.text {
 
 }
 
+package android.support.v4.text.util {
+
+  public final class LinkifyCompat {
+    method public static final boolean addLinks(android.text.Spannable, int);
+    method public static final boolean addLinks(android.widget.TextView, int);
+    method public static final void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String);
+    method public static final void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String, android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+    method public static final void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String, java.lang.String[], android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+    method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String);
+    method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+    method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, java.lang.String[], android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+  }
+
+  public static abstract class LinkifyCompat.LinkifyMask implements java.lang.annotation.Annotation {
+  }
+
+}
+
 package android.support.v4.util {
 
   public class ArrayMap extends android.support.v4.util.SimpleArrayMap implements java.util.Map {
@@ -917,6 +935,13 @@ package android.support.v4.util {
     method public static android.support.v4.util.Pair<A, B> create(A, B);
     field public final F first;
     field public final S second;
+  }
+
+  public final class PatternsCompat {
+    field public static final java.util.regex.Pattern DOMAIN_NAME;
+    field public static final java.util.regex.Pattern EMAIL_ADDRESS;
+    field public static final java.util.regex.Pattern IP_ADDRESS;
+    field public static final java.util.regex.Pattern WEB_URL;
   }
 
   public final class Pools {
