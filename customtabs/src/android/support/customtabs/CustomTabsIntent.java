@@ -396,7 +396,7 @@ public final class CustomTabsIntent {
          * @param description The description for the button. To be used for accessibility.
          * @param pendingIntent The pending intent delivered when the button is clicked.
          *
-         * @see CustomTabsIntent#getMaxToolbarItems().
+         * @see CustomTabsIntent#getMaxToolbarItems()
          * @deprecated Use
          * CustomTabsIntent.Builder#setSecondaryToolbarViews(RemoteViews, int[], PendingIntent).
          */
@@ -422,10 +422,7 @@ public final class CustomTabsIntent {
         /**
          * Sets the color of the secondary toolbar.
          * @param color The color for the secondary toolbar.
-         * @deprecated Use
-         * CustomTabsIntent.Builder#setSecondaryToolbarViews(RemoteViews, int[], PendingIntent).
          */
-        @Deprecated
         public Builder setSecondaryToolbarColor(@ColorInt int color) {
             mIntent.putExtra(EXTRA_SECONDARY_TOOLBAR_COLOR, color);
             return this;
@@ -441,10 +438,10 @@ public final class CustomTabsIntent {
          *                      one of the {@link View}s in clickableIDs. When the
          *                      {@link PendingIntent} is sent, it will have the current URL as its
          *                      intent data.
-         * @see CustomTabsIntent#EXTRA_REMOTEVIEWS.
-         * @see CustomTabsIntent#EXTRA_REMOTEVIEWS_VIEW_IDS.
-         * @see CustomTabsIntent#EXTRA_REMOTEVIEWS_PENDINGINTENT.
-         * @see CustomTabsIntent#EXTRA_REMOTEVIEWS_CLICKED_ID.
+         * @see CustomTabsIntent#EXTRA_REMOTEVIEWS
+         * @see CustomTabsIntent#EXTRA_REMOTEVIEWS_VIEW_IDS
+         * @see CustomTabsIntent#EXTRA_REMOTEVIEWS_PENDINGINTENT
+         * @see CustomTabsIntent#EXTRA_REMOTEVIEWS_CLICKED_ID
          */
         public Builder setSecondaryToolbarViews(@NonNull RemoteViews remoteViews,
                 @Nullable int[] clickableIDs, @Nullable PendingIntent pendingIntent) {
