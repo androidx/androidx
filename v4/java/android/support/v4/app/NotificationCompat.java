@@ -2187,8 +2187,7 @@ public class NotificationCompat {
 
             static Message getMessageFromBundle(Bundle bundle) {
                 try {
-                    if (!bundle.containsKey(KEY_TEXT) || !bundle.containsKey(KEY_TIMESTAMP) ||
-                            !bundle.containsKey(KEY_SENDER)) {
+                    if (!bundle.containsKey(KEY_TEXT) || !bundle.containsKey(KEY_TIMESTAMP)) {
                         return null;
                     } else {
                         Message message = new Message(bundle.getCharSequence(KEY_TEXT),
