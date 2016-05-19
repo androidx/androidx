@@ -1,0 +1,14 @@
+<!-- BEGIN_INCLUDE(file_provider_paths_declaration) -->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Offer access to files under Context.getFilesDir() + "thumbs/"
+         through alias "my_thumbs" -->
+    <files-path name="my_thumbs" path="thumbs/" />
+
+    <!-- Offer access to files under Environment.getExternalStorageDirectory()
+         through alias "my_external" -->
+    <external-path name="my_external" />
+
+    <!-- Offer access to files under Context.getCacheDir() -->
+    <cache-path name="my_cache" />
+</paths>
+<!-- END_INCLUDE(file_provider_paths_declaration) -->
