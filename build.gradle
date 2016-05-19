@@ -243,6 +243,34 @@ subprojects {
         pom.dependencies.findAll {dep -> dep.groupId == 'com.android.support' && dep.artifactId != 'support-annotations' }*.type = 'aar'
     }
 
+    def versionDir = {
+        def groupDir = new File(rootProject.ext.supportRepoOut, project.group.replace('.','/'))
+        def artifactDir = new File(groupDir, archivesBaseName)
+        return new File(artifactDir, version)
+    }
+
+    task generateSourceProps(dependsOn: createRepository) << {
+        def content = "Maven.GroupId=$deployer.pom.groupId\n" +
+            "Maven.ArtifactId=$deployer.pom.artifactId\n" +
+            "Maven.Version=$deployer.pom.version\n" +
+            "Pkg.Desc=$project.name\n" +
+            "Pkg.Revision=1\n" +
+            "Dependencies=" +
+            String.join(",", project.configurations.compile.allDependencies.collect {
+                    def p = parent.findProject(it.name)
+                    return p ? "$p.group:$p.archivesBaseName:$p.version" : null
+                }.grep()) +
+            "\n"
+        Files.write(content, new File(versionDir(), 'source.properties'), Charsets.UTF_8)
+    }
+
+    task createSeparateZip(type: Zip, dependsOn: generateSourceProps)  {
+        into archivesBaseName
+        destinationDir project.parent.ext.distDir
+        baseName = project.group
+    }
+    project.parent.createArchive.dependsOn createSeparateZip
+
     // before the upload, make sure the repo is ready.
     release.dependsOn rootProject.tasks.prepareRepo
     // make the mainupload depend on this one.
@@ -257,8 +285,13 @@ subprojects {
         }
     }
 
-    // Copy instrumentation test APK into the dist dir
     project.afterEvaluate {
+        // The archivesBaseName isn't available intially, so set it now
+        def createZipTask = project.tasks.getByName("createSeparateZip")
+        createZipTask.appendix = archivesBaseName
+        createZipTask.from versionDir()
+
+        // Copy instrumentation test APK into the dist dir
         def assembleTestTask = project.tasks.findByPath('assembleAndroidTest')
         if (assembleTestTask != null) {
             assembleTestTask.doLast {
