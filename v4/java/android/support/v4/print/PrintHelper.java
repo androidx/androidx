@@ -268,7 +268,7 @@ public final class PrintHelper {
      */
     public PrintHelper(Context context) {
         if (systemSupportsPrint()) {
-            if (Build.VERSION.CODENAME.equals("N") ) {
+            if (Build.VERSION.SDK_INT >= 24) {
                 mImpl = new PrintHelperApi24Impl(context);
             } else if (Build.VERSION.SDK_INT >= 23) {
                 mImpl = new PrintHelperApi23Impl(context);
