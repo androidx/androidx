@@ -33,6 +33,8 @@ class NotificationCompatKitKat {
         private Notification.Builder b;
         private Bundle mExtras;
         private List<Bundle> mActionExtrasList = new ArrayList<Bundle>();
+        private RemoteViews mContentView;
+        private RemoteViews mBigContentView;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -41,7 +43,7 @@ class NotificationCompatKitKat {
                 int progressMax, int progress, boolean progressIndeterminate, boolean showWhen,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 ArrayList<String> people, Bundle extras, String groupKey, boolean groupSummary,
-                String sortKey) {
+                String sortKey, RemoteViews contentView, RemoteViews bigContentView) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setShowWhen(showWhen)
@@ -90,6 +92,8 @@ class NotificationCompatKitKat {
             if (sortKey != null) {
                 mExtras.putString(NotificationCompatJellybean.EXTRA_SORT_KEY, sortKey);
             }
+            mContentView = contentView;
+            mBigContentView = bigContentView;
         }
 
         @Override
@@ -112,7 +116,10 @@ class NotificationCompatKitKat {
                         NotificationCompatJellybean.EXTRA_ACTION_EXTRAS, actionExtrasMap);
             }
             b.setExtras(mExtras);
-            return b.build();
+            Notification notification = b.build();
+            notification.contentView = mContentView;
+            notification.bigContentView = mBigContentView;
+            return notification;
         }
     }
 
