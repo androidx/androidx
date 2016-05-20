@@ -508,7 +508,7 @@ public class MediaRouteButton extends View {
 
             if (needsRefresh) {
                 refreshDrawableState();
-                if (mIsConnecting && mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
+                if (mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
                     AnimationDrawable curDrawable =
                             (AnimationDrawable) mRemoteIndicator.getCurrent();
                     if (!curDrawable.isRunning()) {
