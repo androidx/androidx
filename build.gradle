@@ -268,6 +268,7 @@ subprojects {
         into archivesBaseName
         destinationDir project.parent.ext.distDir
         baseName = project.group
+	version = project.parent.ext.buildNumber
     }
     project.parent.createArchive.dependsOn createSeparateZip
 
