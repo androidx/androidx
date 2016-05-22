@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="5441529851481176817">"Систем"</string>
+    <string name="mr_system_route_name" msgid="5441529851481176817">"Тутум"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Түзмөктөр"</string>
     <string name="mr_button_content_description" msgid="3698378085901466129">"Тышкы экранга чыгаруу баскычы"</string>
     <string name="mr_chooser_title" msgid="414301941546135990">"Төмөнкүгө чыгаруу"</string>
