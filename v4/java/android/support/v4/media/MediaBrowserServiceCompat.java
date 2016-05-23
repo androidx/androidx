@@ -16,6 +16,30 @@
 
 package android.support.v4.media;
 
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNECT;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_GET_MEDIA_ITEM;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REGISTER_CALLBACK_MESSENGER;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REMOVE_SUBSCRIPTION;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLBACK_TOKEN;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLING_UID;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_ID;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_LIST;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_SESSION_TOKEN;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_OPTIONS;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_PACKAGE_NAME;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_RESULT_RECEIVER;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_ROOT_HINTS;
+import static android.support.v4.media.MediaBrowserProtocol.EXTRA_CLIENT_VERSION;
+import static android.support.v4.media.MediaBrowserProtocol.EXTRA_MESSENGER_BINDER;
+import static android.support.v4.media.MediaBrowserProtocol.EXTRA_SERVICE_VERSION;
+import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT;
+import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT_FAILED;
+import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
+import static android.support.v4.media.MediaBrowserProtocol.SERVICE_VERSION_CURRENT;
+
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -48,8 +72,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
-import static android.support.v4.media.MediaBrowserProtocol.*;
 
 /**
  * Base class for media browse services.
@@ -873,11 +895,18 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
     /**
      * Gets the root hints sent from the currently connected {@link MediaBrowserCompat}.
+     * The root hints are service-specific arguments included in an optional bundle sent to the
+     * media browser service when connecting and retrieving the root id for browsing, or null if
+     * none. The contents of this bundle may affect the information returned when browsing.
+     * <p>
      * Note that this will return null when connected to {@link android.media.browse.MediaBrowser}
      * and running on API 23 or lower.
      *
      * @throws IllegalStateException If this method is called outside of {@link #onLoadChildren}
      *             or {@link #onLoadItem}
+     * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_RECENT
+     * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_OFFLINE
+     * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_SUGGESTED
      */
     public final Bundle getBrowserRootHints() {
         return mImpl.getBrowserRootHints();
