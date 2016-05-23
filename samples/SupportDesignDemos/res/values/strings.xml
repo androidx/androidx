@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <string name="activity_sample_code">Support Design Demos</string>
+
+    <string name="design_fab">Floating Action Button/Basic</string>
+    <string name="design_navigation">NavigationView/Usage</string>
+    <string name="design_navigation_without_drawer">NavigationView/Without drawer</string>
+    <string name="design_tabs_viewpager">TabLayout/Items from ViewPager</string>
+    <string name="design_tabs_preselected_viewpager">TabLayout/Items with preselection from ViewPager</string>
+    <string name="design_tabs_layout_items">TabLayout/Items from layout</string>
+    <string name="design_tabs_custom_items">TabLayout/Custom items</string>
+    <string name="design_text_input">Text Input</string>
+    <string name="design_bottomsheet_persistent">BottomSheet/Persistent</string>
+    <string name="design_bottomsheet_hideable">BottomSheet/Hideable</string>
+    <string name="design_bottomsheet_scroll">BottomSheet/With ScrollView in background</string>
+    <string name="design_bottomsheet_with_fragment">BottomSheet/With Fragment</string>
+    <string name="design_bottomsheet_modal">BottomSheet/Modal</string>
+    <string name="design_bottomsheet_modal_skip_collapsed">BottomSheet/Modal (Skip collapsed)</string>
+
+    <string name="fab_size_normal">Normal size</string>
+    <string name="fab_size_mini">Mini size</string>
+
+    <string name="navigation_open">Open</string>
+    <string name="navigation_close">Close</string>
+    <string name="navigation_item_with_icon">Item with icon</string>
+    <string name="navigation_item_without_icon">Item without icon</string>
+    <string name="navigation_message">Clicked: \"%s\"</string>
+    <string name="navigation_header">Header</string>
+    <string name="navigation_item_1">Item 1</string>
+    <string name="navigation_item_2">Item 2</string>
+    <string name="navigation_item_3">Item 3</string>
+    <string name="navigation_item_4">Item 4 (disabled)</string>
+    <string name="navigation_1">1</string>
+    <string name="navigation_invisible">Invisible</string>
+    <string name="navigation_subheader">Subheader</string>
+    <string name="navigation_sub_item_1">Subitem 1</string>
+    <string name="navigation_sub_item_2">Subitem 2</string>
+
+    <string name="tabs_fixed">Fixed</string>
+    <string name="tabs_scrollable">Scrollable</string>
+    <string name="tabs_gravity_center">Center</string>
+    <string name="tabs_gravity_fill">Fill</string>
+
+    <string name="add_tab">Add tab</string>
+    <string name="remove_tab">Remove tab</string>
+    <string name="select_first_tab">Select tab #0</string>
+
+    <string name="tab_text">Music</string>
+
+    <string name="form_username">Username</string>
+    <string name="form_email">Email address</string>
+    <string name="form_description">Description</string>
+    <string name="show_error">Show error</string>
+    <string name="clear_error">Clear error</string>
+
+    <string name="design_snackbar_basic">Snackbar/Usage</string>
+    <string name="design_snackbar_fab">Snackbar/Coordinated with FAB</string>
+    <string name="design_snackbar_without_col">Snackbar/Usage without CoordinatorLayout</string>
+    <string name="snackbar_show_short">Snackbar (short message)</string>
+    <string name="snackbar_show_long">Snackbar (long message)</string>
+    <string name="snackbar_show_short_action">Show (short message + action)</string>
+    <string name="snackbar_show_long_action">Show (long message + action)</string>
+    <string name="snackbar_show_long_long_action">Show (long message + long action)</string>
+
+    <string name="design_appbar_toolbar_scroll_tabs_scroll">AppBar/Toolbar Scroll + Tabs Scroll</string>
+    <string name="design_appbar_toolbar_scroll_tabs_scroll_snap">AppBar/Toolbar Scroll + Tabs Scroll + Snap</string>
+    <string name="design_appbar_toolbar_scroll_tabs_pin">AppBar/Toolbar Scroll + Tabs Pin</string>
+    <string name="design_appbar_toolbar_scroll_tabs_pin_with_swiperefresh">AppBar/Toolbar Scroll + Tabs Pin + Swipe Refresh</string>
+    <string name="design_appbar_collapsing_toolbar_pin">AppBar/Collapsing Toolbar (pinned)</string>
+    <string name="design_appbar_collapsing_toolbar_pin_fab">AppBar/Collapsing Toolbar (pinned with FAB)</string>
+    <string name="design_appbar_collapsing_toolbar_pin_nested">AppBar/Collapsing Toolbar (pinned + nested)</string>
+    <string name="design_appbar_collapsing_toolbar_scroll">AppBar/Collapsing Toolbar (scroll off)</string>
+    <string name="design_appbar_collapsing_toolbar_scroll_with_swiperefresh">AppBar/Collapsing Toolbar (scroll off) + Swipe Refresh</string>
+    <string name="design_appbar_collapsing_toolbar_with_image">AppBar/Collapsing Toolbar + Parallax Image</string>
+    <string name="design_appbar_collapsing_toolbar_with_image_insets">AppBar/Collapsing Toolbar + Parallax Image + Insets</string>
+    <string name="design_appbar_parallax_overlap">AppBar/Parallax Overlapping content</string>
+    <string name="scroll_top">Top</string>
+    <string name="scroll_bottom">Bottom</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_settings">Settings</string>
+
+    <string name="bottom_sheet">Bottom sheet</string>
+    <string name="bottomsheet_persistent">Persistent</string>
+    <string name="bottomsheet_hideable">Hideable</string>
+    <string name="bottomsheet_scroll">With ScrollView</string>
+    <string name="bottomsheet_with_fragment">With Fragment</string>
+    <string name="bottomsheet_modal">Modal</string>
+    <string name="bottomsheet_hide">Hide</string>
+    <string name="bottomsheet_show">Show</string>
+    <string name="item_n">Item %d</string>
+
+</resources>
