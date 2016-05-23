@@ -34,6 +34,7 @@ class AppCompatTextHelperV17 extends AppCompatTextHelper {
         super(view);
     }
 
+    @Override
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
         super.loadFromAttributes(attrs, defStyleAttr);
 

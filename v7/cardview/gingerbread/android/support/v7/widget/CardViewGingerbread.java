@@ -119,6 +119,7 @@ class CardViewGingerbread implements CardViewImpl {
         getShadowBackground(cardView).setColor(color);
     }
 
+    @Override
     public ColorStateList getBackgroundColor(CardViewDelegate cardView) {
         return getShadowBackground(cardView).getColor();
     }

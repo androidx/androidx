@@ -42,6 +42,7 @@ class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
         mView = view;
     }
 
+    @Override
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
         super.loadFromAttributes(attrs, defStyleAttr);
 

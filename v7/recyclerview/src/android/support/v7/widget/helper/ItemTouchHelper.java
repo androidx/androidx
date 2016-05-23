@@ -1369,12 +1369,14 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                 ((LEFT | RIGHT) << (2 * DIRECTION_FLAG_COUNT));
 
         private static final Interpolator sDragScrollInterpolator = new Interpolator() {
+            @Override
             public float getInterpolation(float t) {
                 return t * t * t * t * t;
             }
         };
 
         private static final Interpolator sDragViewScrollCapInterpolator = new Interpolator() {
+            @Override
             public float getInterpolation(float t) {
                 t -= 1.0f;
                 return t * t * t * t * t + 1.0f;

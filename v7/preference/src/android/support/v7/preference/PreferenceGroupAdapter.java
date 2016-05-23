@@ -69,6 +69,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     private Handler mHandler = new Handler();
 
     private Runnable mSyncRunnable = new Runnable() {
+        @Override
         public void run() {
             syncMyPreferences();
         }
@@ -196,6 +197,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         return mPreferenceList.get(position);
     }
 
+    @Override
     public long getItemId(int position) {
         if (!hasStableIds()) {
             return RecyclerView.NO_ID;
@@ -203,6 +205,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         return this.getItem(position).getId();
     }
 
+    @Override
     public void onPreferenceChange(Preference preference) {
         final int index = mPreferenceList.indexOf(preference);
         // If we don't find the preference, we don't need to notify anyone
@@ -212,6 +215,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         }
     }
 
+    @Override
     public void onPreferenceHierarchyChange(Preference preference) {
         mHandler.removeCallbacks(mSyncRunnable);
         mHandler.post(mSyncRunnable);

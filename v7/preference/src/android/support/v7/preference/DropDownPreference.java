@@ -91,6 +91,7 @@ public class DropDownPreference extends ListPreference {
         }
     }
 
+    @Override
     public void setValueIndex(int index) {
         setValue(getEntryValues()[index].toString());
     }

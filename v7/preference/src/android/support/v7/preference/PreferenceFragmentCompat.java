@@ -143,6 +143,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     };
 
     final private Runnable mRequestFocus = new Runnable() {
+        @Override
         public void run() {
             mList.focusableViewAvailable(mList);
         }
@@ -456,6 +457,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean onPreferenceTreeClick(Preference preference) {
         if (preference.getFragment() != null) {
             boolean handled = false;
@@ -502,6 +504,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      * @return The {@link Preference} with the key, or null.
      * @see android.support.v7.preference.PreferenceGroup#findPreference(CharSequence)
      */
+    @Override
     public Preference findPreference(CharSequence key) {
         if (mPreferenceManager == null) {
             return null;

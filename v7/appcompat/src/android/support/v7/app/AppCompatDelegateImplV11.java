@@ -27,6 +27,7 @@ class AppCompatDelegateImplV11 extends AppCompatDelegateImplV9 {
         super(context, window, callback);
     }
 
+    @Override
     View callActivityOnCreateView(View parent, String name, Context context, AttributeSet attrs) {
         // On Honeycomb+, Activity's private inflater factory will handle calling it's
         // onCreateView(...)

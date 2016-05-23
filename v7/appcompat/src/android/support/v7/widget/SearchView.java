@@ -184,6 +184,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * initial UI setup. The show operation is asynchronous to account for this.
      */
     private Runnable mShowImeRunnable = new Runnable() {
+        @Override
         public void run() {
             InputMethodManager imm = (InputMethodManager)
                     getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -195,12 +196,14 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     };
 
     private final Runnable mUpdateDrawableStateRunnable = new Runnable() {
+        @Override
         public void run() {
             updateFocusedState();
         }
     };
 
     private Runnable mReleaseCursorRunnable = new Runnable() {
+        @Override
         public void run() {
             if (mSuggestionsAdapter != null && mSuggestionsAdapter instanceof SuggestionsAdapter) {
                 mSuggestionsAdapter.changeCursor(null);
@@ -343,7 +346,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
         // Inform any listener of focus changes
         mSearchSrcTextView.setOnFocusChangeListener(new OnFocusChangeListener() {
-
+            @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (mOnQueryTextFocusChangeListener != null) {
                     mOnQueryTextFocusChangeListener.onFocusChange(SearchView.this, hasFocus);
@@ -1021,7 +1024,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     }
 
     private final OnClickListener mOnClickListener = new OnClickListener() {
-
+        @Override
         public void onClick(View v) {
             if (v == mSearchButton) {
                 onSearchClicked();
@@ -1043,6 +1046,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * focus.
      */
     View.OnKeyListener mTextKeyListener = new View.OnKeyListener() {
+        @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
             // guard against possible race conditions
             if (mSearchable == null) {
@@ -1209,6 +1213,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         /**
          * Called when the input method default action key is pressed.
          */
+        @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
             onSubmitQuery();
             return true;
@@ -1450,6 +1455,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         /**
          * Implements OnItemClickListener
          */
+        @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if (DBG) Log.d(LOG_TAG, "onItemClick() position " + position);
             onItemClicked(position, KeyEvent.KEYCODE_UNKNOWN, null);
@@ -1461,6 +1467,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         /**
          * Implements OnItemSelectedListener
          */
+        @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             if (DBG) Log.d(LOG_TAG, "onItemSelected() position " + position);
             SearchView.this.onItemSelected(position);
@@ -1469,6 +1476,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         /**
          * Implements OnItemSelectedListener
          */
+        @Override
         public void onNothingSelected(AdapterView<?> parent) {
             if (DBG)
                 Log.d(LOG_TAG, "onNothingSelected()");
@@ -1745,14 +1753,16 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * Callback to watch the text field for empty/non-empty
      */
     private TextWatcher mTextWatcher = new TextWatcher() {
-
+        @Override
         public void beforeTextChanged(CharSequence s, int start, int before, int after) { }
 
+        @Override
         public void onTextChanged(CharSequence s, int start,
                 int before, int after) {
             SearchView.this.onTextChanged(s);
         }
 
+        @Override
         public void afterTextChanged(Editable s) {
         }
     };

@@ -474,6 +474,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
             mActivity = activity;
         }
 
+        @Override
         public void setPosition(float position) {
             if (position == 1f) {
                 setVerticalMirror(true);
@@ -483,6 +484,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
             setProgress(position);
         }
 
+        @Override
         public float getPosition() {
             return getProgress();
         }

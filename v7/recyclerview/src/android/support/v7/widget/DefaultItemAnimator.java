@@ -162,6 +162,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
             mAdditionsList.add(additions);
             mPendingAdditions.clear();
             Runnable adder = new Runnable() {
+                @Override
                 public void run() {
                     for (ViewHolder holder : additions) {
                         animateAddImpl(holder);
