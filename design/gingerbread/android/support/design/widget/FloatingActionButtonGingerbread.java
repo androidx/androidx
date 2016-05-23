@@ -217,6 +217,7 @@ class FloatingActionButtonGingerbread extends FloatingActionButtonImpl {
         // Ignore pre-v21
     }
 
+    @Override
     void getPadding(Rect rect) {
         mShadowDrawable.getPadding(rect);
     }

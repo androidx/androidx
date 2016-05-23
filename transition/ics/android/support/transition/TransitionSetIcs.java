@@ -25,10 +25,12 @@ class TransitionSetIcs extends TransitionIcs implements TransitionSetImpl {
         init(transition, mTransitionSet);
     }
 
+    @Override
     public int getOrdering() {
         return mTransitionSet.getOrdering();
     }
 
+    @Override
     public TransitionSetIcs setOrdering(int ordering) {
         mTransitionSet.setOrdering(ordering);
         return this;

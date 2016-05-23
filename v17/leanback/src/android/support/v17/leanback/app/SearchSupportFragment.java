@@ -227,12 +227,14 @@ public class SearchSupportFragment extends Fragment {
     private boolean mPendingStartRecognitionWhenPaused;
     private SearchBar.SearchBarPermissionListener mPermissionListener
             = new SearchBar.SearchBarPermissionListener() {
+        @Override
         public void requestAudioPermission() {
             PermissionHelper.requestPermissions(SearchSupportFragment.this,
                     new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_PERMISSION_REQUEST_CODE);
         }
     };
 
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
         if (requestCode == AUDIO_PERMISSION_REQUEST_CODE && permissions.length > 0) {

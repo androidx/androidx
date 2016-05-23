@@ -325,6 +325,7 @@ public class ViewDragHelper {
      * Interpolator defining the animation curve for mScroller
      */
     private static final Interpolator sInterpolator = new Interpolator() {
+        @Override
         public float getInterpolation(float t) {
             t -= 1.0f;
             return t * t * t * t * t + 1.0f;
@@ -332,6 +333,7 @@ public class ViewDragHelper {
     };
 
     private final Runnable mSetIdleRunnable = new Runnable() {
+        @Override
         public void run() {
             setDragState(STATE_IDLE);
         }

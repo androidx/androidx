@@ -22,6 +22,7 @@ import android.view.View;
 
 class CoordinatorLayoutInsetsHelperLollipop implements CoordinatorLayoutInsetsHelper {
 
+    @Override
     public void setupForWindowInsets(View view, OnApplyWindowInsetsListener insetsListener) {
         if (ViewCompat.getFitsSystemWindows(view)) {
             // First apply the insets listener

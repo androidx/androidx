@@ -188,6 +188,7 @@ public final class GestureDetectorCompat {
          * @param onDoubleTapListener the listener invoked for all the callbacks, or
          *        null to stop listening for double-tap gestures.
          */
+        @Override
         public void setOnDoubleTapListener(OnDoubleTapListener onDoubleTapListener) {
             mDoubleTapListener = onDoubleTapListener;
         }
@@ -201,6 +202,7 @@ public final class GestureDetectorCompat {
          *
          * @param isLongpressEnabled whether longpress should be enabled.
          */
+        @Override
         public void setIsLongpressEnabled(boolean isLongpressEnabled) {
             mIsLongpressEnabled = isLongpressEnabled;
         }
@@ -208,6 +210,7 @@ public final class GestureDetectorCompat {
         /**
          * @return true if longpress is enabled, else false.
          */
+        @Override
         public boolean isLongpressEnabled() {
             return mIsLongpressEnabled;
         }
@@ -220,6 +223,7 @@ public final class GestureDetectorCompat {
          * @return true if the {@link OnGestureListener} consumed the event,
          *              else false.
          */
+        @Override
         public boolean onTouchEvent(MotionEvent ev) {
             final int action = ev.getAction();
 

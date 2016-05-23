@@ -103,6 +103,7 @@ class FocusStrategy {
             mAdapter = adapter;
         }
 
+        @Override
         public int compare(T first, T second) {
             final Rect firstRect = mTemp1;
             final Rect secondRect = mTemp2;

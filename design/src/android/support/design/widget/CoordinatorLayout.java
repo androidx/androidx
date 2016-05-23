@@ -1460,6 +1460,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         return p instanceof LayoutParams && super.checkLayoutParams(p);
     }
 
+    @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
         boolean handled = false;
 
@@ -1481,6 +1482,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         return handled;
     }
 
+    @Override
     public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
         mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
         mNestedScrollingDirectChild = child;
@@ -1501,6 +1503,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         }
     }
 
+    @Override
     public void onStopNestedScroll(View target) {
         mNestedScrollingParentHelper.onStopNestedScroll(target);
 
@@ -1524,6 +1527,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         mNestedScrollingTarget = null;
     }
 
+    @Override
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed,
             int dxUnconsumed, int dyUnconsumed) {
         final int childCount = getChildCount();
@@ -1549,6 +1553,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         }
     }
 
+    @Override
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
         int xConsumed = 0;
         int yConsumed = 0;
@@ -1584,6 +1589,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         }
     }
 
+    @Override
     public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
         boolean handled = false;
 
@@ -1607,6 +1613,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         return handled;
     }
 
+    @Override
     public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
         boolean handled = false;
 
@@ -1626,6 +1633,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         return handled;
     }
 
+    @Override
     public int getNestedScrollAxes() {
         return mNestedScrollingParentHelper.getNestedScrollAxes();
     }

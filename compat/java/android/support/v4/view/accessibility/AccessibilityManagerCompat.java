@@ -45,31 +45,37 @@ public final class AccessibilityManagerCompat {
     }
 
     static class AccessibilityManagerStubImpl implements AccessibilityManagerVersionImpl {
+        @Override
         public Object newAccessiblityStateChangeListener(
                 AccessibilityStateChangeListenerCompat listener) {
             return null;
         }
 
+        @Override
         public boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
                 AccessibilityStateChangeListenerCompat listener) {
             return false;
         }
 
+        @Override
         public boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
                 AccessibilityStateChangeListenerCompat listener) {
             return false;
         }
 
+        @Override
         public List<AccessibilityServiceInfo> getEnabledAccessibilityServiceList(
                 AccessibilityManager manager, int feedbackTypeFlags) {
             return Collections.emptyList();
         }
 
+        @Override
         public List<AccessibilityServiceInfo> getInstalledAccessibilityServiceList(
                 AccessibilityManager manager) {
             return Collections.emptyList();
         }
 
+        @Override
         public boolean isTouchExplorationEnabled(AccessibilityManager manager) {
             return false;
         }
@@ -82,6 +88,7 @@ public final class AccessibilityManagerCompat {
                 final AccessibilityStateChangeListenerCompat listener) {
             return AccessibilityManagerCompatIcs.newAccessibilityStateChangeListener(
                 new AccessibilityStateChangeListenerBridge() {
+                    @Override
                     public void onAccessibilityStateChanged(boolean enabled) {
                         listener.onAccessibilityStateChanged(enabled);
                     }

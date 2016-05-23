@@ -55,11 +55,13 @@ public final class ViewGroupCompat {
     }
 
     static class ViewGroupCompatStubImpl implements ViewGroupCompatImpl {
+        @Override
         public boolean onRequestSendAccessibilityEvent(
                 ViewGroup group, View child, AccessibilityEvent event) {
             return true;
         }
 
+        @Override
         public void setMotionEventSplittingEnabled(ViewGroup group, boolean split) {
             // no-op, didn't exist.
         }

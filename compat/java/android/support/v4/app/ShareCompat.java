@@ -84,10 +84,12 @@ public final class ShareCompat {
     }
 
     static class ShareCompatImplBase implements ShareCompatImpl {
+        @Override
         public void configureMenuItem(MenuItem item, IntentBuilder shareIntent) {
             item.setIntent(shareIntent.createChooserIntent());
         }
 
+        @Override
         public String escapeHtml(CharSequence text) {
             StringBuilder out = new StringBuilder();
             withinStyle(out, text, 0, text.length());
@@ -122,6 +124,7 @@ public final class ShareCompat {
     }
 
     static class ShareCompatImplICS extends ShareCompatImplBase {
+        @Override
         public void configureMenuItem(MenuItem item, IntentBuilder shareIntent) {
             ShareCompatICS.configureMenuItem(item, shareIntent.getActivity(),
                     shareIntent.getIntent());
@@ -136,6 +139,7 @@ public final class ShareCompat {
     }
 
     static class ShareCompatImplJB extends ShareCompatImplICS {
+        @Override
         public String escapeHtml(CharSequence html) {
             return ShareCompatJB.escapeHtml(html);
         }

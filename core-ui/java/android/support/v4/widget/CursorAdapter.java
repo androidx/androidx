@@ -190,6 +190,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * Returns the cursor.
      * @return the cursor.
      */
+    @Override
     public Cursor getCursor() {
         return mCursor;
     }
@@ -197,6 +198,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
     /**
      * @see android.widget.ListAdapter#getCount()
      */
+    @Override
     public int getCount() {
         if (mDataValid && mCursor != null) {
             return mCursor.getCount();
@@ -208,6 +210,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
     /**
      * @see android.widget.ListAdapter#getItem(int)
      */
+    @Override
     public Object getItem(int position) {
         if (mDataValid && mCursor != null) {
             mCursor.moveToPosition(position);
@@ -220,6 +223,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
     /**
      * @see android.widget.ListAdapter#getItemId(int)
      */
+    @Override
     public long getItemId(int position) {
         if (mDataValid && mCursor != null) {
             if (mCursor.moveToPosition(position)) {
@@ -240,6 +244,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
     /**
      * @see android.widget.ListAdapter#getView(int, View, ViewGroup)
      */
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (!mDataValid) {
             throw new IllegalStateException("this should only be called when the cursor is valid");
@@ -311,6 +316,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * 
      * @param cursor The new cursor to be used
      */
+    @Override
     public void changeCursor(Cursor cursor) {
         Cursor old = swapCursor(cursor);
         if (old != null) {
@@ -363,6 +369,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @param cursor the cursor to convert to a CharSequence
      * @return a CharSequence representing the value
      */
+    @Override
     public CharSequence convertToString(Cursor cursor) {
         return cursor == null ? "" : cursor.toString();
     }
@@ -392,6 +399,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @see #getFilterQueryProvider()
      * @see #setFilterQueryProvider(android.widget.FilterQueryProvider)
      */
+    @Override
     public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
         if (mFilterQueryProvider != null) {
             return mFilterQueryProvider.runQuery(constraint);
@@ -400,6 +408,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
         return mCursor;
     }
 
+    @Override
     public Filter getFilter() {
         if (mCursorFilter == null) {
             mCursorFilter = new CursorFilter(this);

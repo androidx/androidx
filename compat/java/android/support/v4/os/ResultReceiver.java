@@ -52,12 +52,14 @@ public class ResultReceiver implements Parcelable {
             mResultData = resultData;
         }
         
+        @Override
         public void run() {
             onReceiveResult(mResultCode, mResultData);
         }
     }
     
     class MyResultReceiver extends IResultReceiver.Stub {
+        @Override
         public void send(int resultCode, Bundle resultData) {
             if (mHandler != null) {
                 mHandler.post(new MyRunnable(resultCode, resultData));
@@ -112,10 +114,12 @@ public class ResultReceiver implements Parcelable {
     protected void onReceiveResult(int resultCode, Bundle resultData) {
     }
     
+    @Override
     public int describeContents() {
         return 0;
     }
 
+    @Override
     public void writeToParcel(Parcel out, int flags) {
         synchronized (this) {
             if (mReceiver == null) {
@@ -133,9 +137,11 @@ public class ResultReceiver implements Parcelable {
     
     public static final Creator<ResultReceiver> CREATOR
             = new Creator<ResultReceiver>() {
+        @Override
         public ResultReceiver createFromParcel(Parcel in) {
             return new ResultReceiver(in);
         }
+        @Override
         public ResultReceiver[] newArray(int size) {
             return new ResultReceiver[size];
         }

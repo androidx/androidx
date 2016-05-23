@@ -55,6 +55,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
         private final AtomicInteger mCount = new AtomicInteger(1);
 
+        @Override
         public Thread newThread(Runnable r) {
             return new Thread(r, "ModernAsyncTask #" + mCount.getAndIncrement());
         }
@@ -121,6 +122,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
      */
     public ModernAsyncTask() {
         mWorker = new WorkerRunnable<Params, Result>() {
+            @Override
             public Result call() throws Exception {
                 mTaskInvoked.set(true);
 

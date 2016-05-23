@@ -217,6 +217,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         canvas.restoreToCount(saveCount);
     }
 
+    @Override
     public int getAlpha() {
         if (mDelegateDrawable != null) {
             return DrawableCompat.getAlpha(mDelegateDrawable);
@@ -264,6 +265,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         return new PorterDuffColorFilter(color, tintMode);
     }
 
+    @Override
     public void setTint(int tint) {
         if (mDelegateDrawable != null) {
             DrawableCompat.setTint(mDelegateDrawable, tint);
@@ -273,6 +275,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         setTintList(ColorStateList.valueOf(tint));
     }
 
+    @Override
     public void setTintList(ColorStateList tint) {
         if (mDelegateDrawable != null) {
             DrawableCompat.setTintList(mDelegateDrawable, tint);
@@ -287,6 +290,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
     }
 
+    @Override
     public void setTintMode(Mode tintMode) {
         if (mDelegateDrawable != null) {
             DrawableCompat.setTintMode(mDelegateDrawable, tintMode);
@@ -354,6 +358,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     // Don't support re-applying themes. The initial theme loading is working.
+    @Override
     public boolean canApplyTheme() {
         if (mDelegateDrawable != null) {
             DrawableCompat.canApplyTheme(mDelegateDrawable);
@@ -455,6 +460,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         inflate(res, parser, attrs, null);
     }
 
+    @Override
     public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)
             throws XmlPullParserException, IOException {
         if (mDelegateDrawable != null) {
