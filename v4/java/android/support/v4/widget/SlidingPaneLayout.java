@@ -382,6 +382,8 @@ public class SlidingPaneLayout extends ViewGroup {
             if (child == panel) {
                 // There are still more children above the panel but they won't be affected.
                 break;
+            } else if (child.getVisibility() == GONE) {
+                continue;
             }
 
             final int clampedChildLeft = Math.max((isLayoutRtl ? endBound :
