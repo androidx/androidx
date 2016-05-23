@@ -36,6 +36,14 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Retention(CLASS)
 @Target({TYPE,METHOD,CONSTRUCTOR,FIELD})
 public @interface RequiresApi {
+    /**
+     * The API level to require. Alias for {@link #api} which allows you to leave out the
+     * {@code api=} part.
+     */
     @IntRange(from=1)
-    int value();
+    int value() default 1;
+
+    /** The API level to require */
+    @IntRange(from=1)
+    int api() default 1;
 }
