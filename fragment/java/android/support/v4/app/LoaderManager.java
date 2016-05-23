@@ -590,6 +590,7 @@ class LoaderManagerImpl extends LoaderManager {
      * Its onCreateLoader() method will be called while inside of the function to
      * instantiate the Loader object.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public <D> Loader<D> initLoader(int id, Bundle args, LoaderManager.LoaderCallbacks<D> callback) {
         if (mCreatingLoader) {
@@ -640,6 +641,7 @@ class LoaderManagerImpl extends LoaderManager {
      * Its onCreateLoader() method will be called while inside of the function to
      * instantiate the Loader object.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public <D> Loader<D> restartLoader(int id, Bundle args, LoaderManager.LoaderCallbacks<D> callback) {
         if (mCreatingLoader) {
@@ -709,6 +711,7 @@ class LoaderManagerImpl extends LoaderManager {
      * be using it when you do this.
      * @param id Identifier of the Loader to be destroyed.
      */
+    @Override
     public void destroyLoader(int id) {
         if (mCreatingLoader) {
             throw new IllegalStateException("Called while creating a loader");
@@ -736,6 +739,7 @@ class LoaderManagerImpl extends LoaderManager {
      * Return the most recent Loader object associated with the
      * given ID.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public <D> Loader<D> getLoader(int id) {
         if (mCreatingLoader) {
