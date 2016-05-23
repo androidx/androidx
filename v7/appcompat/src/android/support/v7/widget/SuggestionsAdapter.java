@@ -324,6 +324,7 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
         }
     }
 
+    @Override
     public void onClick(View v) {
         Object tag = v.getTag();
         if (tag instanceof CharSequence) {

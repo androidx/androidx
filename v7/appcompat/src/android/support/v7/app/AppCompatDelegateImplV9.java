@@ -765,6 +765,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
                     mActionModeView.setContentHeight(height);
                     mActionModePopup.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
                     mShowActionModePopup = new Runnable() {
+                        @Override
                         public void run() {
                             mActionModePopup.showAtLocation(
                                     mActionModeView,
@@ -1742,18 +1743,22 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
             mWrapped = wrapped;
         }
 
+        @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             return mWrapped.onCreateActionMode(mode, menu);
         }
 
+        @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
             return mWrapped.onPrepareActionMode(mode, menu);
         }
 
+        @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             return mWrapped.onActionItemClicked(mode, item);
         }
 
+        @Override
         public void onDestroyActionMode(ActionMode mode) {
             mWrapped.onDestroyActionMode(mode);
             if (mActionModePopup != null) {
@@ -2013,10 +2018,12 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
             boolean isOpen;
             Bundle menuState;
 
+            @Override
             public int describeContents() {
                 return 0;
             }
 
+            @Override
             public void writeToParcel(Parcel dest, int flags) {
                 dest.writeInt(featureId);
                 dest.writeInt(isOpen ? 1 : 0);

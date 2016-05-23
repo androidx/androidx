@@ -285,6 +285,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * 3) We're attached
      */
     private final Runnable mUpdateChildViewsRunnable = new Runnable() {
+        @Override
         public void run() {
             if (!mFirstLayoutComplete || isLayoutRequested()) {
                 // a layout request will happen, we should not do layout here.
@@ -424,6 +425,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     };
 
     private static final Interpolator sQuinticInterpolator = new Interpolator() {
+        @Override
         public float getInterpolation(float t) {
             t -= 1.0f;
             return t * t * t * t * t + 1.0f;

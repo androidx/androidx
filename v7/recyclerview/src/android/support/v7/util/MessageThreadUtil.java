@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 class MessageThreadUtil<T> implements ThreadUtil<T> {
 
+    @Override
     public MainThreadCallback<T> getMainThreadProxy(final MainThreadCallback<T> callback) {
         return new MainThreadCallback<T>() {
             final private MessageQueue mQueue = new MessageQueue();
@@ -81,6 +82,7 @@ class MessageThreadUtil<T> implements ThreadUtil<T> {
         };
     }
 
+    @Override
     public BackgroundCallback<T> getBackgroundProxy(final BackgroundCallback<T> callback) {
         return new BackgroundCallback<T>() {
             final private MessageQueue mQueue = new MessageQueue();
