@@ -387,11 +387,13 @@ final class FragmentManagerState implements Parcelable {
         mAdded = in.createIntArray();
         mBackStack = in.createTypedArray(BackStackState.CREATOR);
     }
-    
+
+    @Override
     public int describeContents() {
         return 0;
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedArray(mActive, flags);
         dest.writeIntArray(mAdded);
@@ -400,10 +402,12 @@ final class FragmentManagerState implements Parcelable {
     
     public static final Parcelable.Creator<FragmentManagerState> CREATOR
             = new Parcelable.Creator<FragmentManagerState>() {
+        @Override
         public FragmentManagerState createFromParcel(Parcel in) {
             return new FragmentManagerState(in);
         }
-        
+
+        @Override
         public FragmentManagerState[] newArray(int size) {
             return new FragmentManagerState[size];
         }
@@ -1466,6 +1470,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
+    @Override
     public Fragment findFragmentById(int id) {
         if (mAdded != null) {
             // First look through added fragments.
@@ -1487,7 +1492,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
         return null;
     }
-    
+
+    @Override
     public Fragment findFragmentByTag(String tag) {
         if (mAdded != null && tag != null) {
             // First look through added fragments.

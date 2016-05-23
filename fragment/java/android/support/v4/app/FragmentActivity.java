@@ -174,6 +174,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      * Take care of popping the fragment back stack or finishing the activity
      * as appropriate.
      */
+    @Override
     public void onBackPressed() {
         if (!mFragments.getSupportFragmentManager().popBackStackImmediate()) {
             super.onBackPressed();
@@ -887,6 +888,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      *
      * @see #requestPermissions(String[], int)
      */
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
         int index = (requestCode >> 16) & 0xffff;

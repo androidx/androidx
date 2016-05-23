@@ -157,6 +157,7 @@ class FragmentTransitionCompat21 {
 
             container.getViewTreeObserver().addOnPreDrawListener(
                     new ViewTreeObserver.OnPreDrawListener() {
+                        @Override
                         public boolean onPreDraw() {
                             container.getViewTreeObserver().removeOnPreDrawListener(this);
                             if (enterTransition != null) {
@@ -390,6 +391,7 @@ class FragmentTransitionCompat21 {
         if (overallTransition != null) {
             sceneRoot.getViewTreeObserver().addOnPreDrawListener(
                     new ViewTreeObserver.OnPreDrawListener() {
+                @Override
                 public boolean onPreDraw() {
                     sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
                     if (enterTransition != null) {

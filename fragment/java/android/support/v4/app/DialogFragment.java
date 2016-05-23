@@ -357,9 +357,11 @@ public class DialogFragment extends Fragment
         return new Dialog(getActivity(), getTheme());
     }
 
+    @Override
     public void onCancel(DialogInterface dialog) {
     }
 
+    @Override
     public void onDismiss(DialogInterface dialog) {
         if (!mViewDestroyed) {
             // Note: we need to use allowStateLoss, because the dialog

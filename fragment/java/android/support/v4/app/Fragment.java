@@ -126,10 +126,12 @@ final class FragmentState implements Parcelable {
         return mInstance;
     }
 
+    @Override
     public int describeContents() {
         return 0;
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mClassName);
         dest.writeInt(mIndex);
@@ -146,10 +148,12 @@ final class FragmentState implements Parcelable {
     
     public static final Parcelable.Creator<FragmentState> CREATOR
             = new Parcelable.Creator<FragmentState>() {
+        @Override
         public FragmentState createFromParcel(Parcel in) {
             return new FragmentState(in);
         }
-        
+
+        @Override
         public FragmentState[] newArray(int size) {
             return new FragmentState[size];
         }
@@ -1438,6 +1442,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
     }
 
+    @Override
     @CallSuper
     public void onConfigurationChanged(Configuration newConfig) {
         mCalled = true;
@@ -1463,6 +1468,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mCalled = true;
     }
 
+    @Override
     @CallSuper
     public void onLowMemory() {
         mCalled = true;
