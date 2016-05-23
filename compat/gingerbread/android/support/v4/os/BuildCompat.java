@@ -31,13 +31,13 @@ public class BuildCompat {
     /**
      * Check if the device is running on the Android N release or newer.
      * This method is suitable for use with preview SDKs and associated
-     * prerelease device builds.
+     * pre-release device builds.
      *
-     * @return true if N APIs are available for use
+     * @return {@code true} if N APIs are available for use
      */
     public static boolean isAtLeastN() {
-        if (TextUtils.isEmpty(VERSION.CODENAME)) {
-            return false;
+        if (TextUtils.isEmpty(VERSION.CODENAME) || "REL".equals(VERSION.CODENAME)) {
+            return VERSION.SDK_INT > 23;
         }
         final char prefix = VERSION.CODENAME.charAt(0);
         return prefix >= 'N' && prefix <= 'Z';
