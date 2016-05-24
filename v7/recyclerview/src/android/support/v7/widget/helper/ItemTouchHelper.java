@@ -2227,7 +2227,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * {@link #setDefaultSwipeDirs(int)}.
          *
          * @param recyclerView The RecyclerView to which the ItemTouchHelper is attached to.
-         * @param viewHolder   The RecyclerView for which the swipe drection is queried.
+         * @param viewHolder   The RecyclerView for which the swipe direction is queried.
          * @return A binary OR of direction flags.
          */
         public int getSwipeDirs(RecyclerView recyclerView, ViewHolder viewHolder) {
@@ -2240,7 +2240,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * {@link #setDefaultDragDirs(int)}.
          *
          * @param recyclerView The RecyclerView to which the ItemTouchHelper is attached to.
-         * @param viewHolder   The RecyclerView for which the swipe drection is queried.
+         * @param viewHolder   The RecyclerView for which the swipe direction is queried.
          * @return A binary OR of direction flags.
          */
         public int getDragDirs(RecyclerView recyclerView, ViewHolder viewHolder) {

@@ -440,7 +440,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private int mFocusPosition = NO_POSITION;
 
     /**
-     * A view can have mutliple alignment position,  this is the index of which
+     * A view can have multiple alignment position,  this is the index of which
      * alignment is used,  by default is 0.
      */
     private int mSubFocusPosition = 0;
@@ -3139,8 +3139,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    void setChildrenVisibility(int visiblity) {
-        mChildVisibility = visiblity;
+    void setChildrenVisibility(int visibility) {
+        mChildVisibility = visibility;
         if (mChildVisibility != -1) {
             int count = getChildCount();
             for (int i= 0; i < count; i++) {

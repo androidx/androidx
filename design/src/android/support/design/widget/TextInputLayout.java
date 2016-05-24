@@ -768,7 +768,7 @@ public class TextInputLayout extends LinearLayout {
 
         if (!mHasReconstructedEditTextBackground) {
             // This is gross. There is an issue in the platform which affects container Drawables
-            // where the first drawable retrieved from resources will propogate any changes
+            // where the first drawable retrieved from resources will propagate any changes
             // (like color filter) to all instances from the cache. We'll try to workaround it...
 
             final Drawable newBg = bg.getConstantState().newDrawable();

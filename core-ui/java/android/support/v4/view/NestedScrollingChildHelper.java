@@ -26,7 +26,7 @@ import android.view.ViewParent;
  *
  * <p>{@link android.view.View View} subclasses should instantiate a final instance of this
  * class as a field at construction. For each <code>View</code> method that has a matching
- * method signature in this class, delegate the operation to the helper instance in an overriden
+ * method signature in this class, delegate the operation to the helper instance in an overridden
  * method implementation. This implements the standard framework policy for nested scrolling.</p>
  *
  * <p>Views invoking nested scrolling functionality should always do so from the relevant

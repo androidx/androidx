@@ -443,7 +443,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         public boolean onGenericFailure(int requestId) {
             if (requestId == mPendingRegisterRequestId) {
                 mPendingRegisterRequestId = 0;
-                onConnectionError(this, "Registation failed");
+                onConnectionError(this, "Registration failed");
             }
             ControlRequestCallback callback = mPendingCallbacks.get(requestId);
             if (callback != null) {

@@ -311,7 +311,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         if (!mSubDecorInstalled) {
             mSubDecor = createSubDecor();
 
-            // If a title was set before we installed the decor, propogate it now
+            // If a title was set before we installed the decor, propagate it now
             CharSequence title = getTitle();
             if (!TextUtils.isEmpty(title)) {
                 onTitleChanged(title);

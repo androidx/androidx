@@ -545,7 +545,7 @@ public class SearchBar extends RelativeLayout {
 
         if (!mRecognizing) return;
 
-        // Edit text content was cleared when starting recogition; ensure the content is restored
+        // Edit text content was cleared when starting recognition; ensure the content is restored
         // in error cases
         mSearchTextEditor.setText(mSearchQuery);
         mSearchTextEditor.setHint(mHint);

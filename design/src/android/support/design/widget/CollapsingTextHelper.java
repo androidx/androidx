@@ -458,7 +458,7 @@ final class CollapsingTextHelper {
             }
 
             if (DEBUG_DRAW) {
-                // Just a debug tool, which drawn a Magneta rect in the text bounds
+                // Just a debug tool, which drawn a magenta rect in the text bounds
                 canvas.drawRect(mCurrentBounds.left, y + ascent, mCurrentBounds.right, y + descent,
                         DEBUG_DRAW_PAINT);
             }

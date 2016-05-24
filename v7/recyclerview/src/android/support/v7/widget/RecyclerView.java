@@ -1041,7 +1041,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return;
         }
         stopScroll();
-        // TODO We should do this switch a dispachLayout pass and animate children. There is a good
+        // TODO We should do this switch a dispatchLayout pass and animate children. There is a good
         // chance that LayoutManagers will re-use views.
         if (mLayout != null) {
             if (mIsAttached) {
@@ -1741,7 +1741,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         if (!performLayoutChildren) {
             // Reset the layout request eaten counter.
-            // This is necessary since eatRequest calls can be nested in which case the outher
+            // This is necessary since eatRequest calls can be nested in which case the other
             // call will override the inner one.
             // for instance:
             // eat layout for process adapter updates
@@ -2185,7 +2185,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     /**
-     * Logic taken from FocusSarch#isCandidate
+     * Logic taken from FocusSearch#isCandidate
      */
     private boolean isPreferredNextFocusAbsolute(View focused, View next, int direction) {
         mTempRect.set(0, 0, focused.getWidth(), focused.getHeight());
@@ -3526,7 +3526,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         for (int i = 0; i < count; i++) {
             mItemDecorations.get(i).onDrawOver(c, this, mState);
         }
-        // TODO If padding is not 0 and chilChildrenToPadding is false, to draw glows properly, we
+        // TODO If padding is not 0 and clipChildrenToPadding is false, to draw glows properly, we
         // need find children closest to edges. Not sure if it is worth the effort.
         boolean needsInvalidate = false;
         if (mLeftGlow != null && !mLeftGlow.isFinished()) {
@@ -4772,7 +4772,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // if it is not removed, verify the type and id.
             if (holder.isRemoved()) {
                 if (DEBUG && !mState.isPreLayout()) {
-                    throw new IllegalStateException("should not receive a removed view unelss it"
+                    throw new IllegalStateException("should not receive a removed view unless it"
                             + " is pre layout");
                 }
                 return mState.isPreLayout();
@@ -5706,7 +5706,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * have the updated adapter position.
          *
          * Override {@link #onBindViewHolder(ViewHolder, int, List)} instead if Adapter can
-         * handle effcient partial bind.
+         * handle efficient partial bind.
          *
          * @param holder The ViewHolder which should be updated to represent the contents of the
          *        item at the given position in the data set.
@@ -6890,7 +6890,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         /**
          * <p>Starts a smooth scroll using the provided SmoothScroller.</p>
          * <p>Calling this method will cancel any previous smooth scroll request.</p>
-         * @param smoothScroller Unstance which defines how smooth scroll should be animated
+         * @param smoothScroller Instance which defines how smooth scroll should be animated
          */
         public void startSmoothScroll(SmoothScroller smoothScroller) {
             if (mSmoothScroller != null && smoothScroller != mSmoothScroller
@@ -9707,7 +9707,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * @return True if ViewHolder is not refenrenced by RecyclerView animations but has
+         * @return True if ViewHolder is not referenced by RecyclerView animations but has
          * transient state which will prevent it from being recycled.
          */
         private boolean doesTransientStatePreventRecycling() {
@@ -10111,10 +10111,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param scrollVector The vector that points to the target scroll position
          */
         protected void normalize(PointF scrollVector) {
-            final double magnitute = Math.sqrt(scrollVector.x * scrollVector.x + scrollVector.y *
-                    scrollVector.y);
-            scrollVector.x /= magnitute;
-            scrollVector.y /= magnitute;
+            final double magnitude = Math.sqrt(scrollVector.x * scrollVector.x + scrollVector.y
+                    * scrollVector.y);
+            scrollVector.x /= magnitude;
+            scrollVector.y /= magnitude;
         }
 
         /**
@@ -10135,7 +10135,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * provided {@link Action} to define the next scroll.</p>
          *
          * @param dx        Last scroll amount horizontally
-         * @param dy        Last scroll amount verticaully
+         * @param dy        Last scroll amount vertically
          * @param state     Transient state of RecyclerView
          * @param action    If you want to trigger a new smooth scroll and cancel the previous one,
          *                  update this object.
@@ -11194,7 +11194,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * be a matching {@link #dispatchAnimationFinished(ViewHolder)} call by the subclass.
          * <p>
          * For {@link #animateChange(ViewHolder, ViewHolder, ItemHolderInfo, ItemHolderInfo)
-         * animateChange()}, sublcass should call this method for both the <code>oldHolder</code>
+         * animateChange()}, subclass should call this method for both the <code>oldHolder</code>
          * and <code>newHolder</code>  (if they are not the same instance).
          *
          * @param viewHolder The ViewHolder whose animation is finished.
@@ -11209,7 +11209,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         /**
          * Called after {@link #dispatchAnimationFinished(ViewHolder)} is called by the
-         * ItemAniamtor.
+         * ItemAnimator.
          *
          * @param viewHolder The ViewHolder whose animation is finished. There might still be other
          *                   animations running on this ViewHolder.
@@ -11231,7 +11231,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * {@link #dispatchAnimationStarted(ViewHolder)} call by the subclass.
          * <p>
          * For {@link #animateChange(ViewHolder, ViewHolder, ItemHolderInfo, ItemHolderInfo)
-         * animateChange()}, sublcass should call this method for both the <code>oldHolder</code>
+         * animateChange()}, subclass should call this method for both the <code>oldHolder</code>
          * and <code>newHolder</code> (if they are not the same instance).
          * <p>
          * If your ItemAnimator decides not to animate a ViewHolder, it should call
@@ -11258,7 +11258,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         /**
          * Like {@link #isRunning()}, this method returns whether there are any item
-         * animations currently running. Addtionally, the listener passed in will be called
+         * animations currently running. Additionally, the listener passed in will be called
          * when there are no item animations running, either immediately (before the method
          * returns) if no animations are currently running, or when the currently running
          * animations are {@link #dispatchAnimationsFinished() finished}.
@@ -11392,7 +11392,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * structure. You can extend this class if you would like to keep more information about
          * the Views.
          * <p>
-         * If you want to provide your own implementation butstill use `super` methods to record
+         * If you want to provide your own implementation but still use `super` methods to record
          * basic information, you can override {@link #obtainHolderInfo()} to provide your own
          * instances.
          */

@@ -350,7 +350,7 @@ class LoaderManagerImpl extends LoaderManager {
             boolean needReset = mDeliveredData;
             mDeliveredData = false;
             if (mCallbacks != null && mLoader != null && mHaveData && needReset) {
-                if (DEBUG) Log.v(TAG, "  Reseting: " + this);
+                if (DEBUG) Log.v(TAG, "  Resetting: " + this);
                 String lastBecause = null;
                 if (mHost != null) {
                     lastBecause = mHost.mFragmentManager.mNoTransactionsBecause;
@@ -560,7 +560,7 @@ class LoaderManagerImpl extends LoaderManager {
         mLoaders.put(info.mId, info);
         if (mStarted) {
             // The activity will start all existing loaders in it's onStart(),
-            // so only start them here if we're past that point of the activitiy's
+            // so only start them here if we're past that point of the activity's
             // life cycle
             info.start();
         }

@@ -122,7 +122,7 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * Observer for the model data.
      */
-    private final DataSetObserver mModelDataSetOberver = new DataSetObserver() {
+    private final DataSetObserver mModelDataSetObserver = new DataSetObserver() {
 
         @Override
         public void onChanged() {
@@ -413,7 +413,7 @@ public class ActivityChooserView extends ViewGroup implements
         super.onAttachedToWindow();
         ActivityChooserModel dataModel = mAdapter.getDataModel();
         if (dataModel != null) {
-            dataModel.registerObserver(mModelDataSetOberver);
+            dataModel.registerObserver(mModelDataSetObserver);
         }
         mIsAttachedToWindow = true;
     }
@@ -423,7 +423,7 @@ public class ActivityChooserView extends ViewGroup implements
         super.onDetachedFromWindow();
         ActivityChooserModel dataModel = mAdapter.getDataModel();
         if (dataModel != null) {
-            dataModel.unregisterObserver(mModelDataSetOberver);
+            dataModel.unregisterObserver(mModelDataSetObserver);
         }
         ViewTreeObserver viewTreeObserver = getViewTreeObserver();
         if (viewTreeObserver.isAlive()) {
@@ -664,11 +664,11 @@ public class ActivityChooserView extends ViewGroup implements
         public void setDataModel(ActivityChooserModel dataModel) {
             ActivityChooserModel oldDataModel = mAdapter.getDataModel();
             if (oldDataModel != null && isShown()) {
-                oldDataModel.unregisterObserver(mModelDataSetOberver);
+                oldDataModel.unregisterObserver(mModelDataSetObserver);
             }
             mDataModel = dataModel;
             if (dataModel != null && isShown()) {
-                dataModel.registerObserver(mModelDataSetOberver);
+                dataModel.registerObserver(mModelDataSetObserver);
             }
             notifyDataSetChanged();
         }

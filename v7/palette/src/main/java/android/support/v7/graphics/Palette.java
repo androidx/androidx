@@ -656,7 +656,7 @@ public final class Palette {
          * the greater time it will take to generate the palette. The smaller the image is, the
          * more detail is lost in the resulting image and thus less precision for color selection.
          *
-         * @param area the number of pixels that the intemediary scaled down Bitmap should cover,
+         * @param area the number of pixels that the intermediary scaled down Bitmap should cover,
          *             or any value <= 0 to disable resizing.
          */
         @NonNull

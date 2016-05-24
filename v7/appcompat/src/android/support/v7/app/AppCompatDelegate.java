@@ -427,7 +427,7 @@ public abstract class AppCompatDelegate {
 
     /**
      * Override the night mode used for this delegate's host component. This method only takes
-     * effect for those situtations where {@link #applyDayNight()} works.
+     * effect for those situations where {@link #applyDayNight()} works.
      *
      * <p>Depending on when this is called, this may not take effect until the next time that
      * the host component is created. You may use {@link Activity#recreate()} to force a
@@ -438,10 +438,10 @@ public abstract class AppCompatDelegate {
     public abstract void setLocalNightMode(@NightMode int mode);
 
     /**
-     * Sets the default night mode. This is used across all activities/dialogs but can be overriden
+     * Sets the default night mode. This is used across all activities/dialogs but can be overridden
      * locally via {@link #setLocalNightMode(int)}.
      *
-     * <p>This method only takes effect for those situtations where {@link #applyDayNight()} works.
+     * <p>This method only takes effect for those situations where {@link #applyDayNight()} works.
      * Defaults to {@link #MODE_NIGHT_NO}.</p>
      *
      * @see #setLocalNightMode(int)
@@ -499,7 +499,7 @@ public abstract class AppCompatDelegate {
      *
      * <p>Even with this disabled, you can still use vector resources through
      * {@link android.support.v7.widget.AppCompatImageView#setImageResource(int)} and it's
-     * {@code app:srcCompat} attribute. They can also be used in anything which AppComapt inflates
+     * {@code app:srcCompat} attribute. They can also be used in anything which AppCompat inflates
      * for you, such as menu resources.</p>
      *
      * <p>Please note: this only takes effect in Activities created after this call.</p>

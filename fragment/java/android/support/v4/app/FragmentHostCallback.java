@@ -157,7 +157,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     }
 
     /**
-     * Checks wehter to show permission rationale UI from a fragment.
+     * Checks whether to show permission rationale UI from a fragment.
      * See {@link FragmentActivity#shouldShowRequestPermissionRationale(String)}
      */
     public boolean onShouldShowRequestPermissionRationale(@NonNull String permission) {

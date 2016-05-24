@@ -146,7 +146,7 @@ class StreamingTextView extends EditText {
 
         // Copy the text and spans to a SpannedString, since editable text
         // doesn't redraw in invalidate() when hardware accelerated
-        // if the text or spans havent't changed. (probably a framework bug)
+        // if the text or spans haven't changed. (probably a framework bug)
         updateText(new SpannedString(displayText));
 
         if (ANIMATE_DOTS_FOR_PENDING) {
