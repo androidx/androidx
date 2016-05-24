@@ -146,6 +146,7 @@ public class ViewPager extends ViewGroup {
     };
 
     private static final Interpolator sInterpolator = new Interpolator() {
+        @Override
         public float getInterpolation(float t) {
             t -= 1.0f;
             return t * t * t * t * t + 1.0f;
@@ -267,6 +268,7 @@ public class ViewPager extends ViewGroup {
     public static final int SCROLL_STATE_SETTLING = 2;
 
     private final Runnable mEndScrollRunnable = new Runnable() {
+        @Override
         public void run() {
             setScrollState(SCROLL_STATE_IDLE);
             populate();

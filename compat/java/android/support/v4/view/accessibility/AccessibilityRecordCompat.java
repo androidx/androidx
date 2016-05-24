@@ -80,186 +80,232 @@ public class AccessibilityRecordCompat {
     }
 
     static class AccessibilityRecordStubImpl implements AccessibilityRecordImpl {
+        @Override
         public Object obtain() {
             return null;
         }
 
+        @Override
         public Object obtain(Object record) {
             return null;
         }
 
+        @Override
         public int getAddedCount(Object record) {
             return 0;
         }
 
+        @Override
         public CharSequence getBeforeText(Object record) {
             return null;
         }
 
+        @Override
         public CharSequence getClassName(Object record) {
             return null;
         }
 
+        @Override
         public CharSequence getContentDescription(Object record) {
             return null;
         }
 
+        @Override
         public int getCurrentItemIndex(Object record) {
             return 0;
         }
 
+        @Override
         public int getFromIndex(Object record) {
             return 0;
         }
 
+        @Override
         public int getItemCount(Object record) {
             return 0;
         }
 
+        @Override
         public int getMaxScrollX(Object record) {
             return 0;
         }
 
+        @Override
         public int getMaxScrollY(Object record) {
             return 0;
         }
 
+        @Override
         public Parcelable getParcelableData(Object record) {
             return null;
         }
 
+        @Override
         public int getRemovedCount(Object record) {
             return 0;
         }
 
+        @Override
         public int getScrollX(Object record) {
             return 0;
         }
 
+        @Override
         public int getScrollY(Object record) {
             return 0;
         }
 
+        @Override
         public AccessibilityNodeInfoCompat getSource(Object record) {
             return null;
         }
 
+        @Override
         public List<CharSequence> getText(Object record) {
             return Collections.emptyList();
         }
 
+        @Override
         public int getToIndex(Object record) {
             return 0;
         }
 
+        @Override
         public int getWindowId(Object record) {
             return 0;
         }
 
+        @Override
         public boolean isChecked(Object record) {
             return false;
         }
 
+        @Override
         public boolean isEnabled(Object record) {
             return false;
         }
 
+        @Override
         public boolean isFullScreen(Object record) {
             return false;
         }
 
+        @Override
         public boolean isPassword(Object record) {
             return false;
         }
 
+        @Override
         public boolean isScrollable(Object record) {
             return false;
         }
 
+        @Override
         public void recycle(Object record) {
 
         }
 
+        @Override
         public void setAddedCount(Object record, int addedCount) {
 
         }
 
+        @Override
         public void setBeforeText(Object record, CharSequence beforeText) {
 
         }
 
+        @Override
         public void setChecked(Object record, boolean isChecked) {
 
         }
 
+        @Override
         public void setClassName(Object record, CharSequence className) {
 
         }
 
+        @Override
         public void setContentDescription(Object record, CharSequence contentDescription) {
 
         }
 
+        @Override
         public void setCurrentItemIndex(Object record, int currentItemIndex) {
 
         }
 
+        @Override
         public void setEnabled(Object record, boolean isEnabled) {
 
         }
 
+        @Override
         public void setFromIndex(Object record, int fromIndex) {
 
         }
 
+        @Override
         public void setFullScreen(Object record, boolean isFullScreen) {
 
         }
 
+        @Override
         public void setItemCount(Object record, int itemCount) {
 
         }
 
+        @Override
         public void setMaxScrollX(Object record, int maxScrollX) {
 
         }
 
+        @Override
         public void setMaxScrollY(Object record, int maxScrollY) {
 
         }
 
+        @Override
         public void setParcelableData(Object record, Parcelable parcelableData) {
 
         }
 
+        @Override
         public void setPassword(Object record, boolean isPassword) {
 
         }
 
+        @Override
         public void setRemovedCount(Object record, int removedCount) {
 
         }
 
+        @Override
         public void setScrollX(Object record, int scrollX) {
 
         }
 
+        @Override
         public void setScrollY(Object record, int scrollY) {
 
         }
 
+        @Override
         public void setScrollable(Object record, boolean scrollable) {
 
         }
 
+        @Override
         public void setSource(Object record, View source) {
 
         }
 
+        @Override
         public void setSource(Object record, View root, int virtualDescendantId) {
 
         }
 
+        @Override
         public void setToIndex(Object record, int toIndex) {
 
         }

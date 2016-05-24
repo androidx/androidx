@@ -53,6 +53,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
      * Get the key that the result of this input will be set in from the Bundle returned by
      * {@link #getResultsFromIntent} when the {@link android.app.PendingIntent} is sent.
      */
+    @Override
     public String getResultKey() {
         return mResultKey;
     }
@@ -60,6 +61,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     /**
      * Get the label to display to users when collecting this input.
      */
+    @Override
     public CharSequence getLabel() {
         return mLabel;
     }
@@ -67,6 +69,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     /**
      * Get possible input choices. This can be {@code null} if there are no choices to present.
      */
+    @Override
     public CharSequence[] getChoices() {
         return mChoices;
     }
@@ -77,6 +80,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
      * choices in {@link #getChoices}. An {@link IllegalArgumentException} is thrown
      * if you set this to false and {@link #getChoices} returns {@code null} or empty.
      */
+    @Override
     public boolean getAllowFreeFormInput() {
         return mAllowFreeFormInput;
     }
@@ -84,6 +88,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     /**
      * Get additional metadata carried around with this remote input.
      */
+    @Override
     public Bundle getExtras() {
         return mExtras;
     }

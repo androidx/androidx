@@ -1500,6 +1500,7 @@ public class SlidingPaneLayout extends ViewGroup {
     }
 
     static class SlidingPanelLayoutImplBase implements SlidingPanelLayoutImpl {
+        @Override
         public void invalidateChildRegion(SlidingPaneLayout parent, View child) {
             ViewCompat.postInvalidateOnAnimation(parent, child.getLeft(), child.getTop(),
                     child.getRight(), child.getBottom());

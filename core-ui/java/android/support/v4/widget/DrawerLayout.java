@@ -301,18 +301,22 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     }
 
     static class DrawerLayoutCompatImplBase implements DrawerLayoutCompatImpl {
+        @Override
         public void configureApplyInsets(View drawerLayout) {
             // This space for rent
         }
 
+        @Override
         public void dispatchChildInsets(View child, Object insets, int drawerGravity) {
             // This space for rent
         }
 
+        @Override
         public void applyMarginInsets(MarginLayoutParams lp, Object insets, int drawerGravity) {
             // This space for rent
         }
 
+        @Override
         public int getTopInset(Object insets) {
             return 0;
         }
@@ -324,18 +328,22 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     }
 
     static class DrawerLayoutCompatImplApi21 implements DrawerLayoutCompatImpl {
+        @Override
         public void configureApplyInsets(View drawerLayout) {
             DrawerLayoutCompatApi21.configureApplyInsets(drawerLayout);
         }
 
+        @Override
         public void dispatchChildInsets(View child, Object insets, int drawerGravity) {
             DrawerLayoutCompatApi21.dispatchChildInsets(child, insets, drawerGravity);
         }
 
+        @Override
         public void applyMarginInsets(MarginLayoutParams lp, Object insets, int drawerGravity) {
             DrawerLayoutCompatApi21.applyMarginInsets(lp, insets, drawerGravity);
         }
 
+        @Override
         public int getTopInset(Object insets) {
             return DrawerLayoutCompatApi21.getTopInset(insets);
         }
@@ -1529,6 +1537,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         return wantTouchEvents;
     }
 
+    @Override
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
         if (CHILDREN_DISALLOW_INTERCEPT ||
                 (!mLeftDragger.isEdgeTouched(ViewDragHelper.EDGE_LEFT) &&

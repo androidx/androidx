@@ -711,10 +711,12 @@ public abstract class MediaBrowserServiceCompat extends Service {
             mCallbacks = callbacks;
         }
 
+        @Override
         public IBinder asBinder() {
             return mCallbacks.getBinder();
         }
 
+        @Override
         public void onConnect(String root, MediaSessionCompat.Token session, Bundle extras)
                 throws RemoteException {
             if (extras == null) {
@@ -728,10 +730,12 @@ public abstract class MediaBrowserServiceCompat extends Service {
             sendRequest(SERVICE_MSG_ON_CONNECT, data);
         }
 
+        @Override
         public void onConnectFailed() throws RemoteException {
             sendRequest(SERVICE_MSG_ON_CONNECT_FAILED, null);
         }
 
+        @Override
         public void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list,
                 Bundle options) throws RemoteException {
             Bundle data = new Bundle();

@@ -90,10 +90,12 @@ abstract class BaseRowFragment extends Fragment {
     private class LateSelectionObserver extends RecyclerView.AdapterDataObserver {
         boolean mIsLateSelection = false;
 
+        @Override
         public void onChanged() {
             performLateSelection();
         }
 
+        @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
             performLateSelection();
         }

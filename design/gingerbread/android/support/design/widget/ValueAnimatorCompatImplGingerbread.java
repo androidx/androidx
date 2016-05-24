@@ -187,6 +187,7 @@ class ValueAnimatorCompatImplGingerbread extends ValueAnimatorCompat.Impl {
     }
 
     private final Runnable mRunnable = new Runnable() {
+        @Override
         public void run() {
             update();
         }

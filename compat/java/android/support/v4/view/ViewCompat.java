@@ -485,15 +485,18 @@ public class ViewCompat {
         WeakHashMap<View, ViewPropertyAnimatorCompat> mViewPropertyAnimatorCompatMap = null;
         private static Method sChildrenDrawingOrderMethod;
 
+        @Override
         public boolean canScrollHorizontally(View v, int direction) {
             return (v instanceof ScrollingView) &&
                 canScrollingViewScrollHorizontally((ScrollingView) v, direction);
         }
+        @Override
         public boolean canScrollVertically(View v, int direction) {
             return (v instanceof ScrollingView) &&
                     canScrollingViewScrollVertically((ScrollingView) v, direction);
         }
 
+        @Override
         public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
             // Do nothing; API doesn't exist
         }
@@ -503,67 +506,87 @@ public class ViewCompat {
             return false;
         }
 
+        @Override
         public void onPopulateAccessibilityEvent(View v, AccessibilityEvent event) {
             // Do nothing; API doesn't exist
         }
+        @Override
         public void onInitializeAccessibilityEvent(View v, AccessibilityEvent event) {
          // Do nothing; API doesn't exist
         }
+        @Override
         public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
             // Do nothing; API doesn't exist
         }
+        @Override
         public boolean hasTransientState(View view) {
             // A view can't have transient state if transient state wasn't supported.
             return false;
         }
+        @Override
         public void setHasTransientState(View view, boolean hasTransientState) {
             // Do nothing; API doesn't exist
         }
+        @Override
         public void postInvalidateOnAnimation(View view) {
             view.invalidate();
         }
+        @Override
         public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
             view.invalidate(left, top, right, bottom);
         }
+        @Override
         public void postOnAnimation(View view, Runnable action) {
             view.postDelayed(action, getFrameTime());
         }
+        @Override
         public void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
             view.postDelayed(action, getFrameTime() + delayMillis);
         }
         long getFrameTime() {
             return FAKE_FRAME_TIME;
         }
+        @Override
         public int getImportantForAccessibility(View view) {
             return 0;
         }
+        @Override
         public void setImportantForAccessibility(View view, int mode) {
 
         }
+        @Override
         public boolean isImportantForAccessibility(View view) {
             return true;
         }
+        @Override
         public boolean performAccessibilityAction(View view, int action, Bundle arguments) {
             return false;
         }
+        @Override
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
             return null;
         }
+        @Override
         public float getAlpha(View view) {
             return 1.0f;
         }
+        @Override
         public void setLayerType(View view, int layerType, Paint paint) {
             // No-op until layers became available (HC)
         }
+        @Override
         public int getLayerType(View view) {
             return LAYER_TYPE_NONE;
         }
+        @Override
         public int getLabelFor(View view) {
             return 0;
         }
+        @Override
         public void setLabelFor(View view, int id) {
 
         }
+        @Override
         public void setLayerPaint(View view, Paint p) {
             // No-op until layers became available (HC)
         }
@@ -583,6 +606,7 @@ public class ViewCompat {
             return view.getParent();
         }
 
+        @Override
         public int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
             return View.resolveSize(size, measureSpec);
         }
@@ -926,6 +950,7 @@ public class ViewCompat {
             return false;
         }
 
+        @Override
         public void setNestedScrollingEnabled(View view, boolean enabled) {
             if (view instanceof NestedScrollingChild) {
                 ((NestedScrollingChild) view).setNestedScrollingEnabled(enabled);
@@ -984,6 +1009,7 @@ public class ViewCompat {
             }
         }
 
+        @Override
         public boolean startNestedScroll(View view, int axes) {
             if (view instanceof NestedScrollingChild) {
                 return ((NestedScrollingChild) view).startNestedScroll(axes);
@@ -1069,6 +1095,7 @@ public class ViewCompat {
             return getTranslationZ(view) + getElevation(view);
         }
 
+        @Override
         public void setZ(View view, float z) {
             // no-op
         }

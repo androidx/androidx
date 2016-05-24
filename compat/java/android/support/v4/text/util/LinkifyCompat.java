@@ -51,6 +51,7 @@ public final class LinkifyCompat {
     private static final String[] EMPTY_STRING = new String[0];
 
     private static final Comparator<LinkSpec>  COMPARATOR = new Comparator<LinkSpec>() {
+        @Override
         public final int compare(LinkSpec a, LinkSpec b) {
             if (a.start < b.start) {
                 return -1;

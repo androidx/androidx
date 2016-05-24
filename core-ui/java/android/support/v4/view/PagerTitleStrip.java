@@ -87,12 +87,14 @@ public class PagerTitleStrip extends ViewGroup {
     }
 
     static class PagerTitleStripImplBase implements PagerTitleStripImpl {
+        @Override
         public void setSingleLineAllCaps(TextView text) {
             text.setSingleLine();
         }
     }
 
     static class PagerTitleStripImplIcs implements PagerTitleStripImpl {
+        @Override
         public void setSingleLineAllCaps(TextView text) {
             PagerTitleStripIcs.setSingleLineAllCaps(text);
         }

@@ -331,6 +331,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         setNestedScrollingEnabled(true);
     }
 
+    @Override
     protected int getChildDrawingOrder(int childCount, int i) {
         if (mCircleViewIndex < 0) {
             return i;

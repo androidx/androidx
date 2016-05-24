@@ -25,10 +25,12 @@ class TransitionSetKitKat extends TransitionKitKat implements TransitionSetImpl 
         init(transition, mTransitionSet);
     }
 
+    @Override
     public int getOrdering() {
         return mTransitionSet.getOrdering();
     }
 
+    @Override
     public TransitionSetKitKat setOrdering(int ordering) {
         mTransitionSet.setOrdering(ordering);
         return this;

@@ -173,6 +173,7 @@ public abstract class Transition implements TransitionInterface {
      * @see #captureStartValues(TransitionValues)
      * @see #createAnimator(ViewGroup, TransitionValues, TransitionValues)
      */
+    @Override
     public abstract void captureEndValues(@NonNull TransitionValues transitionValues);
 
     /**
@@ -202,6 +203,7 @@ public abstract class Transition implements TransitionInterface {
      * @see #captureEndValues(TransitionValues)
      * @see #createAnimator(ViewGroup, TransitionValues, TransitionValues)
      */
+    @Override
     public abstract void captureStartValues(@NonNull TransitionValues transitionValues);
 
     /**
@@ -249,6 +251,7 @@ public abstract class Transition implements TransitionInterface {
      * overall transition for this scene change. A null value means no animation
      * should be run.
      */
+    @Override
     @Nullable
     public abstract Animator createAnimator(@NonNull ViewGroup sceneRoot,
             @NonNull TransitionValues startValues, @NonNull TransitionValues endValues);
@@ -642,6 +645,7 @@ public abstract class Transition implements TransitionInterface {
          *
          * @param transition The started transition.
          */
+        @Override
         void onTransitionStart(@NonNull Transition transition);
 
         /**
@@ -653,6 +657,7 @@ public abstract class Transition implements TransitionInterface {
          *
          * @param transition The transition which reached its end.
          */
+        @Override
         void onTransitionEnd(@NonNull Transition transition);
 
         /**
@@ -665,6 +670,7 @@ public abstract class Transition implements TransitionInterface {
          *
          * @param transition The transition which was canceled.
          */
+        @Override
         void onTransitionCancel(@NonNull Transition transition);
 
         /**
@@ -677,6 +683,7 @@ public abstract class Transition implements TransitionInterface {
          *
          * @param transition The transition which was paused.
          */
+        @Override
         void onTransitionPause(@NonNull Transition transition);
 
         /**
@@ -688,6 +695,7 @@ public abstract class Transition implements TransitionInterface {
          *
          * @param transition The transition which was resumed.
          */
+        @Override
         void onTransitionResume(@NonNull Transition transition);
     }
 

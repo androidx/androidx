@@ -399,6 +399,7 @@ public class DatePicker extends Picker {
         // in scroll pass.  UpdateSpinner can be called in a scroll pass, UpdateSpinner() may
         // notifyDataSetChange to update the range.
         post(new Runnable() {
+            @Override
             public void run() {
                 updateSpinnersImpl(animation);
             }

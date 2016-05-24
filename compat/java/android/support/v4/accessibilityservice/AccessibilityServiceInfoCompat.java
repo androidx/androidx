@@ -39,26 +39,32 @@ public final class AccessibilityServiceInfoCompat {
 
     static class AccessibilityServiceInfoStubImpl implements AccessibilityServiceInfoVersionImpl {
 
+        @Override
         public boolean getCanRetrieveWindowContent(AccessibilityServiceInfo info) {
             return false;
         }
 
+        @Override
         public String getDescription(AccessibilityServiceInfo info) {
             return null;
         }
 
+        @Override
         public String getId(AccessibilityServiceInfo info) {
             return null;
         }
 
+        @Override
         public ResolveInfo getResolveInfo(AccessibilityServiceInfo info) {
             return null;
         }
 
+        @Override
         public String getSettingsActivityName(AccessibilityServiceInfo info) {
             return null;
         }
 
+        @Override
         public int getCapabilities(AccessibilityServiceInfo info) {
             return 0;
         }

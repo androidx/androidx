@@ -98,6 +98,7 @@ public final class TextUtilsCompat {
     }
 
     private static class TextUtilsCompatJellybeanMr1Impl extends TextUtilsCompatImpl {
+        @Override
         @NonNull
         public String htmlEncode(@NonNull String s) {
             return TextUtilsCompatJellybeanMr1.htmlEncode(s);

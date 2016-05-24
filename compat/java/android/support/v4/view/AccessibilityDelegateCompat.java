@@ -65,6 +65,7 @@ public class AccessibilityDelegateCompat {
     }
 
     static class AccessibilityDelegateStubImpl implements AccessibilityDelegateImpl {
+        @Override
         public Object newAccessiblityDelegateDefaultImpl() {
             return null;
         }

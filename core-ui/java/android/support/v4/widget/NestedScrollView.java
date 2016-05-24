@@ -936,6 +936,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         return mVerticalScrollFactor;
     }
 
+    @Override
     protected void onOverScrolled(int scrollX, int scrollY,
             boolean clampedX, boolean clampedY) {
         super.scrollTo(scrollX, scrollY);
@@ -1866,10 +1867,12 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
         public static final Parcelable.Creator<SavedState> CREATOR
                 = new Parcelable.Creator<SavedState>() {
+            @Override
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);
             }
 
+            @Override
             public SavedState[] newArray(int size) {
                 return new SavedState[size];
             }

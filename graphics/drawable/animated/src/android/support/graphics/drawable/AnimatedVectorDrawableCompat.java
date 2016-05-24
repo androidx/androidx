@@ -250,6 +250,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         mAnimatedVectorState.mVectorDrawable.setColorFilter(colorFilter);
     }
 
+    @Override
     public void setTint(int tint) {
         if (mDelegateDrawable != null) {
             DrawableCompat.setTint(mDelegateDrawable, tint);
@@ -259,6 +260,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         mAnimatedVectorState.mVectorDrawable.setTint(tint);
     }
 
+    @Override
     public void setTintList(ColorStateList tint) {
         if (mDelegateDrawable != null) {
             DrawableCompat.setTintList(mDelegateDrawable, tint);
@@ -268,6 +270,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         mAnimatedVectorState.mVectorDrawable.setTintList(tint);
     }
 
+    @Override
     public void setTintMode(PorterDuff.Mode tintMode) {
         if (mDelegateDrawable != null) {
             DrawableCompat.setTintMode(mDelegateDrawable, tintMode);
@@ -302,6 +305,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         return mAnimatedVectorState.mVectorDrawable.getOpacity();
     }
 
+    @Override
     public int getIntrinsicWidth() {
         if (mDelegateDrawable != null) {
             return mDelegateDrawable.getIntrinsicWidth();
@@ -309,6 +313,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         return mAnimatedVectorState.mVectorDrawable.getIntrinsicWidth();
     }
 
+    @Override
     public int getIntrinsicHeight() {
         if (mDelegateDrawable != null) {
             return mDelegateDrawable.getIntrinsicHeight();
@@ -405,6 +410,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         return;
     }
 
+    @Override
     public boolean canApplyTheme() {
         if (mDelegateDrawable != null) {
             return DrawableCompat.canApplyTheme(mDelegateDrawable);

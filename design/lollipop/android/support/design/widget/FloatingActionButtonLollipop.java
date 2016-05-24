@@ -156,6 +156,7 @@ class FloatingActionButtonLollipop extends FloatingActionButtonIcs {
         return new CircularBorderDrawableLollipop();
     }
 
+    @Override
     void getPadding(Rect rect) {
         if (mShadowViewDelegate.isCompatPaddingEnabled()) {
             final float radius = mShadowViewDelegate.getRadius();

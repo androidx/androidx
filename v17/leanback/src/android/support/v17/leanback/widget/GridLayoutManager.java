@@ -1801,6 +1801,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         updateScrollSecondAxis();
     }
 
+    @Override
     public void removeAndRecycleAllViews(RecyclerView.Recycler recycler) {
         if (TRACE) TraceHelper.beginSection("removeAndRecycleAllViews");
         if (DEBUG) Log.v(TAG, "removeAndRecycleAllViews " + getChildCount());
