@@ -23,6 +23,7 @@ import android.os.Message;
 import android.support.annotation.ColorInt;
 import android.support.annotation.StringRes;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.ViewInteraction;
 import android.support.v7.appcompat.test.R;
@@ -30,6 +31,7 @@ import android.support.v7.testutils.TestUtilsMatchers;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -97,6 +99,21 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
                 mAlertDialog = builder.show();
             }
         });
+    }
+
+    @Test
+    @SmallTest
+    @UiThreadTest
+    public void testBuilderTheme() {
+        final Context context = mActivityTestRule.getActivity();
+        final AlertDialog dialog = new AlertDialog.Builder(context, R.style.Theme_TextColors)
+                .setTitle(R.string.alert_dialog_title)
+                .setMessage(R.string.alert_dialog_content)
+                .create();
+
+        final TypedValue tv = new TypedValue();
+        dialog.getContext().getTheme().resolveAttribute(android.R.attr.textColorPrimary, tv, true);
+        assertEquals(0xFF0000FF, tv.data);
     }
 
     @Test
