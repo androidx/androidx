@@ -32,7 +32,7 @@
     <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"Ընտրել ծրագիր"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"Տեսնել բոլորը"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"Տարածել ըստ %s"</string>
-    <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Տարածել"</string>
+    <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Կիսվել"</string>
     <string name="status_bar_notification_info_overflow" msgid="2869576371154716097">"999+"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"ՄԻԱՑՎԱԾ"</string>
     <string name="abc_capital_off" msgid="121134116657445385">"ԱՆՋԱՏՎԱԾ"</string>
