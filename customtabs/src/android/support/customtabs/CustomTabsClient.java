@@ -123,7 +123,7 @@ public class CustomTabsClient {
      * necessary.
      *
      * @param context     {@link Context} to use to connect to the remote service.
-     * @param packageName Package name of the target implamentation.
+     * @param packageName Package name of the target implementation.
      * @return Whether the binding was successful.
      */
     public static boolean connectAndInitialize(Context context, String packageName) {
