@@ -142,17 +142,33 @@ LOCAL_SRC_FILES:= \
 ifeq ($(ARCH_ARM_HAVE_ARMV7A),true)
 LOCAL_CFLAGS_arm := -DARCH_ARM_HAVE_VFP -DARCH_ARM_USE_INTRINSICS
 LOCAL_ASFLAGS_arm := -mfpu=neon
-# Clang does not support nested .irp in *_Blur.S
-LOCAL_CLANG_ASFLAGS_arm += -no-integrated-as
 LOCAL_SRC_FILES_arm := \
-        cpu_ref/rsCpuIntrinsics_neon_3DLUT.S \
-	cpu_ref/rsCpuIntrinsics_neon_ColorMatrix.S \
-        cpu_ref/rsCpuIntrinsics_neon_Blend.S \
-        cpu_ref/rsCpuIntrinsics_neon_Blur.S \
-	cpu_ref/rsCpuIntrinsics_neon_Convolve.S \
-	cpu_ref/rsCpuIntrinsics_neon_Resize.S \
-        cpu_ref/rsCpuIntrinsics_neon_YuvToRGB.S
+    cpu_ref/rsCpuIntrinsics_neon_3DLUT.S \
+    cpu_ref/rsCpuIntrinsics_neon_Blend.S \
+    cpu_ref/rsCpuIntrinsics_neon_Blur.S \
+    cpu_ref/rsCpuIntrinsics_neon_ColorMatrix.S \
+    cpu_ref/rsCpuIntrinsics_neon_Convolve.S \
+    cpu_ref/rsCpuIntrinsics_neon_Resize.S \
+    cpu_ref/rsCpuIntrinsics_neon_YuvToRGB.S
 endif
+
+LOCAL_CFLAGS_arm64 += \
+    -DARCH_ARM_USE_INTRINSICS \
+    -DARCH_ARM64_USE_INTRINSICS \
+    -DARCH_ARM64_HAVE_NEON
+LOCAL_SRC_FILES_arm64 += \
+    cpu_ref/rsCpuIntrinsics_advsimd_3DLUT.S \
+    cpu_ref/rsCpuIntrinsics_advsimd_Blend.S \
+    cpu_ref/rsCpuIntrinsics_advsimd_Blur.S \
+    cpu_ref/rsCpuIntrinsics_advsimd_ColorMatrix.S \
+    cpu_ref/rsCpuIntrinsics_advsimd_Convolve.S \
+    cpu_ref/rsCpuIntrinsics_advsimd_Resize.S \
+    cpu_ref/rsCpuIntrinsics_advsimd_YuvToRGB.S
+
+LOCAL_CFLAGS_x86 += -DARCH_X86_HAVE_SSSE3
+LOCAL_SRC_FILES_x86 += cpu_ref/rsCpuIntrinsics_x86.cpp
+LOCAL_CFLAGS_x86_64 += -DARCH_X86_HAVE_SSSE3
+LOCAL_SRC_FILES_x86_64 += cpu_ref/rsCpuIntrinsics_x86.cpp
 
 LOCAL_REQUIRED_MODULES := libblasV8
 LOCAL_STATIC_LIBRARIES := libbnnmlowpV8
