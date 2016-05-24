@@ -26,7 +26,10 @@ import android.os.Message;
 import android.support.annotation.ArrayRes;
 import android.support.annotation.AttrRes;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.annotation.StyleRes;
 import android.support.v7.appcompat.R;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
@@ -66,7 +69,7 @@ import android.widget.ListView;
  */
 public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
-    private AlertController mAlert;
+    private final AlertController mAlert;
 
     /**
      * No layout hint.
@@ -78,33 +81,29 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
      */
     static final int LAYOUT_HINT_SIDE = 1;
 
-    protected AlertDialog(Context context) {
-        this(context, resolveDialogTheme(context, 0), true);
+    protected AlertDialog(@NonNull Context context) {
+        this(context, 0);
     }
 
     /**
      * Construct an AlertDialog that uses an explicit theme.  The actual style
      * that an AlertDialog uses is a private implementation, however you can
      * here supply either the name of an attribute in the theme from which
-     * to get the dialog's style (such as {@link android.R.attr#alertDialogTheme}.
+     * to get the dialog's style (such as {@link R.attr#alertDialogTheme}.
      */
-    protected AlertDialog(Context context, int theme) {
-        this(context, theme, true);
-    }
-
-    AlertDialog(Context context, int theme, boolean createThemeContextWrapper) {
-        super(context, resolveDialogTheme(context, theme));
+    protected AlertDialog(@NonNull Context context, @StyleRes int themeResId) {
+        super(context, resolveDialogTheme(context, themeResId));
         mAlert = new AlertController(getContext(), this, getWindow());
     }
 
-    protected AlertDialog(Context context, boolean cancelable, OnCancelListener cancelListener) {
-        super(context, resolveDialogTheme(context, 0));
+    protected AlertDialog(@NonNull Context context, boolean cancelable,
+            @Nullable OnCancelListener cancelListener) {
+        this(context, 0);
         setCancelable(cancelable);
         setOnCancelListener(cancelListener);
-        mAlert = new AlertController(context, this, getWindow());
     }
 
-    static int resolveDialogTheme(Context context, int resid) {
+    private static int resolveDialogTheme(@NonNull Context context, @StyleRes int resid) {
         if (resid >= 0x01000000) {   // start of real resource IDs.
             return resid;
         } else {
@@ -276,6 +275,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
     public static class Builder {
         private final AlertController.AlertParams P;
+        private final int mTheme;
 
         /**
          * Creates a builder for an alert dialog that uses the default alert
@@ -287,7 +287,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *
          * @param context the parent context
          */
-        public Builder(Context context) {
+        public Builder(@NonNull Context context) {
             this(context, resolveDialogTheme(context, 0));
         }
 
@@ -317,9 +317,10 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *                   this dialog, or {@code 0} to use the parent
          *                   {@code context}'s default alert dialog theme
          */
-        public Builder(Context context, int themeResId) {
+        public Builder(@NonNull Context context, @StyleRes int themeResId) {
             P = new AlertController.AlertParams(new ContextThemeWrapper(
                     context, resolveDialogTheme(context, themeResId)));
+            mTheme = themeResId;
         }
 
         /**
@@ -330,6 +331,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *
          * @return A Context for built Dialogs.
          */
+        @NonNull
         public Context getContext() {
             return P.mContext;
         }
@@ -873,6 +875,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * be able to put padding around the view.
          * @hide
          */
+        @Deprecated
         public Builder setView(View view, int viewSpacingLeft, int viewSpacingTop,
                 int viewSpacingRight, int viewSpacingBottom) {
             P.mView = view;
@@ -919,8 +922,9 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * create and display the dialog.
          */
         public AlertDialog create() {
-            // Context has already been wrapped with the appropriate theme.
-            final AlertDialog dialog = new AlertDialog(P.mContext, 0, false);
+            // We can't use Dialog's 3-arg constructor with the createThemeContextWrapper param,
+            // so we always have to re-set the theme
+            final AlertDialog dialog = new AlertDialog(P.mContext, mTheme);
             P.apply(dialog.mAlert);
             dialog.setCancelable(P.mCancelable);
             if (P.mCancelable) {
