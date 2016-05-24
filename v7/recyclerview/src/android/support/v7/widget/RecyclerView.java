@@ -277,7 +277,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * Prior to L, there is no way to query this variable which is why we override the setter and
      * track it here.
      */
-    private boolean mClipToPadding;
+    private boolean mClipToPadding = true;
 
     /**
      * Note: this Runnable is only ever posted if:
