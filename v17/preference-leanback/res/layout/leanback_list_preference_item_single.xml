@@ -31,6 +31,8 @@
         android:id="@+id/button"
         android:layout_width="@dimen/lb_preference_item_icon_size"
         android:layout_height="@dimen/lb_preference_item_icon_size"
+        android:focusable="false"
+        android:clickable="false"
         android:layout_marginEnd="@dimen/lb_preference_item_icon_margin_end"
         android:layout_gravity="center_vertical" />
 
