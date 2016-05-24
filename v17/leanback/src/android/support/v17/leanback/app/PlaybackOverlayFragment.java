@@ -157,9 +157,9 @@ public class PlaybackOverlayFragment extends DetailsFragment {
                     mFadeCompleteListener.onFadeInComplete();
                 }
             } else {
-                if (getVerticalGridView() != null) {
-                    // Reset focus to the controls row
-                    getVerticalGridView().setSelectedPosition(0);
+                VerticalGridView verticalView = getVerticalGridView();
+                // reset focus to the primary actions only if the selected row was the controls row
+                if (verticalView != null && verticalView.getSelectedPosition() == 0) {
                     resetControlsToPrimaryActions(null);
                 }
                 if (mFadeCompleteListener != null) {
