@@ -23,6 +23,8 @@ import android.support.annotation.Nullable;
 
 /**
  * Base class for {@code FragmentActivity} to be able to use v16 APIs.
+ *
+ * @hide
  */
 abstract class BaseFragmentActivityJB extends BaseFragmentActivityHoneycomb {
 
