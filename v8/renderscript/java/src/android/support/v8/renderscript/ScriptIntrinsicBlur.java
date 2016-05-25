@@ -40,7 +40,8 @@ public class ScriptIntrinsicBlur extends ScriptIntrinsic {
      * Create an intrinsic for applying a blur to an allocation. The
      * default radius is 5.0.
      *
-     * Supported elements types are {@link Element#U8_4}
+     * Supported elements types are {@link Element#U8},
+     * {@link Element#U8_4}.
      *
      * @param rs The RenderScript context
      * @param e Element type for inputs and outputs
