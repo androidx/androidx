@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
@@ -365,6 +366,10 @@ public class MediaRouteButton extends View {
         if (mRemoteIndicator != null) {
             mRemoteIndicator.setCallback(null);
             unscheduleDrawable(mRemoteIndicator);
+        }
+        if (MediaRouterThemeHelper.isLightTheme(getContext()) && d != null) {
+            d = DrawableCompat.wrap(d.mutate());
+            DrawableCompat.setTint(d, Color.BLACK);
         }
         mRemoteIndicator = d;
         if (d != null) {
