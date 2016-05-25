@@ -510,7 +510,6 @@ public class Allocation extends BaseObj {
         ioSend();
     }
     /**
-     * @hide
      * Gets or creates a ByteBuffer that contains the raw data of the current Allocation.
      * <p> If the Allocation is created with USAGE_IO_INPUT, the returned ByteBuffer
      * would contain the up-to-date data as READ ONLY.
@@ -554,7 +553,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Gets the stride of the Allocation.
      * For a 2D or 3D Allocation, the raw data maybe padded so that each row of
      * the Allocation has certain alignment. The size of each row including such

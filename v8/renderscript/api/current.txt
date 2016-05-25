@@ -70,9 +70,11 @@ package android.support.v8.renderscript {
     method public static android.support.v8.renderscript.Allocation createTyped(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Type, int);
     method public static android.support.v8.renderscript.Allocation createTyped(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Type);
     method public void generateMipmaps();
+    method public java.nio.ByteBuffer getByteBuffer();
     method public int getBytesSize();
     method public android.support.v8.renderscript.Element getElement();
     method public long getIncAllocID();
+    method public long getStride();
     method public android.support.v8.renderscript.Type getType();
     method public int getUsage();
     method public void ioReceive();
