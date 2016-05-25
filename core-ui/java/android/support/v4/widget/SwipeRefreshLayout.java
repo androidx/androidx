@@ -119,8 +119,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     private int mMediumAnimationDuration;
     private int mCurrentTargetOffsetTop;
-    // Whether or not the starting offset has been determined.
-    private boolean mOriginalOffsetCalculated = false;
 
     private float mInitialMotionY;
     private float mInitialDownY;
@@ -162,9 +160,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     private boolean mNotify;
 
-    private int mCircleWidth;
-
-    private int mCircleHeight;
+    private int mCircleDiameter;
 
     // Whether the client has set a custom starting position;
     private boolean mUsingCustomStart;
@@ -274,9 +270,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         }
         final DisplayMetrics metrics = getResources().getDisplayMetrics();
         if (size == MaterialProgressDrawable.LARGE) {
-            mCircleHeight = mCircleWidth = (int) (CIRCLE_DIAMETER_LARGE * metrics.density);
+            mCircleDiameter = (int) (CIRCLE_DIAMETER_LARGE * metrics.density);
         } else {
-            mCircleHeight = mCircleWidth = (int) (CIRCLE_DIAMETER * metrics.density);
+            mCircleDiameter = (int) (CIRCLE_DIAMETER * metrics.density);
         }
         // force the bounds of the progress circle inside the circle view to
         // update by setting it to null before updating its size and then
@@ -317,8 +313,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         a.recycle();
 
         final DisplayMetrics metrics = getResources().getDisplayMetrics();
-        mCircleWidth = (int) (CIRCLE_DIAMETER * metrics.density);
-        mCircleHeight = (int) (CIRCLE_DIAMETER * metrics.density);
+        mCircleDiameter = (int) (CIRCLE_DIAMETER * metrics.density);
 
         createProgressView();
         ViewCompat.setChildrenDrawingOrderEnabled(this, true);
@@ -329,6 +324,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
         mNestedScrollingChildHelper = new NestedScrollingChildHelper(this);
         setNestedScrollingEnabled(true);
+
+        mOriginalOffsetTop = mCurrentTargetOffsetTop = -mCircleDiameter;
+        moveToStart(1.0f);
     }
 
     @Override
@@ -619,12 +617,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                 getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
                 MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(
                 getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY));
-        mCircleView.measure(MeasureSpec.makeMeasureSpec(mCircleWidth, MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(mCircleHeight, MeasureSpec.EXACTLY));
-        if (!mUsingCustomStart && !mOriginalOffsetCalculated) {
-            mOriginalOffsetCalculated = true;
-            mCurrentTargetOffsetTop = mOriginalOffsetTop = -mCircleView.getMeasuredHeight();
-        }
+        mCircleView.measure(MeasureSpec.makeMeasureSpec(mCircleDiameter, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(mCircleDiameter, MeasureSpec.EXACTLY));
         mCircleViewIndex = -1;
         // Get the index of the circleview.
         for (int index = 0; index < getChildCount(); index++) {
@@ -637,13 +631,12 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     /**
      * Get the diameter of the progress circle that is displayed as part of the
-     * swipe to refresh layout. This is not valid until a measure pass has
-     * completed.
+     * swipe to refresh layout.
      *
      * @return Diameter in pixels of the progress circle view.
      */
     public int getProgressCircleDiameter() {
-        return mCircleView != null ?mCircleView.getMeasuredHeight() : 0;
+        return mCircleDiameter;
     }
 
     /**
