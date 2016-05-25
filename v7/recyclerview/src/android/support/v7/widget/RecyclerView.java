@@ -2132,6 +2132,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 needsFocusFailureLayout = found == null;
             }
             if (needsFocusFailureLayout) {
+                consumePendingUpdateOperations();
                 eatRequestLayout();
                 mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
                 resumeRequestLayout(false);
@@ -2140,6 +2141,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         } else {
             result = ff.findNextFocus(this, focused, direction);
             if (result == null && canRunFocusFailure) {
+                consumePendingUpdateOperations();
                 eatRequestLayout();
                 result = mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
                 resumeRequestLayout(false);
