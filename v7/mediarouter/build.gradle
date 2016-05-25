@@ -11,7 +11,11 @@ createApiSourceSets(project, gradle.ext.studioCompat.modules.mediaRouter.apiTarg
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.mediaRouter.dependencies)
-
+// keep these dependencies here since API specific implementations don't need to access them.
+dependencies {
+    compile project(":support-appcompat-v7")
+    compile project(":support-palette-v7")
+}
 android {
     compileSdkVersion project.ext.currentSdk
 
