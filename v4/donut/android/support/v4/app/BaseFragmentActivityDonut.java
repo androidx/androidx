@@ -25,6 +25,8 @@ import android.view.View;
 
 /**
  * Base class for {@code FragmentActivity} to be able to use Donut APIs.
+ *
+ * @hide
  */
 abstract class BaseFragmentActivityDonut extends Activity {
 
