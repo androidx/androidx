@@ -561,6 +561,53 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
+    public void testFocusSearchAfterChangedData() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, 2);
+                layoutLatch.countDown();
+            }
+
+            @Nullable
+            @Override
+            public View onFocusSearchFailed(View focused, int direction,
+                                            RecyclerView.Recycler recycler,
+                                            RecyclerView.State state) {
+                try {
+                    View view = recycler.getViewForPosition(state.getItemCount() - 1);
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
+                return null;
+            }
+        };
+        recyclerView.setLayoutManager(tlm);
+        final TestAdapter adapter = new TestAdapter(10) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder, int position) {
+                super.onBindViewHolder(holder, position);
+                holder.itemView.setFocusable(false);
+                holder.itemView.setFocusableInTouchMode(false);
+            }
+        };
+        recyclerView.setAdapter(adapter);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.mItems.remove(9);
+                adapter.notifyItemRemoved(9);
+                recyclerView.focusSearch(recyclerView.getChildAt(1), View.FOCUS_DOWN);
+            }
+        });
+        checkForMainThreadException();
+    }
+
+    @Test
     public void  testFocusSearchFailFrozen() throws Throwable {
         RecyclerView recyclerView = new RecyclerView(getActivity());
         final CountDownLatch focusLatch = new CountDownLatch(1);
