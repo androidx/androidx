@@ -2969,6 +2969,7 @@ package android.support.v4.view.accessibility {
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat getCollectionInfo();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat getCollectionItemInfo();
     method public java.lang.CharSequence getContentDescription();
+    method public int getDrawingOrder();
     method public java.lang.CharSequence getError();
     method public android.os.Bundle getExtras();
     method public java.lang.Object getInfo();
@@ -3000,6 +3001,7 @@ package android.support.v4.view.accessibility {
     method public boolean isEnabled();
     method public boolean isFocusable();
     method public boolean isFocused();
+    method public boolean isImportantForAccessibility();
     method public boolean isLongClickable();
     method public boolean isMultiLine();
     method public boolean isPassword();
@@ -3030,11 +3032,13 @@ package android.support.v4.view.accessibility {
     method public void setContentDescription(java.lang.CharSequence);
     method public void setContentInvalid(boolean);
     method public void setDismissable(boolean);
+    method public void setDrawingOrder(int);
     method public void setEditable(boolean);
     method public void setEnabled(boolean);
     method public void setError(java.lang.CharSequence);
     method public void setFocusable(boolean);
     method public void setFocused(boolean);
+    method public void setImportantForAccessibility(boolean);
     method public void setInputType(int);
     method public void setLabelFor(android.view.View);
     method public void setLabelFor(android.view.View, int);
@@ -3158,6 +3162,14 @@ package android.support.v4.view.accessibility {
     field public static final int RANGE_TYPE_PERCENT = 2; // 0x2
   }
 
+  public class AccessibilityNodeInfoCompatApi24 {
+    ctor public AccessibilityNodeInfoCompatApi24();
+    method public static int getDrawingOrder(java.lang.Object);
+    method public static boolean isImportantForAccessibility(java.lang.Object);
+    method public static void setDrawingOrder(java.lang.Object, int);
+    method public static void setImportantForAccessibility(java.lang.Object, boolean);
+  }
+
   public class AccessibilityNodeProviderCompat {
     ctor public AccessibilityNodeProviderCompat();
     ctor public AccessibilityNodeProviderCompat(java.lang.Object);
@@ -3220,6 +3232,7 @@ package android.support.v4.view.accessibility {
   }
 
   public class AccessibilityWindowInfoCompat {
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getAnchor();
     method public void getBoundsInScreen(android.graphics.Rect);
     method public android.support.v4.view.accessibility.AccessibilityWindowInfoCompat getChild(int);
     method public int getChildCount();
@@ -3227,6 +3240,7 @@ package android.support.v4.view.accessibility {
     method public int getLayer();
     method public android.support.v4.view.accessibility.AccessibilityWindowInfoCompat getParent();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getRoot();
+    method public java.lang.CharSequence getTitle();
     method public int getType();
     method public boolean isAccessibilityFocused();
     method public boolean isActive();
@@ -3238,6 +3252,12 @@ package android.support.v4.view.accessibility {
     field public static final int TYPE_APPLICATION = 1; // 0x1
     field public static final int TYPE_INPUT_METHOD = 2; // 0x2
     field public static final int TYPE_SYSTEM = 3; // 0x3
+  }
+
+  public class AccessibilityWindowInfoCompatApi24 {
+    ctor public AccessibilityWindowInfoCompatApi24();
+    method public static java.lang.Object getAnchor(java.lang.Object);
+    method public static java.lang.CharSequence getTitle(java.lang.Object);
   }
 
 }
