@@ -23,6 +23,8 @@ import android.view.View;
 
 /**
  * Base class for {@code FragmentActivity} to be able to use v11 APIs.
+ *
+ * @hide
  */
 abstract class BaseFragmentActivityHoneycomb extends BaseFragmentActivityGingerbread {
 
