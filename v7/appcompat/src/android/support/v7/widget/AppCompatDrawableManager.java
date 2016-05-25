@@ -678,7 +678,7 @@ public final class AppCompatDrawableManager {
     }
 
     private void checkVectorDrawableSetup(@NonNull Context context) {
-        if (!mHasCheckedVectorDrawableSetup) {
+        if (mHasCheckedVectorDrawableSetup) {
             // We've already checked so return now...
             return;
         }
