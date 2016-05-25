@@ -5184,9 +5184,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (!holder.hasAnyOfTheFlags(ViewHolder.FLAG_INVALID | ViewHolder.FLAG_REMOVED
                         | ViewHolder.FLAG_UPDATE)) {
                     // Retire oldest cached view
-                    final int cachedViewSize = mCachedViews.size();
-                    if (cachedViewSize == mViewCacheMax && cachedViewSize > 0) {
+                    int cachedViewSize = mCachedViews.size();
+                    if (cachedViewSize >= mViewCacheMax && cachedViewSize > 0) {
                         recycleCachedViewAt(0);
+                        cachedViewSize --;
                     }
                     if (cachedViewSize < mViewCacheMax) {
                         mCachedViews.add(holder);
