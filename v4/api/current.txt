@@ -2620,7 +2620,6 @@ package android.support.v4.view {
     method public static boolean hasNestedScrollingParent(android.view.View);
     method public static boolean hasOnClickListeners(android.view.View);
     method public static boolean hasOverlappingRendering(android.view.View);
-    method public static boolean hasPointerCapture(android.view.View);
     method public static boolean hasTransientState(android.view.View);
     method public static boolean isAttachedToWindow(android.view.View);
     method public static boolean isInLayout(android.view.View);
@@ -2641,9 +2640,7 @@ package android.support.v4.view {
     method public static void postInvalidateOnAnimation(android.view.View, int, int, int, int);
     method public static void postOnAnimation(android.view.View, java.lang.Runnable);
     method public static void postOnAnimationDelayed(android.view.View, java.lang.Runnable, long);
-    method public static void releasePointerCapture(android.view.View);
     method public static void requestApplyInsets(android.view.View);
-    method public static void requestPointerCapture(android.view.View);
     method public static int resolveSizeAndState(int, int, int);
     method public static void setAccessibilityDelegate(android.view.View, android.support.v4.view.AccessibilityDelegateCompat);
     method public static void setAccessibilityLiveRegion(android.view.View, int);
