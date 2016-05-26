@@ -816,6 +816,9 @@ package android.support.v7.appcompat {
     field public static int abc_tab_indicator_material;
     field public static int abc_tab_indicator_mtrl_alpha;
     field public static int abc_text_cursor_material;
+    field public static int abc_text_select_handle_left_mtrl_alpha;
+    field public static int abc_text_select_handle_middle_mtrl_alpha;
+    field public static int abc_text_select_handle_right_mtrl_alpha;
     field public static int abc_textfield_activated_mtrl_alpha;
     field public static int abc_textfield_default_mtrl_alpha;
     field public static int abc_textfield_search_activated_mtrl_alpha;
