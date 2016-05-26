@@ -609,6 +609,10 @@ public class AccessibilityNodeInfoCompat {
         public void setDismissable(Object info, boolean dismissable);
         public boolean isEditable(Object info);
         public void setEditable(Object info, boolean editable);
+        public int getDrawingOrder(Object info);
+        public void setDrawingOrder(Object info, int drawingOrderInParent);
+        public boolean isImportantForAccessibility(Object info);
+        public void setImportantForAccessibility(Object info, boolean importantForAccessibility);
         public boolean isMultiLine(Object info);
         public void setMultiLine(Object info, boolean multiLine);
         public boolean refresh(Object info);
@@ -1226,6 +1230,24 @@ public class AccessibilityNodeInfoCompat {
 
         @Override
         public void setRoleDescription(Object info, CharSequence roleDescription) {
+        }
+
+        @Override
+        public int getDrawingOrder(Object info) {
+            return 0;
+        }
+
+        @Override
+        public void setDrawingOrder(Object info, int drawingOrderInParent) {
+        }
+
+        @Override
+        public boolean isImportantForAccessibility(Object info) {
+            return true;
+        }
+
+        @Override
+        public void setImportantForAccessibility(Object info, boolean importantForAccessibility) {
         }
     }
 
@@ -1895,8 +1917,34 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    static class AccessibilityNodeInfoApi24Impl extends AccessibilityNodeInfoApi22Impl {
+        @Override
+        public int getDrawingOrder(Object info) {
+            return AccessibilityNodeInfoCompatApi24.getDrawingOrder(info);
+        }
+
+        @Override
+        public void setDrawingOrder(Object info, int drawingOrderInParent) {
+            AccessibilityNodeInfoCompatApi24.setDrawingOrder(info, drawingOrderInParent);
+        }
+
+        @Override
+        public boolean isImportantForAccessibility(Object info) {
+            return AccessibilityNodeInfoCompatApi24.isImportantForAccessibility(info);
+        }
+
+        @Override
+        public void setImportantForAccessibility(Object info, boolean importantForAccessibility) {
+            AccessibilityNodeInfoCompatApi24.setImportantForAccessibility(
+                    info, importantForAccessibility);
+        }
+
+    }
+
     static {
-        if (Build.VERSION.SDK_INT >= 22) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            IMPL = new AccessibilityNodeInfoApi24Impl();
+        } else if (Build.VERSION.SDK_INT >= 22) {
             IMPL = new AccessibilityNodeInfoApi22Impl();
         } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new AccessibilityNodeInfoApi21Impl();
@@ -3025,6 +3073,33 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Returns whether the node originates from a view considered important for accessibility.
+     *
+     * @return {@code true} if the node originates from a view considered important for
+     *         accessibility, {@code false} otherwise
+     *
+     * @see View#isImportantForAccessibility()
+     */
+    public boolean isImportantForAccessibility() {
+        return IMPL.isImportantForAccessibility(mInfo);
+    }
+
+    /**
+     * Sets whether the node is considered important for accessibility.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param important {@code true} if the node is considered important for accessibility,
+     *                  {@code false} otherwise
+     */
+    public void setImportantForAccessibility(boolean important) {
+        IMPL.setImportantForAccessibility(mInfo, important);
+    }
+
+    /**
      * Gets the package this node comes from.
      *
      * @return The package name.
@@ -3198,6 +3273,36 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setLiveRegion(int mode) {
         IMPL.setLiveRegion(mInfo, mode);
+    }
+
+    /**
+     * Get the drawing order of the view corresponding it this node.
+     * <p>
+     * Drawing order is determined only within the node's parent, so this index is only relative
+     * to its siblings.
+     * <p>
+     * In some cases, the drawing order is essentially simultaneous, so it is possible for two
+     * siblings to return the same value. It is also possible that values will be skipped.
+     *
+     * @return The drawing position of the view corresponding to this node relative to its siblings.
+     */
+    public int getDrawingOrder() {
+        return IMPL.getDrawingOrder(mInfo);
+    }
+
+    /**
+     * Set the drawing order of the view corresponding it this node.
+     *
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     * @param drawingOrderInParent
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setDrawingOrder(int drawingOrderInParent) {
+        IMPL.setDrawingOrder(mInfo, drawingOrderInParent);
     }
 
     /**
