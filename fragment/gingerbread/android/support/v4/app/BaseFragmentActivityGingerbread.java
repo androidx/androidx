@@ -28,6 +28,8 @@ import android.view.View;
 
 /**
  * Base class for {@code FragmentActivity} to be able to use Gingerbread APIs.
+ *
+ * @hide
  */
 abstract class BaseFragmentActivityGingerbread extends Activity {
 
