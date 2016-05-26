@@ -56,4 +56,8 @@ public class TextInputLayoutUsage extends AppCompatActivity {
         mPasswordInputLayout.setPasswordVisibilityToggleEnabled(false);
     }
 
+    public void toggleEnabled(View view) {
+        mUsernameInputLayout.setEnabled(!mUsernameInputLayout.isEnabled());
+    }
+
 }
