@@ -526,7 +526,9 @@ public class NotificationCompat {
             if (b.mPriority > PRIORITY_DEFAULT) {
                 result.flags |= FLAG_HIGH_PRIORITY;
             }
-            result.contentView =  b.mContentView;
+            if (b.mContentView != null) {
+                result.contentView = b.mContentView;
+            }
             return result;
         }
 
@@ -604,7 +606,9 @@ public class NotificationCompat {
             if (b.mPriority > PRIORITY_DEFAULT) {
                 result.flags |= FLAG_HIGH_PRIORITY;
             }
-            result.contentView =  b.mContentView;
+            if (b.mContentView != null) {
+                result.contentView = b.mContentView;
+            }
             return result;
         }
     }
@@ -615,7 +619,9 @@ public class NotificationCompat {
             Notification notification = NotificationCompatHoneycomb.add(b.mContext, b.mNotification,
                     b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
                     b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon);
-            notification.contentView =  b.mContentView;
+            if (b.mContentView != null) {
+                notification.contentView = b.mContentView;
+            }
             return notification;
         }
     }
@@ -629,7 +635,9 @@ public class NotificationCompat {
                             b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                             b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
             Notification notification = extender.build(b, builder);
-            notification.contentView =  b.mContentView;
+            if (b.mContentView != null) {
+                notification.contentView = b.mContentView;
+            }
             return notification;
         }
     }

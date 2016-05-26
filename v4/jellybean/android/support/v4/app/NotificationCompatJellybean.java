@@ -153,8 +153,12 @@ class NotificationCompatJellybean {
                 // Add the action extras sparse array if any action was added with extras.
                 getExtras(notif).putSparseParcelableArray(EXTRA_ACTION_EXTRAS, actionExtrasMap);
             }
-            notif.contentView = mContentView;
-            notif.bigContentView = mBigContentView;
+            if (mContentView != null) {
+                notif.contentView = mContentView;
+            }
+            if (mBigContentView != null) {
+                notif.bigContentView = mBigContentView;
+            }
             return notif;
         }
     }
