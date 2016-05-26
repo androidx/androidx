@@ -25,7 +25,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
-import android.graphics.drawable.InsetDrawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -34,7 +33,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.support.design.R;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableWrapper;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.AbsSavedState;
@@ -725,33 +724,8 @@ public class TextInputLayout extends LinearLayout {
         } else {
             // Else reset the color filter and refresh the drawable state so that the
             // normal tint is used
-            clearColorFilter(editTextBackground);
+            DrawableCompat.clearColorFilter(editTextBackground);
             mEditText.refreshDrawableState();
-        }
-    }
-
-    private static void clearColorFilter(@NonNull Drawable drawable) {
-        drawable.clearColorFilter();
-
-        if (Build.VERSION.SDK_INT == 21 || Build.VERSION.SDK_INT == 22) {
-            // API 21 + 22 have an issue where clearing a color filter on a DrawableContainer
-            // will not propagate to all of its children. To workaround this we unwrap the drawable
-            // to find any DrawableContainers, and then unwrap those to clear the filter on its
-            // children manually
-            if (drawable instanceof InsetDrawable) {
-                clearColorFilter(((InsetDrawable) drawable).getDrawable());
-            } else if (drawable instanceof DrawableWrapper) {
-                clearColorFilter(((DrawableWrapper) drawable).getWrappedDrawable());
-            } else if (drawable instanceof DrawableContainer) {
-                final DrawableContainer container = (DrawableContainer) drawable;
-                final DrawableContainer.DrawableContainerState state =
-                        (DrawableContainer.DrawableContainerState) container.getConstantState();
-                if (state != null) {
-                    for (int i = 0, count = state.getChildCount(); i < count; i++) {
-                        clearColorFilter(state.getChild(i));
-                    }
-                }
-            }
         }
     }
 
