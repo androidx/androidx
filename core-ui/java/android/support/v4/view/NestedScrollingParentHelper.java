@@ -27,7 +27,7 @@ import android.view.ViewGroup;
  * <p>{@link android.view.ViewGroup ViewGroup} subclasses should instantiate a final instance
  * of this class as a field at construction. For each <code>ViewGroup</code> method that has
  * a matching method signature in this class, delegate the operation to the helper instance
- * in an overriden method implementation. This implements the standard framework policy
+ * in an overridden method implementation. This implements the standard framework policy
  * for nested scrolling.</p>
  *
  * <p>Views invoking nested scrolling functionality should always do so from the relevant

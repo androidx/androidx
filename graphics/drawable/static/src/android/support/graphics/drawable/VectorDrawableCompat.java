@@ -996,7 +996,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         public void draw(Canvas canvas, int w, int h, ColorFilter filter) {
-            // Travese the tree in pre-order to draw.
+            // Traverse the tree in pre-order to draw.
             drawGroupTree(mRootGroup, IDENTITY_MATRIX, canvas, w, h, filter);
         }
 

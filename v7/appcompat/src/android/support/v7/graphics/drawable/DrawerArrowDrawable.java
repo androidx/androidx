@@ -91,7 +91,7 @@ public class DrawerArrowDrawable extends Drawable {
 
     private final Paint mPaint = new Paint();
 
-    // The angle in degress that the arrow head is inclined at.
+    // The angle in degrees that the arrow head is inclined at.
     private static final float ARROW_HEAD_ANGLE = (float) Math.toRadians(45);
     // The length of top and bottom bars when they merge into an arrow
     private float mArrowHeadLength;

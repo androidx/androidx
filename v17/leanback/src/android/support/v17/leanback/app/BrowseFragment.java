@@ -129,8 +129,8 @@ public class BrowseFragment extends BaseFragment {
                 // if popped "headers" backstack, initiate the show header transition if needed
                 if (mIndexOfHeadersBackStack >= count) {
                     if (!isHeadersDataReady()) {
-                        // if main fragment was restored first before BrowseFragment's adapater gets
-                        // restored: dont start header transition, but add the entry back.
+                        // if main fragment was restored first before BrowseFragment's adapter gets
+                        // restored: don't start header transition, but add the entry back.
                         getFragmentManager().beginTransaction()
                                 .addToBackStack(mWithHeadersBackStackName).commit();
                         return;

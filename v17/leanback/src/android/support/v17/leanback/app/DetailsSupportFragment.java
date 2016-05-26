@@ -240,7 +240,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
 
     /**
      * Called to setup {@link FullWidthDetailsOverviewRowPresenter}.  The default implementation
-     * adds two aligment positions({@link ItemAlignmentFacet}) for ViewHolder of
+     * adds two alignment positions({@link ItemAlignmentFacet}) for ViewHolder of
      * FullWidthDetailsOverviewRowPresenter to align in fragment.
      */
     protected void setupDetailsOverviewRowPresenter(FullWidthDetailsOverviewRowPresenter presenter) {

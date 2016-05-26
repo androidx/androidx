@@ -247,7 +247,7 @@ public class DialogFragment extends Fragment
      * initialized to false; otherwise, it will be true.
      *
      * @param showsDialog If true, the fragment will be displayed in a Dialog.
-     * If false, no Dialog will be created and the fragment's view hierarchly
+     * If false, no Dialog will be created and the fragment's view hierarchy
      * left undisturbed.
      */
     public void setShowsDialog(boolean showsDialog) {

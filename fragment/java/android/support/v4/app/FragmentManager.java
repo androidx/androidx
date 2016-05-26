@@ -429,7 +429,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
     static class AnimateOnHWLayerIfNeededListener implements AnimationListener {
-        private AnimationListener mOrignalListener;
+        private AnimationListener mOriginalListener;
         private boolean mShouldRunOnHWLayer;
         private View mView;
 
@@ -445,7 +445,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             if (v == null || anim == null) {
                 return;
             }
-            mOrignalListener = listener;
+            mOriginalListener = listener;
             mView = v;
             mShouldRunOnHWLayer = true;
         }
@@ -453,8 +453,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         @Override
         @CallSuper
         public void onAnimationStart(Animation animation) {
-            if (mOrignalListener != null) {
-                mOrignalListener.onAnimationStart(animation);
+            if (mOriginalListener != null) {
+                mOriginalListener.onAnimationStart(animation);
             }
         }
 
@@ -483,15 +483,15 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_NONE, null);
                 }
             }
-            if (mOrignalListener != null) {
-                mOrignalListener.onAnimationEnd(animation);
+            if (mOriginalListener != null) {
+                mOriginalListener.onAnimationEnd(animation);
             }
         }
 
         @Override
         public void onAnimationRepeat(Animation animation) {
-            if (mOrignalListener != null) {
-                mOrignalListener.onAnimationRepeat(animation);
+            if (mOriginalListener != null) {
+                mOriginalListener.onAnimationRepeat(animation);
             }
         }
     }

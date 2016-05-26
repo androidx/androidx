@@ -513,7 +513,7 @@ public class AppBarLayout extends LinearLayout {
     /**
      * @deprecated target elevation is now deprecated. AppBarLayout's elevation is now
      * controlled via a {@link android.animation.StateListAnimator}. If a target
-     * elevation is set, either by this method or the {@code app:elevation} attibute,
+     * elevation is set, either by this method or the {@code app:elevation} attribute,
      * a new state list animator is created which uses the given {@code elevation} value.
      *
      * @attr ref android.support.design.R.styleable#AppBarLayout_elevation
@@ -855,7 +855,7 @@ public class AppBarLayout extends LinearLayout {
                         0, -velocityY);
             } else {
                 // If we're scrolling up and the child also consumed the fling. We'll fake scroll
-                // upto our 'collapsed' offset
+                // up to our 'collapsed' offset
                 if (velocityY < 0) {
                     // We're scrolling down
                     final int targetScroll = -child.getTotalScrollRange()
@@ -1245,9 +1245,9 @@ public class AppBarLayout extends LinearLayout {
                 if (child.getTop() + offset <= 0 && visBottom >= 0) {
                     final SavedState ss = new SavedState(superState);
                     ss.firstVisibleChildIndex = i;
-                    ss.firstVisibileChildAtMinimumHeight =
+                    ss.firstVisibleChildAtMinimumHeight =
                             visBottom == ViewCompat.getMinimumHeight(child);
-                    ss.firstVisibileChildPercentageShown = visBottom / (float) child.getHeight();
+                    ss.firstVisibleChildPercentageShown = visBottom / (float) child.getHeight();
                     return ss;
                 }
             }
@@ -1263,8 +1263,8 @@ public class AppBarLayout extends LinearLayout {
                 final SavedState ss = (SavedState) state;
                 super.onRestoreInstanceState(parent, appBarLayout, ss.getSuperState());
                 mOffsetToChildIndexOnLayout = ss.firstVisibleChildIndex;
-                mOffsetToChildIndexOnLayoutPerc = ss.firstVisibileChildPercentageShown;
-                mOffsetToChildIndexOnLayoutIsMinHeight = ss.firstVisibileChildAtMinimumHeight;
+                mOffsetToChildIndexOnLayoutPerc = ss.firstVisibleChildPercentageShown;
+                mOffsetToChildIndexOnLayoutIsMinHeight = ss.firstVisibleChildAtMinimumHeight;
             } else {
                 super.onRestoreInstanceState(parent, appBarLayout, state);
                 mOffsetToChildIndexOnLayout = INVALID_POSITION;
@@ -1273,14 +1273,14 @@ public class AppBarLayout extends LinearLayout {
 
         protected static class SavedState extends AbsSavedState {
             int firstVisibleChildIndex;
-            float firstVisibileChildPercentageShown;
-            boolean firstVisibileChildAtMinimumHeight;
+            float firstVisibleChildPercentageShown;
+            boolean firstVisibleChildAtMinimumHeight;
 
             public SavedState(Parcel source, ClassLoader loader) {
                 super(source, loader);
                 firstVisibleChildIndex = source.readInt();
-                firstVisibileChildPercentageShown = source.readFloat();
-                firstVisibileChildAtMinimumHeight = source.readByte() != 0;
+                firstVisibleChildPercentageShown = source.readFloat();
+                firstVisibleChildAtMinimumHeight = source.readByte() != 0;
             }
 
             public SavedState(Parcelable superState) {
@@ -1291,8 +1291,8 @@ public class AppBarLayout extends LinearLayout {
             public void writeToParcel(Parcel dest, int flags) {
                 super.writeToParcel(dest, flags);
                 dest.writeInt(firstVisibleChildIndex);
-                dest.writeFloat(firstVisibileChildPercentageShown);
-                dest.writeByte((byte) (firstVisibileChildAtMinimumHeight ? 1 : 0));
+                dest.writeFloat(firstVisibleChildPercentageShown);
+                dest.writeByte((byte) (firstVisibleChildAtMinimumHeight ? 1 : 0));
             }
 
             public static final Parcelable.Creator<SavedState> CREATOR =

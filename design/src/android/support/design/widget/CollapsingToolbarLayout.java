@@ -996,7 +996,7 @@ public class CollapsingToolbarLayout extends FrameLayout {
     public void setScrimVisibleHeightTrigger(@IntRange(from = 0) final int height) {
         if (mScrimVisibleHeightTrigger != height) {
             mScrimVisibleHeightTrigger = height;
-            // Update the scrim visibilty
+            // Update the scrim visibility
             updateScrimVisibility();
         }
     }
@@ -1009,7 +1009,7 @@ public class CollapsingToolbarLayout extends FrameLayout {
      */
     public int getScrimVisibleHeightTrigger() {
         if (mScrimVisibleHeightTrigger >= 0) {
-            // If we have one explictly set, return it
+            // If we have one explicitly set, return it
             return mScrimVisibleHeightTrigger;
         }
 

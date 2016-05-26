@@ -530,13 +530,13 @@ public class GuidedAction extends Action {
 
         /**
          * Explicitly sets auto restore feature on the GuidedAction.  It's by default true.
-         * @param autoSaveRestoreEnanbled True if turn on auto save/restore of GuidedAction content,
+         * @param autoSaveRestoreEnabled True if turn on auto save/restore of GuidedAction content,
          *                                false otherwise.
          * @return The same BuilderBase object.
          * @see GuidedAction#isAutoSaveRestoreEnabled()
          */
-        public B autoSaveRestoreEnabled(boolean autoSaveRestoreEnanbled) {
-            setFlags(autoSaveRestoreEnanbled ? PF_AUTORESTORE : 0, PF_AUTORESTORE);
+        public B autoSaveRestoreEnabled(boolean autoSaveRestoreEnabled) {
+            setFlags(autoSaveRestoreEnabled ? PF_AUTORESTORE : 0, PF_AUTORESTORE);
             return (B) this;
         }
 
@@ -938,10 +938,10 @@ public class GuidedAction extends Action {
     }
 
     final static boolean isPasswordVariant(int inputType) {
-        final int variantion = inputType & InputType.TYPE_MASK_VARIATION;
-        return variantion == InputType.TYPE_TEXT_VARIATION_PASSWORD
-                || variantion == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                || variantion == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD;
+        final int variation = inputType & InputType.TYPE_MASK_VARIATION;
+        return variation == InputType.TYPE_TEXT_VARIATION_PASSWORD
+                || variation == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                || variation == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD;
     }
 
     final boolean needAutoSaveTitle() {

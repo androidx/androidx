@@ -142,7 +142,7 @@ public class SearchFragment extends Fragment {
                     mRowsFragment.setSelectedPosition(0);
                 }
             }
-            updateSearchBarVisiblity();
+            updateSearchBarVisibility();
             mStatus |= RESULTS_CHANGED;
             if ((mStatus & QUERY_COMPLETE) != 0) {
                 updateFocus();
@@ -342,7 +342,7 @@ public class SearchFragment extends Fragment {
                     int position = mRowsFragment.getSelectedPosition();
                     Log.v(TAG, String.format("onItemSelected %d", position));
                 }
-                updateSearchBarVisiblity();
+                updateSearchBarVisibility();
                 if (null != mOnItemViewSelectedListener) {
                     mOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
                             rowViewHolder, row);
@@ -633,7 +633,7 @@ public class SearchFragment extends Fragment {
         focusOnResults();
     }
 
-    private void updateSearchBarVisiblity() {
+    private void updateSearchBarVisibility() {
         int position = mRowsFragment != null ? mRowsFragment.getSelectedPosition() : -1;
         mSearchBar.setVisibility(position <=0 || mResultAdapter == null
                 || mResultAdapter.size() == 0 ? View.VISIBLE : View.GONE);

@@ -762,7 +762,7 @@ public class ListRowPresenter extends RowPresenter {
      * return new ShadowOverlayHelper.Options().roundedCornerRadius(10);
      * </code>
      *
-     * @return The options to be used for shadow, overlay and rouded corner.
+     * @return The options to be used for shadow, overlay and rounded corner.
      */
     protected ShadowOverlayHelper.Options createShadowOverlayOptions() {
         return ShadowOverlayHelper.Options.DEFAULT;

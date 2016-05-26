@@ -103,7 +103,7 @@ import java.util.List;
  * </ul>
  * <p>
  * If the theme is provided in multiple ways, the onProvideTheme override has priority, followed by
- * the Activty's theme.  (Themes whose parent theme is already set to the guided step theme do not
+ * the Activity's theme.  (Themes whose parent theme is already set to the guided step theme do not
  * need to set the guidedStepTheme attribute; if set, it will be ignored.)
  * <p>
  * If themes do not provide enough customizability, the stylists themselves may be subclassed and
@@ -885,7 +885,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                 // No shared element transition
                 TransitionHelper.setSharedElementEnterTransition(this, null);
             } else if (uiStyle == UI_STYLE_ACTIVITY_ROOT) {
-                // for Activity root, we dont need enter transition, use activity transition
+                // for Activity root, we don't need enter transition, use activity transition
                 TransitionHelper.setEnterTransition(this, null);
                 // No shared element transition
                 TransitionHelper.setSharedElementEnterTransition(this, null);
@@ -1094,7 +1094,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         }
         mButtonActionsStylist.getActionsGridView().setAdapter(mButtonAdapter);
         if (mButtonActions.size() == 0) {
-            // when there is no button actions, we dont need show the second panel, but keep
+            // when there is no button actions, we don't need show the second panel, but keep
             // the width zero to run ChangeBounds transition.
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams)
                     buttonActionsView.getLayoutParams();
@@ -1293,12 +1293,12 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * Currently we provide 2 different variations for animation - slide in from
      * side (default) or bottom.
      *
-     * Ideally we can retireve the screen mode settings from the theme attribute
+     * Ideally we can retrieve the screen mode settings from the theme attribute
      * {@code Theme.Leanback.GuidedStep#guidedStepHeightWeight} and use that to
      * determine the transition. But the fragment context to retrieve the theme
      * isn't available on platform v23 or earlier.
      *
-     * For now clients(subclasses) can call this method inside the contructor.
+     * For now clients(subclasses) can call this method inside the constructor.
      * @hide
      */
     public void setEntranceTransitionType(int transitionType) {

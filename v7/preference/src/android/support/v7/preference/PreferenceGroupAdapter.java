@@ -241,7 +241,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
 
             notifyItemInserted(previousVisibleIndex + 1);
         } else {
-            // The preference has become invisibile. Find it in the list and remove it.
+            // The preference has become invisible. Find it in the list and remove it.
 
             int removalIndex;
             final int listSize = mPreferenceList.size();
@@ -322,8 +322,8 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     public int getPreferenceAdapterPosition(Preference preference) {
         final int size = mPreferenceList.size();
         for (int i = 0; i < size; i++) {
-            final Preference canidate = mPreferenceList.get(i);
-            if (canidate != null && canidate.equals(preference)) {
+            final Preference candidate = mPreferenceList.get(i);
+            if (candidate != null && candidate.equals(preference)) {
                 return i;
             }
         }

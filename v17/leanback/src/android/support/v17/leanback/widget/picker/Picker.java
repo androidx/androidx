@@ -87,10 +87,10 @@ public class Picker extends FrameLayout {
 
     /**
      * Sets separator String between Picker columns.
-     * @param seperator Separator String between Picker columns.
+     * @param separator Separator String between Picker columns.
      */
-    public final void setSeparator(CharSequence seperator) {
-        mSeparator = seperator;
+    public final void setSeparator(CharSequence separator) {
+        mSeparator = separator;
     }
 
     /**
@@ -190,7 +190,7 @@ public class Picker extends FrameLayout {
             final int colIndex = i;
             final VerticalGridView columnView = (VerticalGridView) inflater.inflate(
                     R.layout.lb_picker_column, mPickerView, false);
-            // we dont want VerticalGridView to receive focus.
+            // we don't want VerticalGridView to receive focus.
             updateColumnSize(columnView);
             // always center aligned, not aligning selected item on top/bottom edge.
             columnView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
