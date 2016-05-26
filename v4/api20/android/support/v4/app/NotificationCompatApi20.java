@@ -99,8 +99,12 @@ class NotificationCompatApi20 {
         public Notification build() {
             b.setExtras(mExtras);
             Notification notification = b.build();
-            notification.contentView = mContentView;
-            notification.bigContentView = mBigContentView;
+            if (mContentView != null) {
+                notification.contentView = mContentView;
+            }
+            if (mBigContentView != null) {
+                notification.bigContentView = mBigContentView;
+            }
             return notification;
         }
     }
