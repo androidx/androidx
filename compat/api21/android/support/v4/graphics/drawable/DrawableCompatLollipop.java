@@ -21,7 +21,10 @@ import android.content.res.Resources;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
+import android.graphics.drawable.InsetDrawable;
 import android.util.AttributeSet;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -70,6 +73,33 @@ class DrawableCompatLollipop {
 
     public static ColorFilter getColorFilter(Drawable drawable) {
         return drawable.getColorFilter();
+    }
+
+    public static void clearColorFilter(Drawable drawable) {
+        drawable.clearColorFilter();
+
+        // API 21 + 22 have an issue where clearing a color filter on a DrawableContainer
+        // will not propagate to all of its children. To workaround this we unwrap the drawable
+        // to find any DrawableContainers, and then unwrap those to clear the filter on its
+        // children manually
+        if (drawable instanceof InsetDrawable) {
+            clearColorFilter(((InsetDrawable) drawable).getDrawable());
+        } else if (drawable instanceof DrawableWrapper) {
+            clearColorFilter(((DrawableWrapper) drawable).getWrappedDrawable());
+        } else if (drawable instanceof DrawableContainer) {
+            final DrawableContainer container = (DrawableContainer) drawable;
+            final DrawableContainer.DrawableContainerState state =
+                    (DrawableContainer.DrawableContainerState) container.getConstantState();
+            if (state != null) {
+                Drawable child;
+                for (int i = 0, count = state.getChildCount(); i < count; i++) {
+                    child = state.getChild(i);
+                    if (child != null) {
+                        clearColorFilter(child);
+                    }
+                }
+            }
+        }
     }
 
     public static void inflate(Drawable drawable, Resources res, XmlPullParser parser,

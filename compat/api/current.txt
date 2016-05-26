@@ -644,6 +644,7 @@ package android.support.v4.graphics.drawable {
   public final class DrawableCompat {
     method public static void applyTheme(android.graphics.drawable.Drawable, android.content.res.Resources.Theme);
     method public static boolean canApplyTheme(android.graphics.drawable.Drawable);
+    method public static void clearColorFilter(android.graphics.drawable.Drawable);
     method public static int getAlpha(android.graphics.drawable.Drawable);
     method public static android.graphics.ColorFilter getColorFilter(android.graphics.drawable.Drawable);
     method public static int getLayoutDirection(android.graphics.drawable.Drawable);
