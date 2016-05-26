@@ -2966,6 +2966,7 @@ package android.support.v4.view.accessibility {
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat getCollectionInfo();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat getCollectionItemInfo();
     method public java.lang.CharSequence getContentDescription();
+    method public int getDrawingOrder();
     method public java.lang.CharSequence getError();
     method public android.os.Bundle getExtras();
     method public java.lang.Object getInfo();
@@ -2997,6 +2998,7 @@ package android.support.v4.view.accessibility {
     method public boolean isEnabled();
     method public boolean isFocusable();
     method public boolean isFocused();
+    method public boolean isImportantForAccessibility();
     method public boolean isLongClickable();
     method public boolean isMultiLine();
     method public boolean isPassword();
@@ -3027,11 +3029,13 @@ package android.support.v4.view.accessibility {
     method public void setContentDescription(java.lang.CharSequence);
     method public void setContentInvalid(boolean);
     method public void setDismissable(boolean);
+    method public void setDrawingOrder(int);
     method public void setEditable(boolean);
     method public void setEnabled(boolean);
     method public void setError(java.lang.CharSequence);
     method public void setFocusable(boolean);
     method public void setFocused(boolean);
+    method public void setImportantForAccessibility(boolean);
     method public void setInputType(int);
     method public void setLabelFor(android.view.View);
     method public void setLabelFor(android.view.View, int);
@@ -3217,6 +3221,7 @@ package android.support.v4.view.accessibility {
   }
 
   public class AccessibilityWindowInfoCompat {
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getAnchor();
     method public void getBoundsInScreen(android.graphics.Rect);
     method public android.support.v4.view.accessibility.AccessibilityWindowInfoCompat getChild(int);
     method public int getChildCount();
@@ -3224,6 +3229,7 @@ package android.support.v4.view.accessibility {
     method public int getLayer();
     method public android.support.v4.view.accessibility.AccessibilityWindowInfoCompat getParent();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getRoot();
+    method public java.lang.CharSequence getTitle();
     method public int getType();
     method public boolean isAccessibilityFocused();
     method public boolean isActive();
