@@ -39,10 +39,12 @@ public class AccessibilityWindowInfoCompat {
         public boolean isAccessibilityFocused(Object info);
         public int getChildCount(Object info);
         public Object getChild(Object info, int index);
+        public CharSequence getTitle(Object info);
+        public Object getAnchor(Object info);
         public void recycle(Object info);
     }
 
-    private static class AccessibilityWindowInfoStubImpl implements  AccessibilityWindowInfoImpl {
+    private static class AccessibilityWindowInfoStubImpl implements AccessibilityWindowInfoImpl {
 
         @Override
         public Object obtain() {
@@ -110,6 +112,16 @@ public class AccessibilityWindowInfoCompat {
 
         @Override
         public void recycle(Object info) {
+        }
+
+        @Override
+        public CharSequence getTitle(Object info) {
+            return null;
+        }
+
+        @Override
+        public Object getAnchor(Object info) {
+            return null;
         }
     }
 
@@ -185,8 +197,22 @@ public class AccessibilityWindowInfoCompat {
         }
     }
 
+    private static class AccessibilityWindowInfoApi24Impl extends AccessibilityWindowInfoApi21Impl {
+        @Override
+        public CharSequence getTitle(Object info) {
+            return AccessibilityWindowInfoCompatApi24.getTitle(info);
+        }
+
+        @Override
+        public Object getAnchor(Object info) {
+            return AccessibilityWindowInfoCompatApi24.getAnchor(info);
+        }
+    }
+
     static {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            IMPL = new AccessibilityWindowInfoApi24Impl();
+        } else  if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new AccessibilityWindowInfoApi21Impl();
         } else {
             IMPL = new AccessibilityWindowInfoStubImpl();
@@ -352,6 +378,25 @@ public class AccessibilityWindowInfoCompat {
      */
     public AccessibilityWindowInfoCompat getChild(int index) {
         return wrapNonNullInstance(IMPL.getChild(mInfo, index));
+    }
+
+    /**
+     * Gets the title of the window.
+     *
+     * @return The title of the window, or the application label for the window if no title was
+     * explicitly set, or {@code null} if neither is available.
+     */
+    public CharSequence getTitle() {
+        return IMPL.getTitle(mInfo);
+    }
+
+    /**
+     * Gets the node that anchors this window to another.
+     *
+     * @return The anchor node, or {@code null} if none exists.
+     */
+    public AccessibilityNodeInfoCompat getAnchor() {
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(IMPL.getAnchor(mInfo));
     }
 
     /**
