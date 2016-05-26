@@ -65,6 +65,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static android.support.design.widget.ViewUtils.objectEquals;
+
 /**
  * CoordinatorLayout is a super-powered {@link android.widget.FrameLayout FrameLayout}.
  *
@@ -332,7 +334,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     private WindowInsetsCompat setWindowInsets(WindowInsetsCompat insets) {
-        if (mLastInsets != insets) {
+        if (!objectEquals(mLastInsets, insets)) {
             mLastInsets = insets;
             mDrawStatusBarBackground = insets != null && insets.getSystemWindowInsetTop() > 0;
             setWillNotDraw(!mDrawStatusBarBackground && getBackground() == null);

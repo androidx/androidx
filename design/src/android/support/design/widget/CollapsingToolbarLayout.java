@@ -48,6 +48,8 @@ import android.widget.FrameLayout;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import static android.support.design.widget.ViewUtils.objectEquals;
+
 /**
  * CollapsingToolbarLayout is a wrapper for {@link Toolbar} which implements a collapsing app bar.
  * It is designed to be used as a direct child of a {@link AppBarLayout}.
@@ -217,7 +219,7 @@ public class CollapsingToolbarLayout extends FrameLayout {
                     @Override
                     public WindowInsetsCompat onApplyWindowInsets(View v,
                             WindowInsetsCompat insets) {
-                        return setWindowInsets(insets);
+                        return onWindowInsetChanged(insets);
                     }
                 });
     }
@@ -250,12 +252,21 @@ public class CollapsingToolbarLayout extends FrameLayout {
         super.onDetachedFromWindow();
     }
 
-    private WindowInsetsCompat setWindowInsets(WindowInsetsCompat insets) {
-        if (mLastInsets != insets) {
-            mLastInsets = insets;
+    private WindowInsetsCompat onWindowInsetChanged(final WindowInsetsCompat insets) {
+        WindowInsetsCompat newInsets = null;
+
+        if (ViewCompat.getFitsSystemWindows(this)) {
+            // If we're set to fit system windows, keep the insets
+            newInsets = insets;
+        }
+
+        // If our insets have changed, keep them and invalidate the scroll ranges...
+        if (!objectEquals(mLastInsets, newInsets)) {
+            mLastInsets = newInsets;
             requestLayout();
         }
-        return insets.consumeSystemWindowInsets();
+
+        return insets;
     }
 
     @Override

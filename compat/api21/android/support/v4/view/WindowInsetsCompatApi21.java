@@ -112,6 +112,31 @@ class WindowInsetsCompatApi21 extends WindowInsetsCompat {
         return new WindowInsetsCompatApi21(mSource.consumeStableInsets());
     }
 
+    @Override
+    public String toString() {
+        return "WindowInsetsCompat [ " + mSource.toString() + " ]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final WindowInsetsCompatApi21 that = (WindowInsetsCompatApi21) o;
+        if (mSource != null ? !mSource.equals(that.mSource) : that.mSource != null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return mSource != null ? mSource.hashCode() : 0;
+    }
+
     WindowInsets unwrap() {
         return mSource;
     }

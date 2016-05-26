@@ -34,4 +34,8 @@ class ViewUtils {
         return DEFAULT_ANIMATOR_CREATOR.createAnimator();
     }
 
+    static boolean objectEquals(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
+    }
+
 }

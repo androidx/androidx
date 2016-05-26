@@ -43,6 +43,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.support.design.widget.ViewUtils.objectEquals;
+
 /**
  * AppBarLayout is a vertical {@link LinearLayout} which implements many of the features of
  * material designs app bar concept, namely scrolling gestures.
@@ -558,7 +560,7 @@ public class AppBarLayout extends LinearLayout {
         }
 
         // If our insets have changed, keep them and invalidate the scroll ranges...
-        if (newInsets != mLastInsets) {
+        if (!objectEquals(mLastInsets, newInsets)) {
             mLastInsets = newInsets;
             invalidateScrollRanges();
         }
