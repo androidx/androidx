@@ -130,9 +130,15 @@ class NotificationCompatApi21 {
         public Notification build() {
             b.setExtras(mExtras);
             Notification notification = b.build();
-            notification.contentView =  mContentView;
-            notification.bigContentView = mBigContentView;
-            notification.headsUpContentView = mHeadsUpContentView;
+            if (mContentView != null) {
+                notification.contentView = mContentView;
+            }
+            if (mBigContentView != null) {
+                notification.bigContentView = mBigContentView;
+            }
+            if (mHeadsUpContentView != null) {
+                notification.headsUpContentView = mHeadsUpContentView;
+            }
             return notification;
         }
     }

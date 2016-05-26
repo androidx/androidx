@@ -94,10 +94,16 @@ class NotificationCompatApi24 {
                     .setColor(color)
                     .setVisibility(visibility)
                     .setPublicVersion(publicVersion)
-                    .setRemoteInputHistory(remoteInputHistory)
-                    .setCustomContentView(contentView)
-                    .setCustomBigContentView(bigContentView)
-                    .setCustomHeadsUpContentView(headsUpContentView);
+                    .setRemoteInputHistory(remoteInputHistory);
+            if (contentView != null) {
+                b.setCustomContentView(contentView);
+            }
+            if (bigContentView != null) {
+                b.setCustomBigContentView(bigContentView);
+            }
+            if (headsUpContentView != null) {
+                b.setCustomHeadsUpContentView(headsUpContentView);
+            }
             for (String person: people) {
                 b.addPerson(person);
             }
