@@ -16,6 +16,7 @@
 
 package android.support.customtabs;
 
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -23,6 +24,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.view.View;
+import android.widget.RemoteViews;
 
 import java.util.List;
 
@@ -77,7 +81,39 @@ public final class CustomTabsSession {
      * @see {@link CustomTabsSession#setToolbarItem(int, Bitmap, String)}
      */
     public boolean setActionButton(@NonNull Bitmap icon, @NonNull String description) {
-        return setToolbarItem(CustomTabsIntent.TOOLBAR_ACTION_BUTTON_ID, icon, description);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(CustomTabsIntent.KEY_ICON, icon);
+        bundle.putString(CustomTabsIntent.KEY_DESCRIPTION, description);
+
+        Bundle metaBundle = new Bundle();
+        metaBundle.putBundle(CustomTabsIntent.EXTRA_ACTION_BUTTON_BUNDLE, bundle);
+        try {
+            return mService.updateVisuals(mCallback, metaBundle);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Updates the {@link RemoteViews} of the secondary toolbar in an existing custom tab session.
+     * @param remoteViews   The updated {@link RemoteViews} that will be shown in secondary toolbar.
+     *                      If null, the current secondary toolbar will be dismissed.
+     * @param clickableIDs  The ids of clickable views. The onClick event of these views will be
+     *                      handled by custom tabs.
+     * @param pendingIntent The {@link PendingIntent} that will be sent when the user clicks on one
+     *                      of the {@link View}s in clickableIDs.
+     */
+    public boolean setSecondaryToolbarViews(@Nullable RemoteViews remoteViews,
+            @Nullable int[] clickableIDs, @Nullable PendingIntent pendingIntent) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(CustomTabsIntent.EXTRA_REMOTEVIEWS, remoteViews);
+        bundle.putIntArray(CustomTabsIntent.EXTRA_REMOTEVIEWS_VIEW_IDS, clickableIDs);
+        bundle.putParcelable(CustomTabsIntent.EXTRA_REMOTEVIEWS_PENDINGINTENT, pendingIntent);
+        try {
+            return mService.updateVisuals(mCallback, bundle);
+        } catch (RemoteException e) {
+            return false;
+        }
     }
 
     /**
@@ -87,7 +123,10 @@ public final class CustomTabsSession {
      * @param icon          The new icon of the toolbar item.
      * @param description   Content description of the toolbar item.
      * @return              Whether the update succeeded.
+     * @deprecated Use
+     * CustomTabsSession#setSecondaryToolbarViews(RemoteViews, int[], PendingIntent)
      */
+    @Deprecated
     public boolean setToolbarItem(int id, @NonNull Bitmap icon, @NonNull String description) {
         Bundle bundle = new Bundle();
         bundle.putInt(CustomTabsIntent.KEY_ID, id);

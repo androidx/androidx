@@ -94,7 +94,8 @@ package android.support.customtabs {
   public final class CustomTabsSession {
     method public boolean mayLaunchUrl(android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>);
     method public boolean setActionButton(android.graphics.Bitmap, java.lang.String);
-    method public boolean setToolbarItem(int, android.graphics.Bitmap, java.lang.String);
+    method public boolean setSecondaryToolbarViews(android.widget.RemoteViews, int[], android.app.PendingIntent);
+    method public deprecated boolean setToolbarItem(int, android.graphics.Bitmap, java.lang.String);
   }
 
   public class CustomTabsSessionToken {
