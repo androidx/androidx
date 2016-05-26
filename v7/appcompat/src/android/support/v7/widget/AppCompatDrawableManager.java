@@ -53,6 +53,7 @@ import android.util.Xml;
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
+import static android.support.v4.graphics.ColorUtils.compositeColors;
 import static android.support.v7.content.res.AppCompatResources.getColorStateList;
 import static android.support.v7.widget.ThemeUtils.getDisabledThemeAttrColor;
 import static android.support.v7.widget.ThemeUtils.getThemeAttrColor;
@@ -507,8 +508,17 @@ public final class AppCompatDrawableManager {
     }
 
     public final ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId) {
+        return getTintList(context, resId, null);
+    }
+
+    public final ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId,
+            @Nullable ColorStateList customTint) {
+        // We only want to use the cache for the standard tints, not ones created using custom
+        // tints
+        final boolean useCache = customTint == null;
+
         // Try the cache first (if it exists)
-        ColorStateList tint = getTintListFromCache(context, resId);
+        ColorStateList tint = useCache ? getTintListFromCache(context, resId) : null;
 
         if (tint == null) {
             // ...if the cache did not contain a color state list, try and create one
@@ -519,11 +529,11 @@ public final class AppCompatDrawableManager {
             } else if (resId == R.drawable.abc_switch_thumb_material) {
                 tint = getColorStateList(context, R.color.abc_tint_switch_thumb);
             } else if (resId == R.drawable.abc_btn_default_mtrl_shape) {
-                tint = createDefaultButtonColorStateList(context);
+                tint = createDefaultButtonColorStateList(context, customTint);
             } else if (resId == R.drawable.abc_btn_borderless_material) {
-                tint = createBorderlessButtonColorStateList(context);
+                tint = createBorderlessButtonColorStateList(context, customTint);
             } else if (resId == R.drawable.abc_btn_colored_material) {
-                tint = createColoredButtonColorStateList(context);
+                tint = createColoredButtonColorStateList(context, customTint);
             } else if (resId == R.drawable.abc_spinner_mtrl_am_alpha
                     || resId == R.drawable.abc_spinner_textfield_background_material) {
                 tint = getColorStateList(context, R.color.abc_tint_spinner);
@@ -537,7 +547,7 @@ public final class AppCompatDrawableManager {
                 tint = getColorStateList(context, R.color.abc_tint_seek_thumb);
             }
 
-            if (tint != null) {
+            if (useCache && tint != null) {
                 addTintListToCache(context, resId, tint);
             }
         }
@@ -565,42 +575,51 @@ public final class AppCompatDrawableManager {
         themeTints.append(resId, tintList);
     }
 
-    private ColorStateList createDefaultButtonColorStateList(Context context) {
+    private ColorStateList createDefaultButtonColorStateList(@NonNull Context context,
+            @Nullable ColorStateList customTint) {
         return createButtonColorStateList(context,
-                getThemeAttrColor(context, R.attr.colorButtonNormal));
+                getThemeAttrColor(context, R.attr.colorButtonNormal), customTint);
     }
 
-    private ColorStateList createBorderlessButtonColorStateList(Context context) {
-        return createButtonColorStateList(context, Color.TRANSPARENT);
+    private ColorStateList createBorderlessButtonColorStateList(@NonNull Context context,
+            @Nullable ColorStateList customTint) {
+        // We ignore the custom tint for borderless buttons
+        return createButtonColorStateList(context, Color.TRANSPARENT, null);
     }
 
-    private ColorStateList createColoredButtonColorStateList(Context context) {
-        return createButtonColorStateList(context, getThemeAttrColor(context, R.attr.colorAccent));
+    private ColorStateList createColoredButtonColorStateList(@NonNull Context context,
+            @Nullable ColorStateList customTint) {
+        return createButtonColorStateList(context,
+                getThemeAttrColor(context, R.attr.colorAccent), customTint);
     }
 
-    private ColorStateList createButtonColorStateList(Context context, @ColorInt int baseColor) {
+    private ColorStateList createButtonColorStateList(@NonNull final Context context,
+            @ColorInt final int baseColor, final @Nullable ColorStateList tint) {
         final int[][] states = new int[4][];
         final int[] colors = new int[4];
         int i = 0;
 
         final int colorControlHighlight = getThemeAttrColor(context, R.attr.colorControlHighlight);
+        final int disabledColor = getDisabledThemeAttrColor(context, R.attr.colorButtonNormal);
 
         // Disabled state
         states[i] = ThemeUtils.DISABLED_STATE_SET;
-        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorButtonNormal);
+        colors[i] = tint == null ? disabledColor : tint.getColorForState(states[i], 0);
         i++;
 
         states[i] = ThemeUtils.PRESSED_STATE_SET;
-        colors[i] = ColorUtils.compositeColors(colorControlHighlight, baseColor);
+        colors[i] = compositeColors(colorControlHighlight,
+                tint == null ? baseColor : tint.getColorForState(states[i], 0));
         i++;
 
         states[i] = ThemeUtils.FOCUSED_STATE_SET;
-        colors[i] = ColorUtils.compositeColors(colorControlHighlight, baseColor);
+        colors[i] = compositeColors(colorControlHighlight,
+                tint == null ? baseColor : tint.getColorForState(states[i], 0));
         i++;
 
         // Default enabled state
         states[i] = ThemeUtils.EMPTY_STATE_SET;
-        colors[i] = baseColor;
+        colors[i] = tint == null ? baseColor : tint.getColorForState(states[i], 0);
         i++;
 
         return new ColorStateList(states, colors);
