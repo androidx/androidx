@@ -17,6 +17,10 @@
 package android.support.design.widget;
 
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import android.os.SystemClock;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -52,10 +56,6 @@ import android.widget.TextView;
 
 import org.hamcrest.Matcher;
 import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BottomSheetBehaviorTest extends
         BaseInstrumentationTestCase<BottomSheetBehaviorActivity> {
@@ -107,6 +107,59 @@ public class BottomSheetBehaviorTest extends
                     state != BottomSheetBehavior.STATE_SETTLING;
         }
 
+    }
+
+    /**
+     * Wait for a FAB to change its visibility (either shown or hidden).
+     */
+    private static class OnVisibilityChangedListener extends
+            FloatingActionButton.OnVisibilityChangedListener implements IdlingResource {
+
+        private final boolean mShown;
+        private boolean mIsIdle;
+        private ResourceCallback mResourceCallback;
+
+        OnVisibilityChangedListener(boolean shown) {
+            mShown = shown;
+        }
+
+        private void transitionToIdle() {
+            if (!mIsIdle) {
+                mIsIdle = true;
+                if (mResourceCallback != null) {
+                    mResourceCallback.onTransitionToIdle();
+                }
+            }
+        }
+
+        @Override
+        public void onShown(FloatingActionButton fab) {
+            if (mShown) {
+                transitionToIdle();
+            }
+        }
+
+        @Override
+        public void onHidden(FloatingActionButton fab) {
+            if (!mShown) {
+                transitionToIdle();
+            }
+        }
+
+        @Override
+        public String getName() {
+            return OnVisibilityChangedListener.class.getSimpleName();
+        }
+
+        @Override
+        public boolean isIdleNow() {
+            return mIsIdle;
+        }
+
+        @Override
+        public void registerIdleTransitionCallback(ResourceCallback resourceCallback) {
+            mResourceCallback = resourceCallback;
+        }
     }
 
     /**
@@ -538,6 +591,22 @@ public class BottomSheetBehaviorTest extends
                 });
     }
 
+    @Test
+    public void testFabVisibility() {
+        withFabVisibilityChange(false, new Runnable() {
+            @Override
+            public void run() {
+                checkSetState(BottomSheetBehavior.STATE_EXPANDED, ViewMatchers.isDisplayed());
+            }
+        });
+        withFabVisibilityChange(true, new Runnable() {
+            @Override
+            public void run() {
+                checkSetState(BottomSheetBehavior.STATE_COLLAPSED, ViewMatchers.isDisplayed());
+            }
+        });
+    }
+
     private void checkSetState(final int state, Matcher<View> matcher) {
         registerIdlingResourceCallback();
         try {
@@ -565,6 +634,21 @@ public class BottomSheetBehaviorTest extends
         if (mCallback != null) {
             Espresso.unregisterIdlingResources(mCallback);
             mCallback = null;
+        }
+    }
+
+    private void withFabVisibilityChange(boolean shown, Runnable action) {
+        OnVisibilityChangedListener listener = new OnVisibilityChangedListener(shown);
+        CoordinatorLayout.LayoutParams lp =
+                (CoordinatorLayout.LayoutParams) mActivityTestRule.getActivity().mFab
+                        .getLayoutParams();
+        FloatingActionButton.Behavior behavior = (FloatingActionButton.Behavior) lp.getBehavior();
+        behavior.setInternalAutoHideListener(listener);
+        Espresso.registerIdlingResources(listener);
+        try {
+            action.run();
+        } finally {
+            Espresso.unregisterIdlingResources(listener);
         }
     }
 

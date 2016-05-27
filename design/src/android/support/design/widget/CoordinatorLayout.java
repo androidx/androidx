@@ -878,17 +878,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         }
     }
 
-    /**
-     * Calculate the desired child rect relative to an anchor rect, respecting both
-     * gravity and anchorGravity.
-     *
-     * @param child child view to calculate a rect for
-     * @param layoutDirection the desired layout direction for the CoordinatorLayout
-     * @param anchorRect rect in CoordinatorLayout coordinates of the anchor view area
-     * @param out rect to set to the output values
-     */
-    void getDesiredAnchoredChildRect(View child, int layoutDirection, Rect anchorRect, Rect out) {
-        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+    private void getDesiredAnchoredChildRectWithoutConstraints(View child, int layoutDirection,
+            Rect anchorRect, Rect out, LayoutParams lp, int childWidth, int childHeight) {
         final int absGravity = GravityCompat.getAbsoluteGravity(
                 resolveAnchoredChildGravity(lp.gravity), layoutDirection);
         final int absAnchorGravity = GravityCompat.getAbsoluteGravity(
@@ -899,9 +890,6 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         final int vgrav = absGravity & Gravity.VERTICAL_GRAVITY_MASK;
         final int anchorHgrav = absAnchorGravity & Gravity.HORIZONTAL_GRAVITY_MASK;
         final int anchorVgrav = absAnchorGravity & Gravity.VERTICAL_GRAVITY_MASK;
-
-        final int childWidth = child.getMeasuredWidth();
-        final int childHeight = child.getMeasuredHeight();
 
         int left;
         int top;
@@ -962,18 +950,40 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                 break;
         }
 
+        out.set(left, top, left + childWidth, top + childHeight);
+    }
+
+    private void constrainChildRect(LayoutParams lp, Rect out, int childWidth, int childHeight) {
         final int width = getWidth();
         final int height = getHeight();
 
         // Obey margins and padding
-        left = Math.max(getPaddingLeft() + lp.leftMargin,
-                Math.min(left,
+        int left = Math.max(getPaddingLeft() + lp.leftMargin,
+                Math.min(out.left,
                         width - getPaddingRight() - childWidth - lp.rightMargin));
-        top = Math.max(getPaddingTop() + lp.topMargin,
-                Math.min(top,
+        int top = Math.max(getPaddingTop() + lp.topMargin,
+                Math.min(out.top,
                         height - getPaddingBottom() - childHeight - lp.bottomMargin));
 
         out.set(left, top, left + childWidth, top + childHeight);
+    }
+
+    /**
+     * Calculate the desired child rect relative to an anchor rect, respecting both
+     * gravity and anchorGravity.
+     *
+     * @param child child view to calculate a rect for
+     * @param layoutDirection the desired layout direction for the CoordinatorLayout
+     * @param anchorRect rect in CoordinatorLayout coordinates of the anchor view area
+     * @param out rect to set to the output values
+     */
+    void getDesiredAnchoredChildRect(View child, int layoutDirection, Rect anchorRect, Rect out) {
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        final int childWidth = child.getMeasuredWidth();
+        final int childHeight = child.getMeasuredHeight();
+        getDesiredAnchoredChildRectWithoutConstraints(child, layoutDirection, anchorRect, out, lp,
+                childWidth, childHeight);
+        constrainChildRect(lp, out, childWidth, childHeight);
     }
 
     /**
@@ -1377,7 +1387,14 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
             getDescendantRect(lp.mAnchorView, anchorRect);
             getChildRect(child, false, childRect);
-            getDesiredAnchoredChildRect(child, layoutDirection, anchorRect, desiredChildRect);
+
+            int childWidth = child.getMeasuredWidth();
+            int childHeight = child.getMeasuredHeight();
+            getDesiredAnchoredChildRectWithoutConstraints(child, layoutDirection, anchorRect,
+                    desiredChildRect, lp, childWidth, childHeight);
+            boolean changed = desiredChildRect.left != childRect.left ||
+                    desiredChildRect.top != childRect.top;
+            constrainChildRect(lp, desiredChildRect, childWidth, childHeight);
 
             final int dx = desiredChildRect.left - childRect.left;
             final int dy = desiredChildRect.top - childRect.top;
@@ -1389,7 +1406,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                 child.offsetTopAndBottom(dy);
             }
 
-            if (dx != 0 || dy != 0) {
+            if (changed) {
                 // If we have needed to move, make sure to notify the child's Behavior
                 final Behavior b = lp.getBehavior();
                 if (b != null) {

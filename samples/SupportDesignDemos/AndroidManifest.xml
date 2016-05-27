@@ -262,6 +262,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.BottomSheetWithFab"
+                  android:label="@string/design_bottomsheet_with_fab"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".widget.BottomSheetScrollView"
                   android:label="@string/design_bottomsheet_scroll"
                   android:theme="@style/Theme.Design">
