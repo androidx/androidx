@@ -68,6 +68,8 @@ class NotificationCompatJellybean {
         private Notification.Builder b;
         private final Bundle mExtras;
         private List<Bundle> mActionExtrasList = new ArrayList<Bundle>();
+        private RemoteViews mContentView;
+        private RemoteViews mBigContentView;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -75,7 +77,8 @@ class NotificationCompatJellybean {
                 PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
                 int progressMax, int progress, boolean progressIndeterminate,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
-                Bundle extras, String groupKey, boolean groupSummary, String sortKey) {
+                Bundle extras, String groupKey, boolean groupSummary, String sortKey,
+                RemoteViews contentView, RemoteViews bigContentView) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -119,6 +122,8 @@ class NotificationCompatJellybean {
             if (sortKey != null) {
                 mExtras.putString(EXTRA_SORT_KEY, sortKey);
             }
+            mContentView = contentView;
+            mBigContentView = bigContentView;
         }
 
         @Override
@@ -147,6 +152,12 @@ class NotificationCompatJellybean {
             if (actionExtrasMap != null) {
                 // Add the action extras sparse array if any action was added with extras.
                 getExtras(notif).putSparseParcelableArray(EXTRA_ACTION_EXTRAS, actionExtrasMap);
+            }
+            if (mContentView != null) {
+                notif.contentView = mContentView;
+            }
+            if (mBigContentView != null) {
+                notif.bigContentView = mBigContentView;
             }
             return notif;
         }

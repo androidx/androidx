@@ -526,6 +526,9 @@ public class NotificationCompat {
             if (b.mPriority > PRIORITY_DEFAULT) {
                 result.flags |= FLAG_HIGH_PRIORITY;
             }
+            if (b.mContentView != null) {
+                result.contentView = b.mContentView;
+            }
             return result;
         }
 
@@ -596,9 +599,13 @@ public class NotificationCompat {
     static class NotificationCompatImplHoneycomb extends NotificationCompatImplBase {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
-            return NotificationCompatHoneycomb.add(b.mContext, b.mNotification,
+            Notification notification = NotificationCompatHoneycomb.add(b.mContext, b.mNotification,
                     b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
                     b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon);
+            if (b.mContentView != null) {
+                notification.contentView = b.mContentView;
+            }
+            return notification;
         }
     }
 
@@ -610,7 +617,11 @@ public class NotificationCompat {
                             b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                             b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                             b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
-            return extender.build(b, builder);
+            Notification notification = extender.build(b, builder);
+            if (b.mContentView != null) {
+                notification.contentView = b.mContentView;
+            }
+            return notification;
         }
     }
 
@@ -622,7 +633,7 @@ public class NotificationCompat {
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras,
-                    b.mGroupKey, b.mGroupSummary, b.mSortKey);
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
@@ -690,7 +701,8 @@ public class NotificationCompat {
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly,
-                    b.mPeople, b.mExtras, b.mGroupKey, b.mGroupSummary, b.mSortKey);
+                    b.mPeople, b.mExtras, b.mGroupKey, b.mGroupSummary, b.mSortKey,
+                    b.mContentView, b.mBigContentView);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             return extender.build(b, builder);
@@ -741,7 +753,7 @@ public class NotificationCompat {
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mPeople, b.mExtras,
-                    b.mGroupKey, b.mGroupSummary, b.mSortKey);
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
@@ -800,7 +812,8 @@ public class NotificationCompat {
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
-                    b.mGroupKey, b.mGroupSummary, b.mSortKey);
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView,
+                    b.mHeadsUpContentView);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
@@ -839,7 +852,8 @@ public class NotificationCompat {
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
-                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mRemoteInputHistory);
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mRemoteInputHistory, b.mContentView,
+                    b.mBigContentView, b.mHeadsUpContentView);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderApi24(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
@@ -1008,6 +1022,9 @@ public class NotificationCompat {
         int mColor = COLOR_DEFAULT;
         int mVisibility = VISIBILITY_PRIVATE;
         Notification mPublicVersion;
+        RemoteViews mContentView;
+        RemoteViews mBigContentView;
+        RemoteViews mHeadsUpContentView;
 
         /** @hide */
         public Notification mNotification = new Notification();
@@ -1644,6 +1661,43 @@ public class NotificationCompat {
          */
         public Builder setPublicVersion(Notification n) {
             mPublicVersion = n;
+            return this;
+        }
+
+        /**
+         * Supply custom RemoteViews to use instead of the platform template.
+         *
+         * This will override the layout that would otherwise be constructed by this Builder
+         * object.
+         */
+        public Builder setCustomContentView(RemoteViews contentView) {
+            mContentView = contentView;
+            return this;
+        }
+
+        /**
+         * Supply custom RemoteViews to use instead of the platform template in the expanded form.
+         *
+         * This will override the expanded layout that would otherwise be constructed by this
+         * Builder object.
+         *
+         * No-op on versions prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN}.
+         */
+        public Builder setCustomBigContentView(RemoteViews contentView) {
+            mBigContentView = contentView;
+            return this;
+        }
+
+        /**
+         * Supply custom RemoteViews to use instead of the platform template in the heads up dialog.
+         *
+         * This will override the heads-up layout that would otherwise be constructed by this
+         * Builder object.
+         *
+         * No-op on versions prior to {@link android.os.Build.VERSION_CODES#LOLLIPOP}.
+         */
+        public Builder setCustomHeadsUpContentView(RemoteViews contentView) {
+            mHeadsUpContentView = contentView;
             return this;
         }
 
