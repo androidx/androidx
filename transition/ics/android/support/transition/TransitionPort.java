@@ -364,7 +364,7 @@ abstract class TransitionPort implements Cloneable {
      * views are ignored and only the ids are used).
      */
     boolean isValidTarget(View target, long targetId) {
-        if (mTargetIdExcludes != null && mTargetIdExcludes.contains(targetId)) {
+        if (mTargetIdExcludes != null && mTargetIdExcludes.contains((int)targetId)) {
             return false;
         }
         if (mTargetExcludes != null && mTargetExcludes.contains(target)) {
