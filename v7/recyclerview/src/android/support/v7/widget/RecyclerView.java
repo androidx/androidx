@@ -5923,7 +5923,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * <p>Becoming detached from the window is not necessarily a permanent condition;
          * the consumer of an Adapter's views may choose to cache views offscreen while they
-         * are not visible, attaching an detaching them as appropriate.</p>
+         * are not visible, attaching and detaching them as appropriate.</p>
          *
          * @param holder Holder of the view being detached
          */
