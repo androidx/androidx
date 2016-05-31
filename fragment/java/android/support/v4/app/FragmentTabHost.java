@@ -16,8 +16,6 @@
 
 package android.support.v4.app;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -30,6 +28,8 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
+
+import java.util.ArrayList;
 
 /**
  * Special TabHost that allows the use of {@link Fragment} objects for
