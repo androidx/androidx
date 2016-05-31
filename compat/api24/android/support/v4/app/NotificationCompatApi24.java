@@ -57,7 +57,8 @@ class NotificationCompatApi24 {
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 String category, ArrayList<String> people, Bundle extras, int color,
                 int visibility, Notification publicVersion, String groupKey, boolean groupSummary,
-                String sortKey, CharSequence[] remoteInputHistory) {
+                String sortKey, CharSequence[] remoteInputHistory, RemoteViews contentView,
+                RemoteViews bigContentView, RemoteViews headsUpContentView) {
             b = new Notification.Builder(context)
                     .setWhen(n.when)
                     .setShowWhen(showWhen)
@@ -94,6 +95,15 @@ class NotificationCompatApi24 {
                     .setVisibility(visibility)
                     .setPublicVersion(publicVersion)
                     .setRemoteInputHistory(remoteInputHistory);
+            if (contentView != null) {
+                b.setCustomContentView(contentView);
+            }
+            if (bigContentView != null) {
+                b.setCustomBigContentView(bigContentView);
+            }
+            if (headsUpContentView != null) {
+                b.setCustomHeadsUpContentView(headsUpContentView);
+            }
             for (String person: people) {
                 b.addPerson(person);
             }
