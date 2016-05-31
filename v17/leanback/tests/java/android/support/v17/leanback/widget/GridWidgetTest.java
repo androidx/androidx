@@ -1468,6 +1468,48 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
 
     }
 
+    public void testFocusableViewAvailable() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 0);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE,
+                new boolean[]{false, false, true, false, false});
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // RecyclerView does not respect focusable and focusableInTouchMode flag, so
+                // set flags in code.
+                mGridView.setFocusableInTouchMode(false);
+                mGridView.setFocusable(false);
+            }
+        });
+
+        assertFalse(mGridView.isFocused());
+
+        final boolean[] scrolled = new boolean[]{false};
+        mGridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy){
+                if (dy > 0) {
+                    scrolled[0] = true;
+                }
+            }
+        });
+        mActivity.addItems(0, new int[]{200, 300, 500, 500, 200});
+        waitForScrollIdleAndItemAnimation(mVerifyLayout);
+
+        assertFalse("GridView should not be scrolled", scrolled[0]);
+        assertTrue(mGridView.getChildAt(1).hasFocus());
+
+    }
+
     public void testSetSelectionWithDelta() throws Throwable {
         mInstrumentation = getInstrumentation();
         Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
