@@ -42,7 +42,7 @@ import java.util.ArrayList;
  * applications often implement their own transport controls, or you can copy the
  * implementation here out of Support4Demos.</p>
  *
- * {@sample development/samples/Support4Demos/src/com/example/android/supportv4/media/TransportControllerActivity.java
+ * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/media/TransportControllerActivity.java
  *      complete}
  */
 public class TransportMediator extends TransportController {

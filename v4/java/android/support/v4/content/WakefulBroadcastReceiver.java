@@ -45,7 +45,7 @@ import android.util.SparseArray;
  * {@link WakefulBroadcastReceiver#startWakefulService startWakefulService()}
  * holds an extra identifying the wake lock.</p>
  *
- * {@sample development/samples/Support4Demos/src/com/example/android/supportv4/content/SimpleWakefulReceiver.java complete}
+ * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/content/SimpleWakefulReceiver.java complete}
  *
  * <p>The service (in this example, an {@link android.app.IntentService}) does
  * some work. When it is finished, it releases the wake lock by calling
@@ -54,7 +54,7 @@ import android.util.SparseArray;
  * is the same intent that the {@link WakefulBroadcastReceiver} originally
  * passed in.</p>
  *
- * {@sample development/samples/Support4Demos/src/com/example/android/supportv4/content/SimpleWakefulService.java complete}
+ * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/content/SimpleWakefulService.java complete}
  */
 public abstract class WakefulBroadcastReceiver extends BroadcastReceiver {
     private static final String EXTRA_WAKE_LOCK_ID = "android.support.content.wakelockid";
