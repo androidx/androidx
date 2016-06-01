@@ -770,21 +770,27 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                                     mActionModeView,
                                     Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
                             endOnGoingFadeAnimation();
-                            ViewCompat.setAlpha(mActionModeView, 0f);
-                            mFadeAnim = ViewCompat.animate(mActionModeView).alpha(1f);
-                            mFadeAnim.setListener(new ViewPropertyAnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(View view) {
-                                    ViewCompat.setAlpha(mActionModeView, 1f);
-                                    mFadeAnim.setListener(null);
-                                    mFadeAnim = null;
-                                }
 
-                                @Override
-                                public void onAnimationStart(View view) {
-                                    mActionModeView.setVisibility(View.VISIBLE);
-                                }
-                            });
+                            if (shouldAnimateActionModeView()) {
+                                ViewCompat.setAlpha(mActionModeView, 0f);
+                                mFadeAnim = ViewCompat.animate(mActionModeView).alpha(1f);
+                                mFadeAnim.setListener(new ViewPropertyAnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationStart(View view) {
+                                        mActionModeView.setVisibility(View.VISIBLE);
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(View view) {
+                                        ViewCompat.setAlpha(mActionModeView, 1f);
+                                        mFadeAnim.setListener(null);
+                                        mFadeAnim = null;
+                                    }
+                                });
+                            } else {
+                                ViewCompat.setAlpha(mActionModeView, 1f);
+                                mActionModeView.setVisibility(View.VISIBLE);
+                            }
                         }
                     };
                 } else {
@@ -807,26 +813,38 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                     mode.invalidate();
                     mActionModeView.initForMode(mode);
                     mActionMode = mode;
-                    ViewCompat.setAlpha(mActionModeView, 0f);
-                    mFadeAnim = ViewCompat.animate(mActionModeView).alpha(1f);
-                    mFadeAnim.setListener(new ViewPropertyAnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(View view) {
-                            ViewCompat.setAlpha(mActionModeView, 1f);
-                            mFadeAnim.setListener(null);
-                            mFadeAnim = null;
-                        }
 
-                        @Override
-                        public void onAnimationStart(View view) {
-                            mActionModeView.setVisibility(View.VISIBLE);
-                            mActionModeView.sendAccessibilityEvent(
-                                    AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-                            if (mActionModeView.getParent() != null) {
-                                ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
+                    if (shouldAnimateActionModeView()) {
+                        ViewCompat.setAlpha(mActionModeView, 0f);
+                        mFadeAnim = ViewCompat.animate(mActionModeView).alpha(1f);
+                        mFadeAnim.setListener(new ViewPropertyAnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationStart(View view) {
+                                mActionModeView.setVisibility(View.VISIBLE);
+                                mActionModeView.sendAccessibilityEvent(
+                                        AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+                                if (mActionModeView.getParent() != null) {
+                                    ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
+                                }
                             }
+
+                            @Override
+                            public void onAnimationEnd(View view) {
+                                ViewCompat.setAlpha(mActionModeView, 1f);
+                                mFadeAnim.setListener(null);
+                                mFadeAnim = null;
+                            }
+                        });
+                    } else {
+                        ViewCompat.setAlpha(mActionModeView, 1f);
+                        mActionModeView.setVisibility(View.VISIBLE);
+                        mActionModeView.sendAccessibilityEvent(
+                                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+                        if (mActionModeView.getParent() != null) {
+                            ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
                         }
-                    });
+                    }
+
                     if (mActionModePopup != null) {
                         mWindow.getDecorView().post(mShowActionModePopup);
                     }
@@ -839,6 +857,12 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             mAppCompatCallback.onSupportActionModeStarted(mActionMode);
         }
         return mActionMode;
+    }
+
+    final boolean shouldAnimateActionModeView() {
+        // We only to animate the action mode in if the sub decor has already been laid out.
+        // If it hasn't been laid out, it hasn't been drawn to screen yet.
+        return mSubDecorInstalled && mSubDecor != null && ViewCompat.isLaidOut(mSubDecor);
     }
 
     private void endOnGoingFadeAnimation() {
