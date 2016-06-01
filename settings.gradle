@@ -1,4 +1,11 @@
 apply from:'buildSrc/studioCompat.gradle'
+
+/////////////////////////////
+//
+// Libraries
+//
+/////////////////////////////
+
 include ':support-annotations'
 project(':support-annotations').projectDir = new File(rootDir, 'annotations')
 
@@ -77,3 +84,32 @@ project(':support-animated-vector-drawable').projectDir = new File(rootDir, 'gra
 include ':support-transition'
 project(':support-transition').projectDir = new File(rootDir, 'transition')
 
+
+/////////////////////////////
+//
+// Samples
+//
+/////////////////////////////
+
+File samplesRoot = new File(rootDir, 'samples')
+
+include ':support-design-demos'
+project(':support-design-demos').projectDir = new File(samplesRoot, 'SupportDesignDemos')
+
+include ':support-leanback-demos'
+project(':support-leanback-demos').projectDir = new File(samplesRoot, 'SupportLeanbackDemos')
+
+include ':support-percent-demos'
+project(':support-percent-demos').projectDir = new File(samplesRoot, 'SupportPercentDemos')
+
+include ':support-transition-demos'
+project(':support-transition-demos').projectDir = new File(samplesRoot, 'SupportTransitionDemos')
+
+include ':support-v4-demos'
+project(':support-v4-demos').projectDir = new File(samplesRoot, 'Support4Demos')
+
+include ':support-v7-demos'
+project(':support-v7-demos').projectDir = new File(samplesRoot, 'Support7Demos')
+
+include ':support-v13-demos'
+project(':support-v13-demos').projectDir = new File(samplesRoot, 'Support13Demos')
