@@ -27,6 +27,7 @@
     <string name="design_text_input">Text Input</string>
     <string name="design_bottomsheet_persistent">BottomSheet/Persistent</string>
     <string name="design_bottomsheet_hideable">BottomSheet/Hideable</string>
+    <string name="design_bottomsheet_with_fab">BottomSheet/With FAB</string>
     <string name="design_bottomsheet_scroll">BottomSheet/With ScrollView in background</string>
     <string name="design_bottomsheet_with_fragment">BottomSheet/With Fragment</string>
     <string name="design_bottomsheet_modal">BottomSheet/Modal</string>
@@ -97,6 +98,7 @@
     <string name="bottom_sheet">Bottom sheet</string>
     <string name="bottomsheet_persistent">Persistent</string>
     <string name="bottomsheet_hideable">Hideable</string>
+    <string name="bottomsheet_with_fab">With FAB</string>
     <string name="bottomsheet_scroll">With ScrollView</string>
     <string name="bottomsheet_with_fragment">With Fragment</string>
     <string name="bottomsheet_modal">Modal</string>
