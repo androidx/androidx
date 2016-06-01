@@ -64,6 +64,8 @@ public final class TextUtilsCompat {
                 final String scriptSubtag = ICUCompat.maximizeAndGetScript(locale);
                 if (scriptSubtag == null) return getLayoutDirectionFromFirstChar(locale);
 
+                // This is intentionally limited to Arabic and Hebrew scripts, since older
+                // versions of Android platform only considered those scripts to be right-to-left.
                 if (scriptSubtag.equalsIgnoreCase(ARAB_SCRIPT_SUBTAG) ||
                         scriptSubtag.equalsIgnoreCase(HEBR_SCRIPT_SUBTAG)) {
                     return ViewCompat.LAYOUT_DIRECTION_RTL;
