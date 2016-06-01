@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
@@ -241,6 +242,12 @@ public class MediaBrowserServiceSupport extends MediaBrowserServiceCompat
 
     @Override
     public void onLoadChildren(final String parentMediaId, final Result<List<MediaItem>> result) {
+        onLoadChildren(parentMediaId, result, null);
+    }
+
+    @Override
+    public void onLoadChildren(final String parentMediaId, final Result<List<MediaItem>> result,
+            final Bundle options) {
         if (!mMusicProvider.isInitialized()) {
             // Use result.detach to allow calling result.sendResult from another thread:
             result.detach();
@@ -249,17 +256,16 @@ public class MediaBrowserServiceSupport extends MediaBrowserServiceCompat
                 @Override
                 public void onMusicCatalogReady(boolean success) {
                     if (success) {
-                        loadChildrenImpl(parentMediaId, result);
+                        loadChildrenImpl(parentMediaId, result, options);
                     } else {
                         updatePlaybackState(getString(R.string.error_no_metadata));
                         result.sendResult(Collections.<MediaItem>emptyList());
                     }
                 }
             });
-
         } else {
             // If our music catalog is already loaded/cached, load them into result immediately
-            loadChildrenImpl(parentMediaId, result);
+            loadChildrenImpl(parentMediaId, result, options);
         }
     }
 
@@ -268,26 +274,49 @@ public class MediaBrowserServiceSupport extends MediaBrowserServiceCompat
      * initialized.
      */
     private void loadChildrenImpl(final String parentMediaId,
-            final Result<List<MediaItem>> result) {
-        Log.d(TAG, "OnLoadChildren: parentMediaId=" + parentMediaId);
+            final Result<List<MediaItem>> result, final Bundle options) {
+        Log.d(TAG, "OnLoadChildren: parentMediaId=" + parentMediaId + ", options=" + options);
+
+        int page = -1;
+        int pageSize = -1;
+
+        if (options != null && (options.containsKey(MediaBrowserCompat.EXTRA_PAGE)
+                || options.containsKey(MediaBrowserCompat.EXTRA_PAGE_SIZE))) {
+            page = options.getInt(MediaBrowserCompat.EXTRA_PAGE, -1);
+            pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, -1);
+
+            if (page < 0 || pageSize < 1) {
+                result.sendResult(new ArrayList<>());
+                return;
+            }
+        }
+
+        int fromIndex = page == -1 ? 0 : page * pageSize;
+        int toIndex = 0;
 
         List<MediaItem> mediaItems = new ArrayList<>();
 
         if (MEDIA_ID_ROOT.equals(parentMediaId)) {
             Log.d(TAG, "OnLoadChildren.ROOT");
-            mediaItems.add(new MediaItem(
-                    new MediaDescriptionCompat.Builder()
-                            .setMediaId(MEDIA_ID_MUSICS_BY_GENRE)
-                            .setTitle(getString(R.string.browse_genres))
-                            .setIconUri(Uri.parse("android.resource://" +
-                                    "com.example.android.supportv4.media/drawable/ic_by_genre"))
-                            .setSubtitle(getString(R.string.browse_genre_subtitle))
-                            .build(), MediaItem.FLAG_BROWSABLE
-            ));
+            if (page <= 0) {
+                mediaItems.add(new MediaItem(
+                        new MediaDescriptionCompat.Builder()
+                                .setMediaId(MEDIA_ID_MUSICS_BY_GENRE)
+                                .setTitle(getString(R.string.browse_genres))
+                                .setIconUri(Uri.parse("android.resource://" +
+                                        "com.example.android.supportv4.media/drawable/ic_by_genre"))
+                                .setSubtitle(getString(R.string.browse_genre_subtitle))
+                                .build(), MediaItem.FLAG_BROWSABLE));
+            }
 
         } else if (MEDIA_ID_MUSICS_BY_GENRE.equals(parentMediaId)) {
             Log.d(TAG, "OnLoadChildren.GENRES");
-            for (String genre : mMusicProvider.getGenres()) {
+
+            List<String> genres = mMusicProvider.getGenres();
+            toIndex = page == -1 ? genres.size() : Math.min(fromIndex + pageSize, genres.size());
+
+            for (int i = fromIndex; i < toIndex; i++) {
+                String genre = genres.get(i);
                 MediaItem item = new MediaItem(
                         new MediaDescriptionCompat.Builder()
                                 .setMediaId(createBrowseCategoryMediaID(MEDIA_ID_MUSICS_BY_GENRE,
@@ -303,7 +332,13 @@ public class MediaBrowserServiceSupport extends MediaBrowserServiceCompat
         } else if (parentMediaId.startsWith(MEDIA_ID_MUSICS_BY_GENRE)) {
             String genre = MediaIDHelper.getHierarchy(parentMediaId)[1];
             Log.d(TAG, "OnLoadChildren.SONGS_BY_GENRE  genre=" + genre);
-            for (MediaMetadataCompat track : mMusicProvider.getMusicsByGenre(genre)) {
+
+            List<MediaMetadataCompat> tracks = mMusicProvider.getMusicsByGenre(genre);
+            toIndex = page == -1 ? tracks.size() : Math.min(fromIndex + pageSize, tracks.size());
+
+            for (int i = fromIndex; i < toIndex; i++) {
+                MediaMetadataCompat track = tracks.get(i);
+
                 // Since mediaMetadata fields are immutable, we need to create a copy, so we
                 // can set a hierarchy-aware mediaID. We will need to know the media hierarchy
                 // when we get a onPlayFromMusicID call, so we can create the proper queue based
