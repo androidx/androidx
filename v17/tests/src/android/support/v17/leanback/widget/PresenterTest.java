@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.support.v17.leanback.app.HeadersFragment;
 import android.support.v17.leanback.R;
 import android.test.AndroidTestCase;
+import android.view.ContextThemeWrapper;
 import android.widget.FrameLayout;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -55,12 +56,24 @@ public class PresenterTest extends AndroidTestCase {
     public void testHeaderPresenter() throws Throwable {
         HeadersFragment hf = new HeadersFragment();
         PresenterSelector ps = hf.getPresenterSelector();
-        Presenter p = ps.getPresenter(new Object());
+
+        Presenter p = ps.getPresenter(new Row());
         assertTrue("Row header instance",
                 p instanceof RowHeaderPresenter);
         assertFalse("isNullItemVisibilityGone",
                 ((RowHeaderPresenter) p).isNullItemVisibilityGone());
         testHeaderPresenter((RowHeaderPresenter) p);
+
+        p = ps.getPresenter(new SectionRow("Section Name"));
+        assertTrue("Row header instance",
+                p instanceof RowHeaderPresenter);
+        assertFalse("isNullItemVisibilityGone",
+                ((RowHeaderPresenter) p).isNullItemVisibilityGone());
+        testHeaderPresenter((RowHeaderPresenter) p);
+
+        p = ps.getPresenter(new DividerRow());
+        assertTrue("Row header instance",
+                p instanceof DividerPresenter);
 
         ListRowPresenter lrp = new ListRowPresenter();
         assertTrue("Row header instance",
@@ -72,6 +85,7 @@ public class PresenterTest extends AndroidTestCase {
     }
 
     public void testPlaybackControlsRowPresenter() {
+        setContext(new ContextThemeWrapper(getContext(), R.style.Theme_Leanback));
         Presenter detailsPresenter = new AbstractDetailsDescriptionPresenter() {
             @Override
             protected void onBindDescription(ViewHolder vh, Object item) {
