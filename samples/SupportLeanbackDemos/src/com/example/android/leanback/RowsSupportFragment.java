@@ -15,13 +15,8 @@
  */
 package com.example.android.leanback;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v17.leanback.widget.TitleHelper;
-import android.support.v17.leanback.widget.TitleView;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
@@ -32,10 +27,9 @@ import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.TitleHelper;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 public class RowsSupportFragment extends android.support.v17.leanback.app.RowsSupportFragment {
 

@@ -16,7 +16,6 @@ package com.example.android.leanback;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
 import android.support.v17.leanback.widget.TitleHelper;
 import android.support.v17.leanback.widget.TitleView;
