@@ -18,7 +18,7 @@ package android.support.v4.app {
     field public static final java.lang.String PARENT_ACTIVITY = "android.support.PARENT_ACTIVITY";
   }
 
-  public final class TaskStackBuilder {
+  public final class TaskStackBuilder implements java.lang.Iterable {
     method public android.support.v4.app.TaskStackBuilder addNextIntent(android.content.Intent);
     method public android.support.v4.app.TaskStackBuilder addNextIntentWithParentStack(android.content.Intent);
     method public android.support.v4.app.TaskStackBuilder addParentStack(android.app.Activity);
