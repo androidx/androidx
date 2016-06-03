@@ -2164,7 +2164,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      *         public abstract boolean onMove(RecyclerView recyclerView,
      *             ViewHolder viewHolder, ViewHolder target) {
      *             final int fromPos = viewHolder.getAdapterPosition();
-     *             final int toPos = viewHolder.getAdapterPosition();
+     *             final int toPos = target.getAdapterPosition();
      *             // move item in `fromPos` to `toPos` in adapter.
      *             return true;// true if moved, false otherwise
      *         }
