@@ -436,8 +436,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     /**
-     * Indicates this ScrollView whether it should stretch its content height to fill
-     * the viewport or not.
+     * Set whether this ScrollView should stretch its content height to fill the viewport or not.
      *
      * @param fillViewport True to stretch the content's height to the viewport's
      *        boundaries, false otherwise.
