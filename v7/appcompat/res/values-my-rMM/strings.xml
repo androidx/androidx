@@ -26,10 +26,10 @@
     <string name="abc_searchview_description_search" msgid="8264924765203268293">"ရှာဖွေရန်"</string>
     <string name="abc_search_hint" msgid="7723749260725869598">"ရှာဖွေပါ..."</string>
     <string name="abc_searchview_description_query" msgid="2550479030709304392">"ရှာစရာ အချက်အလက်နေရာ"</string>
-    <string name="abc_searchview_description_clear" msgid="3691816814315814921">"ရှာစရာ အချက်အလက်များ ရှင်းလင်းရန်"</string>
+    <string name="abc_searchview_description_clear" msgid="3691816814315814921">"ရှာစရာ အချက်အလက်များ ဖယ်ရှားရန်"</string>
     <string name="abc_searchview_description_submit" msgid="8928215447528550784">"ရှာဖွေစရာ အချက်အလက်ကို အတည်ပြုရန်"</string>
     <string name="abc_searchview_description_voice" msgid="893419373245838918">"အသံဖြင့် ရှာဖွေခြင်း"</string>
-    <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"အပလီကေးရှင်း တစ်ခုခုကို ရွေးချယ်ပါ"</string>
+    <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"အက်ပ် တစ်ခုခုကို ရွေးချယ်ပါ"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"အားလုံးကို ကြည့်ရန်"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"%s ကို မျှဝေပါရန်"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"မျှဝေဖို့ ရွေးပါ"</string>
