@@ -48,10 +48,9 @@ class CircleImageView extends ImageView {
     private Animation.AnimationListener mListener;
     private int mShadowRadius;
 
-    public CircleImageView(Context context, int color, final float radius) {
+    public CircleImageView(Context context, int color) {
         super(context);
         final float density = getContext().getResources().getDisplayMetrics().density;
-        final int diameter = (int) (radius * density * 2);
         final int shadowYOffset = (int) (density * Y_OFFSET);
         final int shadowXOffset = (int) (density * X_OFFSET);
 
@@ -62,7 +61,7 @@ class CircleImageView extends ImageView {
             circle = new ShapeDrawable(new OvalShape());
             ViewCompat.setElevation(this, SHADOW_ELEVATION * density);
         } else {
-            OvalShape oval = new OvalShadow(mShadowRadius, diameter);
+            OvalShape oval = new OvalShadow(mShadowRadius);
             circle = new ShapeDrawable(oval);
             ViewCompat.setLayerType(this, ViewCompat.LAYER_TYPE_SOFTWARE, circle.getPaint());
             circle.getPaint().setShadowLayer(mShadowRadius, shadowXOffset, shadowYOffset,
@@ -83,8 +82,8 @@ class CircleImageView extends ImageView {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         if (!elevationSupported()) {
-            setMeasuredDimension(getMeasuredWidth() + mShadowRadius*2, getMeasuredHeight()
-                    + mShadowRadius*2);
+            setMeasuredDimension(getMeasuredWidth() + mShadowRadius * 2, getMeasuredHeight()
+                    + mShadowRadius * 2);
         }
     }
 
@@ -127,27 +126,34 @@ class CircleImageView extends ImageView {
     private class OvalShadow extends OvalShape {
         private RadialGradient mRadialGradient;
         private Paint mShadowPaint;
-        private int mCircleDiameter;
 
-        public OvalShadow(int shadowRadius, int circleDiameter) {
+        public OvalShadow(int shadowRadius) {
             super();
             mShadowPaint = new Paint();
             mShadowRadius = shadowRadius;
-            mCircleDiameter = circleDiameter;
-            mRadialGradient = new RadialGradient(mCircleDiameter / 2, mCircleDiameter / 2,
-                    mShadowRadius, new int[] {
-                            FILL_SHADOW_COLOR, Color.TRANSPARENT
-                    }, null, Shader.TileMode.CLAMP);
-            mShadowPaint.setShader(mRadialGradient);
+            updateRadialGradient((int) rect().width());
+        }
+
+        @Override
+        protected void onResize(float width, float height) {
+            super.onResize(width, height);
+            updateRadialGradient((int) width);
         }
 
         @Override
         public void draw(Canvas canvas, Paint paint) {
             final int viewWidth = CircleImageView.this.getWidth();
             final int viewHeight = CircleImageView.this.getHeight();
-            canvas.drawCircle(viewWidth / 2, viewHeight / 2, (mCircleDiameter / 2 + mShadowRadius),
-                    mShadowPaint);
-            canvas.drawCircle(viewWidth / 2, viewHeight / 2, (mCircleDiameter / 2), paint);
+            canvas.drawCircle(viewWidth / 2, viewHeight / 2, viewWidth / 2, mShadowPaint);
+            canvas.drawCircle(viewWidth / 2, viewHeight / 2, viewWidth / 2 - mShadowRadius, paint);
+        }
+
+        private void updateRadialGradient(int diameter) {
+            mRadialGradient = new RadialGradient(diameter / 2, diameter / 2,
+                    mShadowRadius, new int[] {
+                    FILL_SHADOW_COLOR, Color.TRANSPARENT
+            }, null, Shader.TileMode.CLAMP);
+            mShadowPaint.setShader(mRadialGradient);
         }
     }
 }
