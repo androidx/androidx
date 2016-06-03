@@ -47,8 +47,8 @@ import java.lang.annotation.RetentionPolicy;
  * This class represents a delegate which you can use to extend AppCompat's support to any
  * {@link android.app.Activity}.
  * <p>
- * When using an {@link AppCompatDelegate}, you should any methods exposed in it rather than the
- * {@link android.app.Activity} method of the same name. This applies to:
+ * When using an {@link AppCompatDelegate}, you should extend any methods exposed in it rather than
+ * the {@link android.app.Activity} method of the same name. This applies to:
  * <ul>
  *     <li>{@link #addContentView(android.view.View, android.view.ViewGroup.LayoutParams)}</li>
  *     <li>{@link #setContentView(int)}</li>
