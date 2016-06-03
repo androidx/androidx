@@ -226,10 +226,11 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      * location, but can be adjusted in either direction based on whether or not
      * there is a toolbar or actionbar present.
      *
-     * @param scale Set to true if there is no view at a higher z-order than
-     *            where the progress spinner is set to appear.
+     * @param scale Set to true if there is no view at a higher z-order than where the progress
+     *              spinner is set to appear. Setting it to true will cause indicator to be scaled
+     *              up rather than clipped.
      * @param start The offset in pixels from the top of this view at which the
-     *            progress spinner should appear.
+     *              progress spinner should appear.
      * @param end The offset in pixels from the top of this view at which the
      *            progress spinner should come to rest after a successful swipe
      *            gesture.
@@ -249,8 +250,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      * can be adjusted in either direction based on whether or not there is a
      * toolbar or actionbar present.
      *
-     * @param scale Set to true if there is no view at a higher z-order than
-     *            where the progress spinner is set to appear.
+     * @param scale Set to true if there is no view at a higher z-order than where the progress
+     *              spinner is set to appear. Setting it to true will cause indicator to be scaled
+     *              up rather than clipped.
      * @param end The offset in pixels from the top of this view at which the
      *            progress spinner should come to rest after a successful swipe
      *            gesture.
