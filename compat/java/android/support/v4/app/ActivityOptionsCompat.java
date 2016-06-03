@@ -17,10 +17,13 @@
 package android.support.v4.app;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 import android.view.View;
 
@@ -29,6 +32,19 @@ import android.view.View;
  * introduced in API level 16 in a backwards compatible fashion.
  */
 public class ActivityOptionsCompat {
+    /**
+     * A long in the extras delivered by {@link #requestUsageTimeReport} that contains
+     * the total time (in ms) the user spent in the app flow.
+     */
+    public static final String EXTRA_USAGE_TIME_REPORT = "android.activity.usage_time";
+
+    /**
+     * A Bundle in the extras delivered by {@link #requestUsageTimeReport} that contains
+     * detailed information about the time spent in each package associated with the app;
+     * each key is a package name, whose value is a long containing the time (in ms).
+     */
+    public static final String EXTRA_USAGE_TIME_REPORT_PACKAGES = "android.usage_time_packages";
+
     /**
      * Create an ActivityOptions specifying a custom animation to run when the
      * activity is displayed.
@@ -44,7 +60,16 @@ public class ActivityOptionsCompat {
      */
     public static ActivityOptionsCompat makeCustomAnimation(Context context,
             int enterResId, int exitResId) {
-        if (Build.VERSION.SDK_INT >= 16) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            return new ActivityOptionsImpl24(
+                ActivityOptionsCompat24.makeCustomAnimation(context, enterResId, exitResId));
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            return new ActivityOptionsImpl23(
+                ActivityOptionsCompat23.makeCustomAnimation(context, enterResId, exitResId));
+        } else if (Build.VERSION.SDK_INT >= 21) {
+            return new ActivityOptionsImpl21(
+                ActivityOptionsCompat21.makeCustomAnimation(context, enterResId, exitResId));
+        } else if (Build.VERSION.SDK_INT >= 16) {
             return new ActivityOptionsImplJB(
                 ActivityOptionsCompatJB.makeCustomAnimation(context, enterResId, exitResId));
         }
@@ -73,10 +98,50 @@ public class ActivityOptionsCompat {
      */
     public static ActivityOptionsCompat makeScaleUpAnimation(View source,
             int startX, int startY, int startWidth, int startHeight) {
-        if (Build.VERSION.SDK_INT >= 16) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            return new ActivityOptionsImpl24(
+                ActivityOptionsCompat24.makeScaleUpAnimation(source, startX, startY,
+                        startWidth, startHeight));
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            return new ActivityOptionsImpl23(
+                ActivityOptionsCompat23.makeScaleUpAnimation(source, startX, startY,
+                        startWidth, startHeight));
+        } else if (Build.VERSION.SDK_INT >= 21) {
+            return new ActivityOptionsImpl21(
+                ActivityOptionsCompat21.makeScaleUpAnimation(source, startX, startY,
+                        startWidth, startHeight));
+        } else if (Build.VERSION.SDK_INT >= 16) {
             return new ActivityOptionsImplJB(
                 ActivityOptionsCompatJB.makeScaleUpAnimation(source, startX, startY,
                         startWidth, startHeight));
+        }
+        return new ActivityOptionsCompat();
+    }
+
+    /**
+     * Create an ActivityOptions specifying an animation where the new
+     * activity is revealed from a small originating area of the screen to
+     * its final full representation.
+     *
+     * @param source The View that the new activity is animating from.  This
+     * defines the coordinate space for <var>startX</var> and <var>startY</var>.
+     * @param startX The x starting location of the new activity, relative to <var>source</var>.
+     * @param startY The y starting location of the activity, relative to <var>source</var>.
+     * @param width The initial width of the new activity.
+     * @param height The initial height of the new activity.
+     * @return Returns a new ActivityOptions object that you can use to
+     * supply these options as the options Bundle when starting an activity.
+     */
+    public static ActivityOptionsCompat makeClipRevealAnimation(View source,
+            int startX, int startY, int width, int height) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            return new ActivityOptionsImpl24(
+                ActivityOptionsCompat24.makeClipRevealAnimation(source, startX, startY,
+                        width, height));
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            return new ActivityOptionsImpl23(
+                ActivityOptionsCompat23.makeClipRevealAnimation(source, startX, startY,
+                        width, height));
         }
         return new ActivityOptionsCompat();
     }
@@ -102,7 +167,19 @@ public class ActivityOptionsCompat {
      */
     public static ActivityOptionsCompat makeThumbnailScaleUpAnimation(View source,
             Bitmap thumbnail, int startX, int startY) {
-        if (Build.VERSION.SDK_INT >= 16) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            return new ActivityOptionsImpl24(
+                ActivityOptionsCompat24.makeThumbnailScaleUpAnimation(source, thumbnail,
+                        startX, startY));
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            return new ActivityOptionsImpl23(
+                ActivityOptionsCompat23.makeThumbnailScaleUpAnimation(source, thumbnail,
+                        startX, startY));
+        } else if (Build.VERSION.SDK_INT >= 21) {
+            return new ActivityOptionsImpl21(
+                ActivityOptionsCompat21.makeThumbnailScaleUpAnimation(source, thumbnail,
+                        startX, startY));
+        } else if (Build.VERSION.SDK_INT >= 16) {
             return new ActivityOptionsImplJB(
                 ActivityOptionsCompatJB.makeThumbnailScaleUpAnimation(source, thumbnail,
                         startX, startY));
@@ -130,7 +207,15 @@ public class ActivityOptionsCompat {
      */
     public static ActivityOptionsCompat makeSceneTransitionAnimation(Activity activity,
             View sharedElement, String sharedElementName) {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            return new ActivityOptionsCompat.ActivityOptionsImpl24(
+                    ActivityOptionsCompat24.makeSceneTransitionAnimation(activity,
+                            sharedElement, sharedElementName));
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            return new ActivityOptionsCompat.ActivityOptionsImpl23(
+                    ActivityOptionsCompat23.makeSceneTransitionAnimation(activity,
+                            sharedElement, sharedElementName));
+        } else if (Build.VERSION.SDK_INT >= 21) {
             return new ActivityOptionsCompat.ActivityOptionsImpl21(
                     ActivityOptionsCompat21.makeSceneTransitionAnimation(activity,
                             sharedElement, sharedElementName));
@@ -168,8 +253,55 @@ public class ActivityOptionsCompat {
                     names[i] = sharedElements[i].second;
                 }
             }
+            if (Build.VERSION.SDK_INT >= 24) {
+                return new ActivityOptionsCompat.ActivityOptionsImpl24(
+                        ActivityOptionsCompat24.makeSceneTransitionAnimation(activity, views, names));
+            } else if (Build.VERSION.SDK_INT >= 23) {
+                return new ActivityOptionsCompat.ActivityOptionsImpl23(
+                        ActivityOptionsCompat23.makeSceneTransitionAnimation(activity, views, names));
+            } else {
+                return new ActivityOptionsCompat.ActivityOptionsImpl21(
+                        ActivityOptionsCompat21.makeSceneTransitionAnimation(activity, views, names));
+            }
+        }
+        return new ActivityOptionsCompat();
+    }
+
+    /**
+     * If set along with Intent.FLAG_ACTIVITY_NEW_DOCUMENT then the task being launched will not be
+     * presented to the user but will instead be only available through the recents task list.
+     * In addition, the new task wil be affiliated with the launching activity's task.
+     * Affiliated tasks are grouped together in the recents task list.
+     *
+     * <p>This behavior is not supported for activities with {@link
+     * android.R.styleable#AndroidManifestActivity_launchMode launchMode} values of
+     * <code>singleInstance</code> or <code>singleTask</code>.
+     */
+    public static ActivityOptionsCompat makeTaskLaunchBehind() {
+        if (Build.VERSION.SDK_INT >= 24) {
+            return new ActivityOptionsCompat.ActivityOptionsImpl24(
+                    ActivityOptionsCompat24.makeTaskLaunchBehind());
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            return new ActivityOptionsCompat.ActivityOptionsImpl23(
+                    ActivityOptionsCompat23.makeTaskLaunchBehind());
+        } else if (Build.VERSION.SDK_INT >= 21) {
             return new ActivityOptionsCompat.ActivityOptionsImpl21(
-                    ActivityOptionsCompat21.makeSceneTransitionAnimation(activity, views, names));
+                    ActivityOptionsCompat21.makeTaskLaunchBehind());
+        }
+        return new ActivityOptionsCompat();
+    }
+
+    /**
+     * Create a basic ActivityOptions that has no special animation associated with it.
+     * Other options can still be set.
+     */
+    public static ActivityOptionsCompat makeBasic() {
+        if (Build.VERSION.SDK_INT >= 24) {
+            return new ActivityOptionsCompat.ActivityOptionsImpl24(
+                    ActivityOptionsCompat24.makeBasic());
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            return new ActivityOptionsCompat.ActivityOptionsImpl23(
+                    ActivityOptionsCompat23.makeBasic());
         }
         return new ActivityOptionsCompat();
     }
@@ -217,7 +349,95 @@ public class ActivityOptionsCompat {
         }
     }
 
+    private static class ActivityOptionsImpl23 extends ActivityOptionsCompat {
+        private final ActivityOptionsCompat23 mImpl;
+
+        ActivityOptionsImpl23(ActivityOptionsCompat23 impl) {
+            mImpl = impl;
+        }
+
+        @Override
+        public Bundle toBundle() {
+            return mImpl.toBundle();
+        }
+
+        @Override
+        public void update(ActivityOptionsCompat otherOptions) {
+            if (otherOptions instanceof ActivityOptionsCompat.ActivityOptionsImpl23) {
+                ActivityOptionsCompat.ActivityOptionsImpl23
+                        otherImpl = (ActivityOptionsCompat.ActivityOptionsImpl23)otherOptions;
+                mImpl.update(otherImpl.mImpl);
+            }
+        }
+
+        @Override
+        public void requestUsageTimeReport(PendingIntent receiver) {
+            mImpl.requestUsageTimeReport(receiver);
+        }
+    }
+
+    private static class ActivityOptionsImpl24 extends ActivityOptionsCompat {
+        private final ActivityOptionsCompat24 mImpl;
+
+        ActivityOptionsImpl24(ActivityOptionsCompat24 impl) {
+            mImpl = impl;
+        }
+
+        @Override
+        public Bundle toBundle() {
+            return mImpl.toBundle();
+        }
+
+        @Override
+        public void update(ActivityOptionsCompat otherOptions) {
+            if (otherOptions instanceof ActivityOptionsCompat.ActivityOptionsImpl24) {
+                ActivityOptionsCompat.ActivityOptionsImpl24
+                        otherImpl = (ActivityOptionsCompat.ActivityOptionsImpl24)otherOptions;
+                mImpl.update(otherImpl.mImpl);
+            }
+        }
+
+        @Override
+        public ActivityOptionsCompat setLaunchBounds(@Nullable Rect screenSpacePixelRect) {
+            return new ActivityOptionsImpl24(mImpl.setLaunchBounds(screenSpacePixelRect));
+        }
+
+        @Override
+        public Rect getLaunchBounds() {
+            return mImpl.getLaunchBounds();
+        }
+
+        @Override
+        public void requestUsageTimeReport(PendingIntent receiver) {
+            mImpl.requestUsageTimeReport(receiver);
+        }
+    }
+
     protected ActivityOptionsCompat() {
+    }
+
+    /**
+     * Sets the bounds (window size) that the activity should be launched in.
+     * Rect position should be provided in pixels and in screen coordinates.
+     * Set to null explicitly for fullscreen.
+     * <p>
+     * <strong>NOTE:<strong/> This value is ignored on devices that don't have
+     * {@link android.content.pm.PackageManager#FEATURE_FREEFORM_WINDOW_MANAGEMENT} or
+     * {@link android.content.pm.PackageManager#FEATURE_PICTURE_IN_PICTURE} enabled.
+     * @param screenSpacePixelRect Launch bounds to use for the activity or null for fullscreen.
+     */
+    public ActivityOptionsCompat setLaunchBounds(@Nullable Rect screenSpacePixelRect) {
+        return null;
+    }
+
+    /**
+     * Returns the bounds that should be used to launch the activity.
+     * @see #setLaunchBounds(Rect)
+     * @return Bounds used to launch the activity.
+     */
+    @Nullable
+    public Rect getLaunchBounds() {
+        return null;
     }
 
     /**
@@ -237,6 +457,34 @@ public class ActivityOptionsCompat {
      * base options.
      */
     public void update(ActivityOptionsCompat otherOptions) {
+        // Do nothing.
+    }
+
+    /**
+     * Ask the the system track that time the user spends in the app being launched, and
+     * report it back once done.  The report will be sent to the given receiver, with
+     * the extras {@link #EXTRA_USAGE_TIME_REPORT} and {@link #EXTRA_USAGE_TIME_REPORT_PACKAGES}
+     * filled in.
+     *
+     * <p>The time interval tracked is from launching this activity until the user leaves
+     * that activity's flow.  They are considered to stay in the flow as long as
+     * new activities are being launched or returned to from the original flow,
+     * even if this crosses package or task boundaries.  For example, if the originator
+     * starts an activity to view an image, and while there the user selects to share,
+     * which launches their email app in a new task, and they complete the share, the
+     * time during that entire operation will be included until they finally hit back from
+     * the original image viewer activity.</p>
+     *
+     * <p>The user is considered to complete a flow once they switch to another
+     * activity that is not part of the tracked flow.  This may happen, for example, by
+     * using the notification shade, launcher, or recents to launch or switch to another
+     * app.  Simply going in to these navigation elements does not break the flow (although
+     * the launcher and recents stops time tracking of the session); it is the act of
+     * going somewhere else that completes the tracking.</p>
+     *
+     * @param receiver A broadcast receiver that willl receive the report.
+     */
+    public void requestUsageTimeReport(PendingIntent receiver) {
         // Do nothing.
     }
 }

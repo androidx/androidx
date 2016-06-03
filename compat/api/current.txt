@@ -55,13 +55,21 @@ package android.support.v4.app {
 
   public class ActivityOptionsCompat {
     ctor protected ActivityOptionsCompat();
+    method public android.graphics.Rect getLaunchBounds();
+    method public static android.support.v4.app.ActivityOptionsCompat makeBasic();
+    method public static android.support.v4.app.ActivityOptionsCompat makeClipRevealAnimation(android.view.View, int, int, int, int);
     method public static android.support.v4.app.ActivityOptionsCompat makeCustomAnimation(android.content.Context, int, int);
     method public static android.support.v4.app.ActivityOptionsCompat makeScaleUpAnimation(android.view.View, int, int, int, int);
     method public static android.support.v4.app.ActivityOptionsCompat makeSceneTransitionAnimation(android.app.Activity, android.view.View, java.lang.String);
     method public static android.support.v4.app.ActivityOptionsCompat makeSceneTransitionAnimation(android.app.Activity, android.support.v4.util.Pair<android.view.View, java.lang.String>...);
+    method public static android.support.v4.app.ActivityOptionsCompat makeTaskLaunchBehind();
     method public static android.support.v4.app.ActivityOptionsCompat makeThumbnailScaleUpAnimation(android.view.View, android.graphics.Bitmap, int, int);
+    method public void requestUsageTimeReport(android.app.PendingIntent);
+    method public android.support.v4.app.ActivityOptionsCompat setLaunchBounds(android.graphics.Rect);
     method public android.os.Bundle toBundle();
     method public void update(android.support.v4.app.ActivityOptionsCompat);
+    field public static final java.lang.String EXTRA_USAGE_TIME_REPORT = "android.activity.usage_time";
+    field public static final java.lang.String EXTRA_USAGE_TIME_REPORT_PACKAGES = "android.usage_time_packages";
   }
 
   public final class AppOpsManagerCompat {
@@ -1825,6 +1833,7 @@ package android.support.v4.view.accessibility {
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat findFocus(int);
     method public java.lang.Object getProvider();
     method public boolean performAction(int, int, android.os.Bundle);
+    field public static final int HOST_VIEW_ID = -1; // 0xffffffff
   }
 
   public class AccessibilityRecordCompat {

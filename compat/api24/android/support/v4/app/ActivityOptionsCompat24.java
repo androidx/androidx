@@ -18,42 +18,43 @@ package android.support.v4.app;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 import android.view.View;
 
-class ActivityOptionsCompat21 {
+class ActivityOptionsCompat24 {
 
-    private final ActivityOptions mActivityOptions;
-
-    public static ActivityOptionsCompat21 makeCustomAnimation(Context context,
+    public static ActivityOptionsCompat24 makeCustomAnimation(Context context,
             int enterResId, int exitResId) {
-        return new ActivityOptionsCompat21(
+        return new ActivityOptionsCompat24(
             ActivityOptions.makeCustomAnimation(context, enterResId, exitResId));
     }
 
-    public static ActivityOptionsCompat21 makeScaleUpAnimation(View source,
+    public static ActivityOptionsCompat24 makeScaleUpAnimation(View source,
             int startX, int startY, int startWidth, int startHeight) {
-        return new ActivityOptionsCompat21(
+        return new ActivityOptionsCompat24(
             ActivityOptions.makeScaleUpAnimation(source, startX, startY, startWidth, startHeight));
     }
 
-    public static ActivityOptionsCompat21 makeThumbnailScaleUpAnimation(View source,
+    public static ActivityOptionsCompat24 makeThumbnailScaleUpAnimation(View source,
             Bitmap thumbnail, int startX, int startY) {
-        return new ActivityOptionsCompat21(
+        return new ActivityOptionsCompat24(
             ActivityOptions.makeThumbnailScaleUpAnimation(source, thumbnail, startX, startY));
     }
 
-    public static ActivityOptionsCompat21 makeSceneTransitionAnimation(Activity activity,
+    public static ActivityOptionsCompat24 makeSceneTransitionAnimation(Activity activity,
             View sharedElement, String sharedElementName) {
-        return new ActivityOptionsCompat21(
+        return new ActivityOptionsCompat24(
                 ActivityOptions.makeSceneTransitionAnimation(activity, sharedElement,
                         sharedElementName));
     }
 
-    public static ActivityOptionsCompat21 makeSceneTransitionAnimation(Activity activity,
+    public static ActivityOptionsCompat24 makeSceneTransitionAnimation(Activity activity,
             View[] sharedElements, String[] sharedElementNames) {
         Pair[] pairs = null;
         if (sharedElements != null) {
@@ -62,24 +63,48 @@ class ActivityOptionsCompat21 {
                 pairs[i] = Pair.create(sharedElements[i], sharedElementNames[i]);
             }
         }
-        return new ActivityOptionsCompat21(
+        return new ActivityOptionsCompat24(
                 ActivityOptions.makeSceneTransitionAnimation(activity, pairs));
     }
 
-    public static ActivityOptionsCompat21 makeTaskLaunchBehind() {
-        return new ActivityOptionsCompat21(
+    public static ActivityOptionsCompat24 makeClipRevealAnimation(View source,
+            int startX, int startY, int width, int height) {
+        return new ActivityOptionsCompat24(
+            ActivityOptions.makeClipRevealAnimation(source, startX, startY, width, height));
+    }
+
+    public static ActivityOptionsCompat24 makeTaskLaunchBehind() {
+        return new ActivityOptionsCompat24(
                 ActivityOptions.makeTaskLaunchBehind());
     }
 
-    private ActivityOptionsCompat21(ActivityOptions activityOptions) {
+    public static ActivityOptionsCompat24 makeBasic() {
+        return new ActivityOptionsCompat24(ActivityOptions.makeBasic());
+    }
+
+    private final ActivityOptions mActivityOptions;
+
+    private ActivityOptionsCompat24(ActivityOptions activityOptions) {
         mActivityOptions = activityOptions;
+    }
+
+    public ActivityOptionsCompat24 setLaunchBounds(@Nullable Rect screenSpacePixelRect) {
+        return new ActivityOptionsCompat24(mActivityOptions.setLaunchBounds(screenSpacePixelRect));
+    }
+
+    public Rect getLaunchBounds() {
+        return mActivityOptions.getLaunchBounds();
     }
 
     public Bundle toBundle() {
         return mActivityOptions.toBundle();
     }
 
-    public void update(ActivityOptionsCompat21 otherOptions) {
+    public void update(ActivityOptionsCompat24 otherOptions) {
         mActivityOptions.update(otherOptions.mActivityOptions);
+    }
+
+    public void requestUsageTimeReport(PendingIntent receiver) {
+        mActivityOptions.requestUsageTimeReport(receiver);
     }
 }
