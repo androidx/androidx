@@ -29,6 +29,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserServiceCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
@@ -187,9 +188,10 @@ public class MediaBrowserServiceSupport extends MediaBrowserServiceCompat
     public int onStartCommand(Intent startIntent, int flags, int startId) {
         if (startIntent != null) {
             String action = startIntent.getAction();
-            String command = startIntent.getStringExtra(CMD_NAME);
-            if (ACTION_CMD.equals(action)) {
-                if (CMD_PAUSE.equals(command)) {
+            if (Intent.ACTION_MEDIA_BUTTON.equals(action)) {
+                MediaButtonReceiver.handleIntent(mSession, startIntent);
+            } else if (ACTION_CMD.equals(action)) {
+                if (CMD_PAUSE.equals(startIntent.getStringExtra(CMD_NAME))) {
                     if (mPlayback != null && mPlayback.isPlaying()) {
                         handlePauseRequest();
                     }
