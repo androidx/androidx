@@ -27,10 +27,10 @@ class PointerIconCompatApi24 {
     }
 
     public static Object createCustomIcon(Bitmap bitmap, float hotSpotX, float hotSpotY) {
-        return PointerIcon.createCustomIcon(bitmap, hotSpotX, hotSpotY);
+        return null;
     }
 
     public static Object loadCustomIcon(Resources resources, int resourceId) {
-        return PointerIcon.loadCustomIcon(resources, resourceId);
+        return null;
     }
 }
