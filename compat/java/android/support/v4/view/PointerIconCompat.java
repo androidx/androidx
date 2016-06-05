@@ -26,74 +26,74 @@ import android.support.v4.os.BuildCompat;
  * level 4 in a backwards compatible fashion.
  */
 public final class PointerIconCompat {
-    /** Synonym for {@link android.view.PointerIcon#STYLE_NULL} */
-    public static final int STYLE_NULL = 0;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_NULL} */
+    public static final int TYPE_NULL = 0;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_ARROW} */
-    public static final int STYLE_ARROW = 1000;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_ARROW} */
+    public static final int TYPE_ARROW = 1000;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_CONTEXT_MENU} */
-    public static final int STYLE_CONTEXT_MENU = 1001;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_CONTEXT_MENU} */
+    public static final int TYPE_CONTEXT_MENU = 1001;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_HAND} */
-    public static final int STYLE_HAND = 1002;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_HAND} */
+    public static final int TYPE_HAND = 1002;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_HELP} */
-    public static final int STYLE_HELP = 1003;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_HELP} */
+    public static final int TYPE_HELP = 1003;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_WAIT} */
-    public static final int STYLE_WAIT = 1004;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_WAIT} */
+    public static final int TYPE_WAIT = 1004;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_CELL} */
-    public static final int STYLE_CELL = 1006;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_CELL} */
+    public static final int TYPE_CELL = 1006;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_CROSSHAIR} */
-    public static final int STYLE_CROSSHAIR = 1007;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_CROSSHAIR} */
+    public static final int TYPE_CROSSHAIR = 1007;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_TEXT} */
-    public static final int STYLE_TEXT = 1008;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_TEXT} */
+    public static final int TYPE_TEXT = 1008;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_VERTICAL_TEXT} */
-    public static final int STYLE_VERTICAL_TEXT = 1009;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_VERTICAL_TEXT} */
+    public static final int TYPE_VERTICAL_TEXT = 1009;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_ALIAS} */
-    public static final int STYLE_ALIAS = 1010;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_ALIAS} */
+    public static final int TYPE_ALIAS = 1010;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_COPY} */
-    public static final int STYLE_COPY = 1011;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_COPY} */
+    public static final int TYPE_COPY = 1011;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_NO_DROP} */
-    public static final int STYLE_NO_DROP = 1012;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_NO_DROP} */
+    public static final int TYPE_NO_DROP = 1012;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_ALL_SCROLL} */
-    public static final int STYLE_ALL_SCROLL = 1013;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_ALL_SCROLL} */
+    public static final int TYPE_ALL_SCROLL = 1013;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_HORIZONTAL_DOUBLE_ARROW} */
-    public static final int STYLE_HORIZONTAL_DOUBLE_ARROW = 1014;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_HORIZONTAL_DOUBLE_ARROW} */
+    public static final int TYPE_HORIZONTAL_DOUBLE_ARROW = 1014;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_VERTICAL_DOUBLE_ARROW} */
-    public static final int STYLE_VERTICAL_DOUBLE_ARROW = 1015;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_VERTICAL_DOUBLE_ARROW} */
+    public static final int TYPE_VERTICAL_DOUBLE_ARROW = 1015;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_TOP_RIGHT_DIAGONAL_DOUBLE_ARROW} */
-    public static final int STYLE_TOP_RIGHT_DIAGONAL_DOUBLE_ARROW = 1016;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_TOP_RIGHT_DIAGONAL_DOUBLE_ARROW} */
+    public static final int TYPE_TOP_RIGHT_DIAGONAL_DOUBLE_ARROW = 1016;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_TOP_LEFT_DIAGONAL_DOUBLE_ARROW} */
-    public static final int STYLE_TOP_LEFT_DIAGONAL_DOUBLE_ARROW = 1017;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_TOP_LEFT_DIAGONAL_DOUBLE_ARROW} */
+    public static final int TYPE_TOP_LEFT_DIAGONAL_DOUBLE_ARROW = 1017;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_ZOOM_IN} */
-    public static final int STYLE_ZOOM_IN = 1018;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_ZOOM_IN} */
+    public static final int TYPE_ZOOM_IN = 1018;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_ZOOM_OUT} */
-    public static final int STYLE_ZOOM_OUT = 1019;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_ZOOM_OUT} */
+    public static final int TYPE_ZOOM_OUT = 1019;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_GRAB} */
-    public static final int STYLE_GRAB = 1020;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_GRAB} */
+    public static final int TYPE_GRAB = 1020;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_GRABBING} */
-    public static final int STYLE_GRABBING = 1021;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_GRABBING} */
+    public static final int TYPE_GRABBING = 1021;
 
-    /** Synonym for {@link android.view.PointerIcon#STYLE_DEFAULT} */
-    public static final int STYLE_DEFAULT = STYLE_ARROW;
+    /** Synonym for {@link android.view.PointerIcon#TYPE_DEFAULT} */
+    public static final int TYPE_DEFAULT = TYPE_ARROW;
 
 
     private Object mPointerIcon;
