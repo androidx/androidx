@@ -19,7 +19,7 @@ package android.support.v4.util;
 
 
 /**
- * Helper class for crating pools of objects. An example use looks like this:
+ * Helper class for creating pools of objects. An example use looks like this:
  * <pre>
  * public class MyPooledClass {
  *
