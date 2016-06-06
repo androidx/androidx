@@ -25,23 +25,23 @@ import android.os.Build;
  */
 public class AccessibilityWindowInfoCompat {
 
-    private static interface AccessibilityWindowInfoImpl {
-        public Object obtain();
-        public Object obtain(Object info);
-        public int getType(Object info);
-        public int getLayer(Object info);
-        public Object getRoot(Object info);
-        public Object getParent(Object info);
-        public int getId(Object info);
-        public void getBoundsInScreen(Object info, Rect outBounds);
-        public boolean isActive(Object info);
-        public boolean isFocused(Object info);
-        public boolean isAccessibilityFocused(Object info);
-        public int getChildCount(Object info);
-        public Object getChild(Object info, int index);
-        public CharSequence getTitle(Object info);
-        public Object getAnchor(Object info);
-        public void recycle(Object info);
+    private interface AccessibilityWindowInfoImpl {
+        Object obtain();
+        Object obtain(Object info);
+        int getType(Object info);
+        int getLayer(Object info);
+        Object getRoot(Object info);
+        Object getParent(Object info);
+        int getId(Object info);
+        void getBoundsInScreen(Object info, Rect outBounds);
+        boolean isActive(Object info);
+        boolean isFocused(Object info);
+        boolean isAccessibilityFocused(Object info);
+        int getChildCount(Object info);
+        Object getChild(Object info, int index);
+        CharSequence getTitle(Object info);
+        Object getAnchor(Object info);
+        void recycle(Object info);
     }
 
     private static class AccessibilityWindowInfoStubImpl implements AccessibilityWindowInfoImpl {
@@ -254,6 +254,12 @@ public class AccessibilityWindowInfoCompat {
      * they are covered by a touchable window.
      */
     public static final int TYPE_ACCESSIBILITY_OVERLAY = 4;
+
+    /**
+     * Window type: A system window used to divide the screen in split-screen mode.
+     * This type of window is present only in split-screen mode.
+     */
+    public static final int TYPE_SPLIT_SCREEN_DIVIDER = 5;
 
     /**
      * Creates a wrapper for info implementation.

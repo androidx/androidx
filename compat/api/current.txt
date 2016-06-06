@@ -1661,6 +1661,7 @@ package android.support.v4.view.accessibility {
     method public boolean isChecked();
     method public boolean isClickable();
     method public boolean isContentInvalid();
+    method public boolean isContextClickable();
     method public boolean isDismissable();
     method public boolean isEditable();
     method public boolean isEnabled();
@@ -1696,6 +1697,7 @@ package android.support.v4.view.accessibility {
     method public void setCollectionItemInfo(java.lang.Object);
     method public void setContentDescription(java.lang.CharSequence);
     method public void setContentInvalid(boolean);
+    method public void setContextClickable(boolean);
     method public void setDismissable(boolean);
     method public void setDrawingOrder(int);
     method public void setEditable(boolean);
@@ -1733,9 +1735,12 @@ package android.support.v4.view.accessibility {
     method public void setViewIdResourceName(java.lang.String);
     method public void setVisibleToUser(boolean);
     field public static final int ACTION_ACCESSIBILITY_FOCUS = 64; // 0x40
+    field public static final java.lang.String ACTION_ARGUMENT_COLUMN_INT = "android.view.accessibility.action.ARGUMENT_COLUMN_INT";
     field public static final java.lang.String ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN = "ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN";
     field public static final java.lang.String ACTION_ARGUMENT_HTML_ELEMENT_STRING = "ACTION_ARGUMENT_HTML_ELEMENT_STRING";
     field public static final java.lang.String ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT = "ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT";
+    field public static final java.lang.String ACTION_ARGUMENT_PROGRESS_VALUE = "android.view.accessibility.action.ARGUMENT_PROGRESS_VALUE";
+    field public static final java.lang.String ACTION_ARGUMENT_ROW_INT = "android.view.accessibility.action.ARGUMENT_ROW_INT";
     field public static final java.lang.String ACTION_ARGUMENT_SELECTION_END_INT = "ACTION_ARGUMENT_SELECTION_END_INT";
     field public static final java.lang.String ACTION_ARGUMENT_SELECTION_START_INT = "ACTION_ARGUMENT_SELECTION_START_INT";
     field public static final java.lang.String ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE = "ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE";
@@ -1779,6 +1784,7 @@ package android.support.v4.view.accessibility {
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CLEAR_SELECTION;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CLICK;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_COLLAPSE;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CONTEXT_CLICK;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_COPY;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CUT;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_DISMISS;
@@ -1791,17 +1797,26 @@ package android.support.v4.view.accessibility {
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PREVIOUS_HTML_ELEMENT;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_BACKWARD;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_DOWN;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_FORWARD;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_LEFT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_RIGHT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_TO_POSITION;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_UP;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SELECT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SET_PROGRESS;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SET_SELECTION;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SET_TEXT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SHOW_ON_SCREEN;
   }
 
   public static class AccessibilityNodeInfoCompat.CollectionInfoCompat {
     method public int getColumnCount();
     method public int getRowCount();
+    method public int getSelectionMode();
     method public boolean isHierarchical();
     method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat obtain(int, int, boolean, int);
+    method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat obtain(int, int, boolean);
     field public static final int SELECTION_MODE_MULTIPLE = 2; // 0x2
     field public static final int SELECTION_MODE_NONE = 0; // 0x0
     field public static final int SELECTION_MODE_SINGLE = 1; // 0x1
@@ -1815,6 +1830,7 @@ package android.support.v4.view.accessibility {
     method public boolean isHeading();
     method public boolean isSelected();
     method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat obtain(int, int, int, int, boolean, boolean);
+    method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat obtain(int, int, int, int, boolean);
   }
 
   public static class AccessibilityNodeInfoCompat.RangeInfoCompat {
@@ -1822,6 +1838,7 @@ package android.support.v4.view.accessibility {
     method public float getMax();
     method public float getMin();
     method public int getType();
+    method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat obtain(int, float, float, float);
     field public static final int RANGE_TYPE_FLOAT = 1; // 0x1
     field public static final int RANGE_TYPE_INT = 0; // 0x0
     field public static final int RANGE_TYPE_PERCENT = 2; // 0x2
@@ -1909,6 +1926,7 @@ package android.support.v4.view.accessibility {
     field public static final int TYPE_ACCESSIBILITY_OVERLAY = 4; // 0x4
     field public static final int TYPE_APPLICATION = 1; // 0x1
     field public static final int TYPE_INPUT_METHOD = 2; // 0x2
+    field public static final int TYPE_SPLIT_SCREEN_DIVIDER = 5; // 0x5
     field public static final int TYPE_SYSTEM = 3; // 0x3
   }
 

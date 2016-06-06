@@ -79,6 +79,12 @@ class AccessibilityNodeInfoCompatApi21 {
         return ((AccessibilityNodeInfo) info).removeChild(root, virtualDescendantId);
     }
 
+    static class CollectionInfo {
+        public static int getSelectionMode(Object info) {
+            return ((AccessibilityNodeInfo.CollectionInfo) info).getSelectionMode();
+        }
+    }
+
     static class CollectionItemInfo {
         public static boolean isSelected(Object info) {
             return ((AccessibilityNodeInfo.CollectionItemInfo) info).isSelected();
