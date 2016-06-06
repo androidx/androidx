@@ -1324,7 +1324,7 @@ public class NotificationCompat {
         }
 
         /**
-         * Set the argb value that you would like the LED on the device to blnk, as well as the
+         * Set the argb value that you would like the LED on the device to blink, as well as the
          * rate.  The rate is specified in terms of the number of milliseconds to be on
          * and then the number of milliseconds to be off.
          */
