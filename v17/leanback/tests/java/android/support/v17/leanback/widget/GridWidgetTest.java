@@ -22,7 +22,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Parcelable;
-import android.support.v17.leanback.tests.R;
+import android.support.v17.leanback.test.R;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerViewAccessibilityDelegate;
@@ -77,7 +77,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
     };
 
     public GridWidgetTest() {
-        super("android.support.v17.leanback.tests", GridActivity.class);
+        super("android.support.v17.leanback.test", GridActivity.class);
     }
 
     private void humanDelay(int delay) throws InterruptedException {

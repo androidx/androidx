@@ -16,7 +16,7 @@
 
 package android.support.v17.leanback.widget;
 
-import android.support.v17.leanback.tests.R;
+import android.support.v17.leanback.test.R;
 import android.support.v7.widget.RecyclerView;
 import android.support.v17.leanback.widget.BaseGridView;
 import android.support.v17.leanback.widget.OnChildSelectedListener;

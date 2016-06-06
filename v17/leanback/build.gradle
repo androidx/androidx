@@ -5,6 +5,13 @@ archivesBaseName = 'leanback-v17'
 dependencies {
     compile project(':support-v4')
     compile project(':support-recyclerview-v7')
+    androidTestCompile ('com.android.support.test:runner:0.4.1') {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile ('com.android.support.test.espresso:espresso-core:2.2.1') {
+        exclude module: 'support-annotations'
+    }
+    testCompile 'junit:junit:4.12'
 }
 
 android {
@@ -15,6 +22,8 @@ android {
         minSdkVersion 17
         // TODO: get target from branch
         //targetSdkVersion 19
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
@@ -25,6 +34,8 @@ android {
 
         androidTest.setRoot('tests')
         androidTest.java.srcDir 'tests/java'
+        androidTest.res.srcDir 'tests/res'
+        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
     compileOptions {

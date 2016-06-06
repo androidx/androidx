@@ -22,7 +22,7 @@ import android.support.v4.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v17.leanback.tests.R;
+import android.support.v17.leanback.test.R;
 
 /**
  * @hide from javadoc
