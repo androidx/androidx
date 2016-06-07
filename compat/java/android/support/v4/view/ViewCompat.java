@@ -1620,8 +1620,18 @@ public class ViewCompat {
         }
 
         @Override
-        public void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener) {
-            ViewCompatLollipop.setOnApplyWindowInsetsListener(view, listener);
+        public void setOnApplyWindowInsetsListener(View view,
+                final OnApplyWindowInsetsListener listener) {
+            ViewCompatLollipop.OnApplyWindowInsetsListenerBridge bridge =
+                    new ViewCompatLollipop.OnApplyWindowInsetsListenerBridge() {
+                        @Override
+                        public Object onApplyWindowInsets(View v, Object insets) {
+                            WindowInsetsCompat compatInsets = WindowInsetsCompat.wrap(insets);
+                            compatInsets = listener.onApplyWindowInsets(v, compatInsets);
+                            return WindowInsetsCompat.unwrap(compatInsets);
+                        }
+                    };
+            ViewCompatLollipop.setOnApplyWindowInsetsListener(view, bridge);
         }
 
         @Override
@@ -1701,12 +1711,15 @@ public class ViewCompat {
 
         @Override
         public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-            return ViewCompatLollipop.onApplyWindowInsets(v, insets);
+            return WindowInsetsCompat.wrap(
+                    ViewCompatLollipop.onApplyWindowInsets(v, WindowInsetsCompat.unwrap(insets)));
         }
 
         @Override
         public WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
-            return ViewCompatLollipop.dispatchApplyWindowInsets(v, insets);
+            return WindowInsetsCompat.wrap(
+                    ViewCompatLollipop.dispatchApplyWindowInsets(
+                            v, WindowInsetsCompat.unwrap(insets)));
         }
 
         @Override

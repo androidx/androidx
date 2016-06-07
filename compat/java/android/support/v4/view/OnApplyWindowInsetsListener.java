@@ -39,5 +39,5 @@ public interface OnApplyWindowInsetsListener {
      * @param insets The insets to apply
      * @return The insets supplied, minus any insets that were consumed
      */
-    public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets);
+    WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets);
 }
