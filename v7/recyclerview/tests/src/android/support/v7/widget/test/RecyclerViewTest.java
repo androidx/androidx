@@ -72,7 +72,15 @@ public class RecyclerViewTest {
     public void inflation() throws Throwable {
         setContentView(R.layout.inflation_test);
         getInstrumentation().waitForIdleSync();
-        RecyclerView view = (RecyclerView) getActivity().findViewById(R.id.recyclerView);
+        RecyclerView view;
+        view = (RecyclerView) getActivity().findViewById(R.id.clipToPaddingUndefined);
+        assertTrue(view.getLayoutManager().getClipToPadding());
+        view = (RecyclerView) getActivity().findViewById(R.id.clipToPaddingYes);
+        assertTrue(view.getLayoutManager().getClipToPadding());
+        view = (RecyclerView) getActivity().findViewById(R.id.clipToPaddingNo);
+        assertFalse(view.getLayoutManager().getClipToPadding());
+
+        view = (RecyclerView) getActivity().findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = view.getLayoutManager();
         assertNotNull("LayoutManager not created.", layoutManager);
         assertEquals("Incorrect LayoutManager created",
