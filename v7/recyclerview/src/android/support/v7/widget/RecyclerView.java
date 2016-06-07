@@ -157,6 +157,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private static final int[]  NESTED_SCROLLING_ATTRS
             = {16843830 /* android.R.attr.nestedScrollingEnabled */};
 
+    private static final int[] CLIP_TO_PADDING_ATTR = {android.R.attr.clipToPadding};
+
     /**
      * On Kitkat and JB MR2, there is a bug which prevents DisplayList from being invalidated if
      * a View is two levels deep(wrt to ViewHolder.itemView). DisplayList can be invalidated by
@@ -277,7 +279,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * Prior to L, there is no way to query this variable which is why we override the setter and
      * track it here.
      */
-    private boolean mClipToPadding = true;
+    private boolean mClipToPadding;
 
     /**
      * Note: this Runnable is only ever posted if:
@@ -479,6 +481,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     public RecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        if (attrs != null) {
+            TypedArray a = context.obtainStyledAttributes(attrs, CLIP_TO_PADDING_ATTR, defStyle, 0);
+            mClipToPadding = a.getBoolean(0, true);
+            a.recycle();
+        } else {
+            mClipToPadding = true;
+        }
         setScrollContainer(true);
         setFocusableInTouchMode(true);
         final int version = Build.VERSION.SDK_INT;
