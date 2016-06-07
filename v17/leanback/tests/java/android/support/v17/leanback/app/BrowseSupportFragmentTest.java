@@ -1,3 +1,5 @@
+/* This file is auto-generated from BrowseFrgamentTest.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2015 The Android Open Source Project
  *
@@ -15,7 +17,7 @@
  */
 package android.support.v17.leanback.app;
 
-import android.support.v17.leanback.tests.R;
+import android.support.v17.leanback.test.R;
 import android.test.ActivityInstrumentationTestCase2;
 import android.text.Selection;
 import android.text.Spannable;
@@ -41,15 +43,15 @@ import java.util.Iterator;
 /**
  * @hide from javadoc
  */
-public class BrowseFragmentTest extends
-        ActivityInstrumentationTestCase2<BrowseFragmentTestActivity> {
+public class BrowseSupportFragmentTest extends
+        ActivityInstrumentationTestCase2<BrowseSupportFragmentTestActivity> {
 
     static final long TRANSITION_LENGTH = 1000;
     static final long HORIZONTAL_SCROLL_WAIT = 2000;
     static final long TIMEOUT = 10000;
 
     Instrumentation mInstrumentation;
-    BrowseFragmentTestActivity mActivity;
+    BrowseSupportFragmentTestActivity mActivity;
 
     static class WaitLock {
         final boolean[] finished = new boolean[1];
@@ -77,25 +79,25 @@ public class BrowseFragmentTest extends
         }
     }
 
-    public BrowseFragmentTest() {
-        super(BrowseFragmentTestActivity.class);
+    public BrowseSupportFragmentTest() {
+        super(BrowseSupportFragmentTestActivity.class);
     }
 
     private void initActivity(Intent intent) {
         setActivityIntent(intent);
         mActivity = getActivity();
         try {
-        Thread.sleep(intent.getLongExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY,
-                BrowseTestFragment.DEFAULT_LOAD_DATA_DELAY) + TRANSITION_LENGTH);
+        Thread.sleep(intent.getLongExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY,
+                BrowseTestSupportFragment.DEFAULT_LOAD_DATA_DELAY) + TRANSITION_LENGTH);
         } catch (InterruptedException ex) {
         }
     }
 
     public void testTwoBackKeysWithBackStack() throws Throwable {
         mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(), BrowseFragmentTestActivity.class);
-        intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, (long) 1000);
-        intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
+        Intent intent = new Intent(mInstrumentation.getContext(), BrowseSupportFragmentTestActivity.class);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, (long) 1000);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
         initActivity(intent);
 
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
@@ -106,9 +108,9 @@ public class BrowseFragmentTest extends
 
     public void testTwoBackKeysWithoutBackStack() throws Throwable {
         mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(), BrowseFragmentTestActivity.class);
-        intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, (long) 1000);
-        intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
+        Intent intent = new Intent(mInstrumentation.getContext(), BrowseSupportFragmentTestActivity.class);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, (long) 1000);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
         initActivity(intent);
 
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
@@ -119,16 +121,16 @@ public class BrowseFragmentTest extends
 
     public void testSelectCardOnARow() throws Throwable {
         mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(), BrowseFragmentTestActivity.class);
-        intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, (long) 1000);
-        intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
+        Intent intent = new Intent(mInstrumentation.getContext(), BrowseSupportFragmentTestActivity.class);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, (long) 1000);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
         initActivity(intent);
 
         final WaitLock waitLock = new WaitLock(TIMEOUT, "Timeout while waiting scroll to the row");
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mActivity.getBrowseTestFragment().setSelectedPosition(10, true,
+                mActivity.getBrowseTestSupportFragment().setSelectedPosition(10, true,
                         new ListRowPresenter.SelectItemViewHolderTask(20) {
                     @Override
                     public void run(Presenter.ViewHolder holder) {
@@ -143,8 +145,8 @@ public class BrowseFragmentTest extends
         // wait for scrolling to the item.
         Thread.sleep(HORIZONTAL_SCROLL_WAIT);
         ListRowPresenter.ViewHolder row = (ListRowPresenter.ViewHolder) mActivity
-                .getBrowseTestFragment().getRowsFragment().getRowViewHolder(mActivity
-                        .getBrowseTestFragment().getSelectedPosition());
+                .getBrowseTestSupportFragment().getRowsSupportFragment().getRowViewHolder(mActivity
+                        .getBrowseTestSupportFragment().getSelectedPosition());
         assertEquals(20, row.getGridView().getSelectedPosition());
     }
 
