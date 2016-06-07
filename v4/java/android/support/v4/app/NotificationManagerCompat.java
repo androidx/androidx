@@ -331,23 +331,23 @@ public final class NotificationManagerCompat {
         final String enabledNotificationListeners = Settings.Secure.getString(
                 context.getContentResolver(),
                 SETTING_ENABLED_NOTIFICATION_LISTENERS);
-        // Parse the string again if it is different from the last time this method was called.
-        if (enabledNotificationListeners != null
-                && !enabledNotificationListeners.equals(sEnabledNotificationListeners)) {
-            final String[] components = enabledNotificationListeners.split(":");
-            Set<String> packageNames = new HashSet<String>(components.length);
-            for (String component : components) {
-                ComponentName componentName = ComponentName.unflattenFromString(component);
-                if (componentName != null) {
-                    packageNames.add(componentName.getPackageName());
+        synchronized (sEnabledNotificationListenersLock) {
+            // Parse the string again if it is different from the last time this method was called.
+            if (enabledNotificationListeners != null
+                    && !enabledNotificationListeners.equals(sEnabledNotificationListeners)) {
+                final String[] components = enabledNotificationListeners.split(":");
+                Set<String> packageNames = new HashSet<String>(components.length);
+                for (String component : components) {
+                    ComponentName componentName = ComponentName.unflattenFromString(component);
+                    if (componentName != null) {
+                        packageNames.add(componentName.getPackageName());
+                    }
                 }
-            }
-            synchronized (sEnabledNotificationListenersLock) {
                 sEnabledNotificationListenerPackages = packageNames;
                 sEnabledNotificationListeners = enabledNotificationListeners;
             }
+            return sEnabledNotificationListenerPackages;
         }
-        return sEnabledNotificationListenerPackages;
     }
 
     /**
@@ -366,8 +366,8 @@ public final class NotificationManagerCompat {
             if (sSideChannelManager == null) {
                 sSideChannelManager = new SideChannelManager(mContext.getApplicationContext());
             }
+            sSideChannelManager.queueTask(task);
         }
-        sSideChannelManager.queueTask(task);
     }
 
     /**
