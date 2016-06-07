@@ -608,6 +608,39 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
+    public void testFocusSearchWithRemovedFocusedItem() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setItemAnimator(null);
+        TestLayoutManager tlm = new LayoutAllLayoutManager();
+        recyclerView.setLayoutManager(tlm);
+        final TestAdapter adapter = new TestAdapter(10) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder, int position) {
+                super.onBindViewHolder(holder, position);
+                holder.itemView.setFocusable(true);
+                holder.itemView.setFocusableInTouchMode(true);
+            }
+        };
+        recyclerView.setAdapter(adapter);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(1);
+        final RecyclerView.ViewHolder toFocus = recyclerView.findViewHolderForAdapterPosition(9);
+        requestFocus(toFocus.itemView, true);
+        assertThat("test sanity", toFocus.itemView.hasFocus(), is(true));
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.mItems.remove(9);
+                adapter.notifyItemRemoved(9);
+                recyclerView.focusSearch(toFocus.itemView, View.FOCUS_DOWN);
+            }
+        });
+        checkForMainThreadException();
+    }
+
+
+    @Test
     public void  testFocusSearchFailFrozen() throws Throwable {
         RecyclerView recyclerView = new RecyclerView(getActivity());
         final CountDownLatch focusLatch = new CountDownLatch(1);
@@ -4091,6 +4124,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     public class LayoutAllLayoutManager extends TestLayoutManager {
         @Override
         public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+            detachAndScrapAttachedViews(recycler);
             layoutRange(recycler, 0, state.getItemCount());
             layoutLatch.countDown();
         }
