@@ -19,125 +19,36 @@ package android.support.v4.view;
 import android.graphics.Rect;
 import android.view.WindowInsets;
 
-class WindowInsetsCompatApi21 extends WindowInsetsCompat {
-
-    private final WindowInsets mSource;
-
-    WindowInsetsCompatApi21(WindowInsets source) {
-        mSource = source;
+class WindowInsetsCompatApi21 {
+    public static Object consumeStableInsets(Object insets) {
+        return ((WindowInsets) insets).consumeStableInsets();
     }
 
-    @Override
-    public int getSystemWindowInsetLeft() {
-        return mSource.getSystemWindowInsetLeft();
+    public static int getStableInsetBottom(Object insets) {
+        return ((WindowInsets) insets).getStableInsetBottom();
     }
 
-    @Override
-    public int getSystemWindowInsetTop() {
-        return mSource.getSystemWindowInsetTop();
+    public static int getStableInsetLeft(Object insets) {
+        return ((WindowInsets) insets).getStableInsetLeft();
     }
 
-    @Override
-    public int getSystemWindowInsetRight() {
-        return mSource.getSystemWindowInsetRight();
+    public static int getStableInsetRight(Object insets) {
+        return ((WindowInsets) insets).getStableInsetRight();
     }
 
-    @Override
-    public int getSystemWindowInsetBottom() {
-        return mSource.getSystemWindowInsetBottom();
+    public static int getStableInsetTop(Object insets) {
+        return ((WindowInsets) insets).getStableInsetTop();
     }
 
-    @Override
-    public boolean hasSystemWindowInsets() {
-        return mSource.hasSystemWindowInsets();
+    public static boolean hasStableInsets(Object insets) {
+        return ((WindowInsets) insets).hasStableInsets();
     }
 
-    @Override
-    public boolean hasInsets() {
-        return mSource.hasInsets();
+    public static boolean isConsumed(Object insets) {
+        return ((WindowInsets) insets).isConsumed();
     }
 
-    @Override
-    public boolean isConsumed() {
-        return mSource.isConsumed();
-    }
-
-    @Override
-    public boolean isRound() {
-        return mSource.isRound();
-    }
-
-    @Override
-    public WindowInsetsCompat consumeSystemWindowInsets() {
-        return new WindowInsetsCompatApi21(mSource.consumeSystemWindowInsets());
-    }
-
-    @Override
-    public WindowInsetsCompat replaceSystemWindowInsets(int left, int top, int right, int bottom) {
-        return new WindowInsetsCompatApi21(mSource.replaceSystemWindowInsets(left, top, right, bottom));
-    }
-
-    @Override
-    public WindowInsetsCompat replaceSystemWindowInsets(Rect systemWindowInsets) {
-        return new WindowInsetsCompatApi21(mSource.replaceSystemWindowInsets(systemWindowInsets));
-    }
-
-    @Override
-    public int getStableInsetTop() {
-        return mSource.getStableInsetTop();
-    }
-
-    @Override
-    public int getStableInsetLeft() {
-        return mSource.getStableInsetLeft();
-    }
-
-    @Override
-    public int getStableInsetRight() {
-        return mSource.getStableInsetRight();
-    }
-
-    @Override
-    public int getStableInsetBottom() {
-        return mSource.getStableInsetBottom();
-    }
-
-    @Override
-    public boolean hasStableInsets() {
-        return mSource.hasStableInsets();
-    }
-
-    @Override
-    public WindowInsetsCompat consumeStableInsets() {
-        return new WindowInsetsCompatApi21(mSource.consumeStableInsets());
-    }
-
-    @Override
-    public String toString() {
-        return "WindowInsetsCompat [ " + mSource.toString() + " ]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final WindowInsetsCompatApi21 that = (WindowInsetsCompatApi21) o;
-        if (mSource != null ? !mSource.equals(that.mSource) : that.mSource != null) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return mSource != null ? mSource.hashCode() : 0;
-    }
-
-    WindowInsets unwrap() {
-        return mSource;
+    public static Object replaceSystemWindowInsets(Object insets, Rect systemWindowInsets) {
+        return ((WindowInsets) insets).replaceSystemWindowInsets(systemWindowInsets);
     }
 }

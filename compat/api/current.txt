@@ -1547,6 +1547,7 @@ package android.support.v4.view {
   }
 
   public class WindowInsetsCompat {
+    ctor public WindowInsetsCompat(android.support.v4.view.WindowInsetsCompat);
     method public android.support.v4.view.WindowInsetsCompat consumeStableInsets();
     method public android.support.v4.view.WindowInsetsCompat consumeSystemWindowInsets();
     method public int getStableInsetBottom();

@@ -27,6 +27,10 @@ import android.view.WindowInsets;
 
 class ViewCompatLollipop {
 
+    public interface OnApplyWindowInsetsListenerBridge {
+        Object onApplyWindowInsets(View v, Object insets);
+    }
+
     private static ThreadLocal<Rect> sThreadLocalRect;
 
     public static void setTransitionName(View view, String transitionName) {
@@ -57,20 +61,15 @@ class ViewCompatLollipop {
         return view.getTranslationZ();
     }
 
-    public static void setOnApplyWindowInsetsListener(View view,
-            final OnApplyWindowInsetsListener listener) {
-        if (listener == null) {
+    public static void setOnApplyWindowInsetsListener(
+            View view, final OnApplyWindowInsetsListenerBridge bridge) {
+        if (bridge == null) {
             view.setOnApplyWindowInsetsListener(null);
         } else {
             view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
                 @Override
-                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-                    // Wrap the framework insets in our wrapper
-                    WindowInsetsCompatApi21 insets = new WindowInsetsCompatApi21(windowInsets);
-                    // Give the listener a chance to use the wrapped insets
-                    insets = (WindowInsetsCompatApi21) listener.onApplyWindowInsets(view, insets);
-                    // Return the unwrapped insets
-                    return insets.unwrap();
+                public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
+                    return (WindowInsets) bridge.onApplyWindowInsets(view, insets);
                 }
             });
         }
@@ -124,32 +123,20 @@ class ViewCompatLollipop {
         }
     }
 
-    public static WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-        if (insets instanceof WindowInsetsCompatApi21) {
-            // First unwrap the compat version so that we have the framework instance
-            WindowInsets unwrapped = ((WindowInsetsCompatApi21) insets).unwrap();
-            // Now call onApplyWindowInsets
-            WindowInsets result = v.onApplyWindowInsets(unwrapped);
-
-            if (result != unwrapped) {
-                // ...and return a newly wrapped compat insets instance if different
-                insets = new WindowInsetsCompatApi21(result);
-            }
+    public static Object onApplyWindowInsets(View v, Object insets) {
+        WindowInsets unwrapped = (WindowInsets) insets;
+        WindowInsets result = v.onApplyWindowInsets(unwrapped);
+        if (result != unwrapped) {
+            insets = new WindowInsets(result);
         }
         return insets;
     }
 
-    public static WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
-        if (insets instanceof WindowInsetsCompatApi21) {
-            // First unwrap the compat version so that we have the framework instance
-            WindowInsets unwrapped = ((WindowInsetsCompatApi21) insets).unwrap();
-            // Now call dispatchApplyWindowInsets
-            WindowInsets result = v.dispatchApplyWindowInsets(unwrapped);
-
-            if (result != unwrapped) {
-                // ...and return a newly wrapped compat insets instance if different
-                insets = new WindowInsetsCompatApi21(result);
-            }
+    public static Object dispatchApplyWindowInsets(View v, Object insets) {
+        WindowInsets unwrapped = (WindowInsets) insets;
+        WindowInsets result = v.dispatchApplyWindowInsets(unwrapped);
+        if (result != unwrapped) {
+            insets = new WindowInsets(result);
         }
         return insets;
     }
