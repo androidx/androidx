@@ -137,7 +137,7 @@ final class MediaRouterThemeHelper {
         volumeSlider.setColor(controllerColor);
     }
 
-    static boolean isLightTheme(Context context) {
+    private static boolean isLightTheme(Context context) {
         TypedValue value = new TypedValue();
         return context.getTheme().resolveAttribute(
                 android.support.v7.appcompat.R.attr.isLightTheme, value, true)
