@@ -102,6 +102,9 @@ project(':support-leanback-demos').projectDir = new File(samplesRoot, 'SupportLe
 include ':support-percent-demos'
 project(':support-percent-demos').projectDir = new File(samplesRoot, 'SupportPercentDemos')
 
+include ':support-preference-demos'
+project(':support-preference-demos').projectDir = new File(samplesRoot, 'SupportPreferenceDemos')
+
 include ':support-transition-demos'
 project(':support-transition-demos').projectDir = new File(samplesRoot, 'SupportTransitionDemos')
 
