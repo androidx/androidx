@@ -1,0 +1,71 @@
+<!--
+  ~ Copyright (C) 2016 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.android.supportpreference">
+
+    <uses-sdk android:targetSdkVersion="24"
+        tools:overrideLibrary="android.support.v17.preference, android.support.v17.leanback" />
+
+    <uses-feature android:name="android.software.Leanback" android:required="false" />
+
+    <application android:label="pref demo"
+        android:icon="@drawable/app_sample_code"
+        android:allowBackup="false"
+        android:theme="@style/DemoTheme">
+
+        <activity android:name=".SupportPreferenceDemos">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".FragmentSupportPreferences"
+            android:label="@string/fragment_support_preferences_demo"
+            android:theme="@style/SupportPreference">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".FragmentSupportPreferencesCompat"
+            android:label="@string/fragment_support_preferences_compat_demo"
+            android:theme="@style/SupportPreferenceCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Nothing technically wrong with showing this on a non-TV platform -->
+        <activity android:name=".FragmentSupportPreferencesLeanback"
+            android:label="@string/fragment_support_preferences_leanback_demo"
+            android:theme="@style/SupportPreferenceLeanback"
+            android:enabled="@bool/atLeastJellyBeanMR2">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>
