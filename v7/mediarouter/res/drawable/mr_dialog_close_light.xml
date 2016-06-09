@@ -17,7 +17,8 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <bitmap
-            android:src="@drawable/ic_play_light"
+            android:src="@drawable/ic_dialog_close_light"
             android:alpha="0.87" />
     </item>
+
 </selector>
