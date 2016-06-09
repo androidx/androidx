@@ -69,6 +69,10 @@ class AccessibilityNodeInfoCompatKitKat {
         return AccessibilityNodeInfo.CollectionInfo.obtain(rowCount, columnCount, hierarchical);
     }
 
+    public static Object obtainCollectionInfo(int rowCount, int columnCount, boolean hierarchical) {
+        return AccessibilityNodeInfo.CollectionInfo.obtain(rowCount, columnCount, hierarchical);
+    }
+
     public static Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
             int columnSpan, boolean heading) {
         return AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
@@ -137,6 +141,10 @@ class AccessibilityNodeInfoCompatKitKat {
     public static void setRoleDescription(Object info, CharSequence roleDescription) {
         Bundle extras = getExtras(info);
         extras.putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
+    }
+
+    public static Object obtainRangeInfo(int type, float min, float max, float current) {
+        return AccessibilityNodeInfo.RangeInfo.obtain(type, min, max, current);
     }
 
     static class CollectionInfo {

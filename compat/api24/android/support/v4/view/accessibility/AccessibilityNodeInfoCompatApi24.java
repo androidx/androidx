@@ -22,6 +22,10 @@ import android.view.accessibility.AccessibilityNodeInfo;
  * Api24-specific AccessibilityNodeInfo API implementation.
  */
 class AccessibilityNodeInfoCompatApi24 {
+    public static Object getActionSetProgress() {
+        return AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_PROGRESS;
+    }
+
     public static int getDrawingOrder(Object info) {
         return ((AccessibilityNodeInfo) info).getDrawingOrder();
     }
