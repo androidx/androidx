@@ -23,9 +23,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files := $(LOCAL_SRC_FILES)
-support_module_java_libraries := android-support-annotations
-
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of Honeycomb APIs.
@@ -36,8 +33,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-gingerbread
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
@@ -50,8 +45,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-honeycomb
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files += $(LOCAL_SRC_FILES)
-
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of Honeycomb MR2 APIs.
@@ -62,8 +55,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb_mr2)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-honeycomb-mr1
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
@@ -76,8 +67,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-honeycomb-mr2
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files += $(LOCAL_SRC_FILES)
-
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of Ice Cream Sandwich MR1 APIs.
@@ -88,8 +77,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, ics-mr1)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-ics
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
@@ -102,8 +89,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-ics-mr1
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files += $(LOCAL_SRC_FILES)
-
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of JellyBean MR1 APIs.
@@ -114,8 +99,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr1)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-jellybean
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
@@ -128,8 +111,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-jellybean-mr1
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files += $(LOCAL_SRC_FILES)
-
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of KitKat APIs.
@@ -140,8 +121,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, kitkat)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-jellybean-mr2
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
@@ -154,8 +133,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-kitkat
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files += $(LOCAL_SRC_FILES)
-
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of Lollipop APIs.
@@ -166,8 +143,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, api21)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-api20
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
@@ -180,8 +155,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-api21
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files += $(LOCAL_SRC_FILES)
-
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of V23 APIs.
@@ -193,8 +166,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-api22
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files += $(LOCAL_SRC_FILES)
-
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of V24 APIs.
@@ -205,8 +176,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, api24)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-api23
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
@@ -223,13 +192,3 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-support-compat-api24
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-support_module_aidl_includes := $(LOCAL_AIDL_INCLUDES)
-
-# API Check
-# ---------------------------------------------
-support_module := $(LOCAL_MODULE)
-support_module_api_dir := $(LOCAL_PATH)/api
-support_module_java_packages := android.support.v4.*
-include $(SUPPORT_API_CHECK)
