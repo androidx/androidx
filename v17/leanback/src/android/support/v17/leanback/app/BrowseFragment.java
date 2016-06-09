@@ -13,8 +13,6 @@
  */
 package android.support.v17.leanback.app;
 
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
-
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentManager.BackStackEntry;
@@ -53,6 +51,8 @@ import android.view.ViewTreeObserver;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
  * A fragment for creating Leanback browse screens. It is composed of a
@@ -754,7 +754,7 @@ public class BrowseFragment extends BaseFragment {
 
         if (adapter != null) {
             if (mMainFragmentRowsAdapter != null) {
-                mMainFragmentRowsAdapter.setAdapter(adapter);
+                mMainFragmentRowsAdapter.setAdapter(new ListRowDataAdapter(adapter));
             }
             mHeadersFragment.setAdapter(adapter);
         }
@@ -1185,7 +1185,7 @@ public class BrowseFragment extends BaseFragment {
 
     private void setupMainFragment() {
         if (mMainFragmentRowsAdapter != null) {
-            mMainFragmentRowsAdapter.setAdapter(mAdapter);
+            mMainFragmentRowsAdapter.setAdapter(new ListRowDataAdapter(mAdapter));
             mMainFragmentRowsAdapter.setOnItemViewSelectedListener(
                     new MainFragmentItemViewSelectedListener(mMainFragmentRowsAdapter));
             mMainFragmentRowsAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
@@ -1507,8 +1507,7 @@ public class BrowseFragment extends BaseFragment {
 
         if (mCanShowHeaders && mShowingHeaders && mHeadersFragment.getView() != null) {
             mHeadersFragment.getView().requestFocus();
-        } else if ((!mCanShowHeaders || !mShowingHeaders)
-                && mMainFragment.getView() != null) {
+        } else if ((!mCanShowHeaders || !mShowingHeaders) && mMainFragment.getView() != null) {
             mMainFragment.getView().requestFocus();
         }
 
