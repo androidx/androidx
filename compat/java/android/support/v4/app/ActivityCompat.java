@@ -34,7 +34,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +67,7 @@ public class ActivityCompat extends ContextCompat {
          *
          * @see #requestPermissions(android.app.Activity, String[], int)
          */
-        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+        void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                 @NonNull int[] grantResults);
     }
 
@@ -267,7 +266,9 @@ public class ActivityCompat extends ContextCompat {
      */
     public static void setEnterSharedElementCallback(Activity activity,
             SharedElementCallback callback) {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            ActivityCompatApi23.setEnterSharedElementCallback(activity, createCallback23(callback));
+        } else if (Build.VERSION.SDK_INT >= 21) {
             ActivityCompat21.setEnterSharedElementCallback(activity, createCallback(callback));
         }
     }
@@ -283,7 +284,9 @@ public class ActivityCompat extends ContextCompat {
      */
     public static void setExitSharedElementCallback(Activity activity,
             SharedElementCallback callback) {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            ActivityCompatApi23.setExitSharedElementCallback(activity, createCallback23(callback));
+        } else if (Build.VERSION.SDK_INT >= 21) {
             ActivityCompat21.setExitSharedElementCallback(activity, createCallback(callback));
         }
     }
@@ -419,6 +422,15 @@ public class ActivityCompat extends ContextCompat {
         return newCallback;
     }
 
+    private static ActivityCompatApi23.SharedElementCallback23 createCallback23(
+            SharedElementCallback callback) {
+        ActivityCompatApi23.SharedElementCallback23 newCallback = null;
+        if (callback != null) {
+            newCallback = new ActivityCompat.SharedElementCallback23Impl(callback);
+        }
+        return newCallback;
+    }
+
     private static class SharedElementCallback21Impl
             extends ActivityCompat21.SharedElementCallback21 {
 
@@ -462,6 +474,65 @@ public class ActivityCompat extends ContextCompat {
         @Override
         public View onCreateSnapshotView(Context context, Parcelable snapshot) {
             return mCallback.onCreateSnapshotView(context, snapshot);
+        }
+    }
+
+    private static class SharedElementCallback23Impl
+            extends ActivityCompatApi23.SharedElementCallback23 {
+
+        private SharedElementCallback mCallback;
+
+        public SharedElementCallback23Impl(SharedElementCallback callback) {
+            mCallback = callback;
+        }
+
+        @Override
+        public void onSharedElementStart(List<String> sharedElementNames,
+                List<View> sharedElements, List<View> sharedElementSnapshots) {
+            mCallback.onSharedElementStart(sharedElementNames, sharedElements,
+                    sharedElementSnapshots);
+        }
+
+        @Override
+        public void onSharedElementEnd(List<String> sharedElementNames, List<View> sharedElements,
+                List<View> sharedElementSnapshots) {
+            mCallback.onSharedElementEnd(sharedElementNames, sharedElements,
+                    sharedElementSnapshots);
+        }
+
+        @Override
+        public void onRejectSharedElements(List<View> rejectedSharedElements) {
+            mCallback.onRejectSharedElements(rejectedSharedElements);
+        }
+
+        @Override
+        public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+            mCallback.onMapSharedElements(names, sharedElements);
+        }
+
+        @Override
+        public Parcelable onCaptureSharedElementSnapshot(View sharedElement,
+                Matrix viewToGlobalMatrix, RectF screenBounds) {
+            return mCallback.onCaptureSharedElementSnapshot(sharedElement, viewToGlobalMatrix,
+                    screenBounds);
+        }
+
+        @Override
+        public View onCreateSnapshotView(Context context, Parcelable snapshot) {
+            return mCallback.onCreateSnapshotView(context, snapshot);
+        }
+
+        @Override
+        public void onSharedElementsArrived(List<String> sharedElementNames,
+                List<View> sharedElements,
+                final ActivityCompatApi23.OnSharedElementsReadyListenerBridge listener) {
+            mCallback.onSharedElementsArrived(sharedElementNames, sharedElements,
+                    new SharedElementCallback.OnSharedElementsReadyListener() {
+                        @Override
+                        public void onSharedElementsReady() {
+                            listener.onSharedElementsReady();
+                        }
+                    });
         }
     }
 }
