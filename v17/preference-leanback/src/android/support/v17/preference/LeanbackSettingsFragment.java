@@ -26,12 +26,29 @@ import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v14.preference.PreferenceFragment;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceScreen;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Space;
 
+/**
+ * This fragment provides a container for displaying a {@link LeanbackPreferenceFragment}
+ *
+ * <p>The following sample code shows a simple leanback preference fragment that is
+ * populated from a resource.  The resource it loads is:</p>
+ *
+ * {@sample frameworks/support/samples/SupportPreferenceDemos/res/xml/preferences.xml preferences}
+ *
+ * <p>The sample implements
+ * {@link PreferenceFragment.OnPreferenceStartFragmentCallback#onPreferenceStartFragment(PreferenceFragment, Preference)},
+ * {@link PreferenceFragment.OnPreferenceStartScreenCallback#onPreferenceStartScreen(PreferenceFragment, PreferenceScreen)},
+ * and {@link #onPreferenceStartInitialScreen()}:</p>
+ *
+ * {@sample frameworks/support/samples/SupportPreferenceDemos/src/com/example/android/supportpreference/FragmentSupportPreferencesLeanback.java
+ *      support_fragment_leanback}
+ */
 public abstract class LeanbackSettingsFragment extends Fragment
         implements PreferenceFragment.OnPreferenceStartFragmentCallback,
         PreferenceFragment.OnPreferenceStartScreenCallback,
