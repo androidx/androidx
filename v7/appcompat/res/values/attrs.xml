@@ -1057,7 +1057,8 @@
 
     <declare-styleable name="AppCompatImageView">
         <attr name="android:src"/>
-        <!-- TODO -->
+        <!-- Sets a drawable as the content of this ImageView. Allows the use of vector drawable
+             when running on older versions of the platform. -->
         <attr name="srcCompat" format="reference" />
     </declare-styleable>
 
