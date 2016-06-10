@@ -81,6 +81,8 @@
         <item name="playbackMediaItemSeparatorStyle">@style/Widget.Leanback.PlaybackMediaItemSeparatorStyle</item>
         <item name="playbackMediaListHeaderTitleStyle">@style/Widget.Leanback.PlaybackMediaListHeaderTitleStyle</item>
         <item name="playbackMediaItemDetailsStyle">@style/Widget.Leanback.PlaybackMediaItemDetailsStyle</item>
+        <item name="playbackMediaItemNumberViewFlipperStyle">@style/Widget.Leanback.PlaybackMediaItemNumberViewFlipperStyle</item>
+        <item name="playbackMediaItemNumberViewFlipperLayout">@layout/lb_media_item_number_view_flipper</item>
         <item name="playbackMediaItemNumberStyle">@style/Widget.Leanback.PlaybackMediaItemNumberStyle</item>
         <item name="playbackMediaItemNameStyle">@style/Widget.Leanback.PlaybackMediaItemNameStyle</item>
         <item name="playbackMediaItemDurationStyle">@style/Widget.Leanback.PlaybackMediaItemDurationStyle</item>
