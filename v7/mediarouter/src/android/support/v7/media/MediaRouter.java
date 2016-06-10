@@ -50,9 +50,12 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
@@ -1898,7 +1901,9 @@ public final class MediaRouter {
         private RouteInfo mDefaultRoute;
         private RouteInfo mSelectedRoute;
         private RouteController mSelectedRouteController;
-        private Map<String, RouteController> mGroupMemberControllers;
+        // A map from route descriptor ID to RouteController for the member routes in the currently
+        // selected route group.
+        private final Map<String, RouteController> mRouteControllerMap = new HashMap<>();
         private MediaRouteDiscoveryRequest mDiscoveryRequest;
         private MediaSessionRecord mMediaSession;
         private MediaSessionCompat mRccMediaSession;
@@ -1989,8 +1994,8 @@ public final class MediaRouter {
         public void requestSetVolume(RouteInfo route, int volume) {
             if (route == mSelectedRoute && mSelectedRouteController != null) {
                 mSelectedRouteController.onSetVolume(volume);
-            } else if (mGroupMemberControllers != null) {
-                RouteController controller = mGroupMemberControllers.get(route.mDescriptorId);
+            } else if (!mRouteControllerMap.isEmpty()) {
+                RouteController controller = mRouteControllerMap.get(route.mDescriptorId);
                 if (controller != null) {
                     controller.onSetVolume(volume);
                 }
@@ -2425,6 +2430,37 @@ public final class MediaRouter {
                 setSelectedRouteInternal(chooseFallbackRoute(),
                         MediaRouter.UNSELECT_REASON_UNKNOWN);
             } else if (selectedRouteDescriptorChanged) {
+                // In case the selected route is a route group, select/unselect route controllers
+                // for the added/removed route members.
+                if (mSelectedRoute instanceof RouteGroup) {
+                    List<RouteInfo> routes = ((RouteGroup) mSelectedRoute).getRoutes();
+                    // Build a set of descriptor IDs for the new route group.
+                    Set idSet = new HashSet<String>();
+                    for (RouteInfo route : routes) {
+                        idSet.add(route.mDescriptorId);
+                    }
+                    // Unselect route controllers for the removed routes.
+                    Iterator<Map.Entry<String, RouteController>> iter =
+                            mRouteControllerMap.entrySet().iterator();
+                    while (iter.hasNext()) {
+                        Map.Entry<String, RouteController> entry = iter.next();
+                        if (!idSet.contains(entry.getKey())) {
+                            RouteController controller = entry.getValue();
+                            controller.onUnselect();
+                            controller.onRelease();
+                            iter.remove();
+                        }
+                    }
+                    // Select route controllers for the added routes.
+                    for (RouteInfo route : routes) {
+                        if (!mRouteControllerMap.containsKey(route.mDescriptorId)) {
+                            RouteController controller = route.getProviderInstance()
+                                    .onCreateRouteController(route.mDescriptorId);
+                            controller.onSelect();
+                            mRouteControllerMap.put(route.mDescriptorId, controller);
+                        }
+                    }
+                }
                 // Update the playback info because the properties of the route have changed.
                 updatePlaybackInfoFromSelectedRoute();
             }
@@ -2477,12 +2513,12 @@ public final class MediaRouter {
                         mSelectedRouteController.onRelease();
                         mSelectedRouteController = null;
                     }
-                    if (mGroupMemberControllers != null) {
-                        for (RouteController controller : mGroupMemberControllers.values()) {
+                    if (!mRouteControllerMap.isEmpty()) {
+                        for (RouteController controller : mRouteControllerMap.values()) {
                             controller.onUnselect(unselectReason);
                             controller.onRelease();
                         }
-                        mGroupMemberControllers = null;
+                        mRouteControllerMap.clear();
                     }
                 }
 
@@ -2500,13 +2536,13 @@ public final class MediaRouter {
                     mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute);
 
                     if (mSelectedRoute instanceof RouteGroup) {
-                        mGroupMemberControllers = new HashMap<>();
-                        RouteGroup group = (RouteGroup) mSelectedRoute;
-                        for (RouteInfo groupMember : group.getRoutes()) {
-                            RouteController controller = groupMember.getProviderInstance()
-                                    .onCreateRouteController(groupMember.mDescriptorId);
+                        List<RouteInfo> routes = ((RouteGroup) mSelectedRoute).getRoutes();
+                        mRouteControllerMap.clear();
+                        for (RouteInfo r : routes) {
+                            RouteController controller = r.getProviderInstance()
+                                    .onCreateRouteController(r.mDescriptorId);
                             controller.onSelect();
-                            mGroupMemberControllers.put(groupMember.mDescriptorId, controller);
+                            mRouteControllerMap.put(r.mDescriptorId, controller);
                         }
                     }
                 }
