@@ -140,7 +140,7 @@ gen_res_src_dirs := $(call intermediates-dir-for,JAVA_LIBRARIES,android-support-
 LOCAL_SRC_FILES := $(leanback.docs.src_files)
 LOCAL_ADDITIONAL_JAVA_DIR := $(gen_res_src_dirs)
 
-LOCAL_SDK_VERSION := 21
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_IS_HOST_MODULE := false
 LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
 
