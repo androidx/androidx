@@ -53,8 +53,8 @@ if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
     // the build server does not pass the build number so we infer it from the last folder of the dist path.
     ext.buildNumber = project.ext.distDir.getName()
 } else {
-    buildDir = file("${project.rootDir}/../../out/host/gradle/frameworks/support/build")
-    project.ext.distDir = file("${project.rootDir}/../../out/dist")
+    buildDir = file('../../out/host/gradle/frameworks/support/build')
+    project.ext.distDir = file('../../out/dist')
 }
 
 ext.docsDir = new File(buildDir, 'javadoc')
@@ -81,7 +81,7 @@ createArchive.dependsOn createRepository
 
 // prepare repository with older versions
 task unzipRepo(type: Copy) {
-    from "${project.rootDir}/../../prebuilts/maven_repo/android"
+    from "$rootDir/../../prebuilts/maven_repo/android"
     into project.ext.supportRepoOut
 }
 
@@ -169,7 +169,7 @@ String getSha1(File inputFile) {
  * @return a file collection containing the Android prebuilt JAR
  */
 FileCollection getAndroidPrebuilt(String apiLevel) {
-    files("${project.rootDir}/../../prebuilts/sdk/$apiLevel/android.jar")
+    files("$rootDir/../../prebuilts/sdk/$apiLevel/android.jar")
 }
 
 /**
@@ -299,9 +299,9 @@ task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
 // Copies generated API files to current version.
 task updateApi(type: UpdateApiTask, dependsOn: generateApi) {
     newApiFile = new File(project.docsDir, 'release/current.txt')
-    oldApiFile = new File(project.rootDir, 'api/current.txt')
+    oldApiFile = new File('api/current.txt')
     newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
-    oldRemovedApiFile = new File(project.rootDir, 'api/removed.txt')
+    oldRemovedApiFile = new File('api/removed.txt')
 }
 
 // Checks generated API files against current version.
@@ -312,9 +312,9 @@ task checkApi(type: CheckApiTask, dependsOn: generateApi) {
     updateApiTaskPath = updateApi.name
 
     newApiFile = new File(project.docsDir, 'release/current.txt')
-    oldApiFile = new File(project.rootDir, 'api/current.txt')
+    oldApiFile = new File('api/current.txt')
     newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
-    oldRemovedApiFile = new File(project.rootDir, 'api/removed.txt')
+    oldRemovedApiFile = new File('api/removed.txt')
 }
 
 subprojects {

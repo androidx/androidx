@@ -1,0 +1,105 @@
+package android.support.transition {
+
+  public class AutoTransition extends android.support.transition.TransitionSet {
+    ctor public AutoTransition();
+  }
+
+  public class ChangeBounds extends android.support.transition.Transition {
+    ctor public ChangeBounds();
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+    method public android.animation.Animator createAnimator(android.view.ViewGroup, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+  }
+
+  public class Fade extends android.support.transition.Transition {
+    ctor public Fade(int);
+    ctor public Fade();
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+    method public android.animation.Animator createAnimator(android.view.ViewGroup, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    field public static final int IN = 1; // 0x1
+    field public static final int OUT = 2; // 0x2
+  }
+
+  public class Scene {
+    ctor public Scene(android.view.ViewGroup);
+    ctor public Scene(android.view.ViewGroup, android.view.View);
+    method public void enter();
+    method public void exit();
+    method public static android.support.transition.Scene getSceneForLayout(android.view.ViewGroup, int, android.content.Context);
+    method public android.view.ViewGroup getSceneRoot();
+    method public void setEnterAction(java.lang.Runnable);
+    method public void setExitAction(java.lang.Runnable);
+  }
+
+  public abstract class Transition {
+    ctor public Transition();
+    ctor protected Transition(boolean);
+    method public android.support.transition.Transition addListener(android.support.transition.Transition.TransitionListener);
+    method public android.support.transition.Transition addTarget(android.view.View);
+    method public android.support.transition.Transition addTarget(int);
+    method public abstract void captureEndValues(android.support.transition.TransitionValues);
+    method public abstract void captureStartValues(android.support.transition.TransitionValues);
+    method public abstract android.animation.Animator createAnimator(android.view.ViewGroup, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public android.support.transition.Transition excludeChildren(android.view.View, boolean);
+    method public android.support.transition.Transition excludeChildren(int, boolean);
+    method public android.support.transition.Transition excludeChildren(java.lang.Class, boolean);
+    method public android.support.transition.Transition excludeTarget(android.view.View, boolean);
+    method public android.support.transition.Transition excludeTarget(int, boolean);
+    method public android.support.transition.Transition excludeTarget(java.lang.Class, boolean);
+    method public long getDuration();
+    method public android.animation.TimeInterpolator getInterpolator();
+    method public java.lang.String getName();
+    method public long getStartDelay();
+    method public java.util.List<java.lang.Integer> getTargetIds();
+    method public java.util.List<android.view.View> getTargets();
+    method public java.lang.String[] getTransitionProperties();
+    method public android.support.transition.TransitionValues getTransitionValues(android.view.View, boolean);
+    method public android.support.transition.Transition removeListener(android.support.transition.Transition.TransitionListener);
+    method public android.support.transition.Transition removeTarget(android.view.View);
+    method public android.support.transition.Transition removeTarget(int);
+    method public android.support.transition.Transition setDuration(long);
+    method public android.support.transition.Transition setInterpolator(android.animation.TimeInterpolator);
+    method public android.support.transition.Transition setStartDelay(long);
+  }
+
+  public static abstract interface Transition.TransitionListener {
+    method public abstract void onTransitionCancel(android.support.transition.Transition);
+    method public abstract void onTransitionEnd(android.support.transition.Transition);
+    method public abstract void onTransitionPause(android.support.transition.Transition);
+    method public abstract void onTransitionResume(android.support.transition.Transition);
+    method public abstract void onTransitionStart(android.support.transition.Transition);
+  }
+
+  public class TransitionManager {
+    ctor public TransitionManager();
+    method public static void beginDelayedTransition(android.view.ViewGroup);
+    method public static void beginDelayedTransition(android.view.ViewGroup, android.support.transition.Transition);
+    method public static void go(android.support.transition.Scene);
+    method public static void go(android.support.transition.Scene, android.support.transition.Transition);
+    method public void setTransition(android.support.transition.Scene, android.support.transition.Transition);
+    method public void setTransition(android.support.transition.Scene, android.support.transition.Scene, android.support.transition.Transition);
+    method public void transitionTo(android.support.transition.Scene);
+  }
+
+  public class TransitionSet extends android.support.transition.Transition {
+    ctor public TransitionSet();
+    method public android.support.transition.TransitionSet addTransition(android.support.transition.Transition);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+    method public android.animation.Animator createAnimator(android.view.ViewGroup, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public int getOrdering();
+    method public android.support.transition.TransitionSet removeTransition(android.support.transition.Transition);
+    method public android.support.transition.TransitionSet setOrdering(int);
+    field public static final int ORDERING_SEQUENTIAL = 1; // 0x1
+    field public static final int ORDERING_TOGETHER = 0; // 0x0
+  }
+
+  public class TransitionValues {
+    ctor public TransitionValues();
+    field public final java.util.Map<java.lang.String, java.lang.Object> values;
+    field public android.view.View view;
+  }
+
+}
+

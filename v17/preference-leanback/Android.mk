@@ -37,6 +37,8 @@ LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_JAR_EXCLUDE_FILES := none
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+support_module_src_files := $(LOCAL_SRC_FILES)
+
 # -----------------------------------------------------------------------
 
 #  A helper sub-library that makes direct use of API 21.
@@ -49,6 +51,8 @@ LOCAL_JAVA_LIBRARIES := \
     android-support-v17-leanback
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
 
 # Here is the final static library that apps can link against.
 # Applications that use this library must specify
@@ -82,3 +86,13 @@ LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
+
+# API Check
+# ---------------------------------------------
+support_module := $(LOCAL_MODULE)
+support_module_api_dir := $(LOCAL_PATH)/api
+support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES)
+support_module_java_packages := android.support.v17.preference
+include $(SUPPORT_API_CHECK)
