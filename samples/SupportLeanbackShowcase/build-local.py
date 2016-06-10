@@ -9,14 +9,12 @@ import re
 def replace(inputFile, pattern, newVal, ):
   print 'About to replace repo path to {0} in {1}'.format(newVal, inputFile)
   replaced = False
-  try:
+  if os.path.exists(inputFile):
     for line in fileinput.input(inputFile, inplace = 1):
       if re.match(pattern, line, re.I|re.M):
         line = re.sub(pattern, newVal, line)
         replaced = True
       print line,
-  except IOError as e:
-    print "Failed to open file ", e
 
   if not replaced:
     file = open(inputFile, "a")
@@ -36,7 +34,7 @@ def lookup_local_library_version(repo_path):
 
 # Get repo path
 current_path = os.getcwd()
-index = current_path.find("development/samples/SupportLeanbackShowcase")
+index = current_path.find("frameworks/support/samples/SupportLeanbackShowcase")
 if index < 0:
   print "ERROR: Invalid repo {0}".format(current_path)
   exit(0)
