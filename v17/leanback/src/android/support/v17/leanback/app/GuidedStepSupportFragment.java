@@ -248,7 +248,6 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         }
     }
 
-    private int mTheme;
     private ContextThemeWrapper mThemeWrapper;
     private GuidanceStylist mGuidanceStylist;
     private GuidedActionsStylist mActionsStylist;
@@ -264,9 +263,6 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     private int entranceTransitionType = SLIDE_FROM_SIDE;
 
     public GuidedStepSupportFragment() {
-        // We need to supply the theme before any potential call to onInflate in order
-        // for the defaulting to work properly.
-        mTheme = onProvideTheme();
         mGuidanceStylist = onCreateGuidanceStylist();
         mActionsStylist = onCreateActionsStylist();
         mButtonActionsStylist = onCreateButtonActionsStylist();
@@ -1311,7 +1307,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         // Look up the guidedStepTheme in the currently specified theme.  If it exists,
         // replace the theme with its value.
         FragmentActivity activity = getActivity();
-        if (mTheme == -1 && !isGuidedStepTheme(activity)) {
+        int theme = onProvideTheme();
+        if (theme == -1 && !isGuidedStepTheme(activity)) {
             // Look up the guidedStepTheme in the activity's currently specified theme.  If it
             // exists, replace the theme with its value.
             int resId = R.attr.guidedStepTheme;
@@ -1322,7 +1319,6 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                 ContextThemeWrapper themeWrapper =
                         new ContextThemeWrapper(activity, typedValue.resourceId);
                 if (isGuidedStepTheme(themeWrapper)) {
-                    mTheme = typedValue.resourceId;
                     mThemeWrapper = themeWrapper;
                 } else {
                     found = false;
@@ -1332,13 +1328,13 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
             if (!found) {
                 Log.e(TAG, "GuidedStepSupportFragment does not have an appropriate theme set.");
             }
-        } else if (mTheme != -1) {
-            mThemeWrapper = new ContextThemeWrapper(activity, mTheme);
+        } else if (theme != -1) {
+            mThemeWrapper = new ContextThemeWrapper(activity, theme);
         }
     }
 
     private LayoutInflater getThemeInflater(LayoutInflater inflater) {
-        if (mTheme == -1) {
+        if (mThemeWrapper == null) {
             return inflater;
         } else {
             return inflater.cloneInContext(mThemeWrapper);
