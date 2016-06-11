@@ -2539,8 +2539,9 @@ public final class MediaRouter {
                         List<RouteInfo> routes = ((RouteGroup) mSelectedRoute).getRoutes();
                         mRouteControllerMap.clear();
                         for (RouteInfo r : routes) {
-                            RouteController controller = r.getProviderInstance()
-                                    .onCreateRouteController(r.mDescriptorId);
+                            RouteController controller =
+                                    r.getProviderInstance().onCreateRouteController(
+                                            r.mDescriptorId, mSelectedRoute.mDescriptorId);
                             controller.onSelect();
                             mRouteControllerMap.put(r.mDescriptorId, controller);
                         }

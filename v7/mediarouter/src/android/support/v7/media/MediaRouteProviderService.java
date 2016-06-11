@@ -198,13 +198,13 @@ public abstract class MediaRouteProviderService extends Service {
     }
 
     private boolean onCreateRouteController(Messenger messenger, int requestId,
-            int controllerId, String routeId) {
+            int controllerId, String routeId, String routeGroupId) {
         ClientRecord client = getClient(messenger);
         if (client != null) {
-            if (client.createRouteController(routeId, controllerId)) {
+            if (client.createRouteController(routeId, routeGroupId, controllerId)) {
                 if (DEBUG) {
-                    Log.d(TAG, client + ": Route controller created"
-                            + ", controllerId=" + controllerId + ", routeId=" + routeId);
+                    Log.d(TAG, client + ": Route controller created, controllerId=" + controllerId
+                            + ", routeId=" + routeId + ", routeGroupId=" + routeGroupId);
                 }
                 sendGenericSuccess(messenger, requestId);
                 return true;
@@ -532,10 +532,12 @@ public abstract class MediaRouteProviderService extends Service {
             return mMessenger.getBinder() == other.getBinder();
         }
 
-        public boolean createRouteController(String routeId, int controllerId) {
+        public boolean createRouteController(String routeId, String routeGroupId,
+                int controllerId) {
             if (mControllers.indexOfKey(controllerId) < 0) {
-                MediaRouteProvider.RouteController controller =
-                        mProvider.onCreateRouteController(routeId);
+                MediaRouteProvider.RouteController controller = routeGroupId == null
+                        ? mProvider.onCreateRouteController(routeId)
+                        : mProvider.onCreateRouteController(routeId, routeGroupId);
                 if (controller != null) {
                     mControllers.put(controllerId, controller);
                     return true;
@@ -634,9 +636,10 @@ public abstract class MediaRouteProviderService extends Service {
 
                     case CLIENT_MSG_CREATE_ROUTE_CONTROLLER: {
                         String routeId = data.getString(CLIENT_DATA_ROUTE_ID);
+                        String routeGroupId = data.getString(CLIENT_DATA_ROUTE_GROUP_ID);
                         if (routeId != null) {
                             return service.onCreateRouteController(
-                                    messenger, requestId, arg, routeId);
+                                    messenger, requestId, arg, routeId, routeGroupId);
                         }
                         break;
                     }
