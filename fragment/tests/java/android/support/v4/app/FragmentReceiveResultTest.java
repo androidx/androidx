@@ -152,7 +152,7 @@ public class FragmentReceiveResultTest extends BaseInstrumentationTestCase<Fragm
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
-    private static class TestFragment extends Fragment {
+    public static class TestFragment extends Fragment {
         boolean mHasResult = false;
         int mRequestCode = -1;
         int mResultCode = 100;

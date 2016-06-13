@@ -30,6 +30,7 @@ import android.view.ViewTreeObserver;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 
 final class BackStackState implements Parcelable {
@@ -427,6 +428,14 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     private void doAddOp(int containerViewId, Fragment fragment, String tag, int opcmd) {
+        final Class fragmentClass = fragment.getClass();
+        final int modifiers = fragmentClass.getModifiers();
+        if (fragmentClass.isAnonymousClass() || !Modifier.isPublic(modifiers)
+                || (fragmentClass.isMemberClass() && !Modifier.isStatic(modifiers))) {
+            throw new IllegalStateException("Fragment must be a public static class to be properly "
+                    + "recreated on configuration change.");
+        }
+
         fragment.mFragmentManager = mManager;
 
         if (tag != null) {
