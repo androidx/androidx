@@ -35,9 +35,9 @@ public final class SearchViewCompat {
         void setImeOptions(View searchView, int imeOptions);
         void setInputType(View searchView, int inputType);
         Object newOnQueryTextListener(OnQueryTextListenerCompat listener);
-        void setOnQueryTextListener(Object searchView, Object listener);
+        void setOnQueryTextListener(View searchView, Object listener);
         Object newOnCloseListener(OnCloseListenerCompat listener);
-        void setOnCloseListener(Object searchView, Object listener);
+        void setOnCloseListener(View searchView, Object listener);
         CharSequence getQuery(View searchView);
         void setQuery(View searchView, CharSequence query, boolean submit);
         void setQueryHint(View searchView, CharSequence hint);
@@ -75,7 +75,7 @@ public final class SearchViewCompat {
         }
 
         @Override
-        public void setOnQueryTextListener(Object searchView, Object listener) {
+        public void setOnQueryTextListener(View searchView, Object listener) {
         }
 
         @Override
@@ -84,7 +84,7 @@ public final class SearchViewCompat {
         }
 
         @Override
-        public void setOnCloseListener(Object searchView, Object listener) {
+        public void setOnCloseListener(View searchView, Object listener) {
         }
 
         @Override
@@ -141,6 +141,7 @@ public final class SearchViewCompat {
 
         @Override
         public void setSearchableInfo(View searchView, ComponentName searchableComponent) {
+            checkIfLegalArg(searchView);
             SearchViewCompatHoneycomb.setSearchableInfo(searchView, searchableComponent);
         }
 
@@ -160,7 +161,8 @@ public final class SearchViewCompat {
         }
 
         @Override
-        public void setOnQueryTextListener(Object searchView, Object listener) {
+        public void setOnQueryTextListener(View searchView, Object listener) {
+            checkIfLegalArg(searchView);
             SearchViewCompatHoneycomb.setOnQueryTextListener(searchView, listener);
         }
 
@@ -176,58 +178,73 @@ public final class SearchViewCompat {
         }
 
         @Override
-        public void setOnCloseListener(Object searchView, Object listener) {
+        public void setOnCloseListener(View searchView, Object listener) {
+            checkIfLegalArg(searchView);
             SearchViewCompatHoneycomb.setOnCloseListener(searchView, listener);
         }
 
         @Override
         public CharSequence getQuery(View searchView) {
+            checkIfLegalArg(searchView);
             return SearchViewCompatHoneycomb.getQuery(searchView);
         }
 
         @Override
         public void setQuery(View searchView, CharSequence query, boolean submit) {
+            checkIfLegalArg(searchView);
             SearchViewCompatHoneycomb.setQuery(searchView, query, submit);
         }
 
         @Override
         public void setQueryHint(View searchView, CharSequence hint) {
+            checkIfLegalArg(searchView);
             SearchViewCompatHoneycomb.setQueryHint(searchView, hint);
         }
 
         @Override
         public void setIconified(View searchView, boolean iconify) {
+            checkIfLegalArg(searchView);
             SearchViewCompatHoneycomb.setIconified(searchView, iconify);
         }
 
         @Override
         public boolean isIconified(View searchView) {
+            checkIfLegalArg(searchView);
             return SearchViewCompatHoneycomb.isIconified(searchView);
         }
 
         @Override
         public void setSubmitButtonEnabled(View searchView, boolean enabled) {
+            checkIfLegalArg(searchView);
             SearchViewCompatHoneycomb.setSubmitButtonEnabled(searchView, enabled);
         }
 
         @Override
         public boolean isSubmitButtonEnabled(View searchView) {
+            checkIfLegalArg(searchView);
             return SearchViewCompatHoneycomb.isSubmitButtonEnabled(searchView);
         }
 
         @Override
         public void setQueryRefinementEnabled(View searchView, boolean enable) {
+            checkIfLegalArg(searchView);
             SearchViewCompatHoneycomb.setQueryRefinementEnabled(searchView, enable);
         }
 
         @Override
         public boolean isQueryRefinementEnabled(View searchView) {
+            checkIfLegalArg(searchView);
             return SearchViewCompatHoneycomb.isQueryRefinementEnabled(searchView);
         }
 
         @Override
         public void setMaxWidth(View searchView, int maxpixels) {
+            checkIfLegalArg(searchView);
             SearchViewCompatHoneycomb.setMaxWidth(searchView, maxpixels);
+        }
+
+        protected void checkIfLegalArg(View searchView) {
+            SearchViewCompatHoneycomb.checkIfLegalArg(searchView);
         }
     }
 
@@ -240,11 +257,13 @@ public final class SearchViewCompat {
 
         @Override
         public void setImeOptions(View searchView, int imeOptions) {
+            checkIfLegalArg(searchView);
             SearchViewCompatIcs.setImeOptions(searchView, imeOptions);
         }
 
         @Override
         public void setInputType(View searchView, int inputType) {
+            checkIfLegalArg(searchView);
             SearchViewCompatIcs.setInputType(searchView, inputType);
         }
     }

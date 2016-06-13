@@ -424,7 +424,7 @@ public class AccessibilityWindowInfoCompat {
      * @return An instance.
      */
     public static AccessibilityWindowInfoCompat obtain(AccessibilityWindowInfoCompat info) {
-        return wrapNonNullInstance(IMPL.obtain(info.mInfo));
+        return info == null ? null : wrapNonNullInstance(IMPL.obtain(info.mInfo));
     }
 
     /**

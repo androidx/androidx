@@ -29,13 +29,23 @@ import android.widget.SearchView.OnQueryTextListener;
  */
 class SearchViewCompatHoneycomb {
 
+    public static void checkIfLegalArg(View searchView) {
+        if (searchView == null) {
+            throw new IllegalArgumentException("searchView must be non-null");
+        }
+        if (!(searchView instanceof SearchView)) {
+            throw new IllegalArgumentException("searchView must be an instance of" +
+                    "android.widget.SearchView");
+        }
+    }
+
     interface OnQueryTextListenerCompatBridge {
-        public boolean onQueryTextSubmit(String query);
-        public boolean onQueryTextChange(String newText);
+        boolean onQueryTextSubmit(String query);
+        boolean onQueryTextChange(String newText);
     }
 
     interface OnCloseListenerCompatBridge {
-        public boolean onClose();
+        boolean onClose();
     }
 
     public static View newSearchView(Context context) {
@@ -63,7 +73,7 @@ class SearchViewCompatHoneycomb {
         };
     }
 
-    public static void setOnQueryTextListener(Object searchView, Object listener) {
+    public static void setOnQueryTextListener(View searchView, Object listener) {
         ((SearchView) searchView).setOnQueryTextListener((OnQueryTextListener) listener);
     }
 
@@ -76,7 +86,7 @@ class SearchViewCompatHoneycomb {
         };
     }
 
-    public static void setOnCloseListener(Object searchView, Object listener) {
+    public static void setOnCloseListener(View searchView, Object listener) {
         ((SearchView) searchView).setOnCloseListener((OnCloseListener) listener);
     }
 
