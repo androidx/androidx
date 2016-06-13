@@ -116,3 +116,14 @@ project(':support-v7-demos').projectDir = new File(samplesRoot, 'Support7Demos')
 
 include ':support-v13-demos'
 project(':support-v13-demos').projectDir = new File(samplesRoot, 'Support13Demos')
+
+/////////////////////////////
+//
+// External
+//
+/////////////////////////////
+
+File externalRoot = new File(rootDir, '../../external')
+
+include ':doclava'
+project(':doclava').projectDir = new File(externalRoot, 'doclava')
