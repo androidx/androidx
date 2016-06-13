@@ -1736,66 +1736,9 @@ exit:
 
 static void
 nScriptReduce(JNIEnv *_env, jobject _this, jlong con, jlong script, jint slot,
-              jlong ain, jlong aout, jintArray limits)
+              jlongArray ains, jlong aout, jintArray limits)
 {
-    LOG_API("nScriptReduce, con(%p), s(%p), slot(%i) ain(%" PRId64 ") aout(%" PRId64 ")", (RsContext)con, (void *)script, slot, ain, aout);
-
-    RsScriptCall sc, *sca = nullptr;
-    uint32_t sc_size = 0;
-
-    jint  limit_len = 0;
-    jint *limit_ptr = nullptr;
-
-    bool limitLengthValid = true;
-
-    // If the caller passed limits, reflect them in the RsScriptCall.
-    if (limits != nullptr) {
-        limit_len = _env->GetArrayLength(limits);
-        limit_ptr = _env->GetIntArrayElements(limits, nullptr);
-
-        // We expect to be passed an array [x1, x2] which specifies
-        // the sub-range for a 1-dimensional reduction.
-        if (limit_len == 2) {
-            sc.xStart     = limit_ptr[0];
-            sc.xEnd       = limit_ptr[1];
-            sc.yStart     = 0;
-            sc.yEnd       = 0;
-            sc.zStart     = 0;
-            sc.zEnd       = 0;
-            sc.strategy   = RS_FOR_EACH_STRATEGY_DONT_CARE;
-            sc.arrayStart = 0;
-            sc.arrayEnd = 0;
-            sc.array2Start = 0;
-            sc.array2End = 0;
-            sc.array3Start = 0;
-            sc.array3End = 0;
-            sc.array4Start = 0;
-            sc.array4End = 0;
-
-            sca = &sc;
-            sc_size = sizeof(sc);
-        } else {
-            LOG_ERR("LaunchOptions cannot be recognized.");
-            limitLengthValid = false;
-        }
-    }
-
-    if (limitLengthValid) {
-        dispatchTab.ScriptReduce((RsContext)con, (RsScript)script, slot,
-                                 (RsAllocation)ain, (RsAllocation)aout,
-                                 sca, sc_size);
-    }
-
-    if (limits != nullptr) {
-        _env->ReleaseIntArrayElements(limits, limit_ptr, JNI_ABORT);
-    }
-}
-
-static void
-nScriptReduceNew(JNIEnv *_env, jobject _this, jlong con, jlong script, jint slot,
-                 jlongArray ains, jlong aout, jintArray limits)
-{
-    LOG_API("nScriptReduceNew, con(%p), s(%p), slot(%i) ains(%p) aout(%" PRId64 ")", (RsContext)con, (void *)script, slot, ains, aout);
+    LOG_API("nScriptReduce, con(%p), s(%p), slot(%i) ains(%p) aout(%" PRId64 ")", (RsContext)con, (void *)script, slot, ains, aout);
 
     if (ains == nullptr) {
         LOG_ERR("At least one input required.");
@@ -1878,9 +1821,9 @@ nScriptReduceNew(JNIEnv *_env, jobject _this, jlong con, jlong script, jint slot
         sc_size = sizeof(sc);
     }
 
-    dispatchTab.ScriptReduceNew((RsContext)con, (RsScript)script, slot,
-                                in_allocs, in_len, (RsAllocation)aout,
-                                sca, sc_size);
+    dispatchTab.ScriptReduce((RsContext)con, (RsScript)script, slot,
+                             in_allocs, in_len, (RsAllocation)aout,
+                             sca, sc_size);
 
     _env->ReleaseLongArrayElements(ains, in_ptr, JNI_ABORT);
 
@@ -2392,8 +2335,7 @@ static JNINativeMethod methods[] = {
 {"rsnScriptForEach",                 "(JJI[JJ[B[I)V",                         (void*)nScriptForEachMulti },
 {"rsnScriptForEachClipped",          "(JJJIJJIIIIIIZ)V",                      (void*)nScriptForEachClipped },
 {"rsnScriptForEachClipped",          "(JJJIJJ[BIIIIIIZ)V",                    (void*)nScriptForEachClippedV },
-{"rsnScriptReduce",                  "(JJIJJ[I)V",                            (void*)nScriptReduce },
-{"rsnScriptReduceNew",               "(JJI[JJ[I)V",                           (void*)nScriptReduceNew },
+{"rsnScriptReduce",                  "(JJI[JJ[I)V",                           (void*)nScriptReduce },
 {"rsnScriptSetVarI",                 "(JJIIZ)V",                              (void*)nScriptSetVarI },
 {"rsnScriptSetVarJ",                 "(JJIJZ)V",                              (void*)nScriptSetVarJ },
 {"rsnScriptSetVarF",                 "(JJIFZ)V",                              (void*)nScriptSetVarF },
