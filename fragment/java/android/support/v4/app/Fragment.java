@@ -806,8 +806,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Called when the hidden state (as returned by {@link #isHidden()} of
      * the fragment has changed.  Fragments start out not hidden; this will
      * be called whenever the fragment changes state from that.
-     * @param hidden True if the fragment is now hidden, false if it is not
-     * visible.
+     * @param hidden True if the fragment is now hidden, false otherwise.
      */
     public void onHiddenChanged(boolean hidden) {
     }
