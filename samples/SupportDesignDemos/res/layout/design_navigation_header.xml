@@ -14,13 +14,27 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:minHeight="180dp"
-          android:padding="16dp"
-          android:background="?attr/colorPrimary"
-          android:gravity="bottom|start"
-          android:text="@string/navigation_header"
-          android:textAppearance="?android:attr/textAppearanceLargeInverse"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:gravity="bottom|start"
+        android:minHeight="180dp"
+        android:padding="16dp"
+        android:text="@string/navigation_header"
+        android:textAppearance="?android:attr/textAppearanceLargeInverse"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:gravity="top|end"
+        android:text="@string/navigation_header"
+        android:textAppearance="?android:attr/textAppearanceMediumInverse"/>
+
+</FrameLayout>
