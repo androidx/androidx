@@ -18,6 +18,7 @@ package android.support.v4.view.accessibility;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import java.util.List;
 public class AccessibilityNodeProviderCompat {
 
     interface AccessibilityNodeProviderImpl {
-        public Object newAccessibilityNodeProviderBridge(AccessibilityNodeProviderCompat compat);
+        Object newAccessibilityNodeProviderBridge(AccessibilityNodeProviderCompat compat);
     }
 
     static class AccessibilityNodeProviderStubImpl implements AccessibilityNodeProviderImpl {
@@ -40,7 +41,8 @@ public class AccessibilityNodeProviderCompat {
         }
     }
 
-    static class AccessibilityNodeProviderJellyBeanImpl extends AccessibilityNodeProviderStubImpl {
+    private static class AccessibilityNodeProviderJellyBeanImpl
+            extends AccessibilityNodeProviderStubImpl {
         @Override
         public Object newAccessibilityNodeProviderBridge(
                 final AccessibilityNodeProviderCompat compat) {
@@ -55,22 +57,26 @@ public class AccessibilityNodeProviderCompat {
                         @Override
                         public List<Object> findAccessibilityNodeInfosByText(
                                             String text, int virtualViewId) {
-                            List<AccessibilityNodeInfoCompat> compatInfos =
+                            final List<AccessibilityNodeInfoCompat> compatInfos =
                                 compat.findAccessibilityNodeInfosByText(text, virtualViewId);
-                            List<Object> infos = new ArrayList<Object>();
-                            final int infoCount = compatInfos.size();
-                            for (int i = 0; i < infoCount; i++) {
-                                AccessibilityNodeInfoCompat infoCompat = compatInfos.get(i);
-                                infos.add(infoCompat.getInfo());
+                            if (compatInfos == null) {
+                                return null;
+                            } else {
+                                final List<Object> infos = new ArrayList<>();
+                                final int infoCount = compatInfos.size();
+                                for (int i = 0; i < infoCount; i++) {
+                                    AccessibilityNodeInfoCompat infoCompat = compatInfos.get(i);
+                                    infos.add(infoCompat.getInfo());
+                                }
+                                return infos;
                             }
-                            return infos;
                         }
 
                         @Override
                         public Object createAccessibilityNodeInfo(
                                 int virtualViewId) {
-                            final AccessibilityNodeInfoCompat compatInfo = compat
-                                    .createAccessibilityNodeInfo(virtualViewId);
+                            final AccessibilityNodeInfoCompat compatInfo =
+                                    compat.createAccessibilityNodeInfo(virtualViewId);
                             if (compatInfo == null) {
                                 return null;
                             } else {
@@ -81,7 +87,8 @@ public class AccessibilityNodeProviderCompat {
         }
     }
 
-    static class AccessibilityNodeProviderKitKatImpl extends AccessibilityNodeProviderStubImpl {
+    private static class AccessibilityNodeProviderKitKatImpl
+            extends AccessibilityNodeProviderStubImpl {
         @Override
         public Object newAccessibilityNodeProviderBridge(
                 final AccessibilityNodeProviderCompat compat) {
@@ -96,15 +103,19 @@ public class AccessibilityNodeProviderCompat {
                         @Override
                         public List<Object> findAccessibilityNodeInfosByText(
                                 String text, int virtualViewId) {
-                            List<AccessibilityNodeInfoCompat> compatInfos =
+                            final List<AccessibilityNodeInfoCompat> compatInfos =
                                     compat.findAccessibilityNodeInfosByText(text, virtualViewId);
-                            List<Object> infos = new ArrayList<Object>();
-                            final int infoCount = compatInfos.size();
-                            for (int i = 0; i < infoCount; i++) {
-                                AccessibilityNodeInfoCompat infoCompat = compatInfos.get(i);
-                                infos.add(infoCompat.getInfo());
+                            if (compatInfos == null) {
+                                return null;
+                            } else {
+                                final List<Object> infos = new ArrayList<>();
+                                final int infoCount = compatInfos.size();
+                                for (int i = 0; i < infoCount; i++) {
+                                    AccessibilityNodeInfoCompat infoCompat = compatInfos.get(i);
+                                    infos.add(infoCompat.getInfo());
+                                }
+                                return infos;
                             }
-                            return infos;
                         }
 
                         @Override
@@ -191,6 +202,7 @@ public class AccessibilityNodeProviderCompat {
      *
      * @see AccessibilityNodeInfoCompat
      */
+    @Nullable
     public AccessibilityNodeInfoCompat createAccessibilityNodeInfo(int virtualViewId) {
         return null;
     }
@@ -226,6 +238,7 @@ public class AccessibilityNodeProviderCompat {
      * @see #createAccessibilityNodeInfo(int)
      * @see AccessibilityNodeInfoCompat
      */
+    @Nullable
     public List<AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByText(String text,
             int virtualViewId) {
         return null;
@@ -242,6 +255,7 @@ public class AccessibilityNodeProviderCompat {
      * @see AccessibilityNodeInfoCompat#FOCUS_INPUT
      * @see AccessibilityNodeInfoCompat#FOCUS_ACCESSIBILITY
      */
+    @Nullable
     public AccessibilityNodeInfoCompat findFocus(int focus) {
         return null;
     }
