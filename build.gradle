@@ -168,7 +168,7 @@ String getSha1(File inputFile) {
  * @param apiLevel the API level or "current"
  * @return a file collection containing the Android prebuilt JAR
  */
-FileCollection getAndroidPrebuilt(String apiLevel) {
+FileCollection getAndroidPrebuilt(apiLevel) {
     files("${project.rootDir}/../../prebuilts/sdk/$apiLevel/android.jar")
 }
 
