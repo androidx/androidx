@@ -160,6 +160,7 @@ package android.support.customtabs {
     field public static final java.lang.String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
     field public static final java.lang.String EXTRA_CLOSE_BUTTON_ICON = "android.support.customtabs.extra.CLOSE_BUTTON_ICON";
     field public static final java.lang.String EXTRA_DEFAULT_SHARE_MENU_ITEM = "android.support.customtabs.extra.SHARE_MENU_ITEM";
+    field public static final java.lang.String EXTRA_ENABLE_INSTANT_APPS = "android.support.customtabs.extra.EXTRA_ENABLE_INSTANT_APPS";
     field public static final java.lang.String EXTRA_ENABLE_URLBAR_HIDING = "android.support.customtabs.extra.ENABLE_URLBAR_HIDING";
     field public static final java.lang.String EXTRA_EXIT_ANIMATION_BUNDLE = "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
     field public static final java.lang.String EXTRA_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
@@ -197,6 +198,7 @@ package android.support.customtabs {
     method public android.support.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, java.lang.String, android.app.PendingIntent);
     method public android.support.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
     method public android.support.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, int, int);
+    method public android.support.customtabs.CustomTabsIntent.Builder setInstantAppsEnabled(boolean);
     method public android.support.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(int);
     method public android.support.customtabs.CustomTabsIntent.Builder setSecondaryToolbarViews(android.widget.RemoteViews, int[], android.app.PendingIntent);
     method public android.support.customtabs.CustomTabsIntent.Builder setShowTitle(boolean);
@@ -10110,4 +10112,3 @@ package android.support.v7.widget.util {
   }
 
 }
-
