@@ -25,6 +25,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Process;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.os.EnvironmentCompat;
@@ -328,7 +331,7 @@ public class ContextCompat {
      *           The value 0 is an invalid identifier.
      * @return Drawable An object that can be used to draw this resource.
      */
-    public static final Drawable getDrawable(Context context, int id) {
+    public static final Drawable getDrawable(Context context, @DrawableRes int id) {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 21) {
             return ContextCompatApi21.getDrawable(context, id);
@@ -365,7 +368,7 @@ public class ContextCompat {
      * @throws android.content.res.Resources.NotFoundException if the given ID
      *         does not exist.
      */
-    public static final ColorStateList getColorStateList(Context context, int id) {
+    public static final ColorStateList getColorStateList(Context context, @ColorRes int id) {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 23) {
             return ContextCompatApi23.getColorStateList(context, id);
@@ -387,7 +390,8 @@ public class ContextCompat {
      * @throws android.content.res.Resources.NotFoundException if the given ID
      *         does not exist.
      */
-    public static final int getColor(Context context, int id) {
+    @ColorInt
+    public static final int getColor(Context context, @ColorRes int id) {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 23) {
             return ContextCompatApi23.getColor(context, id);
