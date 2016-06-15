@@ -27,30 +27,53 @@ import java.util.List;
  */
 class AccessibilityManagerCompatIcs {
 
-    interface AccessibilityStateChangeListenerBridge {
-        public void onAccessibilityStateChanged(boolean enabled);
+    public static class AccessibilityStateChangeListenerWrapper
+            implements AccessibilityStateChangeListener {
+        Object mListener;
+        AccessibilityStateChangeListenerBridge mListenerBridge;
+
+        public AccessibilityStateChangeListenerWrapper(Object listener,
+                AccessibilityStateChangeListenerBridge listenerBridge) {
+            mListener = listener;
+            mListenerBridge = listenerBridge;
+        }
+
+        @Override
+        public int hashCode() {
+            return mListener == null ? 0 : mListener.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            AccessibilityStateChangeListenerWrapper other =
+                    (AccessibilityStateChangeListenerWrapper) o;
+            return mListener == null ? other.mListener == null : mListener.equals(other.mListener);
+        }
+
+        @Override
+        public void onAccessibilityStateChanged(boolean enabled) {
+            mListenerBridge.onAccessibilityStateChanged(enabled);
+        }
     }
 
-    public static Object newAccessibilityStateChangeListener(
-            final AccessibilityStateChangeListenerBridge bridge) {
-        return new AccessibilityStateChangeListener() {
-            @Override
-            public void onAccessibilityStateChanged(boolean enabled) {
-                bridge.onAccessibilityStateChanged(enabled);
-            }
-        };
+    interface AccessibilityStateChangeListenerBridge {
+        void onAccessibilityStateChanged(boolean enabled);
     }
 
     public static boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
-            Object listener) {
-        return manager.addAccessibilityStateChangeListener(
-                (AccessibilityStateChangeListener)listener);
+            AccessibilityStateChangeListenerWrapper listener) {
+        return manager.addAccessibilityStateChangeListener(listener);
     }
 
     public static boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
-            Object listener) {
-        return manager.removeAccessibilityStateChangeListener(
-                (AccessibilityStateChangeListener)listener);
+            AccessibilityStateChangeListenerWrapper listener) {
+        return manager.removeAccessibilityStateChangeListener(listener);
     }
 
     public static List<AccessibilityServiceInfo> getEnabledAccessibilityServiceList(
