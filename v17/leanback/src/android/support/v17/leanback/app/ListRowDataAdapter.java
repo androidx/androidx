@@ -28,36 +28,43 @@ class ListRowDataAdapter extends ObjectAdapter {
 
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
-                initialize();
-                notifyItemRangeChanged(positionStart, itemCount);
+                if (positionStart <= mLastVisibleRowIndex) {
+                    notifyItemRangeChanged(positionStart,
+                            Math.min(itemCount, mLastVisibleRowIndex - positionStart + 1));
+                }
             }
 
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
-                Row item = (Row) mAdapter.get(mLastVisibleRowIndex);
-                boolean isLastRowNonVisible = (item instanceof DividerRow);
-                initialize();
-
-                boolean hasVisibleRow = hasVisibleRow(positionStart);
-                if (positionStart >= mLastVisibleRowIndex
-                        && isLastRowNonVisible
-                        && hasVisibleRow) {
-                    positionStart--;
-                    itemCount++;
+                if (positionStart <= mLastVisibleRowIndex) {
+                    mLastVisibleRowIndex += itemCount;
+                    notifyItemRangeInserted(positionStart, itemCount);
+                    return;
                 }
-                notifyItemRangeInserted(positionStart, itemCount);
+
+                int lastVisibleRowIndex = mLastVisibleRowIndex;
+                initialize();
+                if (mLastVisibleRowIndex > lastVisibleRowIndex) {
+                    int totalItems = mLastVisibleRowIndex - lastVisibleRowIndex;
+                    notifyItemRangeInserted(lastVisibleRowIndex + 1, totalItems);
+                }
             }
 
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
-                Row item = (Row) mAdapter.get(mLastVisibleRowIndex);
-                boolean isLastRowNonVisible = (item instanceof DividerRow);
-                initialize();
-
-                if (positionStart + itemCount >= mLastVisibleRowIndex && isLastRowNonVisible) {
-                    itemCount--;
+                if (positionStart + itemCount -  1 < mLastVisibleRowIndex) {
+                    mLastVisibleRowIndex -= itemCount;
+                    notifyItemRangeRemoved(positionStart, itemCount);
+                    return;
                 }
-                notifyItemRangeRemoved(positionStart, itemCount);
+
+                int lastVisibleRowIndex = mLastVisibleRowIndex;
+                initialize();
+                int totalItems = lastVisibleRowIndex - mLastVisibleRowIndex;
+                if (totalItems > 0) {
+                    notifyItemRangeRemoved(
+                            Math.min(lastVisibleRowIndex + 1, positionStart), totalItems);
+                }
             }
 
             @Override
@@ -68,27 +75,8 @@ class ListRowDataAdapter extends ObjectAdapter {
         });
     }
 
-    private boolean hasVisibleRow(int startIndex) {
-        for (int i = startIndex; i < Math.min(mLastVisibleRowIndex, mAdapter.size()); i++) {
-            Row item = (Row) mAdapter.get(i);
-            if (item instanceof ListRow) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void initialize() {
-        int i = 0;
-        while (i < mAdapter.size()) {
-            Row item = (Row) mAdapter.get(i);
-            if (item.isRenderedAsRowView()) {
-                break;
-            }
-            i++;
-        }
-
-        i = mAdapter.size() - 1;
+        int i = mAdapter.size() - 1;
         while (i >= 0) {
             Row item = (Row) mAdapter.get(i);
             if (item.isRenderedAsRowView()) {
