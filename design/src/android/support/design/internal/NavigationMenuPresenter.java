@@ -19,8 +19,6 @@ package android.support.design.internal;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -37,7 +35,6 @@ import android.support.v7.view.menu.SubMenuBuilder;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
@@ -337,7 +334,6 @@ public class NavigationMenuPresenter implements MenuPresenter {
 
         private final ArrayList<NavigationMenuItem> mItems = new ArrayList<>();
         private MenuItemImpl mCheckedItem;
-        private ColorDrawable mTransparentIcon;
         private boolean mUpdateSuspended;
 
         NavigationMenuAdapter() {
@@ -402,6 +398,7 @@ public class NavigationMenuPresenter implements MenuPresenter {
                     itemView.setBackgroundDrawable(mItemBackground != null ?
                             mItemBackground.getConstantState().newDrawable() : null);
                     NavigationMenuTextItem item = (NavigationMenuTextItem) mItems.get(position);
+                    itemView.setNeedsEmptyIcon(item.needsEmptyIcon);
                     itemView.initialize(item.getMenuItem(), 0);
                     break;
                 }
@@ -502,10 +499,9 @@ public class NavigationMenuPresenter implements MenuPresenter {
                         currentGroupHasIcon = true;
                         appendTransparentIconIfMissing(currentGroupStart, mItems.size());
                     }
-                    if (currentGroupHasIcon && item.getIcon() == null) {
-                        item.setIcon(android.R.color.transparent);
-                    }
-                    mItems.add(new NavigationMenuTextItem(item));
+                    NavigationMenuTextItem textItem = new NavigationMenuTextItem(item);
+                    textItem.needsEmptyIcon = currentGroupHasIcon;
+                    mItems.add(textItem);
                     currentGroupId = groupId;
                 }
             }
@@ -515,13 +511,7 @@ public class NavigationMenuPresenter implements MenuPresenter {
         private void appendTransparentIconIfMissing(int startIndex, int endIndex) {
             for (int i = startIndex; i < endIndex; i++) {
                 NavigationMenuTextItem textItem = (NavigationMenuTextItem) mItems.get(i);
-                MenuItem item = textItem.getMenuItem();
-                if (item.getIcon() == null) {
-                    if (mTransparentIcon == null) {
-                        mTransparentIcon = new ColorDrawable(Color.TRANSPARENT);
-                    }
-                    item.setIcon(mTransparentIcon);
-                }
+                textItem.needsEmptyIcon = true;
             }
         }
 
@@ -606,6 +596,8 @@ public class NavigationMenuPresenter implements MenuPresenter {
     private static class NavigationMenuTextItem implements NavigationMenuItem {
 
         private final MenuItemImpl mMenuItem;
+
+        boolean needsEmptyIcon;
 
         private NavigationMenuTextItem(MenuItemImpl item) {
             mMenuItem = item;

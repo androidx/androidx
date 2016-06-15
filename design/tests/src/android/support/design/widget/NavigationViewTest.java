@@ -30,6 +30,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,7 +92,7 @@ public class NavigationViewTest
         // Check the contents of the Menu object
         final Menu menu = mNavigationView.getMenu();
         assertNotNull("Menu should not be null", menu);
-        assertEquals("Should have matching number of items", MENU_CONTENT_ITEM_IDS.length,
+        assertEquals("Should have matching number of items", MENU_CONTENT_ITEM_IDS.length + 1,
                 menu.size());
         for (int i = 0; i < MENU_CONTENT_ITEM_IDS.length; i++) {
             final MenuItem currItem = menu.getItem(i);
@@ -549,5 +551,16 @@ public class NavigationViewTest
         // makes our matcher actually run. If for some reason NavigationView fails to inflate and
         // display our SwitchCompat action layout, the next line will fail in the matcher pass.
         onView(menuItemMatcher).perform(click());
+
+        // Check that the full custom view is displayed without title and icon.
+        final Resources res = mActivityTestRule.getActivity().getResources();
+        Matcher customItemMatcher = allOf(
+                isDescendantOfA(withId(R.id.start_drawer)),
+                isChildOfA(isAssignableFrom(RecyclerView.class)),
+                hasDescendant(withText(res.getString(R.string.navigate_custom))),
+                hasDescendant(allOf(
+                        isAssignableFrom(TextView.class),
+                        withEffectiveVisibility(Visibility.GONE))));
+        onView(customItemMatcher).perform(click());
     }
 }
