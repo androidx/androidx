@@ -126,7 +126,7 @@ class NotificationCompatApi20 {
         }
         actionExtras.putBoolean(NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES,
                 action.getAllowGeneratedReplies());
-        actionBuilder.addExtras(action.getExtras());
+        actionBuilder.addExtras(actionExtras);
         b.addAction(actionBuilder.build());
     }
 
