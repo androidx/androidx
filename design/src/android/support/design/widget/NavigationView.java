@@ -18,7 +18,6 @@ package android.support.design.widget;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -38,6 +37,7 @@ import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.view.menu.MenuBuilder;
@@ -230,8 +230,8 @@ public class NavigationView extends ScrimInsetsFrameLayout {
      * @hide
      */
     @Override
-    protected void onInsetsChanged(Rect insets) {
-        mPresenter.setPaddingTopDefault(insets.top);
+    protected void onInsetsChanged(WindowInsetsCompat insets) {
+        mPresenter.dispatchApplyWindowInsets(insets);
     }
 
     /**

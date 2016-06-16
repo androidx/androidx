@@ -29,6 +29,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.support.design.R;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuItemImpl;
 import android.support.v7.view.menu.MenuPresenter;
@@ -254,13 +256,15 @@ public class NavigationMenuPresenter implements MenuPresenter {
         }
     }
 
-    public void setPaddingTopDefault(int paddingTopDefault) {
-        if (mPaddingTopDefault != paddingTopDefault) {
-            mPaddingTopDefault = paddingTopDefault;
+    public void dispatchApplyWindowInsets(WindowInsetsCompat insets) {
+        int top = insets.getSystemWindowInsetTop();
+        if (mPaddingTopDefault != top) {
+            mPaddingTopDefault = top;
             if (mHeaderLayout.getChildCount() == 0) {
                 mMenuView.setPadding(0, mPaddingTopDefault, 0, mMenuView.getPaddingBottom());
             }
         }
+        ViewCompat.dispatchApplyWindowInsets(mHeaderLayout, insets);
     }
 
     private abstract static class ViewHolder extends RecyclerView.ViewHolder {
