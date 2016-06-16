@@ -119,9 +119,15 @@ class NotificationCompatApi24 {
                     actionBuilder.addRemoteInput(remoteInput);
                 }
             }
+            Bundle actionExtras;
             if (action.getExtras() != null) {
-                actionBuilder.addExtras(action.getExtras());
+                actionExtras = new Bundle(action.getExtras());
+            } else {
+                actionExtras = new Bundle();
             }
+            actionExtras.putBoolean(NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES,
+                    action.getAllowGeneratedReplies());
+            actionBuilder.addExtras(actionExtras);
             actionBuilder.setAllowGeneratedReplies(action.getAllowGeneratedReplies());
             b.addAction(actionBuilder.build());
         }
