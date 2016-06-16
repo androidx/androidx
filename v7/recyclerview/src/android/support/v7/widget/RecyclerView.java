@@ -6109,7 +6109,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         /**
          * Notify any registered observers that the <code>itemCount</code> items starting at
-         * position<code>positionStart</code> have changed. An optional payload can be
+         * position <code>positionStart</code> have changed. An optional payload can be
          * passed to each changed item.
          *
          * <p>This is an item change event, not a structural change event. It indicates that any
