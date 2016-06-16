@@ -28,13 +28,9 @@
 
     <attr name="MediaRouteControllerWindowBackground" format="reference" />
     <attr name="mediaRouteButtonStyle" format="reference" />
-    <attr name="mediaRouteOffDrawable" format="reference" />
-    <attr name="mediaRouteConnectingDrawable" format="reference" />
-    <attr name="mediaRouteOnDrawable" format="reference" />
     <attr name="mediaRouteCloseDrawable" format="reference" />
     <attr name="mediaRoutePlayDrawable" format="reference" />
     <attr name="mediaRoutePauseDrawable" format="reference" />
-    <attr name="mediaRouteCastDrawable" format="reference" />
     <attr name="mediaRouteAudioTrackDrawable" format="reference" />
     <attr name="mediaRouteDefaultIconDrawable" format="reference" />
     <attr name="mediaRouteTvIconDrawable" format="reference" />
@@ -45,6 +41,4 @@
     <attr name="mediaRouteControllerTitleTextStyle" format="reference" />
     <attr name="mediaRouteControllerPrimaryTextStyle" format="reference" />
     <attr name="mediaRouteControllerSecondaryTextStyle" format="reference" />
-    <attr name="mediaRouteExpandGroupDrawable" format="reference" />
-    <attr name="mediaRouteCollapseGroupDrawable" format="reference" />
 </resources>
