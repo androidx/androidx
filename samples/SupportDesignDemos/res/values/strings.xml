@@ -107,4 +107,8 @@
     <string name="bottomsheet_show">Show</string>
     <string name="item_n">Item %d</string>
 
+    <string name="design_bottom_navigation_view">Bottom navigation view</string>
+
+    <string name="bottomnavigation_disable">Disable item</string>
+    <string name="bottomnavigation_add">Add item</string>
 </resources>

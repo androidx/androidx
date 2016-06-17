@@ -309,6 +309,24 @@ package android.support.design.widget {
     method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, android.view.View, android.view.View);
   }
 
+  public class BottomNavigationView extends android.widget.FrameLayout {
+    ctor public BottomNavigationView(android.content.Context);
+    ctor public BottomNavigationView(android.content.Context, android.util.AttributeSet);
+    ctor public BottomNavigationView(android.content.Context, android.util.AttributeSet, int);
+    method public android.content.res.ColorStateList getItemIconTintList();
+    method public android.content.res.ColorStateList getItemTextColor();
+    method public android.view.Menu getMenu();
+    method public void inflateMenu(int);
+    method public void setItemBackgroundResource(int);
+    method public void setItemIconTintList(android.content.res.ColorStateList);
+    method public void setItemTextColor(android.content.res.ColorStateList);
+    method public void setOnNavigationItemSelectedListener(android.support.design.widget.BottomNavigationView.OnNavigationItemSelectedListener);
+  }
+
+  public static abstract interface BottomNavigationView.OnNavigationItemSelectedListener {
+    method public abstract boolean onNavigationItemSelected(android.view.MenuItem);
+  }
+
   public class BottomSheetBehavior extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public BottomSheetBehavior();
     ctor public BottomSheetBehavior(android.content.Context, android.util.AttributeSet);
