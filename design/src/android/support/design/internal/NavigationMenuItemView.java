@@ -23,6 +23,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.design.R;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.view.menu.MenuItemImpl;
@@ -44,6 +45,8 @@ public class NavigationMenuItemView extends ForegroundLinearLayout implements Me
 
     private final int mIconSize;
 
+    private boolean mNeedsEmptyIcon;
+
     private final CheckedTextView mTextView;
 
     private FrameLayout mActionArea;
@@ -51,6 +54,8 @@ public class NavigationMenuItemView extends ForegroundLinearLayout implements Me
     private MenuItemImpl mItemData;
 
     private ColorStateList mIconTintList;
+
+    private Drawable mEmptyDrawable;
 
     public NavigationMenuItemView(Context context) {
         this(context, null);
@@ -86,6 +91,32 @@ public class NavigationMenuItemView extends ForegroundLinearLayout implements Me
         setTitle(itemData.getTitle());
         setIcon(itemData.getIcon());
         setActionView(itemData.getActionView());
+        adjustAppearance();
+    }
+
+    private boolean shouldExpandActionArea() {
+        return mItemData.getTitle() == null &&
+                mItemData.getIcon() == null &&
+                mItemData.getActionView() != null;
+    }
+
+    private void adjustAppearance() {
+        if (shouldExpandActionArea()) {
+            // Expand the actionView area
+            mTextView.setVisibility(View.GONE);
+            if (mActionArea != null) {
+                LayoutParams params = (LayoutParams) mActionArea.getLayoutParams();
+                params.width = LayoutParams.MATCH_PARENT;
+                mActionArea.setLayoutParams(params);
+            }
+        } else {
+            mTextView.setVisibility(View.VISIBLE);
+            if (mActionArea != null) {
+                LayoutParams params = (LayoutParams) mActionArea.getLayoutParams();
+                params.width = LayoutParams.WRAP_CONTENT;
+                mActionArea.setLayoutParams(params);
+            }
+        }
     }
 
     public void recycle() {
@@ -96,12 +127,12 @@ public class NavigationMenuItemView extends ForegroundLinearLayout implements Me
     }
 
     private void setActionView(View actionView) {
-        if (mActionArea == null) {
-            mActionArea = (FrameLayout) ((ViewStub) findViewById(
-                    R.id.design_menu_item_action_area_stub)).inflate();
-        }
-        mActionArea.removeAllViews();
         if (actionView != null) {
+            if (mActionArea == null) {
+                mActionArea = (FrameLayout) ((ViewStub) findViewById(
+                        R.id.design_menu_item_action_area_stub)).inflate();
+            }
+            mActionArea.removeAllViews();
             mActionArea.addView(actionView);
         }
     }
@@ -150,6 +181,15 @@ public class NavigationMenuItemView extends ForegroundLinearLayout implements Me
             icon = DrawableCompat.wrap(state == null ? icon : state.newDrawable()).mutate();
             icon.setBounds(0, 0, mIconSize, mIconSize);
             DrawableCompat.setTintList(icon, mIconTintList);
+        } else if (mNeedsEmptyIcon) {
+            if (mEmptyDrawable == null) {
+                mEmptyDrawable = ResourcesCompat.getDrawable(getResources(),
+                        R.drawable.navigation_empty_icon, getContext().getTheme());
+                if (mEmptyDrawable != null) {
+                    mEmptyDrawable.setBounds(0, 0, mIconSize, mIconSize);
+                }
+            }
+            icon = mEmptyDrawable;
         }
         TextViewCompat.setCompoundDrawablesRelative(mTextView, icon, null, null, null);
     }
@@ -187,6 +227,10 @@ public class NavigationMenuItemView extends ForegroundLinearLayout implements Me
 
     public void setTextColor(ColorStateList colors) {
         mTextView.setTextColor(colors);
+    }
+
+    public void setNeedsEmptyIcon(boolean needsEmptyIcon) {
+        mNeedsEmptyIcon = needsEmptyIcon;
     }
 
 }

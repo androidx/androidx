@@ -51,6 +51,7 @@
     <string name="navigation_subheader">Subheader</string>
     <string name="navigation_sub_item_1">Subitem 1</string>
     <string name="navigation_sub_item_2">Subitem 2</string>
+    <string name="navigation_sub_item_3">Subitme 3</string>
 
     <string name="tabs_fixed">Fixed</string>
     <string name="tabs_scrollable">Scrollable</string>

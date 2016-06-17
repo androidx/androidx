@@ -65,6 +65,9 @@ public abstract class NavigationViewUsageBase extends AppCompatActivity {
             case R.id.navigation_sub_item_2:
                 showToast(R.string.navigation_sub_item_2);
                 return true;
+            case R.id.navigation_sub_item_3:
+                showToast(R.string.navigation_sub_item_3);
+                return true;
             case R.id.navigation_with_icon:
                 showToast(R.string.navigation_item_with_icon);
                 return true;
