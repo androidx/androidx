@@ -29,7 +29,7 @@
     <string name="abc_searchview_description_clear" msgid="3691816814315814921">"ક્વેરી સાફ કરો"</string>
     <string name="abc_searchview_description_submit" msgid="8928215447528550784">"ક્વેરી સબમિટ કરો"</string>
     <string name="abc_searchview_description_voice" msgid="893419373245838918">"વૉઇસ શોધ"</string>
-    <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"એક એપ્લિકેશન પસંદ કરો"</string>
+    <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"એક ઍપ્લિકેશન પસંદ કરો"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"બધું જુઓ"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"%s સાથે શેર કરો"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"આની સાથે શેર કરો"</string>
