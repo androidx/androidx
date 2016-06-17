@@ -29,7 +29,7 @@
 
     <TextView
         android:id="@+id/title_text"
-        android:layout_width="@dimen/lb_browse_title_text_width"
+        android:layout_width="wrap_content"
         android:layout_height="@dimen/lb_browse_title_height"
         android:layout_gravity="center_vertical|end"
         style="?attr/browseTitleTextStyle"/>
