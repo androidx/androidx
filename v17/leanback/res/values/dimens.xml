@@ -30,7 +30,6 @@
     <dimen name="lb_browse_title_icon_max_width">584dp</dimen>
     <dimen name="lb_browse_title_icon_height">60dp</dimen>
     <dimen name="lb_browse_title_text_size">44sp</dimen>
-    <dimen name="lb_browse_title_text_width">584dp</dimen>
 
     <dimen name="lb_browse_headers_width">270dp</dimen>
     <integer name="lb_browse_headers_transition_delay">150</integer>
