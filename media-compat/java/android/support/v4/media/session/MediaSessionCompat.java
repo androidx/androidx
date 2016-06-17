@@ -1514,6 +1514,7 @@ public class MediaSessionCompat {
         @Override
         public void setExtras(Bundle extras) {
             mExtras = extras;
+            sendExtras(extras);
         }
 
         // Registers/unregisters the RCC and MediaButtonEventReceiver as needed.
@@ -1723,6 +1724,18 @@ public class MediaSessionCompat {
                 IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
                 try {
                     cb.onQueueTitleChanged(queueTitle);
+                } catch (RemoteException e) {
+                }
+            }
+            mControllerCallbacks.finishBroadcast();
+        }
+
+        private void sendExtras(Bundle extras) {
+            int size = mControllerCallbacks.beginBroadcast();
+            for (int i = size - 1; i >= 0; i--) {
+                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                try {
+                    cb.onExtrasChanged(extras);
                 } catch (RemoteException e) {
                 }
             }
