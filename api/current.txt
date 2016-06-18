@@ -7568,6 +7568,7 @@ package android.support.v7.app {
   public class ActionBarDrawerToggle implements android.support.v4.widget.DrawerLayout.DrawerListener {
     ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, int, int);
     ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, android.support.v7.widget.Toolbar, int, int);
+    method public android.support.v7.graphics.drawable.DrawerArrowDrawable getDrawerArrowDrawable();
     method public android.view.View.OnClickListener getToolbarNavigationClickListener();
     method public boolean isDrawerIndicatorEnabled();
     method public void onConfigurationChanged(android.content.res.Configuration);
@@ -7576,6 +7577,7 @@ package android.support.v7.app {
     method public void onDrawerSlide(android.view.View, float);
     method public void onDrawerStateChanged(int);
     method public boolean onOptionsItemSelected(android.view.MenuItem);
+    method public void setDrawerArrowDrawable(android.support.v7.graphics.drawable.DrawerArrowDrawable);
     method public void setDrawerIndicatorEnabled(boolean);
     method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable);
     method public void setHomeAsUpIndicator(int);
