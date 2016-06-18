@@ -16,8 +16,9 @@
 
 package com.example.android.support.design.widget;
 
+import com.example.android.support.design.R;
+
 import android.os.Bundle;
-import android.support.design.R;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
