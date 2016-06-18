@@ -283,6 +283,8 @@
 
         <attr name="playbackMediaListHeaderTitleStyle" format="reference"/>
         <attr name="playbackMediaItemDetailsStyle" format="reference"/>
+        <attr name="playbackMediaItemNumberViewFlipperStyle" format="reference"/>
+        <attr name="playbackMediaItemNumberViewFlipperLayout" format="reference"/>
         <attr name="playbackMediaItemNumberStyle" format="reference"/>
         <attr name="playbackMediaItemNameStyle" format="reference"/>
         <attr name="playbackMediaItemDurationStyle" format="reference"/>
