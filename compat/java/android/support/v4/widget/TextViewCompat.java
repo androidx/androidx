@@ -46,6 +46,7 @@ public final class TextViewCompat {
         int getMaxLines(TextView textView);
         int getMinLines(TextView textView);
         void setTextAppearance(@NonNull TextView textView, @StyleRes int resId);
+        Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView);
     }
 
     static class BaseTextViewCompatImpl implements TextViewCompatImpl {
@@ -84,6 +85,11 @@ public final class TextViewCompat {
         public void setTextAppearance(TextView textView, @StyleRes int resId) {
             TextViewCompatGingerbread.setTextAppearance(textView, resId);
         }
+
+        @Override
+        public Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
+            return TextViewCompatGingerbread.getCompoundDrawablesRelative(textView);
+        }
     }
 
     static class JbTextViewCompatImpl extends BaseTextViewCompatImpl {
@@ -120,6 +126,11 @@ public final class TextViewCompat {
                 @DrawableRes int bottom) {
             TextViewCompatJbMr1.setCompoundDrawablesRelativeWithIntrinsicBounds(textView,
                     start, top, end, bottom);
+        }
+
+        @Override
+        public Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
+            return TextViewCompatJbMr1.getCompoundDrawablesRelative(textView);
         }
     }
 
@@ -267,5 +278,12 @@ public final class TextViewCompat {
      */
     public static void setTextAppearance(@NonNull TextView textView, @StyleRes int resId) {
         IMPL.setTextAppearance(textView, resId);
+    }
+
+    /**
+     * Returns drawables for the start, top, end, and bottom borders from the given text view.
+     */
+    public static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
+        return textView.getCompoundDrawables();
     }
 }

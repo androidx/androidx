@@ -29,6 +29,7 @@ import android.view.View;
 public class TextInputLayoutUsage extends AppCompatActivity {
 
     private TextInputLayout mUsernameInputLayout;
+    private TextInputLayout mPasswordInputLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,7 @@ public class TextInputLayoutUsage extends AppCompatActivity {
         setContentView(R.layout.design_text_input);
 
         mUsernameInputLayout = (TextInputLayout) findViewById(R.id.input_username);
+        mPasswordInputLayout = (TextInputLayout) findViewById(R.id.input_password);
     }
 
     public void showError(View view) {
@@ -44,6 +46,14 @@ public class TextInputLayoutUsage extends AppCompatActivity {
 
     public void clearError(View view) {
         mUsernameInputLayout.setError(null);
+    }
+
+    public void setPasswordEnabled(View view) {
+        mPasswordInputLayout.setPasswordVisibilityToggleEnabled(true);
+    }
+
+    public void setPasswordDisabled(View view) {
+        mPasswordInputLayout.setPasswordVisibilityToggleEnabled(false);
     }
 
 }

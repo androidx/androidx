@@ -157,7 +157,7 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
                 R.styleable.FloatingActionButton, defStyleAttr,
                 R.style.Widget_Design_FloatingActionButton);
         mBackgroundTint = a.getColorStateList(R.styleable.FloatingActionButton_backgroundTint);
-        mBackgroundTintMode = parseTintMode(a.getInt(
+        mBackgroundTintMode = ViewUtils.parseTintMode(a.getInt(
                 R.styleable.FloatingActionButton_backgroundTintMode, -1), null);
         mRippleColor = a.getColor(R.styleable.FloatingActionButton_rippleColor, 0);
         mSize = a.getInt(R.styleable.FloatingActionButton_fabSize, SIZE_AUTO);
@@ -509,23 +509,6 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
                 break;
         }
         return result;
-    }
-
-    static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {
-        switch (value) {
-            case 3:
-                return PorterDuff.Mode.SRC_OVER;
-            case 5:
-                return PorterDuff.Mode.SRC_IN;
-            case 9:
-                return PorterDuff.Mode.SRC_ATOP;
-            case 14:
-                return PorterDuff.Mode.MULTIPLY;
-            case 15:
-                return PorterDuff.Mode.SCREEN;
-            default:
-                return defaultMode;
-        }
     }
 
     @Override

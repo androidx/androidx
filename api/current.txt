@@ -742,11 +742,14 @@ package android.support.design.widget {
     method public android.widget.EditText getEditText();
     method public java.lang.CharSequence getError();
     method public java.lang.CharSequence getHint();
+    method public java.lang.CharSequence getPasswordVisibilityToggleContentDescription();
+    method public android.graphics.drawable.Drawable getPasswordVisibilityToggleDrawable();
     method public android.graphics.Typeface getTypeface();
     method public boolean isCounterEnabled();
     method public boolean isErrorEnabled();
     method public boolean isHintAnimationEnabled();
     method public boolean isHintEnabled();
+    method public boolean isPasswordVisibilityToggleEnabled();
     method public android.os.Parcelable onSaveInstanceState();
     method public void setCounterEnabled(boolean);
     method public void setCounterMaxLength(int);
@@ -756,6 +759,13 @@ package android.support.design.widget {
     method public void setHintAnimationEnabled(boolean);
     method public void setHintEnabled(boolean);
     method public void setHintTextAppearance(int);
+    method public void setPasswordVisibilityToggleContentDescription(int);
+    method public void setPasswordVisibilityToggleContentDescription(java.lang.CharSequence);
+    method public void setPasswordVisibilityToggleDrawable(int);
+    method public void setPasswordVisibilityToggleDrawable(android.graphics.drawable.Drawable);
+    method public void setPasswordVisibilityToggleEnabled(boolean);
+    method public void setPasswordVisibilityToggleTintList(android.content.res.ColorStateList);
+    method public void setPasswordVisibilityToggleTintMode(android.graphics.PorterDuff.Mode);
     method public void setTypeface(android.graphics.Typeface);
   }
 
@@ -7352,6 +7362,7 @@ package android.support.v4.widget {
   }
 
   public final class TextViewCompat {
+    method public static android.graphics.drawable.Drawable[] getCompoundDrawablesRelative(android.widget.TextView);
     method public static int getMaxLines(android.widget.TextView);
     method public static int getMinLines(android.widget.TextView);
     method public static void setCompoundDrawablesRelative(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
@@ -10145,3 +10156,4 @@ package android.support.v7.widget.util {
   }
 
 }
+

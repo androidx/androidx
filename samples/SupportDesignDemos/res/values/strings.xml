@@ -67,8 +67,11 @@
     <string name="form_username">Username</string>
     <string name="form_email">Email address</string>
     <string name="form_description">Description</string>
+    <string name="form_password">Password field</string>
     <string name="show_error">Show error</string>
     <string name="clear_error">Clear error</string>
+    <string name="password_enable">Enable Password</string>
+    <string name="password_disable">Disable Password</string>
 
     <string name="design_snackbar_basic">Snackbar/Usage</string>
     <string name="design_snackbar_fab">Snackbar/Coordinated with FAB</string>
