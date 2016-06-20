@@ -242,7 +242,11 @@ class TransitionKitKat extends TransitionImpl {
 
     @Override
     public TransitionImpl removeTarget(int targetId) {
-        mTransition.removeTarget(targetId);
+        if (targetId > 0) {
+            // Workaround for the issue that the platform version calls remove(int)
+            // when it should call remove(Integer)
+            getTargetIds().remove((Integer) targetId);
+        }
         return this;
     }
 
