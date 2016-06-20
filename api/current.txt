@@ -2908,6 +2908,7 @@ package android.support.v17.leanback.widget {
     method public final android.support.v17.leanback.widget.Presenter getPresenter(java.lang.Object);
     method public final android.support.v17.leanback.widget.PresenterSelector getPresenterSelector();
     method public final boolean hasStableIds();
+    method public boolean isImmediateNotifySupported();
     method protected final void notifyChanged();
     method protected final void notifyItemRangeChanged(int, int);
     method protected final void notifyItemRangeInserted(int, int);

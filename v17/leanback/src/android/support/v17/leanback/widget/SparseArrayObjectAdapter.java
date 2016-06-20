@@ -123,4 +123,9 @@ public class SparseArrayObjectAdapter extends ObjectAdapter {
     public Object lookup(int key) {
         return mItems.get(key);
     }
+
+    @Override
+    public boolean isImmediateNotifySupported() {
+        return true;
+    }
 }
