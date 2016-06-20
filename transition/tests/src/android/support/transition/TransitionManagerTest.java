@@ -61,15 +61,29 @@ public class TransitionManagerTest extends BaseTest {
     }
 
     @Test
-    @UiThreadTest
     public void testGo_exitAction() {
-        CheckCalledRunnable runnable = new CheckCalledRunnable();
-        mScenes[0].setExitAction(runnable);
-        assertThat(runnable.wasCalled(), is(false));
-        TransitionManager.go(mScenes[0]);
-        assertThat(runnable.wasCalled(), is(false));
-        TransitionManager.go(mScenes[1]);
-        assertThat(runnable.wasCalled(), is(true));
+        final CheckCalledRunnable enter = new CheckCalledRunnable();
+        final CheckCalledRunnable exit = new CheckCalledRunnable();
+        mScenes[0].setEnterAction(enter);
+        mScenes[0].setExitAction(exit);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                assertThat(enter.wasCalled(), is(false));
+                assertThat(exit.wasCalled(), is(false));
+                TransitionManager.go(mScenes[0]);
+                assertThat(enter.wasCalled(), is(true));
+                assertThat(exit.wasCalled(), is(false));
+            }
+        });
+        // Let the main thread catch up with the scene change
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.go(mScenes[1]);
+                assertThat(exit.wasCalled(), is(true));
+            }
+        });
     }
 
     @Test
