@@ -7934,6 +7934,14 @@ package android.support.v7.app {
     ctor public NotificationCompat.Builder(android.content.Context);
   }
 
+  public static class NotificationCompat.DecoratedCustomViewStyle extends android.support.v4.app.NotificationCompat.Style {
+    ctor public NotificationCompat.DecoratedCustomViewStyle();
+  }
+
+  public static class NotificationCompat.DecoratedMediaCustomViewStyle extends android.support.v7.app.NotificationCompat.MediaStyle {
+    ctor public NotificationCompat.DecoratedMediaCustomViewStyle();
+  }
+
   public static class NotificationCompat.MediaStyle extends android.support.v4.app.NotificationCompat.Style {
     ctor public NotificationCompat.MediaStyle();
     ctor public NotificationCompat.MediaStyle(android.support.v4.app.NotificationCompat.Builder);

@@ -22,46 +22,205 @@ import android.content.Context;
 import android.os.Build;
 import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v7.appcompat.R;
+import android.widget.RemoteViews;
 
 /**
  * An extension of {@link android.support.v4.app.NotificationCompat} which supports
- * {@link android.support.v7.app.NotificationCompat.MediaStyle}. You should start using this variant
- * if you need support for media styled notifications.
+ * {@link android.support.v7.app.NotificationCompat.MediaStyle},
+ * {@link android.support.v7.app.NotificationCompat.DecoratedCustomViewStyle},
+ * and {@link android.support.v7.app.NotificationCompat.DecoratedMediaCustomViewStyle}.
+ * You should start using this variant if you need support any of these styles.
  */
 public class NotificationCompat extends android.support.v4.app.NotificationCompat {
 
-    private static void addMediaStyleToBuilderLollipop(
-            NotificationBuilderWithBuilderAccessor builder, android.support.v4.app.NotificationCompat.Style style) {
-        if (style instanceof MediaStyle) {
-            MediaStyle mediaStyle = (MediaStyle) style;
+    private static void addStyleToBuilderApi24(NotificationBuilderWithBuilderAccessor builder,
+            android.support.v4.app.NotificationCompat.Builder b) {
+        if (b.mStyle instanceof DecoratedCustomViewStyle) {
+            NotificationCompatImpl24.addDecoratedCustomViewStyle(builder);
+        } else if (b.mStyle instanceof DecoratedMediaCustomViewStyle) {
+            NotificationCompatImpl24.addDecoratedMediaCustomViewStyle(builder);
+        } else {
+            addStyleGetContentViewLollipop(builder, b);
+        }
+    }
+
+    private static RemoteViews addStyleGetContentViewLollipop(
+            NotificationBuilderWithBuilderAccessor builder,
+            android.support.v4.app.NotificationCompat.Builder b) {
+        if (b.mStyle instanceof MediaStyle) {
+            MediaStyle mediaStyle = (MediaStyle) b.mStyle;
             NotificationCompatImpl21.addMediaStyle(builder,
                     mediaStyle.mActionsToShowInCompact,
                     mediaStyle.mToken != null ? mediaStyle.mToken.getToken() : null);
+
+            boolean hasContentView = b.getContentView() != null;
+            // If we are on L/M the media notification will only be colored if the expanded version
+            // is of media style, so we have to create a custom view for the collapsed version as
+            // well in that case.
+            boolean isMorL = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                    && Build.VERSION.SDK_INT <= Build.VERSION_CODES.M;
+            boolean createCustomContent = hasContentView
+                    || (isMorL && b.getBigContentView() != null);
+            if (b.mStyle instanceof DecoratedMediaCustomViewStyle && createCustomContent) {
+                RemoteViews contentViewMedia = NotificationCompatImplBase.overrideContentViewMedia(
+                        builder, b.mContext, b.mContentTitle, b.mContentText, b.mContentInfo,
+                        b.mNumber, b.mLargeIcon, b.mSubText, b.mUseChronometer,
+                        b.getWhenIfShowing(), b.getPriority(), b.mActions,
+                        mediaStyle.mActionsToShowInCompact, false /* no cancel button on L */,
+                        null /* cancelButtonIntent */, hasContentView /* isDecoratedCustomView */);
+                if (hasContentView) {
+                    NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, contentViewMedia,
+                            b.getContentView());
+                }
+                setBackgroundColor(b.mContext, contentViewMedia, b.getColor());
+                return contentViewMedia;
+            }
+        } else if (b.mStyle instanceof DecoratedCustomViewStyle) {
+            return getDecoratedContentView(b);
         }
+        return null;
     }
 
-    private static void addMediaStyleToBuilderIcs(NotificationBuilderWithBuilderAccessor builder,
+    private static RemoteViews addStyleGetContentViewIcs(
+            NotificationBuilderWithBuilderAccessor builder,
             android.support.v4.app.NotificationCompat.Builder b) {
         if (b.mStyle instanceof MediaStyle) {
             MediaStyle mediaStyle = (MediaStyle) b.mStyle;
-            NotificationCompatImplBase.overrideContentView(builder, b.mContext,
-                    b.mContentTitle,
-                    b.mContentText, b.mContentInfo, b.mNumber, b.mLargeIcon, b.mSubText,
-                    b.mUseChronometer, b.mNotification.when, b.mActions,
-                    mediaStyle.mActionsToShowInCompact, mediaStyle.mShowCancelButton,
-                    mediaStyle.mCancelButtonIntent);
+            boolean isDecorated = b.mStyle instanceof DecoratedMediaCustomViewStyle
+                    && b.getContentView() != null;
+            RemoteViews contentViewMedia = NotificationCompatImplBase.overrideContentViewMedia(
+                    builder, b.mContext, b.mContentTitle, b.mContentText, b.mContentInfo, b.mNumber,
+                    b.mLargeIcon, b.mSubText, b.mUseChronometer, b.getWhenIfShowing(),
+                    b.getPriority(), b.mActions, mediaStyle.mActionsToShowInCompact,
+                    mediaStyle.mShowCancelButton, mediaStyle.mCancelButtonIntent, isDecorated);
+            if (isDecorated) {
+                NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, contentViewMedia,
+                        b.getContentView());
+                return contentViewMedia;
+            }
+        } else if (b.mStyle instanceof DecoratedCustomViewStyle) {
+            return getDecoratedContentView(b);
         }
+        return null;
     }
 
-    private static void addBigMediaStyleToBuilderJellybean(Notification n,
+    private static void addBigStyleToBuilderJellybean(Notification n,
             android.support.v4.app.NotificationCompat.Builder b) {
         if (b.mStyle instanceof MediaStyle) {
             MediaStyle mediaStyle = (MediaStyle) b.mStyle;
-            NotificationCompatImplBase.overrideBigContentView(n, b.mContext,
-                    b.mContentTitle,
-                    b.mContentText, b.mContentInfo, b.mNumber, b.mLargeIcon, b.mSubText,
-                    b.mUseChronometer, b.mNotification.when, b.mActions,
-                    mediaStyle.mShowCancelButton, mediaStyle.mCancelButtonIntent);
+            RemoteViews innerView = b.getBigContentView() != null
+                    ? b.getBigContentView()
+                    : b.getContentView();
+            boolean isDecorated = b.mStyle instanceof DecoratedMediaCustomViewStyle
+                    && innerView != null;
+            NotificationCompatImplBase.overrideMediaBigContentView(n, b.mContext,
+                    b.mContentTitle, b.mContentText, b.mContentInfo, b.mNumber, b.mLargeIcon,
+                    b.mSubText, b.mUseChronometer, b.getWhenIfShowing(), b.getPriority(), 0,
+                    b.mActions, mediaStyle.mShowCancelButton, mediaStyle.mCancelButtonIntent,
+                    isDecorated);
+            if (isDecorated) {
+                NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, n.bigContentView,
+                        innerView);
+            }
+        } else if (b.mStyle instanceof DecoratedCustomViewStyle) {
+            addDecoratedBigStyleToBuilder(n, b);
+        }
+    }
+
+    private static RemoteViews getDecoratedContentView(
+            android.support.v4.app.NotificationCompat.Builder b) {
+        if (b.getContentView() == null) {
+            // No special content view
+            return null;
+        }
+        RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplateWithActions(
+                b.mContext, b.mContentTitle, b.mContentText, b.mContentInfo, b.mNumber,
+                b.mNotification.icon, b.mLargeIcon, b.mSubText, b.mUseChronometer,
+                b.getWhenIfShowing(), b.getPriority(), b.getColor(),
+                R.layout.notification_template_custom_big, false /* fitIn1U */, null /* actions */);
+        NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, remoteViews,
+                b.getContentView());
+        return remoteViews;
+    }
+
+    private static void addDecoratedBigStyleToBuilder(Notification n,
+            android.support.v4.app.NotificationCompat.Builder b) {
+        RemoteViews bigContentView = b.getBigContentView();
+        RemoteViews innerView = bigContentView != null ? bigContentView : b.getContentView();
+        if (innerView == null) {
+            // No expandable notification
+            return;
+        }
+        RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplateWithActions(
+                b.mContext, b.mContentTitle, b.mContentText, b.mContentInfo, b.mNumber,
+                n.icon ,b.mLargeIcon, b.mSubText, b.mUseChronometer, b.getWhenIfShowing(),
+                b.getPriority(), b.getColor(), R.layout.notification_template_custom_big,
+                false /* fitIn1U */, b.mActions);
+        NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, remoteViews, innerView);
+        n.bigContentView = remoteViews;
+    }
+
+    private static void addDecoratedHeadsUpToBuilder(Notification n,
+            android.support.v4.app.NotificationCompat.Builder b) {
+        RemoteViews headsUp = b.getHeadsUpContentView();
+        RemoteViews innerView = headsUp != null ? headsUp : b.getContentView();
+        if (headsUp == null) {
+            // No expandable notification
+            return;
+        }
+        RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplateWithActions(
+                b.mContext, b.mContentTitle, b.mContentText, b.mContentInfo, b.mNumber, n.icon,
+                b.mLargeIcon, b.mSubText, b.mUseChronometer, b.getWhenIfShowing(), b.getPriority(),
+                b.getColor(), R.layout.notification_template_custom_big, false /* fitIn1U */,
+                b.mActions);
+        NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, remoteViews, innerView);
+        n.headsUpContentView = remoteViews;
+    }
+
+    private static void addBigStyleToBuilderLollipop(Notification n,
+            android.support.v4.app.NotificationCompat.Builder b) {
+        RemoteViews innerView = b.getBigContentView() != null
+                ? b.getBigContentView()
+                : b.getContentView();
+        if (b.mStyle instanceof DecoratedMediaCustomViewStyle && innerView != null) {
+            NotificationCompatImplBase.overrideMediaBigContentView(n, b.mContext,
+                    b.mContentTitle, b.mContentText, b.mContentInfo, b.mNumber, b.mLargeIcon,
+                    b.mSubText, b.mUseChronometer, b.getWhenIfShowing(), b.getPriority(), 0,
+                    b.mActions, false /* showCancelButton */, null /* cancelButtonIntent */,
+                    true /* decoratedCustomView */);
+                    NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, n.bigContentView,
+                            innerView);
+            setBackgroundColor(b.mContext, n.bigContentView, b.getColor());
+        } else if (b.mStyle instanceof DecoratedCustomViewStyle) {
+            addDecoratedBigStyleToBuilder(n, b);
+        }
+    }
+
+    private static void setBackgroundColor(Context context, RemoteViews views, int color) {
+        if (color == COLOR_DEFAULT) {
+            color = context.getResources().getColor(
+                    R.color.notification_material_background_media_default_color);
+        }
+        views.setInt(R.id.status_bar_latest_event_content, "setBackgroundColor", color);
+    }
+
+    private static void addHeadsUpToBuilderLollipop(Notification n,
+            android.support.v4.app.NotificationCompat.Builder b) {
+        RemoteViews innerView = b.getHeadsUpContentView() != null
+                ? b.getHeadsUpContentView()
+                : b.getContentView();
+        if (b.mStyle instanceof DecoratedMediaCustomViewStyle && innerView != null) {
+            n.headsUpContentView = NotificationCompatImplBase.generateMediaBigView(b.mContext,
+                    b.mContentTitle, b.mContentText, b.mContentInfo, b.mNumber,
+                    b.mLargeIcon, b.mSubText, b.mUseChronometer, b.getWhenIfShowing(),
+                    b.getPriority(), 0, b.mActions, false /* showCancelButton */,
+                    null /* cancelButtonIntent */, true /* decoratedCustomView */);
+            NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, n.headsUpContentView,
+                    innerView);
+            setBackgroundColor(b.mContext, n.headsUpContentView, b.getColor());
+        } else if (b.mStyle instanceof DecoratedCustomViewStyle) {
+            addDecoratedHeadsUpToBuilder(n, b);
         }
     }
 
@@ -83,7 +242,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
          */
         @Override
         protected BuilderExtender getExtender() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                return new Api24Extender();
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 return new LollipopExtender();
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 return new JellybeanExtender();
@@ -100,8 +261,16 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         @Override
         public Notification build(android.support.v4.app.NotificationCompat.Builder b,
                 NotificationBuilderWithBuilderAccessor builder) {
-            addMediaStyleToBuilderIcs(builder, b);
-            return builder.build();
+            RemoteViews contentView = addStyleGetContentViewIcs(builder, b);
+            Notification n = builder.build();
+            // The above call might override decorated content views again, let's make sure it
+            // sticks.
+            if (contentView != null) {
+                n.contentView = contentView;
+            } else if (b.getContentView() != null) {
+                n.contentView = b.getContentView();
+            }
+            return n;
         }
     }
 
@@ -110,9 +279,14 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         @Override
         public Notification build(android.support.v4.app.NotificationCompat.Builder b,
                 NotificationBuilderWithBuilderAccessor builder) {
-            addMediaStyleToBuilderIcs(builder, b);
+            RemoteViews contentView = addStyleGetContentViewIcs(builder, b);
             Notification n = builder.build();
-            addBigMediaStyleToBuilderJellybean(n, b);
+            // The above call might override decorated content views again, let's make sure it
+            // sticks.
+            if (contentView != null) {
+                n.contentView = contentView;
+            }
+            addBigStyleToBuilderJellybean(n, b);
             return n;
         }
     }
@@ -122,7 +296,25 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         @Override
         public Notification build(android.support.v4.app.NotificationCompat.Builder b,
                 NotificationBuilderWithBuilderAccessor builder) {
-            addMediaStyleToBuilderLollipop(builder, b.mStyle);
+            RemoteViews contentView = addStyleGetContentViewLollipop(builder, b);
+            Notification n = builder.build();
+            // The above call might override decorated content views again, let's make sure it
+            // sticks.
+            if (contentView != null) {
+                n.contentView = contentView;
+            }
+            addBigStyleToBuilderLollipop(n, b);
+            addHeadsUpToBuilderLollipop(n, b);
+            return n;
+        }
+    }
+
+    private static class Api24Extender extends BuilderExtender {
+
+        @Override
+        public Notification build(android.support.v4.app.NotificationCompat.Builder b,
+                NotificationBuilderWithBuilderAccessor builder) {
+            addStyleToBuilderApi24(builder, b);
             return builder.build();
         }
     }
@@ -238,6 +430,80 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         public MediaStyle setCancelButtonIntent(PendingIntent pendingIntent) {
             mCancelButtonIntent = pendingIntent;
             return this;
+        }
+    }
+
+
+    /**
+     * Notification style for custom views that are decorated by the system.
+     *
+     * <p>Instead of providing a notification that is completely custom, a developer can set this
+     * style and still obtain system decorations like the notification header with the expand
+     * affordance and actions.
+     *
+     * <p>Use {@link android.app.Notification.Builder#setCustomContentView(RemoteViews)},
+     * {@link android.app.Notification.Builder#setCustomBigContentView(RemoteViews)} and
+     * {@link android.app.Notification.Builder#setCustomHeadsUpContentView(RemoteViews)} to set the
+     * corresponding custom views to display.
+     *
+     * <p>To use this style with your Notification, feed it to
+     * {@link NotificationCompat.Builder#setStyle(Style)} like so:
+     * <pre class="prettyprint">
+     * Notification noti = new NotificationCompat.Builder()
+     *     .setSmallIcon(R.drawable.ic_stat_player)
+     *     .setLargeIcon(albumArtBitmap))
+     *     .setCustomContentView(contentView);
+     *     .setStyle(<b>new NotificationCompat.DecoratedCustomViewStyle()</b>)
+     *     .build();
+     * </pre>
+     *
+     * <p>If you are using this style, consider using the corresponding styles like
+     * {@link android.support.v7.appcompat.R.style#TextAppearance_AppCompat_Notification} or
+     * {@link android.support.v7.appcompat.R.style#TextAppearance_AppCompat_Notification_Title} in
+     * your custom views in order to get the correct styling on each platform version.
+     */
+    public static class DecoratedCustomViewStyle extends Style {
+
+        public DecoratedCustomViewStyle() {
+        }
+    }
+
+    /**
+     * Notification style for media custom views that are decorated by the system.
+     *
+     * <p>Instead of providing a media notification that is completely custom, a developer can set
+     * this style and still obtain system decorations like the notification header with the expand
+     * affordance and actions.
+     *
+     * <p>Use {@link android.app.Notification.Builder#setCustomContentView(RemoteViews)},
+     * {@link android.app.Notification.Builder#setCustomBigContentView(RemoteViews)} and
+     * {@link android.app.Notification.Builder#setCustomHeadsUpContentView(RemoteViews)} to set the
+     * corresponding custom views to display.
+     *
+     * <p>To use this style with your Notification, feed it to
+     * {@link NotificationCompat.Builder#setStyle(Style)} like so:
+     * <pre class="prettyprint">
+     * Notification noti = new Notification.Builder()
+     *     .setSmallIcon(R.drawable.ic_stat_player)
+     *     .setLargeIcon(albumArtBitmap))
+     *     .setCustomContentView(contentView);
+     *     .setStyle(<b>new NotificationCompat.DecoratedMediaCustomViewStyle()</b>
+     *          .setMediaSession(mySession))
+     *     .build();
+     * </pre>
+     *
+     * <p>If you are using this style, consider using the corresponding styles like
+     * {@link android.support.v7.appcompat.R.style#TextAppearance_AppCompat_Notification_Media} or
+     * {@link
+     * android.support.v7.appcompat.R.style#TextAppearance_AppCompat_Notification_Title_Media} in
+     * your custom views in order to get the correct styling on each platform version.
+     *
+     * @see DecoratedCustomViewStyle
+     * @see MediaStyle
+     */
+    public static class DecoratedMediaCustomViewStyle extends MediaStyle {
+
+        public DecoratedMediaCustomViewStyle() {
         }
     }
 }

@@ -512,7 +512,11 @@ public class NotificationCompat {
      */
     protected static class BuilderExtender {
         public Notification build(Builder b, NotificationBuilderWithBuilderAccessor builder) {
-            return builder.build();
+            Notification n = builder.build();
+            if (b.mContentView != null) {
+                n.contentView = b.mContentView;
+            }
+            return n;
         }
     }
 
@@ -617,11 +621,7 @@ public class NotificationCompat {
                             b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                             b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                             b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
-            Notification notification = extender.build(b, builder);
-            if (b.mContentView != null) {
-                notification.contentView = b.mContentView;
-            }
-            return notification;
+            return extender.build(b, builder);
         }
     }
 
@@ -1739,6 +1739,54 @@ public class NotificationCompat {
                 cs = cs.subSequence(0, MAX_CHARSEQUENCE_LENGTH);
             }
             return cs;
+        }
+
+        /**
+         * @hide
+         */
+        public RemoteViews getContentView() {
+            return mContentView;
+        }
+
+        /**
+         * @hide
+         */
+        public RemoteViews getBigContentView() {
+            return mBigContentView;
+        }
+
+        /**
+         * @hide
+         */
+        public RemoteViews getHeadsUpContentView() {
+            return mHeadsUpContentView;
+        }
+
+        /**
+         * return when if it is showing or 0 otherwise
+         *
+         * @hide
+         */
+        public long getWhenIfShowing() {
+            return mShowWhen ? mNotification.when : 0;
+        }
+
+        /**
+         * @return the priority set on the notification
+         *
+         * @hide
+         */
+        public int getPriority() {
+            return mPriority;
+        }
+
+        /**
+         * @return the color of the notification
+         *
+         * @hide
+         */
+        public int getColor() {
+            return mColor;
         }
     }
 

@@ -30,4 +30,9 @@
     <style name="TextAppearance.StatusBar.EventContent.Info"/>
     <style name="TextAppearance.StatusBar.EventContent.Time"/>
 
+    <style name="TextAppearance.AppCompat.Notification.Title"
+        parent="@android:style/TextAppearance.StatusBar.EventContent.Title"/>
+
+    <style name="TextAppearance.AppCompat.Notification"
+        parent="@android:style/TextAppearance.StatusBar.EventContent"/>
 </resources>
