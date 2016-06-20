@@ -1063,7 +1063,7 @@ public class CollapsingToolbarLayout extends FrameLayout {
 
     @Override
     protected LayoutParams generateDefaultLayoutParams() {
-        return new LayoutParams(super.generateDefaultLayoutParams());
+        return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     }
 
     @Override
