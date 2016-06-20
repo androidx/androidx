@@ -58,6 +58,16 @@ LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+# A helper sub-library that makes direct use of KitKat APIs
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-transition-api23
+LOCAL_SDK_VERSION := 23
+LOCAL_SRC_FILES := $(call all-java-files-under, api23)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-kitkat
+LOCAL_JAVA_LIBRARIES := android-support-transition-res \
+    android-support-v4
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
 # Here is the final static library that apps can link against.
 # The R class is automatically excluded from the generated library.
 # Applications that use this library must specify LOCAL_RESOURCE_DIR
@@ -66,7 +76,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-transition
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-kitkat
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-api23
 LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
 include $(BUILD_STATIC_JAVA_LIBRARY)

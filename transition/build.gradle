@@ -27,7 +27,7 @@ android {
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['base', 'ics', 'kitkat', 'src']
+        main.java.srcDirs = ['base', 'ics', 'kitkat', 'api23', 'src']
         main.res.srcDirs 'res', 'res-public'
         main.assets.srcDir 'assets'
         main.resources.srcDir 'src'

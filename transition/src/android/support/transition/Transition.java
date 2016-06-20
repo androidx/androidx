@@ -71,7 +71,13 @@ public abstract class Transition implements TransitionInterface {
     // Hidden constructor for built-in transitions
     protected Transition(boolean deferred) {
         if (!deferred) {
-            mImpl = Build.VERSION.SDK_INT < 19 ? new TransitionIcs() : new TransitionKitKat();
+            if (Build.VERSION.SDK_INT >= 23) {
+                mImpl = new TransitionApi23();
+            } else if (Build.VERSION.SDK_INT >= 19) {
+                mImpl = new TransitionKitKat();
+            } else {
+                mImpl = new TransitionIcs();
+            }
             mImpl.init(this);
         }
     }

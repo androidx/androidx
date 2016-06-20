@@ -458,7 +458,6 @@ abstract class TransitionPort implements Cloneable {
 
     public TransitionPort removeTarget(int targetId) {
         if (targetId > 0) {
-            // TODO: This implementation needs to be applied to K and L for b/22043875
             mTargetIds.remove((Integer) targetId);
         }
         return this;
