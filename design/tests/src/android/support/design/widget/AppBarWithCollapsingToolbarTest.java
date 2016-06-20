@@ -19,7 +19,9 @@ package android.support.design.widget;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.design.test.R;
+import android.support.test.InstrumentationRegistry;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.view.View;
 import android.widget.ImageView;
 import org.junit.Test;
 
@@ -365,5 +367,19 @@ public class AppBarWithCollapsingToolbarTest extends AppBarLayoutBaseTest {
         parallaxImageView.getLocationOnScreen(parallaxImageOnScreenXY);
         assertEquals(parallaxMultiplier * (appbarOnScreenXY[1] - originalAppbarTop),
                 parallaxImageOnScreenXY[1] - originalParallaxImageTop, 1);
+    }
+
+    @Test
+    public void testAddViewWithDefaultLayoutParams() {
+        configureContent(R.layout.design_appbar_toolbar_collapse_pin,
+                R.string.design_appbar_collapsing_toolbar_pin);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                ImageView view = new ImageView(mCollapsingToolbar.getContext());
+                mCollapsingToolbar.addView(view);
+            }
+        });
     }
 }
