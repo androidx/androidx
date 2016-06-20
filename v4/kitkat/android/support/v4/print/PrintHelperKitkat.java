@@ -267,7 +267,7 @@ class PrintHelperKitkat {
                                         CancellationSignal cancellationSignal,
                                         WriteResultCallback writeResultCallback) {
                         writeBitmap(mAttributes, fittingMode, bitmap, fileDescriptor,
-                                writeResultCallback);
+                                cancellationSignal, writeResultCallback);
                     }
 
                     @Override
@@ -316,12 +316,14 @@ class PrintHelperKitkat {
      * @param fittingMode         How to fit the bitmap
      * @param bitmap              The bitmap to write
      * @param fileDescriptor      The file to write to
+     * @param cancellationSignal  Signal cancelling operation
      * @param writeResultCallback Callback to call once written
      */
-    private void writeBitmap(PrintAttributes attributes, int fittingMode, Bitmap bitmap,
-            ParcelFileDescriptor fileDescriptor,
-            PrintDocumentAdapter.WriteResultCallback writeResultCallback) {
-        PrintAttributes pdfAttributes;
+    private void writeBitmap(final PrintAttributes attributes, final int fittingMode,
+            final Bitmap bitmap, final ParcelFileDescriptor fileDescriptor,
+            final CancellationSignal cancellationSignal,
+            final PrintDocumentAdapter.WriteResultCallback writeResultCallback) {
+        final PrintAttributes pdfAttributes;
         if (mIsMinMarginsHandlingCorrect) {
             pdfAttributes = attributes;
         } else {
@@ -331,74 +333,105 @@ class PrintHelperKitkat {
                     .setMinMargins(new PrintAttributes.Margins(0,0,0,0)).build();
         }
 
-        PrintedPdfDocument pdfDocument = new PrintedPdfDocument(mContext,
-                pdfAttributes);
-
-        Bitmap maybeGrayscale = convertBitmapForColorMode(bitmap,
-                pdfAttributes.getColorMode());
-        try {
-            Page page = pdfDocument.startPage(1);
-
-            RectF contentRect;
-            if (mIsMinMarginsHandlingCorrect) {
-                contentRect = new RectF(page.getInfo().getContentRect());
-            } else {
-                // Create dummy doc that has the margins to compute correctly sized content
-                // rectangle
-                PrintedPdfDocument dummyDocument = new PrintedPdfDocument(mContext,
-                        attributes);
-                Page dummyPage = dummyDocument.startPage(1);
-                contentRect = new RectF(dummyPage.getInfo().getContentRect());
-                dummyDocument.finishPage(dummyPage);
-                dummyDocument.close();
-            }
-
-            // Resize bitmap
-            Matrix matrix = getMatrix(
-                    maybeGrayscale.getWidth(), maybeGrayscale.getHeight(),
-                    contentRect, fittingMode);
-
-            if (mIsMinMarginsHandlingCorrect) {
-                // The pdfDocument takes care of the positioning and margins
-            } else {
-                // Move it to the correct position.
-                matrix.postTranslate(contentRect.left, contentRect.top);
-
-                // Cut off margins
-                page.getCanvas().clipRect(contentRect);
-            }
-
-            // Draw the bitmap.
-            page.getCanvas().drawBitmap(maybeGrayscale, matrix, null);
-
-            // Finish the page.
-            pdfDocument.finishPage(page);
-
-            try {
-                // Write the document.
-                pdfDocument.writeTo(new FileOutputStream(fileDescriptor.getFileDescriptor()));
-                // Done.
-                writeResultCallback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
-            } catch (IOException ioe) {
-                // Failed.
-                Log.e(LOG_TAG, "Error writing printed content", ioe);
-                writeResultCallback.onWriteFailed(null);
-            }
-        } finally {
-            pdfDocument.close();
-
-            if (fileDescriptor != null) {
+        (new AsyncTask<Void, Void, Throwable>() {
+            @Override
+            protected Throwable doInBackground(Void... params) {
                 try {
-                    fileDescriptor.close();
-                } catch (IOException ioe) {
-                    // ignore
+                    if (cancellationSignal.isCanceled()) {
+                        return null;
+                    }
+
+                    PrintedPdfDocument pdfDocument = new PrintedPdfDocument(mContext,
+                            pdfAttributes);
+
+                    Bitmap maybeGrayscale = convertBitmapForColorMode(bitmap,
+                            pdfAttributes.getColorMode());
+
+                    if (cancellationSignal.isCanceled()) {
+                        return null;
+                    }
+
+                    try {
+                        Page page = pdfDocument.startPage(1);
+
+                        RectF contentRect;
+                        if (mIsMinMarginsHandlingCorrect) {
+                            contentRect = new RectF(page.getInfo().getContentRect());
+                        } else {
+                            // Create dummy doc that has the margins to compute correctly sized
+                            // content rectangle
+                            PrintedPdfDocument dummyDocument = new PrintedPdfDocument(mContext,
+                                    attributes);
+                            Page dummyPage = dummyDocument.startPage(1);
+                            contentRect = new RectF(dummyPage.getInfo().getContentRect());
+                            dummyDocument.finishPage(dummyPage);
+                            dummyDocument.close();
+                        }
+
+                        // Resize bitmap
+                        Matrix matrix = getMatrix(
+                                maybeGrayscale.getWidth(), maybeGrayscale.getHeight(),
+                                contentRect, fittingMode);
+
+                        if (mIsMinMarginsHandlingCorrect) {
+                            // The pdfDocument takes care of the positioning and margins
+                        } else {
+                            // Move it to the correct position.
+                            matrix.postTranslate(contentRect.left, contentRect.top);
+
+                            // Cut off margins
+                            page.getCanvas().clipRect(contentRect);
+                        }
+
+                        // Draw the bitmap.
+                        page.getCanvas().drawBitmap(maybeGrayscale, matrix, null);
+
+                        // Finish the page.
+                        pdfDocument.finishPage(page);
+
+                        if (cancellationSignal.isCanceled()) {
+                            return null;
+                        }
+
+                        // Write the document.
+                        pdfDocument
+                                .writeTo(new FileOutputStream(fileDescriptor.getFileDescriptor()));
+                        return null;
+                    } finally {
+                        pdfDocument.close();
+
+                        if (fileDescriptor != null) {
+                            try {
+                                fileDescriptor.close();
+                            } catch (IOException ioe) {
+                                // ignore
+                            }
+                        }
+                        // If we created a new instance for grayscaling, then recycle it here.
+                        if (maybeGrayscale != bitmap) {
+                            maybeGrayscale.recycle();
+                        }
+                    }
+                } catch (Throwable t) {
+                    return t;
                 }
             }
-            // If we created a new instance for grayscaling, then recycle it here.
-            if (maybeGrayscale != bitmap) {
-                maybeGrayscale.recycle();
+
+            @Override
+            protected void onPostExecute(Throwable throwable) {
+                if (cancellationSignal.isCanceled()) {
+                    // Cancelled.
+                    writeResultCallback.onWriteCancelled();
+                } else if (throwable == null) {
+                    // Done.
+                    writeResultCallback.onWriteFinished(new PageRange[] { PageRange.ALL_PAGES });
+                } else {
+                    // Failed.
+                    Log.e(LOG_TAG, "Error writing printed content", throwable);
+                    writeResultCallback.onWriteFailed(null);
+                }
             }
-        }
+        }).execute();
     }
 
     /**
@@ -549,7 +582,8 @@ class PrintHelperKitkat {
             public void onWrite(PageRange[] pageRanges, ParcelFileDescriptor fileDescriptor,
                                 CancellationSignal cancellationSignal,
                                 WriteResultCallback writeResultCallback) {
-                writeBitmap(mAttributes, fittingMode, mBitmap, fileDescriptor, writeResultCallback);
+                writeBitmap(mAttributes, fittingMode, mBitmap, fileDescriptor, cancellationSignal,
+                        writeResultCallback);
             }
         };
 
