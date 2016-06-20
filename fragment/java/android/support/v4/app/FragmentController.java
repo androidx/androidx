@@ -70,12 +70,12 @@ public class FragmentController {
      * Returns a fragment with the given identifier.
      */
     @Nullable
-    Fragment findFragmentByWho(String who) {
+    public Fragment findFragmentByWho(String who) {
         return mHost.mFragmentManager.findFragmentByWho(who);
     }
 
     /**
-     * Returns the number of active fragments. 
+     * Returns the number of active fragments.
      */
     public int getActiveFragmentsCount() {
         final List<Fragment> actives = mHost.mFragmentManager.mActive;

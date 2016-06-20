@@ -3921,6 +3921,7 @@ package android.support.v4.app {
     method public void doLoaderStop(boolean);
     method public void dumpLoaders(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public boolean execPendingActions();
+    method public android.support.v4.app.Fragment findFragmentByWho(java.lang.String);
     method public java.util.List<android.support.v4.app.Fragment> getActiveFragments(java.util.List<android.support.v4.app.Fragment>);
     method public int getActiveFragmentsCount();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
