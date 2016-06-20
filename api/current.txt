@@ -4976,7 +4976,15 @@ package android.support.v4.media {
     method public java.lang.CharSequence getSubtitle();
     method public java.lang.CharSequence getTitle();
     method public void writeToParcel(android.os.Parcel, int);
+    field public static final long BT_FOLDER_TYPE_ALBUMS = 2L; // 0x2L
+    field public static final long BT_FOLDER_TYPE_ARTISTS = 3L; // 0x3L
+    field public static final long BT_FOLDER_TYPE_GENRES = 4L; // 0x4L
+    field public static final long BT_FOLDER_TYPE_MIXED = 0L; // 0x0L
+    field public static final long BT_FOLDER_TYPE_PLAYLISTS = 5L; // 0x5L
+    field public static final long BT_FOLDER_TYPE_TITLES = 1L; // 0x1L
+    field public static final long BT_FOLDER_TYPE_YEARS = 6L; // 0x6L
     field public static final android.os.Parcelable.Creator<android.support.v4.media.MediaDescriptionCompat> CREATOR;
+    field public static final java.lang.String EXTRA_BT_FOLDER_TYPE = "android.media.extra.BT_FOLDER_TYPE";
   }
 
   public static final class MediaDescriptionCompat.Builder {
@@ -5016,6 +5024,7 @@ package android.support.v4.media {
     field public static final java.lang.String METADATA_KEY_ARTIST = "android.media.metadata.ARTIST";
     field public static final java.lang.String METADATA_KEY_ART_URI = "android.media.metadata.ART_URI";
     field public static final java.lang.String METADATA_KEY_AUTHOR = "android.media.metadata.AUTHOR";
+    field public static final java.lang.String METADATA_KEY_BT_FOLDER_TYPE = "android.media.metadata.BT_FOLDER_TYPE";
     field public static final java.lang.String METADATA_KEY_COMPILATION = "android.media.metadata.COMPILATION";
     field public static final java.lang.String METADATA_KEY_COMPOSER = "android.media.metadata.COMPOSER";
     field public static final java.lang.String METADATA_KEY_DATE = "android.media.metadata.DATE";
