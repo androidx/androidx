@@ -1,6 +1,5 @@
 package android.support.v17.leanback.app;
 
-import android.os.Handler;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.CursorObjectAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
@@ -26,39 +25,6 @@ class ListRowDataAdapter extends ObjectAdapter {
 
     private final ObjectAdapter mAdapter;
     private int mLastVisibleRowIndex;
-    private Handler mHandler;
-    private Update mPendingUpdate;
-    private int mPendingUpdateCount;
-
-    private static class Update {
-        int eventType;
-        int positionStart;
-        int itemCount;
-
-        public Update(int type, int positionStart, int itemCount) {
-            this.eventType = type;
-            this.positionStart = positionStart;
-            this.itemCount = itemCount;
-        }
-    }
-
-    private Runnable notificationTask = new Runnable() {
-        @Override
-        public void run() {
-            if (mPendingUpdateCount == 0) {
-                return;
-            } else if (mPendingUpdateCount == 1 && mPendingUpdate != null) {
-                doNotify(
-                        mPendingUpdate.eventType,
-                        mPendingUpdate.positionStart,
-                        mPendingUpdate.itemCount);
-            } else {
-                notifyChanged();
-            }
-            mPendingUpdate = null;
-            mPendingUpdateCount = 0;
-        }
-    };
 
     public ListRowDataAdapter(ObjectAdapter adapter) {
         super(adapter.getPresenterSelector());
@@ -68,16 +34,13 @@ class ListRowDataAdapter extends ObjectAdapter {
         // If an user implements its own ObjectAdapter, notification corresponding to data
         // updates can be batched e.g. remove, add might be followed by notifyRemove, notifyAdd.
         // But underlying data would have changed during the notifyRemove call by the previous add
-        // operation. To handle this case, we enqueue the updates in a queue and have a worker
-        // service that queue. The common case will be to have a single pending update in the queue.
-        // But in case the worker encounters multiple updates in the queue, it will send a
-        // notifyChanged() call to RecyclerView forcing it to do a full refresh.
+        // operation. To handle this case, we use QueueBasedDataObserver which forces
+        // recyclerview to do a full data refresh after each update operation.
         if ((adapter instanceof ArrayObjectAdapter)
                 || (adapter instanceof CursorObjectAdapter)
                 || (adapter instanceof SparseArrayObjectAdapter)) {
             mAdapter.registerObserver(new SimpleDataObserver());
         } else {
-            mHandler = new Handler();
             mAdapter.registerObserver(new QueueBasedDataObserver());
         }
     }
@@ -177,46 +140,34 @@ class ListRowDataAdapter extends ObjectAdapter {
         }
     }
 
+
+    /**
+     * When using custom {@link ObjectAdapter}, it's possible that the user may make multiple
+     * changes to the underlying data at once. The notifications about those updates may be
+     * batched and the underlying data would have changed to reflect latest updates as opposed
+     * to intermediate changes. In order to force RecyclerView to refresh the view with access
+     * only to the final data, we call notifyChange().
+     */
     private class QueueBasedDataObserver extends SimpleDataObserver {
 
         @Override
         public void onItemRangeChanged(int positionStart, int itemCount) {
-            incrementAndPost();
-            super.onItemRangeChanged(positionStart, itemCount);
+            notifyChanged();
         }
 
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
-            incrementAndPost();
-            super.onItemRangeInserted(positionStart, itemCount);
+            notifyChanged();
         }
 
         @Override
         public void onItemRangeRemoved(int positionStart, int itemCount) {
-            incrementAndPost();
-            super.onItemRangeRemoved(positionStart, itemCount);
+            notifyChanged();
         }
 
         @Override
         public void onChanged() {
-            incrementAndPost();
-            super.onChanged();
-        }
-
-        @Override
-        protected void onEventFired(
-                final int eventType, final int positionStart, final int itemCount) {
-
-            if (mPendingUpdateCount == 1) {
-                mPendingUpdate = new Update(eventType, positionStart, itemCount);
-            }
-        }
-
-        private void incrementAndPost() {
-            mPendingUpdateCount++;
-            if (mPendingUpdateCount == 1) {
-                mHandler.post(notificationTask);
-            }
+            notifyChanged();
         }
     }
 }

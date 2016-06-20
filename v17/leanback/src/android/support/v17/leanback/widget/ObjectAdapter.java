@@ -247,4 +247,12 @@ public abstract class ObjectAdapter {
     public long getId(int position) {
         return NO_ID;
     }
+
+    /**
+     * Returns true if the adapter pairs each underlying data change with a call to notify and
+     * false otherwise.
+     */
+    public boolean isImmediateNotifySupported() {
+        return false;
+    }
 }
