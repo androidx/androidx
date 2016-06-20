@@ -14,6 +14,6 @@
      limitations under the License.
 -->
 
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/ic_audiotrack_light"
-    android:alpha="0.87" />
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_audiotrack_dark" />
+</selector>

@@ -15,5 +15,11 @@
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_pause_dark" />
+    <item android:state_checked="true" android:state_enabled="true"
+            android:drawable="@drawable/mr_button_connected_dark" />
+    <item android:state_checkable="true" android:state_enabled="true"
+            android:drawable="@drawable/mr_button_connecting_dark" />
+    <item android:state_enabled="true"
+            android:drawable="@drawable/ic_mr_button_disconnected_dark" />
+    <item android:drawable="@drawable/ic_mr_button_disabled_dark" />
 </selector>

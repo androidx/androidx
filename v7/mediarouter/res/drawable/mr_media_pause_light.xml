@@ -15,5 +15,9 @@
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_close_dark" />
+    <item>
+        <bitmap
+            android:src="@drawable/ic_media_pause_light"
+            android:alpha="0.87" />
+    </item>
 </selector>
