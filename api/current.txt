@@ -444,6 +444,7 @@ package android.support.design.widget {
     method public void dispatchDependentViewsChanged(android.view.View);
     method public boolean doViewsOverlap(android.view.View, android.view.View);
     method public java.util.List<android.view.View> getDependencies(android.view.View);
+    method public java.util.List<android.view.View> getDependents(android.view.View);
     method public android.graphics.drawable.Drawable getStatusBarBackground();
     method public boolean isPointInChildBounds(android.view.View, int, int);
     method public void onAttachedToWindow();
