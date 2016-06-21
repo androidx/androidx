@@ -476,9 +476,11 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
             if (DEBUG_EDIT) Log.v(TAG_EDIT, "IME key: " + keyCode);
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
                 mGroup.fillAndStay(GuidedActionAdapter.this, editText);
+                return true;
             } else if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() ==
                     KeyEvent.ACTION_UP) {
                 mGroup.fillAndGoNext(GuidedActionAdapter.this, editText);
+                return true;
             }
             return false;
         }
