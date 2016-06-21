@@ -277,11 +277,6 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      */
     public void setOnOrbClickedListener(OnClickListener listener) {
         mListener = listener;
-        if (null != listener) {
-            setVisibility(View.VISIBLE);
-        } else {
-            setVisibility(View.INVISIBLE);
-        }
     }
 
     /**
