@@ -18,26 +18,38 @@ package com.example.android.support.transition.widget;
 
 import com.example.android.support.transition.R;
 
+import android.os.Bundle;
 import android.support.transition.Scene;
+import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
 import android.view.ViewGroup;
 
 /**
- * This demonstrates basic usage of the Transition API.
+ * This demonstrates usage of a custom Transition. See {@link ChangeColor} for the actual
+ * implementation of a custom Transition.
  */
-public class BasicUsage extends TransitionUsageBase {
+public class CustomUsage extends TransitionUsageBase {
+
+    private Transition mTransition;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mTransition = new ChangeColor();
+    }
 
     @Override
     Scene[] setUpScenes(ViewGroup root) {
         return new Scene[]{
-                Scene.getSceneForLayout(root, R.layout.scene0, this),
-                Scene.getSceneForLayout(root, R.layout.scene1, this),
+                Scene.getSceneForLayout(root, R.layout.custom0, this),
+                Scene.getSceneForLayout(root, R.layout.custom1, this),
+                Scene.getSceneForLayout(root, R.layout.custom2, this),
         };
     }
 
     @Override
     void go(Scene scene) {
-        TransitionManager.go(scene);
+        TransitionManager.go(scene, mTransition);
     }
 
 }
