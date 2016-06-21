@@ -2460,6 +2460,48 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertEquals(0, mGridView.getSelectedPosition());
     }
 
+    public void testSelectViewTaskSmoothWithAdapterChange() throws Throwable {
+        testSelectViewTaskWithAdapterChange(true /*smooth*/);
+    }
+
+    public void testSelectViewTaskWithAdapterChange() throws Throwable {
+        testSelectViewTaskWithAdapterChange(false /*smooth*/);
+    }
+
+    private void testSelectViewTaskWithAdapterChange(final boolean smooth) throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 2);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        final View firstView = mGridView.getLayoutManager().findViewByPosition(0);
+        final View[] selectedViewByTask = new View[1];
+        final ViewHolderTask task = new ViewHolderTask() {
+            public void run(RecyclerView.ViewHolder viewHolder) {
+                selectedViewByTask[0] = viewHolder.itemView;
+            }
+        };
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.removeItems(0, 1);
+                if (smooth) {
+                    mGridView.setSelectedPositionSmooth(0, task);
+                } else {
+                    mGridView.setSelectedPosition(0, task);
+                }
+            }
+        });
+        waitForTransientStateGone(null);
+        assertEquals(0, mGridView.getSelectedPosition());
+        assertNotNull(selectedViewByTask[0]);
+        assertNotSame(firstView, selectedViewByTask[0]);
+        assertSame(mGridView.getLayoutManager().findViewByPosition(0), selectedViewByTask[0]);
+    }
+
     public void testNotifyItemTypeChangedSelectionEvent() throws Throwable {
         mInstrumentation = getInstrumentation();
         Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
