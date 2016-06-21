@@ -79,7 +79,7 @@ public final class PopupMenuCompat {
      * Example usage:
      * <pre>
      * PopupMenu myPopup = new PopupMenu(context, myAnchor);
-     * myAnchor.setOnTouchListener(myPopup.getDragToOpenListener());
+     * myAnchor.setOnTouchListener(PopupMenuCompat.getDragToOpenListener(myPopup));
      * </pre>
      *
      * @param popupMenu the PopupMenu against which to invoke the method
