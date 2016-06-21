@@ -19,9 +19,16 @@ package android.support.transition;
 import android.view.View;
 import android.view.ViewGroup;
 
-class SceneKitKat extends SceneImpl {
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-    /* package */ android.transition.Scene mScene;
+class SceneKitKat extends SceneWrapper {
+
+    private static Field sEnterAction;
+    private static Method sSetCurrentScene;
+
+    private View mLayout; // alternative to layoutId
 
     @Override
     public void init(ViewGroup sceneRoot) {
@@ -30,34 +37,63 @@ class SceneKitKat extends SceneImpl {
 
     @Override
     public void init(ViewGroup sceneRoot, View layout) {
-        // TODO: The passed View might not be a ViewGroup
-        // TODO: Override this and remove cast on Lollipop and later
-        mScene = new android.transition.Scene(sceneRoot, (ViewGroup) layout);
+        if (layout instanceof ViewGroup) {
+            mScene = new android.transition.Scene(sceneRoot, (ViewGroup) layout);
+        } else {
+            mScene = new android.transition.Scene(sceneRoot);
+            mLayout = layout;
+        }
     }
 
     @Override
     public void enter() {
-        mScene.enter();
+        if (mLayout != null) {
+            // empty out parent container before adding to it
+            final ViewGroup root = getSceneRoot();
+            root.removeAllViews();
+            root.addView(mLayout);
+            invokeEnterAction();
+            updateCurrentScene(root);
+        } else {
+            mScene.enter();
+        }
     }
 
-    @Override
-    public void exit() {
-        mScene.exit();
+    private void invokeEnterAction() {
+        if (sEnterAction == null) {
+            try {
+                sEnterAction = android.transition.Scene.class.getDeclaredField("mEnterAction");
+                sEnterAction.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            final Runnable enterAction = (Runnable) sEnterAction.get(mScene);
+            if (enterAction != null) {
+                enterAction.run();
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    @Override
-    public ViewGroup getSceneRoot() {
-        return mScene.getSceneRoot();
-    }
-
-    @Override
-    public void setEnterAction(Runnable action) {
-        mScene.setEnterAction(action);
-    }
-
-    @Override
-    public void setExitAction(Runnable action) {
-        mScene.setExitAction(action);
+    /** Sets this Scene as the current scene of the View. */
+    private void updateCurrentScene(View view) {
+        if (sSetCurrentScene == null) {
+            try {
+                sSetCurrentScene = android.transition.Scene.class.getDeclaredMethod(
+                        "setCurrentScene", View.class, android.transition.Scene.class);
+                sSetCurrentScene.setAccessible(true);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            sSetCurrentScene.invoke(null, view, mScene);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

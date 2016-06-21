@@ -22,12 +22,12 @@ class TransitionManagerStaticsKitKat extends TransitionManagerStaticsImpl {
 
     @Override
     public void go(SceneImpl scene) {
-        android.transition.TransitionManager.go(((SceneKitKat) scene).mScene);
+        android.transition.TransitionManager.go(((SceneWrapper) scene).mScene);
     }
 
     @Override
     public void go(SceneImpl scene, TransitionImpl transition) {
-        android.transition.TransitionManager.go(((SceneKitKat) scene).mScene,
+        android.transition.TransitionManager.go(((SceneWrapper) scene).mScene,
                 transition == null ? null : ((TransitionKitKat) transition).mTransition);
     }
 

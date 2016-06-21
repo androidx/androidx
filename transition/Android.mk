@@ -58,12 +58,22 @@ LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-# A helper sub-library that makes direct use of KitKat APIs
+# A helper sub-library that makes direct use of Lollipop APIs
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-transition-api21
+LOCAL_SDK_VERSION := 21
+LOCAL_SRC_FILES := $(call all-java-files-under, api21)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-kitkat
+LOCAL_JAVA_LIBRARIES := android-support-transition-res \
+    android-support-v4
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# A helper sub-library that makes direct use of Marshmallow APIs
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-transition-api23
 LOCAL_SDK_VERSION := 23
 LOCAL_SRC_FILES := $(call all-java-files-under, api23)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-kitkat
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-api21
 LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
 include $(BUILD_STATIC_JAVA_LIBRARY)

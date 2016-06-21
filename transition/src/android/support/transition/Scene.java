@@ -37,10 +37,12 @@ public class Scene {
     private static SceneStaticsImpl sImpl;
 
     static {
-        if (Build.VERSION.SDK_INT < 19) {
-            sImpl = new SceneStaticsIcs();
-        } else {
+        if (Build.VERSION.SDK_INT >= 21) {
+            sImpl = new SceneStaticsApi21();
+        } else if (Build.VERSION.SDK_INT >= 19) {
             sImpl = new SceneStaticsKitKat();
+        } else {
+            sImpl = new SceneStaticsIcs();
         }
     }
 
@@ -116,10 +118,12 @@ public class Scene {
     }
 
     private SceneImpl createSceneImpl() {
-        if (Build.VERSION.SDK_INT < 19) {
-            return new SceneIcs();
-        } else {
+        if (Build.VERSION.SDK_INT >= 21) {
+            return new SceneApi21();
+        } else if (Build.VERSION.SDK_INT >= 19) {
             return new SceneKitKat();
+        } else {
+            return new SceneIcs();
         }
     }
 
