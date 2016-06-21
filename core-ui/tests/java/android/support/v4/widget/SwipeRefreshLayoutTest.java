@@ -24,20 +24,29 @@ import static android.support.v4.widget.SwipeRefreshLayoutActions.setSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
+import android.support.test.espresso.action.ViewActions;
 import android.support.coreui.test.R;
 import android.support.v4.BaseInstrumentationTestCase;
+import android.support.v4.testutils.PollingCheck;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.view.View;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Tests SwipeRefreshLayout widget.
  */
 public class SwipeRefreshLayoutTest
         extends BaseInstrumentationTestCase<SwipeRefreshLayoutActivity> {
+    private static final long TIMEOUT = 1000;
+    private static final int INVALID_SIZE = 1000;
 
     private SwipeRefreshLayout mSwipeRefresh;
 
@@ -54,6 +63,10 @@ public class SwipeRefreshLayoutTest
     @Test
     @MediumTest
     public void testStartAndStopRefreshing() throws Throwable {
+        SwipeRefreshLayout.OnRefreshListener mockListener =
+                mock(SwipeRefreshLayout.OnRefreshListener.class);
+        mSwipeRefresh.setOnRefreshListener(mockListener);
+
         assertFalse(mSwipeRefresh.isRefreshing());
         for (int i = 0; i < 5; i++) {
             onView(withId(R.id.swipe_refresh)).perform(setRefreshing());
@@ -67,14 +80,35 @@ public class SwipeRefreshLayoutTest
                     mSwipeRefresh.setRefreshing(false);
                 }
             });
-            long waitTime = 1000;
-            while (mSwipeRefresh.isRefreshing()) {
-                Thread.sleep(20);
-                waitTime -= 20;
-                assertTrue("Timed out while waiting for SwipeRefreshLayout to stop refreshing",
-                        waitTime > 0);
-            }
+
+            new PollingCheck(TIMEOUT) {
+                @Override
+                protected boolean check() {
+                    return mSwipeRefresh.isRefreshing();
+                }
+            }.run();
         }
+        verify(mockListener, times(0)).onRefresh();
+    }
+
+    @Test
+    @MediumTest
+    public void testSwipeDownToRefresh() throws Throwable {
+        assertFalse(mSwipeRefresh.isRefreshing());
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                latch.countDown();
+                assertTrue(mSwipeRefresh.isRefreshing());
+                mSwipeRefresh.setRefreshing(false);
+            }
+        };
+        mSwipeRefresh.setOnRefreshListener(listener);
+        onView(withId(R.id.content)).perform(ViewActions.swipeDown());
+        assertTrue("SwipeRefreshLayout never started refreshing",
+                latch.await(500, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -90,5 +124,25 @@ public class SwipeRefreshLayoutTest
         assertEquals((int) (SwipeRefreshLayout.CIRCLE_DIAMETER * density),
                 mSwipeRefresh.getProgressCircleDiameter());
         onView(withId(R.id.swipe_refresh)).perform(setSize(SwipeRefreshLayout.DEFAULT));
+        onView(withId(R.id.swipe_refresh)).perform(setSize(INVALID_SIZE));
+        assertEquals((int) (SwipeRefreshLayout.CIRCLE_DIAMETER * density),
+                mSwipeRefresh.getProgressCircleDiameter());
+    }
+
+    @Test
+    @SmallTest
+    public void testSetOnChildScrollUpCallback() throws Throwable {
+        SwipeRefreshLayout.OnChildScrollUpCallback mockCallback =
+                mock(SwipeRefreshLayout.OnChildScrollUpCallback.class);
+        when(mockCallback.canChildScrollUp(eq(mSwipeRefresh), any(View.class)))
+                .thenReturn(true)
+                .thenReturn(true)
+                .thenReturn(false)
+                .thenReturn(false);
+        mSwipeRefresh.setOnChildScrollUpCallback(mockCallback);
+        assertTrue(mSwipeRefresh.canChildScrollUp());
+        assertTrue(mSwipeRefresh.canChildScrollUp());
+        assertFalse(mSwipeRefresh.canChildScrollUp());
+        assertFalse(mSwipeRefresh.canChildScrollUp());
     }
 }
