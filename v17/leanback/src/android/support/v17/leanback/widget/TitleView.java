@@ -36,6 +36,7 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
     private TextView mTextView;
     private SearchOrbView mSearchOrbView;
     private int flags = FULL_VIEW_VISIBLE;
+    private boolean mHasSearchListener = false;
 
     private final TitleViewAdapter mTitleViewAdapter = new TitleViewAdapter() {
         @Override
@@ -146,7 +147,9 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
      * Sets the listener to be called when the search affordance is clicked.
      */
     public void setOnSearchClickedListener(View.OnClickListener listener) {
+        mHasSearchListener = listener != null;
         mSearchOrbView.setOnOrbClickedListener(listener);
+        updateSearchOrbViewVisiblity();
     }
 
     /**
@@ -195,8 +198,11 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
             mBadgeView.setVisibility(View.GONE);
             mTextView.setVisibility(View.GONE);
         }
+        updateSearchOrbViewVisiblity();
+    }
 
-        int visibility = (flags & SEARCH_VIEW_VISIBLE) == SEARCH_VIEW_VISIBLE
+    private void updateSearchOrbViewVisiblity() {
+        int visibility = mHasSearchListener && (flags & SEARCH_VIEW_VISIBLE) == SEARCH_VIEW_VISIBLE
                 ? View.VISIBLE : View.INVISIBLE;
         mSearchOrbView.setVisibility(visibility);
     }
