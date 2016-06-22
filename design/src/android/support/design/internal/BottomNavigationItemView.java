@@ -114,7 +114,7 @@ public class BottomNavigationItemView extends ForegroundLinearLayout implements 
 
     @Override
     public MenuItemImpl getItemData() {
-        return null;
+        return mItemData;
     }
 
     @Override

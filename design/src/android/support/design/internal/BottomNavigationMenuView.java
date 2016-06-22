@@ -72,8 +72,10 @@ public class BottomNavigationMenuView extends LinearLayout implements MenuView {
         mOnClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final int itemPosition = ((BottomNavigationItemView) v).getItemPosition();
+                final BottomNavigationItemView itemView = (BottomNavigationItemView) v;
+                final int itemPosition = itemView.getItemPosition();
                 activateNewButton(itemPosition);
+                mMenu.performItemAction(itemView.getItemData(), mPresenter, 0);
             }
         };
     }
