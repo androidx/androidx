@@ -577,7 +577,7 @@ abstract class BaseGridView extends RecyclerView {
     public void setSelectedPositionSmooth(final int position, final ViewHolderTask task) {
         if (task != null) {
             RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
-            if (vh == null) {
+            if (vh == null || hasPendingAdapterUpdates()) {
                 addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
                     public void onChildViewHolderSelected(RecyclerView parent,
                             RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
@@ -602,7 +602,7 @@ abstract class BaseGridView extends RecyclerView {
     public void setSelectedPosition(final int position, final ViewHolderTask task) {
         if (task != null) {
             RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
-            if (vh == null) {
+            if (vh == null || hasPendingAdapterUpdates()) {
                 addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
                     public void onChildViewHolderSelected(RecyclerView parent,
                             RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
