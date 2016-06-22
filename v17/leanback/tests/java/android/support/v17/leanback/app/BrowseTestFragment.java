@@ -24,6 +24,7 @@ import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.util.Log;
 import android.view.View;
 
@@ -122,5 +123,9 @@ public class BrowseTestFragment extends BrowseFragment {
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
             Log.i(TAG, "onItemClicked: " + item + " row " + row);
         }
+    }
+
+    public VerticalGridView getGridView() {
+        return getRowsFragment().getVerticalGridView();
     }
 }
