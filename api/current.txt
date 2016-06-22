@@ -891,7 +891,6 @@ package android.support.transition {
     ctor public ChangeBounds();
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
-    method public android.animation.Animator createAnimator(android.view.ViewGroup, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
   }
 
   public class Fade extends android.support.transition.Transition {
@@ -899,7 +898,6 @@ package android.support.transition {
     ctor public Fade();
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
-    method public android.animation.Animator createAnimator(android.view.ViewGroup, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
     field public static final int IN = 1; // 0x1
     field public static final int OUT = 2; // 0x2
   }
@@ -923,7 +921,7 @@ package android.support.transition {
     method public android.support.transition.Transition addTarget(int);
     method public abstract void captureEndValues(android.support.transition.TransitionValues);
     method public abstract void captureStartValues(android.support.transition.TransitionValues);
-    method public abstract android.animation.Animator createAnimator(android.view.ViewGroup, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public android.animation.Animator createAnimator(android.view.ViewGroup, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
     method public android.support.transition.Transition excludeChildren(android.view.View, boolean);
     method public android.support.transition.Transition excludeChildren(int, boolean);
     method public android.support.transition.Transition excludeChildren(java.lang.Class, boolean);
@@ -970,7 +968,6 @@ package android.support.transition {
     method public android.support.transition.TransitionSet addTransition(android.support.transition.Transition);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
-    method public android.animation.Animator createAnimator(android.view.ViewGroup, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
     method public int getOrdering();
     method public android.support.transition.TransitionSet removeTransition(android.support.transition.Transition);
     method public android.support.transition.TransitionSet setOrdering(int);
