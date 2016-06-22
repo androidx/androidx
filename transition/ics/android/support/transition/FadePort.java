@@ -117,14 +117,7 @@ class FadePort extends VisibilityPort {
         }
         if (listener != null) {
             anim.addListener(listener);
-//            anim.addPauseListener(listener);
         }
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                System.out.println("animation value now " + animation.getAnimatedValue());
-            }
-        });
         return anim;
     }
 

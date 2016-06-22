@@ -259,8 +259,10 @@ public abstract class Transition implements TransitionInterface {
      */
     @Override
     @Nullable
-    public abstract Animator createAnimator(@NonNull ViewGroup sceneRoot,
-            @NonNull TransitionValues startValues, @NonNull TransitionValues endValues);
+    public Animator createAnimator(@NonNull ViewGroup sceneRoot,
+            @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
+        return null;
+    }
 
     /**
      * Whether to add the children of given target to the list of target children

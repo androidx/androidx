@@ -17,5 +17,6 @@
 <resources>
     <string name="activity_sample_code">Support Transition Demos</string>
     <string name="basic">Basic</string>
+    <string name="custom">Custom</string>
     <string name="toggle">Toggle</string>
 </resources>
