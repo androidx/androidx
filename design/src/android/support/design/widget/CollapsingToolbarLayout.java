@@ -48,6 +48,7 @@ import android.widget.FrameLayout;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import static android.support.design.widget.MathUtils.constrain;
 import static android.support.design.widget.ViewUtils.objectEquals;
 
 /**
@@ -411,21 +412,18 @@ public class CollapsingToolbarLayout extends FrameLayout {
                         == ViewCompat.LAYOUT_DIRECTION_RTL;
 
                 // Update the collapsed bounds
-                int bottomOffset = 0;
-                if (mToolbarDirectChild != null && mToolbarDirectChild != this) {
-                    final LayoutParams lp = (LayoutParams) mToolbarDirectChild.getLayoutParams();
-                    bottomOffset = lp.bottomMargin;
-                }
+                final int maxOffset = getMaxOffsetForPinChild(
+                        mToolbarDirectChild != null ? mToolbarDirectChild : mToolbar);
                 ViewGroupUtils.getDescendantRect(this, mDummyView, mTmpRect);
                 mCollapsingTextHelper.setCollapsedBounds(
                         mTmpRect.left + (isRtl
                                 ? mToolbar.getTitleMarginEnd()
                                 : mToolbar.getTitleMarginStart()),
-                        bottom + mToolbar.getTitleMarginTop() - mTmpRect.height() - bottomOffset,
+                        mTmpRect.top + maxOffset + mToolbar.getTitleMarginTop(),
                         mTmpRect.right + (isRtl
                                 ? mToolbar.getTitleMarginStart()
                                 : mToolbar.getTitleMarginEnd()),
-                        bottom - bottomOffset - mToolbar.getTitleMarginBottom());
+                        mTmpRect.bottom + maxOffset - mToolbar.getTitleMarginBottom());
 
                 // Update the expanded bounds
                 mCollapsingTextHelper.setExpandedBounds(
@@ -1197,6 +1195,12 @@ public class CollapsingToolbarLayout extends FrameLayout {
         }
     }
 
+    final int getMaxOffsetForPinChild(View child) {
+        final ViewOffsetHelper offsetHelper = getViewOffsetHelper(child);
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        return getHeight() - (offsetHelper.getLayoutTop() + child.getHeight() + lp.bottomMargin);
+    }
+
     private class OffsetUpdateListener implements AppBarLayout.OnOffsetChangedListener {
         @Override
         public void onOffsetChanged(AppBarLayout layout, int verticalOffset) {
@@ -1211,9 +1215,8 @@ public class CollapsingToolbarLayout extends FrameLayout {
 
                 switch (lp.mCollapseMode) {
                     case LayoutParams.COLLAPSE_MODE_PIN:
-                        if (getHeight() - insetTop + verticalOffset >= child.getHeight()) {
-                            offsetHelper.setTopAndBottomOffset(-verticalOffset);
-                        }
+                        offsetHelper.setTopAndBottomOffset(
+                                constrain(-verticalOffset, 0, getMaxOffsetForPinChild(child)));
                         break;
                     case LayoutParams.COLLAPSE_MODE_PARALLAX:
                         offsetHelper.setTopAndBottomOffset(
