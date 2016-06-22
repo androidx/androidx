@@ -875,6 +875,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * This may be used by the system to prioritize operations such as fragment lifecycle updates
      * or loader ordering behavior.</p>
      *
+     * <p><strong>Note:</strong> This method may be called outside of the fragment lifecycle.
+     * and thus has no ordering guarantees with regard to fragment lifecycle method calls.</p>
+     *
      * @param isVisibleToUser true if this fragment's UI is currently visible to the user (default),
      *                        false if it is not.
      */
