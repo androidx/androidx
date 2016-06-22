@@ -38,16 +38,16 @@
                 android:name="android.support.design.widget.SnackbarActivity"/>
 
         <activity
+            android:theme="@style/Theme.TranslucentNavBar"
+            android:name="android.support.design.widget.SnackbarActivityWithTranslucentNavBar"/>
+
+        <activity
                 android:theme="@style/Theme.TranslucentStatus"
                 android:name="android.support.design.widget.DynamicCoordinatorLayoutActivity"/>
 
         <activity
                 android:theme="@style/Theme.AppCompat.NoActionBar"
                 android:name="android.support.design.widget.TabLayoutPoolingActivity"/>
-
-        <activity
-                android:theme="@style/Theme.AppCompat.NoActionBar"
-                android:name="android.support.design.widget.SnackbarBucketTestsActivity"/>
 
         <activity
                 android:theme="@style/Theme.AppCompat.NoActionBar"

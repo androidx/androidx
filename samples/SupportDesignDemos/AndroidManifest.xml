@@ -111,7 +111,7 @@
 
         <activity android:name=".widget.SnackbarUsage"
                   android:label="@string/design_snackbar_basic"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+                  android:theme="@style/Theme.Design.Snackbar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
