@@ -57,14 +57,23 @@ public class RemotePlayer extends Player {
                 String sessionId, MediaSessionStatus sessionStatus,
                 String itemId, MediaItemStatus itemStatus) {
             logStatus("onItemStatusChanged", sessionId, sessionStatus, itemId, itemStatus);
-            if (mCallback != null) {
-                if (itemStatus.getPlaybackState() ==
-                        MediaItemStatus.PLAYBACK_STATE_FINISHED) {
-                    mCallback.onCompletion();
-                } else if (itemStatus.getPlaybackState() ==
-                        MediaItemStatus.PLAYBACK_STATE_ERROR) {
-                    mCallback.onError();
-                }
+            switch (itemStatus.getPlaybackState()) {
+                case MediaItemStatus.PLAYBACK_STATE_PLAYING:
+                    publishState(STATE_PLAYING);
+                    break;
+                case MediaItemStatus.PLAYBACK_STATE_PAUSED:
+                    publishState(STATE_PAUSED);
+                    break;
+                case MediaItemStatus.PLAYBACK_STATE_FINISHED:
+                    if (mCallback != null) {
+                        mCallback.onCompletion();
+                    }
+                    break;
+                case MediaItemStatus.PLAYBACK_STATE_ERROR:
+                    if (mCallback != null) {
+                        mCallback.onError();
+                    }
+                    break;
             }
         }
 
