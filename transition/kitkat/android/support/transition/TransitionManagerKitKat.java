@@ -24,20 +24,20 @@ class TransitionManagerKitKat extends TransitionManagerImpl {
 
     @Override
     public void setTransition(SceneImpl scene, TransitionImpl transition) {
-        mTransitionManager.setTransition(((SceneKitKat) scene).mScene,
+        mTransitionManager.setTransition(((SceneWrapper) scene).mScene,
                 transition == null ? null : ((TransitionKitKat) transition).mTransition);
     }
 
     @Override
     public void setTransition(SceneImpl fromScene, SceneImpl toScene, TransitionImpl transition) {
-        mTransitionManager.setTransition(((SceneKitKat) fromScene).mScene,
-                ((SceneKitKat) toScene).mScene,
+        mTransitionManager.setTransition(((SceneWrapper) fromScene).mScene,
+                ((SceneWrapper) toScene).mScene,
                 transition == null ? null : ((TransitionKitKat) transition).mTransition);
     }
 
     @Override
     public void transitionTo(SceneImpl scene) {
-        mTransitionManager.transitionTo(((SceneKitKat) scene).mScene);
+        mTransitionManager.transitionTo(((SceneWrapper) scene).mScene);
     }
 
 }

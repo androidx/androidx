@@ -16,15 +16,17 @@
 
 package android.support.transition;
 
+import org.junit.Test;
+
+import android.support.test.annotation.UiThreadTest;
+import android.support.transition.test.R;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
-
-import android.support.transition.test.R;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.view.ViewGroup;
-
-import org.junit.Test;
 
 public class SceneTest extends BaseTest {
 
@@ -34,6 +36,46 @@ public class SceneTest extends BaseTest {
         ViewGroup root = activity.getRoot();
         Scene scene = new Scene(root);
         assertThat(scene.getSceneRoot(), is(sameInstance(root)));
+    }
+
+    @Test
+    @UiThreadTest
+    public void testSceneWithViewGroup() {
+        TransitionActivity activity = rule.getActivity();
+        ViewGroup root = activity.getRoot();
+        FrameLayout layout = new FrameLayout(activity);
+        Scene scene = new Scene(root, layout);
+        CheckCalledRunnable enterAction = new CheckCalledRunnable();
+        CheckCalledRunnable exitAction = new CheckCalledRunnable();
+        scene.setEnterAction(enterAction);
+        scene.setExitAction(exitAction);
+        scene.enter();
+        assertThat(enterAction.wasCalled(), is(true));
+        assertThat(exitAction.wasCalled(), is(false));
+        assertThat(root.getChildCount(), is(1));
+        assertThat(root.getChildAt(0), is((View) layout));
+        scene.exit();
+        assertThat(exitAction.wasCalled(), is(true));
+    }
+
+    @Test
+    @UiThreadTest
+    public void testSceneWithView() {
+        TransitionActivity activity = rule.getActivity();
+        ViewGroup root = activity.getRoot();
+        View view = new View(activity);
+        Scene scene = new Scene(root, view);
+        CheckCalledRunnable enterAction = new CheckCalledRunnable();
+        CheckCalledRunnable exitAction = new CheckCalledRunnable();
+        scene.setEnterAction(enterAction);
+        scene.setExitAction(exitAction);
+        scene.enter();
+        assertThat(enterAction.wasCalled(), is(true));
+        assertThat(exitAction.wasCalled(), is(false));
+        assertThat(root.getChildCount(), is(1));
+        assertThat(root.getChildAt(0), is(view));
+        scene.exit();
+        assertThat(exitAction.wasCalled(), is(true));
     }
 
     @Test
