@@ -36,9 +36,7 @@ class ListRowDataAdapter extends ObjectAdapter {
         // But underlying data would have changed during the notifyRemove call by the previous add
         // operation. To handle this case, we use QueueBasedDataObserver which forces
         // recyclerview to do a full data refresh after each update operation.
-        if ((adapter instanceof ArrayObjectAdapter)
-                || (adapter instanceof CursorObjectAdapter)
-                || (adapter instanceof SparseArrayObjectAdapter)) {
+        if (adapter.isImmediateNotifySupported()) {
             mAdapter.registerObserver(new SimpleDataObserver());
         } else {
             mAdapter.registerObserver(new QueueBasedDataObserver());
@@ -148,25 +146,11 @@ class ListRowDataAdapter extends ObjectAdapter {
      * to intermediate changes. In order to force RecyclerView to refresh the view with access
      * only to the final data, we call notifyChange().
      */
-    private class QueueBasedDataObserver extends SimpleDataObserver {
-
-        @Override
-        public void onItemRangeChanged(int positionStart, int itemCount) {
-            notifyChanged();
-        }
-
-        @Override
-        public void onItemRangeInserted(int positionStart, int itemCount) {
-            notifyChanged();
-        }
-
-        @Override
-        public void onItemRangeRemoved(int positionStart, int itemCount) {
-            notifyChanged();
-        }
+    private class QueueBasedDataObserver extends DataObserver {
 
         @Override
         public void onChanged() {
+            initialize();
             notifyChanged();
         }
     }
