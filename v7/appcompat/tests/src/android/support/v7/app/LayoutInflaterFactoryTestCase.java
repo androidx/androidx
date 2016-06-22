@@ -16,6 +16,7 @@
 
 package android.support.v7.app;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import android.content.Context;
@@ -46,6 +47,12 @@ public class LayoutInflaterFactoryTestCase
 
     public LayoutInflaterFactoryTestCase() {
         super(LayoutInflaterFactoryTestActivity.class);
+    }
+
+    @Before
+    public void setup() {
+        // Needed for testRadioButtonInflationWithVectorButton below
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
     @Test
@@ -182,12 +189,13 @@ public class LayoutInflaterFactoryTestCase
 
     private static void assertThemedContext(View view) {
         final Context viewContext = view.getContext();
+        final int expectedColor = view.getResources().getColor(R.color.test_magenta);
 
         final TypedValue colorAccentValue = getColorAccentValue(viewContext.getTheme());
         assertTrue(colorAccentValue.type >= TypedValue.TYPE_FIRST_COLOR_INT
                 && colorAccentValue.type <= TypedValue.TYPE_LAST_COLOR_INT);
         assertEquals("View does not have ContextThemeWrapper context",
-                Color.MAGENTA, colorAccentValue.data);
+                expectedColor, colorAccentValue.data);
     }
 
     private static TypedValue getColorAccentValue(final Resources.Theme theme) {
