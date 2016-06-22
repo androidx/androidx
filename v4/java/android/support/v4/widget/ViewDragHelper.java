@@ -789,7 +789,7 @@ public class ViewDragHelper {
     }
 
     private void clearMotionHistory(int pointerId) {
-        if (mInitialMotionX == null) {
+        if (mInitialMotionX == null || !isPointerDown(pointerId)) {
             return;
         }
         mInitialMotionX[pointerId] = 0;
@@ -844,6 +844,10 @@ public class ViewDragHelper {
         final int pointerCount = MotionEventCompat.getPointerCount(ev);
         for (int i = 0; i < pointerCount; i++) {
             final int pointerId = MotionEventCompat.getPointerId(ev, i);
+            // If pointer is invalid then skip saving on ACTION_MOVE.
+            if (!isValidPointerForActionMove(pointerId)) {
+                continue;
+            }
             final float x = MotionEventCompat.getX(ev, i);
             final float y = MotionEventCompat.getY(ev, i);
             mLastMotionX[pointerId] = x;
