@@ -28,10 +28,17 @@
             style="@style/TextAppearance.AppCompat.Headline"/>
 
     <Button
-            android:id="@+id/show"
+            android:id="@+id/show_short"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/bottomsheet_show"/>
+            android:text="@string/bottomsheet_show_short"/>
+
+    <Button
+            android:id="@+id/show_long"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/bottomsheet_show_long"/>
 
 </LinearLayout>

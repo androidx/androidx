@@ -38,15 +38,21 @@ abstract class BottomSheetModalBase extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.design_bottom_sheet_modal);
-        findViewById(R.id.show).setOnClickListener(mOnClickListener);
+        findViewById(R.id.show_short).setOnClickListener(mOnClickListener);
+        findViewById(R.id.show_long).setOnClickListener(mOnClickListener);
     }
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.show:
-                    new ModalFragment().show(getSupportFragmentManager(), FRAGMENT_MODAL);
+                case R.id.show_short:
+                    ModalFragment.newInstance(5)
+                            .show(getSupportFragmentManager(), FRAGMENT_MODAL);
+                    break;
+                case R.id.show_long:
+                    ModalFragment.newInstance(ModalFragment.LENGTH_ALL)
+                            .show(getSupportFragmentManager(), FRAGMENT_MODAL);
                     break;
             }
         }
@@ -56,6 +62,18 @@ abstract class BottomSheetModalBase extends AppCompatActivity {
      * This is the bottom sheet.
      */
     public static class ModalFragment extends BottomSheetDialogFragment {
+
+        private static final String ARG_LENGTH = "length";
+
+        public static final int LENGTH_ALL = Cheeses.sCheeseStrings.length;
+
+        public static ModalFragment newInstance(int length) {
+            ModalFragment fragment = new ModalFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_LENGTH, Math.min(LENGTH_ALL, length));
+            fragment.setArguments(args);
+            return fragment;
+        }
 
         @Nullable
         @Override
@@ -72,8 +90,10 @@ abstract class BottomSheetModalBase extends AppCompatActivity {
                     (RecyclerView) view.findViewById(R.id.bottom_sheet_recyclerview);
             Context context = recyclerView.getContext();
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            recyclerView.setAdapter(new SimpleStringRecyclerViewAdapter(context,
-                    Cheeses.sCheeseStrings));
+            int length = getArguments().getInt(ARG_LENGTH);
+            String[] array = new String[length];
+            System.arraycopy(Cheeses.sCheeseStrings, 0, array, 0, length);
+            recyclerView.setAdapter(new SimpleStringRecyclerViewAdapter(context, array));
         }
 
     }
