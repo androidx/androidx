@@ -21,13 +21,14 @@ import org.junit.Test;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Build;
 import android.support.v7.appcompat.test.R;
+import android.support.v7.custom.ContextWrapperFrameLayout;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatMultiAutoCompleteTextView;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
@@ -51,7 +52,7 @@ public class LayoutInflaterFactoryTestCase
 
     @Before
     public void setup() {
-        // Needed for testRadioButtonInflationWithVectorButton below
+        // Needed for any vector tests below
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
@@ -132,6 +133,20 @@ public class LayoutInflaterFactoryTestCase
     public void testRadioButtonInflationWithVectorButton() throws Throwable {
         testAppCompatWidgetInflation(R.layout.layout_radiobutton_vector,
                 AppCompatRadioButton.class);
+    }
+
+    @Test
+    @SmallTest
+    public void testImageViewInflationWithVectorSrc() throws Throwable {
+        testAppCompatWidgetInflation(R.layout.layout_imageview_vector,
+                AppCompatImageView.class);
+    }
+
+    @Test
+    @SmallTest
+    public void testContextWrapperParentImageViewInflationWithVectorSrc() throws Throwable {
+        testAppCompatWidgetInflation(R.layout.layout_contextwrapperparent_imageview_vector,
+                ContextWrapperFrameLayout.class);
     }
 
     @Test
