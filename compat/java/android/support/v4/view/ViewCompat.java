@@ -1622,6 +1622,11 @@ public class ViewCompat {
         @Override
         public void setOnApplyWindowInsetsListener(View view,
                 final OnApplyWindowInsetsListener listener) {
+            if (listener == null) {
+                ViewCompatLollipop.setOnApplyWindowInsetsListener(view, null);
+                return;
+            }
+
             ViewCompatLollipop.OnApplyWindowInsetsListenerBridge bridge =
                     new ViewCompatLollipop.OnApplyWindowInsetsListenerBridge() {
                         @Override

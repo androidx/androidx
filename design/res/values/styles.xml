@@ -92,7 +92,6 @@
     </style>
 
     <style name="Widget.Design.Snackbar" parent="android:Widget">
-        <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark</item>
         <item name="android:minWidth">@dimen/design_snackbar_min_width</item>
         <item name="android:maxWidth">@dimen/design_snackbar_max_width</item>
         <item name="android:background">@drawable/design_snackbar_background</item>
