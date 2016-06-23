@@ -84,7 +84,7 @@ public class BottomNavigationView extends FrameLayout {
         // Create the menu
         mMenu = new MenuBuilder(context);
 
-        mMenuView = new BottomNavigationMenuView(context, attrs);
+        mMenuView = new BottomNavigationMenuView(context);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         mMenuView.setLayoutParams(params);

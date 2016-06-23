@@ -114,4 +114,5 @@
 
     <string name="bottomnavigation_disable">Disable item</string>
     <string name="bottomnavigation_add">Add item</string>
+    <string name="bottomnavigation_tint">Toggle tint</string>
 </resources>

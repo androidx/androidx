@@ -16,8 +16,7 @@
 
 package com.example.android.support.design.widget;
 
-import com.example.android.support.design.R;
-
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -25,10 +24,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.android.support.design.R;
+
 /**
  * This demonstrates idiomatic usage of the bottom navigation widget.
  */
 public class BottomNavigationViewUsage extends AppCompatActivity {
+    private ColorStateList mOriginalTint;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +39,7 @@ public class BottomNavigationViewUsage extends AppCompatActivity {
         Button buttonDisable = (Button) findViewById(R.id.button_disable);
         final BottomNavigationView bottom =
                 (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        mOriginalTint = bottom.getItemIconTintList();
         buttonDisable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -48,6 +52,17 @@ public class BottomNavigationViewUsage extends AppCompatActivity {
             public void onClick(View view) {
                 MenuItem item = bottom.getMenu().add("Bananas");
                 item.setIcon(android.R.drawable.ic_lock_power_off);
+            }
+        });
+        Button buttonTint = (Button) findViewById(R.id.button_tint);
+        buttonTint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bottom.getItemIconTintList() == null) {
+                    bottom.setItemIconTintList(mOriginalTint);
+                } else {
+                    bottom.setItemIconTintList(null);
+                }
             }
         });
     }

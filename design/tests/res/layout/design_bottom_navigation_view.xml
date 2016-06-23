@@ -23,5 +23,8 @@
         android:id="@+id/bottom_navigation"
         android:layout_height="56dp"
         android:layout_width="match_parent"
-        app:menu="@menu/bottom_navigation_view_content" />
+        app:menu="@menu/bottom_navigation_view_content"
+        app:itemIconTint="@color/emerald_translucent"
+        app:itemTextColor="@color/emerald_text"
+        app:itemBackground="@color/sand_default" />
 </FrameLayout>
