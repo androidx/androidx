@@ -578,7 +578,7 @@ public class TabLayout extends HorizontalScrollView {
      */
     @Nullable
     public Tab getTabAt(int index) {
-        return mTabs.get(index);
+        return (index < 0 || index >= getTabCount()) ? null : mTabs.get(index);
     }
 
     /**
