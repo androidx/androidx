@@ -38,6 +38,7 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -513,7 +514,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
      * @param state One of {@link #STATE_COLLAPSED}, {@link #STATE_EXPANDED}, or
      *              {@link #STATE_HIDDEN}.
      */
-    public final void setState(@State int state) {
+    public final void setState(final @State int state) {
         if (state == mState) {
             return;
         }
@@ -525,23 +526,21 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             }
             return;
         }
-        V child = mViewRef.get();
+        final V child = mViewRef.get();
         if (child == null) {
             return;
         }
-        int top;
-        if (state == STATE_COLLAPSED) {
-            top = mMaxOffset;
-        } else if (state == STATE_EXPANDED) {
-            top = mMinOffset;
-        } else if (mHideable && state == STATE_HIDDEN) {
-            top = mParentHeight;
+        // Start the animation; wait until a pending layout if there is one.
+        ViewParent parent = child.getParent();
+        if (parent != null && parent.isLayoutRequested() && ViewCompat.isAttachedToWindow(child)) {
+            child.post(new Runnable() {
+                @Override
+                public void run() {
+                    startSettlingAnimation(child, state);
+                }
+            });
         } else {
-            throw new IllegalArgumentException("Illegal state argument: " + state);
-        }
-        setStateInternal(STATE_SETTLING);
-        if (mViewDragHelper.smoothSlideViewTo(child, child.getLeft(), top)) {
-            ViewCompat.postOnAnimation(child, new SettleRunnable(child, state));
+            startSettlingAnimation(child, state);
         }
     }
 
@@ -606,6 +605,23 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     private float getYVelocity() {
         mVelocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
         return VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId);
+    }
+
+    private void startSettlingAnimation(View child, int state) {
+        int top;
+        if (state == STATE_COLLAPSED) {
+            top = mMaxOffset;
+        } else if (state == STATE_EXPANDED) {
+            top = mMinOffset;
+        } else if (mHideable && state == STATE_HIDDEN) {
+            top = mParentHeight;
+        } else {
+            throw new IllegalArgumentException("Illegal state argument: " + state);
+        }
+        setStateInternal(STATE_SETTLING);
+        if (mViewDragHelper.smoothSlideViewTo(child, child.getLeft(), top)) {
+            ViewCompat.postOnAnimation(child, new SettleRunnable(child, state));
+        }
     }
 
     private final ViewDragHelper.Callback mDragCallback = new ViewDragHelper.Callback() {
