@@ -91,6 +91,44 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         updateBinding();
     }
 
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        if (DEBUG) {
+            Log.d(TAG, this + ": Connected");
+        }
+
+        if (mBound) {
+            disconnect();
+
+            Messenger messenger = (service != null ? new Messenger(service) : null);
+            if (isValidRemoteMessenger(messenger)) {
+                Connection connection = new Connection(messenger);
+                if (connection.register()) {
+                    mActiveConnection = connection;
+                } else {
+                    if (DEBUG) {
+                        Log.d(TAG, this + ": Registration failed");
+                    }
+                }
+            } else {
+                Log.e(TAG, this + ": Service returned invalid messenger binder");
+            }
+        }
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        if (DEBUG) {
+            Log.d(TAG, this + ": Service disconnected");
+        }
+        disconnect();
+    }
+
+    @Override
+    public String toString() {
+        return "Service connection " + mComponentName.flattenToShortString();
+    }
+
     public boolean hasComponentName(String packageName, String className) {
         return mComponentName.getPackageName().equals(packageName)
                 && mComponentName.getClassName().equals(className);
@@ -182,39 +220,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        if (DEBUG) {
-            Log.d(TAG, this + ": Connected");
-        }
-
-        if (mBound) {
-            disconnect();
-
-            Messenger messenger = (service != null ? new Messenger(service) : null);
-            if (isValidRemoteMessenger(messenger)) {
-                Connection connection = new Connection(messenger);
-                if (connection.register()) {
-                    mActiveConnection = connection;
-                } else {
-                    if (DEBUG) {
-                        Log.d(TAG, this + ": Registration failed");
-                    }
-                }
-            } else {
-                Log.e(TAG, this + ": Service returned invalid messenger binder");
-            }
-        }
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-        if (DEBUG) {
-            Log.d(TAG, this + ": Service disconnected");
-        }
-        disconnect();
-    }
-
     private RouteController createRouteController(String routeId, String routeGroupId) {
         MediaRouteProviderDescriptor descriptor = getDescriptor();
         if (descriptor != null) {
@@ -304,11 +309,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         for (int i = 0; i < count; i++) {
             mControllers.get(i).detachConnection();
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Service connection " + mComponentName.flattenToShortString();
     }
 
     private final class Controller extends RouteController {
