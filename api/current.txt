@@ -340,6 +340,7 @@ package android.support.design.widget {
     method public final void setPeekHeight(int);
     method public void setSkipCollapsed(boolean);
     method public final void setState(int);
+    field public static final int PEEK_HEIGHT_AUTO = -1; // 0xffffffff
     field public static final int STATE_COLLAPSED = 4; // 0x4
     field public static final int STATE_DRAGGING = 1; // 0x1
     field public static final int STATE_EXPANDED = 3; // 0x3
