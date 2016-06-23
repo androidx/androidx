@@ -32,6 +32,7 @@ import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -106,6 +107,11 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     @Retention(RetentionPolicy.SOURCE)
     public @interface State {}
 
+    /**
+     * Peek at the 16:9 ratio keyline of its parent.
+     */
+    public static final int PEEK_HEIGHT_AUTO = -1;
+
     private static final float HIDE_THRESHOLD = 0.5f;
 
     private static final float HIDE_FRICTION = 0.1f;
@@ -113,6 +119,10 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     private float mMaximumVelocity;
 
     private int mPeekHeight;
+
+    private boolean mPeekHeightAuto;
+
+    private int mPeekHeightMin;
 
     private int mMinOffset;
 
@@ -165,8 +175,13 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.BottomSheetBehavior_Layout);
-        setPeekHeight(a.getDimensionPixelSize(
-                R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight, 0));
+        TypedValue value = a.peekValue(R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight);
+        if (value.data == PEEK_HEIGHT_AUTO) {
+            setPeekHeight(value.data);
+        } else {
+            setPeekHeight(a.getDimensionPixelSize(
+                    R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight, PEEK_HEIGHT_AUTO));
+        }
         setHideable(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_hideable, false));
         setSkipCollapsed(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_skipCollapsed,
                 false));
@@ -202,8 +217,18 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
         parent.onLayoutChild(child, layoutDirection);
         // Offset the bottom sheet
         mParentHeight = parent.getHeight();
+        int peekHeight;
+        if (mPeekHeightAuto) {
+            if (mPeekHeightMin == 0) {
+                mPeekHeightMin = parent.getResources().getDimensionPixelSize(
+                        R.dimen.design_bottom_sheet_peek_height_min);
+            }
+            peekHeight = Math.max(mPeekHeightMin, mParentHeight - parent.getWidth() * 9 / 16);
+        } else {
+            peekHeight = mPeekHeight;
+        }
         mMinOffset = Math.max(0, mParentHeight - child.getHeight());
-        mMaxOffset = Math.max(mParentHeight - mPeekHeight, mMinOffset);
+        mMaxOffset = Math.max(mParentHeight - peekHeight, mMinOffset);
         if (mState == STATE_EXPANDED) {
             ViewCompat.offsetTopAndBottom(child, mMinOffset);
         } else if (mHideable && mState == STATE_HIDDEN) {
@@ -395,12 +420,29 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     /**
      * Sets the height of the bottom sheet when it is collapsed.
      *
-     * @param peekHeight The height of the collapsed bottom sheet in pixels.
+     * @param peekHeight The height of the collapsed bottom sheet in pixels, or
+     *                   {@link #PEEK_HEIGHT_AUTO}.
      * @attr ref android.support.design.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
      */
     public final void setPeekHeight(int peekHeight) {
-        mPeekHeight = Math.max(0, peekHeight);
-        mMaxOffset = mParentHeight - peekHeight;
+        boolean layout = false;
+        if (peekHeight == PEEK_HEIGHT_AUTO) {
+            if (!mPeekHeightAuto) {
+                mPeekHeightAuto = true;
+                layout = true;
+            }
+        } else if (mPeekHeightAuto || mPeekHeight != peekHeight) {
+            mPeekHeightAuto = false;
+            mPeekHeight = Math.max(0, peekHeight);
+            mMaxOffset = mParentHeight - peekHeight;
+            layout = true;
+        }
+        if (layout && mState == STATE_COLLAPSED && mViewRef != null) {
+            V view = mViewRef.get();
+            if (view != null) {
+                view.requestLayout();
+            }
+        }
     }
 
     /**

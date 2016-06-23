@@ -607,6 +607,23 @@ public class BottomSheetBehaviorTest extends
         });
     }
 
+    @Test
+    public void testAutoPeekHeight() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getBehavior().setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
+            }
+        });
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                assertThat(getBottomSheet().getTop(),
+                        is(getCoordinatorLayout().getWidth() * 9 / 16));
+            }
+        });
+    }
+
     private void checkSetState(final int state, Matcher<View> matcher) {
         registerIdlingResourceCallback();
         try {
