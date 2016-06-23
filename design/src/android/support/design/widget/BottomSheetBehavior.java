@@ -176,7 +176,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.BottomSheetBehavior_Layout);
         TypedValue value = a.peekValue(R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight);
-        if (value.data == PEEK_HEIGHT_AUTO) {
+        if (value != null && value.data == PEEK_HEIGHT_AUTO) {
             setPeekHeight(value.data);
         } else {
             setPeekHeight(a.getDimensionPixelSize(
