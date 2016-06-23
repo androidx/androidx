@@ -910,6 +910,33 @@ public class MediaSessionCompat {
             }
         }
 
+        @Override
+        public int hashCode() {
+            if (mInner == null) {
+                return 0;
+            }
+            return mInner.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof Token)) {
+                return false;
+            }
+
+            Token other = (Token) obj;
+            if (mInner == null) {
+                return other.mInner == null;
+            }
+            if (other.mInner == null) {
+                return false;
+            }
+            return mInner.equals(other.mInner);
+        }
+
         /**
          * Gets the underlying framework {@link android.media.session.MediaSession.Token} object.
          * <p>
