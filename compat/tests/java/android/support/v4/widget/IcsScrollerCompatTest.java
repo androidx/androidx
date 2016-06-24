@@ -17,6 +17,6 @@ package android.support.v4.widget;
 
 public class IcsScrollerCompatTest extends ScrollerCompatTestBase {
     public IcsScrollerCompatTest() {
-        super(14);
+        super(true);
     }
 }
