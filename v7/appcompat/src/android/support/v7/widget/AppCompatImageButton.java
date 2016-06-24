@@ -56,12 +56,10 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
     public AppCompatImageButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
-        final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
-
-        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, drawableManager);
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
 
-        mImageHelper = new AppCompatImageHelper(this, drawableManager);
+        mImageHelper = new AppCompatImageHelper(this);
         mImageHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 

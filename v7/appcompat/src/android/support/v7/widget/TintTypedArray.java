@@ -64,7 +64,7 @@ public class TintTypedArray {
         if (mWrapped.hasValue(index)) {
             final int resourceId = mWrapped.getResourceId(index, 0);
             if (resourceId != 0) {
-                return AppCompatDrawableManager.get().getDrawable(mContext, resourceId);
+                return AppCompatResources.getDrawable(mContext, resourceId);
             }
         }
         return mWrapped.getDrawable(index);

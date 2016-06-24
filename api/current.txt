@@ -7851,6 +7851,7 @@ package android.support.v7.content.res {
 
   public final class AppCompatResources {
     method public static android.content.res.ColorStateList getColorStateList(android.content.Context, int);
+    method public static android.graphics.drawable.Drawable getDrawable(android.content.Context, int);
   }
 
 }

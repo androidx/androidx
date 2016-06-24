@@ -40,13 +40,11 @@ class AppCompatProgressBarHelper {
     };
 
     private final ProgressBar mView;
-    final AppCompatDrawableManager mDrawableManager;
 
     private Bitmap mSampleTile;
 
-    AppCompatProgressBarHelper(ProgressBar view, AppCompatDrawableManager drawableManager) {
+    AppCompatProgressBarHelper(ProgressBar view) {
         mView = view;
-        mDrawableManager = drawableManager;
     }
 
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {

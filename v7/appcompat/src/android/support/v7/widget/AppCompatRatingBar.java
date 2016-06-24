@@ -32,7 +32,6 @@ import android.widget.RatingBar;
 public class AppCompatRatingBar extends RatingBar {
 
     private AppCompatProgressBarHelper mAppCompatProgressBarHelper;
-    private AppCompatDrawableManager mDrawableManager;
 
     public AppCompatRatingBar(Context context) {
         this(context, null);
@@ -45,9 +44,7 @@ public class AppCompatRatingBar extends RatingBar {
     public AppCompatRatingBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        mDrawableManager = AppCompatDrawableManager.get();
-
-        mAppCompatProgressBarHelper = new AppCompatProgressBarHelper(this, mDrawableManager);
+        mAppCompatProgressBarHelper = new AppCompatProgressBarHelper(this);
         mAppCompatProgressBarHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 

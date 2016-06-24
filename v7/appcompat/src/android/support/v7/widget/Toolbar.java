@@ -38,6 +38,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.view.CollapsibleActionView;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.view.menu.MenuBuilder;
@@ -219,8 +220,6 @@ public class Toolbar extends ViewGroup {
         }
     };
 
-    private final AppCompatDrawableManager mDrawableManager;
-
     public Toolbar(Context context) {
         this(context, null);
     }
@@ -340,8 +339,6 @@ public class Toolbar extends ViewGroup {
             setSubtitleTextColor(a.getColor(R.styleable.Toolbar_subtitleTextColor, 0xffffffff));
         }
         a.recycle();
-
-        mDrawableManager = AppCompatDrawableManager.get();
     }
 
     /**
@@ -499,7 +496,7 @@ public class Toolbar extends ViewGroup {
      * @param resId ID of a drawable resource
      */
     public void setLogo(@DrawableRes int resId) {
-        setLogo(mDrawableManager.getDrawable(getContext(), resId));
+        setLogo(AppCompatResources.getDrawable(getContext(), resId));
     }
 
     /** @hide */
@@ -934,7 +931,7 @@ public class Toolbar extends ViewGroup {
      * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_navigationIcon
      */
     public void setNavigationIcon(@DrawableRes int resId) {
-        setNavigationIcon(mDrawableManager.getDrawable(getContext(), resId));
+        setNavigationIcon(AppCompatResources.getDrawable(getContext(), resId));
     }
 
     /**

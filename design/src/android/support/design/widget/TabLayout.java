@@ -16,6 +16,10 @@
 
 package android.support.design.widget;
 
+import static android.support.v4.view.ViewPager.SCROLL_STATE_DRAGGING;
+import static android.support.v4.view.ViewPager.SCROLL_STATE_IDLE;
+import static android.support.v4.view.ViewPager.SCROLL_STATE_SETTLING;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -42,7 +46,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.AppCompatDrawableManager;
+import android.support.v7.content.res.AppCompatResources;
 import android.text.Layout;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -65,10 +69,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import static android.support.v4.view.ViewPager.SCROLL_STATE_DRAGGING;
-import static android.support.v4.view.ViewPager.SCROLL_STATE_IDLE;
-import static android.support.v4.view.ViewPager.SCROLL_STATE_SETTLING;
 
 /**
  * TabLayout provides a horizontal layout to display tabs.
@@ -1377,7 +1377,7 @@ public class TabLayout extends HorizontalScrollView {
             if (mParent == null) {
                 throw new IllegalArgumentException("Tab not attached to a TabLayout");
             }
-            return setIcon(AppCompatDrawableManager.get().getDrawable(mParent.getContext(), resId));
+            return setIcon(AppCompatResources.getDrawable(mParent.getContext(), resId));
         }
 
         /**
@@ -1506,8 +1506,7 @@ public class TabLayout extends HorizontalScrollView {
         public TabView(Context context) {
             super(context);
             if (mTabBackgroundResId != 0) {
-                setBackgroundDrawable(
-                        AppCompatDrawableManager.get().getDrawable(context, mTabBackgroundResId));
+                setBackgroundDrawable(AppCompatResources.getDrawable(context, mTabBackgroundResId));
             }
             ViewCompat.setPaddingRelative(this, mTabPaddingStart, mTabPaddingTop,
                     mTabPaddingEnd, mTabPaddingBottom);

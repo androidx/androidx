@@ -16,6 +16,7 @@
 
 package android.support.v7.testutils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -24,6 +25,7 @@ import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
+import android.support.v7.widget.TintTypedArray;
 import android.view.View;
 import android.view.ViewParent;
 import junit.framework.Assert;
@@ -235,6 +237,16 @@ public class TestUtils {
     public static void waitForActivityDestroyed(BaseTestActivity activity) {
         while (!activity.isDestroyed()) {
             SystemClock.sleep(30);
+        }
+    }
+
+    public static int getThemeAttrColor(Context context, int attr) {
+        final int[] attrs = { attr };
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, null, attrs);
+        try {
+            return a.getColor(0, 0);
+        } finally {
+            a.recycle();
         }
     }
 }

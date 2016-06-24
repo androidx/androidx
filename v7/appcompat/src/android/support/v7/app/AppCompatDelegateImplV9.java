@@ -16,6 +16,10 @@
 
 package android.support.v7.app;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static android.view.Window.FEATURE_OPTIONS_PANEL;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -46,6 +50,7 @@ import android.support.v4.view.WindowCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.PopupWindowCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.view.StandaloneActionMode;
@@ -54,7 +59,6 @@ import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPresenter;
 import android.support.v7.view.menu.MenuView;
 import android.support.v7.widget.ActionBarContextView;
-import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.ContentFrameLayout;
 import android.support.v7.widget.DecorContentParent;
 import android.support.v7.widget.FitWindowsViewGroup;
@@ -84,10 +88,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.view.Window.FEATURE_OPTIONS_PANEL;
 
 class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         implements MenuBuilder.Callback, LayoutInflaterFactory {
@@ -2112,7 +2112,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
 
         @Override
         public void setBackgroundResource(int resid) {
-            setBackgroundDrawable(AppCompatDrawableManager.get().getDrawable(getContext(), resid));
+            setBackgroundDrawable(AppCompatResources.getDrawable(getContext(), resid));
         }
 
         private boolean isOutOfBounds(int x, int y) {

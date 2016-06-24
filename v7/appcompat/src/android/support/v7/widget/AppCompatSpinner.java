@@ -27,10 +27,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.view.menu.ShowableListMenu;
 import android.util.AttributeSet;
@@ -76,8 +76,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     private static final int MODE_DIALOG = 0;
     private static final int MODE_DROPDOWN = 1;
     private static final int MODE_THEME = -1;
-
-    private AppCompatDrawableManager mDrawableManager;
 
     private AppCompatBackgroundHelper mBackgroundTintHelper;
 
@@ -199,8 +197,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.Spinner, defStyleAttr, 0);
 
-        mDrawableManager = AppCompatDrawableManager.get();
-        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mDrawableManager);
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this);
 
         if (popupTheme != null) {
             mPopupContext = new ContextThemeWrapper(context, popupTheme);
@@ -311,7 +308,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     }
 
     public void setPopupBackgroundResource(@DrawableRes int resId) {
-        setPopupBackgroundDrawable(ContextCompat.getDrawable(getPopupContext(), resId));
+        setPopupBackgroundDrawable(AppCompatResources.getDrawable(getPopupContext(), resId));
     }
 
     public Drawable getPopupBackground() {

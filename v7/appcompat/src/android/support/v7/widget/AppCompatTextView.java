@@ -44,7 +44,6 @@ import android.widget.TextView;
  */
 public class AppCompatTextView extends TextView implements TintableBackgroundView {
 
-    private AppCompatDrawableManager mDrawableManager;
     private AppCompatBackgroundHelper mBackgroundTintHelper;
     private AppCompatTextHelper mTextHelper;
 
@@ -59,8 +58,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     public AppCompatTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
-        mDrawableManager = AppCompatDrawableManager.get();
-        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mDrawableManager);
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
 
         mTextHelper = AppCompatTextHelper.create(this);

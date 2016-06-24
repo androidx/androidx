@@ -35,7 +35,6 @@ import android.support.design.R;
 import android.support.design.widget.FloatingActionButtonImpl.InternalVisibilityChangedListener;
 import android.support.v4.content.res.ConfigurationHelper;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.AppCompatImageHelper;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -168,7 +167,7 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
         mCompatPadding = a.getBoolean(R.styleable.FloatingActionButton_useCompatPadding, false);
         a.recycle();
 
-        mImageHelper = new AppCompatImageHelper(this, AppCompatDrawableManager.get());
+        mImageHelper = new AppCompatImageHelper(this);
         mImageHelper.loadFromAttributes(attrs, defStyleAttr);
 
         mMaxImageSize = (int) getResources().getDimension(R.dimen.design_fab_image_size);

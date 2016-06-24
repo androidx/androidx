@@ -46,7 +46,6 @@ import android.widget.Button;
  */
 public class AppCompatButton extends Button implements TintableBackgroundView {
 
-    private final AppCompatDrawableManager mDrawableManager;
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
 
@@ -61,8 +60,7 @@ public class AppCompatButton extends Button implements TintableBackgroundView {
     public AppCompatButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
-        mDrawableManager = AppCompatDrawableManager.get();
-        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mDrawableManager);
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
 
         mTextHelper = AppCompatTextHelper.create(this);
