@@ -102,6 +102,7 @@ public class BottomNavigationItemView extends ForegroundLinearLayout implements 
         setEnabled(itemData.isEnabled());
         setIcon(itemData.getIcon());
         setTitle(itemData.getTitle());
+        setId(itemData.getItemId());
     }
 
     public void setItemPosition(int position) {
@@ -186,7 +187,6 @@ public class BottomNavigationItemView extends ForegroundLinearLayout implements 
             // Update the icon so that the tint takes effect
             setIcon(mItemData.getIcon());
         }
-        mLabel.setTextColor(mIconTint);
     }
 
     public void setTextColor(ColorStateList color) {
