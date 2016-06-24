@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaMetadataCompat;
@@ -386,7 +387,7 @@ public final class MediaControllerCompat {
          * Override to handle changes to the current metadata.
          *
          * @param metadata The current metadata for the session or null if none.
-         * @see MediaMetadata
+         * @see MediaMetadataCompat
          */
         public void onMetadataChanged(MediaMetadataCompat metadata) {
         }
@@ -460,8 +461,42 @@ public final class MediaControllerCompat {
 
             @Override
             public void onMetadataChanged(Object metadataObj) {
-                Callback.this.onMetadataChanged(
-                        MediaMetadataCompat.fromMediaMetadata(metadataObj));
+                Callback.this.onMetadataChanged(MediaMetadataCompat.fromMediaMetadata(metadataObj));
+            }
+
+            @Override
+            public void onQueueChanged(List<Parcel> queue) {
+                Callback.this.onQueueChanged(parcelListToQueueItemList(queue));
+            }
+
+            @Override
+            public void onQueueTitleChanged(CharSequence title) {
+                Callback.this.onQueueTitleChanged(title);
+            }
+
+            @Override
+            public void onExtrasChanged(Bundle extras) {
+                Callback.this.onExtrasChanged(extras);
+            }
+
+            @Override
+            public void onAudioInfoChanged(
+                    int type, int stream, int control, int max, int current) {
+                Callback.this.onAudioInfoChanged(
+                        new PlaybackInfo(type, stream, control, max, current));
+            }
+
+            private List<QueueItem> parcelListToQueueItemList(List<Parcel> parcelList) {
+                if (parcelList == null) {
+                    return null;
+                }
+                List<MediaSessionCompat.QueueItem> items = new ArrayList<>();
+                for (Parcel parcel : parcelList) {
+                    parcel.setDataPosition(0);
+                    items.add(MediaSessionCompat.QueueItem.CREATOR.createFromParcel(parcel));
+                    parcel.recycle();
+                }
+                return items;
             }
         }
 

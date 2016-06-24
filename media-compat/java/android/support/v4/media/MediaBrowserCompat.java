@@ -598,8 +598,7 @@ public final class MediaBrowserCompat {
                 SubscriptionCallback.this.onError(parentId);
             }
 
-            List<MediaBrowserCompat.MediaItem> parcelListToItemList(
-                    List<Parcel> parcelList) {
+            List<MediaBrowserCompat.MediaItem> parcelListToItemList(List<Parcel> parcelList) {
                 if (parcelList == null) {
                     return null;
                 }
