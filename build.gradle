@@ -316,6 +316,7 @@ task checkApi(type: CheckApiTask, dependsOn: generateApi) {
     newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
     oldRemovedApiFile = new File(project.rootDir, 'api/removed.txt')
 }
+createArchive.dependsOn checkApi
 
 subprojects {
     // Only modify android projects.
