@@ -133,15 +133,6 @@ import java.util.Map;
  *     Represents files in the <code>files/</code> subdirectory of your app's internal storage
  *     area. This subdirectory is the same as the value returned by {@link Context#getFilesDir()
  *     Context.getFilesDir()}.
- *     <dt>
- * <pre class="prettyprint">
- *&lt;external-path name="<i>name</i>" path="<i>path</i>" /&gt;
- *</pre>
- *     </dt>
- *     <dd>
- *     Represents files in the root of your app's external storage area. The path
- *     {@link Context#getExternalFilesDir(String) Context.getExternalFilesDir()} returns the
- *     <code>files/</code> subdirectory of this this root.
  *     </dd>
  *     <dt>
  * <pre>
@@ -152,6 +143,36 @@ import java.util.Map;
  *     Represents files in the cache subdirectory of your app's internal storage area. The root path
  *     of this subdirectory is the same as the value returned by {@link Context#getCacheDir()
  *     getCacheDir()}.
+ *     </dd>
+ *     <dt>
+ * <pre class="prettyprint">
+ *&lt;external-path name="<i>name</i>" path="<i>path</i>" /&gt;
+ *</pre>
+ *     </dt>
+ *     <dd>
+ *     Represents files in the root of the external storage area. The root path of this subdirectory
+ *     is the same as the value returned by
+ *     {@link Environment#getExternalStorageDirectory() Environment.getExternalStorageDirectory()}.
+ *     </dd>
+ *     <dt>
+ * <pre class="prettyprint">
+ *&lt;external-files-path name="<i>name</i>" path="<i>path</i>" /&gt;
+ *</pre>
+ *     </dt>
+ *     <dd>
+ *     Represents files in the root of your app's external storage area. The root path of this
+ *     subdirectory is the same as the value returned by
+ *     {@code Context#getExternalFilesDir(String) Context.getExternalFilesDir(null)}.
+ *     </dd>
+ *     <dt>
+ * <pre class="prettyprint">
+ *&lt;external-cache-path name="<i>name</i>" path="<i>path</i>" /&gt;
+ *</pre>
+ *     </dt>
+ *     <dd>
+ *     Represents files in the root of your app's external cache area. The root path of this
+ *     subdirectory is the same as the value returned by
+ *     {@link Context#getExternalCacheDir() Context.getExternalCacheDir()}.
  *     </dd>
  * </dl>
  * <p>
@@ -310,6 +331,8 @@ public class FileProvider extends ContentProvider {
     private static final String TAG_FILES_PATH = "files-path";
     private static final String TAG_CACHE_PATH = "cache-path";
     private static final String TAG_EXTERNAL = "external-path";
+    private static final String TAG_EXTERNAL_FILES = "external-files-path";
+    private static final String TAG_EXTERNAL_CACHE = "external-cache-path";
 
     private static final String ATTR_NAME = "name";
     private static final String ATTR_PATH = "path";
@@ -574,17 +597,27 @@ public class FileProvider extends ContentProvider {
 
                 File target = null;
                 if (TAG_ROOT_PATH.equals(tag)) {
-                    target = buildPath(DEVICE_ROOT, path);
+                    target = DEVICE_ROOT;
                 } else if (TAG_FILES_PATH.equals(tag)) {
-                    target = buildPath(context.getFilesDir(), path);
+                    target = context.getFilesDir();
                 } else if (TAG_CACHE_PATH.equals(tag)) {
-                    target = buildPath(context.getCacheDir(), path);
+                    target = context.getCacheDir();
                 } else if (TAG_EXTERNAL.equals(tag)) {
-                    target = buildPath(Environment.getExternalStorageDirectory(), path);
+                    target = Environment.getExternalStorageDirectory();
+                } else if (TAG_EXTERNAL_FILES.equals(tag)) {
+                    File[] externalFilesDirs = ContextCompat.getExternalFilesDirs(context, null);
+                    if (externalFilesDirs.length > 0) {
+                        target = externalFilesDirs[0];
+                    }
+                } else if (TAG_EXTERNAL_CACHE.equals(tag)) {
+                    File[] externalCacheDirs = ContextCompat.getExternalCacheDirs(context);
+                    if (externalCacheDirs.length > 0) {
+                        target = externalCacheDirs[0];
+                    }
                 }
 
                 if (target != null) {
-                    strat.addRoot(name, target);
+                    strat.addRoot(name, buildPath(target, path));
                 }
             }
         }

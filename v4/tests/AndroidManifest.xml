@@ -20,10 +20,23 @@
     <uses-sdk android:minSdkVersion="4" tools:overrideLibrary="android.support.test,
             android.support.test.espresso, android.support.test.espresso.idling"/>
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application>
         <uses-library android:name="android.test.runner" />
         <activity android:name="android.support.v4.widget.test.TextViewTestActivity"/>
         <activity android:name="android.support.v4.widget.TestActivity"/>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="moocow"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/paths" />
+        </provider>
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
