@@ -422,7 +422,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
      * Sets the height of the bottom sheet when it is collapsed.
      *
      * @param peekHeight The height of the collapsed bottom sheet in pixels, or
-     *                   {@link #PEEK_HEIGHT_AUTO}.
+     *                   {@link #PEEK_HEIGHT_AUTO} to configure the sheet to peek automatically
+     *                   at 16:9 ratio keyline.
      * @attr ref android.support.design.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
      */
     public final void setPeekHeight(int peekHeight) {
@@ -449,11 +450,12 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     /**
      * Gets the height of the bottom sheet when it is collapsed.
      *
-     * @return The height of the collapsed bottom sheet.
+     * @return The height of the collapsed bottom sheet in pixels, or {@link #PEEK_HEIGHT_AUTO}
+     *         if the sheet is configured to peek automatically at 16:9 ratio keyline
      * @attr ref android.support.design.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
      */
     public final int getPeekHeight() {
-        return mPeekHeight;
+        return mPeekHeightAuto ? PEEK_HEIGHT_AUTO : mPeekHeight;
     }
 
     /**

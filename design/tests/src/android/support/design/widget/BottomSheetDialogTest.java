@@ -16,6 +16,7 @@
 
 package android.support.design.widget;
 
+import org.hamcrest.Matcher;
 import org.junit.Test;
 
 import android.content.Context;
@@ -24,11 +25,14 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
+import android.support.test.espresso.UiController;
+import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.assertion.ViewAssertions;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.v7.widget.AppCompatTextView;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -65,6 +69,8 @@ public class BottomSheetDialogTest extends
                 assertThat(bottomSheet, is(notNullValue()));
                 BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
                 assertThat(behavior, is(notNullValue()));
+                // Modal bottom sheets have auto peek height by default.
+                assertThat(behavior.getPeekHeight(), is(BottomSheetBehavior.PEEK_HEIGHT_AUTO));
             }
         });
         // Click outside the bottom sheet
@@ -97,6 +103,7 @@ public class BottomSheetDialogTest extends
         });
         // This ensures that the views are laid out before assertions below
         Espresso.onView(ViewMatchers.withId(R.id.design_bottom_sheet))
+                .perform(setTallPeekHeight())
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -115,6 +122,26 @@ public class BottomSheetDialogTest extends
                         is(coordinator.getHeight() - bottomSheet.getHeight()));
             }
         });
+    }
+
+    private static ViewAction setTallPeekHeight() {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return ViewMatchers.isDisplayed();
+            }
+
+            @Override
+            public String getDescription() {
+                return "set tall peek height";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                BottomSheetBehavior behavior = BottomSheetBehavior.from(view);
+                behavior.setPeekHeight(view.getHeight() + 100);
+            }
+        };
     }
 
 }
