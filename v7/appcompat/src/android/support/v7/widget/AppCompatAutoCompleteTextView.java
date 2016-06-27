@@ -24,6 +24,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v7.appcompat.R;
+import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.widget.AutoCompleteTextView;
 
@@ -49,7 +50,6 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
             android.R.attr.popupBackground
     };
 
-    private AppCompatDrawableManager mDrawableManager;
     private AppCompatBackgroundHelper mBackgroundTintHelper;
     private AppCompatTextHelper mTextHelper;
 
@@ -64,8 +64,6 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
     public AppCompatAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
-        mDrawableManager = AppCompatDrawableManager.get();
-
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
                 TINT_ATTRS, defStyleAttr, 0);
         if (a.hasValue(0)) {
@@ -73,7 +71,7 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
         }
         a.recycle();
 
-        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mDrawableManager);
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
 
         mTextHelper = AppCompatTextHelper.create(this);
@@ -83,11 +81,7 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
 
     @Override
     public void setDropDownBackgroundResource(@DrawableRes int resId) {
-        if (mDrawableManager != null) {
-            setDropDownBackgroundDrawable(mDrawableManager.getDrawable(getContext(), resId));
-        } else {
-            super.setDropDownBackgroundResource(resId);
-        }
+        setDropDownBackgroundDrawable(AppCompatResources.getDrawable(getContext(), resId));
     }
 
     @Override

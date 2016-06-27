@@ -47,6 +47,7 @@ import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.widget.Space;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.TintTypedArray;
 import android.text.Editable;
@@ -994,7 +995,7 @@ public class TextInputLayout extends LinearLayout {
      */
     public void setPasswordVisibilityToggleDrawable(@DrawableRes int resId) {
         setPasswordVisibilityToggleDrawable(resId != 0
-                ? AppCompatDrawableManager.get().getDrawable(getContext(), resId)
+                ? AppCompatResources.getDrawable(getContext(), resId)
                 : null);
     }
 

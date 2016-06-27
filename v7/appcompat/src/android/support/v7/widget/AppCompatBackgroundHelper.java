@@ -37,9 +37,9 @@ class AppCompatBackgroundHelper {
     private BackgroundTintInfo mBackgroundTint;
     private BackgroundTintInfo mTmpInfo;
 
-    AppCompatBackgroundHelper(View view, AppCompatDrawableManager drawableManager) {
+    AppCompatBackgroundHelper(View view) {
         mView = view;
-        mDrawableManager = drawableManager;
+        mDrawableManager = AppCompatDrawableManager.get();
     }
 
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {

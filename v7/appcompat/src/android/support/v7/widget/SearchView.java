@@ -175,8 +175,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     private SearchableInfo mSearchable;
     private Bundle mAppSearchData;
 
-    private final AppCompatDrawableManager mDrawableManager;
-
     static final AutoCompleteTextViewReflector HIDDEN_METHOD_INVOKER = new AutoCompleteTextViewReflector();
 
     /*
@@ -293,8 +291,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
     public SearchView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
-        mDrawableManager = AppCompatDrawableManager.get();
 
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context,
                 attrs, R.styleable.SearchView, defStyleAttr, 0);

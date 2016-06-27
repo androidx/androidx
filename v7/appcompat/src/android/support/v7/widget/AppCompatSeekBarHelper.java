@@ -37,8 +37,8 @@ class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
     private boolean mHasTickMarkTint = false;
     private boolean mHasTickMarkTintMode = false;
 
-    AppCompatSeekBarHelper(SeekBar view, AppCompatDrawableManager drawableManager) {
-        super(view, drawableManager);
+    AppCompatSeekBarHelper(SeekBar view) {
+        super(view);
         mView = view;
     }
 

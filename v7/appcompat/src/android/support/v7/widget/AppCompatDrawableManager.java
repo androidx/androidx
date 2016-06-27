@@ -16,8 +16,11 @@
 
 package android.support.v7.widget;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import static android.support.v4.graphics.ColorUtils.compositeColors;
+import static android.support.v7.content.res.AppCompatResources.getColorStateList;
+import static android.support.v7.widget.ThemeUtils.getDisabledThemeAttrColor;
+import static android.support.v7.widget.ThemeUtils.getThemeAttrColor;
+import static android.support.v7.widget.ThemeUtils.getThemeAttrColorStateList;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -28,7 +31,6 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
 import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
@@ -37,27 +39,22 @@ import android.support.annotation.Nullable;
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.ColorUtils;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
-import android.support.v7.widget.VectorEnabledTintResources;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.util.Xml;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
-
-import static android.support.v4.graphics.ColorUtils.compositeColors;
-import static android.support.v7.content.res.AppCompatResources.getColorStateList;
-import static android.support.v7.widget.ThemeUtils.getDisabledThemeAttrColor;
-import static android.support.v7.widget.ThemeUtils.getThemeAttrColor;
-import static android.support.v7.widget.ThemeUtils.getThemeAttrColorStateList;
 
 /**
  * @hide
@@ -185,7 +182,7 @@ public final class AppCompatDrawableManager {
         return getDrawable(context, resId, false);
     }
 
-    public Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,
+    Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,
             boolean failIfNotKnown) {
         checkVectorDrawableSetup(context);
 
@@ -415,7 +412,7 @@ public final class AppCompatDrawableManager {
         return false;
     }
 
-    public final Drawable onDrawableLoadedFromResources(@NonNull Context context,
+    Drawable onDrawableLoadedFromResources(@NonNull Context context,
             @NonNull VectorEnabledTintResources resources, @DrawableRes final int resId) {
         Drawable drawable = loadDrawableFromDelegates(context, resId);
         if (drawable == null) {
@@ -497,7 +494,7 @@ public final class AppCompatDrawableManager {
         return false;
     }
 
-    final PorterDuff.Mode getTintMode(final int resId) {
+    static PorterDuff.Mode getTintMode(final int resId) {
         PorterDuff.Mode mode = null;
 
         if (resId == R.drawable.abc_switch_thumb_material) {
@@ -507,11 +504,11 @@ public final class AppCompatDrawableManager {
         return mode;
     }
 
-    public final ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId) {
+    ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId) {
         return getTintList(context, resId, null);
     }
 
-    public final ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId,
+    ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId,
             @Nullable ColorStateList customTint) {
         // We only want to use the cache for the standard tints, not ones created using custom
         // tints
@@ -647,7 +644,7 @@ public final class AppCompatDrawableManager {
         }
     }
 
-    public static void tintDrawable(Drawable drawable, TintInfo tint, int[] state) {
+    static void tintDrawable(Drawable drawable, TintInfo tint, int[] state) {
         if (DrawableUtils.canSafelyMutateDrawable(drawable)
                 && drawable.mutate() != drawable) {
             Log.d(TAG, "Mutated drawable is not the same instance as the input.");
