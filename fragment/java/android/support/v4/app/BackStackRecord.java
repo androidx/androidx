@@ -432,8 +432,9 @@ final class BackStackRecord extends FragmentTransaction implements
         final int modifiers = fragmentClass.getModifiers();
         if (fragmentClass.isAnonymousClass() || !Modifier.isPublic(modifiers)
                 || (fragmentClass.isMemberClass() && !Modifier.isStatic(modifiers))) {
-            throw new IllegalStateException("Fragment must be a public static class to be properly "
-                    + "recreated on configuration change.");
+            throw new IllegalStateException("Fragment " + fragmentClass.getCanonicalName()
+                    + " must be a public static class to be  properly recreated from"
+                    + " instance state.");
         }
 
         fragment.mFragmentManager = mManager;
