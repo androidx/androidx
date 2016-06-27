@@ -23,6 +23,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.StringDef;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -198,6 +200,15 @@ public final class MediaMetadataCompat implements Parcelable {
     public static final String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
 
     /**
+     * A Uri formatted String representing the content. This value is specific to the
+     * service providing the content. It may be used with
+     * {@link MediaControllerCompat.TransportControls#playFromUri(Uri, Bundle)}
+     * to initiate playback when provided by a {@link MediaBrowserCompat} connected to
+     * the same app.
+     */
+    public static final String METADATA_KEY_MEDIA_URI = "android.media.metadata.MEDIA_URI";
+
+    /**
      * The bluetooth folder type of the media specified in the section 6.10.2.2 of the Bluetooth
      * AVRCP 1.5. It should be one of the following:
      * <ul>
@@ -221,7 +232,7 @@ public final class MediaMetadataCompat implements Parcelable {
             METADATA_KEY_DATE, METADATA_KEY_GENRE, METADATA_KEY_ALBUM_ARTIST, METADATA_KEY_ART_URI,
             METADATA_KEY_ALBUM_ART_URI, METADATA_KEY_DISPLAY_TITLE, METADATA_KEY_DISPLAY_SUBTITLE,
             METADATA_KEY_DISPLAY_DESCRIPTION, METADATA_KEY_DISPLAY_ICON_URI,
-            METADATA_KEY_MEDIA_ID})
+            METADATA_KEY_MEDIA_ID, METADATA_KEY_MEDIA_URI})
     @Retention(RetentionPolicy.SOURCE)
     public @interface TextKey {}
 
@@ -283,6 +294,7 @@ public final class MediaMetadataCompat implements Parcelable {
         METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_ICON_URI, METADATA_TYPE_TEXT);
         METADATA_KEYS_TYPE.put(METADATA_KEY_MEDIA_ID, METADATA_TYPE_TEXT);
         METADATA_KEYS_TYPE.put(METADATA_KEY_BT_FOLDER_TYPE, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_MEDIA_URI, METADATA_TYPE_TEXT);
     }
 
     private static final @TextKey String[] PREFERRED_DESCRIPTION_ORDER = {
@@ -465,6 +477,12 @@ public final class MediaMetadataCompat implements Parcelable {
             }
         }
 
+        Uri mediaUri = null;
+        String mediaUriStr = getString(METADATA_KEY_MEDIA_URI);
+        if (!TextUtils.isEmpty(mediaUriStr)) {
+            mediaUri = Uri.parse(mediaUriStr);
+        }
+
         MediaDescriptionCompat.Builder bob = new MediaDescriptionCompat.Builder();
         bob.setMediaId(mediaId);
         bob.setTitle(text[0]);
@@ -472,6 +490,7 @@ public final class MediaMetadataCompat implements Parcelable {
         bob.setDescription(text[2]);
         bob.setIconBitmap(icon);
         bob.setIconUri(iconUri);
+        bob.setMediaUri(mediaUri);
         if (mBundle.containsKey(METADATA_KEY_BT_FOLDER_TYPE)) {
             Bundle bundle = new Bundle();
             bundle.putLong(MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE,

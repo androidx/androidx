@@ -5084,6 +5084,7 @@ package android.support.v4.media {
     field public static final java.lang.String METADATA_KEY_DURATION = "android.media.metadata.DURATION";
     field public static final java.lang.String METADATA_KEY_GENRE = "android.media.metadata.GENRE";
     field public static final java.lang.String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
+    field public static final java.lang.String METADATA_KEY_MEDIA_URI = "android.media.metadata.MEDIA_URI";
     field public static final java.lang.String METADATA_KEY_NUM_TRACKS = "android.media.metadata.NUM_TRACKS";
     field public static final java.lang.String METADATA_KEY_RATING = "android.media.metadata.RATING";
     field public static final java.lang.String METADATA_KEY_TITLE = "android.media.metadata.TITLE";
