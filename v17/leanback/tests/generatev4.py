@@ -27,8 +27,8 @@ cls = ['BrowseTest', 'Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Erro
 for w in files:
     print "copy {}Fragment to {}SupportFragment".format(w, w)
 
-    file = open('src/android/support/v17/leanback/app/{}Fragment.java'.format(w), 'r')
-    outfile = open('src/android/support/v17/leanback/app/{}SupportFragment.java'.format(w), 'w')
+    file = open('java/android/support/v17/leanback/app/{}Fragment.java'.format(w), 'r')
+    outfile = open('java/android/support/v17/leanback/app/{}SupportFragment.java'.format(w), 'w')
 
     outfile.write("/* This file is auto-generated from {}Fragment.java.  DO NOT MODIFY. */\n\n".format(w))
 
@@ -46,8 +46,8 @@ testcls = ['Browse']
 for w in testcls:
     print "copy {}FrgamentTest to {}SupportFragmentTest".format(w, w)
 
-    file = open('src/android/support/v17/leanback/app/{}FragmentTest.java'.format(w), 'r')
-    outfile = open('src/android/support/v17/leanback/app/{}SupportFragmentTest.java'.format(w), 'w')
+    file = open('java/android/support/v17/leanback/app/{}FragmentTest.java'.format(w), 'r')
+    outfile = open('java/android/support/v17/leanback/app/{}SupportFragmentTest.java'.format(w), 'w')
 
     outfile.write("/* This file is auto-generated from {}FrgamentTest.java.  DO NOT MODIFY. */\n\n".format(w))
 
@@ -64,8 +64,8 @@ for w in testcls:
 
 
 print "copy BrowseFragmentTestActivity to BrowseSupportFragmentTestActivity"
-file = open('src/android/support/v17/leanback/app/BrowseFragmentTestActivity.java', 'r')
-outfile = open('src/android/support/v17/leanback/app/BrowseSupportFragmentTestActivity.java', 'w')
+file = open('java/android/support/v17/leanback/app/BrowseFragmentTestActivity.java', 'r')
+outfile = open('java/android/support/v17/leanback/app/BrowseSupportFragmentTestActivity.java', 'w')
 outfile.write("/* This file is auto-generated from BrowseFragmentTestActivity.java.  DO NOT MODIFY. */\n\n")
 for line in file:
     line = line.replace('BrowseTestFragment', 'BrowseTestSupportFragment')

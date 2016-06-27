@@ -16,135 +16,116 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.test.R;
-import android.test.ActivityInstrumentationTestCase2;
-import android.text.Selection;
-import android.text.Spannable;
-import android.util.Log;
-import android.util.SparseArray;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.ListRowPresenter;
-import android.app.Instrumentation;
 import android.content.Intent;
-import android.os.Parcelable;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.espresso.action.ViewActions;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 /**
  * @hide from javadoc
  */
-public class BrowseFragmentTest extends
-        ActivityInstrumentationTestCase2<BrowseFragmentTestActivity> {
+@RunWith(AndroidJUnit4.class)
+public class BrowseFragmentTest {
 
     static final long TRANSITION_LENGTH = 1000;
     static final long HORIZONTAL_SCROLL_WAIT = 2000;
-    static final long TIMEOUT = 10000;
 
-    Instrumentation mInstrumentation;
-    BrowseFragmentTestActivity mActivity;
+    @Rule
+    public ActivityTestRule<BrowseFragmentTestActivity> activityTestRule
+            = new ActivityTestRule<>(BrowseFragmentTestActivity.class, false, false);
+    private BrowseFragmentTestActivity mActivity;
 
-    static class WaitLock {
-        final boolean[] finished = new boolean[1];
-        String message;
-        long timeout;
-        public WaitLock(long timeout, String message) {
-            this.message = message;
-            this.timeout = timeout;
-        }
-        public void waitForFinish() {
-            long totalSleep = 0;
-            try {
-            while (!finished[0]) {
-                if ((totalSleep += 100) >= timeout) {
-                    assertTrue(message, false);
-                }
-                Thread.sleep(100);
-            }
-            } catch (InterruptedException ex) {
-                assertTrue("Interrupted during wait", false);
-            }
-        }
-        public void signalFinish() {
-            finished[0] = true;
-        }
-    }
-
-    public BrowseFragmentTest() {
-        super(BrowseFragmentTestActivity.class);
-    }
-
-    private void initActivity(Intent intent) {
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        try {
-        Thread.sleep(intent.getLongExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY,
-                BrowseTestFragment.DEFAULT_LOAD_DATA_DELAY) + TRANSITION_LENGTH);
-        } catch (InterruptedException ex) {
-        }
-    }
-
+    @Test
     public void testTwoBackKeysWithBackStack() throws Throwable {
-        mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(), BrowseFragmentTestActivity.class);
+        Intent intent = new Intent();
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, (long) 1000);
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
-        initActivity(intent);
+        activityTestRule.launchActivity(intent);
 
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
         Thread.sleep(TRANSITION_LENGTH);
-
         sendKeys(KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_BACK);
     }
 
+    @Test
     public void testTwoBackKeysWithoutBackStack() throws Throwable {
-        mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(), BrowseFragmentTestActivity.class);
+        Intent intent = new Intent();
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, (long) 1000);
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
-        initActivity(intent);
+        activityTestRule.launchActivity(intent);
 
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
         Thread.sleep(TRANSITION_LENGTH);
-
         sendKeys(KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_BACK);
     }
 
+    @Test
     public void testSelectCardOnARow() throws Throwable {
-        mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(), BrowseFragmentTestActivity.class);
-        intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, (long) 1000);
+        final int selectRow = 10;
+        final int selectItem = 20;
+        Intent intent = new Intent();
+        final long dataLoadingDelay = 1000;
+        intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
-        initActivity(intent);
+        mActivity = activityTestRule.launchActivity(intent);
 
-        final WaitLock waitLock = new WaitLock(TIMEOUT, "Timeout while waiting scroll to the row");
-        runTestOnUiThread(new Runnable() {
+        Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
+
+        Presenter.ViewHolderTask itemTask = Mockito.spy(
+                new ItemSelectionTask(mActivity, selectRow));
+
+        final ListRowPresenter.SelectItemViewHolderTask task =
+                new ListRowPresenter.SelectItemViewHolderTask(selectItem);
+        task.setItemTask(itemTask);
+
+        mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mActivity.getBrowseTestFragment().setSelectedPosition(10, true,
-                        new ListRowPresenter.SelectItemViewHolderTask(20) {
-                    @Override
-                    public void run(Presenter.ViewHolder holder) {
-                        super.run(holder);
-                        waitLock.signalFinish();
-                    }
-                });
+                mActivity.getBrowseTestFragment().setSelectedPosition(selectRow, true, task);
             }
         });
-        waitLock.waitForFinish();
 
-        // wait for scrolling to the item.
-        Thread.sleep(HORIZONTAL_SCROLL_WAIT);
+        verify(itemTask, timeout(5000).times(1)).run(any(Presenter.ViewHolder.class));
+
         ListRowPresenter.ViewHolder row = (ListRowPresenter.ViewHolder) mActivity
-                .getBrowseTestFragment().getRowsFragment().getRowViewHolder(mActivity
-                        .getBrowseTestFragment().getSelectedPosition());
-        assertEquals(20, row.getGridView().getSelectedPosition());
+                .getBrowseTestFragment().getRowsFragment().getRowViewHolder(selectRow);
+        assertEquals(selectItem, row.getGridView().getSelectedPosition());
+    }
+
+    private void sendKeys(int ...keys) {
+        for (int i = 0; i < keys.length; i++) {
+            ViewActions.pressKey(keys[i]);
+        }
+    }
+
+    public static class ItemSelectionTask extends Presenter.ViewHolderTask {
+
+        private final BrowseFragmentTestActivity activity;
+        private final int expectedRow;
+
+        ItemSelectionTask(BrowseFragmentTestActivity activity, int expectedRow) {
+            this.activity = activity;
+            this.expectedRow = expectedRow;
+        }
+
+        public void run(Presenter.ViewHolder holder) {
+            assertEquals(expectedRow, activity.getBrowseTestFragment().getSelectedPosition());
+        }
     }
 }
