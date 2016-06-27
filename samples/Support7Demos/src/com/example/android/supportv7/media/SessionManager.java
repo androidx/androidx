@@ -79,7 +79,7 @@ public class SessionManager implements Player.Callback {
         checkPlayer();
         // update the statistics first, so that the stats string is valid when
         // onPlaylistReady() gets called in the end
-        mPlayer.updateTrackInfo();
+        mPlayer.takeSnapshot();
 
         if (mPlaylist.isEmpty()) {
             // If queue is empty, don't forget to call onPlaylistReady()!
@@ -99,21 +99,21 @@ public class SessionManager implements Player.Callback {
         }
     }
 
-    public PlaylistItem add(Uri uri, String mime) {
-        return add(uri, mime, null);
+    public PlaylistItem add(String title, Uri uri, String mime) {
+        return add(title, uri, mime, null);
     }
 
-    public PlaylistItem add(Uri uri, String mime, PendingIntent receiver) {
+    public PlaylistItem add(String title, Uri uri, String mime, PendingIntent receiver) {
         if (DEBUG) {
-            log("add: uri=" + uri + ", receiver=" + receiver);
+            log("add: title=" + title + ", uri=" + uri + ", receiver=" + receiver);
         }
         // create new session if needed
         startSession();
         checkPlayerAndSession();
 
         // append new item with initial status PLAYBACK_STATE_PENDING
-        PlaylistItem item = new PlaylistItem(
-                Integer.toString(mSessionId), Integer.toString(mItemId), uri, mime, receiver);
+        PlaylistItem item = new PlaylistItem(Integer.toString(mSessionId),
+                Integer.toString(mItemId), title, uri, mime, receiver);
         mPlaylist.add(item);
         mItemId++;
 

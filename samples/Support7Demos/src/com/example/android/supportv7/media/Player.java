@@ -34,6 +34,7 @@ import android.util.Log;
  */
 public abstract class Player {
     private static final String TAG = "SampleMediaRoutePlayer";
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     protected static final int STATE_IDLE = 0;
     protected static final int STATE_PREPARING_FOR_PLAY = 1;
     protected static final int STATE_PREPARING_FOR_PAUSE = 2;
@@ -68,9 +69,7 @@ public abstract class Player {
     public abstract void enqueue(final PlaylistItem item);
     public abstract PlaylistItem remove(String iid);
 
-    // track info for current media item
-    public void updateTrackInfo() {}
-    public String getDescription() { return ""; }
+    public void takeSnapshot() {}
     public Bitmap getSnapshot() { return null; }
 
     // presentation display
@@ -104,12 +103,19 @@ public abstract class Player {
         mMediaSession.setPlaybackState(INIT_PLAYBACK_STATE);
     }
 
-    protected void updateMetadata() {
+    protected void updateMetadata(PlaylistItem currentItem) {
         if (mMediaSession == null) {
             return;
         }
+        if (DEBUG) {
+            Log.d(TAG, "Update metadata: currentItem=" + currentItem);
+        }
+        if (currentItem == null) {
+            mMediaSession.setMetadata(null);
+            return;
+        }
         MediaMetadataCompat.Builder bob = new MediaMetadataCompat.Builder();
-        bob.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, getDescription());
+        bob.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, currentItem.getTitle());
         bob.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, "Subtitle of the thing");
         bob.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION,
                 "Description of the thing");
@@ -130,6 +136,10 @@ public abstract class Player {
             case STATE_READY:
             case STATE_PAUSED:
                 bob.setState(PlaybackStateCompat.STATE_PAUSED, -1, 0);
+                break;
+            case STATE_PREPARING_FOR_PLAY:
+            case STATE_PREPARING_FOR_PAUSE:
+                bob.setState(PlaybackStateCompat.STATE_BUFFERING, -1, 0);
                 break;
             case STATE_IDLE:
                 bob.setState(PlaybackStateCompat.STATE_STOPPED, -1, 0);

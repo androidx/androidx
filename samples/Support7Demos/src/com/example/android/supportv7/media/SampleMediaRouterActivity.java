@@ -542,8 +542,25 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         updatePlaylist();
         updateRouteDescription();
         updateButtons();
-        if (mPlayer != null) {
-            mPlayer.updateMetadata();
+        if (mPlayer != null && mSessionManager != null) {
+            PlaylistItem currentItem = mSessionManager.getCurrentItem();
+            if (currentItem != null) {
+                mPlayer.updateMetadata(currentItem);
+                int currentItemState = Player.STATE_IDLE;
+                switch(currentItem.getState()) {
+                    case MediaItemStatus.PLAYBACK_STATE_PLAYING:
+                        currentItemState = Player.STATE_PLAYING;
+                        break;
+                    case MediaItemStatus.PLAYBACK_STATE_PAUSED:
+                        currentItemState = Player.STATE_PAUSED;
+                        break;
+                    case MediaItemStatus.PLAYBACK_STATE_PENDING:
+                    case MediaItemStatus.PLAYBACK_STATE_BUFFERING:
+                        currentItemState = Player.STATE_PREPARING_FOR_PLAY;
+                        break;
+                }
+                mPlayer.publishState(currentItemState);
+            }
         }
     }
 
@@ -559,8 +576,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         RouteInfo route = mMediaRouter.getSelectedRoute();
         mInfoTextView.setText("Currently selected route:"
                 + "\nName: " + route.getName()
-                + "\nProvider: " + route.getProvider().getPackageName()
-                + "\nDescription: " + route.getDescription());
+                + "\nProvider: " + route.getProvider().getPackageName());
     }
 
     private void updateButtons() {
@@ -629,7 +645,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     if (item != null) {
-                        mSessionManager.add(item.mUri, item.mMime);
+                        mSessionManager.add(item.mName, item.mUri, item.mMime);
                     }
                 }
             });

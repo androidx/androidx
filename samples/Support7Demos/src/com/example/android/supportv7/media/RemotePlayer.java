@@ -46,7 +46,6 @@ public class RemotePlayer extends Player {
     private Context mContext;
     private RouteInfo mRoute;
     private boolean mEnqueuePending;
-    private String mTrackInfo = "";
     private Bitmap mSnapshot;
     private List<PlaylistItem> mTempQueue = new ArrayList<PlaylistItem>();
 
@@ -57,23 +56,14 @@ public class RemotePlayer extends Player {
                 String sessionId, MediaSessionStatus sessionStatus,
                 String itemId, MediaItemStatus itemStatus) {
             logStatus("onItemStatusChanged", sessionId, sessionStatus, itemId, itemStatus);
-            switch (itemStatus.getPlaybackState()) {
-                case MediaItemStatus.PLAYBACK_STATE_PLAYING:
-                    publishState(STATE_PLAYING);
-                    break;
-                case MediaItemStatus.PLAYBACK_STATE_PAUSED:
-                    publishState(STATE_PAUSED);
-                    break;
-                case MediaItemStatus.PLAYBACK_STATE_FINISHED:
-                    if (mCallback != null) {
-                        mCallback.onCompletion();
-                    }
-                    break;
-                case MediaItemStatus.PLAYBACK_STATE_ERROR:
-                    if (mCallback != null) {
-                        mCallback.onError();
-                    }
-                    break;
+            if (mCallback != null) {
+                mCallback.onPlaylistChanged();
+                int state = itemStatus.getPlaybackState();
+                if (state == MediaItemStatus.PLAYBACK_STATE_FINISHED) {
+                    mCallback.onCompletion();
+                } else if (state == MediaItemStatus.PLAYBACK_STATE_ERROR) {
+                    mCallback.onError();
+                }
             }
         }
 
@@ -332,12 +322,10 @@ public class RemotePlayer extends Player {
     }
 
     @Override
-    public void updateTrackInfo() {
-        // clear stats info first
-        mTrackInfo = "";
+    public void takeSnapshot() {
         mSnapshot = null;
 
-        Intent intent = new Intent(SampleMediaRouteProvider.ACTION_GET_TRACK_INFO);
+        Intent intent = new Intent(SampleMediaRouteProvider.ACTION_TAKE_SNAPSHOT);
         intent.addCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE);
 
         if (mRoute != null && mRoute.supportsControlRequest(intent)) {
@@ -345,28 +333,21 @@ public class RemotePlayer extends Player {
                 @Override
                 public void onResult(Bundle data) {
                     if (DEBUG) {
-                        Log.d(TAG, "getStatistics: succeeded: data=" + data);
+                        Log.d(TAG, "takeSnapshot: succeeded: data=" + data);
                     }
                     if (data != null) {
-                        mTrackInfo = data.getString(SampleMediaRouteProvider.TRACK_INFO_DESC);
-                        mSnapshot = data.getParcelable(
-                                SampleMediaRouteProvider.TRACK_INFO_SNAPSHOT);
+                        mSnapshot = data.getParcelable(SampleMediaRouteProvider.EXTRA_SNAPSHOT);
                     }
                 }
 
                 @Override
                 public void onError(String error, Bundle data) {
-                    Log.d(TAG, "getStatistics: failed: error=" + error + ", data=" + data);
+                    Log.d(TAG, "takeSnapshot: failed: error=" + error + ", data=" + data);
                 }
             };
 
             mRoute.sendControlRequest(intent, callback);
         }
-    }
-
-    @Override
-    public String getDescription() {
-        return mTrackInfo;
     }
 
     @Override
