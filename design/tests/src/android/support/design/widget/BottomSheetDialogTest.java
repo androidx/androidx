@@ -21,8 +21,6 @@ import org.junit.Test;
 
 import android.content.Context;
 import android.support.design.test.R;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.UiController;
@@ -54,20 +52,14 @@ public class BottomSheetDialogTest extends
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                Context context = mActivityTestRule.getActivity();
-                mDialog = new BottomSheetDialog(context);
-                AppCompatTextView text = new AppCompatTextView(context);
-                StringBuilder builder = new StringBuilder();
-                builder.append("It is fine today. ");
-                text.setText(builder);
-                mDialog.setContentView(text);
-                mDialog.show();
+                showDialog();
                 // Confirms that the dialog is shown
                 assertThat(mDialog.isShowing(), is(true));
                 FrameLayout bottomSheet = (FrameLayout) mDialog
                         .findViewById(R.id.design_bottom_sheet);
                 assertThat(bottomSheet, is(notNullValue()));
                 BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+                assertThat(behavior.isHideable(), is(true));
                 assertThat(behavior, is(notNullValue()));
                 // Modal bottom sheets have auto peek height by default.
                 assertThat(behavior.getPeekHeight(), is(BottomSheetBehavior.PEEK_HEIGHT_AUTO));
@@ -91,14 +83,7 @@ public class BottomSheetDialogTest extends
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                Context context = mActivityTestRule.getActivity();
-                mDialog = new BottomSheetDialog(context);
-                AppCompatTextView text = new AppCompatTextView(context);
-                StringBuilder builder = new StringBuilder();
-                builder.append("It is fine today. ");
-                text.setText(builder);
-                mDialog.setContentView(text);
-                mDialog.show();
+                showDialog();
             }
         });
         // This ensures that the views are laid out before assertions below
@@ -122,6 +107,43 @@ public class BottomSheetDialogTest extends
                         is(coordinator.getHeight() - bottomSheet.getHeight()));
             }
         });
+    }
+
+    @Test
+    public void testNonCancelableDialog() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                showDialog();
+                mDialog.setCancelable(false);
+            }
+        });
+        // Click outside the bottom sheet
+        Espresso.onView(ViewMatchers.withId(R.id.touch_outside))
+                .perform(ViewActions.click());
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                FrameLayout bottomSheet = (FrameLayout) mDialog
+                        .findViewById(R.id.design_bottom_sheet);
+                BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+                assertThat(behavior.isHideable(), is(false));
+                assertThat(mDialog.isShowing(), is(true));
+                mDialog.cancel();
+                assertThat(mDialog.isShowing(), is(false));
+            }
+        });
+    }
+
+    private void showDialog() {
+        Context context = mActivityTestRule.getActivity();
+        mDialog = new BottomSheetDialog(context);
+        AppCompatTextView text = new AppCompatTextView(context);
+        StringBuilder builder = new StringBuilder();
+        builder.append("It is fine today. ");
+        text.setText(builder);
+        mDialog.setContentView(text);
+        mDialog.show();
     }
 
     private static ViewAction setTallPeekHeight() {
