@@ -624,6 +624,38 @@ public class BottomSheetBehaviorTest extends
         });
     }
 
+    @Test
+    public void testDynamicContent() {
+        registerIdlingResourceCallback();
+        try {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    ViewGroup.LayoutParams params = getBottomSheet().getLayoutParams();
+                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    getBottomSheet().setLayoutParams(params);
+                    View view = new View(getBottomSheet().getContext());
+                    int size = getBehavior().getPeekHeight() * 2;
+                    getBottomSheet().addView(view, new ViewGroup.LayoutParams(size, size));
+                    assertThat(getBottomSheet().getChildCount(), is(1));
+                    // Shrink the content height.
+                    ViewGroup.LayoutParams lp = view.getLayoutParams();
+                    lp.height = (int) (size * 0.8);
+                    view.setLayoutParams(lp);
+                    // Immediately expand the bottom sheet.
+                    getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+            });
+            Espresso.onView(ViewMatchers.withId(R.id.bottom_sheet))
+                    .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
+            assertThat(getBehavior().getState(), is(BottomSheetBehavior.STATE_EXPANDED));
+            // Make sure that the bottom sheet is not floating above the bottom.
+            assertThat(getBottomSheet().getBottom(), is(getCoordinatorLayout().getBottom()));
+        } finally {
+            unregisterIdlingResourceCallback();
+        }
+    }
+
     private void checkSetState(final int state, Matcher<View> matcher) {
         registerIdlingResourceCallback();
         try {

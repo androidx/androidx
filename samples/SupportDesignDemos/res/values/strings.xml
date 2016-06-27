@@ -30,6 +30,7 @@
     <string name="design_bottomsheet_with_fab">BottomSheet/With FAB</string>
     <string name="design_bottomsheet_scroll">BottomSheet/With ScrollView in background</string>
     <string name="design_bottomsheet_with_fragment">BottomSheet/With Fragment</string>
+    <string name="design_bottomsheet_dynamic_content">BottomSheet/Dynamic content</string>
     <string name="design_bottomsheet_modal">BottomSheet/Modal</string>
     <string name="design_bottomsheet_modal_skip_collapsed">BottomSheet/Modal (Skip collapsed)</string>
 
@@ -110,6 +111,10 @@
     <string name="bottomsheet_show">Show</string>
     <string name="bottomsheet_show_short">Show short</string>
     <string name="bottomsheet_show_long">Show long</string>
+    <string name="bottomsheet_add">Add</string>
+    <string name="bottomsheet_remove">Remove</string>
+    <string name="bottomsheet_expand">Expand</string>
+    <string name="bottomsheet_collapse">Collapse</string>
     <string name="item_n">Item %d</string>
 
     <string name="design_bottom_navigation_view">Bottom navigation view</string>
