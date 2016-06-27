@@ -75,18 +75,20 @@ public class TintContextWrapper extends ContextWrapper {
         return true;
     }
 
-    private Resources mResources;
+    private final Resources mResources;
     private final Resources.Theme mTheme;
 
     private TintContextWrapper(@NonNull final Context base) {
         super(base);
 
         if (VectorEnabledTintResources.shouldBeUsed()) {
-            // We need to create a copy of the Theme so that the Theme references our Resources
-            // instance
-            mTheme = getResources().newTheme();
+            // We need to create a copy of the Theme so that the Theme references our
+            // new Resources instance
+            mResources = new VectorEnabledTintResources(this, base.getResources());
+            mTheme = mResources.newTheme();
             mTheme.setTo(base.getTheme());
         } else {
+            mResources = new TintResources(this, base.getResources());
             mTheme = null;
         }
     }
@@ -107,11 +109,6 @@ public class TintContextWrapper extends ContextWrapper {
 
     @Override
     public Resources getResources() {
-        if (mResources == null) {
-            mResources = (mTheme == null)
-                    ? new TintResources(this, super.getResources())
-                    : new VectorEnabledTintResources(this, super.getResources());
-        }
         return mResources;
     }
 }

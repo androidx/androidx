@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<RadioButton xmlns:android="http://schemas.android.com/apk/res/android"
-         android:layout_width="match_parent"
-         android:layout_height="match_parent"
-         android:button="@drawable/test_vector_state"/>
+<level-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:maxLevel="0" android:drawable="@drawable/test_vector_off" />
+    <item android:maxLevel="1" android:drawable="@drawable/test_vector_on" />
+</level-list>
