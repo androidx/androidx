@@ -25,6 +25,10 @@ import android.graphics.drawable.StateListDrawable;
 import android.support.design.R;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.view.AccessibilityDelegateCompat;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.accessibility.AccessibilityEventCompat;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.view.menu.MenuItemImpl;
 import android.support.v7.view.menu.MenuView;
@@ -47,6 +51,8 @@ public class NavigationMenuItemView extends ForegroundLinearLayout implements Me
 
     private boolean mNeedsEmptyIcon;
 
+    private boolean mCheckable;
+
     private final CheckedTextView mTextView;
 
     private FrameLayout mActionArea;
@@ -56,6 +62,18 @@ public class NavigationMenuItemView extends ForegroundLinearLayout implements Me
     private ColorStateList mIconTintList;
 
     private Drawable mEmptyDrawable;
+
+    private final AccessibilityDelegateCompat mAccessibilityDelegate
+            = new AccessibilityDelegateCompat() {
+
+        @Override
+        public void onInitializeAccessibilityNodeInfo(View host,
+                AccessibilityNodeInfoCompat info) {
+            super.onInitializeAccessibilityNodeInfo(host, info);
+            info.setCheckable(mCheckable);
+        }
+
+    };
 
     public NavigationMenuItemView(Context context) {
         this(context, null);
@@ -73,6 +91,7 @@ public class NavigationMenuItemView extends ForegroundLinearLayout implements Me
                 R.dimen.design_navigation_icon_size);
         mTextView = (CheckedTextView) findViewById(R.id.design_menu_item_text);
         mTextView.setDuplicateParentStateEnabled(true);
+        ViewCompat.setAccessibilityDelegate(mTextView, mAccessibilityDelegate);
     }
 
     @Override
@@ -162,6 +181,11 @@ public class NavigationMenuItemView extends ForegroundLinearLayout implements Me
     @Override
     public void setCheckable(boolean checkable) {
         refreshDrawableState();
+        if (mCheckable != checkable) {
+            mCheckable = checkable;
+            mAccessibilityDelegate.sendAccessibilityEvent(mTextView,
+                    AccessibilityEventCompat.TYPE_WINDOW_CONTENT_CHANGED);
+        }
     }
 
     @Override
