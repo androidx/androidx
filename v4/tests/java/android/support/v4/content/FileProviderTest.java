@@ -26,9 +26,9 @@ import android.os.Environment;
 import android.support.v4.content.FileProvider.SimplePathStrategy;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
-import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -39,7 +39,6 @@ import java.io.OutputStream;
 /**
  * Tests for {@link FileProvider}
  */
-@Suppress
 public class FileProviderTest extends AndroidTestCase {
     private static final String TEST_AUTHORITY = "moocow";
 
@@ -110,11 +109,12 @@ public class FileProviderTest extends AndroidTestCase {
         final SimplePathStrategy strat = new SimplePathStrategy("authority");
         strat.addRoot("tag", mContext.getFilesDir());
 
-        File file = buildPath(mContext.getFilesDir(), "file.test");
+        File expectedRoot = mContext.getFilesDir().getCanonicalFile();
+        File file = buildPath(expectedRoot, "file.test");
         assertEquals(file.getPath(),
                 strat.getFileForUri(Uri.parse("content://authority/tag/file.test")).getPath());
 
-        file = buildPath(mContext.getFilesDir(), "subdir", "file.test");
+        file = buildPath(expectedRoot, "subdir", "file.test");
         assertEquals(file.getPath(), strat.getFileForUri(
                 Uri.parse("content://authority/tag/subdir/file.test")).getPath());
     }
@@ -134,7 +134,8 @@ public class FileProviderTest extends AndroidTestCase {
         final SimplePathStrategy strat = new SimplePathStrategy("authority");
         strat.addRoot("t/g", mContext.getFilesDir());
 
-        File file = buildPath(mContext.getFilesDir(), "lol\"wat?foo&bar", "wat.txt");
+        File expectedRoot = mContext.getFilesDir().getCanonicalFile();
+        File file = buildPath(expectedRoot, "lol\"wat?foo&bar", "wat.txt");
         final String expected = "content://authority/t%2Fg/lol%22wat%3Ffoo%26bar/wat.txt";
 
         assertEquals(expected,
@@ -147,7 +148,8 @@ public class FileProviderTest extends AndroidTestCase {
         final SimplePathStrategy strat = new SimplePathStrategy("authority");
         strat.addRoot("tag", mContext.getFilesDir());
 
-        File file = buildPath(mContext.getFilesDir(), "file.txt");
+        File expectedRoot = mContext.getFilesDir().getCanonicalFile();
+        File file = buildPath(expectedRoot, "file.txt");
         assertEquals(file.getPath(), strat.getFileForUri(
                 Uri.parse("content://authority/tag/file.txt?extra=foo")).getPath());
     }
@@ -158,7 +160,8 @@ public class FileProviderTest extends AndroidTestCase {
 
         // When canonicalized, the path separators are trimmed
         File inFile = new File(mContext.getFilesDir(), "//foo//bar//");
-        File outFile = new File(mContext.getFilesDir(), "/foo/bar");
+        File expectedRoot = mContext.getFilesDir().getCanonicalFile();
+        File outFile = new File(expectedRoot, "/foo/bar");
         final String expected = "content://authority/tag/foo/bar";
 
         assertEquals(expected,
@@ -313,6 +316,16 @@ public class FileProviderTest extends AndroidTestCase {
         actual = FileProvider.getUriForFile(mContext, TEST_AUTHORITY,
                 buildPath(Environment.getExternalStorageDirectory(), "Android", "obb", "foobar"));
         assertEquals("content://moocow/test_external/Android/obb/foobar", actual.toString());
+
+        File[] externalFilesDirs = ContextCompat.getExternalFilesDirs(mContext, null);
+        actual = FileProvider.getUriForFile(mContext, TEST_AUTHORITY,
+            buildPath(externalFilesDirs[0], "foo", "bar"));
+        assertEquals("content://moocow/test_external_files/foo/bar", actual.toString());
+
+        File[] externalCacheDirs = ContextCompat.getExternalCacheDirs(mContext);
+        actual = FileProvider.getUriForFile(mContext, TEST_AUTHORITY,
+            buildPath(externalCacheDirs[0], "foo", "bar"));
+        assertEquals("content://moocow/test_external_cache/foo/bar", actual.toString());
     }
 
     private void assertContentsEquals(byte[] expected, Uri actual) throws Exception {
