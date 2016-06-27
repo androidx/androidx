@@ -19,14 +19,11 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
 class AppCompatTextHelperV17 extends AppCompatTextHelper {
-
-    private static final int[] VIEW_ATTRS_v17 = {
-            android.R.attr.drawableStart, android.R.attr.drawableEnd };
-
     private TintInfo mDrawableStartTint;
     private TintInfo mDrawableEndTint;
 
@@ -40,12 +37,15 @@ class AppCompatTextHelperV17 extends AppCompatTextHelper {
         final Context context = mView.getContext();
         final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
 
-        TypedArray a = context.obtainStyledAttributes(attrs, VIEW_ATTRS_v17, defStyleAttr, 0);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AppCompatTextHelper,
+                defStyleAttr, 0);
         if (a.hasValue(0)) {
-            mDrawableStartTint = createTintInfo(context, drawableManager, a.getResourceId(0, 0));
+            mDrawableStartTint = createTintInfo(context, drawableManager,
+                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableStart, 0));
         }
         if (a.hasValue(1)) {
-            mDrawableEndTint = createTintInfo(context, drawableManager, a.getResourceId(1, 0));
+            mDrawableEndTint = createTintInfo(context, drawableManager,
+                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableEnd, 0));
         }
         a.recycle();
     }

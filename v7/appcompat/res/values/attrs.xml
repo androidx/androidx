@@ -1089,4 +1089,14 @@
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="AppCompatTextHelper">
+        <attr name="android:drawableLeft" />
+        <attr name="android:drawableTop" />
+        <attr name="android:drawableRight" />
+        <attr name="android:drawableBottom" />
+        <attr name="android:drawableStart" />
+        <attr name="android:drawableEnd" />
+        <attr name="android:textAppearance" />
+    </declare-styleable>
+
 </resources>
