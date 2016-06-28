@@ -16,15 +16,20 @@
 
 package android.support.transition;
 
-class ChangeBoundsIcs extends TransitionIcs implements ChangeBoundsInterface {
+import android.animation.Animator;
+import android.view.ViewGroup;
 
-    public ChangeBoundsIcs(TransitionInterface transition) {
-        init(transition, new ChangeBoundsPort());
-    }
+/**
+ * Interface for platform specific Visibility implementations on top of {@link TransitionImpl}.
+ */
+interface VisibilityImpl {
 
-    @Override
-    public void setResizeClip(boolean resizeClip) {
-        ((ChangeBoundsPort) mTransition).setResizeClip(resizeClip);
-    }
+    boolean isVisible(TransitionValues values);
+
+    Animator onAppear(ViewGroup sceneRoot, TransitionValues startValues, int startVisibility,
+            TransitionValues endValues, int endVisibility);
+
+    Animator onDisappear(ViewGroup sceneRoot, TransitionValues startValues, int startVisibility,
+            TransitionValues endValues, int endVisibility);
 
 }

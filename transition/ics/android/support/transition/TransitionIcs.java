@@ -27,7 +27,9 @@ import java.util.List;
 class TransitionIcs extends TransitionImpl {
 
     /* package */ TransitionPort mTransition;
-    private TransitionInterface mExternalTransition;
+
+    /* package */ TransitionInterface mExternalTransition;
+
     private CompatListener mCompatListener;
 
     @Override

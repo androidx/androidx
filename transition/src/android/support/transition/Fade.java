@@ -50,7 +50,7 @@ import android.view.ViewGroup;
  *
  * <p>Unlike the platform version, this does not support use in XML resources.</p>
  */
-public class Fade extends Transition {
+public class Fade extends Visibility {
 
     /**
      * Fading mode used in {@link #Fade(int)} to make the transition
