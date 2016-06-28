@@ -17,6 +17,6 @@ package android.support.v4.widget;
 
 public class GingerbreadScrollerCompatTest extends ScrollerCompatTestBase {
     public GingerbreadScrollerCompatTest() {
-        super(9);
+        super(false);
     }
 }

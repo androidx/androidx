@@ -32,20 +32,22 @@ import android.widget.Scroller;
  */
 public final class ScrollerCompat {
     OverScroller mScroller;
+    private final boolean mIsIcsOrNewer;
 
     public static ScrollerCompat create(Context context) {
         return create(context, null);
     }
 
     public static ScrollerCompat create(Context context, Interpolator interpolator) {
-        return new ScrollerCompat(context, interpolator);
+        return new ScrollerCompat(Build.VERSION.SDK_INT >= 14, context, interpolator);
     }
 
     /**
-     * Private constructer where API version can be provided.
-     * Useful for unit testing.
+     * Package protected constructor that allows to specify if API version is newer than ICS.
+     * It is useful for unit testing.
      */
-    private ScrollerCompat(Context context, Interpolator interpolator) {
+    ScrollerCompat(boolean isIcsOrNewer, Context context, Interpolator interpolator) {
+        mIsIcsOrNewer = isIcsOrNewer;
         mScroller = interpolator != null ?
                 new OverScroller(context, interpolator) : new OverScroller(context);
     }
@@ -102,7 +104,7 @@ public final class ScrollerCompat {
      * negative.
      */
     public float getCurrVelocity() {
-        return Build.VERSION.SDK_INT < 14 ? 0 : ScrollerCompatIcs.getCurrVelocity(mScroller);
+        return mIsIcsOrNewer ? ScrollerCompatIcs.getCurrVelocity(mScroller) : 0;
     }
 
     /**

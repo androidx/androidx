@@ -15,25 +15,20 @@
  */
 package android.support.v4.widget;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
-import android.view.animation.AnimationUtils;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
+import android.view.animation.Interpolator;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.lang.reflect.InvocationTargetException;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -43,22 +38,19 @@ public abstract class ScrollerCompatTestBase {
 
     private final String TAG;
 
-    private final int mApiLevel;
+    private final boolean mIsIcsOrNewer;
 
     private ScrollerCompat mScroller;
 
-    public ScrollerCompatTestBase(int apiLevel) {
-        mApiLevel = apiLevel;
-        TAG = "ScrollerCompatTest api:" + apiLevel;
+    public ScrollerCompatTestBase(boolean isIcsOrNewer) {
+        mIsIcsOrNewer = isIcsOrNewer;
+        TAG = "ScrollerCompatTest ICS or newer:" + isIcsOrNewer;
     }
 
     protected void createScroller(Interpolator interpolator)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
             InstantiationException {
-        Constructor<ScrollerCompat> constructor = ScrollerCompat.class
-                .getDeclaredConstructor(int.class, Context.class, Interpolator.class);
-        constructor.setAccessible(true);
-        mScroller = constructor.newInstance(mApiLevel, InstrumentationRegistry.getContext(),
+        mScroller = new ScrollerCompat(mIsIcsOrNewer, InstrumentationRegistry.getContext(),
                 interpolator);
     }
 
