@@ -42,6 +42,10 @@
             android:name="android.support.design.widget.SnackbarActivityWithTranslucentNavBar"/>
 
         <activity
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:name="android.support.design.widget.SnackbarActivityWithFAB"/>
+
+        <activity
                 android:theme="@style/Theme.TranslucentStatus"
                 android:name="android.support.design.widget.DynamicCoordinatorLayoutActivity"/>
 
