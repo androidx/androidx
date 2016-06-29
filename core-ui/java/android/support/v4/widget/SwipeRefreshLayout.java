@@ -1047,10 +1047,12 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                     return false;
                 }
 
-                final float y = ev.getY(pointerIndex);
-                final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
-                mIsBeingDragged = false;
-                finishSpinner(overscrollTop);
+                if (mIsBeingDragged) {
+                    final float y = ev.getY(pointerIndex);
+                    final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
+                    mIsBeingDragged = false;
+                    finishSpinner(overscrollTop);
+                }
                 mActivePointerId = INVALID_POINTER;
                 return false;
             }
