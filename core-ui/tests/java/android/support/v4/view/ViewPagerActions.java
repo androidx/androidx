@@ -138,6 +138,32 @@ public class ViewPagerActions {
     }
 
     /**
+     * Scrolls <code>ViewPager</code> using arrowScroll method in a specified direction.
+     */
+    public static ViewAction arrowScroll(final int direction) {
+        return wrap(new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayingAtLeast(90);
+            }
+
+            @Override
+            public String getDescription() {
+                return "ViewPager arrow scroll in direction: " + direction;
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                ViewPager viewPager = (ViewPager) view;
+                viewPager.arrowScroll(direction);
+                uiController.loopMainThreadUntilIdle();
+            }
+        });
+    }
+
+    /**
      * Moves <code>ViewPager</code> to the right by one page.
      */
     public static ViewAction scrollRight(final boolean smoothScroll) {
