@@ -2455,7 +2455,8 @@ public final class MediaRouter {
                     for (RouteInfo route : routes) {
                         if (!mRouteControllerMap.containsKey(route.mDescriptorId)) {
                             RouteController controller = route.getProviderInstance()
-                                    .onCreateRouteController(route.mDescriptorId);
+                                    .onCreateRouteController(
+                                            route.mDescriptorId, mSelectedRoute.mDescriptorId);
                             controller.onSelect();
                             mRouteControllerMap.put(route.mDescriptorId, controller);
                         }
