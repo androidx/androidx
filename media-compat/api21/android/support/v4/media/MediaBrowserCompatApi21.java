@@ -20,7 +20,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -114,7 +113,7 @@ class MediaBrowserCompatApi21 {
     }
 
     interface SubscriptionCallback {
-        void onChildrenLoaded(@NonNull String parentId, List<Parcel> children);
+        void onChildrenLoaded(@NonNull String parentId, List<?> children);
         void onError(@NonNull String parentId);
     }
 
@@ -129,26 +128,23 @@ class MediaBrowserCompatApi21 {
         @Override
         public void onChildrenLoaded(@NonNull String parentId,
                 List<MediaBrowser.MediaItem> children) {
-            mSubscriptionCallback.onChildrenLoaded(parentId, itemListToParcelList(children));
+            mSubscriptionCallback.onChildrenLoaded(parentId, children);
         }
 
         @Override
         public void onError(@NonNull String parentId) {
             mSubscriptionCallback.onError(parentId);
         }
+    }
 
-        static List<Parcel> itemListToParcelList(List<MediaBrowser.MediaItem> itemList) {
-            if (itemList == null || (itemList.size() == 1
-                    && itemList.get(0).getMediaId().equals(NULL_MEDIA_ITEM_ID))) {
-                return null;
-            }
-            List<Parcel> parcelList = new ArrayList<>();
-            for (MediaBrowser.MediaItem item : itemList) {
-                Parcel parcel = Parcel.obtain();
-                item.writeToParcel(parcel, 0);
-                parcelList.add(parcel);
-            }
-            return parcelList;
+    static class MediaItem {
+
+        public static int getFlags(Object itemObj) {
+            return ((MediaBrowser.MediaItem) itemObj).getFlags();
+        }
+
+        public static Object getDescription(Object itemObj) {
+            return ((MediaBrowser.MediaItem) itemObj).getDescription();
         }
     }
 }

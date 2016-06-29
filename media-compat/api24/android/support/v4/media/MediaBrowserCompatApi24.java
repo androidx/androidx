@@ -18,7 +18,6 @@ package android.support.v4.media;
 
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.support.annotation.NonNull;
 
 import java.util.List;
@@ -41,8 +40,7 @@ class MediaBrowserCompatApi24 {
     }
 
     interface SubscriptionCallback extends MediaBrowserCompatApi21.SubscriptionCallback {
-        void onChildrenLoaded(@NonNull String parentId, List<Parcel> children,
-                @NonNull Bundle options);
+        void onChildrenLoaded(@NonNull String parentId, List<?> children, @NonNull Bundle options);
         void onError(@NonNull String parentId, @NonNull  Bundle options);
     }
 
@@ -55,8 +53,7 @@ class MediaBrowserCompatApi24 {
         @Override
         public void onChildrenLoaded(@NonNull String parentId,
                 List<MediaBrowser.MediaItem> children, @NonNull Bundle options) {
-            mSubscriptionCallback.onChildrenLoaded(
-                    parentId, itemListToParcelList(children), options);
+            mSubscriptionCallback.onChildrenLoaded(parentId, children, options);
         }
 
         @Override

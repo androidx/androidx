@@ -327,6 +327,50 @@ public final class MediaBrowserCompat {
         public static final int FLAG_PLAYABLE = 1 << 1;
 
         /**
+         * Creates an instance from a framework {@link android.media.browse.MediaBrowser.MediaItem}
+         * object.
+         * <p>
+         * This method is only supported on API 21+.
+         * </p>
+         *
+         * @param itemObj A {@link android.media.browse.MediaBrowser.MediaItem} object,
+         *            or null if none.
+         * @return An equivalent {@link MediaItem} object, or null if none.
+         */
+        public static MediaItem fromMediaItem(Object itemObj) {
+            if (itemObj == null || Build.VERSION.SDK_INT < 21) {
+                return null;
+            }
+            int flags = MediaBrowserCompatApi21.MediaItem.getFlags(itemObj);
+            MediaDescriptionCompat description =
+                    MediaDescriptionCompat.fromMediaDescription(
+                            MediaBrowserCompatApi21.MediaItem.getDescription(itemObj));
+            return new MediaItem(description, flags);
+        }
+
+        /**
+         * Creates a list of {@link MediaItem} objects from a framework
+         * {@link android.media.browse.MediaBrowser.MediaItem} object list.
+         * <p>
+         * This method is only supported on API 21+.
+         * </p>
+         *
+         * @param itemList A list of {@link android.media.browse.MediaBrowser.MediaItem} objects,
+         *            or null if none.
+         * @return An equivalent list of {@link MediaItem} objects, or null if none.
+         */
+        public static List<MediaItem> fromMediaItemList(List<?> itemList) {
+            if (itemList == null || Build.VERSION.SDK_INT < 21) {
+                return null;
+            }
+            List<MediaItem> items = new ArrayList<>(itemList.size());
+            for (Object itemObj : itemList) {
+                items.add(fromMediaItem(itemObj));
+            }
+            return items;
+        }
+
+        /**
          * Create a new MediaItem for use in browsing media.
          * @param description The description of the media, which must include a
          *            media id.
@@ -572,13 +616,14 @@ public final class MediaBrowserCompat {
 
         private class StubApi21 implements MediaBrowserCompatApi21.SubscriptionCallback {
             @Override
-            public void onChildrenLoaded(@NonNull String parentId, List<Parcel> children) {
+            public void onChildrenLoaded(@NonNull String parentId, List<?> children) {
                 Subscription sub = mSubscriptionRef == null ? null : mSubscriptionRef.get();
                 if (sub == null) {
                     SubscriptionCallback.this.onChildrenLoaded(
-                            parentId, parcelListToItemList(children));
+                            parentId, MediaItem.fromMediaItemList(children));
                 } else {
-                    List<MediaBrowserCompat.MediaItem> itemList = parcelListToItemList(children);
+                    List<MediaBrowserCompat.MediaItem> itemList =
+                            MediaItem.fromMediaItemList(children);
                     final List<SubscriptionCallback> callbacks = sub.getCallbacks();
                     final List<Bundle> optionsList = sub.getOptionsList();
                     for (int i = 0; i < callbacks.size(); ++i) {
@@ -596,19 +641,6 @@ public final class MediaBrowserCompat {
             @Override
             public void onError(@NonNull String parentId) {
                 SubscriptionCallback.this.onError(parentId);
-            }
-
-            List<MediaBrowserCompat.MediaItem> parcelListToItemList(List<Parcel> parcelList) {
-                if (parcelList == null) {
-                    return null;
-                }
-                List<MediaBrowserCompat.MediaItem> items = new ArrayList<>();
-                for (Parcel parcel : parcelList) {
-                    parcel.setDataPosition(0);
-                    items.add(MediaBrowserCompat.MediaItem.CREATOR.createFromParcel(parcel));
-                    parcel.recycle();
-                }
-                return items;
             }
 
             List<MediaBrowserCompat.MediaItem> applyOptions(List<MediaBrowserCompat.MediaItem> list,
@@ -637,10 +669,10 @@ public final class MediaBrowserCompat {
         private class StubApi24 extends StubApi21
                 implements MediaBrowserCompatApi24.SubscriptionCallback {
             @Override
-            public void onChildrenLoaded(@NonNull String parentId, List<Parcel> children,
+            public void onChildrenLoaded(@NonNull String parentId, List<?> children,
                     @NonNull Bundle options) {
                 SubscriptionCallback.this.onChildrenLoaded(
-                        parentId, parcelListToItemList(children), options);
+                        parentId, MediaItem.fromMediaItemList(children), options);
             }
 
             @Override
