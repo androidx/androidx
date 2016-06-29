@@ -36,4 +36,6 @@
     <string name="status_bar_notification_info_overflow" msgid="2869576371154716097">"999+"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"ഓൺ"</string>
     <string name="abc_capital_off" msgid="121134116657445385">"ഓഫ്"</string>
+    <!-- no translation found for search_menu_title (146198913615257606) -->
+    <skip />
 </resources>
