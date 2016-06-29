@@ -62,29 +62,20 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
             "com.example.android.supportv7.media.CATEGORY_SAMPLE_ROUTE";
 
     /**
-     * A custom media control intent action for special requests that are
-     * supported by this provider's routes.
+     * A custom media control intent action to take a snapshot.
      * </p>
      *
-     * @see #TRACK_INFO_DESC
-     * @see #TRACK_INFO_SNAPSHOT
+     * @see #EXTRA_SNAPSHOT
      */
-    public static final String ACTION_GET_TRACK_INFO =
-            "com.example.android.supportv7.media.ACTION_GET_TRACK_INFO";
+    public static final String ACTION_TAKE_SNAPSHOT =
+            "com.example.android.supportv7.media.action.TAKE_SNAPSHOT";
 
     /**
-     * {@link #ACTION_GET_TRACK_INFO} result data: a string of information about
-     * the currently playing media item
-     */
-    public static final String TRACK_INFO_DESC =
-            "com.example.android.supportv7.media.EXTRA_TRACK_INFO_DESC";
-
-    /**
-     * {@link #ACTION_GET_TRACK_INFO} result data: a bitmap containing a snapshot
+     * {@link #ACTION_TAKE_SNAPSHOT} result data: a bitmap containing a snapshot
      * of the currently playing media item
      */
-    public static final String TRACK_INFO_SNAPSHOT =
-            "com.example.android.supportv7.media.EXTRA_TRACK_INFO_SNAPSHOT";
+    public static final String EXTRA_SNAPSHOT =
+            "com.example.android.supportv7.media.extra.SNAPSHOT";
 
     private static final ArrayList<IntentFilter> CONTROL_FILTERS_BASIC;
     private static final ArrayList<IntentFilter> CONTROL_FILTERS_QUEUING;
@@ -93,7 +84,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
     static {
         IntentFilter f1 = new IntentFilter();
         f1.addCategory(CATEGORY_SAMPLE_ROUTE);
-        f1.addAction(ACTION_GET_TRACK_INFO);
+        f1.addAction(ACTION_TAKE_SNAPSHOT);
 
         IntentFilter f2 = new IntentFilter();
         f2.addCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK);
@@ -326,16 +317,14 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 return success;
             }
 
-            if (action.equals(ACTION_GET_TRACK_INFO)
+            if (callback != null && action.equals(ACTION_TAKE_SNAPSHOT)
                     && intent.hasCategory(CATEGORY_SAMPLE_ROUTE)) {
-                Bundle data = new Bundle();
-                PlaylistItem item = mSessionManager.getCurrentItem();
-                if (item != null) {
-                    data.putString(TRACK_INFO_DESC, item.toString());
-                    data.putParcelable(TRACK_INFO_SNAPSHOT, mPlayer.getSnapshot());
-                }
-                if (callback != null) {
+                if (mSessionManager.getCurrentItem() != null) {
+                    Bundle data = new Bundle();
+                    data.putParcelable(EXTRA_SNAPSHOT, mPlayer.getSnapshot());
                     callback.onResult(data);
+                } else {
+                    callback.onError("Failed to take a snapshot", null);
                 }
                 return true;
             }
@@ -394,7 +383,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                     + ", metadata=" + metadata
                     + ", headers=" + headers
                     + ", receiver=" + receiver);
-            PlaylistItem item = mSessionManager.add(uri, mime, receiver);
+            PlaylistItem item = mSessionManager.add(null, uri, mime, receiver);
             if (callback != null) {
                 if (item != null) {
                     Bundle result = new Bundle();

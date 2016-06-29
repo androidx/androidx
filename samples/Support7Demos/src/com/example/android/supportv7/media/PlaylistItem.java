@@ -29,6 +29,7 @@ final class PlaylistItem {
     private final String mSessionId;
     private final String mItemId;
     private final Uri mUri;
+    private final String mTitle;
     private final String mMime;
     private final PendingIntent mUpdateReceiver;
     // changeable states
@@ -38,9 +39,11 @@ final class PlaylistItem {
     private long mTimestamp;
     private String mRemoteItemId;
 
-    public PlaylistItem(String qid, String iid, Uri uri, String mime, PendingIntent pi) {
+    public PlaylistItem(String qid, String iid, String title, Uri uri, String mime,
+            PendingIntent pi) {
         mSessionId = qid;
         mItemId = iid;
+        mTitle = title;
         mUri = uri;
         mMime = mime;
         mUpdateReceiver = pi;
@@ -77,6 +80,10 @@ final class PlaylistItem {
 
     public String getRemoteItemId() {
         return mRemoteItemId;
+    }
+
+    public String getTitle() {
+        return mTitle;
     }
 
     public Uri getUri() {
@@ -125,6 +132,6 @@ final class PlaylistItem {
         };
         return "[" + mSessionId + "|" + mItemId + "|"
             + (mRemoteItemId != null ? mRemoteItemId : "-") + "|"
-            + state[mPlaybackState] + "] " + mUri.toString();
+            + state[mPlaybackState] + "] " + mTitle + ": " + mUri.toString();
     }
 }
