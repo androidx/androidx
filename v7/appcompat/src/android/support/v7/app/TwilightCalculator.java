@@ -79,10 +79,10 @@ class TwilightCalculator {
      * calculates the civil twilight bases on time and geo-coordinates.
      *
      * @param time time in milliseconds.
-     * @param latiude latitude in degrees.
+     * @param latitude latitude in degrees.
      * @param longitude latitude in degrees.
      */
-    public void calculateTwilight(long time, double latiude, double longitude) {
+    public void calculateTwilight(long time, double latitude, double longitude) {
         final float daysSince2000 = (float) (time - UTC_2000) / DateUtils.DAY_IN_MILLIS;
 
         // mean anomaly
@@ -104,7 +104,7 @@ class TwilightCalculator {
         // declination of sun
         double solarDec = Math.asin(Math.sin(solarLng) * Math.sin(OBLIQUITY));
 
-        final double latRad = latiude * DEGREES_TO_RADIANS;
+        final double latRad = latitude * DEGREES_TO_RADIANS;
 
         double cosHourAngle = (Math.sin(ALTIDUTE_CORRECTION_CIVIL_TWILIGHT) - Math.sin(latRad)
                 * Math.sin(solarDec)) / (Math.cos(latRad) * Math.cos(solarDec));

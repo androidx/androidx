@@ -1329,9 +1329,7 @@ public class RenderScript {
         if (ctx != null) {
             mApplicationContext = ctx.getApplicationContext();
             // Only set mNativeLibDir for API 9+.
-            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.FROYO) {
-                mNativeLibDir = mApplicationContext.getApplicationInfo().nativeLibraryDir;
-            }
+            mNativeLibDir = mApplicationContext.getApplicationInfo().nativeLibraryDir;
         }
         mIncCon = 0;
         mIncLoaded = false;

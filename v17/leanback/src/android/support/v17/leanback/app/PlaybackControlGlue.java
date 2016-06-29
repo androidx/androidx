@@ -824,6 +824,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
 
     /**
      * Must be called appropriately by a subclass when the playback state has changed.
+     * It updates the playback state displayed on the media player.
      */
     protected void onStateChanged() {
         if (DEBUG) Log.v(TAG, "onStateChanged");

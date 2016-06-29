@@ -68,6 +68,7 @@
     <color name="lb_playback_controls_time_text_color">#B2EEEEEE</color>
     <color name="lb_playback_media_row_highlight_color">#1AFFFFFF</color>
     <color name="lb_playback_media_row_separator_highlight_color">#1AFFFFFF</color>
+    <color name="lb_playback_now_playing_bar_color">#FFEEEEEE</color>
 
     <color name="lb_search_plate_hint_text_color">#FFCCCCCC</color>
 

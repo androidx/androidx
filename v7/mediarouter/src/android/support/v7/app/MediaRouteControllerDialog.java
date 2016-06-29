@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -1234,9 +1235,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private class FetchArtTask extends AsyncTask<Void, Void, Bitmap> {
-        final Bitmap mIconBitmap;
-        final Uri mIconUri;
-        int mBackgroundColor;
+        // Show animation only when fetching takes a long time.
+        private static final long SHOW_ANIM_TIME_THRESHOLD_MILLIS = 120L;
+
+        private final Bitmap mIconBitmap;
+        private final Uri mIconUri;
+        private int mBackgroundColor;
+        private long mStartTimeMillis;
 
         FetchArtTask() {
             mIconBitmap = mDescription == null ? null : mDescription.getIconBitmap();
@@ -1248,7 +1253,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
             if (!isIconChanged()) {
                 // Already handled the current art.
                 cancel(true);
+                return;
             }
+            mStartTimeMillis = SystemClock.uptimeMillis();
         }
 
         @Override
@@ -1324,7 +1331,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
                 mArtView.setImageBitmap(art);
                 mArtView.setBackgroundColor(mBackgroundColor);
-                updateLayoutHeight(true);
+                long elapsedTimeMillis = SystemClock.uptimeMillis() - mStartTimeMillis;
+                updateLayoutHeight(elapsedTimeMillis > SHOW_ANIM_TIME_THRESHOLD_MILLIS);
             }
         }
 

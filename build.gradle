@@ -1,6 +1,10 @@
 import com.android.build.gradle.internal.coverage.JacocoReportTask
 import com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask
 
+import android.support.checkapi.CheckApiTask
+import android.support.checkapi.UpdateApiTask
+import android.support.doclava.DoclavaTask
+
 buildscript {
     repositories {
         maven { url '../../prebuilts/gradle-plugin' }
@@ -13,11 +17,27 @@ buildscript {
     }
 }
 
-ext.supportVersion = '24.0.1'
+repositories {
+    maven { url '../../prebuilts/tools/common/m2/repository' }
+}
+
+configurations {
+    doclava
+}
+
+dependencies {
+    doclava project(':doclava')
+}
+
+ext.supportVersion = '25.0.0-SNAPSHOT'
 ext.extraVersion = 34
 ext.supportRepoOut = ''
 ext.buildToolsVersion = '23.0.2'
 ext.buildNumber = Integer.toString(ext.extraVersion)
+
+// Enforce the use of prebuilt dependencies in all sub-projects. This is
+// required for the doclava dependency.
+ext.usePrebuilts = "true"
 
 /*
  * With the build server you are given two env variables.
@@ -33,17 +53,17 @@ if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
     // the build server does not pass the build number so we infer it from the last folder of the dist path.
     ext.buildNumber = project.ext.distDir.getName()
 } else {
-    buildDir = file('../../out/host/gradle/frameworks/support/build')
-    project.ext.distDir = file('../../out/dist')
+    buildDir = file("${project.rootDir}/../../out/host/gradle/frameworks/support/build")
+    project.ext.distDir = file("${project.rootDir}/../../out/dist")
 }
 
+ext.docsDir = new File(buildDir, 'javadoc')
 ext.supportRepoOut = new File(buildDir, 'support_repo')
 ext.testApkDistOut = ext.distDir
 
 // Main task called by the build server.
 task(createArchive) << {
 }
-
 
 // upload anchor for subprojects to upload their artifacts
 // to the local repo.
@@ -61,7 +81,7 @@ createArchive.dependsOn createRepository
 
 // prepare repository with older versions
 task unzipRepo(type: Copy) {
-    from "$rootDir/../../prebuilts/maven_repo/android"
+    from "${project.rootDir}/../../prebuilts/maven_repo/android"
     into project.ext.supportRepoOut
 }
 
@@ -130,13 +150,35 @@ import com.google.common.hash.HashFunction
 import com.google.common.hash.Hashing
 import java.nio.charset.Charset
 
-def getSha1(File inputFile) {
+/**
+ * Generates SHA1 hash for the specified file's absolute path.
+ *
+ * @param inputFile file to hash
+ * @return SHA1 hash
+ */
+String getSha1(File inputFile) {
     HashFunction hashFunction = Hashing.sha1()
     HashCode hashCode = hashFunction.hashString(inputFile.getAbsolutePath(), Charset.forName("UTF-8"))
     return hashCode.toString()
 }
 
-def createApiSourceSets(Project subProject, List<ApiModule> apiModules) {
+/**
+ * Returns the Android prebuilt JAR for the specified API level.
+ *
+ * @param apiLevel the API level or "current"
+ * @return a file collection containing the Android prebuilt JAR
+ */
+FileCollection getAndroidPrebuilt(apiLevel) {
+    files("${project.rootDir}/../../prebuilts/sdk/$apiLevel/android.jar")
+}
+
+/**
+ * Populates the sub-project's set of source sets with the specified modules.
+ *
+ * @param subProject the sub-project to which the modules belong
+ * @param apiModules the modules from which to populate
+ */
+void createApiSourceSets(Project subProject, List<ApiModule> apiModules) {
     subProject.ext._apiModules = apiModules
     subProject.ext.allSS = []
     if (gradle.ext.studioCompat.enableApiModules) {
@@ -157,7 +199,18 @@ def createApiSourceSets(Project subProject, List<ApiModule> apiModules) {
     }
 }
 
-def createApiSourceset(Project subProject, String name, String folder, String apiLevel,
+/**
+ * Adds the specified module to the sub-project's set of source sets and
+ * internal JAR. Also sets up dependencies, if supplied.
+ *
+ * @param subProject the sub-project to which the module belongs
+ * @param name the name of the module
+ * @param folder the module's source folder
+ * @param apiLevel the module's compile API level
+ * @param previousSource source set dependency (optional)
+ * @return a source set for the module
+ */
+SourceSet createApiSourceset(Project subProject, String name, String folder, String apiLevel,
                        SourceSet previousSource) {
     def sourceSet = subProject.sourceSets.create(name)
     sourceSet.java.srcDirs = [folder]
@@ -173,7 +226,19 @@ def createApiSourceset(Project subProject, String name, String folder, String ap
     return sourceSet
 }
 
-def setApiModuleDependencies(Project subProject, DependencyHandler handler, List extraDeps) {
+/**
+ * Adds the specified source set as a dependency for the sub-project.
+ *
+ * @param subProject the sub-project to modify
+ * @param configName
+ * @param previousSourceSet the source set to add as a dependency
+ */
+void setupDependencies(Project subProject, String configName, SourceSet previousSourceSet) {
+    subProject.getDependencies().add(configName, previousSourceSet.output)
+    subProject.getDependencies().add(configName, previousSourceSet.compileClasspath)
+}
+
+void setApiModuleDependencies(Project subProject, DependencyHandler handler, List extraDeps) {
     if (gradle.ext.studioCompat.enableApiModules) {
         subProject.android.enforceUniquePackageName=false
         // add dependency on the latest module
@@ -185,16 +250,78 @@ def setApiModuleDependencies(Project subProject, DependencyHandler handler, List
             handler."${firstModule.folderName}Compile"(project(dep))
             handler.compile(project(dep))
         }
-
     }
 }
 
-def setupDependencies(Project subProject, String configName, SourceSet previousSourceSet) {
-    subProject.getDependencies().add(configName, previousSourceSet.output)
-    subProject.getDependencies().add(configName, previousSourceSet.compileClasspath)
+void registerForDocs(Project subProject, releaseVariant) {
+    rootProject.generateApi.dependsOn releaseVariant.javaCompile
+    rootProject.generateApi.source {
+        def buildConfig = fileTree(releaseVariant.getGenerateBuildConfig().sourceOutputDir)
+        return releaseVariant.javaCompile.source.minus(buildConfig) +
+            fileTree(releaseVariant.aidlCompile.sourceOutputDir) +
+            fileTree(releaseVariant.outputs[0].processResources.sourceOutputDir)
+    }
+    rootProject.generateApi.classpath += files(releaseVariant.javaCompile.classpath) +
+            files(releaseVariant.javaCompile.destinationDir)
+
+    if (subProject.hasProperty('allSS')) {
+        subProject.allSS.each { ss ->
+            rootProject.generateApi.source ss.java
+        }
+    }
 }
 
+
+// Generates API files.
+task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
+    docletpath = configurations.doclava.resolve()
+    destinationDir = project.docsDir
+
+    // Base classpath is Android SDK, sub-projects add their own.
+    classpath = getAndroidPrebuilt(gradle.ext.currentSdk)
+
+    apiFile = new File(project.docsDir, 'release/current.txt')
+    removedApiFile = new File(project.docsDir, 'release/removed.txt')
+    generateDocs = false
+
+    options {
+        addStringOption "templatedir",
+                "${project.rootDir}/../../build/tools/droiddoc/templates-sdk"
+        addStringOption "federate Android", "http://developer.android.com"
+        addStringOption "federationapi Android",
+                "${project.rootDir}/../../prebuilts/sdk/api/24.txt"
+        addStringOption "stubpackages", "android.support.*"
+    }
+    exclude '**/BuildConfig.java'
+    exclude '**/R.java'
+}
+
+// Copies generated API files to current version.
+task updateApi(type: UpdateApiTask, dependsOn: generateApi) {
+    newApiFile = new File(project.docsDir, 'release/current.txt')
+    oldApiFile = new File(project.rootDir, 'api/current.txt')
+    newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
+    oldRemovedApiFile = new File(project.rootDir, 'api/removed.txt')
+}
+
+// Checks generated API files against current version.
+task checkApi(type: CheckApiTask, dependsOn: generateApi) {
+    doclavaClasspath = generateApi.docletpath
+
+    checkApiTaskPath = name
+    updateApiTaskPath = updateApi.name
+
+    newApiFile = new File(project.docsDir, 'release/current.txt')
+    oldApiFile = new File(project.rootDir, 'api/current.txt')
+    newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
+    oldRemovedApiFile = new File(project.rootDir, 'api/removed.txt')
+}
+createArchive.dependsOn checkApi
+
 subprojects {
+    // Only modify android projects.
+    if (project.name.equals('doclava')) return;
+
     // Change buildDir first so that all plugins pick up the new value.
     project.buildDir = project.file("$project.parent.buildDir/../$project.name/build")
     // current SDK is set in studioCompat.gradle
@@ -243,13 +370,43 @@ subprojects {
         pom.dependencies.findAll {dep -> dep.groupId == 'com.android.support' && dep.artifactId != 'support-annotations' }*.type = 'aar'
     }
 
+    def versionDir = {
+        def groupDir = new File(rootProject.ext.supportRepoOut, project.group.replace('.','/'))
+        def artifactDir = new File(groupDir, archivesBaseName)
+        return new File(artifactDir, version)
+    }
+
+    task generateSourceProps(dependsOn: createRepository) << {
+        def content = "Maven.GroupId=$deployer.pom.groupId\n" +
+            "Maven.ArtifactId=$deployer.pom.artifactId\n" +
+            "Maven.Version=$deployer.pom.version\n" +
+            "Pkg.Desc=$project.name\n" +
+            "Pkg.Revision=1\n" +
+            "Dependencies=" +
+            String.join(",", project.configurations.compile.allDependencies.collect {
+                    def p = parent.findProject(it.name)
+                    return p ? "$p.group:$p.archivesBaseName:$p.version" : null
+                }.grep()) +
+            "\n"
+        Files.write(content, new File(versionDir(), 'source.properties'), Charsets.UTF_8)
+    }
+
+    task createSeparateZip(type: Zip, dependsOn: generateSourceProps)  {
+        into archivesBaseName
+        destinationDir project.parent.ext.distDir
+        baseName = project.group
+        version = project.parent.ext.buildNumber
+    }
+    project.parent.createArchive.dependsOn createSeparateZip
+
     // before the upload, make sure the repo is ready.
     release.dependsOn rootProject.tasks.prepareRepo
     // make the mainupload depend on this one.
     mainUpload.dependsOn release
 
     project.plugins.whenPluginAdded { plugin ->
-        if ("com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)) {
+        if ("com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)
+                || "com.android.build.gradle.AppPlugin".equals(plugin.class.name)) {
             project.android.buildToolsVersion = rootProject.buildToolsVersion
             // enable code coverage for debug builds only if we are not running inside the IDE
             // enabling coverage reports breaks the method parameter resolution in the IDE debugger
@@ -257,8 +414,13 @@ subprojects {
         }
     }
 
-    // Copy instrumentation test APK into the dist dir
     project.afterEvaluate {
+        // The archivesBaseName isn't available intially, so set it now
+        def createZipTask = project.tasks.getByName("createSeparateZip")
+        createZipTask.appendix = archivesBaseName
+        createZipTask.from versionDir()
+
+        // Copy instrumentation test APK into the dist dir
         def assembleTestTask = project.tasks.findByPath('assembleAndroidTest')
         if (assembleTestTask != null) {
             assembleTestTask.doLast {
@@ -293,6 +455,18 @@ subprojects {
             }
         }
     }
+
+    project.afterEvaluate { p ->
+        if (p.hasProperty('android')
+                && p.android.hasProperty('libraryVariants')
+                && !(p.android.hasProperty('noDocs') && p.android.noDocs)) {
+            p.android.libraryVariants.all { v ->
+                if (v.name == 'release') {
+                    registerForDocs(p, v)
+                }
+            }
+        }
+    }
 }
 
 project.gradle.buildFinished { buildResult ->
@@ -304,8 +478,4 @@ project.gradle.buildFinished { buildResult ->
         println '    3) Need to update the compileSdkVersion in a library\'s build.gradle'
         println()
     }
-}
-
-FileCollection getAndroidPrebuilt(String apiLevel) {
-    files("$rootDir/../../prebuilts/sdk/$apiLevel/android.jar")
 }

@@ -27,7 +27,7 @@ import android.util.TypedValue;
  * {@link RecyclerView.Adapter} can optionally implement {@link FacetProviderAdapter} which
  * provides {@link FacetProvider} for a given view type;  {@link RecyclerView.ViewHolder}
  * can also implement {@link FacetProvider}.  Facet from ViewHolder
- * has a higher priority than the one from FacetProiderAdapter associated with viewType.
+ * has a higher priority than the one from FacetProviderAdapter associated with viewType.
  * Supported optional facets are:
  * <ol>
  * <li> {@link ItemAlignmentFacet}

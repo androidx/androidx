@@ -114,7 +114,7 @@ public interface MenuPresenter {
     public boolean flagActionItems();
 
     /**
-     * Called when a menu item with a collapsable action view should expand its action view.
+     * Called when a menu item with a collapsible action view should expand its action view.
      *
      * @param menu Menu containing the item to be expanded
      * @param item Item to be expanded
@@ -123,7 +123,7 @@ public interface MenuPresenter {
     public boolean expandItemActionView(MenuBuilder menu, MenuItemImpl item);
 
     /**
-     * Called when a menu item with a collapsable action view should collapse its action view.
+     * Called when a menu item with a collapsible action view should collapse its action view.
      *
      * @param menu Menu containing the item to be collapsed
      * @param item Item to be collapsed

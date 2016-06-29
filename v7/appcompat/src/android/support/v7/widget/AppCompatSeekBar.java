@@ -31,7 +31,6 @@ import android.widget.SeekBar;
 public class AppCompatSeekBar extends SeekBar {
 
     private AppCompatSeekBarHelper mAppCompatSeekBarHelper;
-    private AppCompatDrawableManager mDrawableManager;
 
     public AppCompatSeekBar(Context context) {
         this(context, null);
@@ -44,9 +43,7 @@ public class AppCompatSeekBar extends SeekBar {
     public AppCompatSeekBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        mDrawableManager = AppCompatDrawableManager.get();
-
-        mAppCompatSeekBarHelper = new AppCompatSeekBarHelper(this, mDrawableManager);
+        mAppCompatSeekBarHelper = new AppCompatSeekBarHelper(this);
         mAppCompatSeekBarHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 

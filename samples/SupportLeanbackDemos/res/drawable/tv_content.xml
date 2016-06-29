@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true">
+    <item android:drawable="@drawable/tv_content_1" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_2" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_3" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_4" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_5" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_6" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_7" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_8" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_9" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_10" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_11" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_12" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_13" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_14" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_15" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_16" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_17" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_18" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_19" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_20" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_21" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_22" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_23" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_24" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_25" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_26" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_27" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_28" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_29" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_30" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_31" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_32" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_33" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_34" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_35" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_36" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_37" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_38" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_39" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_40" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_41" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_42" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_43" android:duration="33" />
+    <item android:drawable="@drawable/tv_content_44" android:duration="33" />
+</animation-list>

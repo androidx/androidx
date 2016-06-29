@@ -1126,6 +1126,7 @@ public class ListPopupWindow implements ShowableListMenu {
              * waiting for the normal UI pipeline to do it's job which is slower than this method.
              */
             mShowDropDownRunnable = new Runnable() {
+                @Override
                 public void run() {
                     // View layout should be all done before displaying the drop down.
                     View view = getAnchorView();
@@ -1144,6 +1145,7 @@ public class ListPopupWindow implements ShowableListMenu {
             mDropDownList.setFocusable(true);
             mDropDownList.setFocusableInTouchMode(true);
             mDropDownList.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
                 public void onItemSelected(AdapterView<?> parent, View view,
                         int position, long id) {
 
@@ -1156,6 +1158,7 @@ public class ListPopupWindow implements ShowableListMenu {
                     }
                 }
 
+                @Override
                 public void onNothingSelected(AdapterView<?> parent) {
                 }
             });
@@ -1169,7 +1172,7 @@ public class ListPopupWindow implements ShowableListMenu {
 
             View hintView = mPromptView;
             if (hintView != null) {
-                // if a hint has been specified, we accomodate more space for it and
+                // if a hint has been specified, we accommodate more space for it and
                 // add a text view in the drop down menu, at the bottom of the list
                 LinearLayout hintContainer = new LinearLayout(context);
                 hintContainer.setOrientation(LinearLayout.VERTICAL);
@@ -1303,12 +1306,14 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     private class ListSelectorHider implements Runnable {
+        @Override
         public void run() {
             clearListSelection();
         }
     }
 
     private class ResizePopupRunnable implements Runnable {
+        @Override
         public void run() {
             if (mDropDownList != null && ViewCompat.isAttachedToWindow(mDropDownList)
                     && mDropDownList.getCount() > mDropDownList.getChildCount()
@@ -1320,6 +1325,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     private class PopupTouchInterceptor implements OnTouchListener {
+        @Override
         public boolean onTouch(View v, MotionEvent event) {
             final int action = event.getAction();
             final int x = (int) event.getX();
@@ -1337,11 +1343,13 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     private class PopupScrollListener implements ListView.OnScrollListener {
+        @Override
         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
                 int totalItemCount) {
 
         }
 
+        @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
             if (scrollState == SCROLL_STATE_TOUCH_SCROLL &&
                     !isInputMethodNotNeeded() && mPopup.getContentView() != null) {

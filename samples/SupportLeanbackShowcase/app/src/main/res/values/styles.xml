@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2015 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the License
+  ~ is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+  ~ or implied. See the License for the specific language governing permissions and limitations under
+  ~ the License.
+  ~
+  -->
+<resources>
+
+    <style name="AppTheme" parent="@style/Theme.Leanback">
+    </style>
+
+    <!-- Various movie card styles. Used in cards example. -->
+    <style name="MovieCardBadgeStyle" parent="Widget.Leanback.ImageCardView.BadgeStyle">
+        <item name="android:src">@drawable/stars_red</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <style name="MovieCardTitleTwoLineStyle" parent="Widget.Leanback.ImageCardView.TitleStyle">
+        <item name="android:maxLines">2</item>
+        <item name="android:minLines">2</item>
+    </style>
+
+    <style name="MovieCardContentGoneStyle" parent="Widget.Leanback.ImageCardView.ContentStyle">
+        <item name="android:visibility">invisible</item>
+    </style>
+
+    <style name="MovieCardContentStyle" parent="Widget.Leanback.ImageCardView.ContentStyle">
+        <item name="android:gravity">right</item>
+    </style>
+
+    <style name="MovieCardImageStyle" parent="Widget.Leanback.ImageCardView.ImageStyle">
+        <item name="android:layout_width">@dimen/movie_image_card_width</item>
+        <item name="android:layout_height">@dimen/movie_image_card_height</item>
+    </style>
+
+
+    <style name="MovieCardTitleOnlyStyle" parent="Widget.Leanback.ImageCardViewStyle">
+        <item name="lbImageCardViewType">Title</item>
+        <item name="cardBackground">@null</item>
+    </style>
+
+    <!-- Theme corresponding to the MovieCardSimpleStyle -->
+    <style name="MovieCardSimpleTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/MovieCardTitleOnlyStyle </item>
+        <item name="imageCardViewImageStyle">@style/MovieCardImageStyle</item>
+    </style>
+
+    <style name="MovieCardCompleteStyle" parent="MovieCardTitleOnlyStyle">
+        <item name="lbImageCardViewType">Title|Content|IconOnLeft</item>
+    </style>
+
+    <!-- Theme corresponding to the MovieCardCompleteStyle -->
+    <style name="MovieCardCompleteTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/MovieCardCompleteStyle </item>
+        <item name="imageCardViewImageStyle">@style/MovieCardImageStyle</item>
+        <item name="imageCardViewTitleStyle">@style/MovieCardTitleTwoLineStyle</item>
+        <item name="imageCardViewBadgeStyle">@style/MovieCardBadgeStyle</item>
+        <item name="imageCardViewContentStyle">@style/MovieCardContentStyle</item>
+    </style>
+
+    <!-- Theme corresponding to the MovieCardBasicStyle -->
+    <style name="MovieCardBasicTheme" parent="MovieCardCompleteTheme">
+        <item name="imageCardViewContentStyle">@style/MovieCardContentGoneStyle</item>
+    </style>
+
+    <!-- Squared Title/Content card style. Used in cards example. -->
+    <style name="SquareBigCardImageStyle" parent="Widget.Leanback.ImageCardView.ImageStyle">
+        <item name="android:layout_width">@dimen/big_square_image_card_width</item>
+        <item name="android:layout_height">@dimen/big_square_image_card_height</item>
+    </style>
+
+    <style name="SquareBigCard" parent="Widget.Leanback.ImageCardViewStyle">
+        <item name="cardBackground">@null</item>
+    </style>
+
+    <!-- Theme corresponding to the SquareBigCard -->
+    <style name="SquareBigCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/SquareBigCard </item>
+        <item name="imageCardViewImageStyle">@style/SquareBigCardImageStyle</item>
+    </style>
+
+    <!-- SideInfo. used in cards example -->
+    <style name="SideInfoCardStyle" parent="Widget.Leanback.BaseCardViewStyle">
+        <item name="cardType">mainOnly</item>
+        <item name="cardBackground">@null</item>
+    </style>
+
+    <!-- TextCardView. used in cards example -->
+    <style name="TextCardStyle" parent="Widget.Leanback.BaseCardViewStyle">
+        <item name="cardBackground">@null</item>
+    </style>
+
+    <!-- CharacterCardView. used in details example -->
+    <style name="CharacterCardStyle" parent="Widget.Leanback.BaseCardViewStyle">
+        <item name="cardBackground">@null</item>
+    </style>
+
+    <!-- Grid card style. Used by Grid example. -->
+    <style name="GridCardImageStyle" parent="Widget.Leanback.ImageCardView.ImageStyle">
+        <item name="android:layout_width">@dimen/grid_card_width</item>
+        <item name="android:layout_height">@dimen/grid_card_height</item>
+    </style>
+
+    <style name="GridCardStyle" parent="Widget.Leanback.ImageCardViewStyle">
+        <item name="cardBackground">@null</item>
+    </style>
+
+    <!-- Theme corresponding to the GridCardTheme -->
+    <style name="GridCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/GridCardStyle </item>
+        <item name="imageCardViewImageStyle">@style/GridCardImageStyle</item>
+    </style>
+
+    <!-- A default card style. Used in cards example. -->
+    <style name="DefaultCardImageStyle" parent="Widget.Leanback.ImageCardView.ImageStyle">
+        <item name="android:layout_width">@dimen/default_image_card_width</item>
+        <item name="android:layout_height">@dimen/default_image_card_height</item>
+    </style>
+
+    <style name="DefaultCardStyle" parent="Widget.Leanback.ImageCardViewStyle">
+        <item name="cardBackground">@null</item>
+    </style>
+
+    <style name="DefaultCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/DefaultCardStyle </item>
+        <item name="imageCardViewImageStyle">@style/DefaultCardImageStyle</item>
+    </style>
+
+    <!-- Game card styles with custom Badge icon. Used in cards example. -->
+    <style name="GameCardContentStyle" parent="Widget.Leanback.ImageCardView.ContentStyle">
+        <item name="android:textColor">#80c349</item>
+    </style>
+
+    <style name="GameCardBadgeStyle" parent="Widget.Leanback.ImageCardView.BadgeStyle">
+        <item name="android:src">@drawable/ic_installed</item>
+    </style>
+
+    <style name="GameCardStyle" parent="DefaultCardStyle">
+        <item name="lbImageCardViewType">Title|Content|IconOnRight</item>
+    </style>
+
+    <!-- Theme corresponding to the GameCardStyle -->
+    <style name="GameCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/GameCardStyle </item>
+        <item name="imageCardViewContentStyle">@style/GameCardContentStyle</item>
+        <item name="imageCardViewBadgeStyle">@style/GameCardBadgeStyle</item>
+        <item name="imageCardViewImageStyle">@style/DefaultCardImageStyle</item>
+    </style>
+
+    <!-- Squared single line card with colored footer style. Used in cards example. -->
+    <style name="SingleLineCardTitleStyle" parent="Widget.Leanback.ImageCardView.TitleStyle">
+        <item name="android:textAlignment">center</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="SingleLineCardInfoAreaStyle" parent="Widget.Leanback.ImageCardView.InfoAreaStyle">
+        <item name="android:layout_width">@dimen/square_image_card_width</item>
+        <item name="layout_viewType">main</item>
+    </style>
+
+    <style name="SingleLineCardImageStyle" parent="Widget.Leanback.ImageCardView.ImageStyle">
+        <item name="android:layout_width">@dimen/square_image_card_width</item>
+        <item name="android:layout_height">@dimen/square_image_card_height</item>
+    </style>
+
+    <style name="SingleLineCardStyle" parent="DefaultCardStyle">
+        <item name="lbImageCardViewType">Title</item>
+    </style>
+
+    <!-- Theme corresponding to the SingleLineCardStyle -->
+    <style name="SingleLineCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/SingleLineCardStyle </item>
+        <item name="imageCardViewTitleStyle">@style/SingleLineCardTitleStyle</item>
+        <item name="imageCardViewImageStyle">@style/SingleLineCardImageStyle</item>
+        <item name="imageCardViewInfoAreaStyle">@style/SingleLineCardInfoAreaStyle</item>
+    </style>
+
+
+    <!-- Icon card style with custom focus handler. Used in cards example. -->
+    <style name="IconCardViewStyle" parent="DefaultCardStyle">
+        <item name="lbImageCardViewType">Title</item>
+    </style>
+
+    <style name="IconCardImageStyle" parent="Widget.Leanback.ImageCardView.ImageStyle">
+        <item name="android:layout_width">96dp</item>
+        <item name="android:layout_height">96dp</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="IconCardTitleStyle" parent="Widget.Leanback.ImageCardView.TitleStyle">
+        <item name="android:maxLines">2</item>
+        <item name="android:minLines">2</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="IconCardInfoAreaStyle" parent="Widget.Leanback.ImageCardView.InfoAreaStyle">
+        <item name="android:layout_width">96dp</item>
+        <item name="android:background">@null</item>
+        <item name="layout_viewType">main</item>
+    </style>
+
+    <!-- Theme corresponding to the IconCardStyle -->
+    <style name="IconCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/IconCardViewStyle </item>
+        <item name="imageCardViewTitleStyle">@style/IconCardTitleStyle</item>
+        <item name="imageCardViewImageStyle">@style/IconCardImageStyle</item>
+        <item name="imageCardViewInfoAreaStyle">@style/IconCardInfoAreaStyle</item>
+    </style>
+
+
+    <style name="MediaListHeaderStyle" parent="Widget.Leanback.PlaybackMediaListHeaderStyle">
+        <item name="android:background">#282248</item>
+    </style>
+
+    <style name="SharedMediaItemRowStyle" parent="Widget.Leanback.PlaybackMediaItemRowStyle">
+        <item name="android:background">#282248</item>
+    </style>
+
+    <style name="RegularMediaItemTextStyle" parent="TextAppearance.Leanback.PlaybackMediaItemNumber">
+        <item name="android:textColor">#FF6255</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+
+    <style name="RegularMediaItemNumberStyle" parent="Widget.Leanback.PlaybackMediaItemNumberStyle">
+        <item name="android:visibility">visible</item>
+        <!--<item name="android:textAppearance">@style/OddMediaItemNumberTextStyle</item>-->
+    </style>
+
+    <style name="RegularMediaItemNameStyle" parent="Widget.Leanback.PlaybackMediaItemNameStyle">
+        <!--<item name="android:textAppearance">@style/OddMediaItemNumberTextStyle</item>-->
+    </style>
+
+    <style name="RegularMediaItemDurationStyle" parent="Widget.Leanback.PlaybackMediaItemDurationStyle">
+        <item name="android:visibility">visible</item>
+        <!--<item name="android:textAppearance">@style/OddMediaItemNumberTextStyle</item>-->
+    </style>
+
+
+    <style name="FavoriteMediaItemTextStyle" parent="TextAppearance.Leanback.PlaybackMediaItemNumber">
+        <item name="android:textColor">#FF6E40</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="FavoriteMediaItemNumberStyle" parent="Widget.Leanback.PlaybackMediaItemNumberStyle">
+        <item name="android:visibility">visible</item>
+        <item name="android:textAppearance">@style/FavoriteMediaItemTextStyle</item>
+    </style>
+
+    <style name="FavoriteMediaItemNameStyle" parent="Widget.Leanback.PlaybackMediaItemNameStyle">
+        <item name="android:textAppearance">@style/FavoriteMediaItemTextStyle</item>
+    </style>
+
+    <style name="FavoriteMediaItemDurationStyle" parent="Widget.Leanback.PlaybackMediaItemDurationStyle">
+        <item name="android:visibility">visible</item>
+        <item name="android:textAppearance">@style/FavoriteMediaItemTextStyle</item>
+    </style>
+
+</resources>

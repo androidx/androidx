@@ -71,9 +71,7 @@ abstract class AbsActionBarView extends ViewGroup {
 
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
-        if (Build.VERSION.SDK_INT >= 8) {
-            super.onConfigurationChanged(newConfig);
-        }
+        super.onConfigurationChanged(newConfig);
 
         // Action bar can change size on configuration changes.
         // Reread the desired height from the theme-specified style.

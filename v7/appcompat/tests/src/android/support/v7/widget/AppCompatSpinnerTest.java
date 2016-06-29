@@ -77,8 +77,11 @@ public class AppCompatSpinnerTest
         // matching background.
         String itemText = (String) spinner.getAdapter().getItem(2);
         Matcher popupContentMatcher = hasChild(withText(itemText));
+        // Note that we are only testing the center pixel of the combined popup background. This
+        // is to "eliminate" otherwise hacky code that would need to skip over rounded corners and
+        // drop shadow of the combined visual appearance of a popup.
         onView(popupContentMatcher).inRoot(isPlatformPopup()).check(
-                matches(isCombinedBackground(expectedPopupColor)));
+                matches(isCombinedBackground(expectedPopupColor, true)));
 
         // Click an entry in the popup to dismiss it
         onView(withText(itemText)).perform(click());

@@ -28,8 +28,6 @@ LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files := $(LOCAL_SRC_FILES)
-
 # A helper sub-library that makes direct use of JellyBean APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter-jellybean
@@ -37,8 +35,6 @@ LOCAL_SDK_VERSION := 16
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean)
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
 
 # A helper sub-library that makes direct use of JellyBean MR1 APIs.
 include $(CLEAR_VARS)
@@ -49,8 +45,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files += $(LOCAL_SRC_FILES)
-
 # A helper sub-library that makes direct use of JellyBean MR2 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter-jellybean-mr2
@@ -60,8 +54,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean-mr1
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files += $(LOCAL_SRC_FILES)
-
 # A helper sub-library that makes direct use of V24 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter-api24
@@ -70,8 +62,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, api24)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean-mr2
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
 
 # Here is the final static library that apps can link against.
 # Applications that use this library must specify
@@ -86,7 +76,7 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v7-mediarouter
-LOCAL_SDK_VERSION := 7
+LOCAL_SDK_VERSION := 9
 LOCAL_SDK_RES_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-api24
@@ -99,26 +89,3 @@ LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# API Check
-# ---------------------------------------------
-support_module := $(LOCAL_MODULE)
-support_module_api_dir := $(LOCAL_PATH)/api
-# We're asking doclava to generate stubs for android.support.v7.app in addition
-# to mediarouter, so we'll have to point doclava at the sources for
-# android.support.v7.app. Note that this API definition will overlap with that
-# of the android.support.v7.app package.
-support_module_src_files := $(LOCAL_SRC_FILES) \
-  ../appcompat/src/android/support/v7/app/AppCompatDelegate.java \
-  ../appcompat/src/android/support/v7/app/AppCompatCallback.java \
-  ../appcompat/src/android/support/v7/app/AppCompatDialog.java \
-  ../appcompat/src/android/support/v7/app/AlertDialog.java \
-  ../appcompat/src/android/support/v7/app/ActionBar.java \
-  ../appcompat/src/android/support/v7/app/ActionBarDrawerToggle.java \
-
-
-support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES)
-support_module_java_packages := android.support.v7.app android.support.v7.media
-include $(SUPPORT_API_CHECK)

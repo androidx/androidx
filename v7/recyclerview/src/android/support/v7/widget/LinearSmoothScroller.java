@@ -26,7 +26,7 @@ import android.view.animation.LinearInterpolator;
 
 /**
  * {@link RecyclerView.SmoothScroller} implementation which uses
- * {@link android.view.animation.LinearInterpolator} until the target position becames a child of
+ * {@link android.view.animation.LinearInterpolator} until the target position becomes a child of
  * the RecyclerView and then uses
  * {@link android.view.animation.DecelerateInterpolator} to slowly approach to target position.
  */

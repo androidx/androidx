@@ -31,7 +31,7 @@ import android.util.Log;
 
 /**
  * Helper to register for and send broadcasts of Intents to local objects
- * within your process.  This is has a number of advantages over sending
+ * within your process.  This has a number of advantages over sending
  * global broadcasts with {@link android.content.Context#sendBroadcast}:
  * <ul>
  * <li> You know that the data you are broadcasting won't leave your app, so

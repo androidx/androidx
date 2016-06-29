@@ -184,4 +184,9 @@ public class CursorObjectAdapter extends ObjectAdapter {
             invalidateCache(index);
         }
     }
+
+    @Override
+    public boolean isImmediateNotifySupported() {
+        return true;
+    }
 }

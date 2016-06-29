@@ -14,7 +14,6 @@
 package android.support.v17.leanback.widget;
 
 import android.support.v4.util.CircularIntArray;
-import android.util.Log;
 
 import java.io.PrintWriter;
 
@@ -238,7 +237,7 @@ abstract class Grid {
             mProvider.removeItem(mLastVisibleIndex);
             mLastVisibleIndex--;
         }
-        resetVisbileIndexIfEmpty();
+        resetVisibleIndexIfEmpty();
         if (getFirstVisibleIndex() < 0) {
             setStart(index);
         }
@@ -395,7 +394,7 @@ abstract class Grid {
                 break;
             }
         }
-        resetVisbileIndexIfEmpty();
+        resetVisibleIndexIfEmpty();
     }
 
     /**
@@ -414,10 +413,10 @@ abstract class Grid {
                 break;
             }
         }
-        resetVisbileIndexIfEmpty();
+        resetVisibleIndexIfEmpty();
     }
 
-    private void resetVisbileIndexIfEmpty() {
+    private void resetVisibleIndexIfEmpty() {
         if (mLastVisibleIndex < mFirstVisibleIndex) {
             resetVisibleIndex();
         }

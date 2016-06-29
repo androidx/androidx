@@ -32,7 +32,7 @@ import android.widget.EditText;
  * including:
  * <ul>
  *     <li>Supports {@link R.attr#textAllCaps} style attribute which works back to
- *     {@link android.os.Build.VERSION_CODES#ECLAIR_MR1 Eclair MR1}.</li>
+ *     {@link android.os.Build.VERSION_CODES#GINGERBREAD Gingerbread}.</li>
  *     <li>Allows dynamic tint of it background via the background tint methods in
  *     {@link android.support.v4.view.ViewCompat}.</li>
  *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
@@ -44,7 +44,6 @@ import android.widget.EditText;
  */
 public class AppCompatEditText extends EditText implements TintableBackgroundView {
 
-    private AppCompatDrawableManager mDrawableManager;
     private AppCompatBackgroundHelper mBackgroundTintHelper;
     private AppCompatTextHelper mTextHelper;
 
@@ -59,8 +58,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     public AppCompatEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
-        mDrawableManager = AppCompatDrawableManager.get();
-        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mDrawableManager);
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
 
         mTextHelper = AppCompatTextHelper.create(this);

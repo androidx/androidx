@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="activity_sample_code">Support v4 Demos</string>
+
+    <string name="hello_world"><b>Hello, <i>World!</i></b></string>
+    <string name="alert_dialog_two_buttons_title">
+        Lorem ipsum dolor sit aie consectetur adipiscing\nPlloaso mako nuto
+        siwuf cakso dodtos anr koop.
+    </string>
+    <string name="alert_dialog_ok">OK</string>
+    <string name="alert_dialog_cancel">Cancel</string>
+    
+    <string name="initial_text">Initial text.</string>
+    
+    <string name="pick_result">Pick a result to send, or BACK to cancel.</string>
+    <string name="corky">Corky</string>
+    <string name="violet">Violet</string>
+    <string name="receive_result_instructions">Press the buttons below to get an activity or intent sender result, which will be displayed here:</string>
+    <string name="receive_result_result">Get Activity Result</string>
+    <string name="receive_result_intentsender">Get IntentSender Result</string>
+
+    <!-- Fragment API -->
+
+    <string name="fragment_alert_dialog_support">Fragment/Alert Dialog</string>
+
+    <string name="fragment_arguments_support">Fragment/Arguments</string>
+    <string name="fragment_arguments_msg">Demonstrates a fragment that takes arguments
+        as a Bundle at runtime (on the right) or from attributes in a layout (on the left).</string>
+    <string name="fragment_arguments_embedded">From Attributes</string>
+    <string name="fragment_arguments_embedded_land">Landscape Only</string>
+
+    <string name="fragment_custom_animation_support">Fragment/Custom Animation</string>
+
+    <string name="fragment_hide_show_support">Fragment/Hide and Show</string>
+
+    <string name="fragment_context_menu_support">Fragment/Context Menu</string>
+    <string name="fragment_context_menu_msg">Fragment populating a context
+            menu; long press the button to see.</string>
+    <string name="long_press">Long press me</string>
+
+    <string name="fragment_dialog_support">Fragment/Dialog</string>
+    <string name="show">Show</string>
+    <string name="hide">Hide</string>
+
+    <string name="fragment_dialog_or_activity_support">Fragment/Dialog or Activity</string>
+    <string name="fragment_dialog_or_activity_msg">Demonstrates the same fragment
+            being shown as a dialog and embedded inside of an activity.</string>
+    <string name="fragment_dialog_or_activity_inline">Fragment embedded inside
+            of the activity:</string>
+
+    <string name="fragment_layout_support">Fragment/Layout</string>
+
+    <string name="fragment_list_array_support">Fragment/List Array</string>
+
+    <string name="fragment_menu_support">Fragment/Menu</string>
+    <string name="fragment_menu_msg">Build menus from two fragments, allowing
+        you to hide them to remove them..</string>
+    <string name="fragment1menu">Show fragment 1 menu</string>
+    <string name="fragment2menu">Show fragment 2 menu</string>
+
+    <string name="fragment_nesting_tabs_support">Fragment/Nesting Tabs</string>
+
+    <string name="fragment_retain_instance_support">Fragment/Retain Instance</string>
+    <string name="fragment_retain_instance_msg">Current progress of retained fragment;
+    restarts if fragment is re-created.</string>
+    <string name="restart">Restart</string>
+
+    <string name="fragment_receive_result_support">Fragment/Receive Result</string>
+
+    <string name="fragment_stack_support">Fragment/Stack</string>
+    <string name="home">Go home</string>
+    <string name="new_fragment">Add new</string>
+    <string name="delete_fragment">Pop top</string>
+    
+    <string name="fragment_tabs">Fragment/Tabs</string>
+
+    <string name="fragment_tabs_pager">Fragment/Tabs and Pager</string>
+
+    <string name="fragment_pager_support">Fragment/Pager</string>
+    <string name="first">First</string>
+    <string name="last">Last</string>
+
+    <string name="fragment_state_pager_support">Fragment/State Pager</string>
+
+    <string name="loader_cursor_support">Loader/Cursor</string>
+
+    <string name="loader_retained_support">Loader/Retained</string>
+
+    <string name="loader_custom_support">Loader/Custom</string>
+
+    <string name="loader_throttle_support">Loader/Throttle</string>
+
+    <string name="local_service_broadcaster">Content/Local Service Broadcaster</string>
+
+    <string name="local_service_broadcaster_msg">Demonstrates use of LocalBroadcastManager
+        to communicate from a Service to an Activity.</string>
+    <string name="start_service">Start Service</string>
+    <string name="stop_service">Stop Service</string>
+
+    <string name="simple_wakeful_controller">Content/Simple WakefulReceiver</string>
+
+    <string name="simple_wakeful_controller_msg">Demonstrates use of WakefulBroadcastReceiver
+        to keep the device awake while dispatching a broadcast to a service.</string>
+    <string name="schedule_wakeful_alarm">Wakeup in 30 seconds</string>
+    <string name="simple_wakeful_scheduled">Alarm scheduled</string>
+
+    <!-- Accessibility API -->
+
+    <string name="accessibility_manager_title">Accessibility/Accessibility Manager</string>
+    <string name="accessibility_manager_instructions">
+        1. Enable TalkBack from Settings->Accessibility.
+        \n2. Go back to this activity.
+        \n3. Disable TalkBack from Settings->Accessibility.</string>
+    <string name="accessibility_manager_no_enabled_services">No enabled accessibility services or API level lower than ICS.</string>
+    <string name="accessibility_manager_enabled_service">ENABLED ACCESSIBILITY SERVICES:
+        \n\nService: %1$s\nFeedback: %2$s\nDescription: %3$s\nSettings: %4$s\n</string>
+    <string name="accessibility_manager_accessibility_state">Accessibility enabled: %1$s</string>
+
+    <string name="accessibility_delegate_title">Accessibility/Accessibility Delegate</string>
+    <string name="accessibility_delegate_instructions">
+        1. Enable TalkBack from Settings->Accessibility.
+        \n2. Go back to this activity.
+        \n3. Touch the button below.</string>
+    <string name="accessibility_delegate_button">Button</string>
+    <string name="accessibility_delegate_custom_text_added">Custom text added via an accessibility delegate.</string>
+
+    <string name="accessibility_roledescription_title">Accessibility/Role Description</string>
+    <string name="accessibility_roledescription_instructions">
+        1. Make sure that you have TalkBack 4.5 or later from the Play Store.
+        \n2. Enable TalkBack from Settings->Accessibility.
+        \n3. Go back to this activity.
+        \n4. Touch the two items below.
+        \n5. The first item has a role description, but the second item does not.</string>
+    <string name="accessibility_roledescription_item">Android rocks!</string>
+    <string name="accessibility_roledescription_role">Custom role description</string>
+    <string name="accessibility_roledescription_example">
+        One possible use of role description is to notate heading levels in structured text:</string>
+    <string name="accessibility_roledescription_h1_item">Milky Way Galaxy</string>
+    <string name="accessibility_roledescription_h2_item">Solar System</string>
+    <string name="accessibility_roledescription_h3_item">Planet Earth</string>
+    <string name="accessibility_roledescription_h1_role">heading level 1</string>
+    <string name="accessibility_roledescription_h2_role">heading level 2</string>
+    <string name="accessibility_roledescription_h3_role">heading level 3</string>
+    <string name="accessibility_roledescription_counterexample">
+        Do not set the role description for standard widgets.
+        \nThe following button has a role description, which is incorrect.
+        \nYou should let accessibility services determine feedback for standard widgets.</string>
+    <string name="accessibility_roledescription_button_item">Click me</string>
+    <string name="accessibility_roledescription_button_role">Button with incorrect role description</string>
+
+    <string name="share_text">Share some text</string>
+    <string name="share_file">Share a file</string>
+    <string name="share_multiple_file">Share multiple files</string>
+    <string name="sharing_support_title">App/ShareCompat Demo</string>
+    <string name="sharing_receiver_title">ShareCompat Receiver</string>
+
+    <string name="file_provider_example">Content/FileProvider example</string>
+
+    <!-- Text API -->
+
+    <string name="without_bidiformatter">Without BidiFormatter:</string>
+    <string name="with_bidiformatter">With BidiFormatter:</string>
+    <string name="bidiformatter_support_title">Text/BidiFormatter Demo</string>
+
+    <!-- TransportController -->
+
+    <string name="sample_transport_controller_activity">Media/TransportController</string>
+
+    <string name="view_pager_layout_support">View/View pager</string>
+
+    <string name="sliding_pane_layout_support">Widget/Sliding pane layout</string>
+
+    <string name="sliding_pane_layout_summary">This activity illustrates the use of sliding panes. The content pane may be slid to one side on narrow devices to reveal the left pane used to select content. Sliding panes can be used to fit a UI intended for wider screens in a smaller space. Tapping the Action Bar\'s Up button at the left side of the bar will navigate up in the hierarchy, represented by the left pane. If you rotate the device to landscape mode, on most devices you will see that both panes fit together side by side with no sliding necessary.</string>
+
+    <!-- MediaBrowserCompat Sample -->
+
+    <string name="media_browser_support">Media/MediaBrowserCompat Sample</string>
+    <string name="favorite">Favorite</string>
+    <string name="error_no_metadata">Unable to retrieve metadata.</string>
+    <string name="browse_genres">Genres</string>
+    <string name="browse_genre_subtitle">Songs by genre</string>
+    <string name="browse_musics_by_genre_subtitle">%1$s songs</string>
+    <string name="random_queue_title">Random music</string>
+    <string name="error_cannot_skip">Cannot skip</string>
+    <string name="error_loading_media">Error Loading Media</string>
+    <string name="play_item">Play item</string>
+    <string name="skip_previous">Skip to previous</string>
+    <string name="play_pause">play or pause</string>
+    <string name="skip_next">Skip to next</string>
+    <string name="no_search_results">No search results.</string>
+    <string name="label_pause">Pause</string>
+    <string name="label_play">Play</string>
+    <string name="label_previous">Previous</string>
+    <string name="label_next">Next</string>
+    <string name="error_empty_metadata">Empty metadata!</string>
+
+    <!-- ExploreByTouchHelper -->
+
+    <string name="explore_by_touch_helper_support">Widget/Explore by Touch helper</string>
+    <string name="sample_item_a">Sample item A</string>
+    <string name="sample_item_b">Sample item B</string>
+
+    <!-- ContentLoadingProgressBar -->
+    <string name="content_loading_progress_bar">Widget/Content Loading Progress Bar</string>
+
+    <!--  Swipe refresh -->
+    <string name="swipe_list">Widget/SwipeRefreshLayout ListView</string>
+    <string name="swipe_text">Widget/SwipeRefreshLayout TextView</string>
+    <string name="swipe_nested_sv">Widget/SwipeRefreshLayout NestedScrollView</string>
+
+    <string name="nested_scroll">Widget/Nested Scrolling</string>
+
+    <string name="nested_scroll_long_text">This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it.</string>
+    <string name="regular">regular</string>
+    <string name="round">round</string>
+
+    <string name="drawable_compat_no_tint">Not tint</string>
+    <string name="drawable_compat_color_tint">Color tint</string>
+    <string name="drawable_compat_color_list_tint">Color state list</string>
+</resources>

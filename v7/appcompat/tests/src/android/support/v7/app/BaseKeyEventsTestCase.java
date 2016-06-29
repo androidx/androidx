@@ -16,23 +16,30 @@
 
 package android.support.v7.app;
 
-import org.junit.Test;
-
-import android.support.v7.appcompat.test.R;
-import android.support.v7.testutils.BaseTestActivity;
-import android.support.v7.view.ActionMode;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import android.support.v7.appcompat.test.R;
+import android.support.v7.testutils.BaseTestActivity;
+import android.support.v7.view.ActionMode;
+import android.test.suitebuilder.annotation.SmallTest;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
         extends BaseInstrumentationTestCase<A> {
@@ -85,29 +92,25 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
     @Test
     @SmallTest
     public void testBackCollapsesSearchView() throws InterruptedException {
-        // First expand the SearchView
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                assertTrue("SearchView expanded", getActivity().expandSearchView());
-            }
-        });
-        getInstrumentation().waitForIdleSync();
+        final String itemTitle = getActivity().getString(R.string.search_menu_title);
 
-        // Now send a back press
+        // Click on the Search menu item
+        onView(withContentDescription(itemTitle)).perform(click());
+        // Check that the SearchView is displayed
+        onView(withId(R.id.search_bar)).check(matches(isDisplayed()));
+
+        // Wait for the IME to show
+        getInstrumentation().waitForIdleSync();
+        // Now send a back event to dismiss the IME
         getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
-        getInstrumentation().waitForIdleSync();
+        // ...and another to collapse the SearchView
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
 
-        if (getActivity().isSearchViewExpanded()) {
-            // If the SearchView is still expanded, it's probably because it had focus and the
-            // first back removed the focus. Send another.
-            getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
-            getInstrumentation().waitForIdleSync();
-        }
-
-        // Check that the Activity is still running and the SearchView is not expanded
-        assertFalse("Activity was not finished", getActivity().isFinishing());
-        assertFalse("SearchView was collapsed", getActivity().isSearchViewExpanded());
+        // Check that the Activity is still running
+        assertFalse(getActivity().isFinishing());
+        assertFalse(getActivity().isDestroyed());
+        // ...and that the SearchView is not attached
+        onView(withId(R.id.search_bar)).check(doesNotExist());
     }
 
     @Test

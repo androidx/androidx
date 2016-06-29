@@ -18,8 +18,8 @@ package android.support.v7.widget;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -29,11 +29,9 @@ import android.widget.ImageView;
 public class AppCompatImageHelper {
 
     private final ImageView mView;
-    private final AppCompatDrawableManager mDrawableManager;
 
-    public AppCompatImageHelper(ImageView view, AppCompatDrawableManager drawableManager) {
+    public AppCompatImageHelper(ImageView view) {
         mView = view;
-        mDrawableManager = drawableManager;
     }
 
     public void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
@@ -49,7 +47,7 @@ public class AppCompatImageHelper {
                 // it from srcCompat
                 final int id = a.getResourceId(R.styleable.AppCompatImageView_srcCompat, -1);
                 if (id != -1) {
-                    drawable = mDrawableManager.getDrawable(mView.getContext(), id);
+                    drawable = AppCompatResources.getDrawable(mView.getContext(), id);
                     if (drawable != null) {
                         mView.setImageDrawable(drawable);
                     }
@@ -68,9 +66,7 @@ public class AppCompatImageHelper {
 
     public void setImageResource(int resId) {
         if (resId != 0) {
-            final Drawable d = mDrawableManager != null
-                    ? mDrawableManager.getDrawable(mView.getContext(), resId)
-                    : ContextCompat.getDrawable(mView.getContext(), resId);
+            final Drawable d = AppCompatResources.getDrawable(mView.getContext(), resId);
             if (d != null) {
                 DrawableUtils.fixDrawable(d);
             }

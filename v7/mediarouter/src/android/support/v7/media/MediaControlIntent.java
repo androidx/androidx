@@ -202,7 +202,7 @@ import android.net.Uri;
  * <p>
  * When an application has a valid session, it is essentially in control of remote playback
  * on the route.  No other application can view or modify the remote playback state
- * of that applicaton's session without knowing its id.
+ * of that application's session without knowing its id.
  * </p><p>
  * However, other applications can perform actions that have the effect of stopping
  * playback and invalidating the current session.  When this occurs, the former application

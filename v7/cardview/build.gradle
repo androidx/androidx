@@ -11,7 +11,7 @@ android {
     compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
-        minSdkVersion 7
+        minSdkVersion 9
         // TODO: get target from branch
         //targetSdkVersion 19
     }
@@ -23,8 +23,8 @@ android {
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['base', 'eclair-mr1', 'jellybean-mr1', 'api21', 'src']
-        main.aidl.srcDirs = ['base', 'eclair-mr1', 'jellybean-mr1', 'api21', 'src']
+        main.java.srcDirs = ['base', 'gingerbread', 'jellybean-mr1', 'api21', 'src']
+        main.aidl.srcDirs = ['base', 'gingerbread', 'jellybean-mr1', 'api21', 'src']
         main.res.srcDirs = ['res']
 
         androidTest.setRoot('tests')

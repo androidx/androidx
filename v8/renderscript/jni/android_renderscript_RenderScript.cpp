@@ -399,31 +399,44 @@ nClosureCreate(JNIEnv *_env, jobject _this, jlong con, jlong kernelID,
       goto exit;
   }
 
-  fieldIDs = (RsScriptFieldID*)alloca(sizeof(RsScriptFieldID) * numValues);
-  if (fieldIDs == nullptr) {
-      goto exit;
+  if (numValues > 0) {
+      fieldIDs = (RsScriptFieldID*)alloca(sizeof(RsScriptFieldID) * numValues);
+      if (fieldIDs == nullptr) {
+          goto exit;
+      }
+  } else {
+      // numValues == 0
+      // alloca(0) implementation is platform dependent
+      fieldIDs = nullptr;
   }
 
   for (size_t i = 0; i < numValues; i++) {
     fieldIDs[i] = (RsScriptFieldID)jFieldIDs[i];
   }
 
-  depClosures = (RsClosure*)alloca(sizeof(RsClosure) * numDependencies);
-  if (depClosures == nullptr) {
-      goto exit;
-  }
+  if (numDependencies > 0) {
+      depClosures = (RsClosure*)alloca(sizeof(RsClosure) * numDependencies);
+      if (depClosures == nullptr) {
+          goto exit;
+      }
 
-  for (size_t i = 0; i < numDependencies; i++) {
-    depClosures[i] = (RsClosure)jDepClosures[i];
-  }
+      for (size_t i = 0; i < numDependencies; i++) {
+          depClosures[i] = (RsClosure)jDepClosures[i];
+      }
 
-  depFieldIDs = (RsScriptFieldID*)alloca(sizeof(RsScriptFieldID) * numDependencies);
-  if (depFieldIDs == nullptr) {
-      goto exit;
-  }
+      depFieldIDs = (RsScriptFieldID*)alloca(sizeof(RsScriptFieldID) * numDependencies);
+      if (depFieldIDs == nullptr) {
+          goto exit;
+      }
 
-  for (size_t i = 0; i < numDependencies; i++) {
-    depFieldIDs[i] = (RsClosure)jDepFieldIDs[i];
+      for (size_t i = 0; i < numDependencies; i++) {
+          depFieldIDs[i] = (RsClosure)jDepFieldIDs[i];
+      }
+  } else {
+      // numDependencies == 0
+      // alloca(0) implementation is platform dependent
+      depClosures = nullptr;
+      depFieldIDs = nullptr;
   }
 
   ret = (jlong)(uintptr_t)dispatchTab.ClosureCreate(
@@ -1173,9 +1186,9 @@ static void
 nAllocationElementData1D(JNIEnv *_env, jobject _this, jlong con, jlong alloc, jint xoff,
                          jint lod, jint compIdx, jbyteArray data, jint sizeBytes)
 {
-    jint len = _env->GetArrayLength(data);
     LOG_API("nAllocationElementData1D, con(%p), alloc(%p), xoff(%i), comp(%i), len(%i), "
-            "sizeBytes(%i)", (RsContext)con, (RsAllocation)alloc, xoff, compIdx, len,
+            "sizeBytes(%i)", (RsContext)con, (RsAllocation)alloc, xoff, compIdx,
+            _env->GetArrayLength(data),
             sizeBytes);
     jbyte *ptr = _env->GetByteArrayElements(data, nullptr);
     dispatchTab.Allocation1DElementData((RsContext)con, (RsAllocation)alloc, xoff,
@@ -2252,12 +2265,11 @@ static jlong
 nAllocationGetStride(JNIEnv *_env, jobject _this, jlong con, jlong alloc)
 {
     LOG_API("nAllocationGetStride, con(%p), alloc(%p)", (RsContext)con, (RsAllocation)alloc);
-    size_t strideIn;
-    void* ptr = NULL;
+    size_t strideIn = 0;
     if (alloc != 0 && dispatchTab.AllocationGetPointer != nullptr) {
-        ptr = dispatchTab.AllocationGetPointer((RsContext)con, (RsAllocation)alloc, 0,
-                                               RS_ALLOCATION_CUBEMAP_FACE_POSITIVE_X, 0, 0,
-                                               &strideIn, sizeof(size_t));
+        dispatchTab.AllocationGetPointer((RsContext)con, (RsAllocation)alloc, 0,
+                                         RS_ALLOCATION_CUBEMAP_FACE_POSITIVE_X, 0, 0,
+                                         &strideIn, sizeof(size_t));
     }
     return (jlong)strideIn;
 }

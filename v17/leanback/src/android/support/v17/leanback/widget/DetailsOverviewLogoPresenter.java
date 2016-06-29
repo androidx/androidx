@@ -128,7 +128,7 @@ public class DetailsOverviewLogoPresenter extends Presenter {
     }
 
     /**
-     * Bind logo View to drawble of DetailsOverviewRow and call notifyOnBindLogo().  The
+     * Bind logo View to drawable of DetailsOverviewRow and call notifyOnBindLogo().  The
      * default implementation assumes the Logo View is an ImageView and change layout size to
      * intrinsic size of ImageDrawable if {@link ViewHolder#isSizeFromDrawableIntrinsic()} is true.
      * @param viewHolder ViewHolder to bind.

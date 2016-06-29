@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:id="@+id/container"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content">
+
+        <CheckBox
+                android:id="@+id/enableAnimations"
+                android:checked="true"
+                android:text="@string/enableAnimations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        <CheckBox
+                android:id="@+id/enablePredictiveAnimations"
+                android:checked="true"
+                android:text="@string/enablePredictiveAnimations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        <CheckBox
+                android:id="@+id/enableInPlaceChange"
+                android:checked="false"
+                android:text="@string/enableInPlaceChange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content">
+
+        <Button
+                android:id="@+id/deleteButton"
+                android:layout_weight=".5"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:onClick="deleteSelectedItems"
+                android:text="@string/delete_item"/>
+
+        <Button
+                android:layout_weight=".5"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:onClick="addItem"
+                android:text="@string/add_item"/>
+
+        <Button
+                android:layout_weight=".5"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:onClick="addDeleteItem"
+                android:text="@string/add_delete_item"/>
+
+        <Button
+                android:layout_weight=".5"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:onClick="deleteAddItem"
+                android:text="@string/delete_add_item"/>
+
+        <Button
+                android:layout_weight=".5"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:onClick="d1a2d3"
+                android:text="@string/d1a2d3"/>
+
+    </LinearLayout>
+
+</LinearLayout>

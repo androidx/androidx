@@ -183,6 +183,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
 
     private final VerticalGridView.OnTouchInterceptListener mOnTouchInterceptListener =
             new VerticalGridView.OnTouchInterceptListener() {
+        @Override
         public boolean onInterceptTouchEvent(MotionEvent event) {
             return onInterceptInputEvent(event);
         }
@@ -190,6 +191,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
 
     private final VerticalGridView.OnKeyInterceptListener mOnKeyInterceptListener =
             new VerticalGridView.OnKeyInterceptListener() {
+        @Override
         public boolean onInterceptKeyEvent(KeyEvent event) {
             return onInterceptInputEvent(event);
         }
@@ -745,6 +747,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
     }
 
     private final DataObserver mObserver = new DataObserver() {
+        @Override
         public void onChanged() {
             updateControlsBottomSpace(null);
         }
@@ -754,10 +757,13 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         ArrayList<View> mViews = new ArrayList<View>();
         ArrayList<Integer> mLayerType = new ArrayList<Integer>();
 
+        @Override
         public void onAnimationCancel(Animator animation) {
         }
+        @Override
         public void onAnimationRepeat(Animator animation) {
         }
+        @Override
         public void onAnimationStart(Animator animation) {
             getViews(mViews);
             for (View view : mViews) {
@@ -765,6 +771,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
                 view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
             }
         }
+        @Override
         public void onAnimationEnd(Animator animation) {
             for (int i = 0; i < mViews.size(); i++) {
                 mViews.get(i).setLayerType(mLayerType.get(i), null);

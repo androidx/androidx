@@ -498,13 +498,24 @@ public class RowsFragment extends BaseRowFragment implements
         }
         ViewHolderTask task = null;
         if (rowHolderTask != null) {
+            // This task will execute once the scroll completes. Once the scrolling finishes,
+            // we will get a success callback to update selected row position. Since the
+            // update to selected row position happens in a post, we want to ensure that this
+            // gets called after that.
             task = new ViewHolderTask() {
                 @Override
-                public void run(RecyclerView.ViewHolder rvh) {
-                    rowHolderTask.run(getRowViewHolder((ItemBridgeAdapter.ViewHolder) rvh));
+                public void run(final RecyclerView.ViewHolder rvh) {
+                    rvh.itemView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            rowHolderTask.run(
+                                    getRowViewHolder((ItemBridgeAdapter.ViewHolder) rvh));
+                        }
+                    });
                 }
             };
         }
+
         if (smooth) {
             verticalView.setSelectedPositionSmooth(rowPosition, task);
         } else {

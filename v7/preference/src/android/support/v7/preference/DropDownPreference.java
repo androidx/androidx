@@ -71,9 +71,9 @@ public class DropDownPreference extends ListPreference {
 
     /**
      * By default, this class uses a simple {@link android.widget.ArrayAdapter}. But if you need
-     * a more complicated {@link android.widget.ArrayAdapter}, this method can be overriden to
+     * a more complicated {@link android.widget.ArrayAdapter}, this method can be overridden to
      * create a custom one.
-     * <p> Note: This method is called from the constructor. So, overriden methods will get called
+     * <p> Note: This method is called from the constructor. So, overridden methods will get called
      * before any subclass initialization.
      *
      * @return The custom {@link android.widget.ArrayAdapter} that needs to be used with this class.
@@ -91,6 +91,7 @@ public class DropDownPreference extends ListPreference {
         }
     }
 
+    @Override
     public void setValueIndex(int index) {
         setValue(getEntryValues()[index].toString());
     }

@@ -36,12 +36,3 @@ LOCAL_AAPT_FLAGS := --no-version-vectors
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# API Check
-# ---------------------------------------------
-support_module := $(LOCAL_MODULE)
-support_module_api_dir := $(LOCAL_PATH)/api
-support_module_src_files := $(LOCAL_SRC_FILES)
-support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES) android-support-v7-appcompat
-support_module_java_packages := android.support.v7.*
-include $(SUPPORT_API_CHECK)

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <style name="Theme.Example.Leanback" parent="Theme.Leanback">
+    </style>
+    <style name="Theme.Example.Leanback.Browse" parent="Theme.Leanback.Browse">
+    </style>
+    <style name="Theme.Example.Leanback.SearchDetails" parent="Theme.Leanback.Details.NoSharedElementTransition">
+    </style>
+    <style name="Theme.Example.Leanback.Details" parent="Theme.Leanback.Details">
+    </style>
+    <style name="Theme.Example.Leanback.VerticalGrid" parent="Theme.Leanback.VerticalGrid">
+    </style>
+    <style name="Theme.Example.Leanback.Rows" parent="Theme.Leanback">
+        <item name="browseTitleTextStyle">@style/Widget.Example.Leanback.Title.Text</item>
+        <item name="rowsVerticalGridStyle">@style/Widget.Example.Leanback.Rows.VerticalGridView</item>
+    </style>
+    <style name="Theme.Example.Leanback.GuidedStep" parent="Theme.Leanback.GuidedStep">
+        <item name="guidanceIconStyle">@style/Widget.Example.Leanback.GuidanceIconStyle</item>
+    </style>
+    <style name="Theme.Example.Leanback.GuidedStep.First">
+        <item name="guidanceIconStyle">@style/Widget.Example.Leanback.FirstStepGuidanceIconStyle</item>
+    </style>
+    <style name="Theme.Example.Leanback.GuidedStep.Half" parent="Theme.Leanback.GuidedStep.Half">
+    </style>
+    <style name="Theme.Example.Leanback.Onboarding" parent="Theme.Leanback.Onboarding">
+        <item name="onboardingLogoStyle">@style/Widget.Example.Leanback.OnboardingLogoStyle</item>
+        <item name="onboardingPageIndicatorStyle">@style/Widget.Example.Leanback.OnboardingPageIndicatorStyle</item>
+    </style>
+</resources>

@@ -67,12 +67,10 @@ class AppCompatPopupWindow extends PopupWindow {
         if (defStyleRes != 0 && sdk < 11) {
             // If we have a defStyleRes, but we're on < API 11, we need to manually set attributes
             // from the style
-            if (sdk >= 9) {
-                // android:popupAnimationStyle was added in API 9
-                if (a.hasValue(R.styleable.PopupWindow_android_popupAnimationStyle)) {
-                    setAnimationStyle(a.getResourceId(
-                            R.styleable.PopupWindow_android_popupAnimationStyle, -1));
-                }
+            // android:popupAnimationStyle was added in API 9
+            if (a.hasValue(R.styleable.PopupWindow_android_popupAnimationStyle)) {
+                setAnimationStyle(a.getResourceId(
+                        R.styleable.PopupWindow_android_popupAnimationStyle, -1));
             }
         }
 

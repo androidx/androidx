@@ -148,7 +148,7 @@ public class ShadowOverlayContainer extends FrameLayout {
 
     /**
      * Sets the shadow type to {@link #SHADOW_DYNAMIC} if supported and sets the elevation/Z
-     * values to the given parameteres.
+     * values to the given parameters.
      */
     public void useDynamicShadow(float unfocusedZ, float focusedZ) {
         if (mInitialized) {

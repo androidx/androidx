@@ -1,0 +1,64 @@
+apply plugin: 'com.android.library'
+
+archivesBaseName = 'support-v4'
+dependencies {
+    compile project(':support-compat')
+    compile project(':support-media-compat')
+    compile project(':support-core-utils')
+    compile project(':support-core-ui')
+    compile project(':support-fragment')
+}
+
+android {
+    compileSdkVersion project.ext.currentSdk
+
+    defaultConfig {
+        minSdkVersion 9
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        // This disables the builds tools automatic vector -> PNG generation
+        generatedDensities = []
+    }
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri(rootProject.ext.supportRepoOut)) {
+            }
+
+            pom.project {
+                name 'Android Support Library v4'
+                description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 4 or later."
+                url 'http://developer.android.com/tools/extras/support-library.html'
+                inceptionYear '2011'
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                scm {
+                    url "http://source.android.com"
+                    connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
+                }
+                developers {
+                    developer {
+                        name 'The Android Open Source Project'
+                    }
+                }
+            }
+        }
+    }
+}
