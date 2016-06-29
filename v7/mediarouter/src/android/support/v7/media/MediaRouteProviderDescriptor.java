@@ -31,7 +31,7 @@ import java.util.List;
  * </p>
  */
 public final class MediaRouteProviderDescriptor {
-    private static final String KEY_ROUTES = "routes";
+    static final String KEY_ROUTES = "routes";
 
     private final Bundle mBundle;
     private List<MediaRouteDescriptor> mRoutes;
