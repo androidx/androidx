@@ -36,4 +36,5 @@
     <string name="status_bar_notification_info_overflow" msgid="2869576371154716097">"၉၉၉+"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"ဖွင့်"</string>
     <string name="abc_capital_off" msgid="121134116657445385">"ပိတ်"</string>
+    <string name="search_menu_title" msgid="146198913615257606">"ရှာဖွေပါ"</string>
 </resources>
