@@ -121,14 +121,14 @@ class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
 
     private void applyTickMarkTint() {
         if (mTickMark != null && (mHasTickMarkTint || mHasTickMarkTintMode)) {
-            mTickMark = mTickMark.mutate();
+            mTickMark = DrawableCompat.wrap(mTickMark.mutate());
 
             if (mHasTickMarkTint) {
-                mTickMark.setTintList(mTickMarkTintList);
+                DrawableCompat.setTintList(mTickMark, mTickMarkTintList);
             }
 
             if (mHasTickMarkTintMode) {
-                mTickMark.setTintMode(mTickMarkTintMode);
+                DrawableCompat.setTintMode(mTickMark, mTickMarkTintMode);
             }
 
             // The drawable (or one of its children) may not have been
