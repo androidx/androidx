@@ -306,6 +306,7 @@ package android.support.design.widget {
     ctor public AppBarLayout.ScrollingViewBehavior();
     ctor public AppBarLayout.ScrollingViewBehavior(android.content.Context, android.util.AttributeSet);
     method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, android.view.View, android.view.View);
+    method public boolean onChildRectangleRequestedOnScreen(android.support.design.widget.CoordinatorLayout, android.view.View, android.graphics.Rect, boolean);
     method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, android.view.View, android.view.View);
   }
 
@@ -462,6 +463,7 @@ package android.support.design.widget {
     method public boolean isDirty(android.support.design.widget.CoordinatorLayout, V);
     method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, V, android.view.View);
     method public android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.support.design.widget.CoordinatorLayout, V, android.support.v4.view.WindowInsetsCompat);
+    method public boolean onChildRectangleRequestedOnScreen(android.support.design.widget.CoordinatorLayout, V, android.graphics.Rect, boolean);
     method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, V, android.view.View);
     method public void onDependentViewRemoved(android.support.design.widget.CoordinatorLayout, V, android.view.View);
     method public boolean onInterceptTouchEvent(android.support.design.widget.CoordinatorLayout, V, android.view.MotionEvent);
