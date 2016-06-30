@@ -35,14 +35,6 @@ class AppCompatTextHelper {
         return new AppCompatTextHelper(textView);
     }
 
-    private static final int[] VIEW_ATTRS = {
-            android.R.attr.textAppearance,
-            android.R.attr.drawableLeft,
-            android.R.attr.drawableTop,
-            android.R.attr.drawableRight,
-            android.R.attr.drawableBottom
-    };
-
     final TextView mView;
 
     private TintInfo mDrawableLeftTint;
@@ -60,20 +52,24 @@ class AppCompatTextHelper {
 
         // First read the TextAppearance style id
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
-                VIEW_ATTRS, defStyleAttr, 0);
-        final int ap = a.getResourceId(0, -1);
+                R.styleable.AppCompatTextHelper, defStyleAttr, 0);
+        final int ap = a.getResourceId(R.styleable.AppCompatTextHelper_android_textAppearance, -1);
         // Now read the compound drawable and grab any tints
         if (a.hasValue(1)) {
-            mDrawableLeftTint = createTintInfo(context, drawableManager, a.getResourceId(1, 0));
+            mDrawableLeftTint = createTintInfo(context, drawableManager,
+                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableLeft, 0));
         }
         if (a.hasValue(2)) {
-            mDrawableTopTint = createTintInfo(context, drawableManager, a.getResourceId(2, 0));
+            mDrawableTopTint = createTintInfo(context, drawableManager,
+                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableTop, 0));
         }
         if (a.hasValue(3)) {
-            mDrawableRightTint = createTintInfo(context, drawableManager, a.getResourceId(3, 0));
+            mDrawableRightTint = createTintInfo(context, drawableManager,
+                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableRight, 0));
         }
         if (a.hasValue(4)) {
-            mDrawableBottomTint = createTintInfo(context, drawableManager, a.getResourceId(4, 0));
+            mDrawableBottomTint = createTintInfo(context, drawableManager,
+                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableBottom, 0));
         }
         a.recycle();
 
