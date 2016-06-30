@@ -4507,7 +4507,10 @@ package android.support.v4.app {
   }
 
   public final class ServiceCompat {
+    method public static void stopForeground(android.app.Service, int);
     field public static final int START_STICKY = 1; // 0x1
+    field public static final int STOP_FOREGROUND_DETACH = 2; // 0x2
+    field public static final int STOP_FOREGROUND_REMOVE = 1; // 0x1
   }
 
   public final class ShareCompat {
