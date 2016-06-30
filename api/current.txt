@@ -892,13 +892,12 @@ package android.support.transition {
     ctor public ChangeBounds();
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
+    method public void setResizeClip(boolean);
   }
 
-  public class Fade extends android.support.transition.Transition {
+  public class Fade extends android.support.transition.Visibility {
     ctor public Fade(int);
     ctor public Fade();
-    method public void captureEndValues(android.support.transition.TransitionValues);
-    method public void captureStartValues(android.support.transition.TransitionValues);
     field public static final int IN = 1; // 0x1
     field public static final int OUT = 2; // 0x2
   }
@@ -916,7 +915,6 @@ package android.support.transition {
 
   public abstract class Transition {
     ctor public Transition();
-    ctor protected Transition(boolean);
     method public android.support.transition.Transition addListener(android.support.transition.Transition.TransitionListener);
     method public android.support.transition.Transition addTarget(android.view.View);
     method public android.support.transition.Transition addTarget(int);
@@ -980,6 +978,15 @@ package android.support.transition {
     ctor public TransitionValues();
     field public final java.util.Map<java.lang.String, java.lang.Object> values;
     field public android.view.View view;
+  }
+
+  public abstract class Visibility extends android.support.transition.Transition {
+    ctor public Visibility();
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+    method public boolean isVisible(android.support.transition.TransitionValues);
+    method public android.animation.Animator onAppear(android.view.ViewGroup, android.support.transition.TransitionValues, int, android.support.transition.TransitionValues, int);
+    method public android.animation.Animator onDisappear(android.view.ViewGroup, android.support.transition.TransitionValues, int, android.support.transition.TransitionValues, int);
   }
 
 }

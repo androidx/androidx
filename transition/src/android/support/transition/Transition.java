@@ -69,7 +69,7 @@ public abstract class Transition implements TransitionInterface {
     }
 
     // Hidden constructor for built-in transitions
-    protected Transition(boolean deferred) {
+    Transition(boolean deferred) {
         if (!deferred) {
             if (Build.VERSION.SDK_INT >= 23) {
                 mImpl = new TransitionApi23();
@@ -137,7 +137,7 @@ public abstract class Transition implements TransitionInterface {
      * Views with different IDs, or no IDs whatsoever, will be ignored.
      *
      * <p>Note that using ids to specify targets implies that ids should be unique
-     * within the view hierarchy underneat the scene root.</p>
+     * within the view hierarchy underneath the scene root.</p>
      *
      * @param targetId The id of a target view, must be a positive number.
      * @return The Transition to which the targetId is added.
