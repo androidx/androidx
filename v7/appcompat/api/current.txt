@@ -1408,6 +1408,14 @@ package android.support.v7.appcompat {
     field public static int AppCompatSeekBar_tickMark;
     field public static int AppCompatSeekBar_tickMarkTint;
     field public static int AppCompatSeekBar_tickMarkTintMode;
+    field public static final int[] AppCompatTextHelper;
+    field public static int AppCompatTextHelper_android_drawableBottom;
+    field public static int AppCompatTextHelper_android_drawableEnd;
+    field public static int AppCompatTextHelper_android_drawableLeft;
+    field public static int AppCompatTextHelper_android_drawableRight;
+    field public static int AppCompatTextHelper_android_drawableStart;
+    field public static int AppCompatTextHelper_android_drawableTop;
+    field public static int AppCompatTextHelper_android_textAppearance;
     field public static final int[] AppCompatTextView;
     field public static int AppCompatTextView_android_textAppearance;
     field public static int AppCompatTextView_textAllCaps;
