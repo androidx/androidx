@@ -43,7 +43,6 @@ public class BuildCompat {
      * @return {@code true} if N MR1 APIs are available for use
      */
     public static boolean isAtLeastNMR1() {
-        return !"REL".equals(VERSION.CODENAME)
-                && "NMR1".compareTo(VERSION.CODENAME) <= 0;
+        return VERSION.SDK_INT >= 25;
     }
 }
