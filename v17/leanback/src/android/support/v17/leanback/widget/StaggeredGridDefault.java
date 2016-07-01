@@ -240,7 +240,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
             // find start item index of "previous column"
             int edgeLimitSearchIndex = findRowEdgeLimitSearchIndex(true);
             if (edgeLimitSearchIndex < 0) {
-                // if "previous colummn" is not found, using edgeLimit of
+                // if "previous column" is not found, using edgeLimit of
                 // first row currently in grid
                 edgeLimit = Integer.MIN_VALUE;
                 for (int i = 0; i < mNumRows; i++) {
@@ -340,7 +340,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
             // find start item index of "previous column"
             int edgeLimitSearchIndex = findRowEdgeLimitSearchIndex(false);
             if (edgeLimitSearchIndex < 0) {
-                // if "previous colummn" is not found, using edgeLimit of
+                // if "previous column" is not found, using edgeLimit of
                 // last row currently in grid and fill from upper row
                 rowIndex = rowIndex - 1;
                 edgeLimit = Integer.MAX_VALUE;

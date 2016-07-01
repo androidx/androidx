@@ -1073,6 +1073,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                     }
                     mSubActionsGridView.removeOnLayoutChangeListener(this);
                     mMainView.post(new Runnable() {
+                        @Override
                         public void run() {
                             if (mMainView == null) {
                                 return;

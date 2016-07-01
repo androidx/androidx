@@ -28,6 +28,8 @@ import android.view.ViewGroup;
 
 import android.support.percent.R;
 
+import java.lang.Math;
+
 /**
  * Helper for layouts that want to support percentage based dimensions.
  *
@@ -412,21 +414,21 @@ public class PercentLayoutHelper {
                             || mPreservedParams.height == 0) && (heightPercent < 0);
 
             if (widthPercent >= 0) {
-                params.width = (int) (widthHint * widthPercent);
+                params.width = Math.round(widthHint * widthPercent);
             }
 
             if (heightPercent >= 0) {
-                params.height = (int) (heightHint * heightPercent);
+                params.height = Math.round(heightHint * heightPercent);
             }
 
             if (aspectRatio >= 0) {
                 if (widthNotSet) {
-                    params.width = (int) (params.height * aspectRatio);
+                    params.width = Math.round(params.height * aspectRatio);
                     // Keep track that we've filled the width based on the height and aspect ratio.
                     mPreservedParams.mIsWidthComputedFromAspectRatio = true;
                 }
                 if (heightNotSet) {
-                    params.height = (int) (params.width / aspectRatio);
+                    params.height = Math.round(params.width / aspectRatio);
                     // Keep track that we've filled the height based on the width and aspect ratio.
                     mPreservedParams.mIsHeightComputedFromAspectRatio = true;
                 }
@@ -468,26 +470,26 @@ public class PercentLayoutHelper {
                     MarginLayoutParamsCompat.getMarginEnd(params));
 
             if (leftMarginPercent >= 0) {
-                params.leftMargin = (int) (widthHint * leftMarginPercent);
+                params.leftMargin = Math.round(widthHint * leftMarginPercent);
             }
             if (topMarginPercent >= 0) {
-                params.topMargin = (int) (heightHint * topMarginPercent);
+                params.topMargin = Math.round(heightHint * topMarginPercent);
             }
             if (rightMarginPercent >= 0) {
-                params.rightMargin = (int) (widthHint * rightMarginPercent);
+                params.rightMargin = Math.round(widthHint * rightMarginPercent);
             }
             if (bottomMarginPercent >= 0) {
-                params.bottomMargin = (int) (heightHint * bottomMarginPercent);
+                params.bottomMargin = Math.round(heightHint * bottomMarginPercent);
             }
             boolean shouldResolveLayoutDirection = false;
             if (startMarginPercent >= 0) {
                 MarginLayoutParamsCompat.setMarginStart(params,
-                        (int) (widthHint * startMarginPercent));
+                        Math.round(widthHint * startMarginPercent));
                 shouldResolveLayoutDirection = true;
             }
             if (endMarginPercent >= 0) {
                 MarginLayoutParamsCompat.setMarginEnd(params,
-                        (int) (widthHint * endMarginPercent));
+                        Math.round(widthHint * endMarginPercent));
                 shouldResolveLayoutDirection = true;
             }
             if (shouldResolveLayoutDirection && (view != null)) {

@@ -16,7 +16,6 @@
 
 package android.support.v7.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -34,6 +33,7 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.text.AllCapsTransformationMethod;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -165,8 +165,6 @@ public class SwitchCompat extends CompoundButton {
     @SuppressWarnings("hiding")
     private final Rect mTempRect = new Rect();
 
-    private final AppCompatDrawableManager mDrawableManager;
-
     private static final int[] CHECKED_STATE_SET = {
             android.R.attr.state_checked
     };
@@ -265,8 +263,6 @@ public class SwitchCompat extends CompoundButton {
         if (appearance != 0) {
             setSwitchTextAppearance(context, appearance);
         }
-
-        mDrawableManager = AppCompatDrawableManager.get();
 
         a.recycle();
 
@@ -482,7 +478,7 @@ public class SwitchCompat extends CompoundButton {
      * @attr ref android.support.v7.appcompat.R.styleable#SwitchCompat_track
      */
     public void setTrackResource(int resId) {
-        setTrackDrawable(mDrawableManager.getDrawable(getContext(), resId));
+        setTrackDrawable(AppCompatResources.getDrawable(getContext(), resId));
     }
 
     /**
@@ -602,7 +598,7 @@ public class SwitchCompat extends CompoundButton {
      * @attr ref android.support.v7.appcompat.R.styleable#SwitchCompat_android_thumb
      */
     public void setThumbResource(int resId) {
-        setThumbDrawable(mDrawableManager.getDrawable(getContext(), resId));
+        setThumbDrawable(AppCompatResources.getDrawable(getContext(), resId));
     }
 
     /**
@@ -847,7 +843,6 @@ public class SwitchCompat extends CompoundButton {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
     public void onPopulateAccessibilityEvent(AccessibilityEvent event) {
         super.onPopulateAccessibilityEvent(event);
@@ -1392,7 +1387,6 @@ public class SwitchCompat extends CompoundButton {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(event);

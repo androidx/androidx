@@ -182,4 +182,9 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     public <E> List<E> unmodifiableList() {
         return Collections.unmodifiableList((List<E>) mItems);
     }
+
+    @Override
+    public boolean isImmediateNotifySupported() {
+        return true;
+    }
 }

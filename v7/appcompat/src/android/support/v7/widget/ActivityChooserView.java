@@ -122,7 +122,7 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * Observer for the model data.
      */
-    private final DataSetObserver mModelDataSetOberver = new DataSetObserver() {
+    private final DataSetObserver mModelDataSetObserver = new DataSetObserver() {
 
         @Override
         public void onChanged() {
@@ -278,6 +278,7 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setActivityChooserModel(ActivityChooserModel dataModel) {
         mAdapter.setDataModel(dataModel);
         if (isShowingPopup()) {
@@ -412,7 +413,7 @@ public class ActivityChooserView extends ViewGroup implements
         super.onAttachedToWindow();
         ActivityChooserModel dataModel = mAdapter.getDataModel();
         if (dataModel != null) {
-            dataModel.registerObserver(mModelDataSetOberver);
+            dataModel.registerObserver(mModelDataSetObserver);
         }
         mIsAttachedToWindow = true;
     }
@@ -422,7 +423,7 @@ public class ActivityChooserView extends ViewGroup implements
         super.onDetachedFromWindow();
         ActivityChooserModel dataModel = mAdapter.getDataModel();
         if (dataModel != null) {
-            dataModel.unregisterObserver(mModelDataSetOberver);
+            dataModel.unregisterObserver(mModelDataSetObserver);
         }
         ViewTreeObserver viewTreeObserver = getViewTreeObserver();
         if (viewTreeObserver.isAlive()) {
@@ -554,6 +555,7 @@ public class ActivityChooserView extends ViewGroup implements
             View.OnClickListener, View.OnLongClickListener, PopupWindow.OnDismissListener {
 
         // AdapterView#OnItemClickListener
+        @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             ActivityChooserViewAdapter adapter = (ActivityChooserViewAdapter) parent.getAdapter();
             final int itemViewType = adapter.getItemViewType(position);
@@ -585,6 +587,7 @@ public class ActivityChooserView extends ViewGroup implements
         }
 
         // View.OnClickListener
+        @Override
         public void onClick(View view) {
             if (view == mDefaultActivityButton) {
                 dismissPopup();
@@ -618,6 +621,7 @@ public class ActivityChooserView extends ViewGroup implements
         }
 
         // PopUpWindow.OnDismissListener#onDismiss
+        @Override
         public void onDismiss() {
             notifyOnDismissListener();
             if (mProvider != null) {
@@ -660,11 +664,11 @@ public class ActivityChooserView extends ViewGroup implements
         public void setDataModel(ActivityChooserModel dataModel) {
             ActivityChooserModel oldDataModel = mAdapter.getDataModel();
             if (oldDataModel != null && isShown()) {
-                oldDataModel.unregisterObserver(mModelDataSetOberver);
+                oldDataModel.unregisterObserver(mModelDataSetObserver);
             }
             mDataModel = dataModel;
             if (dataModel != null && isShown()) {
-                dataModel.registerObserver(mModelDataSetOberver);
+                dataModel.registerObserver(mModelDataSetObserver);
             }
             notifyDataSetChanged();
         }
@@ -683,6 +687,7 @@ public class ActivityChooserView extends ViewGroup implements
             return ITEM_VIEW_TYPE_COUNT;
         }
 
+        @Override
         public int getCount() {
             int count = 0;
             int activityCount = mDataModel.getActivityCount();
@@ -696,6 +701,7 @@ public class ActivityChooserView extends ViewGroup implements
             return count;
         }
 
+        @Override
         public Object getItem(int position) {
             final int itemViewType = getItemViewType(position);
             switch (itemViewType) {
@@ -711,10 +717,12 @@ public class ActivityChooserView extends ViewGroup implements
             }
         }
 
+        @Override
         public long getItemId(int position) {
             return position;
         }
 
+        @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             final int itemViewType = getItemViewType(position);
             switch (itemViewType) {

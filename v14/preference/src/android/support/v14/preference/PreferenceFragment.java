@@ -100,14 +100,14 @@ import android.view.ViewGroup;
  * <p>The following sample code shows a simple preference fragment that is
  * populated from a resource.  The resource it loads is:</p>
  *
- * {@sample development/samples/ApiDemos/res/xml/preferences.xml preferences}
+ * {@sample frameworks/support/samples/SupportPreferenceDemos/res/xml/preferences.xml preferences}
  *
  * <p>The fragment implementation itself simply populates the preferences
  * when created.  Note that the preferences framework takes care of loading
  * the current values out of the app preferences and writing them when changed:</p>
  *
- * {@sample development/samples/ApiDemos/src/com/example/android/apis/preference/FragmentPreferences.java
- *      fragment}
+ * {@sample frameworks/support/samples/SupportPreferenceDemos/src/com/example/android/supportpreference/FragmentSupportPreferences.java
+ *      support_fragment}
  *
  * @see Preference
  * @see PreferenceScreen

@@ -15,15 +15,17 @@
  */
 package android.support.v7.widget;
 
-import org.junit.Test;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.*;
 
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.test.espresso.ViewInteraction;
 import android.support.v7.appcompat.test.R;
-import android.support.v7.testutils.TestUtils;
+import android.support.v7.testutils.TestUtilsMatchers;
 import android.widget.ImageView;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  * In addition to all tinting-related tests done by the base class, this class provides
@@ -38,12 +40,7 @@ public class AppCompatImageViewTest
     @Test
     public void testImageViewBothSrcCompatAndroidSrcSet() {
         final int expectedColor = mContainer.getResources().getColor(R.color.test_blue);
-
-        final ImageView view = (ImageView) mContainer.findViewById(R.id.view_android_src_srccompat);
-        final Drawable drawable = view.getDrawable();
-
-        TestUtils.assertAllPixelsOfColor("ImageView drawable should be blue",
-                drawable, view.getWidth(), view.getHeight(), true,
-                expectedColor, 0, false);
+        ViewInteraction imageViewInteration = onView(withId(R.id.view_android_src_srccompat));
+        imageViewInteration.check(matches(TestUtilsMatchers.drawable(expectedColor)));
     }
 }

@@ -65,12 +65,12 @@ public class AppCompatTextViewTest
         // Toggle all-caps mode on the two text views
         onView(withId(R.id.text_view_caps1)).perform(
                 setTextAppearance(R.style.TextStyleAllCapsOff));
-        assertEquals("Text view is still in all caps on", text1,
+        assertEquals("Text view is now in all caps off", text1,
                 textView1.getLayout().getText());
 
         onView(withId(R.id.text_view_caps2)).perform(
                 setTextAppearance(R.style.TextStyleAllCapsOn));
-        assertEquals("Text view is in all caps on", text2.toUpperCase(),
+        assertEquals("Text view is now in all caps on", text2.toUpperCase(),
                 textView2.getLayout().getText());
     }
 

@@ -117,7 +117,8 @@ public class TestUtilsMatchers {
      * Returns a matcher that matches <code>View</code>s whose combined background starting
      * from the view and up its ancestor chain matches the specified color.
      */
-    public static Matcher isCombinedBackground(@ColorInt final int color) {
+    public static Matcher isCombinedBackground(@ColorInt final int color,
+            final boolean onlyTestCenterPixel) {
         return new BoundedMatcher<View, View>(View.class) {
             private String failedComparisonDescription;
 
@@ -133,9 +134,14 @@ public class TestUtilsMatchers {
                 // Create a bitmap with combined backgrounds of the view and its ancestors.
                 Bitmap combinedBackgroundBitmap = TestUtils.getCombinedBackgroundBitmap(view);
                 try {
-                    TestUtils.assertAllPixelsOfColor("", combinedBackgroundBitmap,
-                            combinedBackgroundBitmap.getWidth(),
-                            combinedBackgroundBitmap.getHeight(), color, 0, true);
+                    if (onlyTestCenterPixel) {
+                        TestUtils.assertCenterPixelOfColor("", combinedBackgroundBitmap,
+                                color, 0, true);
+                    } else {
+                        TestUtils.assertAllPixelsOfColor("", combinedBackgroundBitmap,
+                                combinedBackgroundBitmap.getWidth(),
+                                combinedBackgroundBitmap.getHeight(), color, 0, true);
+                    }
                     // If we are here, the color comparison has passed.
                     failedComparisonDescription = null;
                     return true;

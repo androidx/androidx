@@ -8,4 +8,4 @@ project.properties
 **/gen
 *.iml
 **/out
-buildSrc/
+buildSrc/build

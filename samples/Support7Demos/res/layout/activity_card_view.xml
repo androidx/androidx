@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:card_view="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#ffffffff"
+              android:orientation="vertical">
+    <RelativeLayout
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:id="@+id/radius_label"
+                android:layout_marginBottom="5dp"
+                android:text="@string/card_view_radius"/>
+        <SeekBar
+                android:id="@+id/corner_radius_seek_bar"
+                android:max="100"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/radius_label"
+                android:layout_alignTop="@id/radius_label"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:textColor="@android:color/black"
+                android:id="@+id/width_label"
+                android:text="@string/card_view_width"
+                android:layout_below="@id/radius_label"
+                android:layout_alignRight="@id/radius_label"/>
+        <SeekBar
+                android:id="@+id/width_seek_bar"
+                android:max="600"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/width_label"
+                android:layout_alignTop="@id/width_label"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:textColor="@android:color/black"
+                android:id="@+id/height_label"
+                android:text="@string/card_view_height"
+                android:layout_below="@id/width_label"
+                android:layout_alignRight="@id/width_label"/>
+        <SeekBar
+                android:id="@+id/height_seek_bar"
+                android:max="600"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/height_label"
+                android:layout_alignTop="@id/height_label"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:id="@+id/elevation_label"
+                android:textColor="@android:color/black"
+                android:text="@string/card_view_elevation"
+                android:layout_below="@id/height_label"
+                android:layout_alignRight="@id/height_label"/>
+        <SeekBar
+                android:id="@+id/elevation_seek_bar"
+                android:max="50"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/elevation_label"
+                android:layout_alignTop="@id/elevation_label"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:id="@+id/max_elevation_label"
+                android:textColor="@android:color/black"
+                android:text="@string/card_view_max_elevation"
+                android:layout_below="@id/elevation_label"
+                android:layout_alignRight="@id/elevation_label"/>
+        <SeekBar
+                android:id="@+id/max_elevation_seek_bar"
+                android:max="60"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/max_elevation_label"
+                android:layout_alignTop="@id/max_elevation_label"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:id="@+id/alpha_label"
+                android:textColor="@android:color/black"
+                android:text="@string/card_view_alpha"
+                android:layout_below="@id/max_elevation_label"
+                android:layout_alignRight="@id/max_elevation_label"/>
+        <SeekBar
+                android:id="@+id/alpha_seek_bar"
+                android:max="255"
+                android:progress="255"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/alpha_label"
+                android:layout_alignTop="@id/alpha_label"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:id="@+id/color_label"
+                android:textColor="@android:color/black"
+                android:text="@string/card_view_bg_color"
+                android:layout_below="@id/alpha_label"
+                android:layout_alignRight="@id/alpha_label"/>
+
+        <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/alpha_seek_bar"
+                android:layout_toRightOf="@id/color_label"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@id/color_label">
+
+            <RadioGroup
+                    android:id="@+id/select_bg_color_radio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                <RadioButton
+                        android:id="@+id/def"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/cardview_light_background"
+                        android:checked="true"/>
+                <RadioButton
+                        android:id="@+id/yellow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/card_yellow"/>
+                <RadioButton
+                        android:id="@+id/aquatic"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/card_aquatic"/>
+                <RadioButton
+                        android:id="@+id/classic"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/card_classic"/>
+                <RadioButton
+                        android:id="@+id/sunbrite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/card_sunbrite"/>
+                <RadioButton
+                        android:id="@+id/tropical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/card_tropical"/>
+                <RadioButton
+                        android:id="@+id/selector"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/cardview_background_selector_label"/>
+            </RadioGroup>
+        </ScrollView>
+        <RadioGroup
+                android:id="@+id/select_target_radio"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_below="@id/color_label">
+            <RadioButton
+                    android:id="@+id/resize_card_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:text="@string/card_view_resize_card_view"
+                    android:checked="true"/>
+            <RadioButton
+                    android:id="@+id/resize_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:text="@string/card_view_resize_content"/>
+        </RadioGroup>
+    </RelativeLayout>
+    <RelativeLayout android:layout_width="fill_parent"
+                    android:layout_height="match_parent">
+        <android.support.v7.widget.CardView
+                android:id="@+id/card_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                card_view:cardElevation="10dp"
+                android:clickable="true"
+                android:layout_margin="8dp">
+            <TextView
+                    android:id="@+id/info_text"
+                    android:text="@string/card_view"
+                    android:textColor="@android:color/black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+        </android.support.v7.widget.CardView>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@string/card_view_sample_text"
+                  android:textColor="@android:color/black"
+                android:layout_toRightOf="@id/card_view"
+                android:layout_alignTop="@id/card_view"/>
+    </RelativeLayout>
+
+</LinearLayout>

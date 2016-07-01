@@ -121,9 +121,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        if (Build.VERSION.SDK_INT >= 8) {
-            super.onConfigurationChanged(newConfig);
-        }
+        super.onConfigurationChanged(newConfig);
 
         if (mPresenter != null) {
             mPresenter.updateMenuView(false);

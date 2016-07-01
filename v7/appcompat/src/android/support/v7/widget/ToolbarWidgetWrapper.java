@@ -26,6 +26,7 @@ import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v7.app.WindowDecorActionBar;
 import android.support.v7.appcompat.R;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.view.menu.ActionMenuItem;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPresenter;
@@ -83,7 +84,6 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     private int mNavigationMode = ActionBar.NAVIGATION_MODE_STANDARD;
 
-    private final AppCompatDrawableManager mDrawableManager;
     private int mDefaultNavigationContentDescription = 0;
     private Drawable mDefaultNavigationIcon;
 
@@ -170,8 +170,6 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
             mDisplayOpts = detectDisplayOptions();
         }
         a.recycle();
-
-        mDrawableManager = AppCompatDrawableManager.get();
 
         setDefaultNavigationContentDescription(defaultNavigationContentDescription);
         mHomeDescription = mToolbar.getNavigationContentDescription();
@@ -295,7 +293,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setIcon(int resId) {
-        setIcon(resId != 0 ? mDrawableManager.getDrawable(getContext(), resId) : null);
+        setIcon(resId != 0 ? AppCompatResources.getDrawable(getContext(), resId) : null);
     }
 
     @Override
@@ -306,7 +304,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setLogo(int resId) {
-        setLogo(resId != 0 ? mDrawableManager.getDrawable(getContext(), resId) : null);
+        setLogo(resId != 0 ? AppCompatResources.getDrawable(getContext(), resId) : null);
     }
 
     @Override
@@ -593,7 +591,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setNavigationIcon(int resId) {
-        setNavigationIcon(resId != 0 ? mDrawableManager.getDrawable(getContext(), resId) : null);
+        setNavigationIcon(resId != 0 ? AppCompatResources.getDrawable(getContext(), resId) : null);
     }
 
     @Override

@@ -74,6 +74,10 @@
         <item name="android:actionModeCutDrawable">?actionModeCutDrawable</item>
         <item name="android:actionModeCopyDrawable">?actionModeCopyDrawable</item>
         <item name="android:actionModePasteDrawable">?actionModePasteDrawable</item>
+
+        <item name="android:textSelectHandle">@drawable/abc_text_select_handle_middle_mtrl_alpha</item>
+        <item name="android:textSelectHandleLeft">@drawable/abc_text_select_handle_left_mtrl_alpha</item>
+        <item name="android:textSelectHandleRight">@drawable/abc_text_select_handle_right_mtrl_alpha</item>
     </style>
 
     <style name="Platform.V11.AppCompat.Light" parent="android:Theme.Holo.Light">
@@ -125,6 +129,10 @@
         <item name="android:actionModeCutDrawable">?actionModeCutDrawable</item>
         <item name="android:actionModeCopyDrawable">?actionModeCopyDrawable</item>
         <item name="android:actionModePasteDrawable">?actionModePasteDrawable</item>
+
+        <item name="android:textSelectHandle">@drawable/abc_text_select_handle_middle_mtrl_alpha</item>
+        <item name="android:textSelectHandleLeft">@drawable/abc_text_select_handle_left_mtrl_alpha</item>
+        <item name="android:textSelectHandleRight">@drawable/abc_text_select_handle_right_mtrl_alpha</item>
     </style>
 
     <style name="Base.V11.Theme.AppCompat.Dialog" parent="Base.V7.Theme.AppCompat.Dialog">

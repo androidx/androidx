@@ -29,6 +29,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
 import android.text.TextUtils;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 
 /**
@@ -54,6 +56,7 @@ public final class ContentRecommendation
         CONTENT_TYPE_MAGAZINE,
         CONTENT_TYPE_WEBSITE,
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface ContentType {}
 
     /**
@@ -154,6 +157,7 @@ public final class ContentRecommendation
         CONTENT_PRICING_PREORDER,
         CONTENT_PRICING_SUBSCRIPTION,
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface ContentPricing {}
 
     /**
@@ -197,6 +201,7 @@ public final class ContentRecommendation
         CONTENT_STATUS_AVAILABLE,
         CONTENT_STATUS_UNAVAILABLE,
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface ContentStatus {}
 
     /**
@@ -232,6 +237,7 @@ public final class ContentRecommendation
         CONTENT_MATURITY_MEDIUM,
         CONTENT_MATURITY_HIGH,
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface ContentMaturity {}
 
     /**
@@ -263,6 +269,7 @@ public final class ContentRecommendation
             INTENT_TYPE_BROADCAST,
             INTENT_TYPE_SERVICE,
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface IntentType {
     }
 

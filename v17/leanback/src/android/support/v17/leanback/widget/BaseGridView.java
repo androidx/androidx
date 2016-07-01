@@ -579,6 +579,7 @@ abstract class BaseGridView extends RecyclerView {
             RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
             if (vh == null || hasPendingAdapterUpdates()) {
                 addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
+                    @Override
                     public void onChildViewHolderSelected(RecyclerView parent,
                             RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
                         if (selectedPosition == position) {
@@ -604,6 +605,7 @@ abstract class BaseGridView extends RecyclerView {
             RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
             if (vh == null || hasPendingAdapterUpdates()) {
                 addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
+                    @Override
                     public void onChildViewHolderSelected(RecyclerView parent,
                             RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
                         if (selectedPosition == position) {

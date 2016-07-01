@@ -1,0 +1,70 @@
+[
+  {
+    "title": "",
+    "cards": [
+      {
+        "id": 0,
+        "type": "DEFAULT",
+        "title": "Card Examples",
+        "localImageResource": "thumbnail_example_cards",
+        "description": "Showcase of various card design and layouts"
+      },
+      {
+        "id": 1,
+        "type": "DEFAULT",
+        "title": "Page/Row fragment Examples",
+        "localImageResource": "thumbnail_example_browse",
+        "description": "Showcase usage of page/rows fragment"
+      },
+      {
+        "id": 2,
+        "type": "DEFAULT",
+        "title": "Grid Examples",
+        "localImageResource": "thumbnail_example_grid",
+        "description": "Showcase of various card design and layouts"
+      },
+      {
+        "id": 3,
+        "type": "DEFAULT",
+        "title": "Detail Examples",
+        "localImageResource": "thumbnail_example_detail",
+        "description": "Showcase of various card design and layouts"
+      },
+      {
+        "id": 4,
+        "type": "DEFAULT",
+        "title": "Video consumption Examples",
+        "localImageResource": "thumbnail_example_video_consumption",
+        "description": "Showcase of various card design and layouts"
+      },
+      {
+        "id": 5,
+        "type": "DEFAULT",
+        "title": "Music consumption Examples",
+        "localImageResource": "thumbnail_example_music_consumption",
+        "description": "Showcase of various card design and layouts"
+      },
+      {
+        "id": 6,
+        "type": "DEFAULT",
+        "title": "Wizard Examples",
+        "localImageResource": "thumbnail_example_wizard",
+        "description": "Showcase of various card design and layouts"
+      },
+      {
+        "id": 7,
+        "type": "DEFAULT",
+        "title": "Settings Examples",
+        "localImageResource": "thumbnail_example_settings",
+        "description": "Showcase of various card design and layouts"
+      },
+      {
+        "id": 8,
+        "type": "DEFAULT",
+        "title": "Dialog Examples",
+        "localImageResource": "thumbnail_example_dialog",
+        "description": "Showcase of various card design and layouts"
+      }
+    ]
+  }
+]

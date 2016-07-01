@@ -17,12 +17,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.system.Settings;
-import android.util.AttributeSet;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.View;
 
 
@@ -163,7 +160,7 @@ public final class ShadowOverlayHelper {
 
             // figure out shadow type and if we need use wrapper:
             if (helper.mNeedsShadow) {
-                // if static shadow is prefered or dynamic shadow is not supported,
+                // if static shadow is preferred or dynamic shadow is not supported,
                 // use static shadow,  otherwise use dynamic shadow.
                 if (!preferZOrder || !supportsDynamicShadow()) {
                     helper.mShadowType = SHADOW_STATIC;
@@ -216,7 +213,7 @@ public final class ShadowOverlayHelper {
          * Set value of focused and unfocused Z value for shadow.
          *
          * @param unfocusedZ   Number of pixels for unfocused Z value.
-         * @param focusedZ     Number of pixels for foucsed Z value.
+         * @param focusedZ     Number of pixels for focused Z value.
          * @return  The Options object itself.
          */
         public Options dynamicShadowZ(float unfocusedZ, float focusedZ){
@@ -408,7 +405,7 @@ public final class ShadowOverlayHelper {
      * See also {@link ShadowOverlayContainer#setShadowFocusLevel(float)}.
      */
     public static void setNoneWrapperShadowFocusLevel(View view, float level) {
-        setShadowFocusLevel(getNoneWrapperDyamicShadowImpl(view), SHADOW_DYNAMIC, level);
+        setShadowFocusLevel(getNoneWrapperDynamicShadowImpl(view), SHADOW_DYNAMIC, level);
     }
 
     /**
@@ -418,7 +415,7 @@ public final class ShadowOverlayHelper {
         if (needsWrapper()) {
             ((ShadowOverlayContainer) view).setShadowFocusLevel(level);
         } else {
-            setShadowFocusLevel(getNoneWrapperDyamicShadowImpl(view), SHADOW_DYNAMIC, level);
+            setShadowFocusLevel(getNoneWrapperDynamicShadowImpl(view), SHADOW_DYNAMIC, level);
         }
     }
 
@@ -443,7 +440,7 @@ public final class ShadowOverlayHelper {
         }
     }
 
-    static Object getNoneWrapperDyamicShadowImpl(View view) {
+    static Object getNoneWrapperDynamicShadowImpl(View view) {
         return view.getTag(R.id.lb_shadow_impl);
     }
 

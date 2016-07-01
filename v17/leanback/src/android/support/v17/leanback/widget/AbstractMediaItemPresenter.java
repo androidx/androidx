@@ -20,12 +20,14 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.support.v17.leanback.R;
 import android.support.v4.view.ViewCompat;
+import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,14 @@ import java.util.List;
  * Each media item's details and actions are separately focusable.
  * The appearance of each one of the media row components can be controlled through setting
  * theme's attributes.
+ * Each media item row provides a view flipper for switching between different views depending on
+ * the playback state.
+ * A default layout is provided by this presenter for rendering different playback states, or a
+ * custom layout can be provided by the user by overriding the
+ * playbackMediaItemNumberViewFlipperLayout attribute in the currently specified theme.
+ * Subclasses should also override {@link #getMediaPlayState(Object)} to provide the current play
+ * state of their media item model in case they wish to use different views depending on the
+ * playback state.
  * The presenter can optionally provide line separators between media rows by setting
  * {@link #setHasMediaRowSeparator(boolean)} to true.
  * <p>
@@ -56,6 +66,23 @@ import java.util.List;
  * </p>
  */
 public abstract class AbstractMediaItemPresenter extends RowPresenter {
+
+    /**
+     * Different playback states of a media item
+     */
+
+    /**
+     * Indicating that the media item is currently neither playing nor paused.
+     */
+    public static final int PLAY_STATE_INITIAL = 0;
+    /**
+     * Indicating that the media item is currently paused.
+     */
+    public static final int PLAY_STATE_PAUSED = 1;
+    /**
+     * Indicating that the media item is currently playing
+     */
+    public static final int PLAY_STATE_PLAYING = 2;
 
     final static Rect sTempRect = new Rect();
     private int mBackgroundColor = Color.TRANSPARENT;
@@ -129,7 +156,11 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
         private final View mMediaRowView;
         private final View mSelectorView;
         private final View mMediaItemDetailsView;
+        private final ViewFlipper mMediaItemNumberViewFlipper;
         private final TextView mMediaItemNumberView;
+        private final View mMediaItemPausedView;
+
+        private final View mMediaItemPlayingView;
         private final TextView mMediaItemNameView;
         private final TextView mMediaItemDurationView;
         private final View mMediaItemRowSeparator;
@@ -144,7 +175,6 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
             mSelectorView = view.findViewById(R.id.mediaRowSelector);
             mMediaRowView  = view.findViewById(R.id.mediaItemRow);
             mMediaItemDetailsView = view.findViewById(R.id.mediaItemDetails);
-            mMediaItemNumberView = (TextView) view.findViewById(R.id.mediaItemNumber);
             mMediaItemNameView = (TextView) view.findViewById(R.id.mediaItemName);
             mMediaItemDurationView = (TextView) view.findViewById(R.id.mediaItemDuration);
             mMediaItemRowSeparator = view.findViewById(R.id.mediaRowSeparator);
@@ -167,7 +197,20 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
                             true);
                 }
             });
+            mMediaItemNumberViewFlipper =
+                    (ViewFlipper) view.findViewById(R.id.mediaItemNumberViewFlipper);
 
+            TypedValue typedValue = new TypedValue();
+            boolean found = view.getContext().getTheme().resolveAttribute(
+                    R.attr.playbackMediaItemNumberViewFlipperLayout, typedValue, true);
+            View mergeView = LayoutInflater.from(view.getContext()).
+                    inflate(found ? typedValue.resourceId :
+                            R.layout.lb_media_item_number_view_flipper,
+                            mMediaItemNumberViewFlipper, true);
+
+            mMediaItemNumberView = (TextView) mergeView.findViewById(R.id.initial);
+            mMediaItemPausedView = mergeView.findViewById(R.id.paused);
+            mMediaItemPlayingView = mergeView.findViewById(R.id.playing);
         }
 
         /**
@@ -271,6 +314,16 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
             mRowPresenter.onBindMediaDetails(this, getRowObject());
         }
 
+        /**
+         * Notifies the playback state of the media item row has changed. This in turn triggers
+         * updating of the UI for that media item row if corresponding views are specified for each
+         * playback state.
+         * By default, 3 views are provided for each playback state, or these views can be provided
+         * by the user.
+         */
+        public void notifyPlayStateChanged() {
+            mRowPresenter.onBindMediaPlayState(this);
+        }
 
         /**
          * @return The SelectorView responsible for highlighting the in-focus view within each
@@ -281,28 +334,65 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
         }
 
         /**
-         * @return The TextView responsible for rendering the track number
+         * @return The FlipperView responsible for flipping between different media item number
+         * views depending on the playback state
+         */
+        public ViewFlipper getMediaItemNumberViewFlipper() {
+            return mMediaItemNumberViewFlipper;
+        }
+
+        /**
+         * @return The TextView responsible for rendering the media item number.
+         * This view is rendered when the media item row is neither playing nor paused.
          */
         public TextView getMediaItemNumberView() {
             return mMediaItemNumberView;
         }
 
         /**
-         * @return The TextView responsible for rendering the track name
+         * @return The view rendered when the media item row is paused.
+         */
+        public View getMediaItemPausedView() {
+            return mMediaItemPausedView;
+        }
+
+        /**
+         * @return The view rendered when the media item row is playing.
+         */
+        public View getMediaItemPlayingView() {
+            return mMediaItemPlayingView;
+        }
+
+
+        /**
+         * Flips to the view at index 'position' specified in the layout file for media item number
+         * view.
+         * @param position The position of the new view within the layout file to which the media
+         *                 item number view is flipped.
+         */
+        public void setSelectedMediaItemNumberView(int position) {
+            if (position >= 0 & position < mMediaItemNumberViewFlipper.getChildCount()) {
+                mMediaItemNumberViewFlipper.setDisplayedChild(position);
+            }
+        }
+        /**
+         * Returns the view displayed when the media item is neither playing nor paused,
+         * corresponding to the playback state of PLAY_STATE_INITIAL.
+         * @return The TextView responsible for rendering the media item name.
          */
         public TextView getMediaItemNameView() {
             return mMediaItemNameView;
         }
 
         /**
-         * @return The TextView responsible for rendering the track duration
+         * @return The TextView responsible for rendering the media item duration
          */
         public TextView getMediaItemDurationView() {
             return mMediaItemDurationView;
         }
 
         /**
-         * @return The view container of track details
+         * @return The view container of media item details
          */
         public View getMediaItemDetailsView() {
             return mMediaItemDetailsView;
@@ -322,6 +412,9 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
             return mMediaItemActionsContainer;
         }
 
+        /**
+         * @return Array of MultiActions displayed for this media item row
+         */
         public MultiActionsProvider.MultiAction[] getMediaItemRowActions() {
             return mMediaItemRowActions;
         }
@@ -364,6 +457,7 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
         mvh.getMediaItemRowSeparator().setVisibility(hasMediaRowSeparator() ? View.VISIBLE :
                 View.GONE);
 
+        onBindMediaPlayState(mvh);
         onBindMediaDetails((ViewHolder) vh, item);
     }
 
@@ -421,6 +515,60 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
     protected void onUnbindMediaDetails(ViewHolder vh) {
     }
 
+    /**
+     * Binds the media item number view to the appropriate play state view of the media item.
+     * The play state of the media item is extracted by calling {@link #getMediaPlayState(Object)} for
+     * the media item embedded within this view.
+     * This method triggers updating of the playback state UI if corresponding views are specified
+     * for the current playback state.
+     * By default, 3 views are provided for each playback state, or these views can be provided
+     * by the user.
+     */
+    public void onBindMediaPlayState(ViewHolder vh) {
+        int childIndex = calculateMediaItemNumberFlipperIndex(vh);
+        if (childIndex != -1 && vh.mMediaItemNumberViewFlipper.getDisplayedChild() != childIndex) {
+            vh.mMediaItemNumberViewFlipper.setDisplayedChild(childIndex);
+        }
+    }
+
+    static int calculateMediaItemNumberFlipperIndex(ViewHolder vh) {
+        int childIndex = -1;
+        int newPlayState = vh.mRowPresenter.getMediaPlayState(vh.getRowObject());
+        switch (newPlayState) {
+            case PLAY_STATE_INITIAL:
+                childIndex = (vh.mMediaItemNumberView == null) ? -1 :
+                        vh.mMediaItemNumberViewFlipper.indexOfChild(vh.mMediaItemNumberView);
+                break;
+            case PLAY_STATE_PAUSED:
+                childIndex = (vh.mMediaItemPausedView == null) ? -1 :
+                        vh.mMediaItemNumberViewFlipper.indexOfChild(vh.mMediaItemPausedView);
+                break;
+            case PLAY_STATE_PLAYING:
+                childIndex = (vh.mMediaItemPlayingView == null) ? -1 :
+                        vh.mMediaItemNumberViewFlipper.indexOfChild(vh.mMediaItemPlayingView);
+        }
+        return childIndex;
+    }
+
+    /**
+     * Unbinds the play state view from the given ViewHolder
+     * @param vh The ViewHolder to unbind from
+     */
+    public void onUnbindMediaPlayState(ViewHolder vh) {
+    }
+
+    /**
+     * Returns the current play state of the given media item. By default, this method returns
+     * PLAY_STATE_INITIAL which causes the media item number
+     * {@link ViewHolder#getMediaItemNameView()} to be displayed for different
+     * playback states. Users of this class should override this method in order to provide the
+     * play state of their custom media item data model.
+     * @param item The media item
+     * @return The current play state of this media item
+     */
+    protected int getMediaPlayState(Object item) {
+        return PLAY_STATE_INITIAL;
+    }
     /**
      * Each media item row can have multiple focusable elements; the details on the left and a set
      * of optional custom actions on the right.

@@ -1,0 +1,18 @@
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- / -->
+    <root-path name="test_root" />
+    <!-- /proc/1 -->
+    <root-path name="test_init" path="proc/1/" />
+    <!-- /data/data/com.example/files -->
+    <files-path name="test_files" />
+    <!-- /data/data/com.example/files/thumbs -->
+    <files-path name="test_thumbs" path="thumbs/" />
+    <!-- /data/data/com.example/cache -->
+    <cache-path name="test_cache" />
+    <!-- /storage/emulated/0 -->
+    <external-path name="test_external" />
+    <!-- /storage/emulated/0/Android/com.example/files -->
+    <external-files-path name="test_external_files" />
+    <!-- /storage/emulated/0/Android/com.example/cache -->
+    <external-cache-path name="test_external_cache" />
+</paths>

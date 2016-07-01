@@ -164,16 +164,20 @@ public final class TransitionHelper {
             ArrayList<TransitionListener> mTransitionListeners;
         }
 
+        @Override
         public void setEnterTransition(android.app.Fragment fragment, Object transition) {
         }
 
+        @Override
         public void setExitTransition(android.app.Fragment fragment, Object transition) {
         }
 
+        @Override
         public void setSharedElementEnterTransition(android.app.Fragment fragment,
                 Object transition) {
         }
 
+        @Override
         public void addSharedElement(android.app.FragmentTransaction ft,
                 View view, String transitionName) {
         }
@@ -528,19 +532,23 @@ public final class TransitionHelper {
 
     static final class TransitionHelperApi21Impl extends TransitionHelperKitkatImpl {
 
+        @Override
         public void setEnterTransition(android.app.Fragment fragment, Object transition) {
             TransitionHelperApi21.setEnterTransition(fragment, transition);
         }
 
+        @Override
         public void setExitTransition(android.app.Fragment fragment, Object transition) {
             TransitionHelperApi21.setExitTransition(fragment, transition);
         }
 
+        @Override
         public void setSharedElementEnterTransition(android.app.Fragment fragment,
                 Object transition) {
             TransitionHelperApi21.setSharedElementEnterTransition(fragment, transition);
         }
 
+        @Override
         public void addSharedElement(android.app.FragmentTransaction ft,
                 View view, String transitionName) {
             TransitionHelperApi21.addSharedElement(ft, view, transitionName);

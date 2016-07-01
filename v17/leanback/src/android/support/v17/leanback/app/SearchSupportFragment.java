@@ -144,7 +144,7 @@ public class SearchSupportFragment extends Fragment {
                     mRowsSupportFragment.setSelectedPosition(0);
                 }
             }
-            updateSearchBarVisiblity();
+            updateSearchBarVisibility();
             mStatus |= RESULTS_CHANGED;
             if ((mStatus & QUERY_COMPLETE) != 0) {
                 updateFocus();
@@ -227,6 +227,7 @@ public class SearchSupportFragment extends Fragment {
     private boolean mPendingStartRecognitionWhenPaused;
     private SearchBar.SearchBarPermissionListener mPermissionListener
             = new SearchBar.SearchBarPermissionListener() {
+        @Override
         public void requestAudioPermission() {
             PermissionHelper.requestPermissions(SearchSupportFragment.this,
                     new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_PERMISSION_REQUEST_CODE);
@@ -343,7 +344,7 @@ public class SearchSupportFragment extends Fragment {
                     int position = mRowsSupportFragment.getSelectedPosition();
                     Log.v(TAG, String.format("onItemSelected %d", position));
                 }
-                updateSearchBarVisiblity();
+                updateSearchBarVisibility();
                 if (null != mOnItemViewSelectedListener) {
                     mOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
                             rowViewHolder, row);
@@ -634,7 +635,7 @@ public class SearchSupportFragment extends Fragment {
         focusOnResults();
     }
 
-    private void updateSearchBarVisiblity() {
+    private void updateSearchBarVisibility() {
         int position = mRowsSupportFragment != null ? mRowsSupportFragment.getSelectedPosition() : -1;
         mSearchBar.setVisibility(position <=0 || mResultAdapter == null
                 || mResultAdapter.size() == 0 ? View.VISIBLE : View.GONE);

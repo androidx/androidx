@@ -1,0 +1,76 @@
+{
+  "songs": [
+    {
+      "number": 1,
+      "duration": "1:38",
+      "title": "Thump and Jump",
+      "description": "Jimmy Fontanez/Media Right Production",
+      "image": "card_image_music_01",
+      "file": "track_01"
+    },
+    {
+      "number": 2,
+      "duration": "1:42",
+      "title": "Give",
+      "description": "Silent Partner",
+      "image": "card_image_music_02",
+      "file": "track_02"
+    },
+    {
+      "number": 3,
+      "duration": "1:21",
+      "title": "Dusty Road",
+      "description": "Jingle Punks",
+      "image": "card_image_music_03",
+      "file": "track_03"
+    },
+    {
+      "number": 4,
+      "duration": "2:06",
+      "title": "Light The Torch",
+      "description": "Silent Partner",
+      "image": "card_image_music_04",
+      "file": "track_04"
+    },
+    {
+      "number": 5,
+      "duration": "2:43",
+      "title": "Blue Skies",
+      "description": "Silent Partner",
+      "image": "card_image_music_05",
+      "file": "track_05"
+    },
+    {
+      "number": 6,
+      "duration": "0:05",
+      "title": "In the Land of Rhinoplasty(Sting)",
+      "description": "Jingle Punks",
+      "image": "card_image_music_06",
+      "file": "track_06"
+    },
+    {
+      "number": 7,
+      "duration": "2:54",
+      "title": "Ice Crystals",
+      "description": "Everet Almond",
+      "image": "card_image_music_07",
+      "file": "track_07"
+    },
+    {
+      "number": 8,
+      "duration": "2:38",
+      "title": "Shoulder Closures",
+      "description": "Gunnar Olsen",
+      "image": "card_image_music_08",
+      "file": "track_08"
+    },
+    {
+      "number": 9,
+      "duration": "2:40",
+      "title": "The Coldest Shoulder",
+      "description": "The 126ers",
+      "image": "card_image_music_09",
+      "file": "track_09"
+    }
+  ]
+}

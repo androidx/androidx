@@ -694,6 +694,7 @@ public class SortedList<T> {
          * first argument is less than, equal to, or greater than the
          * second.
          */
+        @Override
         abstract public int compare(T2 o1, T2 o2);
 
         /**

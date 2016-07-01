@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="Widget.Example.Leanback.Title.Text" parent="Widget.Leanback.Title.Text" >
+    </style>
+    <style name="Widget.Example.Leanback.Rows.VerticalGridView" parent="Widget.Leanback.Rows.VerticalGridView">
+        <item name="android:paddingTop">96dp</item>
+    </style>
+    <style name="Widget.Example.Leanback.GuidanceIconStyle" parent="Widget.Leanback.GuidanceIconStyle">
+        <item name="android:background">@color/icon_background</item>
+    </style>
+    <style name="Widget.Example.Leanback.FirstStepGuidanceIconStyle" parent="Widget.Leanback.GuidanceIconStyle">
+        <item name="android:background">@color/icon_alt_background</item>
+    </style>
+    <style name="Widget.Example.Leanback.SecondStepGuidanceIconStyle" parent="Widget.Leanback.GuidanceIconStyle">
+        <item name="android:padding">24dp</item>
+    </style>
+
+    <style name="MyImageCardViewStyle" parent="Widget.Leanback.ImageCardViewStyle">
+        <item name="lbImageCardViewType">Title|Content|IconOnRight</item>
+    </style>
+
+    <style name="MyImageCardViewTitleStyleText" parent="TextAppearance.Leanback.ImageCardView.Title">
+        <item name="android:textColor">@android:color/holo_blue_bright</item>
+    </style>
+
+    <style name="MyImageCardViewTitleStyle" parent="Widget.Leanback.ImageCardView.TitleStyle">
+        <item name="android:textAppearance">@style/MyImageCardViewTitleStyleText</item>
+    </style>
+
+    <style name="MyImageCardViewTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle">@style/MyImageCardViewStyle</item>
+        <item name="imageCardViewTitleStyle">@style/MyImageCardViewTitleStyle</item>
+    </style>
+
+    <style name="Widget.Example.Leanback.OnboardingLogoStyle" parent="Widget.Leanback.OnboardingLogoStyle">
+        <item name="android:layout_width">192dp</item>
+        <item name="android:layout_height">192dp</item>
+    </style>
+
+    <style name="Widget.Example.Leanback.OnboardingPageIndicatorStyle" parent="Widget.Leanback.OnboardingPageIndicatorStyle">
+        <item name="dotBgColor">@color/page_indicator_dot</item>
+    </style>
+</resources>

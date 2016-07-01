@@ -44,7 +44,7 @@ public class VerticalGridPresenter extends Presenter {
 
         @Override
         public void onBind(final ItemBridgeAdapter.ViewHolder itemViewHolder) {
-            // Only when having an OnItemClickListner, we attach the OnClickListener.
+            // Only when having an OnItemClickListener, we attach the OnClickListener.
             if (getOnItemViewClickedListener() != null) {
                 final View itemView = itemViewHolder.mHolder.view;
                 itemView.setOnClickListener(new View.OnClickListener() {
@@ -324,7 +324,7 @@ public class VerticalGridPresenter extends Presenter {
      * return new ShadowOverlayHelper.Options().roundedCornerRadius(10);
      * </code>
      *
-     * @return   The options to be used for shadow, overlay and rouded corner.
+     * @return   The options to be used for shadow, overlay and rounded corner.
      */
     protected ShadowOverlayHelper.Options createShadowOverlayOptions() {
         return ShadowOverlayHelper.Options.DEFAULT;

@@ -1,0 +1,32 @@
+apply plugin: 'com.android.application'
+
+dependencies {
+    compile project(':support-transition')
+    compile project(':support-appcompat-v7')
+}
+
+android {
+    compileSdkVersion project.ext.currentSdk
+
+    defaultConfig {
+        minSdkVersion 14
+    }
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDirs = ['src']
+        main.aidl.srcDirs = ['src']
+        main.res.srcDirs = ['res']
+    }
+
+    lintOptions {
+        // TODO: fix errors and reenable.
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+

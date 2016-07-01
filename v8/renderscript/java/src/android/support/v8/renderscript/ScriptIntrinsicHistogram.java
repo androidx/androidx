@@ -50,7 +50,7 @@ public class ScriptIntrinsicHistogram extends ScriptIntrinsic {
             (!e.isCompatible(Element.U8_3(rs))) &&
             (!e.isCompatible(Element.U8_2(rs))) &&
             (!e.isCompatible(Element.U8(rs)))) {
-            throw new RSIllegalArgumentException("Unsuported element type.");
+            throw new RSIllegalArgumentException("Unsupported element type.");
         }
         long id;
         boolean mUseIncSupp = rs.isUseNative() &&

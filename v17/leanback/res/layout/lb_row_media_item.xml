@@ -46,9 +46,9 @@
                     style="?attr/playbackMediaItemDetailsStyle"
             >
 
-                <TextView
-                        android:id="@+id/mediaItemNumber"
-                        style="?attr/playbackMediaItemNumberStyle"/>
+                <ViewFlipper android:id="@+id/mediaItemNumberViewFlipper"
+                             style="?attr/playbackMediaItemNumberViewFlipperStyle">
+                </ViewFlipper>
 
 
                 <TextView

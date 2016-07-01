@@ -16,17 +16,19 @@
 
 package android.support.v7.app;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Build;
 import android.support.v7.appcompat.test.R;
+import android.support.v7.custom.ContextWrapperFrameLayout;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatMultiAutoCompleteTextView;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
@@ -46,6 +48,12 @@ public class LayoutInflaterFactoryTestCase
 
     public LayoutInflaterFactoryTestCase() {
         super(LayoutInflaterFactoryTestActivity.class);
+    }
+
+    @Before
+    public void setup() {
+        // Needed for any vector tests below
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
     @Test
@@ -129,6 +137,20 @@ public class LayoutInflaterFactoryTestCase
 
     @Test
     @SmallTest
+    public void testImageViewInflationWithVectorSrc() throws Throwable {
+        testAppCompatWidgetInflation(R.layout.layout_imageview_vector,
+                AppCompatImageView.class);
+    }
+
+    @Test
+    @SmallTest
+    public void testContextWrapperParentImageViewInflationWithVectorSrc() throws Throwable {
+        testAppCompatWidgetInflation(R.layout.layout_contextwrapperparent_imageview_vector,
+                ContextWrapperFrameLayout.class);
+    }
+
+    @Test
+    @SmallTest
     public void testCheckBoxInflation() throws Throwable {
         testAppCompatWidgetInflation(R.layout.layout_checkbox, AppCompatCheckBox.class);
     }
@@ -182,12 +204,13 @@ public class LayoutInflaterFactoryTestCase
 
     private static void assertThemedContext(View view) {
         final Context viewContext = view.getContext();
+        final int expectedColor = view.getResources().getColor(R.color.test_magenta);
 
         final TypedValue colorAccentValue = getColorAccentValue(viewContext.getTheme());
         assertTrue(colorAccentValue.type >= TypedValue.TYPE_FIRST_COLOR_INT
                 && colorAccentValue.type <= TypedValue.TYPE_LAST_COLOR_INT);
         assertEquals("View does not have ContextThemeWrapper context",
-                Color.MAGENTA, colorAccentValue.data);
+                expectedColor, colorAccentValue.data);
     }
 
     private static TypedValue getColorAccentValue(final Resources.Theme theme) {
