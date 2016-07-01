@@ -5012,6 +5012,7 @@ package android.support.v4.media {
     field public static final java.lang.String EXTRA_OFFLINE = "android.service.media.extra.OFFLINE";
     field public static final java.lang.String EXTRA_RECENT = "android.service.media.extra.RECENT";
     field public static final java.lang.String EXTRA_SUGGESTED = "android.service.media.extra.SUGGESTED";
+    field public static final java.lang.String EXTRA_SUGGESTION_KEYWORDS = "android.service.media.extra.SUGGESTION_KEYWORDS";
   }
 
   public static class MediaBrowserServiceCompat.Result {
