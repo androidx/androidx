@@ -88,7 +88,7 @@ public final class ServiceCompat {
 
     static class BaseServiceCompatImpl implements ServiceCompat.ServiceCompatImpl {
         public void stopForeground(Service service, @ServiceCompat.StopForegroundFlags int flags) {
-            service.stopForeground((flags & Service.STOP_FOREGROUND_REMOVE) != 0);
+            service.stopForeground((flags & ServiceCompat.STOP_FOREGROUND_REMOVE) != 0);
         }
     }
 
