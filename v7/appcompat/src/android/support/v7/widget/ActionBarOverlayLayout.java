@@ -212,9 +212,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     }
 
     protected void onConfigurationChanged(Configuration newConfig) {
-        if (Build.VERSION.SDK_INT >= 8) {
-            super.onConfigurationChanged(newConfig);
-        }
+        super.onConfigurationChanged(newConfig);
         init(getContext());
         ViewCompat.requestApplyInsets(this);
     }

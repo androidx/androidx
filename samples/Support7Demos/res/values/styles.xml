@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+
+    <style name="Theme.Custom" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#ff00bcd4</item>
+        <item name="colorPrimaryDark">#00838f</item>
+        <item name="colorAccent">#ffff00</item>
+    </style>
+
+    <style name="Theme.Custom.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#ff00bcd4</item>
+        <item name="colorPrimaryDark">#00838f</item>
+        <item name="colorAccent">#ffff00</item>
+    </style>
+
+    <style name="Theme.SampleMediaRouter" parent="Theme.AppCompat">
+        <item name="colorPrimary">#fff44336</item>
+        <item name="colorPrimaryDark">#d32f2f</item>
+        <item name="alertDialogTheme">@style/Theme.SampleMediaRouter.Dialog.Alert</item>
+    </style>
+
+    <style name="Theme.SampleMediaRouter.Light" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">#ffff9800</item>
+        <item name="colorPrimaryDark">#f57c00</item>
+        <item name="alertDialogTheme">@style/Theme.SampleMediaRouter.Light.Dialog.Alert</item>
+    </style>
+
+    <style name="Theme.SampleMediaRouter.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#ff2196f3</item>
+        <item name="colorPrimaryDark">#1976d2</item>
+        <item name="alertDialogTheme">@style/Theme.SampleMediaRouter.Light.DarkActionBar.Dialog.Alert</item>
+    </style>
+
+    <style name="Theme.SampleMediaRouter.Dialog.Alert" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorPrimary">#fff44336</item>
+        <item name="colorPrimaryDark">#d32f2f</item>
+    </style>
+
+    <style name="Theme.SampleMediaRouter.Light.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">#ffff9800</item>
+        <item name="colorPrimaryDark">#f57c00</item>
+    </style>
+
+    <style name="Theme.SampleMediaRouter.Light.DarkActionBar.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">#ff2196f3</item>
+        <item name="colorPrimaryDark">#1976d2</item>
+    </style>
+
+    <style name="SortedListItem" parent="@android:style/TextAppearance.Medium">
+        <item name="android:minHeight">35dp</item>
+    </style>
+
+    <style name="Theme.SampleDrawerLayout" parent="Theme.AppCompat.NoActionBar">
+        <!-- Tell SystemUI that our activity window will draw the background for the status bar. -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!-- Set the status bar to be translucent black. -->
+        <item name="android:statusBarColor">#30000000</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+</resources>

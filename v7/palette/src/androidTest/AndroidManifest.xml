@@ -18,7 +18,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="android.support.v7.palette.test">
 
-    <uses-sdk android:minSdkVersion="7"
+    <uses-sdk android:minSdkVersion="9"
               tools:overrideLibrary="android.support.test, android.app, android.support.test.rule"/>
 
     <application>

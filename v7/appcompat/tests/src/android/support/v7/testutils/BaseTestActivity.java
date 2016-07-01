@@ -19,7 +19,6 @@ package android.support.v7.testutils;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatCallback;
 import android.support.v7.appcompat.test.R;
@@ -139,18 +138,6 @@ public abstract class BaseTestActivity extends AppCompatActivity {
             menu.clear();
             return super.onCreateOptionsMenu(menu);
         }
-    }
-
-    public boolean expandSearchView() {
-        return MenuItemCompat.expandActionView(mMenu.findItem(R.id.action_search));
-    }
-
-    public boolean collapseSearchView() {
-        return MenuItemCompat.collapseActionView(mMenu.findItem(R.id.action_search));
-    }
-
-    public boolean isSearchViewExpanded() {
-        return MenuItemCompat.isActionViewExpanded(mMenu.findItem(R.id.action_search));
     }
 
     public MenuItem getOptionsItemSelected() {

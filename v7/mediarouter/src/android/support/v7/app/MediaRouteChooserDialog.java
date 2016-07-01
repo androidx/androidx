@@ -27,6 +27,9 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.media.MediaRouteSelector;
@@ -65,6 +68,10 @@ import java.util.List;
 public class MediaRouteChooserDialog extends Dialog {
     private static final String TAG = "MediaRouteChooserDialog";
 
+    // Do not update the route list immediately to avoid unnatural dialog change.
+    private static final long UPDATE_ROUTES_DELAY_MS = 300L;
+    private static final int MSG_UPDATE_ROUTES = 1;
+
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
 
@@ -75,6 +82,17 @@ public class MediaRouteChooserDialog extends Dialog {
     private boolean mAttachedToWindow;
     private AsyncTask<Void, Void, Void> mRefreshRoutesTask;
     private AsyncTask<Void, Void, Void> mOnItemClickTask;
+    private long mLastUpdateTime;
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message message) {
+            switch (message.what) {
+                case MSG_UPDATE_ROUTES:
+                    updateRoutes();
+                    break;
+            }
+        }
+    };
 
     public MediaRouteChooserDialog(Context context) {
         this(context, 0);
@@ -185,6 +203,13 @@ public class MediaRouteChooserDialog extends Dialog {
 
         mAttachedToWindow = true;
         mRouter.addCallback(mSelector, mCallback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+        // refreshRoutes() could take some time, so initial list should be shown from the beginning.
+        List<MediaRouter.RouteInfo> routes = new ArrayList<>(mRouter.getRoutes());
+        onFilterRoutes(routes);
+        mRoutes.clear();
+        mRoutes.addAll(routes);
+        mAdapter.notifyDataSetChanged();
+        mLastUpdateTime = 0;
         refreshRoutes();
     }
 
@@ -192,6 +217,7 @@ public class MediaRouteChooserDialog extends Dialog {
     public void onDetachedFromWindow() {
         mAttachedToWindow = false;
         mRouter.removeCallback(mCallback);
+        mHandler.removeMessages(MSG_UPDATE_ROUTES);
 
         super.onDetachedFromWindow();
     }
@@ -231,11 +257,21 @@ public class MediaRouteChooserDialog extends Dialog {
                     mRoutes.clear();
                     mRoutes.addAll(mNewRoutes);
                     Collections.sort(mRoutes, RouteComparator.sInstance);
-                    mAdapter.notifyDataSetChanged();
                     mRefreshRoutesTask = null;
+                    if (SystemClock.uptimeMillis() - mLastUpdateTime >= UPDATE_ROUTES_DELAY_MS) {
+                        updateRoutes();
+                    } else if (!mHandler.hasMessages(MSG_UPDATE_ROUTES)) {
+                        mHandler.sendEmptyMessageAtTime(MSG_UPDATE_ROUTES,
+                                mLastUpdateTime + UPDATE_ROUTES_DELAY_MS);
+                    }
                 }
             }.execute();
         }
+    }
+
+    private void updateRoutes() {
+        mLastUpdateTime = SystemClock.uptimeMillis();
+        mAdapter.notifyDataSetChanged();
     }
 
     private final class RouteAdapter extends ArrayAdapter<MediaRouter.RouteInfo>

@@ -82,6 +82,7 @@ public class ColorUtilsTest {
                 .setWhiteMinAlpha30(0.39f).setWhiteMinAlpha45(0.54f));
     }
 
+    @Test
     public void testColorToHSL() {
         for (TestEntry entry : sEntryList) {
             verifyColorToHSL(entry.rgb, entry.hsl);

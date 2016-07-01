@@ -54,7 +54,7 @@ import java.util.List;
  */
 public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
-    public static final String TAG = "StaggeredGridLayoutManager";
+    private static final String TAG = "StaggeredGridLayoutManager";
 
     private static final boolean DEBUG = false;
 

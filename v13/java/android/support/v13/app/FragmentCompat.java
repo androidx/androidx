@@ -40,10 +40,13 @@ public class FragmentCompat {
     }
 
     static class BaseFragmentCompatImpl implements FragmentCompatImpl {
+        @Override
         public void setMenuVisibility(Fragment f, boolean visible) {
         }
+        @Override
         public void setUserVisibleHint(Fragment f, boolean deferStart) {
         }
+        @Override
         public void requestPermissions(final Fragment fragment, final String[] permissions,
                 final int requestCode) {
             Handler handler = new Handler(Looper.getMainLooper());
@@ -71,6 +74,7 @@ public class FragmentCompat {
                 }
             });
         }
+        @Override
         public boolean shouldShowRequestPermissionRationale(Fragment fragment, String permission) {
             return false;
         }

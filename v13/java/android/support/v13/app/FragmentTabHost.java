@@ -106,10 +106,12 @@ public class FragmentTabHost extends TabHost
 
         public static final Parcelable.Creator<SavedState> CREATOR
                 = new Parcelable.Creator<SavedState>() {
+            @Override
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);
             }
 
+            @Override
             public SavedState[] newArray(int size) {
                 return new SavedState[size];
             }
@@ -194,7 +196,7 @@ public class FragmentTabHost extends TabHost
         mRealTabContent.setId(containerId);
 
         // We must have an ID to be able to save/restore our state.  If
-        // the owner hasn't set one at this point, we will set it ourself.
+        // the owner hasn't set one at this point, we will set it ourselves.
         if (getId() == View.NO_ID) {
             setId(android.R.id.tabhost);
         }

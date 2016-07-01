@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.support.annotation.DrawableRes;
+import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.widget.CheckedTextView;
 
@@ -33,7 +34,6 @@ public class AppCompatCheckedTextView extends CheckedTextView {
             android.R.attr.checkMark
     };
 
-    private AppCompatDrawableManager mDrawableManager;
     private AppCompatTextHelper mTextHelper;
 
     public AppCompatCheckedTextView(Context context) {
@@ -51,8 +51,6 @@ public class AppCompatCheckedTextView extends CheckedTextView {
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);
         mTextHelper.applyCompoundDrawablesTints();
 
-        mDrawableManager = AppCompatDrawableManager.get();
-
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
                 TINT_ATTRS, defStyleAttr, 0);
         setCheckMarkDrawable(a.getDrawable(0));
@@ -61,11 +59,7 @@ public class AppCompatCheckedTextView extends CheckedTextView {
 
     @Override
     public void setCheckMarkDrawable(@DrawableRes int resId) {
-        if (mDrawableManager != null) {
-            setCheckMarkDrawable(mDrawableManager.getDrawable(getContext(), resId));
-        } else {
-            super.setCheckMarkDrawable(resId);
-        }
+        setCheckMarkDrawable(AppCompatResources.getDrawable(getContext(), resId));
     }
 
     @Override

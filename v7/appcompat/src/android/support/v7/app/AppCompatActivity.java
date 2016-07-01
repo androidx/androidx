@@ -179,6 +179,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         getDelegate().onPostResume();
     }
 
+    @Override
     public View findViewById(@IdRes int id) {
         return getDelegate().findViewById(id);
     }
@@ -245,6 +246,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      *
      * @param mode The new action mode.
      */
+    @Override
     @CallSuper
     public void onSupportActionModeStarted(@NonNull ActionMode mode) {
     }
@@ -255,6 +257,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      *
      * @param mode The action mode that just finished.
      */
+    @Override
     @CallSuper
     public void onSupportActionModeFinished(@NonNull ActionMode mode) {
     }
@@ -418,6 +421,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * @return a new Intent targeting the defined parent activity of sourceActivity
      */
     @Nullable
+    @Override
     public Intent getSupportParentActivityIntent() {
         return NavUtils.getParentActivityIntent(this);
     }

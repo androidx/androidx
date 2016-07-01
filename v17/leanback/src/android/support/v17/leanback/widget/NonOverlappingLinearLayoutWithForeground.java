@@ -47,7 +47,7 @@ class NonOverlappingLinearLayoutWithForeground extends LinearLayout {
         super(context, attrs, defStyle);
         if (context.getApplicationInfo().targetSdkVersion >= VERSION_M
                 && VERSION.SDK_INT >= VERSION_M) {
-            // dont need do anything, base View constructor >=M already reads the foreground if
+            // don't need do anything, base View constructor >=M already reads the foreground if
             // targetSDK is >= M.
         } else {
             // in other cases, including M but targetSDK is less than M, we need setForeground in

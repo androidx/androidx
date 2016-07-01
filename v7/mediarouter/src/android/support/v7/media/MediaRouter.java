@@ -2455,7 +2455,8 @@ public final class MediaRouter {
                     for (RouteInfo route : routes) {
                         if (!mRouteControllerMap.containsKey(route.mDescriptorId)) {
                             RouteController controller = route.getProviderInstance()
-                                    .onCreateRouteController(route.mDescriptorId);
+                                    .onCreateRouteController(
+                                            route.mDescriptorId, mSelectedRoute.mDescriptorId);
                             controller.onSelect();
                             mRouteControllerMap.put(route.mDescriptorId, controller);
                         }
@@ -2539,8 +2540,9 @@ public final class MediaRouter {
                         List<RouteInfo> routes = ((RouteGroup) mSelectedRoute).getRoutes();
                         mRouteControllerMap.clear();
                         for (RouteInfo r : routes) {
-                            RouteController controller = r.getProviderInstance()
-                                    .onCreateRouteController(r.mDescriptorId);
+                            RouteController controller =
+                                    r.getProviderInstance().onCreateRouteController(
+                                            r.mDescriptorId, mSelectedRoute.mDescriptorId);
                             controller.onSelect();
                             mRouteControllerMap.put(r.mDescriptorId, controller);
                         }

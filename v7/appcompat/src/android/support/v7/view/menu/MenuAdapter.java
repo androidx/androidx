@@ -52,6 +52,7 @@ public class MenuAdapter extends BaseAdapter {
         mForceShowIcon = forceShow;
     }
 
+    @Override
     public int getCount() {
         ArrayList<MenuItemImpl> items = mOverflowOnly ?
                 mAdapterMenu.getNonActionItems() : mAdapterMenu.getVisibleItems();
@@ -65,6 +66,7 @@ public class MenuAdapter extends BaseAdapter {
         return mAdapterMenu;
     }
 
+    @Override
     public MenuItemImpl getItem(int position) {
         ArrayList<MenuItemImpl> items = mOverflowOnly ?
                 mAdapterMenu.getNonActionItems() : mAdapterMenu.getVisibleItems();
@@ -74,12 +76,14 @@ public class MenuAdapter extends BaseAdapter {
         return items.get(position);
     }
 
+    @Override
     public long getItemId(int position) {
         // Since a menu item's ID is optional, we'll use the position as an
         // ID for the item in the AdapterView
         return position;
     }
 
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = mInflater.inflate(ITEM_LAYOUT, parent, false);

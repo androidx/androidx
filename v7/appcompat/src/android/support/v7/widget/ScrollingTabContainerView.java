@@ -216,10 +216,9 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         return spinner;
     }
 
+    @Override
     protected void onConfigurationChanged(Configuration newConfig) {
-        if (Build.VERSION.SDK_INT >= 8) {
-            super.onConfigurationChanged(newConfig);
-        }
+        super.onConfigurationChanged(newConfig);
 
         ActionBarPolicy abp = ActionBarPolicy.get(getContext());
         // Action bar can change size on configuration changes.
@@ -259,6 +258,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
             removeCallbacks(mTabSelector);
         }
         mTabSelector = new Runnable() {
+            @Override
             public void run() {
                 final int scrollPos = tabView.getLeft() - (getWidth() - tabView.getWidth()) / 2;
                 smoothScrollTo(scrollPos, 0);
@@ -517,6 +517,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
             }
         }
 
+        @Override
         public boolean onLongClick(View v) {
             final int[] screenPos = new int[2];
             getLocationOnScreen(screenPos);
@@ -569,6 +570,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     private class TabClickListener implements OnClickListener {
+        @Override
         public void onClick(View view) {
             TabView tabView = (TabView) view;
             tabView.getTab().select();

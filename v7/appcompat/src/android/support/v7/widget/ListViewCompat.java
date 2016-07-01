@@ -319,7 +319,7 @@ public class ListViewCompat extends ListView {
             }
             child.measure(widthMeasureSpec, heightMeasureSpec);
 
-            // Since this view was measured directly aginst the parent measure
+            // Since this view was measured directly against the parent measure
             // spec, we must measure it again before reuse.
             child.forceLayout();
 

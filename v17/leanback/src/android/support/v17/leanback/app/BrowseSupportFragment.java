@@ -15,8 +15,6 @@
  */
 package android.support.v17.leanback.app;
 
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.BackStackEntry;
@@ -55,6 +53,8 @@ import android.view.ViewTreeObserver;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
  * A fragment for creating Leanback browse screens. It is composed of a
@@ -131,8 +131,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                 // if popped "headers" backstack, initiate the show header transition if needed
                 if (mIndexOfHeadersBackStack >= count) {
                     if (!isHeadersDataReady()) {
-                        // if main fragment was restored first before BrowseSupportFragment's adapater gets
-                        // restored: dont start header transition, but add the entry back.
+                        // if main fragment was restored first before BrowseSupportFragment's adapter gets
+                        // restored: don't start header transition, but add the entry back.
                         getFragmentManager().beginTransaction()
                                 .addToBackStack(mWithHeadersBackStackName).commit();
                         return;
@@ -756,7 +756,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
         if (adapter != null) {
             if (mMainFragmentRowsAdapter != null) {
-                mMainFragmentRowsAdapter.setAdapter(adapter);
+                mMainFragmentRowsAdapter.setAdapter(new ListRowDataAdapter(adapter));
             }
             mHeadersSupportFragment.setAdapter(adapter);
         }
@@ -1187,7 +1187,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     private void setupMainFragment() {
         if (mMainFragmentRowsAdapter != null) {
-            mMainFragmentRowsAdapter.setAdapter(mAdapter);
+            mMainFragmentRowsAdapter.setAdapter(new ListRowDataAdapter(mAdapter));
             mMainFragmentRowsAdapter.setOnItemViewSelectedListener(
                     new MainFragmentItemViewSelectedListener(mMainFragmentRowsAdapter));
             mMainFragmentRowsAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
@@ -1509,8 +1509,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
         if (mCanShowHeaders && mShowingHeaders && mHeadersSupportFragment.getView() != null) {
             mHeadersSupportFragment.getView().requestFocus();
-        } else if ((!mCanShowHeaders || !mShowingHeaders)
-                && mMainFragment.getView() != null) {
+        } else if ((!mCanShowHeaders || !mShowingHeaders) && mMainFragment.getView() != null) {
             mMainFragment.getView().requestFocus();
         }
 

@@ -36,6 +36,7 @@ public class FitWindowsLinearLayout extends LinearLayout implements FitWindowsVi
         super(context, attrs);
     }
 
+    @Override
     public void setOnFitSystemWindowsListener(OnFitSystemWindowsListener listener) {
         mListener = listener;
     }

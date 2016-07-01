@@ -667,7 +667,7 @@ public abstract class ActionBar {
     public abstract void addTab(Tab tab, int position);
 
     /**
-     * Add a tab for use in tabbed navigation mode. The tab will be insterted at
+     * Add a tab for use in tabbed navigation mode. The tab will be inserted at
      * <code>position</code>.
      *
      * @param tab The tab to add
@@ -833,7 +833,7 @@ public abstract class ActionBar {
 
     /**
      * Enable or disable the "home" button in the corner of the action bar. (Note that this
-     * is the application home/up affordance on the action bar, not the systemwide home
+     * is the application home/up affordance on the action bar, not the system wide home
      * button.)
      *
      * <p>This defaults to true for packages targeting &lt; API 14. For packages targeting

@@ -56,15 +56,22 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
     public AppCompatImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
-        final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
-
-        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, drawableManager);
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
 
-        mImageHelper = new AppCompatImageHelper(this, drawableManager);
+        mImageHelper = new AppCompatImageHelper(this);
         mImageHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 
+    /**
+     * Sets a drawable as the content of this ImageView.
+     *
+     * <p>Allows the use of vector drawables when running on older versions of the platform.</p>
+     *
+     * @param resId the resource identifier of the drawable
+     * @see ImageView#setImageResource(int)
+     * @attr ref R.styleable#AppCompatImageView_srcCompat
+     */
     @Override
     public void setImageResource(@DrawableRes int resId) {
         // Intercept this call and instead retrieve the Drawable via the image helper

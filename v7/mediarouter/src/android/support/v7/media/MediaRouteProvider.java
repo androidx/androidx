@@ -250,8 +250,37 @@ public abstract class MediaRouteProvider {
      * cannot be controlled using the route controller interface.
      */
     @Nullable
-    public RouteController onCreateRouteController(String routeId) {
+    public RouteController onCreateRouteController(@NonNull String routeId) {
+        if (routeId == null) {
+            throw new IllegalArgumentException("routeId cannot be null");
+        }
         return null;
+    }
+
+    /**
+     * Called by the media router to obtain a route controller for a particular route which is a
+     * member of {@link MediaRouter.RouteGroup}.
+     * <p>
+     * The media router will invoke the {@link RouteController#onRelease} method of the route
+     * controller when it is no longer needed to allow it to free its resources.
+     * </p>
+     *
+     * @param routeId The unique id of the member route.
+     * @param routeGroupId The unique id of the route group.
+     * @return The route controller.  Returns null if there is no such route or if the route
+     * cannot be controlled using the route controller interface.
+     * @hide
+     */
+    @Nullable
+    public RouteController onCreateRouteController(@NonNull String routeId,
+            @NonNull String routeGroupId) {
+        if (routeId == null) {
+            throw new IllegalArgumentException("routeId cannot be null");
+        }
+        if (routeGroupId == null) {
+            throw new IllegalArgumentException("routeGroupId cannot be null");
+        }
+        return onCreateRouteController(routeId);
     }
 
     /**

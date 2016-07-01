@@ -353,6 +353,13 @@
         <item name="android:textAppearance">@style/TextAppearance.Leanback.PlaybackMediaListHeaderTitle</item>
     </style>
 
+    <style name="Widget.Leanback.PlaybackMediaItemNumberViewFlipperStyle">
+        <item name="android:layout_width">56dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
     <style name="TextAppearance.Leanback.PlaybackMediaItemNumber">
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:textSize">18sp</item>
@@ -360,7 +367,7 @@
     </style>
 
     <style name="Widget.Leanback.PlaybackMediaItemNumberStyle">
-        <item name="android:layout_width">56dp</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:visibility">gone</item>

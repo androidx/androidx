@@ -324,6 +324,7 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
         }
     }
 
+    @Override
     public void onClick(View v) {
         Object tag = v.getTag();
         if (tag instanceof CharSequence) {
@@ -616,7 +617,7 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
      * Gets the activity or application icon for an activity.
      *
      * @param component Name of an activity.
-     * @return A drawable, or {@code null} if neither the acitivy or the application
+     * @return A drawable, or {@code null} if neither the activity or the application
      *         have an icon set.
      */
     private Drawable getActivityIcon(ComponentName component) {

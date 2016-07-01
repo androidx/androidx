@@ -32,6 +32,7 @@ import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v4.view.ViewPropertyAnimatorUpdateListener;
 import android.support.v7.appcompat.R;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.view.ActionBarPolicy;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.SupportMenuInflater;
@@ -42,7 +43,6 @@ import android.support.v7.view.menu.SubMenuBuilder;
 import android.support.v7.widget.ActionBarContainer;
 import android.support.v7.widget.ActionBarContextView;
 import android.support.v7.widget.ActionBarOverlayLayout;
-import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.DecorToolbar;
 import android.support.v7.widget.ScrollingTabContainerView;
 import android.support.v7.widget.Toolbar;
@@ -1209,7 +1209,7 @@ public class WindowDecorActionBar extends ActionBar implements
 
         @Override
         public Tab setIcon(int resId) {
-            return setIcon(AppCompatDrawableManager.get().getDrawable(mContext, resId));
+            return setIcon(AppCompatResources.getDrawable(mContext, resId));
         }
 
         @Override

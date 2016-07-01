@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-
 package android.support.v7.testutils;
 
-import android.support.v4.util.Pair;
-import android.view.View;
-import android.view.ViewParent;
-import junit.framework.Assert;
-
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -29,6 +24,11 @@ import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.v4.util.Pair;
+import android.support.v7.widget.TintTypedArray;
+import android.view.View;
+import android.view.ViewParent;
+import junit.framework.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,17 +113,17 @@ public class TestUtils {
     public static void assertAllPixelsOfColor(String failMessagePrefix, @NonNull Drawable drawable,
             int drawableWidth, int drawableHeight, boolean callSetBounds, @ColorInt int color,
             int allowedComponentVariance, boolean throwExceptionIfFails) {
-            // Create a bitmap
-            Bitmap bitmap = Bitmap.createBitmap(drawableWidth, drawableHeight,
-                    Bitmap.Config.ARGB_8888);
-            // Create a canvas that wraps the bitmap
-            Canvas canvas = new Canvas(bitmap);
-            if (callSetBounds) {
-                // Configure the drawable to have bounds that match the passed size
-                drawable.setBounds(0, 0, drawableWidth, drawableHeight);
-            }
-            // And ask the drawable to draw itself to the canvas / bitmap
-            drawable.draw(canvas);
+        // Create a bitmap
+        Bitmap bitmap = Bitmap.createBitmap(drawableWidth, drawableHeight,
+                Bitmap.Config.ARGB_8888);
+        // Create a canvas that wraps the bitmap
+        Canvas canvas = new Canvas(bitmap);
+        if (callSetBounds) {
+            // Configure the drawable to have bounds that match the passed size
+            drawable.setBounds(0, 0, drawableWidth, drawableHeight);
+        }
+        // And ask the drawable to draw itself to the canvas / bitmap
+        drawable.draw(canvas);
 
         try {
             assertAllPixelsOfColor(failMessagePrefix, bitmap, drawableWidth, drawableHeight, color,
@@ -148,35 +148,15 @@ public class TestUtils {
         for (int row = 0; row < bitmapHeight; row++) {
             bitmap.getPixels(rowPixels, 0, bitmapWidth, 0, row, bitmapWidth, 1);
             for (int column = 0; column < bitmapWidth; column++) {
-                int sourceAlpha = Color.alpha(rowPixels[column]);
-                int sourceRed = Color.red(rowPixels[column]);
-                int sourceGreen = Color.green(rowPixels[column]);
-                int sourceBlue = Color.blue(rowPixels[column]);
-
-                int expectedAlpha = Color.alpha(color);
-                int expectedRed = Color.red(color);
-                int expectedGreen = Color.green(color);
-                int expectedBlue = Color.blue(color);
-
-                int varianceAlpha = Math.abs(sourceAlpha - expectedAlpha);
-                int varianceRed = Math.abs(sourceRed - expectedRed);
-                int varianceGreen = Math.abs(sourceGreen - expectedGreen);
-                int varianceBlue = Math.abs(sourceBlue - expectedBlue);
-
-                boolean isColorMatch = (varianceAlpha <= allowedComponentVariance)
-                        && (varianceRed <= allowedComponentVariance)
-                        && (varianceGreen <= allowedComponentVariance)
-                        && (varianceBlue <= allowedComponentVariance);
-
-                if (!isColorMatch) {
+                @ColorInt int colorAtCurrPixel = rowPixels[column];
+                if (!areColorsTheSameWithTolerance(color, colorAtCurrPixel,
+                        allowedComponentVariance)) {
                     String mismatchDescription = failMessagePrefix
-                            + ": expected all drawable colors to be ["
-                            + expectedAlpha + "," + expectedRed + ","
-                            + expectedGreen + "," + expectedBlue
-                            + "] but at position (" + row + "," + column + ") out of ("
-                            + bitmapWidth + "," + bitmapHeight + ") found ["
-                            + sourceAlpha + "," + sourceRed + ","
-                            + sourceGreen + "," + sourceBlue + "]";
+                            + ": expected all drawable colors to be "
+                            + formatColorToHex(color)
+                            + " but at position (" + row + "," + column + ") out of ("
+                            + bitmapWidth + "," + bitmapHeight + ") found "
+                            + formatColorToHex(colorAtCurrPixel);
                     if (throwExceptionIfFails) {
                         throw new RuntimeException(mismatchDescription);
                     } else {
@@ -187,9 +167,86 @@ public class TestUtils {
         }
     }
 
+    /**
+     * Checks whether the center pixel in the specified bitmap is of the same specified color.
+     *
+     * In case there is a color mismatch, the behavior of this method depends on the
+     * <code>throwExceptionIfFails</code> parameter. If it is <code>true</code>, this method will
+     * throw an <code>Exception</code> describing the mismatch. Otherwise this method will call
+     * <code>Assert.fail</code> with detailed description of the mismatch.
+     */
+    public static void assertCenterPixelOfColor(String failMessagePrefix, @NonNull Bitmap bitmap,
+            @ColorInt int color,
+            int allowedComponentVariance, boolean throwExceptionIfFails) {
+        final int centerX = bitmap.getWidth() / 2;
+        final int centerY = bitmap.getHeight() / 2;
+        final @ColorInt int colorAtCenterPixel = bitmap.getPixel(centerX, centerY);
+        if (!areColorsTheSameWithTolerance(color, colorAtCenterPixel,
+                allowedComponentVariance)) {
+            String mismatchDescription = failMessagePrefix
+                    + ": expected all drawable colors to be "
+                    + formatColorToHex(color)
+                    + " but at position (" + centerX + "," + centerY + ") out of ("
+                    + bitmap.getWidth() + "," + bitmap.getHeight() + ") found"
+                    + formatColorToHex(colorAtCenterPixel);
+            if (throwExceptionIfFails) {
+                throw new RuntimeException(mismatchDescription);
+            } else {
+                Assert.fail(mismatchDescription);
+            }
+        }
+    }
+
+    /**
+     * Formats the passed integer-packed color into the #AARRGGBB format.
+     */
+    private static String formatColorToHex(@ColorInt int color) {
+        return String.format("#%08X", (0xFFFFFFFF & color));
+    }
+
+    /**
+     * Compares two integer-packed colors to be equal, each component within the specified
+     * allowed variance. Returns <code>true</code> if the two colors are sufficiently equal
+     * and <code>false</code> otherwise.
+     */
+    private static boolean areColorsTheSameWithTolerance(@ColorInt int expectedColor,
+            @ColorInt int actualColor, int allowedComponentVariance) {
+        int sourceAlpha = Color.alpha(actualColor);
+        int sourceRed = Color.red(actualColor);
+        int sourceGreen = Color.green(actualColor);
+        int sourceBlue = Color.blue(actualColor);
+
+        int expectedAlpha = Color.alpha(expectedColor);
+        int expectedRed = Color.red(expectedColor);
+        int expectedGreen = Color.green(expectedColor);
+        int expectedBlue = Color.blue(expectedColor);
+
+        int varianceAlpha = Math.abs(sourceAlpha - expectedAlpha);
+        int varianceRed = Math.abs(sourceRed - expectedRed);
+        int varianceGreen = Math.abs(sourceGreen - expectedGreen);
+        int varianceBlue = Math.abs(sourceBlue - expectedBlue);
+
+        boolean isColorMatch = (varianceAlpha <= allowedComponentVariance)
+                && (varianceRed <= allowedComponentVariance)
+                && (varianceGreen <= allowedComponentVariance)
+                && (varianceBlue <= allowedComponentVariance);
+
+        return isColorMatch;
+    }
+
     public static void waitForActivityDestroyed(BaseTestActivity activity) {
         while (!activity.isDestroyed()) {
             SystemClock.sleep(30);
+        }
+    }
+
+    public static int getThemeAttrColor(Context context, int attr) {
+        final int[] attrs = { attr };
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, null, attrs);
+        try {
+            return a.getColor(0, 0);
+        } finally {
+            a.recycle();
         }
     }
 }

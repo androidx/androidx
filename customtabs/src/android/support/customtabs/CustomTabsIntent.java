@@ -207,6 +207,11 @@ public final class CustomTabsIntent {
     public static final String EXTRA_REMOTEVIEWS_CLICKED_ID =
             "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_CLICKED_ID";
 
+    /**
+     * Extra that specifies whether Instant Apps is enabled.
+     */
+    public static final String EXTRA_ENABLE_INSTANT_APPS =
+            "android.support.customtabs.extra.EXTRA_ENABLE_INSTANT_APPS";
 
     /**
      * Key that specifies the unique ID for an action button. To make a button to show on the
@@ -257,6 +262,7 @@ public final class CustomTabsIntent {
         private ArrayList<Bundle> mMenuItems = null;
         private Bundle mStartAnimationBundle = null;
         private ArrayList<Bundle> mActionButtons = null;
+        private boolean mInstantAppsEnabled = true;
 
         /**
          * Creates a {@link CustomTabsIntent.Builder} object associated with no
@@ -452,6 +458,16 @@ public final class CustomTabsIntent {
         }
 
         /**
+         * Sets whether Instant Apps is enabled for this Custom Tab.
+
+         * @param enabled Whether Instant Apps should be enabled.
+         */
+        public Builder setInstantAppsEnabled(boolean enabled) {
+            mInstantAppsEnabled = enabled;
+            return this;
+        }
+
+        /**
          * Sets the start animations.
          *
          * @param context Application context.
@@ -491,6 +507,7 @@ public final class CustomTabsIntent {
             if (mActionButtons != null) {
                 mIntent.putParcelableArrayListExtra(EXTRA_TOOLBAR_ITEMS, mActionButtons);
             }
+            mIntent.putExtra(EXTRA_ENABLE_INSTANT_APPS, mInstantAppsEnabled);
             return new CustomTabsIntent(mIntent, mStartAnimationBundle);
         }
     }

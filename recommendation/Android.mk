@@ -49,12 +49,3 @@ LOCAL_DROIDDOC_OPTIONS := \
 
 include $(BUILD_DROIDDOC)
 
-
-# API Check
-# ---------------------------------------------
-support_module := $(LOCAL_MODULE)
-support_module_api_dir := $(LOCAL_PATH)/api
-support_module_src_files := $(recommendation.docs.src_files)
-support_module_java_libraries := $(recommendation.docs.java_libraries)
-support_module_java_packages := android.support.app.recommendation*
-include $(SUPPORT_API_CHECK)

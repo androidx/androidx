@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="activity_sample_code">Support v7 Demos</string>
+
+    <!-- MediaRouter -->
+
+    <string name="sample_media_router_activity_dark">MediaRouter/Dark Theme</string>
+    <string name="sample_media_router_activity_light">MediaRouter/Light Theme</string>
+    <string name="sample_media_router_activity_light_with_dark_action_bar">MediaRouter/Light Theme, Dark Action Bar</string>
+    <string name="sample_media_router_text">This activity demonstrates how to
+            use MediaRouter from the support library.  Select a route from the action bar.</string>
+    <string name="media_route_menu_title">Play on...</string>
+    <string name="sample_media_route_settings_activity">Sample route settings</string>
+
+    <string name="use_default_media_control">Use default media control</string>
+    <string name="my_media_control_text">My Media Control</string>
+
+    <string name="library_tab_text">Library</string>
+    <string name="playlist_tab_text">Playlist</string>
+    <string name="info_tab_text">Route Info</string>
+
+    <string name="sample_media_route_provider_service">Media Route Provider Service Support Library Sample</string>
+    <string name="fixed_volume_route_name">Fixed Volume Remote Playback Route</string>
+    <string name="variable_volume_basic_route_name">Variable Volume (Basic) Remote Playback Route</string>
+    <string name="variable_volume_queuing_route_name">Variable Volume (Queuing) Remote Playback Route</string>
+    <string name="variable_volume_session_route_name">Variable Volume (Session) Remote Playback Route</string>
+    <string name="variable_volume_route_group_name">Variable Volume Route Group</string>
+    <string name="mixed_volume_route_group_name">Mixed Volume Route Group</string>
+    <string name="sample_route_description">Sample route from Support7Demos</string>
+
+    <!-- GridLayout -->
+
+    <string name="grid_layout_1">GridLayout/1. Simple Form</string>
+    <string name="grid_layout_2">GridLayout/2. Form (XML)</string>
+    <string name="grid_layout_3">GridLayout/3. Form (Java)</string>
+
+    <string name="grid_layout_1_instructions">Type here:</string>
+    <string name="grid_layout_1_ok">Ok</string>
+    <string name="grid_layout_1_cancel">Cancel</string>
+
+    <!-- ActionBar -->
+
+    <string name="action_bar_mechanics">AppCompat/Action Bar/Action Bar Mechanics</string>
+    <string name="action_bar_usage">AppCompat/Action Bar/Action Bar Usage</string>
+    <string name="action_bar_tabs">AppCompat/Action Bar/Action Bar Tabs</string>
+    <string name="action_bar_settings_action_provider">AppCompat/Action Bar/Settings Action Provider</string>
+    <string name="action_bar_share_action_provider">AppCompat/Action Bar/ShareActionProvider</string>
+    <string name="action_bar_settings_action_provider_no_handling">Handling in onOptionsItemSelected avoided</string>
+    <string name="action_bar_with_navigation_drawer">AppCompat/Action Bar/Navigation Drawer Toggle</string>
+    <string name="action_bar_preferences">AppCompat/Action Bar/Preferences</string>
+    <string name="action_bar_action_mode">AppCompat/Action Bar/Action Mode</string>
+    <string name="action_bar_hide_scroll">AppCompat/Action Bar/Hide on Scroll</string>
+    <string name="appcompat_widgets_buttons">AppCompat/Widgets/Buttons</string>
+    <string name="appcompat_widgets_spinners">AppCompat/Widgets/Spinners</string>
+    <string name="appcompat_widgets_text_input">AppCompat/Widgets/Text Input</string>
+
+    <string name="action_bar_search">Search</string>
+    <string name="action_bar_add">Add</string>
+    <string name="action_bar_edit">Edit</string>
+    <string name="action_bar_share">Share</string>
+    <string name="action_bar_sort">Sort</string>
+    <string name="action_bar_sort_alpha">Alphabetically</string>
+    <string name="action_bar_sort_size">By size</string>
+    <string name="action_bar_settings">Settings</string>
+
+    <string name="action_bar_display_options">AppCompat/Action Bar/Display Options</string>
+    <string name="toggle_home_as_up">DISPLAY_HOME_AS_UP</string>
+    <string name="toggle_show_home">DISPLAY_SHOW_HOME</string>
+    <string name="toggle_use_logo">DISPLAY_USE_LOGO</string>
+    <string name="toggle_show_title">DISPLAY_SHOW_TITLE</string>
+    <string name="toggle_show_custom">DISPLAY_SHOW_CUSTOM</string>
+    <string name="toggle_navigation">Navigation</string>
+    <string name="cycle_custom_gravity">Cycle Custom View Gravity</string>
+    <string name="toggle_visibility">Toggle Visibility</string>
+
+    <string name="display_options_custom_button">Custom View!</string>
+    <string name="display_options_menu_item">Menu Item</string>
+
+    <string name="btn_add_tab">Add new tab</string>
+    <string name="btn_remove_tab">Remove last tab</string>
+    <string name="btn_toggle_tabs">Toggle tab mode</string>
+    <string name="btn_remove_all_tabs">Remove all tabs</string>
+
+    <string name="action_bar_fragment_menu">AppCompat/Action Bar/Fragment Menu</string>
+    <string name="action_bar_fragment_menu_msg">Build menus from three fragments, the last one
+        nested, allowing you to hide them to remove them...</string>
+    <string name="action_bar_fragment_menu1">Show fragment 1</string>
+    <string name="action_bar_fragment_menu2">Show fragment 2</string>
+    <string name="action_bar_fragment_menu3">Show nested fragment (within fragment 2)</string>
+    <string name="action_bar_fragment_has_options_menu">Set has options menu to true</string>
+    <string name="action_bar_fragment_menu_visibility">Set menu visibility to true</string>
+
+    <string name="sliding_pane_layout_support">Widget/Sliding pane layout</string>
+
+    <string name="sliding_pane_layout_summary">This activity illustrates the use of sliding panes.
+        The content pane may be slid to one side on narrow devices to reveal the left pane used to
+        select content. Sliding panes can be used to fit a UI intended for wider screens in a
+        smaller space. Tapping the Action Bar\'s Up button at the left side of the bar will navigate
+        up in the hierarchy, represented by the left pane. If you rotate the device to landscape
+        mode, on most devices you will see that both panes fit together side by side with no sliding
+        necessary.
+    </string>
+
+    <string name="toolbar_usage">AppCompat/Toolbar/Toolbar as Action Bar</string>
+    <string name="toolbar_display_options">AppCompat/Toolbar/Toolbar Display Options</string>
+    <string name="toolbar_fragment_pager">AppCompat/Toolbar/Toolbar Fragment ViewPager</string>
+    <string name="toolbar_action_mode">AppCompat/Toolbar/Action Mode</string>
+
+    <string name="dialog_usage">AppCompat/Dialog/Dialog Usage</string>
+    <string name="dialog_title">My great dialog</string>
+    <string name="dialog_content">My great dialog is great</string>
+    <string name="alert_dialog_usage">AppCompat/Dialog/AlertDialog Usage</string>
+    <string name="dialogfragment_usage">AppCompat/Dialog/DialogFragment Usage</string>
+
+    <string name="sample_media_route_provider_remote">Remote Playback (Simulated)</string>
+    <string name="sample_media_route_activity_local">Local Playback</string>
+    <string name="sample_media_route_activity_presentation">Local Playback on Presentation Display</string>
+
+    <string name="recycler_view">RecyclerView/RecyclerViewActivity</string>
+    <string name="animated_recycler_view">RecyclerView/AnimatedRecyclerView</string>
+    <string name="linear_layout_manager">RecyclerView/Linear Layout Manager</string>
+    <string name="grid_layout_manager">RecyclerView/Grid Layout Manager</string>
+    <string name="staggered_grid_layout_manager">RecyclerView/Staggered Grid Layout Manager</string>
+    <string name="async_list_util">RecyclerView/AsyncListUtil</string>
+    <string name="checkbox_orientation">Horz.</string>
+    <string name="checkbox_reverse">Rev.</string>
+    <string name="checkbox_layout_dir">Layout Dir</string>
+    <string name="checkbox_stack_from_end">Stack From End</string>
+    <string name="enableAnimations">Animate</string>
+    <string name="enablePredictiveAnimations">Predictive</string>
+    <string name="enableInPlaceChange">In Place Change</string>
+    <string name="add_item">Add</string>
+    <string name="delete_item">Del</string>
+    <string name="add_delete_item">A+D</string>
+    <string name="delete_add_item">D+A</string>
+    <string name="d1a2d3">d1a2d3</string>
+
+    <string name="card_view">Card View</string>
+    <string name="card_view_radius">Radius</string>
+    <string name="card_view_width">Width</string>
+    <string name="card_view_height">Height</string>
+    <string name="card_view_bg_color">Background</string>
+    <string name="card_view_elevation">Elevation</string>
+    <string name="card_view_max_elevation">Max Elevation</string>
+    <string name="card_view_alpha">Alpha</string>
+    <string name="card_view_sample_text">Sample text on right</string>
+    <string name="card_view_resize_card_view">Resize CardView</string>
+    <string name="card_view_resize_content">Resize Content</string>
+    <string name="cardview_background_selector_label">Selector</string>
+
+    <string name="palette">Palette</string>
+    <string name="palette_all_colors">Full color palette</string>
+    <string name="search_hint">Search...</string>
+    <string name="sorted_list_activity">RecyclerView/Sorted List</string>
+    <string name="add_new_item">Add New Item</string>
+    <string name="start_action_mode">Start Action Mode</string>
+
+    <string name="swipe_to_dismiss_activity">RecyclerView/ItemTouchHelper/Swipe To Dismiss</string>
+    <string name="drag_and_drop_activity">RecyclerView/ItemTouchHelper/Drag and Drop Activity</string>
+    <string name="swipe_start">start</string>
+    <string name="swipe_end">end</string>
+    <string name="pointer_swipe_enabled">pointer swipe</string>
+    <string name="custom_swipe_enabled">custom swipe</string>
+    <string name="drag_up">up</string>
+    <string name="drag_down">down</string>
+    <string name="long_press_drag">long press drag</string>
+    <string name="drag">drag me</string>
+    <string name="swipe">swipe me</string>
+    <string name="swiping">swiping</string>
+    <string name="vertical">vertical</string>
+
+    <string name="drawer_layout_activity">Drawer layout</string>
+    <string name="drawer_layout_summary">This activity illustrates the use of sliding drawers. The drawer may be pulled out from the starting edge, which is left on left-to-right locales, with an edge swipe. You can tap the hamburger (three horizontal lines) icon at the starting side of the action bar to open the drawer as well.</string>
+    <string name="drawer_title">Navigation</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+    <string name="mode_night_yes">MODE_NIGHT_YES</string>
+    <string name="mode_night_no">MODE_NIGHT_NO</string>
+    <string name="mode_night_auto">MODE_NIGHT_AUTO</string>
+    <string name="mode_night_activity_title">AppCompat/DayNight/Activity Usage</string>
+    <string name="mode_night_dialog_title">AppCompat/DayNight/Dialog Usage</string>
+    <string name="mode_night_alertdialog_title">AppCompat/DayNight/AlertDialog Usage</string>
+
+    <string name="list_popup_window_activity">AppCompat/List popup window</string>
+    <string name="list_popup_window_summary">This activity illustrates the use of list popup windows. The popup window is shown by clicking the button above. The checkbox controls the modality. The text area below logs various events - it should log a tap on itself when a non-modal popup window is dismissed by tapping on the log area.</string>
+    <string name="list_popup_window_button">Show popup!</string>
+    <string name="list_popup_window_is_modal">is modal</string>
+
+    <string name="popup_menu_activity">AppCompat/Popup menu</string>
+    <string name="popup_menu_summary">This activity illustrates the use of popup menus. The popup menu is shown by clicking the button above. The text area below logs various events.</string>
+    <string name="popup_menu_button">Show popup!</string>
+    <string name="popup_menu_highlight">Highlight</string>
+    <string name="popup_menu_edit">Edit</string>
+    <string name="popup_menu_delete">Delete</string>
+    <string name="popup_menu_ignore">Ignore</string>
+    <string name="popup_menu_share">Share</string>
+    <string name="popup_menu_share_email">Via email</string>
+    <string name="popup_menu_share_circles">To my circles</string>
+    <string name="popup_menu_print">Print</string>
+
+    <string name="appcompat_vector_disabled">AnimatedVectorDrawableCompat does not work on devices running API v10 or below</string>
+    <string name="appcompat_vector_title">AppCompat/Integrations/AnimatedVectorDrawable</string>
+</resources>
+

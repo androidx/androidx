@@ -40,7 +40,7 @@ import android.widget.FrameLayout;
  *         app:layout_heightPercent="50%"
  *         app:layout_marginTopPercent="25%"
  *         app:layout_marginLeftPercent="25%"/&gt
- * &lt;/android.support.percent.PercentFrameLayout/&gt
+ * &lt;/android.support.percent.PercentFrameLayout&gt
  * </pre>
  *
  * The attributes that you can use are:

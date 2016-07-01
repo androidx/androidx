@@ -1741,10 +1741,12 @@ public class Preference implements Comparable<Preference> {
 
         public static final Parcelable.Creator<BaseSavedState> CREATOR =
                 new Parcelable.Creator<BaseSavedState>() {
+                    @Override
                     public BaseSavedState createFromParcel(Parcel in) {
                         return new BaseSavedState(in);
                     }
 
+                    @Override
                     public BaseSavedState[] newArray(int size) {
                         return new BaseSavedState[size];
                     }

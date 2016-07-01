@@ -483,7 +483,7 @@ class ActivityChooserModel extends DataSetObservable {
 
             HistoricalRecord historicalRecord = new HistoricalRecord(chosenName,
                     System.currentTimeMillis(), DEFAULT_HISTORICAL_RECORD_WEIGHT);
-            addHisoricalRecord(historicalRecord);
+            addHistoricalRecord(historicalRecord);
 
             return choiceIntent;
         }
@@ -550,7 +550,7 @@ class ActivityChooserModel extends DataSetObservable {
                     newDefaultActivity.resolveInfo.activityInfo.name);
             HistoricalRecord historicalRecord = new HistoricalRecord(defaultName,
                     System.currentTimeMillis(), weight);
-            addHisoricalRecord(historicalRecord);
+            addHistoricalRecord(historicalRecord);
         }
     }
 
@@ -724,7 +724,7 @@ class ActivityChooserModel extends DataSetObservable {
      * @param historicalRecord The record to add.
      * @return True if the record was added.
      */
-    private boolean addHisoricalRecord(HistoricalRecord historicalRecord) {
+    private boolean addHistoricalRecord(HistoricalRecord historicalRecord) {
         final boolean added = mHistoricalRecords.add(historicalRecord);
         if (added) {
             mHistoricalRecordsChanged = true;
@@ -1036,14 +1036,14 @@ class ActivityChooserModel extends DataSetObservable {
         @SuppressWarnings("unchecked")
         public Void doInBackground(Object... args) {
             List<HistoricalRecord> historicalRecords = (List<HistoricalRecord>) args[0];
-            String hostoryFileName = (String) args[1];
+            String historyFileName = (String) args[1];
 
             FileOutputStream fos = null;
 
             try {
-                fos = mContext.openFileOutput(hostoryFileName, Context.MODE_PRIVATE);
+                fos = mContext.openFileOutput(historyFileName, Context.MODE_PRIVATE);
             } catch (FileNotFoundException fnfe) {
-                Log.e(LOG_TAG, "Error writing historical recrod file: " + hostoryFileName, fnfe);
+                Log.e(LOG_TAG, "Error writing historical record file: " + historyFileName, fnfe);
                 return null;
             }
 
@@ -1075,11 +1075,11 @@ class ActivityChooserModel extends DataSetObservable {
                     Log.i(LOG_TAG, "Wrote " + recordCount + " historical records.");
                 }
             } catch (IllegalArgumentException iae) {
-                Log.e(LOG_TAG, "Error writing historical recrod file: " + mHistoryFileName, iae);
+                Log.e(LOG_TAG, "Error writing historical record file: " + mHistoryFileName, iae);
             } catch (IllegalStateException ise) {
-                Log.e(LOG_TAG, "Error writing historical recrod file: " + mHistoryFileName, ise);
+                Log.e(LOG_TAG, "Error writing historical record file: " + mHistoryFileName, ise);
             } catch (IOException ioe) {
-                Log.e(LOG_TAG, "Error writing historical recrod file: " + mHistoryFileName, ioe);
+                Log.e(LOG_TAG, "Error writing historical record file: " + mHistoryFileName, ioe);
             } finally {
                 mCanReadHistoricalData = true;
                 if (fos != null) {
