@@ -27,6 +27,8 @@ LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+support_module_src_files := $(LOCAL_SRC_FILES)
+
 # A helper sub-library to resolve cyclic dependencies between Transition and platform dependent
 # implementations
 include $(CLEAR_VARS)
@@ -38,6 +40,8 @@ LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+support_module_src_files += $(LOCAL_SRC_FILES)
+
 # A helper sub-library that makes direct use of Ice Cream Sandwich APIs
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-transition-ics
@@ -47,6 +51,8 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-base
 LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
 
 # A helper sub-library that makes direct use of KitKat APIs
 include $(CLEAR_VARS)
@@ -58,6 +64,8 @@ LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+support_module_src_files += $(LOCAL_SRC_FILES)
+
 # A helper sub-library that makes direct use of Lollipop APIs
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-transition-api21
@@ -68,6 +76,8 @@ LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+support_module_src_files += $(LOCAL_SRC_FILES)
+
 # A helper sub-library that makes direct use of Marshmallow APIs
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-transition-api23
@@ -77,6 +87,8 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-api21
 LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
 
 # Here is the final static library that apps can link against.
 # The R class is automatically excluded from the generated library.
@@ -90,3 +102,13 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-api23
 LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
+
+# API Check
+# ---------------------------------------------
+support_module := $(LOCAL_MODULE)
+support_module_api_dir := $(LOCAL_PATH)/api
+support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES)
+support_module_java_packages := android.support.transition
+include $(SUPPORT_API_CHECK)

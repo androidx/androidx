@@ -28,6 +28,8 @@ LOCAL_JAVA_LIBRARIES := \
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+support_module_src_files := $(LOCAL_SRC_FILES)
+
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of Honeycomb APIs.
@@ -38,6 +40,8 @@ LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-fragment-gingerbread
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
@@ -56,6 +60,8 @@ LOCAL_JAVA_LIBRARIES := \
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+support_module_src_files += $(LOCAL_SRC_FILES)
+
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of Lollipop APIs.
@@ -72,6 +78,8 @@ LOCAL_JAVA_LIBRARIES := \
     android-support-core-utils
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
@@ -95,3 +103,21 @@ LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
+support_module_aidl_includes := $(LOCAL_AIDL_INCLUDES)
+
+# We're asking doclava to generate stubs for android.support.v4.app
+# so we'll have to point doclava at the sources for additional classes
+# in that package. Note that this API definition will overlap with that
+# of those classes in compat module.
+support_module_src_files += \
+  ../compat/java/android/support/v4/app/SharedElementCallback.java
+
+# API Check
+# ---------------------------------------------
+support_module := $(LOCAL_MODULE)
+support_module_api_dir := $(LOCAL_PATH)/api
+support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES)
+support_module_java_packages := android.support.v4.app
+include $(SUPPORT_API_CHECK)
