@@ -27,7 +27,7 @@ import android.view.ViewGroup;
  * start and end scenes. Visibility is determined not just by the
  * {@link View#setVisibility(int)} state of views, but also whether
  * views exist in the current view hierarchy. The class is intended to be a
- * utility for subclasses such as {@link FadePort}, which use this visibility
+ * utility for subclasses such as {@link Fade}, which use this visibility
  * information to determine the specific animations to run when visibility
  * changes occur. Subclasses should implement one or both of the methods
  * {@link #onAppear(ViewGroup, TransitionValues, int, TransitionValues, int)},

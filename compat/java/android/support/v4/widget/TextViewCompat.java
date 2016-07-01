@@ -269,9 +269,7 @@ public final class TextViewCompat {
      * Sets the text appearance from the specified style resource.
      * <p>
      * Use a framework-defined {@code TextAppearance} style like
-     * {@link android.R.style#TextAppearance_Material_Body1 @android:style/TextAppearance.Material.Body1}
-     * or see {@link android.R.styleable#TextAppearance TextAppearance} for the
-     * set of attributes that can be used in a custom style.
+     * {@link android.R.style#TextAppearance_Material_Body1 @android:style/TextAppearance.Material.Body1}.
      *
      * @param textView The TextView against which to invoke the method.
      * @param resId    The resource identifier of the style to apply.
