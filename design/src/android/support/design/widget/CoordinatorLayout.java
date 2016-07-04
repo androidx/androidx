@@ -1897,16 +1897,10 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         }
 
         /**
-         * Determine whether the given child view should be considered dirty.
-         *
-         * <p>If a property determined by the Behavior such as other dependent views would change,
-         * the Behavior should report a child view as dirty. This will prompt the CoordinatorLayout
-         * to re-query Behavior-determined properties as appropriate.</p>
-         *
-         * @param parent the parent view of the given child
-         * @param child the child view to check
-         * @return true if child is dirty
+         * @deprecated this method is not called anymore. You can safely remove all usages
+         * and implementations.
          */
+        @Deprecated
         public boolean isDirty(CoordinatorLayout parent, V child) {
             return false;
         }
@@ -2553,20 +2547,6 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                 resolveAnchorView(forChild, parent);
             }
             return mAnchorView;
-        }
-
-        /**
-         * Check if the child associated with this LayoutParams is currently considered
-         * "dirty" and needs to be updated. A Behavior should consider a child dirty
-         * whenever a property returned by another Behavior method would have changed,
-         * such as dependencies.
-         *
-         * @param parent the parent CoordinatorLayout
-         * @param child the child view associated with this LayoutParams
-         * @return true if this child view should be considered dirty
-         */
-        boolean isDirty(CoordinatorLayout parent, View child) {
-            return mBehavior != null && mBehavior.isDirty(parent, child);
         }
 
         /**
