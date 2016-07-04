@@ -25,7 +25,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaMetadataCompat;
@@ -37,7 +36,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -465,8 +463,8 @@ public final class MediaControllerCompat {
             }
 
             @Override
-            public void onQueueChanged(List<Parcel> queue) {
-                Callback.this.onQueueChanged(parcelListToQueueItemList(queue));
+            public void onQueueChanged(List<?> queue) {
+                Callback.this.onQueueChanged(QueueItem.fromQueueItemList(queue));
             }
 
             @Override
@@ -484,19 +482,6 @@ public final class MediaControllerCompat {
                     int type, int stream, int control, int max, int current) {
                 Callback.this.onAudioInfoChanged(
                         new PlaybackInfo(type, stream, control, max, current));
-            }
-
-            private List<QueueItem> parcelListToQueueItemList(List<Parcel> parcelList) {
-                if (parcelList == null) {
-                    return null;
-                }
-                List<MediaSessionCompat.QueueItem> items = new ArrayList<>();
-                for (Parcel parcel : parcelList) {
-                    parcel.setDataPosition(0);
-                    items.add(MediaSessionCompat.QueueItem.CREATOR.createFromParcel(parcel));
-                    parcel.recycle();
-                }
-                return items;
             }
         }
 
@@ -1320,14 +1305,8 @@ public final class MediaControllerCompat {
         @Override
         public List<MediaSessionCompat.QueueItem> getQueue() {
             List<Object> queueObjs = MediaControllerCompatApi21.getQueue(mControllerObj);
-            if (queueObjs == null) {
-                return null;
-            }
-            List<MediaSessionCompat.QueueItem> queue = new ArrayList<>();
-            for (Object item : queueObjs) {
-                queue.add(MediaSessionCompat.QueueItem.fromQueueItem(item));
-            }
-            return queue;
+            return queueObjs != null ? MediaSessionCompat.QueueItem.fromQueueItemList(queueObjs)
+                    : null;
         }
 
         @Override
