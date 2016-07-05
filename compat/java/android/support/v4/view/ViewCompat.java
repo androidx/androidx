@@ -715,12 +715,12 @@ public class ViewCompat {
 
         @Override
         public float getX(View view) {
-            return 0;
+            return view.getLeft();
         }
 
         @Override
         public float getY(View view) {
-            return 0;
+            return view.getTop();
         }
 
         @Override
