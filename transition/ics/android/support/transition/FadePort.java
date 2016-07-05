@@ -20,6 +20,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -244,8 +245,8 @@ class FadePort extends VisibilityPort {
             int screenY = (Integer) startValues.values.get(PROPNAME_SCREEN_Y);
             int[] loc = new int[2];
             sceneRoot.getLocationOnScreen(loc);
-            overlayView.offsetLeftAndRight((screenX - loc[0]) - overlayView.getLeft());
-            overlayView.offsetTopAndBottom((screenY - loc[1]) - overlayView.getTop());
+            ViewCompat.offsetLeftAndRight(overlayView, (screenX - loc[0]) - overlayView.getLeft());
+            ViewCompat.offsetTopAndBottom(overlayView, (screenY - loc[1]) - overlayView.getTop());
             ViewGroupOverlay.createFrom(sceneRoot).add(overlayView);
 //            sceneRoot.getOverlay().add(overlayView);
             // TODO: add automatic facility to Visibility superclass for keeping views around
