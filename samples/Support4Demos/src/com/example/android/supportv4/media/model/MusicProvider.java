@@ -64,6 +64,7 @@ public class MusicProvider {
 
     // Categorized caches for music track data:
     private ConcurrentMap<String, List<MediaMetadataCompat>> mMusicListByGenre;
+    private List<String> mMusicGenres;
     private final ConcurrentMap<String, MutableMediaMetadata> mMusicListById;
 
     private final Set<String> mFavoriteTracks;
@@ -82,25 +83,25 @@ public class MusicProvider {
         mMusicListByGenre = new ConcurrentHashMap<>();
         mMusicListById = new ConcurrentHashMap<>();
         mFavoriteTracks = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+        mMusicGenres = new ArrayList<>();
     }
 
     /**
-     * Get an iterator over the list of genres
+     * Get the list of genres
      *
      * @return genres
      */
-    public Iterable<String> getGenres() {
+    public List<String> getGenres() {
         if (mCurrentState != State.INITIALIZED) {
             return Collections.emptyList();
         }
-        return mMusicListByGenre.keySet();
+        return mMusicGenres;
     }
 
     /**
      * Get music tracks of the given genre
-     *
      */
-    public Iterable<MediaMetadataCompat> getMusicsByGenre(String genre) {
+    public List<MediaMetadataCompat> getMusicsByGenre(String genre) {
         if (mCurrentState != State.INITIALIZED || !mMusicListByGenre.containsKey(genre)) {
             return Collections.emptyList();
         }
@@ -199,7 +200,8 @@ public class MusicProvider {
     }
 
     private synchronized void buildListsByGenre() {
-        ConcurrentMap<String, List<MediaMetadataCompat>> newMusicListByGenre = new ConcurrentHashMap<>();
+        ConcurrentMap<String, List<MediaMetadataCompat>> newMusicListByGenre
+                = new ConcurrentHashMap<>();
 
         for (MutableMediaMetadata m : mMusicListById.values()) {
             String genre = m.metadata.getString(MediaMetadataCompat.METADATA_KEY_GENRE);
@@ -211,6 +213,7 @@ public class MusicProvider {
             list.add(m.metadata);
         }
         mMusicListByGenre = newMusicListByGenre;
+        mMusicGenres = new ArrayList<>(mMusicListByGenre.keySet());
     }
 
     private synchronized void retrieveMedia() {

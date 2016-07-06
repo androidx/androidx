@@ -19,6 +19,7 @@ package android.support.v4.view.accessibility;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.os.Build;
 import android.support.v4.view.accessibility.AccessibilityManagerCompatIcs.AccessibilityStateChangeListenerBridge;
+import android.support.v4.view.accessibility.AccessibilityManagerCompatIcs.AccessibilityStateChangeListenerWrapper;
 import android.view.accessibility.AccessibilityManager;
 
 import java.util.Collections;
@@ -31,35 +32,35 @@ import java.util.List;
 public final class AccessibilityManagerCompat {
 
     interface AccessibilityManagerVersionImpl {
-        public Object newAccessiblityStateChangeListener(
-                AccessibilityStateChangeListenerCompat listener);
-        public boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
-                AccessibilityStateChangeListenerCompat listener);
-        public boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
-                AccessibilityStateChangeListenerCompat listener);
-        public List<AccessibilityServiceInfo> getEnabledAccessibilityServiceList(
+        AccessibilityStateChangeListenerWrapper newAccessiblityStateChangeListener(
+                AccessibilityStateChangeListener listener);
+        boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
+                AccessibilityStateChangeListener listener);
+        boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
+                AccessibilityStateChangeListener listener);
+        List<AccessibilityServiceInfo> getEnabledAccessibilityServiceList(
                 AccessibilityManager manager,int feedbackTypeFlags);
-        public List<AccessibilityServiceInfo> getInstalledAccessibilityServiceList(
+        List<AccessibilityServiceInfo> getInstalledAccessibilityServiceList(
                 AccessibilityManager manager);
-        public boolean isTouchExplorationEnabled(AccessibilityManager manager);
+        boolean isTouchExplorationEnabled(AccessibilityManager manager);
     }
 
     static class AccessibilityManagerStubImpl implements AccessibilityManagerVersionImpl {
         @Override
-        public Object newAccessiblityStateChangeListener(
-                AccessibilityStateChangeListenerCompat listener) {
+        public AccessibilityStateChangeListenerWrapper newAccessiblityStateChangeListener(
+                AccessibilityStateChangeListener listener) {
             return null;
         }
 
         @Override
         public boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
-                AccessibilityStateChangeListenerCompat listener) {
+                AccessibilityStateChangeListener listener) {
             return false;
         }
 
         @Override
         public boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
-                AccessibilityStateChangeListenerCompat listener) {
+                AccessibilityStateChangeListener listener) {
             return false;
         }
 
@@ -82,31 +83,30 @@ public final class AccessibilityManagerCompat {
     }
 
     static class AccessibilityManagerIcsImpl extends AccessibilityManagerStubImpl {
-        
         @Override
-        public Object newAccessiblityStateChangeListener(
-                final AccessibilityStateChangeListenerCompat listener) {
-            return AccessibilityManagerCompatIcs.newAccessibilityStateChangeListener(
-                new AccessibilityStateChangeListenerBridge() {
-                    @Override
-                    public void onAccessibilityStateChanged(boolean enabled) {
-                        listener.onAccessibilityStateChanged(enabled);
-                    }
-                });
+        public AccessibilityStateChangeListenerWrapper newAccessiblityStateChangeListener(
+                final AccessibilityStateChangeListener listener) {
+            return new AccessibilityStateChangeListenerWrapper(listener,
+                    new AccessibilityStateChangeListenerBridge() {
+                        @Override
+                        public void onAccessibilityStateChanged(boolean enabled) {
+                            listener.onAccessibilityStateChanged(enabled);
+                        }
+                    });
         }
 
         @Override
         public boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
-                AccessibilityStateChangeListenerCompat listener) {
+                AccessibilityStateChangeListener listener) {
             return AccessibilityManagerCompatIcs.addAccessibilityStateChangeListener(manager,
-                    listener.mListener);
+                    newAccessiblityStateChangeListener(listener));
         }
 
         @Override
         public boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
-                final AccessibilityStateChangeListenerCompat listener) {
+                AccessibilityStateChangeListener listener) {
             return AccessibilityManagerCompatIcs.removeAccessibilityStateChangeListener(manager,
-                    listener.mListener);
+                    newAccessiblityStateChangeListener(listener));
         }
 
         @Override
@@ -147,7 +147,7 @@ public final class AccessibilityManagerCompat {
      * @return True if successfully registered.
      */
     public static boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
-            AccessibilityStateChangeListenerCompat listener) {
+            AccessibilityStateChangeListener listener) {
         return IMPL.addAccessibilityStateChangeListener(manager, listener);
     }
 
@@ -159,7 +159,7 @@ public final class AccessibilityManagerCompat {
      * @return True if successfully unregistered.
      */
     public static boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
-            AccessibilityStateChangeListenerCompat listener) {
+            AccessibilityStateChangeListener listener) {
         return IMPL.removeAccessibilityStateChangeListener(manager, listener);
     }
 
@@ -204,21 +204,23 @@ public final class AccessibilityManagerCompat {
     }
 
     /**
+     * @deprecated Use {@link AccessibilityStateChangeListener} instead.
+     */
+    @Deprecated
+    public static abstract class AccessibilityStateChangeListenerCompat
+            implements AccessibilityStateChangeListener {
+    }
+
+    /**
      * Listener for the accessibility state.
      */
-    public static abstract class AccessibilityStateChangeListenerCompat {
-        final Object mListener;
-
-        public AccessibilityStateChangeListenerCompat() {
-            mListener = IMPL.newAccessiblityStateChangeListener(this);
-        }
-
+    public interface AccessibilityStateChangeListener {
         /**
          * Called back on change in the accessibility state.
          *
          * @param enabled Whether accessibility is enabled.
          */
-        public abstract void onAccessibilityStateChanged(boolean enabled);
+        void onAccessibilityStateChanged(boolean enabled);
     }
 
     private AccessibilityManagerCompat() {}

@@ -16,7 +16,10 @@
 
 package android.support.transition;
 
-class FadeIcs extends TransitionIcs {
+import android.animation.Animator;
+import android.view.ViewGroup;
+
+class FadeIcs extends TransitionIcs implements VisibilityImpl {
 
     public FadeIcs(TransitionInterface transition) {
         init(transition, new FadePort());
@@ -24,6 +27,25 @@ class FadeIcs extends TransitionIcs {
 
     public FadeIcs(TransitionInterface transition, int fadingMode) {
         init(transition, new FadePort(fadingMode));
+    }
+
+    @Override
+    public boolean isVisible(TransitionValues values) {
+        return ((FadePort) mTransition).isVisible(values);
+    }
+
+    @Override
+    public Animator onAppear(ViewGroup sceneRoot, TransitionValues startValues, int startVisibility,
+            TransitionValues endValues, int endVisibility) {
+        return ((FadePort) mTransition).onAppear(sceneRoot, startValues, startVisibility,
+                endValues, endVisibility);
+    }
+
+    @Override
+    public Animator onDisappear(ViewGroup sceneRoot, TransitionValues startValues,
+            int startVisibility, TransitionValues endValues, int endVisibility) {
+        return ((FadePort) mTransition).onDisappear(sceneRoot, startValues, startVisibility,
+                startValues, startVisibility);
     }
 
 }

@@ -16,10 +16,15 @@
 
 package android.support.transition;
 
-class ChangeBoundsIcs extends TransitionIcs {
+class ChangeBoundsIcs extends TransitionIcs implements ChangeBoundsInterface {
 
     public ChangeBoundsIcs(TransitionInterface transition) {
         init(transition, new ChangeBoundsPort());
+    }
+
+    @Override
+    public void setResizeClip(boolean resizeClip) {
+        ((ChangeBoundsPort) mTransition).setResizeClip(resizeClip);
     }
 
 }

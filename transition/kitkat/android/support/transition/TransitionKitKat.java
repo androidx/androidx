@@ -29,11 +29,11 @@ class TransitionKitKat extends TransitionImpl {
 
     /* package */ android.transition.Transition mTransition;
 
-    private TransitionInterface mExternalTransition;
+    /* package */ TransitionInterface mExternalTransition;
 
     private CompatListener mCompatListener;
 
-    private static void copyValues(android.transition.TransitionValues source,
+    static void copyValues(android.transition.TransitionValues source,
             android.support.transition.TransitionValues dest) {
         if (source == null) {
             return;
@@ -44,7 +44,7 @@ class TransitionKitKat extends TransitionImpl {
         }
     }
 
-    private static void copyValues(android.support.transition.TransitionValues source,
+    static void copyValues(android.support.transition.TransitionValues source,
             android.transition.TransitionValues dest) {
         if (source == null) {
             return;
@@ -53,6 +53,43 @@ class TransitionKitKat extends TransitionImpl {
         if (source.values.size() > 0) {
             dest.values.putAll(source.values);
         }
+    }
+
+    static void wrapCaptureStartValues(TransitionInterface transition,
+            android.transition.TransitionValues transitionValues) {
+        android.support.transition.TransitionValues externalValues =
+                new android.support.transition.TransitionValues();
+        copyValues(transitionValues, externalValues);
+        transition.captureStartValues(externalValues);
+        copyValues(externalValues, transitionValues);
+    }
+
+    static void wrapCaptureEndValues(TransitionInterface transition,
+            android.transition.TransitionValues transitionValues) {
+        android.support.transition.TransitionValues externalValues =
+                new android.support.transition.TransitionValues();
+        copyValues(transitionValues, externalValues);
+        transition.captureEndValues(externalValues);
+        copyValues(externalValues, transitionValues);
+    }
+
+    static TransitionValues convertToSupport(android.transition.TransitionValues values) {
+        if (values == null) {
+            return null;
+        }
+        TransitionValues supportValues = new TransitionValues();
+        copyValues(values, supportValues);
+        return supportValues;
+    }
+
+    static android.transition.TransitionValues convertToPlatform(TransitionValues values) {
+        if (values == null) {
+            return null;
+        }
+        android.transition.TransitionValues platformValues
+                = new android.transition.TransitionValues();
+        copyValues(values, platformValues);
+        return platformValues;
     }
 
     @Override
@@ -265,42 +302,20 @@ class TransitionKitKat extends TransitionImpl {
 
         @Override
         public void captureStartValues(android.transition.TransitionValues transitionValues) {
-            android.support.transition.TransitionValues externalValues =
-                    new android.support.transition.TransitionValues();
-            copyValues(transitionValues, externalValues);
-            mTransition.captureStartValues(externalValues);
-            copyValues(externalValues, transitionValues);
+            wrapCaptureStartValues(mTransition, transitionValues);
         }
 
         @Override
         public void captureEndValues(android.transition.TransitionValues transitionValues) {
-            android.support.transition.TransitionValues externalValues =
-                    new android.support.transition.TransitionValues();
-            copyValues(transitionValues, externalValues);
-            mTransition.captureEndValues(externalValues);
-            copyValues(externalValues, transitionValues);
+            wrapCaptureEndValues(mTransition, transitionValues);
         }
 
         @Override
         public Animator createAnimator(ViewGroup sceneRoot,
                 android.transition.TransitionValues startValues,
                 android.transition.TransitionValues endValues) {
-            android.support.transition.TransitionValues externalStartValues;
-            android.support.transition.TransitionValues externalEndValues;
-            if (startValues != null) {
-                externalStartValues = new android.support.transition.TransitionValues();
-                copyValues(startValues, externalStartValues);
-            } else {
-                externalStartValues = null;
-            }
-            if (endValues != null) {
-                externalEndValues = new android.support.transition.TransitionValues();
-                copyValues(endValues, externalEndValues);
-            } else {
-                externalEndValues = null;
-            }
-            return mTransition.createAnimator(sceneRoot, externalStartValues,
-                    externalEndValues);
+            return mTransition.createAnimator(sceneRoot, convertToSupport(startValues),
+                    convertToSupport(endValues));
         }
 
     }

@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -44,7 +45,7 @@ import java.util.List;
  * <p/>
  * It uses a {@link MediaBrowserCompat} to connect to the {@link MediaBrowserServiceSupport}.
  * Once connected, the fragment subscribes to get all the children. All
- * {@link MediaBrowserCompat.MediaItem}'s that can be browsed are shown in a ListView.
+ * {@link MediaBrowserCompat.MediaItem} objects that can be browsed are shown in a ListView.
  */
 public class BrowseFragment extends Fragment {
 
@@ -52,27 +53,68 @@ public class BrowseFragment extends Fragment {
 
     public static final String ARG_MEDIA_ID = "media_id";
 
+    // The number of media items per page.
+    private static final int PAGE_SIZE = 6;
+
     public static interface FragmentDataHelper {
         void onMediaItemSelected(MediaBrowserCompat.MediaItem item);
     }
 
     // The mediaId to be used for subscribing for children using the MediaBrowser.
     private String mMediaId;
+    private final List<MediaBrowserCompat.MediaItem> mMediaItems = new ArrayList<>();
 
+    private boolean mCanLoadNewPage;
     private MediaBrowserCompat mMediaBrowser;
     private BrowseAdapter mBrowserAdapter;
 
     private MediaBrowserCompat.SubscriptionCallback mSubscriptionCallback =
             new MediaBrowserCompat.SubscriptionCallback() {
+        @Override
+        public void onChildrenLoaded(String parentId, List<MediaBrowserCompat.MediaItem> children,
+                Bundle options) {
+            int page = options.getInt(MediaBrowserCompat.EXTRA_PAGE, -1);
+            int pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, -1);
+            if (page < 0 || pageSize != PAGE_SIZE || children == null
+                    || children.size() > PAGE_SIZE) {
+                return;
+            }
+
+            int itemIndex = page * PAGE_SIZE;
+            if (itemIndex >= mMediaItems.size()) {
+                if (children.size() == 0) {
+                    return;
+                }
+                // An additional page is loaded.
+                mMediaItems.addAll(children);
+            } else {
+                // An existing page is replaced by the newly loaded page.
+                for (MediaBrowserCompat.MediaItem item : children) {
+                    if (itemIndex < mMediaItems.size()) {
+                        mMediaItems.set(itemIndex, item);
+                    } else {
+                        mMediaItems.add(item);
+                    }
+                    itemIndex++;
+                }
+
+                // If the newly loaded page contains less than {PAGE_SIZE} items,
+                // then this page should be the last page.
+                if (children.size() < PAGE_SIZE) {
+                    while (mMediaItems.size() > itemIndex) {
+                        mMediaItems.remove(mMediaItems.size() - 1);
+                    }
+                }
+            }
+            mBrowserAdapter.notifyDataSetChanged();
+            mCanLoadNewPage = true;
+        }
 
         @Override
         public void onChildrenLoaded(String parentId, List<MediaBrowserCompat.MediaItem> children) {
-            Log.d(TAG, "onChildrenLoaded: " + parentId);
-            mBrowserAdapter.clear();
-            mBrowserAdapter.notifyDataSetInvalidated();
-            for (MediaBrowserCompat.MediaItem item : children) {
-                mBrowserAdapter.add(item);
-            }
+            Log.d(TAG, "onChildrenLoaded: parentId=" + parentId);
+            mMediaItems.clear();
+            mMediaItems.addAll(children);
             mBrowserAdapter.notifyDataSetChanged();
         }
 
@@ -89,10 +131,6 @@ public class BrowseFragment extends Fragment {
         public void onConnected() {
             Log.d(TAG, "onConnected: session token " + mMediaBrowser.getSessionToken());
 
-            if (mMediaId == null) {
-                mMediaId = mMediaBrowser.getRoot();
-            }
-            mMediaBrowser.subscribe(mMediaId, mSubscriptionCallback);
             if (mMediaBrowser.getSessionToken() == null) {
                 throw new IllegalArgumentException("No Session token");
             }
@@ -104,6 +142,14 @@ public class BrowseFragment extends Fragment {
                 Log.e(TAG, "Failed to create MediaController.", e);
             }
             ((MediaBrowserSupport) getActivity()).setMediaController(mediaController);
+
+            if (mMediaId == null) {
+                mMediaId = mMediaBrowser.getRoot();
+            }
+
+            if (mMediaItems.size() == 0) {
+                loadPage(0);
+            }
         }
 
         @Override
@@ -128,10 +174,10 @@ public class BrowseFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_list, container, false);
 
-        mBrowserAdapter = new BrowseAdapter(getActivity());
+        mBrowserAdapter = new BrowseAdapter(getActivity(), mMediaItems);
 
         View controls = rootView.findViewById(R.id.controls);
         controls.setVisibility(View.GONE);
@@ -158,6 +204,22 @@ public class BrowseFragment extends Fragment {
                 new ComponentName(getActivity(), MediaBrowserServiceSupport.class),
                 mConnectionCallback, null);
 
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+                    int totalItemCount) {
+                if (mCanLoadNewPage && firstVisibleItem + visibleItemCount == totalItemCount) {
+                    mCanLoadNewPage = false;
+                    loadPage((mMediaItems.size() + PAGE_SIZE - 1) / PAGE_SIZE);
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                // Do nothing
+            }
+        });
+
         return rootView;
     }
 
@@ -173,11 +235,18 @@ public class BrowseFragment extends Fragment {
         mMediaBrowser.disconnect();
     }
 
-    // An adapter for showing the list of browsed MediaItem's
+    private void loadPage(int page) {
+        Bundle options = new Bundle();
+        options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
+        options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, PAGE_SIZE);
+        mMediaBrowser.subscribe(mMediaId, options, mSubscriptionCallback);
+    }
+
+    // An adapter for showing the list of browsed MediaItem objects
     private static class BrowseAdapter extends ArrayAdapter<MediaBrowserCompat.MediaItem> {
 
-        public BrowseAdapter(Context context) {
-            super(context, R.layout.media_list_item, new ArrayList<MediaBrowserCompat.MediaItem>());
+        public BrowseAdapter(Context context, List<MediaBrowserCompat.MediaItem> mediaItems) {
+            super(context, R.layout.media_list_item, mediaItems);
         }
 
         static class ViewHolder {
@@ -211,6 +280,8 @@ public class BrowseFragment extends Fragment {
                 holder.mImageView.setImageDrawable(getContext().getResources()
                         .getDrawable(R.drawable.ic_play_arrow_white_24dp));
                 holder.mImageView.setVisibility(View.VISIBLE);
+            } else {
+                holder.mImageView.setVisibility(View.GONE);
             }
             return convertView;
         }

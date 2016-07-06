@@ -16,9 +16,17 @@
 
 package android.support.v4.app;
 
+import android.app.Notification;
+import android.app.Service;
+import android.support.annotation.IntDef;
+import android.support.v4.os.BuildCompat;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Helper for accessing features in {@link android.app.Service}
- * introduced after API level 4 in a backwards compatible fashion.
+ * introduced after API level 9 in a backwards compatible fashion.
  */
 public final class ServiceCompat {
 
@@ -42,4 +50,72 @@ public final class ServiceCompat {
      * performing background music playback.
      */
     public static final int START_STICKY = 1;
+
+    /**
+     * Flag for {@link #stopForeground(Service, int)}: if set, the notification previously provided
+     * to {@link Service#startForeground(int, Notification)} will be removed.  Otherwise it
+     * will remain until a later call (to {@link Service#startForeground(int, Notification)} or
+     * {@link #stopForeground(Service, int)} removes it, or the service is destroyed.
+     */
+    public static final int STOP_FOREGROUND_REMOVE = 1<<0;
+
+    /**
+     * Flag for {@link #stopForeground(Service, int)}: if set, the notification previously provided
+     * to {@link Service#startForeground(int, Notification)} will be detached from the service.
+     * Only makes sense when {@link #STOP_FOREGROUND_REMOVE} is <b>not</b> set -- in this case, the
+     * notification will remain shown, but be completely detached from the service and so no longer
+     * changed except through direct calls to the
+     * notification manager.
+     * <p>
+     * This flag will only work on
+     * {@link android.os.Build.VERSION_CODES#N} and later. It doesn't have any effect on earlier
+     * platform versions.
+     */
+    public static final int STOP_FOREGROUND_DETACH = 1<<1;
+
+    /** @hide */
+    @IntDef(flag = true,
+            value = {
+                    STOP_FOREGROUND_REMOVE,
+                    STOP_FOREGROUND_DETACH
+            })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface StopForegroundFlags {}
+
+    interface ServiceCompatImpl {
+        void stopForeground(Service service, @ServiceCompat.StopForegroundFlags int flags);
+    }
+
+    static class BaseServiceCompatImpl implements ServiceCompat.ServiceCompatImpl {
+        public void stopForeground(Service service, @ServiceCompat.StopForegroundFlags int flags) {
+            service.stopForeground((flags & ServiceCompat.STOP_FOREGROUND_REMOVE) != 0);
+        }
+    }
+
+    static class Api24ServiceCompatImpl implements ServiceCompat.ServiceCompatImpl {
+        public void stopForeground(Service service, @ServiceCompat.StopForegroundFlags int flags) {
+            ServiceCompatApi24.stopForeground(service, flags);
+        }
+    }
+
+    static final ServiceCompatImpl IMPL;
+    static {
+        if (BuildCompat.isAtLeastN()) {
+            IMPL = new Api24ServiceCompatImpl();
+        } else {
+            IMPL = new BaseServiceCompatImpl();
+        }
+    }
+
+    /**
+     * Remove the passed service from foreground state, allowing it to be killed if
+     * more memory is needed.
+     * @param flags Additional behavior options: {@link #STOP_FOREGROUND_REMOVE},
+     * {@link #STOP_FOREGROUND_DETACH}.
+     * @see Service#startForeground(int, Notification)
+     */
+    public static void stopForeground(Service service,
+            @ServiceCompat.StopForegroundFlags int flags) {
+        IMPL.stopForeground(service, flags);
+    }
 }
