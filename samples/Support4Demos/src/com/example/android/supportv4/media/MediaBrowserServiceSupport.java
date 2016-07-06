@@ -286,7 +286,7 @@ public class MediaBrowserServiceSupport extends MediaBrowserServiceCompat
             pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, -1);
 
             if (page < 0 || pageSize < 1) {
-                result.sendResult(new ArrayList<>());
+                result.sendResult(new ArrayList<MediaItem>());
                 return;
             }
         }
