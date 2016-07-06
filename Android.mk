@@ -69,6 +69,12 @@ check-support-api: PRIVATE_LOCAL_PATH := $(LOCAL_PATH)
 check-support-api:
 	$(PRIVATE_LOCAL_PATH)/gradlew -p $(PRIVATE_LOCAL_PATH) checkApi
 
+# Proxy to gradle task for generating docs
+.PHONY: support-docs
+support-docs: PRIVATE_LOCAL_PATH := $(LOCAL_PATH)
+support-docs:
+	$(PRIVATE_LOCAL_PATH)/gradlew -p $(PRIVATE_LOCAL_PATH) generateDocs
+
 # Pre-process support library AIDLs
 aidl_files := $(addprefix $(LOCAL_PATH)/, $(call all-subdir-named-files-exclude,*.aidl,I*.aidl))
 support-aidl := $(TARGET_OUT_COMMON_INTERMEDIATES)/support.aidl

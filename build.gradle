@@ -1,3 +1,4 @@
+import android.support.doclava.DoclavaMultilineJavadocOptionFileOption
 import com.android.build.gradle.internal.coverage.JacocoReportTask
 import com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask
 
@@ -253,24 +254,50 @@ void setApiModuleDependencies(Project subProject, DependencyHandler handler, Lis
     }
 }
 
-void registerForDocs(Project subProject, releaseVariant) {
-    rootProject.generateApi.dependsOn releaseVariant.javaCompile
-    rootProject.generateApi.source {
+void registerForDocsTask(Task task, Project subProject, releaseVariant) {
+    task.dependsOn releaseVariant.javaCompile
+    task.source {
         def buildConfig = fileTree(releaseVariant.getGenerateBuildConfig().sourceOutputDir)
         return releaseVariant.javaCompile.source.minus(buildConfig) +
             fileTree(releaseVariant.aidlCompile.sourceOutputDir) +
             fileTree(releaseVariant.outputs[0].processResources.sourceOutputDir)
     }
-    rootProject.generateApi.classpath += files(releaseVariant.javaCompile.classpath) +
+    task.classpath += files(releaseVariant.javaCompile.classpath) +
             files(releaseVariant.javaCompile.destinationDir)
 
     if (subProject.hasProperty('allSS')) {
         subProject.allSS.each { ss ->
-            rootProject.generateApi.source ss.java
+            task.source ss.java
         }
     }
 }
 
+// Generates online docs.
+task generateDocs(type: DoclavaTask, dependsOn: configurations.doclava) {
+    docletpath = configurations.doclava.resolve()
+    destinationDir = new File(project.docsDir, "online")
+
+    // Base classpath is Android SDK, sub-projects add their own.
+    classpath = getAndroidPrebuilt(gradle.ext.currentSdk)
+
+    def hdfOption = new DoclavaMultilineJavadocOptionFileOption('hdf')
+    hdfOption.add(
+            ['android.whichdoc', 'online'],
+            ['android.hasSamples', 'true']);
+
+    options {
+        addStringOption "templatedir",
+                "${project.rootDir}/../../build/tools/droiddoc/templates-sdk"
+        addStringOption "federate Android", "http://developer.android.com"
+        addStringOption "federationapi Android",
+                "${project.rootDir}/../../prebuilts/sdk/api/24.txt"
+        addStringOption "stubpackages", "android.support.*"
+        addStringOption "samplesdir", "${project.rootDir}/samples"
+        addOption hdfOption
+    }
+
+    exclude '**/BuildConfig.java'
+}
 
 // Generates API files.
 task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
@@ -462,7 +489,8 @@ subprojects {
                 && !(p.android.hasProperty('noDocs') && p.android.noDocs)) {
             p.android.libraryVariants.all { v ->
                 if (v.name == 'release') {
-                    registerForDocs(p, v)
+                    registerForDocsTask(rootProject.generateDocs, p, v)
+                    registerForDocsTask(rootProject.generateApi, p, v)
                 }
             }
         }

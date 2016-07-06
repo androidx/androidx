@@ -30,21 +30,21 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.util.DebugUtils;
+import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.view.LayoutInflaterCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.AdapterView;
 
@@ -1139,24 +1139,24 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p>Here is a typical implementation of a fragment that can take parameters
      * both through attributes supplied here as well from {@link #getArguments()}:</p>
      *
-     * {@sample development/samples/ApiDemos/src/com/example/android/apis/app/FragmentArguments.java
+     * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/app/FragmentArgumentsSupport.java
      *      fragment}
      *
      * <p>Note that parsing the XML attributes uses a "styleable" resource.  The
      * declaration for the styleable used here is:</p>
      *
-     * {@sample development/samples/ApiDemos/res/values/attrs.xml fragment_arguments}
+     * {@sample frameworks/support/samples/Support4Demos/res/values/attrs.xml fragment_arguments}
      * 
      * <p>The fragment can then be declared within its activity's content layout
      * through a tag like this:</p>
      *
-     * {@sample development/samples/ApiDemos/res/layout/fragment_arguments.xml from_attributes}
+     * {@sample frameworks/support/samples/Support4Demos/res/layout/fragment_arguments_support.xml from_attributes}
      *
      * <p>This fragment can also be created dynamically from arguments given
      * at runtime in the arguments Bundle; here is an example of doing so at
      * creation of the containing activity:</p>
      *
-     * {@sample development/samples/ApiDemos/src/com/example/android/apis/app/FragmentArguments.java
+     * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/app/FragmentArgumentsSupport.java
      *      create}
      *
      * @param context The Activity that is inflating this fragment.

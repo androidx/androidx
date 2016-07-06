@@ -804,6 +804,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * @see BrowserRoot#EXTRA_RECENT
      * @see BrowserRoot#EXTRA_OFFLINE
      * @see BrowserRoot#EXTRA_SUGGESTED
+     * @see BrowserRoot#EXTRA_SUGGESTION_KEYWORDS
      */
     public abstract @Nullable BrowserRoot onGetRoot(@NonNull String clientPackageName,
             int clientUid, @Nullable Bundle rootHints);
@@ -913,6 +914,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_RECENT
      * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_OFFLINE
      * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_SUGGESTED
+     * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_SUGGESTION_KEYWORDS
      */
     public final Bundle getBrowserRootHints() {
         return mImpl.getBrowserRootHints();
@@ -1125,6 +1127,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
          *
          * @see #EXTRA_OFFLINE
          * @see #EXTRA_SUGGESTED
+         * @see #EXTRA_SUGGESTION_KEYWORDS
          */
         public static final String EXTRA_RECENT = "android.service.media.extra.RECENT";
 
@@ -1142,6 +1145,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
          *
          * @see #EXTRA_RECENT
          * @see #EXTRA_SUGGESTED
+         * @see #EXTRA_SUGGESTION_KEYWORDS
          */
         public static final String EXTRA_OFFLINE = "android.service.media.extra.OFFLINE";
 
@@ -1160,8 +1164,30 @@ public abstract class MediaBrowserServiceCompat extends Service {
          *
          * @see #EXTRA_RECENT
          * @see #EXTRA_OFFLINE
+         * @see #EXTRA_SUGGESTION_KEYWORDS
          */
         public static final String EXTRA_SUGGESTED = "android.service.media.extra.SUGGESTED";
+
+        /**
+         * The lookup key for a string that indicates specific keywords which will be considered
+         * when the browser service suggests media items.
+         *
+         * <p>When creating a media browser for a given media browser service, this key can be
+         * supplied as a root hint together with {@link #EXTRA_SUGGESTED} for retrieving suggested
+         * media items related with the keywords. The list of media items passed in
+         * {@link android.media.browse.MediaBrowser.SubscriptionCallback#onChildrenLoaded(String, List)}
+         * is considered ordered by relevance, first being the top suggestion.
+         * If the media browser service can provide such media items, the implementation must return
+         * the key in the root hint when {@link #onGetRoot(String, int, Bundle)} is called back.
+         *
+         * <p>The root hint may contain multiple keys.
+         *
+         * @see #EXTRA_RECENT
+         * @see #EXTRA_OFFLINE
+         * @see #EXTRA_SUGGESTED
+         */
+        public static final String EXTRA_SUGGESTION_KEYWORDS
+                = "android.service.media.extra.SUGGESTION_KEYWORDS";
 
         final private String mRootId;
         final private Bundle mExtras;

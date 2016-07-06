@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package android.support.v4.app;
 
-package android.support.transition;
+import android.app.Service;
 
-class ChangeBoundsIcs extends TransitionIcs implements ChangeBoundsInterface {
-
-    public ChangeBoundsIcs(TransitionInterface transition) {
-        init(transition, new ChangeBoundsPort());
+class ServiceCompatApi24 {
+    public static void stopForeground(Service service, int flags) {
+        service.stopForeground(flags);
     }
-
-    @Override
-    public void setResizeClip(boolean resizeClip) {
-        ((ChangeBoundsPort) mTransition).setResizeClip(resizeClip);
-    }
-
 }

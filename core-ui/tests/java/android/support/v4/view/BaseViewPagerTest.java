@@ -15,6 +15,48 @@
  */
 package android.support.v4.view;
 
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.swipeLeft;
+import static android.support.test.espresso.action.ViewActions.swipeRight;
+import static android.support.test.espresso.assertion.PositionAssertions.isBelow;
+import static android.support.test.espresso.assertion.PositionAssertions.isBottomAlignedWith;
+import static android.support.test.espresso.assertion.PositionAssertions.isLeftAlignedWith;
+import static android.support.test.espresso.assertion.PositionAssertions.isRightAlignedWith;
+import static android.support.test.espresso.assertion.PositionAssertions.isTopAlignedWith;
+import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static android.support.v4.testutils.TestUtilsAssertions.hasDisplayedChildren;
+import static android.support.v4.testutils.TestUtilsMatchers.backgroundColor;
+import static android.support.v4.testutils.TestUtilsMatchers.centerAlignedInParent;
+import static android.support.v4.testutils.TestUtilsMatchers.endAlignedToParent;
+import static android.support.v4.testutils.TestUtilsMatchers.isOfClass;
+import static android.support.v4.testutils.TestUtilsMatchers.startAlignedToParent;
+import static android.support.v4.view.ViewPagerActions.arrowScroll;
+import static android.support.v4.view.ViewPagerActions.scrollLeft;
+import static android.support.v4.view.ViewPagerActions.scrollRight;
+import static android.support.v4.view.ViewPagerActions.scrollToFirst;
+import static android.support.v4.view.ViewPagerActions.scrollToLast;
+import static android.support.v4.view.ViewPagerActions.scrollToPage;
+import static android.support.v4.view.ViewPagerActions.setAdapter;
+import static android.support.v4.view.ViewPagerActions.wrap;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.support.coreui.test.R;
@@ -28,6 +70,7 @@ import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,22 +79,6 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.swipeLeft;
-import static android.support.test.espresso.action.ViewActions.swipeRight;
-import static android.support.test.espresso.assertion.PositionAssertions.*;
-import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.*;
-import static android.support.v4.testutils.TestUtilsAssertions.hasDisplayedChildren;
-import static android.support.v4.testutils.TestUtilsMatchers.*;
-import static android.support.v4.view.ViewPagerActions.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
 
 /**
  * Base class for testing <code>ViewPager</code>. Most of the testing logic should be in this
@@ -62,6 +89,8 @@ import static org.mockito.Mockito.*;
  * extending classes in <code>assertStripInteraction()</code> method.
  */
 public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrumentationTestCase<T> {
+    private static final int DIRECTION_LEFT = -1;
+    private static final int DIRECTION_RIGHT = 1;
     protected ViewPager mViewPager;
 
     protected static class BasePagerAdapter<Q> extends PagerAdapter {
@@ -264,44 +293,58 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         verifyPageSelections(true);
     }
 
-    @Test
-    @SmallTest
-    public void testPageSwipes() {
+    private void verifyPageChangeViewActions(ViewAction next, ViewAction previous) {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
+        assertFalse(mViewPager.canScrollHorizontally(DIRECTION_LEFT));
+        assertTrue(mViewPager.canScrollHorizontally(DIRECTION_RIGHT));
 
         ViewPager.OnPageChangeListener mockPageChangeListener =
                 mock(ViewPager.OnPageChangeListener.class);
         mViewPager.addOnPageChangeListener(mockPageChangeListener);
 
-        onView(withId(R.id.pager)).perform(wrap(swipeLeft()));
-        assertEquals("Swipe left", 1, mViewPager.getCurrentItem());
+        onView(withId(R.id.pager)).perform(next);
+        assertEquals("Move to next page", 1, mViewPager.getCurrentItem());
         verify(mockPageChangeListener, times(1)).onPageSelected(1);
+        assertTrue(mViewPager.canScrollHorizontally(DIRECTION_LEFT));
+        assertTrue(mViewPager.canScrollHorizontally(DIRECTION_RIGHT));
 
-        onView(withId(R.id.pager)).perform(wrap(swipeLeft()));
-        assertEquals("Swipe left", 2, mViewPager.getCurrentItem());
+        onView(withId(R.id.pager)).perform(next);
+        assertEquals("Move to next page", 2, mViewPager.getCurrentItem());
         verify(mockPageChangeListener, times(1)).onPageSelected(2);
+        assertTrue(mViewPager.canScrollHorizontally(DIRECTION_LEFT));
+        assertFalse(mViewPager.canScrollHorizontally(DIRECTION_RIGHT));
 
         // Try swiping beyond the last page and test that we're still on the last page.
-        onView(withId(R.id.pager)).perform(wrap(swipeLeft()));
-        assertEquals("Swipe left beyond last page", 2, mViewPager.getCurrentItem());
+        onView(withId(R.id.pager)).perform(next);
+        assertEquals("Attempt to move to next page beyond last page", 2,
+                mViewPager.getCurrentItem());
         // We're still on this page, so we shouldn't have been called again with index 2
         verify(mockPageChangeListener, times(1)).onPageSelected(2);
+        assertTrue(mViewPager.canScrollHorizontally(DIRECTION_LEFT));
+        assertFalse(mViewPager.canScrollHorizontally(DIRECTION_RIGHT));
 
-        onView(withId(R.id.pager)).perform(wrap(swipeRight()));
-        assertEquals("Swipe right", 1, mViewPager.getCurrentItem());
+        onView(withId(R.id.pager)).perform(previous);
+        assertEquals("Move to previous page", 1, mViewPager.getCurrentItem());
         // Verify that this is the second time we're called on index 1
         verify(mockPageChangeListener, times(2)).onPageSelected(1);
+        assertTrue(mViewPager.canScrollHorizontally(DIRECTION_LEFT));
+        assertTrue(mViewPager.canScrollHorizontally(DIRECTION_RIGHT));
 
-        onView(withId(R.id.pager)).perform(wrap(swipeRight()));
-        assertEquals("Swipe right", 0, mViewPager.getCurrentItem());
+        onView(withId(R.id.pager)).perform(previous);
+        assertEquals("Move to previous page", 0, mViewPager.getCurrentItem());
         // Verify that this is the first time we're called on index 0
         verify(mockPageChangeListener, times(1)).onPageSelected(0);
+        assertFalse(mViewPager.canScrollHorizontally(DIRECTION_LEFT));
+        assertTrue(mViewPager.canScrollHorizontally(DIRECTION_RIGHT));
 
         // Try swiping beyond the first page and test that we're still on the first page.
-        onView(withId(R.id.pager)).perform(wrap(swipeRight()));
-        assertEquals("Swipe right beyond first page", 0, mViewPager.getCurrentItem());
+        onView(withId(R.id.pager)).perform(previous);
+        assertEquals("Attempt to move to previous page beyond first page", 0,
+                mViewPager.getCurrentItem());
         // We're still on this page, so we shouldn't have been called again with index 0
         verify(mockPageChangeListener, times(1)).onPageSelected(0);
+        assertFalse(mViewPager.canScrollHorizontally(DIRECTION_LEFT));
+        assertTrue(mViewPager.canScrollHorizontally(DIRECTION_RIGHT));
 
         mViewPager.removeOnPageChangeListener(mockPageChangeListener);
 
@@ -309,6 +352,18 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         ArgumentCaptor<Integer> pageSelectedCaptor = ArgumentCaptor.forClass(int.class);
         verify(mockPageChangeListener, times(4)).onPageSelected(pageSelectedCaptor.capture());
         assertThat(pageSelectedCaptor.getAllValues(), TestUtilsMatchers.matches(1, 2, 1, 0));
+    }
+
+    @Test
+    @MediumTest
+    public void testPageSwipes() {
+        verifyPageChangeViewActions(wrap(swipeLeft()), wrap(swipeRight()));
+    }
+
+    @Test
+    @MediumTest
+    public void testArrowPageChanges() {
+        verifyPageChangeViewActions(arrowScroll(View.FOCUS_RIGHT), arrowScroll(View.FOCUS_LEFT));
     }
 
     @Test

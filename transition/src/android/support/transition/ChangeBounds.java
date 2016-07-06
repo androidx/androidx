@@ -56,4 +56,21 @@ public class ChangeBounds extends Transition {
         return mImpl.createAnimator(sceneRoot, startValues, endValues);
     }
 
+    /**
+     * When <code>resizeClip</code> is true, ChangeBounds resizes the view using the clipBounds
+     * instead of changing the dimensions of the view during the animation. When
+     * <code>resizeClip</code> is false, ChangeBounds resizes the View by changing its dimensions.
+     *
+     * <p>When resizeClip is set to true, the clip bounds is modified by ChangeBounds. Therefore,
+     * {@link android.transition.ChangeClipBounds} is not compatible with ChangeBounds
+     * in this mode.</p>
+     *
+     * @param resizeClip Used to indicate whether the view bounds should be modified or the
+     *                   clip bounds should be modified by ChangeBounds.
+     * @see android.view.View#setClipBounds(android.graphics.Rect)
+     */
+    public void setResizeClip(boolean resizeClip) {
+        ((ChangeBoundsInterface) mImpl).setResizeClip(resizeClip);
+    }
+
 }

@@ -422,9 +422,7 @@ public class ContextCompat {
      * Returns the absolute path to the directory on the filesystem similar to
      * {@link Context#getFilesDir()}.  The difference is that files placed under this
      * directory will be excluded from automatic backup to remote storage on
-     * devices running {@link android.os.Build.VERSION_CODES#LOLLIPOP} or later.  See
-     * {@link android.app.backup.BackupAgent BackupAgent} for a full discussion
-     * of the automatic backup mechanism in Android.
+     * devices running {@link android.os.Build.VERSION_CODES#LOLLIPOP} or later.
      *
      * <p>No permissions are required to read or write to the returned path, since this
      * path is internal storage.
@@ -432,7 +430,7 @@ public class ContextCompat {
      * @return The path of the directory holding application files that will not be
      *         automatically backed up to remote storage.
      *
-     * @see android.content.Context.getFilesDir
+     * @see android.content.Context#getFilesDir()
      */
     public static final File getNoBackupFilesDir(Context context) {
         final int version = Build.VERSION.SDK_INT;

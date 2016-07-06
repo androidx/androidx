@@ -49,8 +49,8 @@ import java.util.List;
  * and resizing the view) may be out of sync with the display inside those bounds.
  * TextureView is more compatible with transitions in general, but some
  * specific transitions (such as {@link Fade}) may not be compatible
- * with TextureView because they rely on {@link ViewOverlay} functionality,
- * which does not currently work with TextureView.</p>
+ * with TextureView because they rely on {@link android.view.ViewOverlay}
+ * functionality, which does not currently work with TextureView.</p>
  *
  * <p>Unlike the platform version, this does not support declaration by XML resources.</p>
  */
@@ -69,7 +69,7 @@ public abstract class Transition implements TransitionInterface {
     }
 
     // Hidden constructor for built-in transitions
-    protected Transition(boolean deferred) {
+    Transition(boolean deferred) {
         if (!deferred) {
             if (Build.VERSION.SDK_INT >= 23) {
                 mImpl = new TransitionApi23();
@@ -137,7 +137,7 @@ public abstract class Transition implements TransitionInterface {
      * Views with different IDs, or no IDs whatsoever, will be ignored.
      *
      * <p>Note that using ids to specify targets implies that ids should be unique
-     * within the view hierarchy underneat the scene root.</p>
+     * within the view hierarchy underneath the scene root.</p>
      *
      * @param targetId The id of a target view, must be a positive number.
      * @return The Transition to which the targetId is added.
@@ -445,7 +445,7 @@ public abstract class Transition implements TransitionInterface {
      *
      * @param duration The length of the animation, in milliseconds.
      * @return This transition object.
-     * @attr ref android.R.styleable#Transition_duration
+     * @attr name android:duration
      */
     @NonNull
     public Transition setDuration(long duration) {
@@ -474,7 +474,7 @@ public abstract class Transition implements TransitionInterface {
      *
      * @param interpolator The time interpolator used by the transition
      * @return This transition object.
-     * @attr ref android.R.styleable#Transition_interpolator
+     * @attr name android:interpolator
      */
     @NonNull
     public Transition setInterpolator(@Nullable TimeInterpolator interpolator) {
@@ -519,7 +519,7 @@ public abstract class Transition implements TransitionInterface {
      *
      * @param startDelay The length of the delay, in milliseconds.
      * @return This transition object.
-     * @attr ref android.R.styleable#Transition_startDelay
+     * @attr name android:startDelay
      */
     @NonNull
     public Transition setStartDelay(long startDelay) {

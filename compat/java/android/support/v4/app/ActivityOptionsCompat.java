@@ -273,8 +273,8 @@ public class ActivityOptionsCompat {
      * In addition, the new task wil be affiliated with the launching activity's task.
      * Affiliated tasks are grouped together in the recents task list.
      *
-     * <p>This behavior is not supported for activities with {@link
-     * android.R.styleable#AndroidManifestActivity_launchMode launchMode} values of
+     * <p>This behavior is not supported for activities with
+     * {@link android.R.attr#launchMode launchMode} values of
      * <code>singleInstance</code> or <code>singleTask</code>.
      */
     public static ActivityOptionsCompat makeTaskLaunchBehind() {

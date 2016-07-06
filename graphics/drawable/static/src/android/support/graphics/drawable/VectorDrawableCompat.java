@@ -981,6 +981,9 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
             currentGroup.mStackedMatrix.preConcat(currentGroup.mLocalMatrix);
 
+            // Save the current clip information, which is local to this group.
+            canvas.save();
+
             // Draw the group tree in the same order as the XML file.
             for (int i = 0; i < currentGroup.mChildren.size(); i++) {
                 Object child = currentGroup.mChildren.get(i);
@@ -993,6 +996,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
                     drawPath(currentGroup, childPath, canvas, w, h, filter);
                 }
             }
+
+            canvas.restore();
         }
 
         public void draw(Canvas canvas, int w, int h, ColorFilter filter) {
@@ -1023,7 +1028,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
             if (vPath.isClipPath()) {
                 mRenderPath.addPath(path, mFinalPathMatrix);
-                canvas.clipPath(mRenderPath, Region.Op.REPLACE);
+                canvas.clipPath(mRenderPath);
             } else {
                 VFullPath fullPath = (VFullPath) vPath;
                 if (fullPath.mTrimPathStart != 0.0f || fullPath.mTrimPathEnd != 1.0f) {
