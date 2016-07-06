@@ -1,3 +1,4 @@
+import android.support.doclava.DoclavaMultilineJavadocOptionFileOption
 import com.android.build.gradle.internal.coverage.JacocoReportTask
 import com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask
 
@@ -53,8 +54,8 @@ if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
     // the build server does not pass the build number so we infer it from the last folder of the dist path.
     ext.buildNumber = project.ext.distDir.getName()
 } else {
-    buildDir = file('../../out/host/gradle/frameworks/support/build')
-    project.ext.distDir = file('../../out/dist')
+    buildDir = file("${project.rootDir}/../../out/host/gradle/frameworks/support/build")
+    project.ext.distDir = file("${project.rootDir}/../../out/dist")
 }
 
 ext.docsDir = new File(buildDir, 'javadoc')
@@ -81,7 +82,7 @@ createArchive.dependsOn createRepository
 
 // prepare repository with older versions
 task unzipRepo(type: Copy) {
-    from "$rootDir/../../prebuilts/maven_repo/android"
+    from "${project.rootDir}/../../prebuilts/maven_repo/android"
     into project.ext.supportRepoOut
 }
 
@@ -253,24 +254,50 @@ void setApiModuleDependencies(Project subProject, DependencyHandler handler, Lis
     }
 }
 
-void registerForDocs(Project subProject, releaseVariant) {
-    rootProject.generateApi.dependsOn releaseVariant.javaCompile
-    rootProject.generateApi.source {
+void registerForDocsTask(Task task, Project subProject, releaseVariant) {
+    task.dependsOn releaseVariant.javaCompile
+    task.source {
         def buildConfig = fileTree(releaseVariant.getGenerateBuildConfig().sourceOutputDir)
         return releaseVariant.javaCompile.source.minus(buildConfig) +
             fileTree(releaseVariant.aidlCompile.sourceOutputDir) +
             fileTree(releaseVariant.outputs[0].processResources.sourceOutputDir)
     }
-    rootProject.generateApi.classpath += files(releaseVariant.javaCompile.classpath) +
+    task.classpath += files(releaseVariant.javaCompile.classpath) +
             files(releaseVariant.javaCompile.destinationDir)
 
     if (subProject.hasProperty('allSS')) {
         subProject.allSS.each { ss ->
-            rootProject.generateApi.source ss.java
+            task.source ss.java
         }
     }
 }
 
+// Generates online docs.
+task generateDocs(type: DoclavaTask, dependsOn: configurations.doclava) {
+    docletpath = configurations.doclava.resolve()
+    destinationDir = new File(project.docsDir, "online")
+
+    // Base classpath is Android SDK, sub-projects add their own.
+    classpath = getAndroidPrebuilt(gradle.ext.currentSdk)
+
+    def hdfOption = new DoclavaMultilineJavadocOptionFileOption('hdf')
+    hdfOption.add(
+            ['android.whichdoc', 'online'],
+            ['android.hasSamples', 'true']);
+
+    options {
+        addStringOption "templatedir",
+                "${project.rootDir}/../../build/tools/droiddoc/templates-sdk"
+        addStringOption "federate Android", "http://developer.android.com"
+        addStringOption "federationapi Android",
+                "${project.rootDir}/../../prebuilts/sdk/api/24.txt"
+        addStringOption "stubpackages", "android.support.*"
+        addStringOption "samplesdir", "${project.rootDir}/samples"
+        addOption hdfOption
+    }
+
+    exclude '**/BuildConfig.java'
+}
 
 // Generates API files.
 task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
@@ -299,9 +326,9 @@ task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
 // Copies generated API files to current version.
 task updateApi(type: UpdateApiTask, dependsOn: generateApi) {
     newApiFile = new File(project.docsDir, 'release/current.txt')
-    oldApiFile = new File('api/current.txt')
+    oldApiFile = new File(project.rootDir, 'api/current.txt')
     newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
-    oldRemovedApiFile = new File('api/removed.txt')
+    oldRemovedApiFile = new File(project.rootDir, 'api/removed.txt')
 }
 
 // Checks generated API files against current version.
@@ -312,9 +339,9 @@ task checkApi(type: CheckApiTask, dependsOn: generateApi) {
     updateApiTaskPath = updateApi.name
 
     newApiFile = new File(project.docsDir, 'release/current.txt')
-    oldApiFile = new File('api/current.txt')
+    oldApiFile = new File(project.rootDir, 'api/current.txt')
     newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
-    oldRemovedApiFile = new File('api/removed.txt')
+    oldRemovedApiFile = new File(project.rootDir, 'api/removed.txt')
 }
 createArchive.dependsOn checkApi
 
@@ -462,7 +489,8 @@ subprojects {
                 && !(p.android.hasProperty('noDocs') && p.android.noDocs)) {
             p.android.libraryVariants.all { v ->
                 if (v.name == 'release') {
-                    registerForDocs(p, v)
+                    registerForDocsTask(rootProject.generateDocs, p, v)
+                    registerForDocsTask(rootProject.generateApi, p, v)
                 }
             }
         }

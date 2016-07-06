@@ -34,10 +34,10 @@ public final class SearchViewCompat {
         void setSearchableInfo(View searchView, ComponentName searchableComponent);
         void setImeOptions(View searchView, int imeOptions);
         void setInputType(View searchView, int inputType);
-        Object newOnQueryTextListener(OnQueryTextListenerCompat listener);
-        void setOnQueryTextListener(View searchView, Object listener);
-        Object newOnCloseListener(OnCloseListenerCompat listener);
-        void setOnCloseListener(View searchView, Object listener);
+        Object newOnQueryTextListener(OnQueryTextListener listener);
+        void setOnQueryTextListener(View searchView, OnQueryTextListener listener);
+        Object newOnCloseListener(OnCloseListener listener);
+        void setOnCloseListener(View searchView, OnCloseListener listener);
         CharSequence getQuery(View searchView);
         void setQuery(View searchView, CharSequence query, boolean submit);
         void setQueryHint(View searchView, CharSequence hint);
@@ -70,21 +70,21 @@ public final class SearchViewCompat {
         }
 
         @Override
-        public Object newOnQueryTextListener(OnQueryTextListenerCompat listener) {
+        public Object newOnQueryTextListener(OnQueryTextListener listener) {
             return null;
         }
 
         @Override
-        public void setOnQueryTextListener(View searchView, Object listener) {
+        public void setOnQueryTextListener(View searchView, OnQueryTextListener listener) {
         }
 
         @Override
-        public Object newOnCloseListener(OnCloseListenerCompat listener) {
+        public Object newOnCloseListener(OnCloseListener listener) {
             return null;
         }
 
         @Override
-        public void setOnCloseListener(View searchView, Object listener) {
+        public void setOnCloseListener(View searchView, OnCloseListener listener) {
         }
 
         @Override
@@ -146,7 +146,7 @@ public final class SearchViewCompat {
         }
 
         @Override
-        public Object newOnQueryTextListener(final OnQueryTextListenerCompat listener) {
+        public Object newOnQueryTextListener(final OnQueryTextListener listener) {
             return SearchViewCompatHoneycomb.newOnQueryTextListener(
                     new SearchViewCompatHoneycomb.OnQueryTextListenerCompatBridge() {
                         @Override
@@ -161,13 +161,14 @@ public final class SearchViewCompat {
         }
 
         @Override
-        public void setOnQueryTextListener(View searchView, Object listener) {
+        public void setOnQueryTextListener(View searchView, OnQueryTextListener listener) {
             checkIfLegalArg(searchView);
-            SearchViewCompatHoneycomb.setOnQueryTextListener(searchView, listener);
+            SearchViewCompatHoneycomb.setOnQueryTextListener(searchView,
+                    newOnQueryTextListener(listener));
         }
 
         @Override
-        public Object newOnCloseListener(final OnCloseListenerCompat listener) {
+        public Object newOnCloseListener(final OnCloseListener listener) {
             return SearchViewCompatHoneycomb.newOnCloseListener(
                     new SearchViewCompatHoneycomb.OnCloseListenerCompatBridge() {
                         @Override
@@ -178,9 +179,9 @@ public final class SearchViewCompat {
         }
 
         @Override
-        public void setOnCloseListener(View searchView, Object listener) {
+        public void setOnCloseListener(View searchView, OnCloseListener listener) {
             checkIfLegalArg(searchView);
-            SearchViewCompatHoneycomb.setOnCloseListener(searchView, listener);
+            SearchViewCompatHoneycomb.setOnCloseListener(searchView, newOnCloseListener(listener));
         }
 
         @Override
@@ -342,20 +343,30 @@ public final class SearchViewCompat {
      * @param listener the listener object that receives callbacks when the user performs
      *     actions in the SearchView such as clicking on buttons or typing a query.
      */
-    public static void setOnQueryTextListener(View searchView, OnQueryTextListenerCompat listener) {
-        IMPL.setOnQueryTextListener(searchView, listener.mListener);
+    public static void setOnQueryTextListener(View searchView, OnQueryTextListener listener) {
+        IMPL.setOnQueryTextListener(searchView, listener);
+    }
+
+    /**
+     * @deprecated Use {@link OnQueryTextListener} instead.
+     */
+    @Deprecated
+    public static abstract class OnQueryTextListenerCompat implements OnQueryTextListener {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            return false;
+        }
     }
 
     /**
      * Callbacks for changes to the query text.
      */
-    public static abstract class OnQueryTextListenerCompat {
-        final Object mListener;
-
-        public OnQueryTextListenerCompat() {
-            mListener = IMPL.newOnQueryTextListener(this);
-        }
-
+    public interface OnQueryTextListener {
         /**
          * Called when the user submits the query. This could be due to a key press on the
          * keyboard or due to pressing a submit button.
@@ -368,9 +379,7 @@ public final class SearchViewCompat {
          * @return true if the query has been handled by the listener, false to let the
          * SearchView perform the default action.
          */
-        public boolean onQueryTextSubmit(String query) {
-            return false;
-        }
+        boolean onQueryTextSubmit(String query);
 
         /**
          * Called when the query text is changed by the user.
@@ -380,9 +389,7 @@ public final class SearchViewCompat {
          * @return false if the SearchView should perform the default action of showing any
          * suggestions if available, true if the action was handled by the listener.
          */
-        public boolean onQueryTextChange(String newText) {
-            return false;
-        }
+        boolean onQueryTextChange(String newText);
     }
 
     /**
@@ -391,29 +398,32 @@ public final class SearchViewCompat {
      * @param searchView The SearchView in which to register the listener.
      * @param listener the listener to call when the user closes the SearchView.
      */
-    public static void setOnCloseListener(View searchView, OnCloseListenerCompat listener) {
-        IMPL.setOnCloseListener(searchView, listener.mListener);
+    public static void setOnCloseListener(View searchView, OnCloseListener listener) {
+        IMPL.setOnCloseListener(searchView, listener);
+    }
+
+    /**
+     * @deprecated Use {@link OnCloseListener} instead.
+     */
+    @Deprecated
+    public static abstract class OnCloseListenerCompat implements OnCloseListener {
+        @Override
+        public boolean onClose() {
+            return false;
+        }
     }
 
     /**
      * Callback for closing the query UI.
      */
-    public static abstract class OnCloseListenerCompat {
-        final Object mListener;
-
-        public OnCloseListenerCompat() {
-            mListener = IMPL.newOnCloseListener(this);
-        }
-
+    public interface OnCloseListener {
         /**
          * The user is attempting to close the SearchView.
          *
          * @return true if the listener wants to override the default behavior of clearing the
          * text field and dismissing it, false otherwise.
          */
-        public boolean onClose() {
-            return false;
-        }
+        boolean onClose();
     }
 
     /**

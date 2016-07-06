@@ -2661,6 +2661,13 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    /**
+     * Check if this ViewPager can be scrolled horizontally in a certain direction.
+     *
+     * @param direction Negative to check scrolling left, positive to check scrolling right.
+     * @return Whether this ViewPager can be scrolled in the specified direction. It will always
+     *         return false if the specified direction is 0.
+     */
     public boolean canScrollHorizontally(int direction) {
         if (mAdapter == null) {
             return false;
@@ -2751,6 +2758,13 @@ public class ViewPager extends ViewGroup {
         return handled;
     }
 
+    /**
+     * Handle scrolling in response to a left or right arrow click.
+     *
+     * @param direction The direction corresponding to the arrow key that was pressed. It should be
+     *                  either {@link View#FOCUS_LEFT} or {@link View#FOCUS_RIGHT}.
+     * @return Whether the scrolling was handled successfully.
+     */
     public boolean arrowScroll(int direction) {
         View currentFocused = findFocus();
         if (currentFocused == this) {

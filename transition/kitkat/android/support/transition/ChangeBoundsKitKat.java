@@ -16,10 +16,15 @@
 
 package android.support.transition;
 
-class ChangeBoundsKitKat extends TransitionKitKat {
+class ChangeBoundsKitKat extends TransitionKitKat implements ChangeBoundsInterface {
 
     public ChangeBoundsKitKat(TransitionInterface transition) {
         init(transition, new android.transition.ChangeBounds());
+    }
+
+    @Override
+    public void setResizeClip(boolean resizeClip) {
+        ((android.transition.ChangeBounds) mTransition).setResizeClip(resizeClip);
     }
 
 }
