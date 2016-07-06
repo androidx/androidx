@@ -5316,6 +5316,8 @@ package android.support.v4.media.session {
     ctor public MediaSessionCompat(android.content.Context, java.lang.String);
     ctor public MediaSessionCompat(android.content.Context, java.lang.String, android.content.ComponentName, android.app.PendingIntent);
     method public void addOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener);
+    method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, long);
+    method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, android.content.ComponentName, long);
     method public android.support.v4.media.session.MediaControllerCompat getController();
     method public java.lang.Object getMediaSession();
     method public java.lang.Object getRemoteControlClient();
@@ -5418,6 +5420,7 @@ package android.support.v4.media.session {
     method public java.lang.Object getPlaybackState();
     method public long getPosition();
     method public int getState();
+    method public static int toKeyCode(long);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final long ACTION_FAST_FORWARD = 64L; // 0x40L
     field public static final long ACTION_PAUSE = 2L; // 0x2L

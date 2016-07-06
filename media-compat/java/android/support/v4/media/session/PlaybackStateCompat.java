@@ -24,6 +24,7 @@ import android.os.SystemClock;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -47,6 +48,14 @@ public final class PlaybackStateCompat implements Parcelable {
             ACTION_PREPARE_FROM_MEDIA_ID, ACTION_PREPARE_FROM_SEARCH, ACTION_PREPARE_FROM_URI})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Actions {}
+
+    /**
+     * @hide
+     */
+    @IntDef(flag=true, value={ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND,
+            ACTION_SKIP_TO_PREVIOUS, ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_PLAY_PAUSE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface MediaKeyActions {}
 
     /**
      * Indicates this session supports the stop command.
@@ -284,6 +293,49 @@ public final class PlaybackStateCompat implements Parcelable {
      * Use this value for the position to indicate the position is not known.
      */
     public final static long PLAYBACK_POSITION_UNKNOWN = -1;
+
+    // KeyEvent constants only available on API 11+
+    private static final int KEYCODE_MEDIA_PAUSE = 127;
+    private static final int KEYCODE_MEDIA_PLAY = 126;
+
+    /**
+     * Translates a given action into a matched key code defined in {@link KeyEvent}. The given
+     * action should be one of the following:
+     * <ul>
+     * <li>{@link PlaybackStateCompat#ACTION_PLAY}</li>
+     * <li>{@link PlaybackStateCompat#ACTION_PAUSE}</li>
+     * <li>{@link PlaybackStateCompat#ACTION_SKIP_TO_NEXT}</li>
+     * <li>{@link PlaybackStateCompat#ACTION_SKIP_TO_PREVIOUS}</li>
+     * <li>{@link PlaybackStateCompat#ACTION_STOP}</li>
+     * <li>{@link PlaybackStateCompat#ACTION_FAST_FORWARD}</li>
+     * <li>{@link PlaybackStateCompat#ACTION_REWIND}</li>
+     * <li>{@link PlaybackStateCompat#ACTION_PLAY_PAUSE}</li>
+     * </ul>
+     *
+     * @param action The action to be translated.
+     *
+     * @return the key code matched to the given action.
+     */
+    public static int toKeyCode(@MediaKeyActions long action) {
+        if (action == ACTION_PLAY) {
+            return KEYCODE_MEDIA_PLAY;
+        } else if (action == ACTION_PAUSE) {
+            return KEYCODE_MEDIA_PAUSE;
+        } else if (action == ACTION_SKIP_TO_NEXT) {
+            return KeyEvent.KEYCODE_MEDIA_NEXT;
+        } else if (action == ACTION_SKIP_TO_PREVIOUS) {
+            return KeyEvent.KEYCODE_MEDIA_PREVIOUS;
+        } else if (action == ACTION_STOP) {
+            return KeyEvent.KEYCODE_MEDIA_STOP;
+        } else if (action == ACTION_FAST_FORWARD) {
+            return KeyEvent.KEYCODE_MEDIA_FAST_FORWARD;
+        } else if (action == ACTION_REWIND) {
+            return KeyEvent.KEYCODE_MEDIA_REWIND;
+        } else if (action == ACTION_PLAY_PAUSE) {
+            return KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
+        }
+        return KeyEvent.KEYCODE_UNKNOWN;
+    }
 
     private final int mState;
     private final long mPosition;
