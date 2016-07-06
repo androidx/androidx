@@ -5318,12 +5318,13 @@ package android.support.v4.media.session {
     method public void addOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener);
     method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, long);
     method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, android.content.ComponentName, long);
+    method public static android.support.v4.media.session.MediaSessionCompat fromMediaSession(android.content.Context, java.lang.Object);
     method public android.support.v4.media.session.MediaControllerCompat getController();
     method public java.lang.Object getMediaSession();
     method public java.lang.Object getRemoteControlClient();
     method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
     method public boolean isActive();
-    method public static android.support.v4.media.session.MediaSessionCompat obtain(android.content.Context, java.lang.Object);
+    method public static deprecated android.support.v4.media.session.MediaSessionCompat obtain(android.content.Context, java.lang.Object);
     method public void release();
     method public void removeOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener);
     method public void sendSessionEvent(java.lang.String, android.os.Bundle);
@@ -5376,10 +5377,11 @@ package android.support.v4.media.session {
   public static final class MediaSessionCompat.QueueItem implements android.os.Parcelable {
     ctor public MediaSessionCompat.QueueItem(android.support.v4.media.MediaDescriptionCompat, long);
     method public int describeContents();
+    method public static android.support.v4.media.session.MediaSessionCompat.QueueItem fromQueueItem(java.lang.Object);
     method public android.support.v4.media.MediaDescriptionCompat getDescription();
     method public long getQueueId();
     method public java.lang.Object getQueueItem();
-    method public static android.support.v4.media.session.MediaSessionCompat.QueueItem obtain(java.lang.Object);
+    method public static deprecated android.support.v4.media.session.MediaSessionCompat.QueueItem obtain(java.lang.Object);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.support.v4.media.session.MediaSessionCompat.QueueItem> CREATOR;
     field public static final int UNKNOWN_ID = -1; // 0xffffffff
