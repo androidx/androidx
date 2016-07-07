@@ -47,6 +47,7 @@ import android.support.v4.media.VolumeProviderCompat;
 import android.support.v4.media.session.PlaybackStateCompat.MediaKeyActions;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 
 import java.lang.annotation.Retention;
@@ -159,6 +160,12 @@ public class MediaSessionCompat {
      */
     static final String ACTION_ARGUMENT_EXTRAS =
             "android.support.v4.media.session.action.ARGUMENT_EXTRAS";
+
+    // Maximum size of the bitmap in dp.
+    private static final int MAX_BITMAP_SIZE_IN_DP = 320;
+
+    // Maximum size of the bitmap in px. It shouldn't be changed.
+    private static int sMaxBitmapSize;
 
     /**
      * Creates a broadcast pending intent that will send a media button event. The {@code action}
@@ -304,6 +311,11 @@ public class MediaSessionCompat {
             mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent);
         }
         mController = new MediaControllerCompat(context, this);
+
+        if (sMaxBitmapSize == 0) {
+            sMaxBitmapSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                    MAX_BITMAP_SIZE_IN_DP, context.getResources().getDisplayMetrics());
+        }
     }
 
     private MediaSessionCompat(Context context, MediaSessionImpl impl) {
@@ -500,9 +512,11 @@ public class MediaSessionCompat {
 
     /**
      * Update the current metadata. New metadata can be created using
-     * {@link android.media.MediaMetadata.Builder}.
+     * {@link android.support.v4.media.MediaMetadataCompat.Builder}. This operation may take time
+     * proportional to the size of the bitmap to replace large bitmaps with a scaled down copy.
      *
      * @param metadata The new metadata
+     * @see android.support.v4.media.MediaMetadataCompat.Builder#putBitmap
      */
     public void setMetadata(MediaMetadataCompat metadata) {
         mImpl.setMetadata(metadata);
@@ -1548,42 +1562,14 @@ public class MediaSessionCompat {
             }
         }
 
-        /**
-         * Clones the given {@link MediaMetadataCompat}, deep-copying bitmaps in the metadata if
-         * they exist. If there is no bitmap in the metadata, this method just returns the given
-         * metadata.
-         *
-         * @param metadata A {@link MediaMetadataCompat} to be cloned.
-         * @return A newly cloned metadata if it contains bitmaps. Otherwise, the given metadata
-         *         will be returned.
-         */
-        private MediaMetadataCompat cloneMetadataIfNeeded(MediaMetadataCompat metadata) {
-            if (metadata == null) {
-                return null;
-            } else if (!metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ART)
-                    && !metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)) {
-                return metadata;
-            }
-            MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder(metadata);
-            Bitmap artBitmap = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
-            if (artBitmap != null) {
-                builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART,
-                        artBitmap.copy(artBitmap.getConfig(), false));
-            }
-            Bitmap albumArtBitmap = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
-            if (albumArtBitmap != null) {
-                builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
-                        albumArtBitmap.copy(albumArtBitmap.getConfig(), false));
-            }
-            return builder.build();
-        }
-
         @Override
         public void setMetadata(MediaMetadataCompat metadata) {
-            if (android.os.Build.VERSION.SDK_INT >= 14 && metadata != null) {
-                // Clone bitmaps in metadata for protecting them to be recycled by RCC.
-                metadata = cloneMetadataIfNeeded(metadata);
+            if (metadata != null) {
+                // Clones the given {@link MediaMetadataCompat}, deep-copying bitmaps in the
+                // metadata if necessary. Bitmaps can be scaled down if they are large.
+                metadata = new MediaMetadataCompat.Builder(metadata, sMaxBitmapSize).build();
             }
+
             synchronized (mLock) {
                 mMetadata = metadata;
             }
