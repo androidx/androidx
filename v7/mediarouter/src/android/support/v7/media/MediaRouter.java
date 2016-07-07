@@ -2684,7 +2684,7 @@ public final class MediaRouter {
             private VolumeProviderCompat mVpCompat;
 
             public MediaSessionRecord(Object mediaSession) {
-                mMsCompat = MediaSessionCompat.obtain(mApplicationContext, mediaSession);
+                mMsCompat = MediaSessionCompat.fromMediaSession(mApplicationContext, mediaSession);
             }
 
             public void configureVolume(@VolumeProviderCompat.ControlType int controlType,

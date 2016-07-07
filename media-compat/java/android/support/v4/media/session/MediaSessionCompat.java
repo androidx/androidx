@@ -635,8 +635,23 @@ public class MediaSessionCompat {
      * @param mediaSession The {@link android.media.session.MediaSession} to
      *            wrap.
      * @return A compat wrapper for the provided session.
+     * @deprecated Use {@link #fromMediaSession(Context, Object)} instead.
      */
+    @Deprecated
     public static MediaSessionCompat obtain(Context context, Object mediaSession) {
+        return fromMediaSession(context, mediaSession);
+    }
+
+    /**
+     * Creates an instance from a framework {@link android.media.session.MediaSession} object.
+     * <p>
+     * This method is only supported on API 21+.
+     * </p>
+     *
+     * @param mediaSession A {@link android.media.session.MediaSession} object.
+     * @return An equivalent {@link MediaSessionCompat} object.
+     */
+    public static MediaSessionCompat fromMediaSession(Context context, Object mediaSession) {
         return new MediaSessionCompat(context, new MediaSessionImplApi21(mediaSession));
     }
 
@@ -1152,8 +1167,24 @@ public class MediaSessionCompat {
          * @param queueItem The {@link android.media.session.MediaSession.QueueItem} to
          *            wrap.
          * @return A compat wrapper for the provided item.
+         * @deprecated Use {@link #fromQueueItem(Object)} instead.
          */
+        @Deprecated
         public static QueueItem obtain(Object queueItem) {
+            return fromQueueItem(queueItem);
+        }
+
+        /**
+         * Creates an instance from a framework {@link android.media.session.MediaSession.QueueItem}
+         * object.
+         * <p>
+         * This method is only supported on API 21+.
+         * </p>
+         *
+         * @param queueItem A {@link android.media.session.MediaSession.QueueItem} object.
+         * @return An equivalent {@link QueueItem} object.
+         */
+        public static QueueItem fromQueueItem(Object queueItem) {
             Object descriptionObj = MediaSessionCompatApi21.QueueItem.getDescription(queueItem);
             MediaDescriptionCompat description = MediaDescriptionCompat.fromMediaDescription(
                     descriptionObj);
