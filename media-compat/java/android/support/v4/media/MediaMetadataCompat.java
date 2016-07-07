@@ -117,6 +117,10 @@ public final class MediaMetadataCompat implements Parcelable {
 
     /**
      * The artwork for the media as a {@link Bitmap}.
+     *
+     * The artwork should be relatively small and may be scaled down
+     * if it is too large. For higher resolution artwork
+     * {@link #METADATA_KEY_ART_URI} should be used instead.
      */
     public static final String METADATA_KEY_ART = "android.media.metadata.ART";
 
@@ -128,6 +132,9 @@ public final class MediaMetadataCompat implements Parcelable {
     /**
      * The artwork for the album of the media's original source as a
      * {@link Bitmap}.
+     * The artwork should be relatively small and may be scaled down
+     * if it is too large. For higher resolution artwork
+     * {@link #METADATA_KEY_ALBUM_ART_URI} should be used instead.
      */
     public static final String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
 
@@ -179,6 +186,10 @@ public final class MediaMetadataCompat implements Parcelable {
      * An icon or thumbnail that is suitable for display to the user. When
      * displaying an icon for media described by this metadata this should be
      * preferred to other fields if present. This must be a {@link Bitmap}.
+     *
+     * The icon should be relatively small and may be scaled down
+     * if it is too large. For higher resolution artwork
+     * {@link #METADATA_KEY_DISPLAY_ICON_URI} should be used instead.
      */
     public static final String METADATA_KEY_DISPLAY_ICON
             = "android.media.metadata.DISPLAY_ICON";
@@ -630,6 +641,37 @@ public final class MediaMetadataCompat implements Parcelable {
         }
 
         /**
+         * Create a Builder using a {@link MediaMetadataCompat} instance to set
+         * initial values, but replace bitmaps with a scaled down copy if they
+         * are larger than maxBitmapSize.
+         * <p>
+         * This also deep-copies the bitmaps for {@link #METADATA_KEY_ART} and
+         * {@link #METADATA_KEY_ALBUM_ART} on
+         * {@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWITCH} and later
+         * to prevent bitmaps from being recycled by RCC.
+         *
+         * @param source The original metadata to copy.
+         * @param maxBitmapSize The maximum height/width for bitmaps contained
+         *            in the metadata.
+         * @hide
+         */
+        public Builder(MediaMetadataCompat source, int maxBitmapSize) {
+            this(source);
+            for (String key : mBundle.keySet()) {
+                Object value = mBundle.get(key);
+                if (value != null && value instanceof Bitmap) {
+                    Bitmap bmp = (Bitmap) value;
+                    if (bmp.getHeight() > maxBitmapSize || bmp.getWidth() > maxBitmapSize) {
+                        putBitmap(key, scaleBitmap(bmp, maxBitmapSize));
+                    } else if (Build.VERSION.SDK_INT >= 14 &&
+                            (key.equals(METADATA_KEY_ART) || key.equals(METADATA_KEY_ALBUM_ART))) {
+                        putBitmap(key, bmp.copy(bmp.getConfig(), false));
+                    }
+                }
+            }
+        }
+
+        /**
          * Put a CharSequence value into the metadata. Custom keys may be used,
          * but if the METADATA_KEYs defined in this class are used they may only
          * be one of the following:
@@ -769,6 +811,10 @@ public final class MediaMetadataCompat implements Parcelable {
          * <li>{@link #METADATA_KEY_ALBUM_ART}</li>
          * <li>{@link #METADATA_KEY_DISPLAY_ICON}</li>
          * </ul>
+         * Large bitmaps may be scaled down when
+         * {@link android.support.v4.media.session.MediaSessionCompat#setMetadata} is called.
+         * To pass full resolution images {@link Uri Uris} should be used with
+         * {@link #putString}.
          *
          * @param key The key for referencing this value
          * @param value The Bitmap to store
@@ -792,6 +838,16 @@ public final class MediaMetadataCompat implements Parcelable {
          */
         public MediaMetadataCompat build() {
             return new MediaMetadataCompat(mBundle);
+        }
+
+        private Bitmap scaleBitmap(Bitmap bmp, int maxSize) {
+            float maxSizeF = maxSize;
+            float widthScale = maxSizeF / bmp.getWidth();
+            float heightScale = maxSizeF / bmp.getHeight();
+            float scale = Math.min(widthScale, heightScale);
+            int height = (int) (bmp.getHeight() * scale);
+            int width = (int) (bmp.getWidth() * scale);
+            return Bitmap.createScaledBitmap(bmp, width, height, true);
         }
     }
 
