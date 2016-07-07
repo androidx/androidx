@@ -314,8 +314,10 @@ package android.support.design.widget {
     ctor public BottomNavigationView(android.content.Context);
     ctor public BottomNavigationView(android.content.Context, android.util.AttributeSet);
     ctor public BottomNavigationView(android.content.Context, android.util.AttributeSet, int);
+    method public int getItemBackgroundResource();
     method public android.content.res.ColorStateList getItemIconTintList();
     method public android.content.res.ColorStateList getItemTextColor();
+    method public int getMaxItemCount();
     method public android.view.Menu getMenu();
     method public void inflateMenu(int);
     method public void setItemBackgroundResource(int);
