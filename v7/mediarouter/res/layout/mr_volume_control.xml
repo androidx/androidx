@@ -20,7 +20,8 @@
         android:minHeight="48dp"
         android:gravity="center_vertical"
         android:paddingLeft="24dp"
-        android:paddingRight="12dp">
+        android:paddingRight="12dp"
+        android:splitMotionEvents="false">
     <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
