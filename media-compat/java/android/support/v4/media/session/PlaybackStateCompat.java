@@ -52,10 +52,10 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @IntDef(flag=true, value={ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND,
-            ACTION_SKIP_TO_PREVIOUS, ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_PLAY_PAUSE})
+    @IntDef({ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND, ACTION_SKIP_TO_PREVIOUS,
+            ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_PLAY_PAUSE})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface MediaKeyActions {}
+    public @interface MediaKeyAction {}
 
     /**
      * Indicates this session supports the stop command.
@@ -316,7 +316,7 @@ public final class PlaybackStateCompat implements Parcelable {
      *
      * @return the key code matched to the given action.
      */
-    public static int toKeyCode(@MediaKeyActions long action) {
+    public static int toKeyCode(@MediaKeyAction long action) {
         if (action == ACTION_PLAY) {
             return KEYCODE_MEDIA_PLAY;
         } else if (action == ACTION_PAUSE) {
