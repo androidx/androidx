@@ -66,7 +66,8 @@
             <LinearLayout android:layout_width="fill_parent"
                           android:layout_height="wrap_content"
                           android:orientation="vertical"
-                          android:layout_gravity="bottom">
+                          android:layout_gravity="bottom"
+                          android:splitMotionEvents="false">
                 <LinearLayout android:id="@+id/mr_media_main_control"
                               android:layout_width="fill_parent"
                               android:layout_height="wrap_content"
@@ -90,7 +91,8 @@
                         android:paddingTop="@dimen/mr_controller_volume_group_list_padding_top"
                         android:scrollbarStyle="outsideOverlay"
                         android:clipToPadding="false"
-                        android:visibility="gone" />
+                        android:visibility="gone"
+                        android:splitMotionEvents="false" />
             </LinearLayout>
         </FrameLayout>
         <include layout="@layout/abc_alert_dialog_button_bar_material" />
