@@ -4973,6 +4973,8 @@ package android.support.v4.media {
   public static class MediaBrowserCompat.MediaItem implements android.os.Parcelable {
     ctor public MediaBrowserCompat.MediaItem(android.support.v4.media.MediaDescriptionCompat, int);
     method public int describeContents();
+    method public static android.support.v4.media.MediaBrowserCompat.MediaItem fromMediaItem(java.lang.Object);
+    method public static java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem> fromMediaItemList(java.util.List<?>);
     method public android.support.v4.media.MediaDescriptionCompat getDescription();
     method public int getFlags();
     method public java.lang.String getMediaId();
