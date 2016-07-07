@@ -1323,10 +1323,9 @@ public final class MediaControllerCompat {
             if (queueObjs == null) {
                 return null;
             }
-            List<MediaSessionCompat.QueueItem> queue =
-                    new ArrayList<MediaSessionCompat.QueueItem>();
+            List<MediaSessionCompat.QueueItem> queue = new ArrayList<>();
             for (Object item : queueObjs) {
-                queue.add(MediaSessionCompat.QueueItem.obtain(item));
+                queue.add(MediaSessionCompat.QueueItem.fromQueueItem(item));
             }
             return queue;
         }
