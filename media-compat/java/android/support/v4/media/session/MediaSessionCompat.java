@@ -28,6 +28,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -644,11 +645,13 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Obtain a compat wrapper for an existing MediaSession.
+     * Creates an instance from a framework {@link android.media.session.MediaSession} object.
+     * <p>
+     * This method is only supported on API 21+.
+     * </p>
      *
-     * @param mediaSession The {@link android.media.session.MediaSession} to
-     *            wrap.
-     * @return A compat wrapper for the provided session.
+     * @param mediaSession A {@link android.media.session.MediaSession} object.
+     * @return An equivalent {@link MediaSessionCompat} object.
      * @deprecated Use {@link #fromMediaSession(Context, Object)} instead.
      */
     @Deprecated
@@ -1094,7 +1097,7 @@ public class MediaSessionCompat {
      */
     public static final class QueueItem implements Parcelable {
         /**
-         * This id is reserved. No items can be explicitly asigned this id.
+         * This id is reserved. No items can be explicitly assigned this id.
          */
         public static final int UNKNOWN_ID = -1;
 
@@ -1176,11 +1179,14 @@ public class MediaSessionCompat {
         }
 
         /**
-         * Obtain a compat wrapper for an existing QueueItem.
+         * Creates an instance from a framework {@link android.media.session.MediaSession.QueueItem}
+         * object.
+         * <p>
+         * This method is only supported on API 21+.
+         * </p>
          *
-         * @param queueItem The {@link android.media.session.MediaSession.QueueItem} to
-         *            wrap.
-         * @return A compat wrapper for the provided item.
+         * @param queueItem A {@link android.media.session.MediaSession.QueueItem} object.
+         * @return An equivalent {@link QueueItem} object.
          * @deprecated Use {@link #fromQueueItem(Object)} instead.
          */
         @Deprecated
@@ -1204,6 +1210,28 @@ public class MediaSessionCompat {
                     descriptionObj);
             long id = MediaSessionCompatApi21.QueueItem.getQueueId(queueItem);
             return new QueueItem(queueItem, description, id);
+        }
+
+        /**
+         * Creates a list of {@link QueueItem} objects from a framework
+         * {@link android.media.session.MediaSession.QueueItem} object list.
+         * <p>
+         * This method is only supported on API 21+.
+         * </p>
+         *
+         * @param itemList A list of {@link android.media.session.MediaSession.QueueItem} objects,
+         *            or null if none.
+         * @return An equivalent list of {@link QueueItem} objects, or null if none.
+         */
+        public static List<QueueItem> fromQueueItemList(List<?> itemList) {
+            if (itemList == null || Build.VERSION.SDK_INT < 21) {
+                return null;
+            }
+            List<QueueItem> items = new ArrayList<>();
+            for (Object itemObj : itemList) {
+                items.add(fromQueueItem(itemObj));
+            }
+            return items;
         }
 
         public static final Creator<MediaSessionCompat.QueueItem> CREATOR
