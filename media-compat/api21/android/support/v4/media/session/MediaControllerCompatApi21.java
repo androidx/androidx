@@ -250,7 +250,7 @@ class MediaControllerCompatApi21 {
         public void onSessionEvent(String event, Bundle extras);
         public void onPlaybackStateChanged(Object stateObj);
         public void onMetadataChanged(Object metadataObj);
-        public void onQueueChanged(List<Parcel> queue);
+        public void onQueueChanged(List<?> queue);
         public void onQueueTitleChanged(CharSequence title);
         public void onExtrasChanged(Bundle extras);
         public void onAudioInfoChanged(int type, int stream, int control, int max, int current);
@@ -285,7 +285,7 @@ class MediaControllerCompatApi21 {
 
         @Override
         public void onQueueChanged(List<MediaSession.QueueItem> queue) {
-            mCallback.onQueueChanged(queueItemListToParcelList(queue));
+            mCallback.onQueueChanged(queue);
         }
 
         @Override
@@ -304,19 +304,5 @@ class MediaControllerCompatApi21 {
                     PlaybackInfo.getLegacyAudioStream(info), info.getVolumeControl(),
                     info.getMaxVolume(), info.getCurrentVolume());
         }
-
-        static List<Parcel> queueItemListToParcelList(List<MediaSession.QueueItem> queueItemList) {
-            if (queueItemList == null) {
-                return null;
-            }
-            List<Parcel> parcelList = new ArrayList<>();
-            for (MediaSession.QueueItem item : queueItemList) {
-                Parcel parcel = Parcel.obtain();
-                item.writeToParcel(parcel, 0);
-                parcelList.add(parcel);
-            }
-            return parcelList;
-        }
-
     }
 }
