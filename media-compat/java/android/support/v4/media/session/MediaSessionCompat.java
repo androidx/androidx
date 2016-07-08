@@ -23,8 +23,6 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -45,7 +43,6 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
-import android.support.v4.media.session.PlaybackStateCompat.MediaKeyActions;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -167,94 +164,6 @@ public class MediaSessionCompat {
 
     // Maximum size of the bitmap in px. It shouldn't be changed.
     private static int sMaxBitmapSize;
-
-    /**
-     * Creates a broadcast pending intent that will send a media button event. The {@code action}
-     * will be translated to the appropriate {@link KeyEvent}, and it will be sent to the
-     * registered media button receiver in the given context. The {@code action} should be one of
-     * the following:
-     * <ul>
-     * <li>{@link PlaybackStateCompat#ACTION_PLAY}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_PAUSE}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_SKIP_TO_NEXT}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_SKIP_TO_PREVIOUS}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_STOP}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_FAST_FORWARD}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_REWIND}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_PLAY_PAUSE}</li>
-     * </ul>
-     *
-     * @param context The context of the application.
-     * @param action The action to be sent via the pending intent.
-     * @return Created pending intent, or null if cannot find a unique registered media button
-     *         receiver or if the {@code action} is unsupported/invalid.
-     */
-    public static PendingIntent buildMediaButtonPendingIntent(Context context,
-            @MediaKeyActions long action) {
-        ComponentName mbrComponent = getMediaButtonReceiverComponent(context);
-        if (mbrComponent == null) {
-            Log.w(TAG, "A unique media button receiver could not be found in the given context, so "
-                    + "couldn't build a pending intent.");
-            return null;
-        }
-        return buildMediaButtonPendingIntent(context, mbrComponent, action);
-    }
-
-    /**
-     * Creates a broadcast pending intent that will send a media button event. The {@code action}
-     * will be translated to the appropriate {@link KeyEvent}, and sent to the provided media
-     * button receiver via the pending intent. The {@code action} should be one of the following:
-     * <ul>
-     * <li>{@link PlaybackStateCompat#ACTION_PLAY}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_PAUSE}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_SKIP_TO_NEXT}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_SKIP_TO_PREVIOUS}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_STOP}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_FAST_FORWARD}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_REWIND}</li>
-     * <li>{@link PlaybackStateCompat#ACTION_PLAY_PAUSE}</li>
-     * </ul>
-     *
-     * @param context The context of the application.
-     * @param mbrComponent The full component name of a media button receiver where you want to send
-     *            this intent.
-     * @param action The action to be sent via the pending intent.
-     * @return Created pending intent, or null if cannot find a unique registered media button
-     *         receiver or if the {@code action} is unsupported/invalid.
-     */
-    public static PendingIntent buildMediaButtonPendingIntent(Context context,
-            ComponentName mbrComponent, @MediaKeyActions long action) {
-        if (mbrComponent == null) {
-            Log.w(TAG, "The component name of media button receiver should be provided.");
-            return null;
-        }
-        int keyCode = PlaybackStateCompat.toKeyCode(action);
-        if (keyCode == KeyEvent.KEYCODE_UNKNOWN) {
-            Log.w(TAG,
-                    "Cannot build a media button pending intent with the given action: " + action);
-            return null;
-        }
-        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-        intent.setComponent(mbrComponent);
-        intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
-        return PendingIntent.getBroadcast(context, keyCode, intent, 0);
-    }
-
-    private static ComponentName getMediaButtonReceiverComponent(Context context) {
-        Intent queryIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-        queryIntent.setPackage(context.getPackageName());
-        PackageManager pm = context.getPackageManager();
-        List<ResolveInfo> resolveInfos = pm.queryBroadcastReceivers(queryIntent, 0);
-        if (resolveInfos.size() == 1) {
-            ResolveInfo resolveInfo = resolveInfos.get(0);
-            return new ComponentName(resolveInfo.activityInfo.packageName,
-                    resolveInfo.activityInfo.name);
-        } else if (resolveInfos.size() > 1) {
-            Log.w(TAG, "More than one BroadcastReceiver that handles "
-                    + Intent.ACTION_MEDIA_BUTTON + " was found, returning null.");
-        }
-        return null;
-    }
 
     /**
      * Creates a new session. You must call {@link #release()} when finished with the session.
@@ -1382,7 +1291,7 @@ public class MediaSessionCompat {
         public MediaSessionImplBase(Context context, String tag, ComponentName mbrComponent,
                 PendingIntent mbrIntent) {
             if (mbrComponent == null) {
-                mbrComponent = getMediaButtonReceiverComponent(context);
+                mbrComponent = MediaButtonReceiver.getMediaButtonReceiverComponent(context);
                 if (mbrComponent == null) {
                     Log.w(TAG, "Couldn't find a unique registered media button receiver in the "
                             + "given context.");

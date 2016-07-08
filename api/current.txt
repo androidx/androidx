@@ -5240,6 +5240,8 @@ package android.support.v4.media.session {
 
   public class MediaButtonReceiver extends android.content.BroadcastReceiver {
     ctor public MediaButtonReceiver();
+    method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, long);
+    method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, android.content.ComponentName, long);
     method public static android.view.KeyEvent handleIntent(android.support.v4.media.session.MediaSessionCompat, android.content.Intent);
     method public void onReceive(android.content.Context, android.content.Intent);
   }
@@ -5318,8 +5320,6 @@ package android.support.v4.media.session {
     ctor public MediaSessionCompat(android.content.Context, java.lang.String);
     ctor public MediaSessionCompat(android.content.Context, java.lang.String, android.content.ComponentName, android.app.PendingIntent);
     method public void addOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener);
-    method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, long);
-    method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, android.content.ComponentName, long);
     method public static android.support.v4.media.session.MediaSessionCompat fromMediaSession(android.content.Context, java.lang.Object);
     method public android.support.v4.media.session.MediaControllerCompat getController();
     method public java.lang.Object getMediaSession();
