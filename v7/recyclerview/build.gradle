@@ -13,6 +13,7 @@ dependencies {
         exclude module: 'support-annotations'
     }
     testCompile 'junit:junit:4.12'
+    testCompile "org.mockito:mockito-core:1.9.5"
     androidTestCompile "org.mockito:mockito-core:1.9.5"
     androidTestCompile "com.google.dexmaker:dexmaker:1.2"
     androidTestCompile "com.google.dexmaker:dexmaker-mockito:1.2"
@@ -32,7 +33,7 @@ android {
         main.res.srcDirs 'res', 'res-public'
 
         androidTest.setRoot('tests')
-        test.java.srcDir 'jvm-tests'
+        test.java.srcDir 'jvm-tests/src'
         androidTest.java.srcDir 'tests/src'
         androidTest.res.srcDir 'tests/res'
         androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
