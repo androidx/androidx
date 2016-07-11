@@ -1149,7 +1149,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     private void setTargetOffsetTopAndBottom(int offset, boolean requiresUpdate) {
         mCircleView.bringToFront();
-        mCircleView.offsetTopAndBottom(offset);
+        ViewCompat.offsetTopAndBottom(mCircleView, offset);
         mCurrentTargetOffsetTop = mCircleView.getTop();
         if (requiresUpdate && android.os.Build.VERSION.SDK_INT < 11) {
             invalidate();

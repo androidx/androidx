@@ -21,6 +21,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.v4.view.ViewCompat;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -216,8 +217,8 @@ class ViewOverlay {
                     int[] hostViewLocation = new int[2];
                     parent.getLocationOnScreen(parentLocation);
                     mHostView.getLocationOnScreen(hostViewLocation);
-                    child.offsetLeftAndRight(parentLocation[0] - hostViewLocation[0]);
-                    child.offsetTopAndBottom(parentLocation[1] - hostViewLocation[1]);
+                    ViewCompat.offsetLeftAndRight(child, parentLocation[0] - hostViewLocation[0]);
+                    ViewCompat.offsetTopAndBottom(child, parentLocation[1] - hostViewLocation[1]);
                 }
                 parent.removeView(child);
 //                if (parent.getLayoutTransition() != null) {
