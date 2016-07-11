@@ -18,12 +18,20 @@ package android.support.v7.app;
 
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
+import android.support.v7.widget.Toolbar;
 
-public class WindowDecorActionBarActivity extends BaseTestActivity {
+public class ToolbarAppCompatActivity extends BaseTestActivity {
+
+    private Toolbar mToolbar;
 
     @Override
     protected int getContentViewLayoutResId() {
-        return R.layout.window_decor_content;
+        return R.layout.toolbar_decor_content;
     }
 
+    @Override
+    protected void onContentViewSet() {
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+    }
 }

@@ -21,9 +21,9 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
 
-public class BasicsTestCaseWithWindowDecor extends BaseBasicsTestCase<WindowDecorActionBarActivity> {
+public class BasicsTestCaseWithWindowDecor extends BaseBasicsTestCase<WindowDecorAppCompatActivity> {
     public BasicsTestCaseWithWindowDecor() {
-        super(WindowDecorActionBarActivity.class);
+        super(WindowDecorAppCompatActivity.class);
     }
 
     @Test
