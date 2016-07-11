@@ -16,12 +16,17 @@
 
 package android.support.v7.widget;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.test.runner.AndroidJUnit4;
@@ -34,20 +39,15 @@ import android.util.StateSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.hamcrest.CoreMatchers;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -358,7 +358,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                                 val = GridLayoutManager.LayoutParams.WRAP_CONTENT;
                                 break;
                             case 3:
-                                val = GridLayoutManager.LayoutParams.FILL_PARENT;
+                                val = GridLayoutManager.LayoutParams.MATCH_PARENT;
                                 break;
                             case 4:
                                 val = 200;
@@ -584,10 +584,10 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                 final int maxSize;
                 if (config.mOrientation == HORIZONTAL) {
                     maxSize = mRecyclerView.getWidth();
-                    mlp.height = ViewGroup.MarginLayoutParams.FILL_PARENT;
+                    mlp.height = ViewGroup.MarginLayoutParams.MATCH_PARENT;
                 } else {
                     maxSize = mRecyclerView.getHeight();
-                    mlp.width = ViewGroup.MarginLayoutParams.FILL_PARENT;
+                    mlp.width = ViewGroup.MarginLayoutParams.MATCH_PARENT;
                 }
 
                 final int desiredSize;

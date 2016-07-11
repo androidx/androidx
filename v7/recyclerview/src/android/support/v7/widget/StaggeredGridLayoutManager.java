@@ -2131,9 +2131,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         if (mOrientation == HORIZONTAL) {
             return new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.FILL_PARENT);
+                    ViewGroup.LayoutParams.MATCH_PARENT);
         } else {
-            return new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+            return new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
         }
     }

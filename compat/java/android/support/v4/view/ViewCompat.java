@@ -77,18 +77,27 @@ public class ViewCompat {
     /**
      * Always allow a user to over-scroll this view, provided it is a
      * view that can scroll.
+     * @deprecated Use {@link View#OVER_SCROLL_ALWAYS} directly. This constant will be removed in
+     * a future release.
      */
+    @Deprecated
     public static final int OVER_SCROLL_ALWAYS = 0;
 
     /**
      * Allow a user to over-scroll this view only if the content is large
      * enough to meaningfully scroll, provided it is a view that can scroll.
+     * @deprecated Use {@link View#OVER_SCROLL_IF_CONTENT_SCROLLS} directly. This constant will be
+     * removed in a future release.
      */
+    @Deprecated
     public static final int OVER_SCROLL_IF_CONTENT_SCROLLS = 1;
 
     /**
      * Never allow a user to over-scroll this view.
+     * @deprecated Use {@link View#OVER_SCROLL_NEVER} directly. This constant will be removed in
+     * a future release.
      */
+    @Deprecated
     public static final int OVER_SCROLL_NEVER = 2;
 
     private static final long FAKE_FRAME_TIME = 10;
