@@ -33,6 +33,7 @@
     <string name="design_bottomsheet_dynamic_content">BottomSheet/Dynamic content</string>
     <string name="design_bottomsheet_modal">BottomSheet/Modal</string>
     <string name="design_bottomsheet_modal_skip_collapsed">BottomSheet/Modal (Skip collapsed)</string>
+    <string name="design_coordinatorlayout_insetView">CoordinatorLayout/Inset view</string>
 
     <string name="fab_size_normal">Normal size</string>
     <string name="fab_size_mini">Mini size</string>

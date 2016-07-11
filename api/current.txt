@@ -495,7 +495,9 @@ package android.support.design.widget {
     method public void setAnchorId(int);
     method public void setBehavior(android.support.design.widget.CoordinatorLayout.Behavior);
     field public int anchorGravity;
+    field public int dodgeInsetEdges;
     field public int gravity;
+    field public int insetEdge;
     field public int keyline;
   }
 
