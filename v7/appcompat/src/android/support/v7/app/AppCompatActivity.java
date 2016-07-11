@@ -168,15 +168,21 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        getDelegate().onStop();
-    }
-
-    @Override
     protected void onPostResume() {
         super.onPostResume();
         getDelegate().onPostResume();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getDelegate().onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        getDelegate().onStop();
     }
 
     @Override
