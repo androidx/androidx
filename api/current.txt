@@ -7753,6 +7753,7 @@ package android.support.v7.app {
     method public abstract void onPostCreate(android.os.Bundle);
     method public abstract void onPostResume();
     method public abstract void onSaveInstanceState(android.os.Bundle);
+    method public abstract void onStart();
     method public abstract void onStop();
     method public abstract boolean requestWindowFeature(int);
     method public static void setCompatVectorFromResourcesEnabled(boolean);
