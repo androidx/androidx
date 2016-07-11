@@ -36,6 +36,8 @@ import android.view.Window;
 
 abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
+    static final boolean DEBUG = false;
+
     private static final int[] sWindowBackgroundStyleable = {android.R.attr.windowBackground};
 
     final Context mContext;
@@ -57,11 +59,10 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     boolean mIsFloating;
     // true if this activity has no title
     boolean mWindowNoTitle;
-    // true if the theme has been read
-    boolean mThemeRead;
 
     private CharSequence mTitle;
 
+    private boolean mIsStarted;
     private boolean mIsDestroyed;
 
     AppCompatDelegateImplBase(Context context, Window window, AppCompatCallback callback) {
@@ -192,6 +193,16 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     abstract ActionMode startSupportActionModeFromWindow(ActionMode.Callback callback);
 
     @Override
+    public void onStart() {
+        mIsStarted = true;
+    }
+
+    @Override
+    public void onStop() {
+        mIsStarted = false;
+    }
+
+    @Override
     public void onDestroy() {
         mIsDestroyed = true;
     }
@@ -215,6 +226,10 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
     final boolean isDestroyed() {
         return mIsDestroyed;
+    }
+
+    final boolean isStarted() {
+        return mIsStarted;
     }
 
     final Window.Callback getWindowCallback() {

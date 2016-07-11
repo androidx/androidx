@@ -66,4 +66,6 @@
         <item>Neptune</item>
         <item>Pluto</item>
     </string-array>
+
+    <string name="night_mode">DAY</string>
 </resources>

@@ -90,6 +90,10 @@
         <activity
                 android:name="android.support.v7.app.FragmentContentIdActivity"/>
 
+        <activity
+                android:name="android.support.v7.app.NightModeActivity"
+                android:theme="@style/Theme.AppCompat.DayNight"/>
+
     </application>
 
     <instrumentation
