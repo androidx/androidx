@@ -225,9 +225,9 @@ public class GridLayoutManager extends LinearLayoutManager {
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         if (mOrientation == HORIZONTAL) {
             return new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.FILL_PARENT);
+                    ViewGroup.LayoutParams.MATCH_PARENT);
         } else {
-            return new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+            return new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
         }
     }
@@ -574,11 +574,11 @@ public class GridLayoutManager extends LinearLayoutManager {
             // Unless the child has MATCH_PARENT, measure it from its specs before adding insets.
             if (mOrientation == VERTICAL) {
                 @SuppressWarnings("deprecation")
-                final boolean applyInsets = lp.height == ViewGroup.LayoutParams.FILL_PARENT;
+                final boolean applyInsets = lp.height == ViewGroup.LayoutParams.MATCH_PARENT;
                 measureChildWithDecorationsAndMargin(view, spec, mainSpec, applyInsets, false);
             } else {
                 //noinspection deprecation
-                final boolean applyInsets = lp.width == ViewGroup.LayoutParams.FILL_PARENT;
+                final boolean applyInsets = lp.width == ViewGroup.LayoutParams.MATCH_PARENT;
                 measureChildWithDecorationsAndMargin(view, mainSpec, spec, applyInsets, false);
             }
             final int size = mOrientationHelper.getDecoratedMeasurement(view);
@@ -693,7 +693,7 @@ public class GridLayoutManager extends LinearLayoutManager {
      * RecyclerView does not have exact measurement specs.
      * <p>
      * Here we try to assign a best guess width or height and re-do the layout to update other
-     * views that wanted to FILL_PARENT in the non-scroll orientation.
+     * views that wanted to MATCH_PARENT in the non-scroll orientation.
      *
      * @param maxSizeInOther The maximum size per span ratio from the measurement of the children.
      * @param currentOtherDirSize The size before this layout chunk. There is no reason to go below.

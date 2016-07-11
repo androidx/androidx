@@ -498,7 +498,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         mTouchSlop = vc.getScaledTouchSlop();
         mMinFlingVelocity = vc.getScaledMinimumFlingVelocity();
         mMaxFlingVelocity = vc.getScaledMaximumFlingVelocity();
-        setWillNotDraw(ViewCompat.getOverScrollMode(this) == ViewCompat.OVER_SCROLL_NEVER);
+        setWillNotDraw(getOverScrollMode() == View.OVER_SCROLL_NEVER);
 
         mItemAnimator.setListener(mItemAnimatorListener);
         initAdapterManager();
@@ -1310,7 +1310,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         mItemDecorations.remove(decor);
         if (mItemDecorations.isEmpty()) {
-            setWillNotDraw(ViewCompat.getOverScrollMode(this) == ViewCompat.OVER_SCROLL_NEVER);
+            setWillNotDraw(getOverScrollMode() == View.OVER_SCROLL_NEVER);
         }
         markItemDecorInsetsDirty();
         requestLayout();
@@ -1571,7 +1571,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             mNestedOffsets[0] += mScrollOffset[0];
             mNestedOffsets[1] += mScrollOffset[1];
-        } else if (ViewCompat.getOverScrollMode(this) != ViewCompat.OVER_SCROLL_NEVER) {
+        } else if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
             if (ev != null) {
                 pullGlows(ev.getX(), unconsumedX, ev.getY(), unconsumedY);
             }
@@ -4380,8 +4380,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (!mItemDecorations.isEmpty()) {
                     invalidate();
                 }
-                if (ViewCompat.getOverScrollMode(RecyclerView.this) !=
-                        ViewCompat.OVER_SCROLL_NEVER) {
+                if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
                     considerReleasingGlowsOnScroll(dx, dy);
                 }
                 if (overscrollX != 0 || overscrollY != 0) {
@@ -4397,8 +4396,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         velY = overscrollY < 0 ? -vel : overscrollY > 0 ? vel : 0;
                     }
 
-                    if (ViewCompat.getOverScrollMode(RecyclerView.this) !=
-                            ViewCompat.OVER_SCROLL_NEVER) {
+                    if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
                         absorbGlows(velX, velY);
                     }
                     if ((velX != 0 || overscrollX == x || scroller.getFinalX() == 0) &&
@@ -7820,7 +7818,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @param parentSize Size of the parent view where the child will be placed
          * @param padding Total space currently consumed by other elements of the parent
-         * @param childDimension Desired size of the child view, or FILL_PARENT/WRAP_CONTENT.
+         * @param childDimension Desired size of the child view, or MATCH_PARENT/WRAP_CONTENT.
          *                       Generally obtained from the child view's LayoutParams
          * @param canScroll true if the parent RecyclerView can scroll in this dimension
          *
@@ -7838,7 +7836,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     resultSize = childDimension;
                     resultMode = MeasureSpec.EXACTLY;
                 } else {
-                    // FILL_PARENT can't be applied since we can scroll in this dimension, wrap
+                    // MATCH_PARENT can't be applied since we can scroll in this dimension, wrap
                     // instead using UNSPECIFIED.
                     resultSize = 0;
                     resultMode = MeasureSpec.UNSPECIFIED;
@@ -7847,7 +7845,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (childDimension >= 0) {
                     resultSize = childDimension;
                     resultMode = MeasureSpec.EXACTLY;
-                } else if (childDimension == LayoutParams.FILL_PARENT) {
+                } else if (childDimension == LayoutParams.MATCH_PARENT) {
                     resultSize = size;
                     // TODO this should be my spec.
                     resultMode = MeasureSpec.EXACTLY;
@@ -7865,7 +7863,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param parentSize Size of the parent view where the child will be placed
          * @param parentMode The measurement spec mode of the parent
          * @param padding Total space currently consumed by other elements of parent
-         * @param childDimension Desired size of the child view, or FILL_PARENT/WRAP_CONTENT.
+         * @param childDimension Desired size of the child view, or MATCH_PARENT/WRAP_CONTENT.
          *                       Generally obtained from the child view's LayoutParams
          * @param canScroll true if the parent RecyclerView can scroll in this dimension
          *
@@ -7880,7 +7878,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (childDimension >= 0) {
                     resultSize = childDimension;
                     resultMode = MeasureSpec.EXACTLY;
-                } else if (childDimension == LayoutParams.FILL_PARENT){
+                } else if (childDimension == LayoutParams.MATCH_PARENT) {
                     switch (parentMode) {
                         case MeasureSpec.AT_MOST:
                         case MeasureSpec.EXACTLY:
@@ -7900,7 +7898,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (childDimension >= 0) {
                     resultSize = childDimension;
                     resultMode = MeasureSpec.EXACTLY;
-                } else if (childDimension == LayoutParams.FILL_PARENT) {
+                } else if (childDimension == LayoutParams.MATCH_PARENT) {
                     resultSize = size;
                     resultMode = parentMode;
                 } else if (childDimension == LayoutParams.WRAP_CONTENT) {
