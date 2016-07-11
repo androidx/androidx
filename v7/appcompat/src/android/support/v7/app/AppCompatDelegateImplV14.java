@@ -16,10 +16,19 @@
 
 package android.support.v7.app;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.support.v7.view.SupportActionModeWrapper;
 import android.util.Log;
 import android.view.ActionMode;
@@ -29,13 +38,13 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
 
     private static final String KEY_LOCAL_NIGHT_MODE = "appcompat:local_night_mode";
 
-    private static TwilightManager sTwilightManager;
-
     @NightMode
     private int mLocalNightMode = MODE_NIGHT_UNSPECIFIED;
     private boolean mApplyDayNightCalled;
 
     private boolean mHandleNativeActionModes = true; // defaults to true
+
+    private AutoNightModeManager mAutoNightModeManager;
 
     AppCompatDelegateImplV14(Context context, Window window, AppCompatCallback callback) {
         super(context, window, callback);
@@ -72,17 +81,41 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
 
     @Override
     public boolean applyDayNight() {
-        mApplyDayNightCalled = true;
+        boolean applied = false;
 
-        final int modeToApply = mapNightMode(mLocalNightMode == MODE_NIGHT_UNSPECIFIED
-                ? getDefaultNightMode()
-                : mLocalNightMode);
-
+        @NightMode final int nightMode = getNightMode();
+        @ApplyableNightMode final int modeToApply = mapNightMode(nightMode);
         if (modeToApply != MODE_NIGHT_FOLLOW_SYSTEM) {
-            // If we're not following the system, we many need to update the configuration
-            return updateConfigurationForNightMode(modeToApply);
+            applied = updateForNightMode(modeToApply);
         }
-        return false;
+
+        if (nightMode == MODE_NIGHT_AUTO) {
+            // If we're already been started, we may need to setup auto mode again
+            ensureAutoNightModeManager();
+            mAutoNightModeManager.setup();
+        }
+
+        mApplyDayNightCalled = true;
+        return applied;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // This will apply day/night if the time has changed, it will also call through to
+        // setupAutoNightModeIfNeeded()
+        applyDayNight();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // Make sure we clean up any receivers setup for AUTO mode
+        if (mAutoNightModeManager != null) {
+            mAutoNightModeManager.cleanup();
+        }
     }
 
     @Override
@@ -102,7 +135,7 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
                 }
                 break;
             default:
-                Log.d(TAG, "setLocalNightMode() called with an unknown mode");
+                Log.i(TAG, "setLocalNightMode() called with an unknown mode");
                 break;
         }
     }
@@ -111,13 +144,19 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
     int mapNightMode(@NightMode final int mode) {
         switch (mode) {
             case MODE_NIGHT_AUTO:
-                return getTwilightManager().isNight() ? MODE_NIGHT_YES : MODE_NIGHT_NO;
+                ensureAutoNightModeManager();
+                return mAutoNightModeManager.getApplyableNightMode();
             case MODE_NIGHT_UNSPECIFIED:
                 // If we don't have a mode specified, just let the system handle it
                 return MODE_NIGHT_FOLLOW_SYSTEM;
             default:
                 return mode;
         }
+    }
+
+    @NightMode
+    private int getNightMode() {
+        return mLocalNightMode != MODE_NIGHT_UNSPECIFIED ? mLocalNightMode : getDefaultNightMode();
     }
 
     @Override
@@ -130,11 +169,21 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // Make sure we clean up any receivers setup for AUTO mode
+        if (mAutoNightModeManager != null) {
+            mAutoNightModeManager.cleanup();
+        }
+    }
+
     /**
      * Updates the {@link Resources} configuration {@code uiMode} with the
      * chosen {@code UI_MODE_NIGHT} value.
      */
-    private boolean updateConfigurationForNightMode(@ApplyableNightMode final int mode) {
+    private boolean updateForNightMode(@ApplyableNightMode final int mode) {
         final Resources res = mContext.getResources();
         final Configuration conf = res.getConfiguration();
         final int currentNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -144,19 +193,63 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
                 : Configuration.UI_MODE_NIGHT_NO;
 
         if (currentNightMode != newNightMode) {
-            final Configuration newConf = new Configuration(conf);
-            newConf.uiMode = (newConf.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | newNightMode;
-            res.updateConfiguration(newConf, null);
+            if (shouldRecreateOnNightModeChange()) {
+                if (DEBUG) {
+                    Log.d(TAG, "applyNightMode() | Night mode changed, recreating Activity");
+                }
+                // If we've already been created, we need to recreate the Activity for the
+                // mode to be applied
+                final Activity activity = (Activity) mContext;
+                activity.recreate();
+            } else {
+                if (DEBUG) {
+                    Log.d(TAG, "applyNightMode() | Night mode changed, updating configuration");
+                }
+                final Configuration newConf = new Configuration(conf);
+                newConf.uiMode = newNightMode
+                        | (newConf.uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
+                res.updateConfiguration(newConf, null);
+            }
             return true;
+        } else {
+            if (DEBUG) {
+                Log.d(TAG, "applyNightMode() | Night mode has not changed. Skipping");
+            }
         }
         return false;
     }
 
-    private TwilightManager getTwilightManager() {
-        if (sTwilightManager == null) {
-            sTwilightManager = new TwilightManager(mContext.getApplicationContext());
+    private void ensureAutoNightModeManager() {
+        if (mAutoNightModeManager == null) {
+            mAutoNightModeManager = new AutoNightModeManager(TwilightManager.getInstance(mContext));
         }
-        return sTwilightManager;
+    }
+
+    @VisibleForTesting
+    final AutoNightModeManager getAutoNightModeManager() {
+        ensureAutoNightModeManager();
+        return mAutoNightModeManager;
+    }
+
+    private boolean shouldRecreateOnNightModeChange() {
+        if (mApplyDayNightCalled && mContext instanceof Activity) {
+            // If we've already appliedDayNight() (via setTheme), we need to check if the
+            // Activity has configChanges set to handle uiMode changes
+            final PackageManager pm = mContext.getPackageManager();
+            try {
+                final ActivityInfo info = pm.getActivityInfo(
+                        new ComponentName(mContext, mContext.getClass()), 0);
+                // We should return true (to recreate) if configChanges does not want to
+                // handle uiMode
+                return (info.configChanges & ActivityInfo.CONFIG_UI_MODE) == 0;
+            } catch (PackageManager.NameNotFoundException e) {
+                // This shouldn't happen but let's not crash because of it, we'll just log and
+                // return true (since most apps will do that anyway)
+                Log.d(TAG, "Exception while getting ActivityInfo", e);
+                return true;
+            }
+        }
+        return false;
     }
 
     class AppCompatWindowCallbackV14 extends AppCompatWindowCallbackBase {
@@ -192,6 +285,66 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
                 return callbackWrapper.getActionModeWrapper(supportActionMode);
             }
             return null;
+        }
+    }
+
+    @VisibleForTesting
+    final class AutoNightModeManager {
+        private TwilightManager mTwilightManager;
+        private boolean mIsNight;
+
+        private BroadcastReceiver mAutoTimeChangeReceiver;
+        private IntentFilter mAutoTimeChangeReceiverFilter;
+
+        AutoNightModeManager(@NonNull TwilightManager twilightManager) {
+            mTwilightManager = twilightManager;
+            mIsNight = twilightManager.isNight();
+        }
+
+        @ApplyableNightMode
+        final int getApplyableNightMode() {
+            return mIsNight ? MODE_NIGHT_YES : MODE_NIGHT_NO;
+        }
+
+        final void dispatchTimeChanged() {
+            final boolean isNight = mTwilightManager.isNight();
+            if (isNight != mIsNight) {
+                mIsNight = isNight;
+                applyDayNight();
+            }
+        }
+
+        final void setup() {
+            cleanup();
+
+            // If we're set to AUTO, we register a receiver to be notified on time changes. The
+            // system only send the tick out every minute, but that's enough fidelity for our use
+            // case
+            if (mAutoTimeChangeReceiver == null) {
+                mAutoTimeChangeReceiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        if (DEBUG) {
+                            Log.d("AutoTimeChangeReceiver", "onReceive | Intent: " + intent);
+                        }
+                        dispatchTimeChanged();
+                    }
+                };
+            }
+            if (mAutoTimeChangeReceiverFilter == null) {
+                mAutoTimeChangeReceiverFilter = new IntentFilter();
+                mAutoTimeChangeReceiverFilter.addAction(Intent.ACTION_TIME_CHANGED);
+                mAutoTimeChangeReceiverFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+                mAutoTimeChangeReceiverFilter.addAction(Intent.ACTION_TIME_TICK);
+            }
+            mContext.registerReceiver(mAutoTimeChangeReceiver, mAutoTimeChangeReceiverFilter);
+        }
+
+        final void cleanup() {
+            if (mAutoTimeChangeReceiver != null) {
+                mContext.unregisterReceiver(mAutoTimeChangeReceiver);
+                mAutoTimeChangeReceiver = null;
+            }
         }
     }
 }

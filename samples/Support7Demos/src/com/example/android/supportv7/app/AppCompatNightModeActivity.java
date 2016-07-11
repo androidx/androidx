@@ -38,16 +38,13 @@ public class AppCompatNightModeActivity extends AppCompatActivity {
 
     public void setModeNightNo(View view) {
         getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        recreate();
     }
 
     public void setModeNightYes(View view) {
         getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        recreate();
     }
 
     public void setModeNightAuto(View view) {
         getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
-        recreate();
     }
 }

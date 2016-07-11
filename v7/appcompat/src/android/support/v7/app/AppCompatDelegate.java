@@ -259,6 +259,11 @@ public abstract class AppCompatDelegate {
     public abstract void onConfigurationChanged(Configuration newConfig);
 
     /**
+     * Should be called from {@link Activity#onStart()} Activity.onStart()}
+     */
+    public abstract void onStart();
+
+    /**
      * Should be called from {@link Activity#onStop Activity.onStop()}
      */
     public abstract void onStop();
@@ -418,6 +423,10 @@ public abstract class AppCompatDelegate {
      * <p>This only works on devices running
      * {@link Build.VERSION_CODES#ICE_CREAM_SANDWICH ICE_CREAM_SANDWICH} and above.</p>
      *
+     * <p>If this is called after the host component has been created, the component will either be
+     * automatically recreated or its {@link Configuration} updated. Which one depends on how
+     * the component is setup (via {@code android:configChanges} or similar).</p>
+     *
      * @see #setDefaultNightMode(int)
      * @see #setLocalNightMode(int)
      *
@@ -429,11 +438,8 @@ public abstract class AppCompatDelegate {
      * Override the night mode used for this delegate's host component. This method only takes
      * effect for those situations where {@link #applyDayNight()} works.
      *
-     * <p>Depending on when this is called, this may not take effect until the next time that
-     * the host component is created. You may use {@link Activity#recreate()} to force a
-     * recreation.</p>
-     *
-     * @see #applyDayNight()
+     * <p>As this will call {@link #applyDayNight()}, the host component might be
+     * recreated automatically.</p>
      */
     public abstract void setLocalNightMode(@NightMode int mode);
 
@@ -443,6 +449,9 @@ public abstract class AppCompatDelegate {
      *
      * <p>This method only takes effect for those situations where {@link #applyDayNight()} works.
      * Defaults to {@link #MODE_NIGHT_NO}.</p>
+     *
+     * <p>This only takes effect for components which are created after the call. Any components
+     * which are already open will not be updated.</p>
      *
      * @see #setLocalNightMode(int)
      * @see #getDefaultNightMode()
