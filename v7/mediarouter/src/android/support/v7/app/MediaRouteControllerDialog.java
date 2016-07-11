@@ -162,6 +162,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private FetchArtTask mFetchArtTask;
     private Bitmap mArtIconBitmap;
     private Uri mArtIconUri;
+    private boolean mArtIconIsLoaded;
+    private Bitmap mArtIconLoadedBitmap;
+    private int mArtIconBackgroundColor;
+
+    private boolean mHasPendingUpdate;
+    private boolean mPendingUpdateAnimationNeeded;
+
     private boolean mIsGroupExpanded;
     private boolean mIsGroupListAnimating;
     private boolean mIsGroupListAnimationPending;
@@ -496,6 +503,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private void update(boolean animate) {
+        // Defer dialog updates if a user is adjusting a volume in the list
+        if (mRouteInVolumeSliderTouched != null) {
+            mHasPendingUpdate = true;
+            mPendingUpdateAnimationNeeded |= animate;
+            return;
+        }
+        mHasPendingUpdate = false;
+        mPendingUpdateAnimationNeeded = false;
         if (!mRoute.isSelected() || mRoute.isDefaultOrBluetooth()) {
             dismiss();
             return;
@@ -506,7 +521,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         mRouteNameTextView.setText(mRoute.getName());
         mDisconnectButton.setVisibility(mRoute.canDisconnect() ? View.VISIBLE : View.GONE);
-
+        if (mCustomControlView == null && mArtIconIsLoaded) {
+            mArtView.setImageBitmap(mArtIconLoadedBitmap);
+            mArtView.setBackgroundColor(mArtIconBackgroundColor);
+            clearLoadedBitmap();
+        }
         updateVolumeControlLayout();
         updatePlaybackControlLayout();
         updateLayoutHeight(animate);
@@ -1048,6 +1067,16 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     /**
+     * Clear the bitmap loaded by FetchArtTask. Will be called after the loaded bitmaps are applied
+     * to artwork, or no longer valid.
+     */
+    private void clearLoadedBitmap() {
+        mArtIconIsLoaded = false;
+        mArtIconLoadedBitmap = null;
+        mArtIconBackgroundColor = 0;
+    }
+
+    /**
      * Returns whether a new art image is different from an original art image. Compares
      * Bitmap objects first, and then compares URIs only if bitmap is unchanged with
      * a null value.
@@ -1155,6 +1184,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
             public void run() {
                 if (mRouteInVolumeSliderTouched != null) {
                     mRouteInVolumeSliderTouched = null;
+                    if (mHasPendingUpdate) {
+                        update(mPendingUpdateAnimationNeeded);
+                    }
                 }
             }
         };
@@ -1283,6 +1315,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         protected void onPreExecute() {
             mStartTimeMillis = SystemClock.uptimeMillis();
+            clearLoadedBitmap();
         }
 
         @Override
@@ -1349,12 +1382,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mFetchArtTask = null;
             if (mArtIconBitmap != mIconBitmap || mArtIconUri != mIconUri) {
                 mArtIconBitmap = mIconBitmap;
+                mArtIconLoadedBitmap = art;
                 mArtIconUri = mIconUri;
-
-                mArtView.setImageBitmap(art);
-                mArtView.setBackgroundColor(mBackgroundColor);
+                mArtIconBackgroundColor = mBackgroundColor;
+                mArtIconIsLoaded = true;
                 long elapsedTimeMillis = SystemClock.uptimeMillis() - mStartTimeMillis;
-                updateLayoutHeight(elapsedTimeMillis > SHOW_ANIM_TIME_THRESHOLD_MILLIS);
+                // Loaded bitmap will be applied on the next update
+                update(elapsedTimeMillis > SHOW_ANIM_TIME_THRESHOLD_MILLIS);
             }
         }
 
