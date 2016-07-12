@@ -3629,10 +3629,11 @@ package android.support.v4.accessibilityservice {
     method public static java.lang.String flagToString(int);
     method public static boolean getCanRetrieveWindowContent(android.accessibilityservice.AccessibilityServiceInfo);
     method public static int getCapabilities(android.accessibilityservice.AccessibilityServiceInfo);
-    method public static java.lang.String getDescription(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static deprecated java.lang.String getDescription(android.accessibilityservice.AccessibilityServiceInfo);
     method public static java.lang.String getId(android.accessibilityservice.AccessibilityServiceInfo);
     method public static android.content.pm.ResolveInfo getResolveInfo(android.accessibilityservice.AccessibilityServiceInfo);
     method public static java.lang.String getSettingsActivityName(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static java.lang.String loadDescription(android.accessibilityservice.AccessibilityServiceInfo, android.content.pm.PackageManager);
     field public static final int CAPABILITY_CAN_FILTER_KEY_EVENTS = 8; // 0x8
     field public static final int CAPABILITY_CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY = 4; // 0x4
     field public static final int CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION = 2; // 0x2
@@ -6595,16 +6596,21 @@ package android.support.v4.view.accessibility {
   public final class AccessibilityEventCompat {
     method public static void appendRecord(android.view.accessibility.AccessibilityEvent, android.support.v4.view.accessibility.AccessibilityRecordCompat);
     method public static android.support.v4.view.accessibility.AccessibilityRecordCompat asRecord(android.view.accessibility.AccessibilityEvent);
+    method public int getAction(android.view.accessibility.AccessibilityEvent);
     method public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent);
+    method public int getMovementGranularity(android.view.accessibility.AccessibilityEvent);
     method public static android.support.v4.view.accessibility.AccessibilityRecordCompat getRecord(android.view.accessibility.AccessibilityEvent, int);
     method public static int getRecordCount(android.view.accessibility.AccessibilityEvent);
+    method public void setAction(android.view.accessibility.AccessibilityEvent, int);
     method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent, int);
+    method public void setMovementGranularity(android.view.accessibility.AccessibilityEvent, int);
     field public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 4; // 0x4
     field public static final int CONTENT_CHANGE_TYPE_SUBTREE = 1; // 0x1
     field public static final int CONTENT_CHANGE_TYPE_TEXT = 2; // 0x2
     field public static final int CONTENT_CHANGE_TYPE_UNDEFINED = 0; // 0x0
     field public static final int TYPES_ALL_MASK = -1; // 0xffffffff
     field public static final int TYPE_ANNOUNCEMENT = 16384; // 0x4000
+    field public static final int TYPE_ASSIST_READING_CONTEXT = 16777216; // 0x1000000
     field public static final int TYPE_GESTURE_DETECTION_END = 524288; // 0x80000
     field public static final int TYPE_GESTURE_DETECTION_START = 262144; // 0x40000
     field public static final int TYPE_TOUCH_EXPLORATION_GESTURE_END = 1024; // 0x400
@@ -6613,20 +6619,24 @@ package android.support.v4.view.accessibility {
     field public static final int TYPE_TOUCH_INTERACTION_START = 1048576; // 0x100000
     field public static final int TYPE_VIEW_ACCESSIBILITY_FOCUSED = 32768; // 0x8000
     field public static final int TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED = 65536; // 0x10000
+    field public static final int TYPE_VIEW_CONTEXT_CLICKED = 8388608; // 0x800000
     field public static final int TYPE_VIEW_HOVER_ENTER = 128; // 0x80
     field public static final int TYPE_VIEW_HOVER_EXIT = 256; // 0x100
     field public static final int TYPE_VIEW_SCROLLED = 4096; // 0x1000
     field public static final int TYPE_VIEW_TEXT_SELECTION_CHANGED = 8192; // 0x2000
     field public static final int TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY = 131072; // 0x20000
+    field public static final int TYPE_WINDOWS_CHANGED = 4194304; // 0x400000
     field public static final int TYPE_WINDOW_CONTENT_CHANGED = 2048; // 0x800
   }
 
   public final class AccessibilityManagerCompat {
     method public static boolean addAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener);
+    method public static boolean addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
     method public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo> getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager, int);
     method public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo> getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager);
     method public static boolean isTouchExplorationEnabled(android.view.accessibility.AccessibilityManager);
     method public static boolean removeAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener);
+    method public static boolean removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
   }
 
   public static abstract interface AccessibilityManagerCompat.AccessibilityStateChangeListener {
@@ -6635,6 +6645,10 @@ package android.support.v4.view.accessibility {
 
   public static abstract deprecated class AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat implements android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener {
     ctor public AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat();
+  }
+
+  public static abstract interface AccessibilityManagerCompat.TouchExplorationStateChangeListener {
+    method public abstract void onTouchExplorationStateChanged(boolean);
   }
 
   public class AccessibilityNodeInfoCompat {
