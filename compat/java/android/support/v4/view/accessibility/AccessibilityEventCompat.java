@@ -31,6 +31,10 @@ public final class AccessibilityEventCompat {
         Object getRecord(AccessibilityEvent event, int index);
         void setContentChangeTypes(AccessibilityEvent event, int types);
         int getContentChangeTypes(AccessibilityEvent event);
+        public void setMovementGranularity(AccessibilityEvent event, int granularity);
+        public int getMovementGranularity(AccessibilityEvent event);
+        public void setAction(AccessibilityEvent event, int action);
+        public int getAction(AccessibilityEvent event);
     }
 
     static class AccessibilityEventStubImpl implements AccessibilityEventVersionImpl {
@@ -59,6 +63,24 @@ public final class AccessibilityEventCompat {
         public int getContentChangeTypes(AccessibilityEvent event) {
             return 0;
         }
+
+        @Override
+        public void setMovementGranularity(AccessibilityEvent event, int granularity) {
+        }
+
+        @Override
+        public int getMovementGranularity(AccessibilityEvent event) {
+            return 0;
+        }
+
+        @Override
+        public void setAction(AccessibilityEvent event, int action) {
+        }
+
+        @Override
+        public int getAction(AccessibilityEvent event) {
+            return 0;
+        }
     }
 
     static class AccessibilityEventIcsImpl extends AccessibilityEventStubImpl {
@@ -79,7 +101,29 @@ public final class AccessibilityEventCompat {
         }
     }
 
-    static class AccessibilityEventKitKatImpl extends AccessibilityEventIcsImpl {
+    static class AccessibilityEventJellyBeanImpl extends AccessibilityEventIcsImpl {
+        @Override
+        public void setMovementGranularity(AccessibilityEvent event, int granularity) {
+            AccessibilityEventCompatJellyBean.setMovementGranularity(event, granularity);
+        }
+
+        @Override
+        public int getMovementGranularity(AccessibilityEvent event) {
+            return AccessibilityEventCompatJellyBean.getMovementGranularity(event);
+        }
+
+        @Override
+        public void setAction(AccessibilityEvent event, int action) {
+            AccessibilityEventCompatJellyBean.setAction(event, action);
+        }
+
+        @Override
+        public int getAction(AccessibilityEvent event) {
+            return AccessibilityEventCompatJellyBean.getAction(event);
+        }
+    }
+
+    static class AccessibilityEventKitKatImpl extends AccessibilityEventJellyBeanImpl {
 
         @Override
         public void setContentChangeTypes(AccessibilityEvent event, int types) {
@@ -97,6 +141,8 @@ public final class AccessibilityEventCompat {
     static {
         if (Build.VERSION.SDK_INT >= 19) { // KitKat
             IMPL = new AccessibilityEventKitKatImpl();
+        } else if (Build.VERSION.SDK_INT >= 16) { // Jellybean
+            IMPL = new AccessibilityEventJellyBeanImpl();
         } else if (Build.VERSION.SDK_INT >= 14) { // ICS
             IMPL = new AccessibilityEventIcsImpl();
         } else {
@@ -178,6 +224,21 @@ public final class AccessibilityEventCompat {
      * Represents the event of the user ending to touch the screen.
      */
     public static final int TYPE_TOUCH_INTERACTION_END = 0x00200000;
+
+    /**
+     * Represents the event change in the windows shown on the screen.
+     */
+    public static final int TYPE_WINDOWS_CHANGED = 0x00400000;
+
+    /**
+     * Represents the event of a context click on a {@link android.view.View}.
+     */
+    public static final int TYPE_VIEW_CONTEXT_CLICKED = 0x00800000;
+
+    /**
+     * Represents the event of the assistant currently reading the users screen context.
+     */
+    public static final int TYPE_ASSIST_READING_CONTEXT = 0x01000000;
 
     /**
      * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
@@ -313,4 +374,53 @@ public final class AccessibilityEventCompat {
         return IMPL.getContentChangeTypes(event);
     }
 
+    /**
+     * Sets the movement granularity that was traversed.
+     *
+     * @param granularity The granularity.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setMovementGranularity(AccessibilityEvent event, int granularity) {
+        IMPL.setMovementGranularity(event, granularity);
+    }
+
+    /**
+     * Gets the movement granularity that was traversed.
+     *
+     * @return The granularity.
+     */
+    public int getMovementGranularity(AccessibilityEvent event) {
+        return IMPL.getMovementGranularity(event);
+    }
+
+    /**
+     * Sets the performed action that triggered this event.
+     * <p>
+     * Valid actions are defined in {@link AccessibilityNodeInfoCompat}:
+     * <ul>
+     * <li>{@link AccessibilityNodeInfoCompat#ACTION_ACCESSIBILITY_FOCUS}
+     * <li>{@link AccessibilityNodeInfoCompat#ACTION_CLEAR_ACCESSIBILITY_FOCUS}
+     * <li>{@link AccessibilityNodeInfoCompat#ACTION_CLEAR_FOCUS}
+     * <li>{@link AccessibilityNodeInfoCompat#ACTION_CLEAR_SELECTION}
+     * <li>{@link AccessibilityNodeInfoCompat#ACTION_CLICK}
+     * <li>etc.
+     * </ul>
+     *
+     * @param action The action.
+     * @throws IllegalStateException If called from an AccessibilityService.
+     * @see AccessibilityNodeInfoCompat#performAction(int)
+     */
+    public void setAction(AccessibilityEvent event, int action) {
+        IMPL.setAction(event, action);
+    }
+
+    /**
+     * Gets the performed action that triggered this event.
+     *
+     * @return The action.
+     */
+    public int getAction(AccessibilityEvent event) {
+        return IMPL.getAction(event);
+    }
 }
