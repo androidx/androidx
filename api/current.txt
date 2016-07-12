@@ -8423,15 +8423,6 @@ package android.support.v7.media {
 
 package android.support.v7.preference {
 
-  public class AndroidResources {
-    ctor public AndroidResources();
-    field public static final int ANDROID_R_EDITTEXT_PREFERENCE_STYLE = 16842898; // 0x1010092
-    field public static final int ANDROID_R_ICON_FRAME = 16908350; // 0x102003e
-    field public static final int ANDROID_R_LIST_CONTAINER = 16908351; // 0x102003f
-    field public static final int ANDROID_R_PREFERENCE_FRAGMENT_STYLE = 16844038; // 0x1010506
-    field public static final int ANDROID_R_SWITCH_WIDGET = 16908352; // 0x1020040
-  }
-
   public class CheckBoxPreference extends android.support.v7.preference.TwoStatePreference {
     ctor public CheckBoxPreference(android.content.Context, android.util.AttributeSet, int);
     ctor public CheckBoxPreference(android.content.Context, android.util.AttributeSet, int, int);
