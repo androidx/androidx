@@ -286,7 +286,9 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         a.recycle();
 
         final View view = inflater.inflate(pl.resId, parent, false);
-        view.setBackgroundDrawable(background);
+        if (view.getBackground() == null) {
+            view.setBackgroundDrawable(background);
+        }
 
         final ViewGroup widgetFrame = (ViewGroup) view.findViewById(android.R.id.widget_frame);
         if (widgetFrame != null) {
