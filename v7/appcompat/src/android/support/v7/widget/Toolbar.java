@@ -2184,7 +2184,7 @@ public class Toolbar extends ViewGroup {
      * <p>Toolbar.LayoutParams extends ActionBar.LayoutParams for compatibility with existing
      * ActionBar API. See
      * {@link android.support.v7.app.AppCompatActivity#setSupportActionBar(Toolbar)
-     * ActionBarActivity.setActionBar}
+     * AppCompatActivity.setSupportActionBar}
      * for more info on how to use a Toolbar as your Activity's ActionBar.</p>
      */
     public static class LayoutParams extends ActionBar.LayoutParams {

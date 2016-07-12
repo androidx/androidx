@@ -21,9 +21,9 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
 
-public class BasicsTestCaseWithToolbar extends BaseBasicsTestCase<ToolbarActionBarActivity> {
+public class BasicsTestCaseWithToolbar extends BaseBasicsTestCase<ToolbarAppCompatActivity> {
     public BasicsTestCaseWithToolbar() {
-        super(ToolbarActionBarActivity.class);
+        super(ToolbarAppCompatActivity.class);
     }
 
     @Test

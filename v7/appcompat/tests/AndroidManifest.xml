@@ -34,9 +34,9 @@
                 android:name="android.support.v7.app.AppCompatActivity"/>
 
         <activity
-                android:name="android.support.v7.app.WindowDecorActionBarActivity"/>
+                android:name="android.support.v7.app.WindowDecorAppCompatActivity"/>
         <activity
-                android:name="android.support.v7.app.ToolbarActionBarActivity"
+                android:name="android.support.v7.app.ToolbarAppCompatActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
         <activity

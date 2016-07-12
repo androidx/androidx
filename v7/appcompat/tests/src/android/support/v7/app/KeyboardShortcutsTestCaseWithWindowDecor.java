@@ -17,8 +17,8 @@
 package android.support.v7.app;
 
 public class KeyboardShortcutsTestCaseWithWindowDecor
-        extends BaseKeyboardShortcutsTestCase<WindowDecorActionBarActivity> {
+        extends BaseKeyboardShortcutsTestCase<WindowDecorAppCompatActivity> {
     public KeyboardShortcutsTestCaseWithWindowDecor() {
-        super(WindowDecorActionBarActivity.class);
+        super(WindowDecorAppCompatActivity.class);
     }
 }

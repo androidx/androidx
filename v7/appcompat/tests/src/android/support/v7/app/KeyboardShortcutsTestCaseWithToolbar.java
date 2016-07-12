@@ -17,8 +17,8 @@
 package android.support.v7.app;
 
 public class KeyboardShortcutsTestCaseWithToolbar
-        extends BaseKeyboardShortcutsTestCase<ToolbarActionBarActivity> {
+        extends BaseKeyboardShortcutsTestCase<ToolbarAppCompatActivity> {
     public KeyboardShortcutsTestCaseWithToolbar() {
-        super(ToolbarActionBarActivity.class);
+        super(ToolbarAppCompatActivity.class);
     }
 }
