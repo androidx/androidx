@@ -2730,7 +2730,9 @@ public class NotificationCompat {
             }
 
             /**
-             * Set a hint that this Action should be displayed inline.
+             * Set a hint that this Action should be displayed inline - i.e. it will have a visual
+             * representation directly on the notification surface in addition to the expanded
+             * Notification
              *
              * @param hintDisplayInline {@code true} if action should be displayed inline, false
              *        otherwise
@@ -2743,7 +2745,9 @@ public class NotificationCompat {
             }
 
             /**
-             * Get a hint that this Action should be displayed inline.
+             * Get a hint that this Action should be displayed inline - i.e. it should have a
+             * visual representation directly on the notification surface in addition to the
+             * expanded Notification
              *
              * @return {@code true} if the Action should be displayed inline, {@code false}
              *         otherwise. The default value is {@code false} if this was never set.
