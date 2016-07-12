@@ -103,6 +103,10 @@ public abstract class ForwardingListener implements View.OnTouchListener {
         return forwarding || wasForwarding;
     }
 
+    public void onDetachedFromWindow() {
+        clearCallbacks();
+    }
+
     /**
      * Called when forwarding would like to start.
      * <p>
@@ -293,7 +297,9 @@ public abstract class ForwardingListener implements View.OnTouchListener {
         @Override
         public void run() {
             final ViewParent parent = mSrc.getParent();
-            parent.requestDisallowInterceptTouchEvent(true);
+            if (parent != null) {
+                parent.requestDisallowInterceptTouchEvent(true);
+            }
         }
     }
 
