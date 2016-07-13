@@ -25,12 +25,13 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class SimpleStringAdapter extends RecyclerView.Adapter<SimpleStringAdapter.ViewHolder> {
 
     private int mBackground;
 
-    private ArrayList<String> mValues;
+    private List<String> mValues;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public String mBoundString;
@@ -109,5 +110,13 @@ public class SimpleStringAdapter extends RecyclerView.Adapter<SimpleStringAdapte
     @Override
     public int getItemCount() {
         return mValues.size();
+    }
+
+    public List<String> getValues() {
+        return mValues;
+    }
+
+    public void setValues(List<String> values) {
+        mValues = values;
     }
 }
