@@ -1053,12 +1053,23 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // TODO We should do this switch a dispatchLayout pass and animate children. There is a good
         // chance that LayoutManagers will re-use views.
         if (mLayout != null) {
+            // end all running animations
+            if (mItemAnimator != null) {
+                mItemAnimator.endAnimations();
+            }
+            mLayout.removeAndRecycleAllViews(mRecycler);
+            mLayout.removeAndRecycleScrapInt(mRecycler);
+            mRecycler.clear();
+
             if (mIsAttached) {
                 mLayout.dispatchDetachedFromWindow(this, mRecycler);
             }
             mLayout.setRecyclerView(null);
+            mLayout = null;
+        } else {
+            mRecycler.clear();
         }
-        mRecycler.clear();
+        // this is just a defensive measure for faulty item animators.
         mChildHelper.removeAllViewsUnfiltered();
         mLayout = layout;
         if (layout != null) {
