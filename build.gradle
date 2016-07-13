@@ -367,70 +367,6 @@ subprojects {
         maven { url "${project.parent.projectDir}/../../prebuilts/maven_repo/android" }
     }
 
-    task release(type: Upload) {
-        configuration = configurations.archives
-        repositories {
-            mavenDeployer {
-                repository(url: uri("$rootProject.ext.supportRepoOut"))
-
-                // Disable unique names for SNAPSHOTS so they can be updated in place.
-                setUniqueVersion(false)
-                doLast {
-                    // Remove any invalid maven-metadata.xml files that may have been created
-                    // for SNAPSHOT versions that are *not* uniquely versioned.
-                    pom*.each { pom ->
-                        if (pom.version.endsWith('-SNAPSHOT')) {
-                            final File artifactDir = new File(rootProject.ext.supportRepoOut,
-                                    pom.groupId.replace('.', '/')
-                                    + '/' + pom.artifactId
-                                    + '/' + pom.version)
-                            delete fileTree(dir: artifactDir, include: 'maven-metadata.xml*')
-                        }
-                    }
-                }
-           }
-        }
-    }
-
-    def deployer = release.repositories.mavenDeployer
-    deployer.pom*.whenConfigured { pom ->
-        pom.dependencies.findAll {dep -> dep.groupId == 'com.android.support' && dep.artifactId != 'support-annotations' }*.type = 'aar'
-    }
-
-    def versionDir = {
-        def groupDir = new File(rootProject.ext.supportRepoOut, project.group.replace('.','/'))
-        def artifactDir = new File(groupDir, archivesBaseName)
-        return new File(artifactDir, version)
-    }
-
-    task generateSourceProps(dependsOn: createRepository) << {
-        def content = "Maven.GroupId=$deployer.pom.groupId\n" +
-            "Maven.ArtifactId=$deployer.pom.artifactId\n" +
-            "Maven.Version=$deployer.pom.version\n" +
-            "Pkg.Desc=$project.name\n" +
-            "Pkg.Revision=1\n" +
-            "Dependencies=" +
-            String.join(",", project.configurations.compile.allDependencies.collect {
-                    def p = parent.findProject(it.name)
-                    return p ? "$p.group:$p.archivesBaseName:$p.version" : null
-                }.grep()) +
-            "\n"
-        Files.write(content, new File(versionDir(), 'source.properties'), Charsets.UTF_8)
-    }
-
-    task createSeparateZip(type: Zip, dependsOn: generateSourceProps)  {
-        into archivesBaseName
-        destinationDir project.parent.ext.distDir
-        baseName = project.group
-        version = project.parent.ext.buildNumber
-    }
-    project.parent.createArchive.dependsOn createSeparateZip
-
-    // before the upload, make sure the repo is ready.
-    release.dependsOn rootProject.tasks.prepareRepo
-    // make the mainupload depend on this one.
-    mainUpload.dependsOn release
-
     project.plugins.whenPluginAdded { plugin ->
         if ("com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)
                 || "com.android.build.gradle.AppPlugin".equals(plugin.class.name)) {
@@ -439,13 +375,89 @@ subprojects {
             // enabling coverage reports breaks the method parameter resolution in the IDE debugger
             project.android.buildTypes.debug.testCoverageEnabled = !hasProperty('android.injected.invoked.from.ide')
         }
+
+        // Create release and separate zip task for Android libraries (and android-annotations,
+        // which is just a Java library).
+        if ("com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)
+                || "org.gradle.api.plugins.JavaPlugin".equals(plugin.class.name)) {
+            task release(type: Upload) {
+                configuration = configurations.archives
+                repositories {
+                    mavenDeployer {
+                        repository(url: uri("$rootProject.ext.supportRepoOut"))
+
+                        // Disable unique names for SNAPSHOTS so they can be updated in place.
+                        setUniqueVersion(false)
+                        doLast {
+                            // Remove any invalid maven-metadata.xml files that may have been
+                            // created for SNAPSHOT versions that are *not* uniquely versioned.
+                            pom*.each { pom ->
+                                if (pom.version.endsWith('-SNAPSHOT')) {
+                                    final File artifactDir = new File(
+                                            rootProject.ext.supportRepoOut,
+                                            pom.groupId.replace('.', '/')
+                                                    + '/' + pom.artifactId
+                                                    + '/' + pom.version)
+                                    delete fileTree(dir: artifactDir,
+                                            include: 'maven-metadata.xml*')
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            def deployer = release.repositories.mavenDeployer
+            deployer.pom*.whenConfigured { pom ->
+                pom.dependencies.findAll { dep ->
+                    dep.groupId == 'com.android.support' && dep.artifactId != 'support-annotations'
+                }*.type = 'aar'
+            }
+
+            ext.versionDir = {
+                def groupDir = new File(rootProject.ext.supportRepoOut,
+                        project.group.replace('.','/'))
+                def artifactDir = new File(groupDir, archivesBaseName)
+                return new File(artifactDir, version)
+            }
+
+            task generateSourceProps(dependsOn: createRepository) << {
+                def content = "Maven.GroupId=$deployer.pom.groupId\n" +
+                        "Maven.ArtifactId=$deployer.pom.artifactId\n" +
+                        "Maven.Version=$deployer.pom.version\n" +
+                        "Pkg.Desc=$project.name\n" +
+                        "Pkg.Revision=1\n" +
+                        "Dependencies=" +
+                        String.join(",", project.configurations.compile.allDependencies.collect {
+                            def p = parent.findProject(it.name)
+                            return p ? "$p.group:$p.archivesBaseName:$p.version" : null
+                        }.grep()) +
+                        "\n"
+                Files.write(content, new File(versionDir(), 'source.properties'), Charsets.UTF_8)
+            }
+
+            task createSeparateZip(type: Zip, dependsOn: generateSourceProps)  {
+                into archivesBaseName
+                destinationDir project.parent.ext.distDir
+                baseName = project.group
+                version = project.parent.ext.buildNumber
+            }
+            project.parent.createArchive.dependsOn createSeparateZip
+
+            // before the upload, make sure the repo is ready.
+            release.dependsOn rootProject.tasks.prepareRepo
+            // make the mainupload depend on this one.
+            mainUpload.dependsOn release
+        }
     }
 
     project.afterEvaluate {
         // The archivesBaseName isn't available intially, so set it now
-        def createZipTask = project.tasks.getByName("createSeparateZip")
-        createZipTask.appendix = archivesBaseName
-        createZipTask.from versionDir()
+        def createZipTask = project.tasks.findByName("createSeparateZip")
+        if (createZipTask != null) {
+            createZipTask.appendix = archivesBaseName
+            createZipTask.from versionDir()
+        }
 
         // Copy instrumentation test APK into the dist dir
         def assembleTestTask = project.tasks.findByPath('assembleAndroidTest')
