@@ -1068,6 +1068,38 @@ package android.support.v13.view {
 
 }
 
+package android.support.v13.view.inputmethod {
+
+  public final class EditorInfoCompat {
+    ctor public EditorInfoCompat();
+    method public static java.lang.String[] getContentMimeTypes(android.view.inputmethod.EditorInfo);
+    method public static void setContentMimeTypes(android.view.inputmethod.EditorInfo, java.lang.String[]);
+  }
+
+  public final class InputConnectionCompat {
+    ctor public InputConnectionCompat();
+    method public static boolean commitContent(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, android.support.v13.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle);
+    method public static android.view.inputmethod.InputConnection createWrapper(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, android.support.v13.view.inputmethod.InputConnectionCompat.OnCommitContentListener);
+    field public static int INPUT_CONTENT_GRANT_READ_URI_PERMISSION;
+  }
+
+  public static abstract interface InputConnectionCompat.OnCommitContentListener {
+    method public abstract boolean onCommitContent(android.support.v13.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle);
+  }
+
+  public final class InputContentInfoCompat {
+    ctor public InputContentInfoCompat(android.net.Uri, android.content.ClipDescription, android.net.Uri);
+    method public android.net.Uri getContentUri();
+    method public android.content.ClipDescription getDescription();
+    method public android.net.Uri getLinkUri();
+    method public void releasePermission();
+    method public void requestPermission();
+    method public java.lang.Object unwrap();
+    method public static android.support.v13.view.inputmethod.InputContentInfoCompat wrap(java.lang.Object);
+  }
+
+}
+
 package android.support.v14.preference {
 
   public class EditTextPreferenceDialogFragment extends android.support.v14.preference.PreferenceDialogFragment {
