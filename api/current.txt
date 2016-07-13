@@ -8521,6 +8521,12 @@ package android.support.v7.preference {
     method public void onDialogClosed(boolean);
   }
 
+  public class MultiSelectListPreferenceDialogFragmentCompat extends android.support.v7.preference.PreferenceDialogFragmentCompat {
+    ctor public MultiSelectListPreferenceDialogFragmentCompat();
+    method public static android.support.v7.preference.MultiSelectListPreferenceDialogFragmentCompat newInstance(java.lang.String);
+    method public void onDialogClosed(boolean);
+  }
+
   public class Preference implements java.lang.Comparable {
     ctor public Preference(android.content.Context, android.util.AttributeSet, int, int);
     ctor public Preference(android.content.Context, android.util.AttributeSet, int);
