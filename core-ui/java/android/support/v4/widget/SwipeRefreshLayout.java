@@ -677,6 +677,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         ensureTarget();
 
         final int action = MotionEventCompat.getActionMasked(ev);
+        int pointerIndex;
 
         if (mReturningToStart && action == MotionEvent.ACTION_DOWN) {
             mReturningToStart = false;
@@ -693,11 +694,12 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                 setTargetOffsetTopAndBottom(mOriginalOffsetTop - mCircleView.getTop(), true);
                 mActivePointerId = ev.getPointerId(0);
                 mIsBeingDragged = false;
-                final float initialDownY = getMotionEventY(ev, mActivePointerId);
-                if (initialDownY == -1) {
+
+                pointerIndex = ev.findPointerIndex(mActivePointerId);
+                if (pointerIndex < 0) {
                     return false;
                 }
-                mInitialDownY = initialDownY;
+                mInitialDownY = ev.getY(pointerIndex);
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -706,16 +708,12 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                     return false;
                 }
 
-                final float y = getMotionEventY(ev, mActivePointerId);
-                if (y == -1) {
+                pointerIndex = ev.findPointerIndex(mActivePointerId);
+                if (pointerIndex < 0) {
                     return false;
                 }
-                final float yDiff = y - mInitialDownY;
-                if (yDiff > mTouchSlop && !mIsBeingDragged) {
-                    mInitialMotionY = mInitialDownY + mTouchSlop;
-                    mIsBeingDragged = true;
-                    mProgress.setAlpha(STARTING_PROGRESS_ALPHA);
-                }
+                final float y = ev.getY(pointerIndex);
+                startDragging(y);
                 break;
 
             case MotionEventCompat.ACTION_POINTER_UP:
@@ -730,14 +728,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         }
 
         return mIsBeingDragged;
-    }
-
-    private float getMotionEventY(MotionEvent ev, int activePointerId) {
-        final int index = ev.findPointerIndex(activePointerId);
-        if (index < 0) {
-            return -1;
-        }
-        return ev.getY(index);
     }
 
     @Override
@@ -997,7 +987,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
             mReturningToStart = false;
         }
 
-        if (!isEnabled() || mReturningToStart || canChildScrollUp() || mNestedScrollInProgress) {
+        if (!isEnabled() || mReturningToStart || canChildScrollUp()
+                || mRefreshing || mNestedScrollInProgress) {
             // Fail fast if we're not in a state where a swipe is possible
             return false;
         }
@@ -1016,8 +1007,10 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                 }
 
                 final float y = ev.getY(pointerIndex);
-                final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
+                startDragging(y);
+
                 if (mIsBeingDragged) {
+                    final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                     if (overscrollTop > 0) {
                         moveSpinner(overscrollTop);
                     } else {
@@ -1061,6 +1054,15 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         }
 
         return true;
+    }
+
+    private void startDragging(float y) {
+        final float yDiff = y - mInitialDownY;
+        if (yDiff > mTouchSlop && !mIsBeingDragged) {
+            mInitialMotionY = mInitialDownY + mTouchSlop;
+            mIsBeingDragged = true;
+            mProgress.setAlpha(STARTING_PROGRESS_ALPHA);
+        }
     }
 
     private void animateOffsetToCorrectPosition(int from, AnimationListener listener) {
