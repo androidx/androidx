@@ -48,6 +48,14 @@
             android:entryValues="@array/entryvalues_list_preference"
             android:dialogTitle="@string/dialog_title_list_preference" />
 
+        <MultiSelectListPreference
+            android:key="multi_select_list_preference"
+            android:title="@string/title_multi_list_preference"
+            android:summary="@string/summary_multi_list_preference"
+            android:entries="@array/entries_list_preference"
+            android:entryValues="@array/entryvalues_list_preference"
+            android:dialogTitle="@string/dialog_title_multi_list_preference" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

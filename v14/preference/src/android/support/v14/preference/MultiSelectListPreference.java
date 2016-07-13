@@ -25,7 +25,7 @@ import android.support.annotation.ArrayRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.content.res.TypedArrayUtils;
-import android.support.v7.preference.DialogPreference;
+import android.support.v7.preference.internal.AbstractMultiSelectListPreference;
 import android.util.AttributeSet;
 
 import java.util.Collections;
@@ -43,7 +43,7 @@ import java.util.Set;
  * @attr name android:entries
  * @attr name android:entryValues
  */
-public class MultiSelectListPreference extends DialogPreference {
+public class MultiSelectListPreference extends AbstractMultiSelectListPreference {
     private CharSequence[] mEntries;
     private CharSequence[] mEntryValues;
     private Set<String> mValues = new HashSet<>();

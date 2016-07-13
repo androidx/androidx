@@ -46,6 +46,10 @@
     <string name="summary_list_preference">An example that uses a list dialog</string>
     <string name="dialog_title_list_preference">Choose one</string>
 
+    <string name="title_multi_list_preference">Multi-select list preference</string>
+    <string name="summary_multi_list_preference">An example that uses a multi-select list dialog</string>
+    <string name="dialog_title_multi_list_preference">Choose some</string>
+
     <string name="title_screen_preference">Screen preference</string>
     <string name="summary_screen_preference">Shows another screen of preferences</string>
 
