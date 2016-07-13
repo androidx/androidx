@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,37 +14,37 @@
  * limitations under the License
  */
 
-package android.support.v14.preference;
+package android.support.v7.preference;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.internal.AbstractMultiSelectListPreference;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MultiSelectListPreferenceDialogFragment extends PreferenceDialogFragment {
+public class MultiSelectListPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat {
 
     private static final String SAVE_STATE_VALUES =
-            "MultiSelectListPreferenceDialogFragment.values";
+            "MultiSelectListPreferenceDialogFragmentCompat.values";
     private static final String SAVE_STATE_CHANGED =
-            "MultiSelectListPreferenceDialogFragment.changed";
+            "MultiSelectListPreferenceDialogFragmentCompat.changed";
     private static final String SAVE_STATE_ENTRIES =
-            "MultiSelectListPreferenceDialogFragment.entries";
+            "MultiSelectListPreferenceDialogFragmentCompat.entries";
     private static final String SAVE_STATE_ENTRY_VALUES =
-            "MultiSelectListPreferenceDialogFragment.entryValues";
+            "MultiSelectListPreferenceDialogFragmentCompat.entryValues";
 
     private Set<String> mNewValues = new HashSet<>();
     private boolean mPreferenceChanged;
     private CharSequence[] mEntries;
     private CharSequence[] mEntryValues;
 
-    public static MultiSelectListPreferenceDialogFragment newInstance(String key) {
-        final MultiSelectListPreferenceDialogFragment fragment =
-                new MultiSelectListPreferenceDialogFragment();
+    public static MultiSelectListPreferenceDialogFragmentCompat newInstance(String key) {
+        final MultiSelectListPreferenceDialogFragmentCompat fragment =
+                new MultiSelectListPreferenceDialogFragmentCompat();
         final Bundle b = new Bundle(1);
         b.putString(ARG_KEY, key);
         fragment.setArguments(b);
