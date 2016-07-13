@@ -71,6 +71,7 @@
     <string name="form_description">Description</string>
     <string name="form_password">Password field</string>
     <string name="show_error">Show error</string>
+    <string name="toggle_enabled">Toggle enabled</string>
     <string name="clear_error">Clear error</string>
     <string name="password_enable">Enable Password</string>
     <string name="password_disable">Disable Password</string>
