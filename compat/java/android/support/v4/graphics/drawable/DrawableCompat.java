@@ -467,6 +467,9 @@ public final class DrawableCompat {
      * Potentially wrap {@code drawable} so that it may be used for tinting across the
      * different API levels, via the tinting methods in this class.
      *
+     * <p>If the given drawable is wrapped, we will copy over certain state over to the wrapped
+     * drawable, such as its bounds, level, visibility and state.</p>
+     *
      * <p>You must use the result of this call. If the given drawable is being used by a view
      * (as it's background for instance), you must replace the original drawable with
      * the result of this call:</p>

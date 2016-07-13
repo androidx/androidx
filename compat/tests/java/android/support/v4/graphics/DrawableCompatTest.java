@@ -68,6 +68,21 @@ public class DrawableCompatTest {
     }
 
     @Test
+    public void testWrapCopiesDrawableState() {
+        final Rect bounds = new Rect(0, 0, 10, 10);
+
+        // Create a drawable and set some bounds
+        final Drawable drawable = new GradientDrawable();
+        drawable.setBounds(bounds);
+
+        // Now wrap it
+        final Drawable wrapper = DrawableCompat.wrap(drawable);
+
+        // Assert that the bounds were copied to the wrapper
+        assertEquals(bounds, wrapper.getBounds());
+    }
+
+    @Test
     public void testDrawableWrapOnlyWrapsOnce() {
         final Drawable wrappedDrawable = DrawableCompat.wrap(new GradientDrawable());
         assertSame(wrappedDrawable, DrawableCompat.wrap(wrappedDrawable));
