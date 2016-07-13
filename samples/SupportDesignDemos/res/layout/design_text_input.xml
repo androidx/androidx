@@ -55,6 +55,12 @@
                 android:onClick="clearError"
                 android:text="@string/clear_error" />
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="toggleEnabled"
+                android:text="Toggle Enabled" />
+
         </LinearLayout>
 
         <android.support.design.widget.TextInputLayout
