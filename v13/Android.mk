@@ -52,6 +52,15 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-mnc
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+# A helper sub-library that makes direct use of NYC MR-1 APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v13-nyc-mr1
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, api25)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-nyc
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
 # -----------------------------------------------------------------------
 
 include $(CLEAR_VARS)
@@ -61,7 +70,7 @@ LOCAL_SDK_VERSION := 13
 LOCAL_SRC_FILES := $(call all-java-files-under, java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
-        android-support-v13-nyc
+        android-support-v13-nyc-mr1
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
