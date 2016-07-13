@@ -459,14 +459,17 @@ package android.support.design.widget {
     ctor public CoordinatorLayout.Behavior();
     ctor public CoordinatorLayout.Behavior(android.content.Context, android.util.AttributeSet);
     method public boolean blocksInteractionBelow(android.support.design.widget.CoordinatorLayout, V);
+    method public boolean getInsetDodgeRect(android.support.design.widget.CoordinatorLayout, V, android.graphics.Rect);
     method public int getScrimColor(android.support.design.widget.CoordinatorLayout, V);
     method public float getScrimOpacity(android.support.design.widget.CoordinatorLayout, V);
     method public static java.lang.Object getTag(android.view.View);
     method public deprecated boolean isDirty(android.support.design.widget.CoordinatorLayout, V);
     method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, V, android.view.View);
     method public android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.support.design.widget.CoordinatorLayout, V, android.support.v4.view.WindowInsetsCompat);
+    method public void onAttachedToLayoutParams(android.support.design.widget.CoordinatorLayout.LayoutParams);
     method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, V, android.view.View);
     method public void onDependentViewRemoved(android.support.design.widget.CoordinatorLayout, V, android.view.View);
+    method public void onDetachedFromLayoutParams();
     method public boolean onInterceptTouchEvent(android.support.design.widget.CoordinatorLayout, V, android.view.MotionEvent);
     method public boolean onLayoutChild(android.support.design.widget.CoordinatorLayout, V, int);
     method public boolean onMeasureChild(android.support.design.widget.CoordinatorLayout, V, int, int, int, int);
@@ -534,10 +537,9 @@ package android.support.design.widget {
   public static class FloatingActionButton.Behavior extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public FloatingActionButton.Behavior();
     ctor public FloatingActionButton.Behavior(android.content.Context, android.util.AttributeSet);
+    method public boolean getInsetDodgeRect(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, android.graphics.Rect);
     method public boolean isAutoHideEnabled();
-    method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, android.view.View);
     method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, android.view.View);
-    method public void onDependentViewRemoved(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, android.view.View);
     method public boolean onLayoutChild(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, int);
     method public void setAutoHideEnabled(boolean);
   }
