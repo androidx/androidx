@@ -29,6 +29,7 @@ import android.support.annotation.XmlRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.preference.internal.AbstractMultiSelectListPreference;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -631,6 +632,8 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
             f = EditTextPreferenceDialogFragmentCompat.newInstance(preference.getKey());
         } else if (preference instanceof ListPreference) {
             f = ListPreferenceDialogFragmentCompat.newInstance(preference.getKey());
+        } else if (preference instanceof AbstractMultiSelectListPreference) {
+            f = MultiSelectListPreferenceDialogFragmentCompat.newInstance(preference.getKey());
         } else {
             throw new IllegalArgumentException("Tried to display dialog for unknown " +
                     "preference type. Did you forget to override onDisplayPreferenceDialog()?");
