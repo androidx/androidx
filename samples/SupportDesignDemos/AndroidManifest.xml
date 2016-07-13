@@ -27,7 +27,7 @@
     <application android:label="@string/activity_sample_code"
             android:supportsRtl="true"
             android:icon="@drawable/app_sample_code"
-            android:theme="@style/Theme.FAB">
+            android:theme="@style/Theme.DesignDemos">
 
         <activity android:name="SupportDesignDemos">
             <intent-filter>
@@ -39,7 +39,7 @@
 
         <activity android:name=".widget.FloatingActionButtonUsage"
                   android:label="@string/design_fab"
-                  android:theme="@style/Theme.FAB">
+                  android:theme="@style/Theme.DesignDemos.FAB">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -48,7 +48,7 @@
 
         <activity android:name=".widget.NavigationViewUsage"
                   android:label="@string/design_navigation"
-                  android:theme="@style/Theme.Navigation">
+                  android:theme="@style/Theme.DesignDemos.Navigation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -56,8 +56,7 @@
         </activity>
 
         <activity android:name=".widget.NavigationViewWithoutDrawer"
-                  android:label="@string/design_navigation_without_drawer"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_navigation_without_drawer">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -65,8 +64,7 @@
         </activity>
 
         <activity android:name=".widget.TabLayoutUsage"
-                  android:label="@string/design_tabs_viewpager"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_tabs_viewpager">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -74,8 +72,7 @@
         </activity>
 
         <activity android:name=".widget.TabLayoutPreselectedUsage"
-                  android:label="@string/design_tabs_preselected_viewpager"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_tabs_preselected_viewpager">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -83,8 +80,7 @@
         </activity>
 
         <activity android:name=".widget.TabLayoutLayoutItemsUsage"
-                  android:label="@string/design_tabs_layout_items"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_tabs_layout_items">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -92,8 +88,7 @@
         </activity>
 
         <activity android:name=".widget.TabLayoutCustomItemsUsage"
-                  android:label="@string/design_tabs_custom_items"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_tabs_custom_items">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -101,8 +96,7 @@
         </activity>
 
         <activity android:name=".widget.TextInputLayoutUsage"
-                  android:label="@string/design_text_input"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+                  android:label="@string/design_text_input">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -111,7 +105,7 @@
 
         <activity android:name=".widget.SnackbarUsage"
                   android:label="@string/design_snackbar_basic"
-                  android:theme="@style/Theme.Design.Snackbar">
+                  android:theme="@style/Theme.DesignDemos.Snackbar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -119,8 +113,7 @@
         </activity>
 
         <activity android:name=".widget.SnackbarWithFloatingActionButton"
-                  android:label="@string/design_snackbar_fab"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+                  android:label="@string/design_snackbar_fab">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -128,8 +121,7 @@
         </activity>
 
         <activity android:name=".widget.SnackbarWithoutCoordinatorLayout"
-                  android:label="@string/design_snackbar_without_col"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+                  android:label="@string/design_snackbar_without_col">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -137,8 +129,7 @@
         </activity>
 
         <activity android:name=".widget.AppBarLayoutToolbarScrollTabsScroll"
-                  android:label="@string/design_appbar_toolbar_scroll_tabs_scroll"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_appbar_toolbar_scroll_tabs_scroll">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -146,8 +137,7 @@
         </activity>
 
         <activity android:name=".widget.AppBarLayoutToolbarScrollTabsScrollSnap"
-                  android:label="@string/design_appbar_toolbar_scroll_tabs_scroll_snap"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_appbar_toolbar_scroll_tabs_scroll_snap">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -155,8 +145,7 @@
         </activity>
 
         <activity android:name=".widget.AppBarLayoutToolbarScrollTabsPin"
-                  android:label="@string/design_appbar_toolbar_scroll_tabs_pin"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_appbar_toolbar_scroll_tabs_pin">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -164,8 +153,7 @@
         </activity>
 
         <activity android:name=".widget.AppBarLayoutToolbarScrollTabsPinWithSwipeRefresh"
-                  android:label="@string/design_appbar_toolbar_scroll_tabs_pin_with_swiperefresh"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_appbar_toolbar_scroll_tabs_pin_with_swiperefresh">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -173,8 +161,7 @@
         </activity>
 
         <activity android:name=".widget.AppBarLayoutToolbarCollapseThenPin"
-                  android:label="@string/design_appbar_collapsing_toolbar_pin"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_appbar_collapsing_toolbar_pin">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -182,8 +169,7 @@
         </activity>
 
         <activity android:name=".widget.AppBarLayoutToolbarCollapseThenPinWithFab"
-                  android:label="@string/design_appbar_collapsing_toolbar_pin_fab"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_appbar_collapsing_toolbar_pin_fab">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -191,8 +177,7 @@
         </activity>
 
         <activity android:name=".widget.AppBarLayoutToolbarCollapseThenPinNested"
-                  android:label="@string/design_appbar_collapsing_toolbar_pin_nested"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_appbar_collapsing_toolbar_pin_nested">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -200,8 +185,7 @@
         </activity>
 
         <activity android:name=".widget.AppBarLayoutToolbarCollapseThenScroll"
-                  android:label="@string/design_appbar_collapsing_toolbar_scroll"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_appbar_collapsing_toolbar_scroll">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -209,8 +193,7 @@
         </activity>
 
         <activity android:name=".widget.AppBarLayoutToolbarCollapseThenScrollWithSwipeRefresh"
-                  android:label="@string/design_appbar_collapsing_toolbar_scroll_with_swiperefresh"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_appbar_collapsing_toolbar_scroll_with_swiperefresh">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -218,8 +201,7 @@
         </activity>
 
         <activity android:name=".widget.AppBarLayoutToolbarCollapseWithImage"
-                  android:label="@string/design_appbar_collapsing_toolbar_with_image"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_appbar_collapsing_toolbar_with_image">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -228,7 +210,7 @@
 
         <activity android:name=".widget.AppBarLayoutToolbarCollapseWithImageWithInsets"
                   android:label="@string/design_appbar_collapsing_toolbar_with_image_insets"
-                  android:theme="@style/Theme.Design.TransparentStatus">
+                  android:theme="@style/Theme.DesignDemos.TransparentStatus">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -236,8 +218,7 @@
         </activity>
 
         <activity android:name=".widget.AppBarLayoutToolbarParallaxOverlapContent"
-                  android:label="@string/design_appbar_parallax_overlap"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_appbar_parallax_overlap">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -245,8 +226,7 @@
         </activity>
 
         <activity android:name=".widget.BottomSheetPersistent"
-                  android:label="@string/design_bottomsheet_persistent"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_bottomsheet_persistent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -254,8 +234,7 @@
         </activity>
 
         <activity android:name=".widget.BottomSheetHideable"
-                  android:label="@string/design_bottomsheet_hideable"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_bottomsheet_hideable">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -263,8 +242,7 @@
         </activity>
 
         <activity android:name=".widget.BottomSheetWithFab"
-                  android:label="@string/design_bottomsheet_with_fab"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_bottomsheet_with_fab">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -272,8 +250,7 @@
         </activity>
 
         <activity android:name=".widget.BottomSheetScrollView"
-                  android:label="@string/design_bottomsheet_scroll"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_bottomsheet_scroll">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -281,8 +258,7 @@
         </activity>
 
         <activity android:name=".widget.BottomSheetWithFragment"
-                  android:label="@string/design_bottomsheet_with_fragment"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_bottomsheet_with_fragment">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -290,8 +266,7 @@
         </activity>
 
         <activity android:name=".widget.BottomSheetDynamicContent"
-                  android:label="@string/design_bottomsheet_dynamic_content"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_bottomsheet_dynamic_content">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -300,7 +275,7 @@
 
         <activity android:name=".widget.BottomSheetModal"
                   android:label="@string/design_bottomsheet_modal"
-                  android:theme="@style/Theme.BottomSheetModal">
+                  android:theme="@style/Theme.DesignDemos.BottomSheetModal">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -309,7 +284,7 @@
 
         <activity android:name=".widget.BottomSheetModalSkipCollapsed"
                   android:label="@string/design_bottomsheet_modal_skip_collapsed"
-                  android:theme="@style/Theme.BottomSheetModalSkipCollapsed">
+                  android:theme="@style/Theme.DesignDemos.BottomSheetModal.SkipCollapsed">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
@@ -317,8 +292,7 @@
         </activity>
 
         <activity android:name=".widget.BottomNavigationViewUsage"
-                  android:label="@string/design_bottom_navigation_view"
-                  android:theme="@style/Theme.Design">
+                  android:label="@string/design_bottom_navigation_view">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.support.design.SAMPLE_CODE" />
