@@ -7876,11 +7876,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             int size = Math.max(0, parentSize - padding);
             int resultSize = 0;
             int resultMode = 0;
-            if (canScroll) {
-                if (childDimension >= 0) {
-                    resultSize = childDimension;
-                    resultMode = MeasureSpec.EXACTLY;
-                } else if (childDimension == LayoutParams.FILL_PARENT){
+            if (childDimension >= 0) {
+                resultSize = childDimension;
+                resultMode = MeasureSpec.EXACTLY;
+            } else if (canScroll) {
+                 if (childDimension == LayoutParams.FILL_PARENT){
                     switch (parentMode) {
                         case MeasureSpec.AT_MOST:
                         case MeasureSpec.EXACTLY:
@@ -7897,10 +7897,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     resultMode = MeasureSpec.UNSPECIFIED;
                 }
             } else {
-                if (childDimension >= 0) {
-                    resultSize = childDimension;
-                    resultMode = MeasureSpec.EXACTLY;
-                } else if (childDimension == LayoutParams.FILL_PARENT) {
+                if (childDimension == LayoutParams.FILL_PARENT) {
                     resultSize = size;
                     resultMode = parentMode;
                 } else if (childDimension == LayoutParams.WRAP_CONTENT) {
