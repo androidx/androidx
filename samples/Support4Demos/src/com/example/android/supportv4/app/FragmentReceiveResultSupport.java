@@ -16,17 +16,13 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.app.SendResult;
-import com.example.android.supportv4.R;
-
 import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.IntentSender;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-
-import android.content.Intent;
-import android.os.Bundle;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,14 +32,16 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.example.android.supportv4.R;
+
 public class FragmentReceiveResultSupport extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT);
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
         FrameLayout frame = new FrameLayout(this);
         frame.setId(R.id.simple_fragment);
         setContentView(frame, lp);

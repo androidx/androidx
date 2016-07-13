@@ -16,12 +16,14 @@
 
 package android.support.v7.widget;
 
-import org.junit.Test;
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 
-import android.content.Context;
-import android.graphics.Rect;
-import android.os.Parcel;
-import android.os.Parcelable;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
@@ -30,22 +32,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.FrameLayout;
 
-import static android.support.v7.widget.LayoutState.LAYOUT_END;
-import static android.support.v7.widget.LayoutState.LAYOUT_START;
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import java.lang.reflect.Field;
+import org.junit.Test;
+
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import static org.junit.Assert.*;
 
 /**
  * Includes tests for {@link LinearLayoutManager}.
@@ -134,10 +126,10 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 final int maxSize;
                 if (config.mOrientation == HORIZONTAL) {
                     maxSize = mRecyclerView.getWidth();
-                    mlp.height = ViewGroup.MarginLayoutParams.FILL_PARENT;
+                    mlp.height = ViewGroup.MarginLayoutParams.MATCH_PARENT;
                 } else {
                     maxSize = mRecyclerView.getHeight();
-                    mlp.width = ViewGroup.MarginLayoutParams.FILL_PARENT;
+                    mlp.width = ViewGroup.MarginLayoutParams.MATCH_PARENT;
                 }
 
                 final int desiredSize;
