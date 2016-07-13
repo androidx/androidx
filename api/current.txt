@@ -306,8 +306,8 @@ package android.support.design.widget {
     ctor public AppBarLayout.ScrollingViewBehavior();
     ctor public AppBarLayout.ScrollingViewBehavior(android.content.Context, android.util.AttributeSet);
     method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, android.view.View, android.view.View);
-    method public boolean onChildRectangleRequestedOnScreen(android.support.design.widget.CoordinatorLayout, android.view.View, android.graphics.Rect, boolean);
     method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, android.view.View, android.view.View);
+    method public boolean onRequestChildRectangleOnScreen(android.support.design.widget.CoordinatorLayout, android.view.View, android.graphics.Rect, boolean);
   }
 
   public class BottomNavigationView extends android.widget.FrameLayout {
@@ -463,7 +463,6 @@ package android.support.design.widget {
     method public deprecated boolean isDirty(android.support.design.widget.CoordinatorLayout, V);
     method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, V, android.view.View);
     method public android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.support.design.widget.CoordinatorLayout, V, android.support.v4.view.WindowInsetsCompat);
-    method public boolean onChildRectangleRequestedOnScreen(android.support.design.widget.CoordinatorLayout, V, android.graphics.Rect, boolean);
     method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, V, android.view.View);
     method public void onDependentViewRemoved(android.support.design.widget.CoordinatorLayout, V, android.view.View);
     method public boolean onInterceptTouchEvent(android.support.design.widget.CoordinatorLayout, V, android.view.MotionEvent);
@@ -474,6 +473,7 @@ package android.support.design.widget {
     method public void onNestedPreScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int[]);
     method public void onNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int, int);
     method public void onNestedScrollAccepted(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
+    method public boolean onRequestChildRectangleOnScreen(android.support.design.widget.CoordinatorLayout, V, android.graphics.Rect, boolean);
     method public void onRestoreInstanceState(android.support.design.widget.CoordinatorLayout, V, android.os.Parcelable);
     method public android.os.Parcelable onSaveInstanceState(android.support.design.widget.CoordinatorLayout, V);
     method public boolean onStartNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
@@ -532,12 +532,12 @@ package android.support.design.widget {
   public static class FloatingActionButton.Behavior extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public FloatingActionButton.Behavior();
     ctor public FloatingActionButton.Behavior(android.content.Context, android.util.AttributeSet);
-    method public boolean getAutoHide();
+    method public boolean isAutoHideEnabled();
     method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, android.view.View);
     method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, android.view.View);
     method public void onDependentViewRemoved(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, android.view.View);
     method public boolean onLayoutChild(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, int);
-    method public void setAutoHide(boolean);
+    method public void setAutoHideEnabled(boolean);
   }
 
   public static abstract class FloatingActionButton.OnVisibilityChangedListener {
