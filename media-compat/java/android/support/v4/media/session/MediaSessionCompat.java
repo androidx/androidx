@@ -556,11 +556,12 @@ public class MediaSessionCompat {
     /**
      * Creates an instance from a framework {@link android.media.session.MediaSession} object.
      * <p>
-     * This method is only supported on API 21+.
+     * This method is only supported on API 21+. On API 20 and below, it returns null.
      * </p>
      *
+     * @param context The context to use to create the session.
      * @param mediaSession A {@link android.media.session.MediaSession} object.
-     * @return An equivalent {@link MediaSessionCompat} object.
+     * @return An equivalent {@link MediaSessionCompat} object, or null if none.
      * @deprecated Use {@link #fromMediaSession(Context, Object)} instead.
      */
     @Deprecated
@@ -571,13 +572,17 @@ public class MediaSessionCompat {
     /**
      * Creates an instance from a framework {@link android.media.session.MediaSession} object.
      * <p>
-     * This method is only supported on API 21+.
+     * This method is only supported on API 21+. On API 20 and below, it returns null.
      * </p>
      *
+     * @param context The context to use to create the session.
      * @param mediaSession A {@link android.media.session.MediaSession} object.
-     * @return An equivalent {@link MediaSessionCompat} object.
+     * @return An equivalent {@link MediaSessionCompat} object, or null if none.
      */
     public static MediaSessionCompat fromMediaSession(Context context, Object mediaSession) {
+        if (context == null || mediaSession == null || Build.VERSION.SDK_INT < 21) {
+            return null;
+        }
         return new MediaSessionCompat(context, new MediaSessionImplApi21(mediaSession));
     }
 
@@ -1091,11 +1096,11 @@ public class MediaSessionCompat {
          * Creates an instance from a framework {@link android.media.session.MediaSession.QueueItem}
          * object.
          * <p>
-         * This method is only supported on API 21+.
+         * This method is only supported on API 21+. On API 20 and below, it returns null.
          * </p>
          *
          * @param queueItem A {@link android.media.session.MediaSession.QueueItem} object.
-         * @return An equivalent {@link QueueItem} object.
+         * @return An equivalent {@link QueueItem} object, or null if none.
          * @deprecated Use {@link #fromQueueItem(Object)} instead.
          */
         @Deprecated
@@ -1107,13 +1112,16 @@ public class MediaSessionCompat {
          * Creates an instance from a framework {@link android.media.session.MediaSession.QueueItem}
          * object.
          * <p>
-         * This method is only supported on API 21+.
+         * This method is only supported on API 21+. On API 20 and below, it returns null.
          * </p>
          *
          * @param queueItem A {@link android.media.session.MediaSession.QueueItem} object.
-         * @return An equivalent {@link QueueItem} object.
+         * @return An equivalent {@link QueueItem} object, or null if none.
          */
         public static QueueItem fromQueueItem(Object queueItem) {
+            if (queueItem == null || Build.VERSION.SDK_INT < 21) {
+                return null;
+            }
             Object descriptionObj = MediaSessionCompatApi21.QueueItem.getDescription(queueItem);
             MediaDescriptionCompat description = MediaDescriptionCompat.fromMediaDescription(
                     descriptionObj);
@@ -1125,11 +1133,10 @@ public class MediaSessionCompat {
          * Creates a list of {@link QueueItem} objects from a framework
          * {@link android.media.session.MediaSession.QueueItem} object list.
          * <p>
-         * This method is only supported on API 21+.
+         * This method is only supported on API 21+. On API 20 and below, it returns null.
          * </p>
          *
-         * @param itemList A list of {@link android.media.session.MediaSession.QueueItem} objects,
-         *            or null if none.
+         * @param itemList A list of {@link android.media.session.MediaSession.QueueItem} objects.
          * @return An equivalent list of {@link QueueItem} objects, or null if none.
          */
         public static List<QueueItem> fromQueueItemList(List<?> itemList) {
