@@ -8820,6 +8820,41 @@ package android.support.v7.util {
     field public static final int HINT_SCROLL_NONE = 0; // 0x0
   }
 
+  public class BatchingListUpdateCallback implements android.support.v7.util.ListUpdateCallback {
+    ctor public BatchingListUpdateCallback(android.support.v7.util.ListUpdateCallback);
+    method public void dispatchLastEvent();
+    method public void onChanged(int, int, java.lang.Object);
+    method public void onInserted(int, int);
+    method public void onMoved(int, int);
+    method public void onRemoved(int, int);
+  }
+
+  public class DiffUtil {
+    method public static android.support.v7.util.DiffUtil.DiffResult calculateDiff(android.support.v7.util.DiffUtil.Callback);
+    method public static android.support.v7.util.DiffUtil.DiffResult calculateDiff(android.support.v7.util.DiffUtil.Callback, boolean);
+  }
+
+  public static abstract class DiffUtil.Callback {
+    ctor public DiffUtil.Callback();
+    method public abstract boolean areContentsTheSame(int, int);
+    method public abstract boolean areItemsTheSame(int, int);
+    method public java.lang.Object getChangePayload(int, int);
+    method public abstract int getNewListSize();
+    method public abstract int getOldListSize();
+  }
+
+  public static class DiffUtil.DiffResult {
+    method public void dispatchUpdatesTo(android.support.v7.widget.RecyclerView.Adapter);
+    method public void dispatchUpdatesTo(android.support.v7.util.ListUpdateCallback);
+  }
+
+  public abstract interface ListUpdateCallback {
+    method public abstract void onChanged(int, int, java.lang.Object);
+    method public abstract void onInserted(int, int);
+    method public abstract void onMoved(int, int);
+    method public abstract void onRemoved(int, int);
+  }
+
   public class SortedList {
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>);
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>, int);
@@ -8852,15 +8887,13 @@ package android.support.v7.util {
     method public void onRemoved(int, int);
   }
 
-  public static abstract class SortedList.Callback implements java.util.Comparator {
+  public static abstract class SortedList.Callback implements java.util.Comparator android.support.v7.util.ListUpdateCallback {
     ctor public SortedList.Callback();
     method public abstract boolean areContentsTheSame(T2, T2);
     method public abstract boolean areItemsTheSame(T2, T2);
     method public abstract int compare(T2, T2);
     method public abstract void onChanged(int, int);
-    method public abstract void onInserted(int, int);
-    method public abstract void onMoved(int, int);
-    method public abstract void onRemoved(int, int);
+    method public void onChanged(int, int, java.lang.Object);
   }
 
 }
