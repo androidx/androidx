@@ -393,6 +393,7 @@ package android.support.design.widget {
     method public void setCollapsedTitleGravity(int);
     method public void setCollapsedTitleTextAppearance(int);
     method public void setCollapsedTitleTextColor(int);
+    method public void setCollapsedTitleTextColor(android.content.res.ColorStateList);
     method public void setCollapsedTitleTypeface(android.graphics.Typeface);
     method public void setContentScrim(android.graphics.drawable.Drawable);
     method public void setContentScrimColor(int);
@@ -405,6 +406,7 @@ package android.support.design.widget {
     method public void setExpandedTitleMarginStart(int);
     method public void setExpandedTitleMarginTop(int);
     method public void setExpandedTitleTextAppearance(int);
+    method public void setExpandedTitleTextColor(android.content.res.ColorStateList);
     method public void setExpandedTitleTypeface(android.graphics.Typeface);
     method public void setScrimAnimationDuration(long);
     method public void setScrimVisibleHeightTrigger(int);
