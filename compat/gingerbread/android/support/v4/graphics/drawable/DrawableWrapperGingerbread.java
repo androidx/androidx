@@ -318,10 +318,10 @@ class DrawableWrapperGingerbread extends Drawable
         if (dr != null) {
             dr.setCallback(this);
             // Only call setters for data that's stored in the base Drawable.
-            dr.setVisible(isVisible(), true);
-            dr.setState(getState());
-            dr.setLevel(getLevel());
-            dr.setBounds(getBounds());
+            setVisible(dr.isVisible(), true);
+            setState(dr.getState());
+            setLevel(dr.getLevel());
+            setBounds(dr.getBounds());
             if (mState != null) {
                 mState.mDrawableState = dr.getConstantState();
             }
