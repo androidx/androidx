@@ -167,6 +167,7 @@
     <string name="palette_all_colors">Full color palette</string>
     <string name="search_hint">Search...</string>
     <string name="sorted_list_activity">RecyclerView/Sorted List</string>
+    <string name="diff_util_activity">RecyclerView/Diff Util</string>
     <string name="add_new_item">Add New Item</string>
     <string name="start_action_mode">Start Action Mode</string>
 
