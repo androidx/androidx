@@ -17,23 +17,23 @@
 
 <resources>
 
-    <style name="Theme.Design" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.DesignDemos" parent="Theme.Design.Light">
         <item name="colorPrimary">#607D8B</item>
         <item name="colorPrimaryDark">#455A64</item>
         <item name="colorAccent">#FFAB40</item>
     </style>
 
-    <style name="Theme.Design.TransparentStatus" />
+    <style name="Theme.DesignDemos.TransparentStatus" />
 
-    <style name="Theme.Design.Snackbar" />
+    <style name="Theme.DesignDemos.Snackbar" />
 
-    <style name="Theme.FAB" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.DesignDemos.FAB">
         <item name="colorPrimary">#ff00bcd4</item>
         <item name="colorPrimaryDark">#00838f</item>
         <item name="colorAccent">#ff0000</item>
     </style>
 
-    <style name="Theme.Navigation.Base" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.DesignDemos.Navigation.Base" parent="Theme.Design">
         <item name="colorPrimary">#607D8B</item>
         <item name="colorPrimaryDark">#455A64</item>
         <item name="colorAccent">#FFAB40</item>
@@ -44,13 +44,14 @@
         <item name="spinBars">false</item>
     </style>
 
-    <style name="Theme.Navigation" parent="Theme.Navigation.Base"/>
+    <style name="Theme.DesignDemos.Navigation" parent="Theme.DesignDemos.Navigation.Base"/>
 
-    <style name="Theme.BottomSheetModal" parent="Theme.Design">
-        <item name="bottomSheetDialogTheme">@style/Theme.BottomSheetModal.BottomSheetDialog</item>
+    <style name="Theme.DesignDemos.BottomSheetModal">
+        <item name="bottomSheetDialogTheme">@style/Theme.DesignDemos.BottomSheetModal.BottomSheetDialog</item>
     </style>
 
-    <style name="Theme.BottomSheetModal.BottomSheetDialog" parent="Theme.Design.BottomSheetDialog">
+    <style name="Theme.DesignDemos.BottomSheetModal.BottomSheetDialog"
+           parent="Theme.Design.BottomSheetDialog">
         <item name="android:colorBackground">#37474F</item>
         <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
     </style>
@@ -60,15 +61,15 @@
         <item name="android:layout_marginRight">@dimen/bottom_sheet_horizontal_margin</item>
     </style>
 
-    <style name="Theme.BottomSheetModalSkipCollapsed" parent="Theme.BottomSheetModal">
-        <item name="bottomSheetDialogTheme">@style/Theme.BottomSheetModal.BottomSheetDialogSkipCollapsed</item>
+    <style name="Theme.DesignDemos.BottomSheetModal.SkipCollapsed">
+        <item name="bottomSheetDialogTheme">@style/Theme.DesignDemos.BottomSheetModal.BottomSheetDialog.SkipCollapsed</item>
     </style>
 
-    <style name="Theme.BottomSheetModal.BottomSheetDialogSkipCollapsed" parent="Theme.Design.BottomSheetDialog">
-        <item name="bottomSheetStyle">@style/BottomSheetStyleSkipCollapsed</item>
+    <style name="Theme.DesignDemos.BottomSheetModal.BottomSheetDialog.SkipCollapsed">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle.SkipCollapsed</item>
     </style>
 
-    <style name="BottomSheetStyleSkipCollapsed" parent="BottomSheetStyle">
+    <style name="BottomSheetStyle.SkipCollapsed">
         <item name="behavior_skipCollapsed">true</item>
     </style>
 
