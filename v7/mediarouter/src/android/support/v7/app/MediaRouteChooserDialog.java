@@ -88,7 +88,7 @@ public class MediaRouteChooserDialog extends Dialog {
         public void handleMessage(Message message) {
             switch (message.what) {
                 case MSG_UPDATE_ROUTES:
-                    updateRoutes();
+                    updateRoutes((List<MediaRouter.RouteInfo>) message.obj);
                     break;
             }
         }
@@ -237,31 +237,31 @@ public class MediaRouteChooserDialog extends Dialog {
                 @Override
                 protected void onPreExecute() {
                     mNewRoutes = new ArrayList<>(mRouter.getRoutes());
-                    onFilterRoutes(mNewRoutes);
                 }
 
                 @Override
                 protected Void doInBackground(Void... params) {
                     // In API 4 ~ 10, AsyncTasks are running in parallel. Needs synchronization.
                     synchronized (MediaRouteChooserDialog.this) {
+                        onFilterRoutes(mNewRoutes);
                         if (!isCancelled()) {
                             RouteComparator.getInstance(getContext())
                                     .loadRouteUsageScores(mNewRoutes);
                         }
+                        Collections.sort(mNewRoutes, RouteComparator.sInstance);
                     }
                     return null;
                 }
 
                 @Override
                 protected void onPostExecute(Void params) {
-                    mRoutes.clear();
-                    mRoutes.addAll(mNewRoutes);
-                    Collections.sort(mRoutes, RouteComparator.sInstance);
                     mRefreshRoutesTask = null;
                     if (SystemClock.uptimeMillis() - mLastUpdateTime >= UPDATE_ROUTES_DELAY_MS) {
-                        updateRoutes();
-                    } else if (!mHandler.hasMessages(MSG_UPDATE_ROUTES)) {
-                        mHandler.sendEmptyMessageAtTime(MSG_UPDATE_ROUTES,
+                        updateRoutes(mNewRoutes);
+                    } else {
+                        mHandler.removeMessages(MSG_UPDATE_ROUTES);
+                        mHandler.sendMessageAtTime(
+                                mHandler.obtainMessage(MSG_UPDATE_ROUTES, mNewRoutes),
                                 mLastUpdateTime + UPDATE_ROUTES_DELAY_MS);
                     }
                 }
@@ -269,8 +269,10 @@ public class MediaRouteChooserDialog extends Dialog {
         }
     }
 
-    private void updateRoutes() {
+    private void updateRoutes(List<MediaRouter.RouteInfo> routes) {
         mLastUpdateTime = SystemClock.uptimeMillis();
+        mRoutes.clear();
+        mRoutes.addAll(routes);
         mAdapter.notifyDataSetChanged();
     }
 
