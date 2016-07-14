@@ -386,7 +386,8 @@ public final class MotionEventCompat {
     /**
      * Call {@link MotionEvent#findPointerIndex(int)}.
      *
-     * @deprecated Call {@link MotionEvent#findPointerIndex(int)} directly.
+     * @deprecated Call {@link MotionEvent#findPointerIndex(int)} directly. This method will be
+     * removed in a future release.
      */
     @Deprecated
     public static int findPointerIndex(MotionEvent event, int pointerId) {
@@ -396,7 +397,8 @@ public final class MotionEventCompat {
     /**
      * Call {@link MotionEvent#getPointerId(int)}.
      *
-     * @deprecated Call {@link MotionEvent#getPointerId(int)} directly.
+     * @deprecated Call {@link MotionEvent#getPointerId(int)} directly. This method will be
+     * removed in a future release.
      */
     @Deprecated
     public static int getPointerId(MotionEvent event, int pointerIndex) {
@@ -406,7 +408,8 @@ public final class MotionEventCompat {
     /**
      * Call {@link MotionEvent#getX(int)}.
      *
-     * @deprecated Call {@link MotionEvent#getX()} directly.
+     * @deprecated Call {@link MotionEvent#getX()} directly. This method will be
+     * removed in a future release.
      */
     @Deprecated
     public static float getX(MotionEvent event, int pointerIndex) {
@@ -416,7 +419,8 @@ public final class MotionEventCompat {
     /**
      * Call {@link MotionEvent#getY(int)}.
      *
-     * @deprecated Call {@link MotionEvent#getY()} directly.
+     * @deprecated Call {@link MotionEvent#getY()} directly. This method will be
+     * removed in a future release.
      */
     @Deprecated
     public static float getY(MotionEvent event, int pointerIndex) {
@@ -426,7 +430,8 @@ public final class MotionEventCompat {
     /**
      * The number of pointers of data contained in this event.  Always
      *
-     * @deprecated Call {@link MotionEvent#getPointerCount()} directly.
+     * @deprecated Call {@link MotionEvent#getPointerCount()} directly. This method will be
+     * removed in a future release.
      */
     @Deprecated
     public static int getPointerCount(MotionEvent event) {
@@ -437,7 +442,8 @@ public final class MotionEventCompat {
      * Gets the source of the event.
      *
      * @return The event source or {@link InputDeviceCompat#SOURCE_UNKNOWN} if unknown.
-     * @deprecated Call {@link MotionEvent#getSource()} directly.
+     * @deprecated Call {@link MotionEvent#getSource()} directly. This method will be
+     * removed in a future release.
      */
     @Deprecated
     public static int getSource(MotionEvent event) {

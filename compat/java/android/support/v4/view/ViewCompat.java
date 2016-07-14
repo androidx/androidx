@@ -1848,7 +1848,8 @@ public class ViewCompat {
      *
      * @param v The View against which to invoke the method.
      * @return This view's over-scroll mode.
-     * @deprecated Call {@link View#getOverScrollMode()} directly.
+     * @deprecated Call {@link View#getOverScrollMode()} directly. This method will be
+     * removed in a future release.
      */
     @Deprecated
     @OverScroll
@@ -1868,7 +1869,8 @@ public class ViewCompat {
      *
      * @param v The View against which to invoke the method.
      * @param overScrollMode The new over-scroll mode for this view.
-     * @deprecated Call {@link View#setOverScrollMode(int)} directly.
+     * @deprecated Call {@link View#setOverScrollMode(int)} directly. This method will be
+     * removed in a future release.
      */
     @Deprecated
     public static void setOverScrollMode(View v, @OverScroll int overScrollMode) {
@@ -2357,7 +2359,8 @@ public class ViewCompat {
      * draw all the pixels overlapping its bounds using a fully opaque color.
      *
      * @return True if this View is guaranteed to be fully opaque, false otherwise.
-     * @deprecated Use {@link View#isOpaque()} directly.
+     * @deprecated Use {@link View#isOpaque()} directly. This method will be
+     * removed in a future release.
      */
     @Deprecated
     public static boolean isOpaque(View view) {
