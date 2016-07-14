@@ -82,6 +82,7 @@ public final class ViewConfigurationCompat {
      * Call {@link ViewConfiguration#getScaledPagingTouchSlop()}.
      *
      * @deprecated Call {@link ViewConfiguration#getScaledPagingTouchSlop()} directly.
+     * This method will be removed in a future release.
      */
     @Deprecated
     public static int getScaledPagingTouchSlop(ViewConfiguration config) {

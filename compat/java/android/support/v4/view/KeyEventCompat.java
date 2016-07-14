@@ -156,7 +156,8 @@ public final class KeyEventCompat {
     }
 
     /**
-     * @deprecated Call {@link KeyEvent#startTracking()} directly.
+     * @deprecated Call {@link KeyEvent#startTracking()} directly. This method will be removed in a
+     * future release.
      */
     @Deprecated
     public static void startTracking(KeyEvent event) {
@@ -164,7 +165,8 @@ public final class KeyEventCompat {
     }
 
     /**
-     * @deprecated Call {@link KeyEvent#isTracking()} directly.
+     * @deprecated Call {@link KeyEvent#isTracking()} directly. This method will be removed in a
+     * future release.
      */
     @Deprecated
     public static boolean isTracking(KeyEvent event) {
@@ -172,7 +174,8 @@ public final class KeyEventCompat {
     }
 
     /**
-     * @deprecated Call {@link View#getKeyDispatcherState()} directly.
+     * @deprecated Call {@link View#getKeyDispatcherState()} directly. This method will be removed
+     * in a future release.
      */
     @Deprecated
     public static Object getKeyDispatcherState(View view) {
@@ -182,6 +185,7 @@ public final class KeyEventCompat {
     /**
      * @deprecated Call
      * {@link KeyEvent#dispatch(KeyEvent.Callback, KeyEvent.DispatcherState, Object)} directly.
+     * This method will be removed in a future release.
      */
     @Deprecated
     public static boolean dispatch(KeyEvent event, KeyEvent.Callback receiver, Object state,
