@@ -56,6 +56,8 @@ public final class MediaRouteDescriptor {
     private static final String KEY_EXTRAS = "extras";
     private static final String KEY_CAN_DISCONNECT = "canDisconnect";
     private static final String KEY_SETTINGS_INTENT = "settingsIntent";
+    private static final String KEY_MIN_CLIENT_VERSION = "minClientVersion";
+    private static final String KEY_MAX_CLIENT_VERSION = "maxClientVersion";
 
     private final Bundle mBundle;
     private List<IntentFilter> mControlFilters;
@@ -269,6 +271,23 @@ public final class MediaRouteDescriptor {
     }
 
     /**
+     * Gets the minimum client version required for this route.
+     * @hide
+     */
+    public int getMinClientVersion() {
+        return mBundle.getInt(KEY_MIN_CLIENT_VERSION,
+                MediaRouteProviderProtocol.CLIENT_VERSION_START);
+    }
+
+    /**
+     * Gets the maximum client version required for this route.
+     * @hide
+     */
+    public int getMaxClientVersion() {
+        return mBundle.getInt(KEY_MAX_CLIENT_VERSION, Integer.MAX_VALUE);
+    }
+
+    /**
      * Returns true if the route descriptor has all of the required fields.
      */
     public boolean isValid() {
@@ -303,6 +322,8 @@ public final class MediaRouteDescriptor {
         result.append(", presentationDisplayId=").append(getPresentationDisplayId());
         result.append(", extras=").append(getExtras());
         result.append(", isValid=").append(isValid());
+        result.append(", minClientVersion=").append(getMinClientVersion());
+        result.append(", maxClientVersion=").append(getMaxClientVersion());
         result.append(" }");
         return result.toString();
     }
@@ -626,6 +647,26 @@ public final class MediaRouteDescriptor {
          */
         public Builder setExtras(Bundle extras) {
             mBundle.putBundle(KEY_EXTRAS, extras);
+            return this;
+        }
+
+        /**
+         * Sets the route's minimum client version.
+         * A router whose version is lower than this will not be able to connect to this route.
+         * @hide
+         */
+        public Builder setMinClientVersion(int minVersion) {
+            mBundle.putInt(KEY_MIN_CLIENT_VERSION, minVersion);
+            return this;
+        }
+
+        /**
+         * Sets the route's maximum client version.
+         * A router whose version is higher than this will not be able to connect to this route.
+         * @hide
+         */
+        public Builder setMaxClientVersion(int maxVersion) {
+            mBundle.putInt(KEY_MAX_CLIENT_VERSION, maxVersion);
             return this;
         }
 
