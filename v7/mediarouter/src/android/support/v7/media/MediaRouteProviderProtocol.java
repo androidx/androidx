@@ -178,16 +178,37 @@ abstract class MediaRouteProviderProtocol {
      * DO NOT RENUMBER THESE!
      */
 
+    /**
+     * The client version used from the beginning.
+     */
     public static final int CLIENT_VERSION_1 = 1;
-    public static final int CLIENT_VERSION_CURRENT = CLIENT_VERSION_1;
+
+    /**
+     * The client version used from support library v24.1.0.
+     */
+    public static final int CLIENT_VERSION_2 = 2;
+
+    /**
+     * The current client version.
+     */
+    public static final int CLIENT_VERSION_CURRENT = CLIENT_VERSION_2;
 
     /*
      * Recognized server version numbers.  (Reserved for future use.)
      * DO NOT RENUMBER THESE!
      */
 
+    /**
+     * The service version used from the beginning.
+     */
     public static final int SERVICE_VERSION_1 = 1;
+
+    /**
+     * The current service version.
+     */
     public static final int SERVICE_VERSION_CURRENT = SERVICE_VERSION_1;
+
+    static final int CLIENT_VERSION_START = CLIENT_VERSION_1;
 
     /**
      * Returns true if the messenger object is valid.

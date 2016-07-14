@@ -18,11 +18,11 @@ package android.support.v7.media;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
-import android.os.Bundle;
-import android.os.DeadObjectException;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -31,6 +31,7 @@ import android.util.SparseArray;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.support.v7.media.MediaRouteProviderProtocol.*;
 
@@ -163,7 +164,7 @@ public abstract class MediaRouteProviderService extends Service {
                         MediaRouteProviderDescriptor descriptor = mProvider.getDescriptor();
                         sendReply(messenger, SERVICE_MSG_REGISTERED,
                                 requestId, SERVICE_VERSION_CURRENT,
-                                descriptor != null ? descriptor.asBundle() : null, null);
+                                createDescriptorBundleForClient(descriptor, client), null);
                     }
                     return true;
                 }
@@ -380,16 +381,36 @@ public abstract class MediaRouteProviderService extends Service {
     }
 
     private void sendDescriptorChanged(MediaRouteProviderDescriptor descriptor) {
-        Bundle descriptorBundle = descriptor != null ? descriptor.asBundle() : null;
         final int count = mClients.size();
         for (int i = 0; i < count; i++) {
             ClientRecord client = mClients.get(i);
             sendReply(client.mMessenger, SERVICE_MSG_DESCRIPTOR_CHANGED, 0, 0,
-                    descriptorBundle, null);
+                    createDescriptorBundleForClient(descriptor, client), null);
             if (DEBUG) {
                 Log.d(TAG, client + ": Sent descriptor change event, descriptor=" + descriptor);
             }
         }
+    }
+
+    private Bundle createDescriptorBundleForClient(MediaRouteProviderDescriptor descriptor,
+            ClientRecord client) {
+        if (descriptor == null) {
+            return null;
+        }
+        List<MediaRouteDescriptor> routes = descriptor.getRoutes();
+        for (int i = routes.size() - 1; i >= 0; i--) {
+            if (client.mVersion < routes.get(i).getMinClientVersion()
+                    || client.mVersion > routes.get(i).getMaxClientVersion()) {
+                routes.remove(i);
+            }
+        }
+
+        // Keep the values of the bundle from descriptor excepts routes values.
+        Bundle bundle = descriptor.asBundle();
+        bundle.remove(MediaRouteProviderDescriptor.KEY_ROUTES);
+        return new MediaRouteProviderDescriptor.Builder(
+                MediaRouteProviderDescriptor.fromBundle(bundle))
+                .addRoutes(routes).build().asBundle();
     }
 
     private boolean updateCompositeDiscoveryRequest() {
