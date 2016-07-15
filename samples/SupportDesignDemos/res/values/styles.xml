@@ -17,7 +17,7 @@
 
 <resources>
 
-    <style name="Theme.DesignDemos" parent="Theme.Design.Light">
+    <style name="Theme.DesignDemos" parent="Theme.Design.Light.NoActionBar">
         <item name="colorPrimary">#607D8B</item>
         <item name="colorPrimaryDark">#455A64</item>
         <item name="colorAccent">#FFAB40</item>
@@ -27,13 +27,13 @@
 
     <style name="Theme.DesignDemos.Snackbar" />
 
-    <style name="Theme.DesignDemos.FAB">
+    <style name="Theme.DesignDemos.FAB" parent="Theme.Design.Light.NoActionBar">
         <item name="colorPrimary">#ff00bcd4</item>
         <item name="colorPrimaryDark">#00838f</item>
         <item name="colorAccent">#ff0000</item>
     </style>
 
-    <style name="Theme.DesignDemos.Navigation.Base" parent="Theme.Design">
+    <style name="Theme.DesignDemos.Navigation.Base" parent="Theme.Design.NoActionBar">
         <item name="colorPrimary">#607D8B</item>
         <item name="colorPrimaryDark">#455A64</item>
         <item name="colorAccent">#FFAB40</item>
@@ -46,7 +46,7 @@
 
     <style name="Theme.DesignDemos.Navigation" parent="Theme.DesignDemos.Navigation.Base"/>
 
-    <style name="Theme.DesignDemos.BottomSheetModal">
+    <style name="Theme.DesignDemos.BottomSheetModal" parent="Theme.Design">
         <item name="bottomSheetDialogTheme">@style/Theme.DesignDemos.BottomSheetModal.BottomSheetDialog</item>
     </style>
 
@@ -61,15 +61,15 @@
         <item name="android:layout_marginRight">@dimen/bottom_sheet_horizontal_margin</item>
     </style>
 
-    <style name="Theme.DesignDemos.BottomSheetModal.SkipCollapsed">
+    <style name="Theme.DesignDemos.BottomSheetModal.SkipCollapsed" parent="Theme.DesignDemos.BottomSheetModal">
         <item name="bottomSheetDialogTheme">@style/Theme.DesignDemos.BottomSheetModal.BottomSheetDialog.SkipCollapsed</item>
     </style>
 
-    <style name="Theme.DesignDemos.BottomSheetModal.BottomSheetDialog.SkipCollapsed">
+    <style name="Theme.DesignDemos.BottomSheetModal.BottomSheetDialog.SkipCollapsed" parent="Theme.Design.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/BottomSheetStyle.SkipCollapsed</item>
     </style>
 
-    <style name="BottomSheetStyle.SkipCollapsed">
+    <style name="BottomSheetStyle.SkipCollapsed" parent="BottomSheetStyle">
         <item name="behavior_skipCollapsed">true</item>
     </style>
 
