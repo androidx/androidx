@@ -3072,6 +3072,112 @@ package android.support.v17.leanback.widget {
     method public final boolean isRenderedAsRowView();
   }
 
+  public final class Parallax {
+    ctor public Parallax();
+    method public void addEffect(android.support.v17.leanback.widget.ParallaxEffect);
+    method public android.support.v17.leanback.widget.ParallaxEffect addEffect(android.support.v17.leanback.widget.ParallaxSource.IntVariableKeyValue...);
+    method public android.support.v17.leanback.widget.ParallaxEffect addEffect(android.support.v17.leanback.widget.ParallaxSource.FloatVariableKeyValue...);
+    method public java.util.List<android.support.v17.leanback.widget.ParallaxEffect> getEffects();
+    method public android.support.v17.leanback.widget.ParallaxSource getSource();
+    method public void removeAllEffects();
+    method public void removeEffect(android.support.v17.leanback.widget.ParallaxEffect);
+    method public void setSource(android.support.v17.leanback.widget.ParallaxSource);
+  }
+
+  public abstract class ParallaxEffect {
+    ctor public ParallaxEffect();
+    method protected abstract float calculateFraction(android.support.v17.leanback.widget.ParallaxSource);
+    method public final java.util.List<android.support.v17.leanback.widget.ParallaxTarget> getTargets();
+    method public final java.util.List<VariableKeyValueT> getVariableRanges();
+    method public final void performMapping(android.support.v17.leanback.widget.ParallaxSource);
+    method public final void setVariableRanges(VariableKeyValueT...);
+    method public final android.support.v17.leanback.widget.ParallaxEffect target(android.support.v17.leanback.widget.ParallaxTarget);
+    method public final android.support.v17.leanback.widget.ParallaxEffect target(java.lang.Object, android.animation.PropertyValuesHolder);
+  }
+
+  public static final class ParallaxEffect.FloatEffect extends android.support.v17.leanback.widget.ParallaxEffect {
+    ctor public ParallaxEffect.FloatEffect();
+    method protected float calculateFraction(android.support.v17.leanback.widget.ParallaxSource);
+  }
+
+  public static final class ParallaxEffect.IntEffect extends android.support.v17.leanback.widget.ParallaxEffect {
+    ctor public ParallaxEffect.IntEffect();
+    method protected float calculateFraction(android.support.v17.leanback.widget.ParallaxSource);
+  }
+
+  public abstract class ParallaxSource {
+    ctor public ParallaxSource();
+    method public abstract VariableT getMaxParentVisibleSize();
+    method public abstract java.util.List<VariableT> getVariables();
+    method public abstract void setListener(android.support.v17.leanback.widget.ParallaxSource.Listener);
+    method public static void verifyFloatVariables(java.util.List<android.support.v17.leanback.widget.ParallaxSource.FloatVariable>) throws java.lang.IllegalStateException;
+    method public static void verifyIntVariables(java.util.List<android.support.v17.leanback.widget.ParallaxSource.IntVariable>) throws java.lang.IllegalStateException;
+  }
+
+  public static class ParallaxSource.FloatVariable extends android.support.v17.leanback.widget.ParallaxSource.Variable {
+    ctor public ParallaxSource.FloatVariable(android.support.v17.leanback.widget.ParallaxSource<android.support.v17.leanback.widget.ParallaxSource.FloatVariable>);
+    method public android.support.v17.leanback.widget.ParallaxSource.FloatVariableKeyValue at(float);
+    method public android.support.v17.leanback.widget.ParallaxSource.FloatVariableKeyValue at(float, float);
+    method public final float getFloatValue();
+    method public java.lang.Object getValue();
+    method public final void setFloatValue(float);
+    field public static final float UNKNOWN_AFTER = 3.4028235E38f;
+    field public static final float UNKNOWN_BEFORE = -3.4028235E38f;
+  }
+
+  public static class ParallaxSource.FloatVariableKeyValue extends android.support.v17.leanback.widget.ParallaxSource.VariableKeyValue {
+    ctor public ParallaxSource.FloatVariableKeyValue(android.support.v17.leanback.widget.ParallaxSource.FloatVariable, float);
+    ctor public ParallaxSource.FloatVariableKeyValue(android.support.v17.leanback.widget.ParallaxSource.FloatVariable, float, float);
+    method public final float getFloatValue();
+  }
+
+  public static class ParallaxSource.IntVariable extends android.support.v17.leanback.widget.ParallaxSource.Variable {
+    ctor public ParallaxSource.IntVariable(android.support.v17.leanback.widget.ParallaxSource<android.support.v17.leanback.widget.ParallaxSource.IntVariable>);
+    method public android.support.v17.leanback.widget.ParallaxSource.IntVariableKeyValue at(int);
+    method public android.support.v17.leanback.widget.ParallaxSource.IntVariableKeyValue at(int, float);
+    method public final int getIntValue();
+    method public java.lang.Object getValue();
+    method public final void setIntValue(int);
+    field public static final int UNKNOWN_AFTER = 2147483647; // 0x7fffffff
+    field public static final int UNKNOWN_BEFORE = -2147483648; // 0x80000000
+  }
+
+  public static class ParallaxSource.IntVariableKeyValue extends android.support.v17.leanback.widget.ParallaxSource.VariableKeyValue {
+    ctor public ParallaxSource.IntVariableKeyValue(android.support.v17.leanback.widget.ParallaxSource.IntVariable, int);
+    ctor public ParallaxSource.IntVariableKeyValue(android.support.v17.leanback.widget.ParallaxSource.IntVariable, int, float);
+    method public final int getIntValue();
+  }
+
+  public static abstract class ParallaxSource.Listener {
+    ctor public ParallaxSource.Listener();
+    method public void onVariableChanged(android.support.v17.leanback.widget.ParallaxSource);
+  }
+
+  public static abstract class ParallaxSource.Variable {
+    ctor public ParallaxSource.Variable(android.support.v17.leanback.widget.ParallaxSource<VariableT>);
+    method public final java.lang.String getName();
+    method public android.support.v17.leanback.widget.ParallaxSource<VariableT> getSource();
+    method public abstract java.lang.Object getValue();
+    method public final void setName(java.lang.String);
+  }
+
+  public static class ParallaxSource.VariableKeyValue {
+    ctor public ParallaxSource.VariableKeyValue(VariableT);
+    method public final VariableT getVariable();
+  }
+
+  public abstract class ParallaxTarget {
+    ctor public ParallaxTarget();
+    method public abstract float getFraction();
+    method public abstract void update(float);
+  }
+
+  public static final class ParallaxTarget.PropertyValuesHolderTarget extends android.support.v17.leanback.widget.ParallaxTarget {
+    ctor public ParallaxTarget.PropertyValuesHolderTarget(java.lang.Object, android.animation.PropertyValuesHolder);
+    method public float getFraction();
+    method public void update(float);
+  }
+
   public class PlaybackControlsRow extends android.support.v17.leanback.widget.Row {
     ctor public PlaybackControlsRow(java.lang.Object);
     ctor public PlaybackControlsRow();
