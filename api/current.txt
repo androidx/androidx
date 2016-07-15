@@ -2091,49 +2091,6 @@ package android.support.v17.leanback.database {
 
 package android.support.v17.leanback.graphics {
 
-  public class BackgroundDrawable extends android.graphics.drawable.Drawable {
-    ctor public BackgroundDrawable();
-    method public void addRegion(android.support.v17.leanback.graphics.RegionDrawable);
-    method public void draw(android.graphics.Canvas);
-    method public int getNumberOfRegions();
-    method public int getOpacity();
-    method public android.support.v17.leanback.graphics.RegionDrawable getRegion(int);
-    method public void removeRegion(int);
-    method public void removeRegion(android.support.v17.leanback.graphics.RegionDrawable);
-    method public void setAlpha(int);
-    method public void setColorFilter(android.graphics.ColorFilter);
-    field protected java.util.List<android.support.v17.leanback.graphics.RegionDrawable> regions;
-  }
-
-  public class BitmapRegionDrawable extends android.support.v17.leanback.graphics.RegionDrawable {
-    ctor public BitmapRegionDrawable(android.graphics.Bitmap, android.graphics.Rect);
-    method public void draw(android.graphics.Canvas);
-    method public android.graphics.Bitmap getBitmap();
-    method public int getOpacity();
-    method public android.graphics.Rect getSource();
-    method public void setAlpha(int);
-    method public void setBitmap(android.graphics.Bitmap);
-    method public void setColorFilter(android.graphics.ColorFilter);
-    method public void setSource(android.graphics.Rect);
-    method public void setVerticalOffset(int);
-    field protected int mOffset;
-  }
-
-  public class BoundsRule {
-    ctor public BoundsRule();
-    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule absoluteValue(int);
-    method public void calculateBounds(android.graphics.Rect, android.graphics.Rect);
-    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParent(float);
-    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParentWithOffset(float, int);
-    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule bottom;
-    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule left;
-    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule right;
-    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule top;
-  }
-
-  public static class BoundsRule.ValueRule {
-  }
-
   public final class ColorFilterCache {
     method public static android.support.v17.leanback.graphics.ColorFilterCache getColorFilterCache(int);
     method public android.graphics.ColorFilter getFilterForLevel(float);
@@ -2158,27 +2115,6 @@ package android.support.v17.leanback.graphics {
     method public android.graphics.Paint getPaint();
     method public boolean needsDraw();
     method public void setActiveLevel(float);
-  }
-
-  public abstract class RegionDrawable extends android.graphics.drawable.Drawable {
-    ctor public RegionDrawable();
-    method public android.support.v17.leanback.graphics.BoundsRule getBoundsRule();
-    method public void setOverrideBottom(int);
-    method public void setOverrideLeft(int);
-    method public void setOverrideRight(int);
-    method public void setOverrideTop(int);
-    method public void updateBounds(android.graphics.Rect);
-    field protected final android.graphics.Paint mPaint;
-  }
-
-  public class SolidRegionDrawable extends android.support.v17.leanback.graphics.RegionDrawable {
-    ctor public SolidRegionDrawable(int);
-    method public void draw(android.graphics.Canvas);
-    method public int getColor();
-    method public int getOpacity();
-    method public void setAlpha(int);
-    method public void setColor(int);
-    method public void setColorFilter(android.graphics.ColorFilter);
   }
 
 }
