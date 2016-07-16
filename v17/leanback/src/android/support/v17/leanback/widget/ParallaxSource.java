@@ -313,7 +313,7 @@ public abstract class ParallaxSource<VariableT extends ParallaxSource.Variable> 
     /**
      * Sets listener to monitor variable value changes.
      *
-     * @listener The listener to set on {@link ParallaxSource} object.
+     * @param listener The listener to set on {@link ParallaxSource} object.
      */
     public abstract void setListener(Listener listener);
 
