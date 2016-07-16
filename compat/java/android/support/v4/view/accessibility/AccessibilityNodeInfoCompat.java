@@ -437,6 +437,17 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    /**
+     * Class with information if a node is a collection.
+     * <p>
+     * A collection of items has rows and columns and may be hierarchical.
+     * For example, a horizontal list is a collection with one column, as
+     * many rows as the list items, and is not hierarchical; A table is a
+     * collection with several rows, several columns, and is not hierarchical;
+     * A vertical tree is a hierarchical collection with one column and
+     * as many rows as the first level children.
+     * </p>
+     */
     public static class CollectionInfoCompat {
         /** Selection mode where items are not selectable. */
         public static final int SELECTION_MODE_NONE = 0;
@@ -452,6 +463,16 @@ public class AccessibilityNodeInfoCompat {
         /**
          * Returns a cached instance if such is available otherwise a new one.
          *
+         * @param rowCount The number of rows.
+         * @param columnCount The number of columns.
+         * @param hierarchical Whether the collection is hierarchical.
+         * @param selectionMode The collection's selection mode, one of:
+         *            <ul>
+         *            <li>{@link #SELECTION_MODE_NONE}
+         *            <li>{@link #SELECTION_MODE_SINGLE}
+         *            <li>{@link #SELECTION_MODE_MULTIPLE}
+         *            </ul>
+         *
          * @return An instance.
          */
         public static CollectionInfoCompat obtain(int rowCount, int columnCount,
@@ -460,6 +481,15 @@ public class AccessibilityNodeInfoCompat {
                     hierarchical, selectionMode));
         }
 
+        /**
+         * Returns a cached instance if such is available otherwise a new one.
+         *
+         * @param rowCount The number of rows.
+         * @param columnCount The number of columns.
+         * @param hierarchical Whether the collection is hierarchical.
+         *
+         * @return An instance.
+         */
         public static CollectionInfoCompat obtain(int rowCount, int columnCount,
                 boolean hierarchical) {
             return new CollectionInfoCompat(IMPL.obtainCollectionInfo(rowCount, columnCount,
@@ -470,23 +500,58 @@ public class AccessibilityNodeInfoCompat {
             mInfo = info;
         }
 
+        /**
+         * Gets the number of columns.
+         *
+         * @return The column count.
+         */
         public int getColumnCount() {
             return IMPL.getCollectionInfoColumnCount(mInfo);
         }
 
+        /**
+         * Gets the number of rows.
+         *
+         * @return The row count.
+         */
         public int getRowCount() {
             return IMPL.getCollectionInfoRowCount(mInfo);
         }
 
+        /**
+         * Gets if the collection is a hierarchically ordered.
+         *
+         * @return Whether the collection is hierarchical.
+         */
         public boolean isHierarchical() {
             return IMPL.isCollectionInfoHierarchical(mInfo);
         }
 
+        /**
+         * Gets the collection's selection mode.
+         *
+         * @return The collection's selection mode, one of:
+         *         <ul>
+         *         <li>{@link #SELECTION_MODE_NONE}
+         *         <li>{@link #SELECTION_MODE_SINGLE}
+         *         <li>{@link #SELECTION_MODE_MULTIPLE}
+         *         </ul>
+         */
         public int getSelectionMode() {
             return IMPL.getCollectionInfoSelectionMode(mInfo);
         }
     }
 
+    /**
+     * Class with information if a node is a collection item.
+     * <p>
+     * A collection item is contained in a collection, it starts at
+     * a given row and column in the collection, and spans one or
+     * more rows and columns. For example, a header of two related
+     * table columns starts at the first row and the first column,
+     * spans one row and two columns.
+     * </p>
+     */
     public static class CollectionItemInfoCompat {
 
         private final Object mInfo;
@@ -494,6 +559,12 @@ public class AccessibilityNodeInfoCompat {
         /**
          * Returns a cached instance if such is available otherwise a new one.
          *
+         * @param rowIndex The row index at which the item is located.
+         * @param rowSpan The number of rows the item spans.
+         * @param columnIndex The column index at which the item is located.
+         * @param columnSpan The number of columns the item spans.
+         * @param heading Whether the item is a heading.
+         * @param selected Whether the item is selected.
          * @return An instance.
          */
         public static CollectionItemInfoCompat obtain(int rowIndex, int rowSpan,
@@ -502,6 +573,16 @@ public class AccessibilityNodeInfoCompat {
                     columnIndex, columnSpan, heading, selected));
         }
 
+        /**
+         * Returns a cached instance if such is available otherwise a new one.
+         *
+         * @param rowIndex The row index at which the item is located.
+         * @param rowSpan The number of rows the item spans.
+         * @param columnIndex The column index at which the item is located.
+         * @param columnSpan The number of columns the item spans.
+         * @param heading Whether the item is a heading.
+         * @return An instance.
+         */
         public static CollectionItemInfoCompat obtain(int rowIndex, int rowSpan,
                 int columnIndex, int columnSpan, boolean heading) {
             return new CollectionItemInfoCompat(IMPL.obtainCollectionItemInfo(rowIndex, rowSpan,
@@ -512,31 +593,65 @@ public class AccessibilityNodeInfoCompat {
             mInfo = info;
         }
 
+        /**
+         * Gets the column index at which the item is located.
+         *
+         * @return The column index.
+         */
         public int getColumnIndex() {
             return IMPL.getCollectionItemColumnIndex(mInfo);
         }
 
+        /**
+         * Gets the number of columns the item spans.
+         *
+         * @return The column span.
+         */
         public int getColumnSpan() {
             return IMPL.getCollectionItemColumnSpan(mInfo);
         }
 
+        /**
+         * Gets the row index at which the item is located.
+         *
+         * @return The row index.
+         */
         public int getRowIndex() {
             return IMPL.getCollectionItemRowIndex(mInfo);
         }
 
+        /**
+         * Gets the number of rows the item spans.
+         *
+         * @return The row span.
+         */
         public int getRowSpan() {
             return IMPL.getCollectionItemRowSpan(mInfo);
         }
 
+        /**
+         * Gets if the collection item is a heading. For example, section
+         * heading, table header, etc.
+         *
+         * @return If the item is a heading.
+         */
         public boolean isHeading() {
             return IMPL.isCollectionItemHeading(mInfo);
         }
 
+        /**
+         * Gets if the collection item is selected.
+         *
+         * @return If the item is selected.
+         */
         public boolean isSelected() {
             return IMPL.isCollectionItemSelected(mInfo);
         }
     }
 
+    /**
+     * Class with information if a node is a range.
+     */
     public static class RangeInfoCompat {
         /** Range type: integer. */
         public static final int RANGE_TYPE_INT = 0;
@@ -545,6 +660,15 @@ public class AccessibilityNodeInfoCompat {
         /** Range type: percent with values from zero to one.*/
         public static final int RANGE_TYPE_PERCENT = 2;
 
+        /**
+         * Obtains a cached instance if such is available otherwise a new one.
+         *
+         * @param type The type of the range.
+         * @param min The min value.
+         * @param max The max value.
+         * @param current The current value.
+         * @return The instance
+         */
         public static RangeInfoCompat obtain(int type, float min, float max, float current) {
             return new RangeInfoCompat(IMPL.obtainRangeInfo(type, min, max, current));
         }
@@ -555,18 +679,42 @@ public class AccessibilityNodeInfoCompat {
             mInfo = info;
         }
 
+        /**
+         * Gets the current value.
+         *
+         * @return The current value.
+         */
         public float getCurrent() {
             return AccessibilityNodeInfoCompatKitKat.RangeInfo.getCurrent(mInfo);
         }
 
+        /**
+         * Gets the max value.
+         *
+         * @return The max value.
+         */
         public float getMax() {
             return AccessibilityNodeInfoCompatKitKat.RangeInfo.getMax(mInfo);
         }
 
+        /**
+         * Gets the min value.
+         *
+         * @return The min value.
+         */
         public float getMin() {
             return AccessibilityNodeInfoCompatKitKat.RangeInfo.getMin(mInfo);
         }
 
+        /**
+         * Gets the range type.
+         *
+         * @return The range type.
+         *
+         * @see #RANGE_TYPE_INT
+         * @see #RANGE_TYPE_FLOAT
+         * @see #RANGE_TYPE_PERCENT
+         */
         public int getType() {
             return AccessibilityNodeInfoCompatKitKat.RangeInfo.getType(mInfo);
         }
