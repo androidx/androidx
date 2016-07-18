@@ -216,8 +216,16 @@ SourceSet createApiSourceset(Project subProject, String name, String folder, Str
     def sourceSet = subProject.sourceSets.create(name)
     sourceSet.java.srcDirs = [folder]
 
-    def configName = sourceSet.getCompileConfigurationName()
+    // The Android gradle plugin doesn't touch Java sub-tasks, so we need to
+    // manually set the Java task's boot classpath to the correct Android SDK.
+    def compileJavaTaskName = sourceSet.getCompileJavaTaskName();
+    def compileJavaOptions = subProject.tasks."${compileJavaTaskName}".options
+    compileJavaOptions.bootClasspath = getAndroidPrebuilt(apiLevel)
 
+    // Useful for cleaning up compiler warnings...
+    //compileJavaOptions.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+
+    def configName = sourceSet.getCompileConfigurationName()
     subProject.getDependencies().add(configName, getAndroidPrebuilt(apiLevel))
     if (previousSource != null) {
         setupDependencies(subProject, configName, previousSource)
