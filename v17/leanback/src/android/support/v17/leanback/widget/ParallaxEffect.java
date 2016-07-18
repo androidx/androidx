@@ -124,6 +124,15 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
      * Add a ParallaxTarget to run parallax effect.
      *
      * @param target ParallaxTarget to add.
+     */
+    public final void addTarget(ParallaxTarget target) {
+        mTargets.add(target);
+    }
+
+    /**
+     * Add a ParallaxTarget to run parallax effect.
+     *
+     * @param target ParallaxTarget to add.
      * @return This ParallaxEffect object, allowing calls to methods in this class to be chained.
      */
     public final ParallaxEffect target(ParallaxTarget target) {
@@ -154,6 +163,14 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
     }
 
     /**
+     * Remove a {@link ParallaxTarget} object from the list.
+     * @param target The {@link ParallaxTarget} object to be removed.
+     */
+    public final void removeTarget(ParallaxTarget target) {
+        mTargets.remove(target);
+    }
+
+    /**
      * Perform mapping from {@link ParallaxSource} to list of {@link ParallaxTarget}.
      */
     public final void performMapping(ParallaxSource source) {
@@ -181,6 +198,36 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
     }
 
     /**
+     * When there are multiple ranges (aka three or more keyvalues),  this method adjust the
+     * fraction inside a range to fraction of whole range.
+     * e.g. four key values, three weight values: 6, 2, 2.  totalWeights are 6, 8, 10
+     * When keyValueIndex is 3, the fraction is inside last range.
+     * adjusted_fraction = 8 / 10 + 2 / 10 * fraction.
+     */
+    final float getFractionWithWeightAdjusted(float fraction, int keyValueIndex) {
+        // when there are three or more KeyValues, take weight into consideration.
+        if (mKeyValues.size() >= 3) {
+            final boolean hasWeightsDefined = mWeights.size() == mKeyValues.size() - 1;
+            if (hasWeightsDefined) {
+                // use weights user defined
+                final float allWeights = mTotalWeights.get(mTotalWeights.size() - 1);
+                fraction = fraction * mWeights.get(keyValueIndex - 1) / allWeights;
+                if (keyValueIndex >= 2) {
+                    fraction += mTotalWeights.get(keyValueIndex - 2) / allWeights;
+                }
+            } else {
+                // assume each range has same weight.
+                final float allWeights = mKeyValues.size() - 1;
+                fraction = fraction / allWeights;
+                if (keyValueIndex >= 2) {
+                    fraction += (float)(keyValueIndex - 1) / allWeights;
+                }
+            }
+        }
+        return fraction;
+    }
+
+    /**
      * Implementation of {@link ParallaxEffect} for integer type.
      */
     public static final class IntEffect extends ParallaxEffect<IntEffect, IntVariableKeyValue> {
@@ -199,50 +246,52 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
                 int keyValue = k.getIntValue();
                 int currentValue = k.getVariable().getIntValue();
 
-                if (currentValue < keyValue && currentValue != IntVariable.UNKNOWN_BEFORE) {
-                    if (i == 0) {
+                float fraction;
+                if (i == 0) {
+                    if (currentValue >= keyValue) {
                         return 0f;
                     }
-                    float fraction;
-                    if (lastIndex == index) {
-                        // same variable index,  same UI element at two different KeyValues, e.g.
-                        // UI element moves from lastkeyValue=500 to keyValue=0,
-                        // fraction moves from 0 to 1.
-                        fraction = (float) (lastKeyValue - currentValue)
-                                / (lastKeyValue - keyValue);
-                    } else if (lastValue != IntVariable.UNKNOWN_BEFORE) {
-                        // e.g. UIElement_1 at keyValue=300 scroll to UIElement_2 at keyValue=400
-                        // Figure out when UIElement_1 is at keyValue=300,  UIElement_2 should be
-                        // at the position by adding delta of values to keyValue of UIElement_2.
-                        lastKeyValue = lastKeyValue + (currentValue - lastValue);
-                        fraction = (float) (lastKeyValue - currentValue)
-                                / (lastKeyValue - keyValue);
-                    } else {
-                        // now we have to estimate
-                        lastKeyValue = keyValue + source.getMaxParentVisibleSize().getIntValue();
-                        fraction = 1f - (float) (currentValue - keyValue)
-                                / (lastKeyValue - keyValue);
+                } else {
+                    if (lastIndex == index && lastKeyValue < keyValue) {
+                        throw new IllegalStateException("KeyValue of same variable must be "
+                                + "descendant order");
                     }
-                    // when there are three or more KeyValues, take weight into consideration.
-                    if (mTotalWeights.size() >= 2) {
-                        float totalWeight = mTotalWeights.size() > 0 ?
-                                mTotalWeights.get(mTotalWeights.size() - 1) : 0f;
-                        fraction = mTotalWeights.get(index - 1) / totalWeight * fraction;
-                        if (index - 2 >= 0) {
-                            fraction = mTotalWeights.get(index - 2) / totalWeight + fraction;
+                    if (currentValue == IntVariable.UNKNOWN_AFTER) {
+                        // Implies lastValue is less than lastKeyValue and lastValue is not
+                        // UNKNWON_AFTER.  Estimates based on distance of two variables is screen
+                        // size.
+                        fraction = (float)(lastKeyValue - lastValue) /
+                                source.getMaxParentVisibleSize().getIntValue();
+                        return getFractionWithWeightAdjusted(fraction, i);
+                    } else if (currentValue >= keyValue) {
+                        if (lastIndex == index) {
+                            // same variable index,  same UI element at two different KeyValues,
+                            // e.g. UI element moves from lastkeyValue=500 to keyValue=0,
+                            // fraction moves from 0 to 1.
+                            fraction = (float) (lastKeyValue - currentValue)
+                                    / (lastKeyValue - keyValue);
+                        } else if (lastValue != IntVariable.UNKNOWN_BEFORE) {
+                            // e.g. UIElement_1 at 300 scroll to UIElement_2 at 400, figure out when
+                            // UIElement_1 is at keyValue=300,  keyValue of UIElement_2 by adding
+                            // delta of values to keyValue of UIElement_2.
+                            lastKeyValue = lastKeyValue + (currentValue - lastValue);
+                            fraction = (float) (lastKeyValue - currentValue)
+                                    / (lastKeyValue - keyValue);
+                        } else {
+                            // Last variable is UNKNOWN_BEFORE.  Estimates based on assumption total
+                            // travel distance from last variable to this variable is screen visible
+                            // size.
+                            fraction = 1f - (float) (currentValue - keyValue)
+                                    / source.getMaxParentVisibleSize().getIntValue();
                         }
+                        return getFractionWithWeightAdjusted(fraction, i);
                     }
-                    return fraction;
                 }
                 lastValue = currentValue;
                 lastIndex = index;
                 lastKeyValue = keyValue;
             }
-            if (lastValue == IntVariable.UNKNOWN_BEFORE) {
-                return 0f;
-            } else {
-                return 1f;
-            }
+            return 1f;
         }
     }
 
@@ -266,50 +315,52 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
                 float keyValue = k.getFloatValue();
                 float currentValue = k.getVariable().getFloatValue();
 
-                if (currentValue < keyValue && currentValue != IntVariable.UNKNOWN_BEFORE) {
-                    if (i == 0) {
+                float fraction;
+                if (i == 0) {
+                    if (currentValue >= keyValue) {
                         return 0f;
                     }
-                    float fraction;
-                    if (lastIndex == index) {
-                        // same variable index,  same UI element at two different KeyValues, e.g.
-                        // UI element moves from lastkeyValue=500 to keyValue=0,
-                        // fraction moves from 0 to 1.
-                        fraction = (float) (lastKeyValue - currentValue)
-                                / (lastKeyValue - keyValue);
-                    } else if (lastValue != IntVariable.UNKNOWN_BEFORE) {
-                        // e.g. UIElement_1 at keyValue=300 scroll to UIElement_2 at keyValue=400
-                        // Figure out when UIElement_1 is at keyValue=300,  UIElement_2 should be
-                        // at the position by adding delta of values to keyValue of UIElement_2.
-                        lastKeyValue = lastKeyValue + (currentValue - lastValue);
-                        fraction = (float) (lastKeyValue - currentValue)
-                                / (lastKeyValue - keyValue);
-                    } else {
-                        // now we have to estimate
-                        lastKeyValue = keyValue + source.getMaxParentVisibleSize().getFloatValue();
-                        fraction = 1f - (float) (currentValue - keyValue)
-                                / (lastKeyValue - keyValue);
+                } else {
+                    if (lastIndex == index && lastKeyValue < keyValue) {
+                        throw new IllegalStateException("KeyValue of same variable must be "
+                                + "descendant order");
                     }
-                    // when there are three or more KeyValues, calculate the weight.
-                    if (mTotalWeights.size() >= 2) {
-                        float totalWeight = mTotalWeights.size() > 0 ?
-                                mTotalWeights.get(mTotalWeights.size() - 1) : 0f;
-                        fraction = mTotalWeights.get(index - 1) / totalWeight * fraction;
-                        if (index - 2 >= 0) {
-                            fraction = mTotalWeights.get(index - 2) / totalWeight + fraction;
+                    if (currentValue == FloatVariable.UNKNOWN_AFTER) {
+                        // Implies lastValue is less than lastKeyValue and lastValue is not
+                        // UNKNWON_AFTER.  Estimates based on distance of two variables is screen
+                        // size.
+                        fraction = (float)(lastKeyValue - lastValue) /
+                                source.getMaxParentVisibleSize().getFloatValue();
+                        return getFractionWithWeightAdjusted(fraction, i);
+                    } else if (currentValue >= keyValue) {
+                        if (lastIndex == index) {
+                            // same variable index,  same UI element at two different KeyValues,
+                            // e.g. UI element moves from lastkeyValue=500 to keyValue=0,
+                            // fraction moves from 0 to 1.
+                            fraction = (float) (lastKeyValue - currentValue)
+                                    / (lastKeyValue - keyValue);
+                        } else if (lastValue != FloatVariable.UNKNOWN_BEFORE) {
+                            // e.g. UIElement_1 at 300 scroll to UIElement_2 at 400, figure out when
+                            // UIElement_1 is at keyValue=300,  keyValue of UIElement_2 by adding
+                            // delta of values to keyValue of UIElement_2.
+                            lastKeyValue = lastKeyValue + (currentValue - lastValue);
+                            fraction = (float) (lastKeyValue - currentValue)
+                                    / (lastKeyValue - keyValue);
+                        } else {
+                            // Last variable is UNKNOWN_BEFORE.  Estimates based on assumption total
+                            // travel distance from last variable to this variable is screen visible
+                            // size.
+                            fraction = 1f - (float) (currentValue - keyValue)
+                                    / source.getMaxParentVisibleSize().getFloatValue();
                         }
+                        return getFractionWithWeightAdjusted(fraction, i);
                     }
-                    return fraction;
                 }
                 lastValue = currentValue;
                 lastIndex = index;
                 lastKeyValue = keyValue;
             }
-            if (lastValue == IntVariable.UNKNOWN_BEFORE) {
-                return 0f;
-            } else {
-                return 1f;
-            }
+            return 1f;
         }
     }
 

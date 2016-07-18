@@ -374,13 +374,13 @@ public abstract class ParallaxSource<VariableT extends ParallaxSource.Variable> 
         for (int i = 1; i < variables.size(); i++) {
             float v = variables.get(i).getFloatValue();
             if (v < last) {
-                throw new IllegalStateException(String.format("Parallax Variable[%f]\"%s\" is" +
-                                " smaller than Varaible[%f]\"%s\"",
+                throw new IllegalStateException(String.format("Parallax Variable[%d]\"%s\" is" +
+                                " smaller than Varaible[%d]\"%s\"",
                         i, variables.get(i).getName(),
                         i - 1, variables.get(i - 1).getName()));
             } else if (last == FloatVariable.UNKNOWN_BEFORE && v == FloatVariable.UNKNOWN_AFTER) {
-                throw new IllegalStateException(String.format("Parallax Variable[%f]\"%s\" is " +
-                                "UNKNOW_BEFORE and Varaible[%d]\"%f\" is UNKNOWN_AFTER",
+                throw new IllegalStateException(String.format("Parallax Variable[%d]\"%s\" is " +
+                                "UNKNOW_BEFORE and Varaible[%d]\"%s\" is UNKNOWN_AFTER",
                         i - 1, variables.get(i - 1).getName(),
                         i, variables.get(i).getName()));
             }
