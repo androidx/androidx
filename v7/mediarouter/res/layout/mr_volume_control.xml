@@ -38,7 +38,8 @@
             android:minHeight="48dp"
             android:maxHeight="48dp"
             android:layout_weight="1"
-            android:clickable="true" />
+            android:clickable="true"
+            android:contentDescription="@string/mr_controller_volume_slider" />
     <android.support.v7.app.MediaRouteExpandCollapseButton
             android:id="@+id/mr_group_expand_collapse"
             android:layout_width="48dp"
