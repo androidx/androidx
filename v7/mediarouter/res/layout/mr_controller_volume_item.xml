@@ -45,7 +45,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="40dp"
                 android:minHeight="40dp"
-                android:maxHeight="40dp" />
+                android:maxHeight="40dp"
+                android:contentDescription="@string/mr_controller_volume_slider" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
