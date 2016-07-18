@@ -21,9 +21,21 @@
     <!-- Name for the user route category created when publishing routes to the system in Jellybean and above. [CHAR LIMIT=30] -->
     <string name="mr_user_route_category_name">Devices</string>
 
-    <!-- Content description of a MediaRouteButton for accessibility support.
+    <!-- String to be shown as a tooltip of MediaRouteButton
         Cast is the standard android verb for sending content to a remote device. [CHAR LIMIT=50] -->
     <string name="mr_button_content_description">Cast button</string>
+
+    <!-- Content description of a MediaRouteButton for accessibility support when no remote device is connected.
+        Cast is the standard android verb for sending content to a remote device. [CHAR LIMIT=NONE] -->
+    <string name="mr_cast_button_disconnected">Cast button. Disconnected</string>
+
+    <!-- Content description of a MediaRouteButton for accessibility support while connecting to a remote device.
+        Cast is the standard android verb for sending content to a remote device. [CHAR LIMIT=NONE] -->
+    <string name="mr_cast_button_connecting">Cast button. Connecting</string>
+
+    <!-- Content description of a MediaRouteButton for accessibility support when a remote device is connected.
+        Cast is the standard android verb for sending content to a remote device. [CHAR LIMIT=NONE] -->
+    <string name="mr_cast_button_connected">Cast button. Connected</string>
 
     <!-- Title of the media route chooser dialog. [CHAR LIMIT=30] -->
     <string name="mr_chooser_title">Cast to</string>
