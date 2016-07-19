@@ -184,8 +184,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         mListPopupWindow.getBackground().getPadding(rect);
 
         int emulatedTapX = popupOnScreenXY[0] - rect.left - 20;
-        int emulatedTapY = popupOnScreenXY[1] + mListPopupWindow.getListView().getHeight() +
-                rect.top + rect.bottom + 20;
+        int emulatedTapY = popupOnScreenXY[1] - 20;
 
         // The logic below uses Instrumentation to emulate a tap outside the bounds of the
         // displayed list popup window. This tap is then treated by the framework to be "split" as
