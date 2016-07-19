@@ -25,7 +25,7 @@ include ':support-core-utils'
 project(':support-core-utils').projectDir = new File(rootDir, 'core-utils')
 
 include ':support-v4'
-project(':support-v4').projectDir = new File(rootDir, 'core-combined')
+project(':support-v4').projectDir = new File(rootDir, 'v4')
 
 include ':support-appcompat-v7'
 project(':support-appcompat-v7').projectDir = new File(rootDir, 'v7/appcompat')
