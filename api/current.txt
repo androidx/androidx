@@ -8991,6 +8991,7 @@ package android.support.v7.preference {
     method public android.support.v7.preference.PreferenceManager.OnDisplayPreferenceDialogListener getOnDisplayPreferenceDialogListener();
     method public android.support.v7.preference.PreferenceManager.OnNavigateToScreenListener getOnNavigateToScreenListener();
     method public android.support.v7.preference.PreferenceManager.OnPreferenceTreeClickListener getOnPreferenceTreeClickListener();
+    method public android.support.v7.preference.PreferenceManager.PreferenceComparisonCallback getPreferenceComparisonCallback();
     method public android.support.v7.preference.PreferenceScreen getPreferenceScreen();
     method public android.content.SharedPreferences getSharedPreferences();
     method public int getSharedPreferencesMode();
@@ -9002,6 +9003,7 @@ package android.support.v7.preference {
     method public void setOnDisplayPreferenceDialogListener(android.support.v7.preference.PreferenceManager.OnDisplayPreferenceDialogListener);
     method public void setOnNavigateToScreenListener(android.support.v7.preference.PreferenceManager.OnNavigateToScreenListener);
     method public void setOnPreferenceTreeClickListener(android.support.v7.preference.PreferenceManager.OnPreferenceTreeClickListener);
+    method public void setPreferenceComparisonCallback(android.support.v7.preference.PreferenceManager.PreferenceComparisonCallback);
     method public boolean setPreferences(android.support.v7.preference.PreferenceScreen);
     method public void setSharedPreferencesMode(int);
     method public void setSharedPreferencesName(java.lang.String);
@@ -9021,6 +9023,18 @@ package android.support.v7.preference {
 
   public static abstract interface PreferenceManager.OnPreferenceTreeClickListener {
     method public abstract boolean onPreferenceTreeClick(android.support.v7.preference.Preference);
+  }
+
+  public static abstract class PreferenceManager.PreferenceComparisonCallback {
+    ctor public PreferenceManager.PreferenceComparisonCallback();
+    method public abstract boolean arePreferenceContentsTheSame(android.support.v7.preference.Preference, android.support.v7.preference.Preference);
+    method public abstract boolean arePreferenceItemsTheSame(android.support.v7.preference.Preference, android.support.v7.preference.Preference);
+  }
+
+  public static class PreferenceManager.SimplePreferenceComparisonCallback extends android.support.v7.preference.PreferenceManager.PreferenceComparisonCallback {
+    ctor public PreferenceManager.SimplePreferenceComparisonCallback();
+    method public boolean arePreferenceContentsTheSame(android.support.v7.preference.Preference, android.support.v7.preference.Preference);
+    method public boolean arePreferenceItemsTheSame(android.support.v7.preference.Preference, android.support.v7.preference.Preference);
   }
 
   public final class PreferenceScreen extends android.support.v7.preference.PreferenceGroup {
