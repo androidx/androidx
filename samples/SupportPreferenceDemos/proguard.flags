@@ -1,0 +1,7 @@
+-keep public class * extends android.support.design.widget.CoordinatorLayout$Behavior {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keep public class * extends android.support.v7.widget.LinearLayoutManager {
+    public <init>(android.content.Context, android.util.AttributeSet, int, int);
+}
