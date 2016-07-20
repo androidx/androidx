@@ -3087,10 +3087,12 @@ package android.support.v17.leanback.widget {
 
   public abstract class ParallaxEffect {
     ctor public ParallaxEffect();
+    method public final void addTarget(android.support.v17.leanback.widget.ParallaxTarget);
     method protected abstract float calculateFraction(android.support.v17.leanback.widget.ParallaxSource);
     method public final java.util.List<android.support.v17.leanback.widget.ParallaxTarget> getTargets();
     method public final java.util.List<VariableKeyValueT> getVariableRanges();
     method public final void performMapping(android.support.v17.leanback.widget.ParallaxSource);
+    method public final void removeTarget(android.support.v17.leanback.widget.ParallaxTarget);
     method public final void setVariableRanges(VariableKeyValueT...);
     method public final android.support.v17.leanback.widget.ParallaxEffect target(android.support.v17.leanback.widget.ParallaxTarget);
     method public final android.support.v17.leanback.widget.ParallaxEffect target(java.lang.Object, android.animation.PropertyValuesHolder);

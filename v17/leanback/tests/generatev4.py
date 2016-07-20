@@ -78,3 +78,29 @@ for line in file:
 file.close()
 outfile.close()
 
+
+print "copy ParallaxIntEffectTest to ParallaxFloatEffectTest"
+file = open('java/android/support/v17/leanback/widget/ParallaxIntEffectTest.java', 'r')
+outfile = open('java/android/support/v17/leanback/widget/ParallaxFloatEffectTest.java', 'w')
+outfile.write("/* This file is auto-generated from ParallaxIntEffectTest.java.  DO NOT MODIFY. */\n\n")
+for line in file:
+    line = line.replace('IntEffect', 'FloatEffect')
+    line = line.replace('IntVariable', 'FloatVariable')
+    line = line.replace('IntValue', 'FloatValue')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+print "copy ParallaxIntEffectTest to ParallaxIntSourceTest"
+file = open('java/android/support/v17/leanback/widget/ParallaxIntSourceTest.java', 'r')
+outfile = open('java/android/support/v17/leanback/widget/ParallaxFloatSourceTest.java', 'w')
+outfile.write("/* This file is auto-generated from ParallaxIntSourceTest.java.  DO NOT MODIFY. */\n\n")
+for line in file:
+    line = line.replace('IntSource', 'FloatSource')
+    line = line.replace('IntVariable', 'FloatVariable')
+    line = line.replace('IntValue', 'FloatValue')
+    line = line.replace('assertEquals((int)', 'assertFloatEquals((float)')
+    outfile.write(line)
+file.close()
+outfile.close()
+
