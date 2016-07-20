@@ -42,7 +42,7 @@ public class AppCompatTintableViewActions {
         return new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
-                return allOf(isDisplayingAtLeast(90), TestUtilsMatchers.isTintableBackgroundView());
+                return allOf(isDisplayed(), TestUtilsMatchers.isTintableBackgroundView());
             }
 
             @Override
