@@ -671,6 +671,7 @@ package android.support.design.widget {
     method public void addTab(android.support.design.widget.TabLayout.Tab, int);
     method public void addTab(android.support.design.widget.TabLayout.Tab, boolean);
     method public void addTab(android.support.design.widget.TabLayout.Tab, int, boolean);
+    method public void clearOnTabSelectedListeners();
     method public int getSelectedTabPosition();
     method public android.support.design.widget.TabLayout.Tab getTabAt(int);
     method public int getTabCount();
