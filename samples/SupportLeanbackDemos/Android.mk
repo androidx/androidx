@@ -18,22 +18,15 @@ LOCAL_PATH:= $(call my-dir)
 # We need to add some special AAPT flags to generate R classes
 # for resources that are included from the libraries.
 include $(CLEAR_VARS)
+LOCAL_USE_AAPT2 := true
 LOCAL_PACKAGE_NAME := SupportLeanbackDemos
 LOCAL_MODULE_TAGS := samples tests
 LOCAL_SDK_VERSION := current
 LOCAL_MIN_SDK_VERSION := 17
 LOCAL_DEX_PREOPT := false
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
-LOCAL_STATIC_JAVA_LIBRARIES := \
+LOCAL_STATIC_ANDROID_LIBRARIES := \
         android-support-v4 \
         android-support-v7-recyclerview \
         android-support-v17-leanback
-LOCAL_RESOURCE_DIR = \
-        $(LOCAL_PATH)/res \
-        frameworks/support/v17/leanback/res \
-        frameworks/support/v7/recyclerview/res
-LOCAL_AAPT_FLAGS := \
-        --auto-add-overlay \
-        --extra-packages android.support.v17.leanback \
-        --extra-packages android.support.v7.recyclerview
 include $(BUILD_PACKAGE)

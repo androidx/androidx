@@ -18,20 +18,15 @@ LOCAL_PATH:= $(call my-dir)
 # We need to add some special AAPT flags to generate R classes
 # for resources that are included from the libraries.
 include $(CLEAR_VARS)
+LOCAL_USE_AAPT2 := true
 LOCAL_PACKAGE_NAME := SupportPercentDemos
 LOCAL_MODULE_TAGS := samples
 LOCAL_SDK_VERSION := current
 LOCAL_MIN_SDK_VERSION := 7
 LOCAL_DEX_PREOPT := false
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
-LOCAL_STATIC_JAVA_LIBRARIES := \
+LOCAL_STATIC_ANDROID_LIBRARIES := \
         android-support-percent \
         android-support-v4 \
         android-support-v13
-LOCAL_RESOURCE_DIR = \
-        $(LOCAL_PATH)/res \
-        frameworks/support/percent/res
-LOCAL_AAPT_FLAGS := \
-        --auto-add-overlay \
-        --extra-packages android.support.percent
 include $(BUILD_PACKAGE)
