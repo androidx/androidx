@@ -522,6 +522,7 @@ package android.support.design.widget {
     method public float getCompatElevation();
     method public android.graphics.drawable.Drawable getContentBackground();
     method public boolean getContentRect(android.graphics.Rect);
+    method public int getRippleColor();
     method public int getSize();
     method public boolean getUseCompatPadding();
     method public void hide();
