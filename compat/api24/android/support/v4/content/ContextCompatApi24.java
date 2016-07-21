@@ -20,8 +20,7 @@ import android.content.Context;
 
 import java.io.File;
 
-/** {@hide} */
-public class ContextCompatApi24 {
+class ContextCompatApi24 {
     public static File getDataDir(Context context) {
         return context.getDataDir();
     }
