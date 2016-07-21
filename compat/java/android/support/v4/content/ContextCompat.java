@@ -51,6 +51,13 @@ public class ContextCompat {
     private static TypedValue sTempValue;
 
     /**
+     * @deprecated Do not use this constructor. It will be removed and replaced
+     *             with a protected constructor in a future release.
+     */
+    @Deprecated
+    public ContextCompat() {}
+
+    /**
      * Start a set of activities as a synthesized task stack, if able.
      *
      * <p>In API level 11 (Android 3.0/Honeycomb) the recommended conventions for
@@ -522,7 +529,9 @@ public class ContextCompat {
 
     /**
      * @removed
-     * @deprecated Removed. Do not use.
+     * @deprecated This method will be removed in a future release. Use
+     *             {@link #createDeviceProtectedStorageContext(Context)}
+     *             instead.
      */
     @Deprecated
     public static Context createDeviceEncryptedStorageContext(Context context) {
@@ -545,7 +554,8 @@ public class ContextCompat {
 
     /**
      * @removed
-     * @deprecated Removed. Do not use.
+     * @deprecated This method will be removed in a future release. Use
+     *             {@link #isDeviceProtectedStorage(Context)} instead.
      */
     @Deprecated
     public static boolean isDeviceEncryptedStorage(Context context) {
