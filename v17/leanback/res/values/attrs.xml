@@ -459,12 +459,14 @@
              decoration when its action is disabled. Default is {@link
              android.support.v17.leanback.R.string#lb_guidedactions_item_disabled_chevron_alpha}. -->
         <attr name="guidedActionDisabledChevronAlpha" format="reference" />
-        <!-- Theme attribute used for the weight of actions.  Default is {@link
+        <!-- Theme attribute used for the width weight of actions in comparison to guidance area.  Default is {@link
              android.support.v17.leanback.R.string#lb_guidedactions_width_weight}. -->
         <attr name="guidedActionContentWidthWeight" format="reference" />
-        <!-- Theme attribute used for the weight of actions when there are two panels.  Default is {@link
+        <!-- Theme attribute used for the width weight of actions and button actions in comparison to guidance area.  Default is {@link
              android.support.v17.leanback.R.string#lb_guidedactions_width_weight_two_panels}. -->
         <attr name="guidedActionContentWidthWeightTwoPanels" format="reference" />
+        <!-- Theme attribute used for the width weight of button actions in compare to actions -->
+        <attr name="guidedButtonActionsWidthWeight" format="reference" />
         <!-- Theme attribute used in a GuidedActionsPresenter for the max lines of the title text
              view when the action's isMultilineDescription is set to false. Default is {@link
              android.support.v17.leanback.R.integer#lb_guidedactions_item_title_min_lines}. -->

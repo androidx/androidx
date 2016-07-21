@@ -20,7 +20,7 @@
     android:transitionName="guidedactions_root2"
     android:transitionGroup="false"
     android:layout_width="0dp"
-    android:layout_weight="1"
+    android:layout_weight="?attr/guidedButtonActionsWidthWeight"
     android:layout_height="match_parent">
 
     <android.support.v17.leanback.widget.NonOverlappingView
