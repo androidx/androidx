@@ -237,18 +237,18 @@ public class MediaRouteChooserDialog extends Dialog {
                 @Override
                 protected void onPreExecute() {
                     mNewRoutes = new ArrayList<>(mRouter.getRoutes());
+                    onFilterRoutes(mNewRoutes);
                 }
 
                 @Override
                 protected Void doInBackground(Void... params) {
                     // In API 4 ~ 10, AsyncTasks are running in parallel. Needs synchronization.
                     synchronized (MediaRouteChooserDialog.this) {
-                        onFilterRoutes(mNewRoutes);
                         if (!isCancelled()) {
                             RouteComparator.getInstance(getContext())
                                     .loadRouteUsageScores(mNewRoutes);
+                            Collections.sort(mNewRoutes, RouteComparator.sInstance);
                         }
-                        Collections.sort(mNewRoutes, RouteComparator.sInstance);
                     }
                     return null;
                 }
