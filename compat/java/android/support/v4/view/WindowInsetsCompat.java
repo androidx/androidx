@@ -258,6 +258,11 @@ public class WindowInsetsCompat {
         mInsets = insets;
     }
 
+    /**
+     * Constructs a new WindowInsetsCompat, copying all values from a source WindowInsetsCompat.
+     *
+     * @param src source from which values are copied
+     */
     public WindowInsetsCompat(WindowInsetsCompat src) {
         mInsets = src == null ? null : IMPL.getSourceWindowInsets(src.mInsets);
     }
