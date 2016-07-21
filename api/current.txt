@@ -8133,6 +8133,8 @@ package android.support.v7.graphics {
     method public android.support.v7.graphics.Palette.Swatch getDarkMutedSwatch();
     method public int getDarkVibrantColor(int);
     method public android.support.v7.graphics.Palette.Swatch getDarkVibrantSwatch();
+    method public int getDominantColor(int);
+    method public android.support.v7.graphics.Palette.Swatch getDominantSwatch();
     method public int getLightMutedColor(int);
     method public android.support.v7.graphics.Palette.Swatch getLightMutedSwatch();
     method public int getLightVibrantColor(int);

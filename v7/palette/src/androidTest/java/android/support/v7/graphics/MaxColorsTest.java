@@ -16,18 +16,15 @@
 
 package android.support.v7.graphics;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static android.support.v7.graphics.TestUtils.loadSampleBitmap;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import static org.junit.Assert.assertTrue;
+
 import android.support.test.runner.AndroidJUnit4;
-import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import static android.support.v7.graphics.TestUtils.loadSampleBitmap;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class MaxColorsTest {
