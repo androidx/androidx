@@ -21,10 +21,12 @@ import static android.support.v7.graphics.TestUtils.loadSampleBitmap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -143,6 +145,36 @@ public class BucketTests {
         assertEquals(1, palette.getSwatches().size());
 
         final Palette.Swatch swatch = palette.getSwatches().get(0);
+        assertCloseColors(Color.BLUE, swatch.getRgb());
+    }
+
+    @Test
+    @SmallTest
+    public void testDominantSwatch() {
+        final Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+
+        // First fill the canvas with blue
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.BLUE);
+
+        final Paint paint = new Paint();
+        // Now we'll draw the top 10px tall rect with green
+        paint.setColor(Color.GREEN);
+        canvas.drawRect(0, 0, 100, 10, paint);
+
+        // Now we'll draw the next 20px tall rect with red
+        paint.setColor(Color.RED);
+        canvas.drawRect(0, 11, 100, 30, paint);
+
+        // Now generate a palette from the bitmap
+        final Palette palette = Palette.from(bitmap).generate();
+
+        // First assert that there are 3 swatches
+        assertEquals(3, palette.getSwatches().size());
+
+        // Now assert that the dominant swatch is blue
+        final Palette.Swatch swatch = palette.getDominantSwatch();
+        assertNotNull(swatch);
         assertCloseColors(Color.BLUE, swatch.getRgb());
     }
 
