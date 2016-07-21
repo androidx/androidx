@@ -72,6 +72,14 @@ public class ActivityCompat extends ContextCompat {
     }
 
     /**
+     * This class should not be instantiated, but the constructor must be
+     * visible for the class to be extended (ex. in support-v13).
+     */
+    protected ActivityCompat() {
+        // Not publicly instantiable, but may be extended.
+    }
+
+    /**
      * Invalidate the activity's options menu, if able.
      *
      * <p>Before API level 11 (Android 3.0/Honeycomb) the lifecycle of the
@@ -229,7 +237,7 @@ public class ActivityCompat extends ContextCompat {
      */
     public static void finishAfterTransition(Activity activity) {
         if (Build.VERSION.SDK_INT >= 21) {
-            ActivityCompat21.finishAfterTransition(activity);
+            ActivityCompatApi21.finishAfterTransition(activity);
         } else {
             activity.finish();
         }
@@ -240,9 +248,27 @@ public class ActivityCompat extends ContextCompat {
      * Activity.getReferrer}.  Uses the platform's implementation if available, otherwise
      * only falls back to digging any explicitly specified referrer from the activity's intent.
      */
-    public Uri getReferrer(Activity activity) {
+
+    /**
+     * Return information about who launched this activity.  If the launching Intent
+     * contains an {@link Intent#EXTRA_REFERRER Intent.EXTRA_REFERRER},
+     * that will be returned as-is; otherwise, if known, an
+     * {@link Intent#URI_ANDROID_APP_SCHEME android-app:} referrer URI containing the
+     * package name that started the Intent will be returned.  This may return null if no
+     * referrer can be identified -- it is neither explicitly specified, nor is it known which
+     * application package was involved.
+     *
+     * <p>If called while inside the handling of {@link Activity#onNewIntent}, this function will
+     * return the referrer that submitted that new intent to the activity.  Otherwise, it
+     * always returns the referrer of the original Intent.</p>
+     *
+     * <p>Note that this is <em>not</em> a security feature -- you can not trust the
+     * referrer information, applications can spoof it.</p>
+     */
+    @Nullable
+    public static Uri getReferrer(Activity activity) {
         if (Build.VERSION.SDK_INT >= 22) {
-            return ActivityCompat22.getReferrer(activity);
+            return ActivityCompatApi22.getReferrer(activity);
         }
         Intent intent = activity.getIntent();
         Uri referrer = intent.getParcelableExtra("android.intent.extra.REFERRER");
@@ -269,7 +295,7 @@ public class ActivityCompat extends ContextCompat {
         if (Build.VERSION.SDK_INT >= 23) {
             ActivityCompatApi23.setEnterSharedElementCallback(activity, createCallback23(callback));
         } else if (Build.VERSION.SDK_INT >= 21) {
-            ActivityCompat21.setEnterSharedElementCallback(activity, createCallback(callback));
+            ActivityCompatApi21.setEnterSharedElementCallback(activity, createCallback(callback));
         }
     }
 
@@ -287,19 +313,19 @@ public class ActivityCompat extends ContextCompat {
         if (Build.VERSION.SDK_INT >= 23) {
             ActivityCompatApi23.setExitSharedElementCallback(activity, createCallback23(callback));
         } else if (Build.VERSION.SDK_INT >= 21) {
-            ActivityCompat21.setExitSharedElementCallback(activity, createCallback(callback));
+            ActivityCompatApi21.setExitSharedElementCallback(activity, createCallback(callback));
         }
     }
 
     public static void postponeEnterTransition(Activity activity) {
         if (Build.VERSION.SDK_INT >= 21) {
-            ActivityCompat21.postponeEnterTransition(activity);
+            ActivityCompatApi21.postponeEnterTransition(activity);
         }
     }
 
     public static void startPostponedEnterTransition(Activity activity) {
         if (Build.VERSION.SDK_INT >= 21) {
-            ActivityCompat21.startPostponedEnterTransition(activity);
+            ActivityCompatApi21.startPostponedEnterTransition(activity);
         }
     }
 
@@ -413,9 +439,9 @@ public class ActivityCompat extends ContextCompat {
         return false;
     }
 
-    private static ActivityCompat21.SharedElementCallback21 createCallback(
+    private static ActivityCompatApi21.SharedElementCallback21 createCallback(
             SharedElementCallback callback) {
-        ActivityCompat21.SharedElementCallback21 newCallback = null;
+        ActivityCompatApi21.SharedElementCallback21 newCallback = null;
         if (callback != null) {
             newCallback = new ActivityCompat.SharedElementCallback21Impl(callback);
         }
@@ -432,7 +458,7 @@ public class ActivityCompat extends ContextCompat {
     }
 
     private static class SharedElementCallback21Impl
-            extends ActivityCompat21.SharedElementCallback21 {
+            extends ActivityCompatApi21.SharedElementCallback21 {
 
         private SharedElementCallback mCallback;
 
