@@ -19,10 +19,8 @@ package android.support.v4.view;
 import android.content.res.ColorStateList;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IdRes;
@@ -2108,7 +2106,7 @@ public class ViewCompat {
      * which is if it fires accessibility events and if it is reported to
      * accessibility services that query the screen.
      * <p>
-     * <em>Note:</em> If the current paltform version does not support the
+     * <em>Note:</em> If the current platform version does not support the
      *  {@link #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS} mode, then
      *  {@link #IMPORTANT_FOR_ACCESSIBILITY_NO} will be used as it is the
      *  closest terms of semantics.
@@ -2125,6 +2123,46 @@ public class ViewCompat {
     public static void setImportantForAccessibility(View view,
             @ImportantForAccessibility int mode) {
         IMPL.setImportantForAccessibility(view, mode);
+    }
+
+    /**
+     * Computes whether this view should be exposed for accessibility. In
+     * general, views that are interactive or provide information are exposed
+     * while views that serve only as containers are hidden.
+     * <p>
+     * If an ancestor of this view has importance
+     * {@link #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS}, this method
+     * returns <code>false</code>.
+     * <p>
+     * Otherwise, the value is computed according to the view's
+     * {@link #getImportantForAccessibility(View)} value:
+     * <ol>
+     * <li>{@link #IMPORTANT_FOR_ACCESSIBILITY_NO} or
+     * {@link #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS}, return <code>false
+     * </code>
+     * <li>{@link #IMPORTANT_FOR_ACCESSIBILITY_YES}, return <code>true</code>
+     * <li>{@link #IMPORTANT_FOR_ACCESSIBILITY_AUTO}, return <code>true</code> if
+     * view satisfies any of the following:
+     * <ul>
+     * <li>Is actionable, e.g. {@link View#isClickable()},
+     * {@link View#isLongClickable()}, or {@link View#isFocusable()}
+     * <li>Has an {@link AccessibilityDelegateCompat}
+     * <li>Has an interaction listener, e.g. {@link View.OnTouchListener},
+     * {@link View.OnKeyListener}, etc.
+     * <li>Is an accessibility live region, e.g.
+     * {@link #getAccessibilityLiveRegion(View)} is not
+     * {@link #ACCESSIBILITY_LIVE_REGION_NONE}.
+     * </ul>
+     * </ol>
+     * <p>
+     * <em>Note:</em> Prior to API 21, this method will always return {@code true}.
+     *
+     * @return Whether the view is exposed for accessibility.
+     * @see #setImportantForAccessibility(View, int)
+     * @see #getImportantForAccessibility(View)
+     */
+    public static boolean isImportantForAccessibility(View view) {
+        return IMPL.isImportantForAccessibility(view);
     }
 
     /**
