@@ -16,27 +16,9 @@
 
 package android.support.v7.widget;
 
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import android.graphics.Rect;
-import android.support.v4.view.ViewCompat;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import static android.support.v7.widget.LayoutState.LAYOUT_END;
 import static android.support.v7.widget.LayoutState.LAYOUT_START;
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
@@ -46,8 +28,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+import android.graphics.Rect;
+import android.support.v4.view.ViewCompat;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewParent;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Tests that rely on the basic configuration and does not do any additions / removals

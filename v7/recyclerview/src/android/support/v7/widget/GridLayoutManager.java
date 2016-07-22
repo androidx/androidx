@@ -225,9 +225,9 @@ public class GridLayoutManager extends LinearLayoutManager {
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         if (mOrientation == HORIZONTAL) {
             return new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.FILL_PARENT);
+                    ViewGroup.LayoutParams.MATCH_PARENT);
         } else {
-            return new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+            return new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
         }
     }
@@ -713,7 +713,7 @@ public class GridLayoutManager extends LinearLayoutManager {
      * RecyclerView does not have exact measurement specs.
      * <p>
      * Here we try to assign a best guess width or height and re-do the layout to update other
-     * views that wanted to FILL_PARENT in the non-scroll orientation.
+     * views that wanted to MATCH_PARENT in the non-scroll orientation.
      *
      * @param maxSizeInOther The maximum size per span ratio from the measurement of the children.
      * @param currentOtherDirSize The size before this layout chunk. There is no reason to go below.

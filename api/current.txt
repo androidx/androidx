@@ -6436,9 +6436,9 @@ package android.support.v4.view {
     field public static final int MEASURED_SIZE_MASK = 16777215; // 0xffffff
     field public static final int MEASURED_STATE_MASK = -16777216; // 0xff000000
     field public static final int MEASURED_STATE_TOO_SMALL = 16777216; // 0x1000000
-    field public static final int OVER_SCROLL_ALWAYS = 0; // 0x0
-    field public static final int OVER_SCROLL_IF_CONTENT_SCROLLS = 1; // 0x1
-    field public static final int OVER_SCROLL_NEVER = 2; // 0x2
+    field public static final deprecated int OVER_SCROLL_ALWAYS = 0; // 0x0
+    field public static final deprecated int OVER_SCROLL_IF_CONTENT_SCROLLS = 1; // 0x1
+    field public static final deprecated int OVER_SCROLL_NEVER = 2; // 0x2
     field public static final int SCROLL_AXIS_HORIZONTAL = 1; // 0x1
     field public static final int SCROLL_AXIS_NONE = 0; // 0x0
     field public static final int SCROLL_AXIS_VERTICAL = 2; // 0x2

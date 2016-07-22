@@ -35,16 +35,16 @@ class NoSaveStateFrameLayout extends FrameLayout {
             wrapper.setLayoutParams(childParams);
         }
         NoSaveStateFrameLayout.LayoutParams lp = new NoSaveStateFrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT);
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         child.setLayoutParams(lp);
         wrapper.addView(child);
         return wrapper;
     }
-    
+
     public NoSaveStateFrameLayout(Context context) {
         super(context);
     }
-    
+
     /**
      * Override to prevent freezing of any child views.
      */
