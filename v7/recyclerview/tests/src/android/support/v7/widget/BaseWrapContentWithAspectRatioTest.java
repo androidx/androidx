@@ -133,14 +133,22 @@ abstract public class BaseWrapContentWithAspectRatioTest extends BaseRecyclerVie
         int desiredW, desiredH;
         final long mId = idCounter.incrementAndGet();
 
-        ViewGroup.LayoutParams layoutParams;
+        ViewGroup.MarginLayoutParams layoutParams;
 
         public MeasureBehavior(int desiredW, int desiredH, int wMode, int hMode) {
             this.desiredW = desiredW;
             this.desiredH = desiredH;
-            layoutParams = new ViewGroup.LayoutParams(
+            layoutParams = new ViewGroup.MarginLayoutParams(
                     wMode, hMode
             );
+        }
+
+        public MeasureBehavior withMargins(int left, int top, int right, int bottom) {
+            layoutParams.leftMargin = left;
+            layoutParams.topMargin = top;
+            layoutParams.rightMargin = right;
+            layoutParams.bottomMargin = bottom;
+            return this;
         }
 
         public long getId() {
