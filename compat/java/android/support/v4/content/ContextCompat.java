@@ -51,6 +51,14 @@ public class ContextCompat {
     private static TypedValue sTempValue;
 
     /**
+     * This class should not be instantiated, but the constructor must be
+     * visible for the class to be extended (ex. in ActivityCompat).
+     */
+    protected ContextCompat() {
+        // Not publicly instantiable, but may be extended.
+    }
+
+    /**
      * Start a set of activities as a synthesized task stack, if able.
      *
      * <p>In API level 11 (Android 3.0/Honeycomb) the recommended conventions for
@@ -521,15 +529,6 @@ public class ContextCompat {
     }
 
     /**
-     * @removed
-     * @deprecated Removed. Do not use.
-     */
-    @Deprecated
-    public static Context createDeviceEncryptedStorageContext(Context context) {
-        return createDeviceProtectedStorageContext(context);
-    }
-
-    /**
      * Indicates if the storage APIs of this Context are backed by
      * device-encrypted storage.
      *
@@ -541,14 +540,5 @@ public class ContextCompat {
         } else {
             return false;
         }
-    }
-
-    /**
-     * @removed
-     * @deprecated Removed. Do not use.
-     */
-    @Deprecated
-    public static boolean isDeviceEncryptedStorage(Context context) {
-        return isDeviceProtectedStorage(context);
     }
 }

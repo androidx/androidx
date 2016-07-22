@@ -247,8 +247,6 @@ public final class IntentCompat {
      * selector.
      * @return Returns a newly created Intent that can be used to launch the
      * activity as a main application entry.
-     *
-     * @see #setSelector(Intent)
      */
     public static Intent makeMainSelectorActivity(String selectorAction,
             String selectorCategory) {

@@ -30,7 +30,7 @@ import java.lang.String;
 import java.util.List;
 import java.util.Map;
 
-class ActivityCompat21 {
+class ActivityCompatApi21 {
 
     public static void setMediaController(Activity activity, Object mediaControllerObj) {
         activity.setMediaController((MediaController) mediaControllerObj);
