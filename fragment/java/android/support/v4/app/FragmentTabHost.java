@@ -332,9 +332,6 @@ public class FragmentTabHost extends TabHost
                 newTab = tab;
             }
         }
-        if (newTab == null) {
-            throw new IllegalStateException("No tab known for tag " + tabId);
-        }
         if (mLastTab != newTab) {
             if (ft == null) {
                 ft = mFragmentManager.beginTransaction();
