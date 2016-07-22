@@ -785,10 +785,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
                     final int oldY = getScrollY();
                     final int range = getScrollRange();
-                    final int overscrollMode = ViewCompat.getOverScrollMode(this);
-                    boolean canOverscroll = overscrollMode == ViewCompat.OVER_SCROLL_ALWAYS ||
-                            (overscrollMode == ViewCompat.OVER_SCROLL_IF_CONTENT_SCROLLS &&
-                                    range > 0);
+                    final int overscrollMode = getOverScrollMode();
+                    boolean canOverscroll = overscrollMode == View.OVER_SCROLL_ALWAYS
+                            || (overscrollMode == View.OVER_SCROLL_IF_CONTENT_SCROLLS && range > 0);
 
                     // Calling overScrollByCompat will call onOverScrolled, which
                     // calls onScrollChanged if applicable.
@@ -946,15 +945,15 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             int scrollRangeX, int scrollRangeY,
             int maxOverScrollX, int maxOverScrollY,
             boolean isTouchEvent) {
-        final int overScrollMode = ViewCompat.getOverScrollMode(this);
+        final int overScrollMode = getOverScrollMode();
         final boolean canScrollHorizontal =
                 computeHorizontalScrollRange() > computeHorizontalScrollExtent();
         final boolean canScrollVertical =
                 computeVerticalScrollRange() > computeVerticalScrollExtent();
-        final boolean overScrollHorizontal = overScrollMode == ViewCompat.OVER_SCROLL_ALWAYS ||
-                (overScrollMode == ViewCompat.OVER_SCROLL_IF_CONTENT_SCROLLS && canScrollHorizontal);
-        final boolean overScrollVertical = overScrollMode == ViewCompat.OVER_SCROLL_ALWAYS ||
-                (overScrollMode == ViewCompat.OVER_SCROLL_IF_CONTENT_SCROLLS && canScrollVertical);
+        final boolean overScrollHorizontal = overScrollMode == View.OVER_SCROLL_ALWAYS
+                || (overScrollMode == View.OVER_SCROLL_IF_CONTENT_SCROLLS && canScrollHorizontal);
+        final boolean overScrollVertical = overScrollMode == View.OVER_SCROLL_ALWAYS
+                || (overScrollMode == View.OVER_SCROLL_IF_CONTENT_SCROLLS && canScrollVertical);
 
         int newScrollX = scrollX + deltaX;
         if (!overScrollHorizontal) {
@@ -1423,9 +1422,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
             if (oldX != x || oldY != y) {
                 final int range = getScrollRange();
-                final int overscrollMode = ViewCompat.getOverScrollMode(this);
-                final boolean canOverscroll = overscrollMode == ViewCompat.OVER_SCROLL_ALWAYS ||
-                        (overscrollMode == ViewCompat.OVER_SCROLL_IF_CONTENT_SCROLLS && range > 0);
+                final int overscrollMode = getOverScrollMode();
+                final boolean canOverscroll = overscrollMode == View.OVER_SCROLL_ALWAYS
+                        || (overscrollMode == View.OVER_SCROLL_IF_CONTENT_SCROLLS && range > 0);
 
                 overScrollByCompat(x - oldX, y - oldY, oldX, oldY, 0, range,
                         0, 0, false);
@@ -1743,7 +1742,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     private void ensureGlows() {
-        if (ViewCompat.getOverScrollMode(this) != ViewCompat.OVER_SCROLL_NEVER) {
+        if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
             if (mEdgeGlowTop == null) {
                 Context context = getContext();
                 mEdgeGlowTop = new EdgeEffectCompat(context);

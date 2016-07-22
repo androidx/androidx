@@ -591,7 +591,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private void updateLayoutHeightInternal(boolean animate) {
         // Measure the size of widgets and get the height of main components.
         int oldHeight = getLayoutHeight(mMediaMainControlLayout);
-        setLayoutHeight(mMediaMainControlLayout, ViewGroup.LayoutParams.FILL_PARENT);
+        setLayoutHeight(mMediaMainControlLayout, ViewGroup.LayoutParams.MATCH_PARENT);
         updateMediaControlVisibility(canShowPlaybackControlLayout());
         View decorView = getWindow().getDecorView();
         decorView.measure(

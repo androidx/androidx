@@ -16,8 +16,6 @@
 
 package android.support.v13.app;
 
-import java.util.ArrayList;
-
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -33,6 +31,8 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
+
+import java.util.ArrayList;
 
 /**
  * Version of {@link android.support.v4.app.FragmentTabHost} that can be
@@ -146,14 +146,14 @@ public class FragmentTabHost extends TabHost
             LinearLayout ll = new LinearLayout(context);
             ll.setOrientation(LinearLayout.VERTICAL);
             addView(ll, new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.FILL_PARENT,
-                    ViewGroup.LayoutParams.FILL_PARENT));
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
 
             TabWidget tw = new TabWidget(context);
             tw.setId(android.R.id.tabs);
             tw.setOrientation(TabWidget.HORIZONTAL);
             ll.addView(tw, new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.FILL_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT, 0));
 
             FrameLayout fl = new FrameLayout(context);
@@ -163,7 +163,7 @@ public class FragmentTabHost extends TabHost
             mRealTabContent = fl = new FrameLayout(context);
             mRealTabContent.setId(mContainerId);
             ll.addView(fl, new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.FILL_PARENT, 0, 1));
+                    LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
         }
     }
 
