@@ -244,12 +244,6 @@ public class ActivityCompat extends ContextCompat {
     }
 
     /**
-     * Backwards compatible implementation of {@link android.app.Activity#getReferrer()
-     * Activity.getReferrer}.  Uses the platform's implementation if available, otherwise
-     * only falls back to digging any explicitly specified referrer from the activity's intent.
-     */
-
-    /**
      * Return information about who launched this activity.  If the launching Intent
      * contains an {@link Intent#EXTRA_REFERRER Intent.EXTRA_REFERRER},
      * that will be returned as-is; otherwise, if known, an
