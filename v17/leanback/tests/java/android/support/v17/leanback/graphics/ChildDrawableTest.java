@@ -18,22 +18,19 @@ package android.support.v17.leanback.graphics;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.test.suitebuilder.annotation.SmallTest;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+
 import android.support.test.runner.AndroidJUnit4;
-import org.mockito.MockitoAnnotations;
 
 /**
- * Unit test for {@link RegionDrawable}
+ * Unit test for {@link ChildDrawable}
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class RegionDrawableTest {
+public class ChildDrawableTest {
 
     private static final int HEIGHT = 800;
     private static final int WIDTH = 600;
@@ -41,9 +38,11 @@ public class RegionDrawableTest {
 
     @Test
     public void updateBounds_noBoundsRule() {
-        BitmapRegionDrawable drawable = new BitmapRegionDrawable(bitmap, null);
+        CompositeDrawable parentDrawable = new CompositeDrawable();
+        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable(bitmap, null);
         Rect bounds = new Rect(0, 0, WIDTH, HEIGHT);
-        drawable.updateBounds(bounds);
+        parentDrawable.addChildDrawable(drawable);
+        parentDrawable.updateBounds(bounds);
 
         Rect adjustedBounds = drawable.getBounds();
         assertEquals(bounds, adjustedBounds);
@@ -51,15 +50,17 @@ public class RegionDrawableTest {
 
     @Test
     public void updateBounds_withBoundsRule() {
+        CompositeDrawable parentDrawable = new CompositeDrawable();
         float fraction = 0.5f;
-        BitmapRegionDrawable drawable = new BitmapRegionDrawable(bitmap, null);
+        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable(bitmap, null);
         Rect bounds = new Rect(0, 0, WIDTH, HEIGHT);
         assertEquals(HEIGHT, bounds.height());
         assertEquals(WIDTH, bounds.width());
 
         // inherit from parent
-        drawable.getBoundsRule().mBottom = BoundsRule.inheritFromParent(fraction);
-        drawable.updateBounds(bounds);
+        parentDrawable.addChildDrawable(drawable);
+        parentDrawable.getChildAt(0).getBoundsRule().mBottom = BoundsRule.inheritFromParent(fraction);
+        parentDrawable.updateBounds(bounds);
 
         Rect adjustedBounds = drawable.getBounds();
         Rect expectedBounds = new Rect(bounds);
@@ -68,8 +69,8 @@ public class RegionDrawableTest {
 
         // absolute value
         drawable.setBounds(bounds);
-        drawable.getBoundsRule().mBottom = BoundsRule.absoluteValue(200);
-        drawable.updateBounds(bounds);
+        parentDrawable.getChildAt(0).getBoundsRule().mBottom = BoundsRule.absoluteValue(200);
+        parentDrawable.updateBounds(bounds);
 
         adjustedBounds = drawable.getBounds();
         expectedBounds = new Rect(bounds);
@@ -77,8 +78,8 @@ public class RegionDrawableTest {
         assertEquals(expectedBounds, adjustedBounds);
 
         // inherit with offset
-        drawable.getBoundsRule().mBottom = BoundsRule.inheritFromParentWithOffset(fraction, 100);
-        drawable.updateBounds(bounds);
+        parentDrawable.getChildAt(0).getBoundsRule().mBottom = BoundsRule.inheritFromParentWithOffset(fraction, 100);
+        parentDrawable.updateBounds(bounds);
 
         adjustedBounds = drawable.getBounds();
         expectedBounds = new Rect(bounds);
@@ -87,8 +88,8 @@ public class RegionDrawableTest {
 
         // inherit from parent 2
         bounds = new Rect(100, 200, WIDTH, HEIGHT);
-        drawable.getBoundsRule().mBottom = BoundsRule.inheritFromParent(fraction);
-        drawable.updateBounds(bounds);
+        parentDrawable.getChildAt(0).getBoundsRule().mBottom = BoundsRule.inheritFromParent(fraction);
+        parentDrawable.updateBounds(bounds);
 
         adjustedBounds = drawable.getBounds();
         expectedBounds = new Rect(bounds);
@@ -98,19 +99,23 @@ public class RegionDrawableTest {
 
     @Test
     public void updateBounds_withOverride() {
+        CompositeDrawable parentDrawable = new CompositeDrawable();
         float fraction = 0.5f;
-        BitmapRegionDrawable drawable = new BitmapRegionDrawable(bitmap, null);
+        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable(bitmap, null);
         Rect bounds = new Rect(0, 0, WIDTH, HEIGHT);
         drawable.setBounds(bounds);
         assertEquals(HEIGHT, drawable.getBounds().height());
         assertEquals(WIDTH, drawable.getBounds().width());
 
-        // inherit from parent
-        drawable.getBoundsRule().mTop = BoundsRule.inheritFromParent(fraction);
-        drawable.getBoundsRule().mBottom = BoundsRule.inheritFromParent(fraction);
-        drawable.setOverrideTop(-100);
+        parentDrawable.addChildDrawable(drawable);
 
-        drawable.updateBounds(bounds);
+        // inherit from parent
+        BoundsRule boundsRule = parentDrawable.getChildAt(0).getBoundsRule();
+        boundsRule.mTop = BoundsRule.absoluteValue(-200);
+        boundsRule.mBottom = BoundsRule.inheritFromParent(fraction);
+        parentDrawable.getChildAt(0).getBoundsRule().mTop.setAbsoluteValue(-100);
+
+        parentDrawable.updateBounds(bounds);
 
         Rect adjustedBounds = drawable.getBounds();
         Rect expectedBounds = new Rect(bounds);
@@ -119,18 +124,14 @@ public class RegionDrawableTest {
         assertEquals(expectedBounds, adjustedBounds);
 
         // inherit from parent with offset
-        drawable.getBoundsRule().mTop = BoundsRule.inheritFromParentWithOffset(fraction, 100);
-        drawable.getBoundsRule().mBottom = BoundsRule.inheritFromParentWithOffset(fraction, 200);
-        drawable.setOverrideTop(-100);
-        drawable.setOverrideBottom(HEIGHT);
+        boundsRule.mBottom = BoundsRule.absoluteValue(HEIGHT);
 
-        drawable.updateBounds(bounds);
+        parentDrawable.updateBounds(bounds);
 
         adjustedBounds = drawable.getBounds();
         expectedBounds = new Rect(bounds);
         expectedBounds.top = -100;
         expectedBounds.bottom = HEIGHT;
         assertEquals(expectedBounds, adjustedBounds);
-
     }
 }

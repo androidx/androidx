@@ -39,15 +39,43 @@ public class BoundsRule {
      *     offset to compute the final value</li>
      * </ul>
      */
-    public static class ValueRule {
+    public final static class ValueRule {
         private final int type;
-        private final float fraction;
-        private final int absoluteValue;
+        private float fraction;
+        private int absoluteValue;
 
         ValueRule(int type, int absoluteValue, float fraction) {
             this.type = type;
             this.absoluteValue = absoluteValue;
             this.fraction = fraction;
+        }
+
+        /**
+         * Sets the fractional value (percentage of parent) for this rule.
+         */
+        public void setFraction(float fraction) {
+            this.fraction = fraction;
+        }
+
+        /**
+         * Returns the current fractional value.
+         */
+        public float getFraction() {
+            return fraction;
+        }
+
+        /**
+         * Sets the absolute value for this rule.
+         */
+        public void setAbsoluteValue(int absoluteValue) {
+            this.absoluteValue = absoluteValue;
+        }
+
+        /**
+         * Returns the current absolute value.
+         */
+        public int getAbsoluteValue() {
+            return absoluteValue;
         }
     }
 
