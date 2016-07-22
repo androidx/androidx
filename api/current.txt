@@ -5717,7 +5717,11 @@ package android.support.v4.net {
 
   public final class ConnectivityManagerCompat {
     method public static android.net.NetworkInfo getNetworkInfoFromBroadcast(android.net.ConnectivityManager, android.content.Intent);
+    method public static int getRestrictBackgroundStatus(android.net.ConnectivityManager);
     method public static boolean isActiveNetworkMetered(android.net.ConnectivityManager);
+    field public static final int RESTRICT_BACKGROUND_STATUS_DISABLED = 1; // 0x1
+    field public static final int RESTRICT_BACKGROUND_STATUS_ENABLED = 3; // 0x3
+    field public static final int RESTRICT_BACKGROUND_STATUS_WHITELISTED = 2; // 0x2
   }
 
   public final class TrafficStatsCompat {

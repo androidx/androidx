@@ -20,6 +20,10 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_MOBILE_DUN;
@@ -37,7 +41,43 @@ public final class ConnectivityManagerCompat {
 
     interface ConnectivityManagerCompatImpl {
         boolean isActiveNetworkMetered(ConnectivityManager cm);
+
+        @RestrictBackgroundStatus
+        int getRestrictBackgroundStatus(ConnectivityManager cm);
     }
+
+    /** @hide */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = false, value = {
+            RESTRICT_BACKGROUND_STATUS_DISABLED,
+            RESTRICT_BACKGROUND_STATUS_WHITELISTED,
+            RESTRICT_BACKGROUND_STATUS_ENABLED,
+    })
+    public @interface RestrictBackgroundStatus {
+    }
+
+    /**
+     * Device is not restricting metered network activity while application is running on
+     * background.
+     */
+    public static final int RESTRICT_BACKGROUND_STATUS_DISABLED = 1;
+
+    /**
+     * Device is restricting metered network activity while application is running on background,
+     * but application is allowed to bypass it.
+     * <p>
+     * In this state, application should take action to mitigate metered network access.
+     * For example, a music streaming application should switch to a low-bandwidth bitrate.
+     */
+    public static final int RESTRICT_BACKGROUND_STATUS_WHITELISTED = 2;
+
+    /**
+     * Device is restricting metered network activity while application is running on background.
+     * <p>
+     * In this state, application should not try to use the network while running on background,
+     * because it would be denied.
+     */
+    public static final int RESTRICT_BACKGROUND_STATUS_ENABLED = 3;
 
     static class BaseConnectivityManagerCompatImpl implements ConnectivityManagerCompatImpl {
         @Override
@@ -64,27 +104,44 @@ public final class ConnectivityManagerCompat {
                     return true;
             }
         }
+
+        @Override
+        public int getRestrictBackgroundStatus(ConnectivityManager cm) {
+            return RESTRICT_BACKGROUND_STATUS_ENABLED;
+        }
     }
 
     static class HoneycombMR2ConnectivityManagerCompatImpl
-            implements ConnectivityManagerCompatImpl {
+            extends BaseConnectivityManagerCompatImpl {
         @Override
         public boolean isActiveNetworkMetered(ConnectivityManager cm) {
             return ConnectivityManagerCompatHoneycombMR2.isActiveNetworkMetered(cm);
         }
     }
 
-    static class JellyBeanConnectivityManagerCompatImpl implements ConnectivityManagerCompatImpl {
+    static class JellyBeanConnectivityManagerCompatImpl
+            extends HoneycombMR2ConnectivityManagerCompatImpl {
         @Override
         public boolean isActiveNetworkMetered(ConnectivityManager cm) {
             return ConnectivityManagerCompatJellyBean.isActiveNetworkMetered(cm);
         }
     }
 
+    static class Api24ConnectivityManagerCompatImpl
+            extends JellyBeanConnectivityManagerCompatImpl {
+        @Override
+        public int getRestrictBackgroundStatus(ConnectivityManager cm) {
+            //noinspection ResourceType
+            return ConnectivityManagerCompatApi24.getRestrictBackgroundStatus(cm);
+        }
+    }
+
     private static final ConnectivityManagerCompatImpl IMPL;
 
     static {
-        if (Build.VERSION.SDK_INT >= 16) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            IMPL = new Api24ConnectivityManagerCompatImpl();
+        } else if (Build.VERSION.SDK_INT >= 16) {
             IMPL = new JellyBeanConnectivityManagerCompatImpl();
         } else if (Build.VERSION.SDK_INT >= 13) {
             IMPL = new HoneycombMR2ConnectivityManagerCompatImpl();
@@ -118,6 +175,19 @@ public final class ConnectivityManagerCompat {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Determines if the calling application is subject to metered network restrictions while
+     * running on background.
+     *
+     * @return {@link #RESTRICT_BACKGROUND_STATUS_DISABLED},
+     *         {@link #RESTRICT_BACKGROUND_STATUS_ENABLED},
+     *         or {@link #RESTRICT_BACKGROUND_STATUS_WHITELISTED}
+     */
+    @RestrictBackgroundStatus
+    public static int getRestrictBackgroundStatus(ConnectivityManager cm) {
+        return IMPL.getRestrictBackgroundStatus(cm);
     }
 
     private ConnectivityManagerCompat() {}
