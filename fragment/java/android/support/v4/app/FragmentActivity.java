@@ -34,7 +34,6 @@ import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -200,7 +199,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
     final public void setSupportMediaController(MediaControllerCompat mediaController) {
         mMediaController = mediaController;
         if (android.os.Build.VERSION.SDK_INT >= 21) {
-            ActivityCompat21.setMediaController(this, mediaController.getMediaController());
+            ActivityCompatApi21.setMediaController(this, mediaController.getMediaController());
         }
     }
 

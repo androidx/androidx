@@ -69,7 +69,7 @@ class ActivityCompatApi23 {
     }
 
     public abstract static class SharedElementCallback23
-            extends ActivityCompat21.SharedElementCallback21 {
+            extends ActivityCompatApi21.SharedElementCallback21 {
         public abstract void onSharedElementsArrived(List<String> sharedElementNames,
                 List<View> sharedElements, OnSharedElementsReadyListenerBridge listener);
     }
