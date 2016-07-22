@@ -72,6 +72,13 @@ public class ActivityCompat extends ContextCompat {
     }
 
     /**
+     * @deprecated Do not use this constructor. It will be removed and replaced
+     *             with a protected constructor in a future release.
+     */
+    @Deprecated
+    public ActivityCompat() {}
+
+    /**
      * Invalidate the activity's options menu, if able.
      *
      * <p>Before API level 11 (Android 3.0/Honeycomb) the lifecycle of the
@@ -239,7 +246,11 @@ public class ActivityCompat extends ContextCompat {
      * Backwards compatible implementation of {@link android.app.Activity#getReferrer()
      * Activity.getReferrer}.  Uses the platform's implementation if available, otherwise
      * only falls back to digging any explicitly specified referrer from the activity's intent.
+     *
+     * @deprecated Do not call this method. It will be removed and replaced
+     *             with a static method in a future release.
      */
+    @Deprecated
     public Uri getReferrer(Activity activity) {
         if (Build.VERSION.SDK_INT >= 22) {
             return ActivityCompat22.getReferrer(activity);

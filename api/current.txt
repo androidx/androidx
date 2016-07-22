@@ -3687,10 +3687,10 @@ package android.support.v4.app {
   }
 
   public class ActivityCompat extends android.support.v4.content.ContextCompat {
-    ctor public ActivityCompat();
+    ctor public deprecated ActivityCompat();
     method public static void finishAffinity(android.app.Activity);
     method public static void finishAfterTransition(android.app.Activity);
-    method public android.net.Uri getReferrer(android.app.Activity);
+    method public deprecated android.net.Uri getReferrer(android.app.Activity);
     method public static boolean invalidateOptionsMenu(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static void requestPermissions(android.app.Activity, java.lang.String[], int);
@@ -4636,7 +4636,7 @@ package android.support.v4.content {
   }
 
   public class ContextCompat {
-    ctor public ContextCompat();
+    ctor public deprecated ContextCompat();
     method public static int checkSelfPermission(android.content.Context, java.lang.String);
     method public static android.content.Context createDeviceProtectedStorageContext(android.content.Context);
     method public static java.io.File getCodeCacheDir(android.content.Context);
