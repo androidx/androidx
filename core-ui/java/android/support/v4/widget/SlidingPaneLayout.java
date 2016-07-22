@@ -533,7 +533,7 @@ public class SlidingPaneLayout extends ViewGroup {
             if (lp.width == LayoutParams.WRAP_CONTENT) {
                 childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
                         MeasureSpec.AT_MOST);
-            } else if (lp.width == LayoutParams.FILL_PARENT) {
+            } else if (lp.width == LayoutParams.MATCH_PARENT) {
                 childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
                         MeasureSpec.EXACTLY);
             } else {
@@ -543,7 +543,7 @@ public class SlidingPaneLayout extends ViewGroup {
             int childHeightSpec;
             if (lp.height == LayoutParams.WRAP_CONTENT) {
                 childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight, MeasureSpec.AT_MOST);
-            } else if (lp.height == LayoutParams.FILL_PARENT) {
+            } else if (lp.height == LayoutParams.MATCH_PARENT) {
                 childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight, MeasureSpec.EXACTLY);
             } else {
                 childHeightSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
@@ -594,7 +594,7 @@ public class SlidingPaneLayout extends ViewGroup {
                             if (lp.height == LayoutParams.WRAP_CONTENT) {
                                 childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,
                                         MeasureSpec.AT_MOST);
-                            } else if (lp.height == LayoutParams.FILL_PARENT) {
+                            } else if (lp.height == LayoutParams.MATCH_PARENT) {
                                 childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,
                                         MeasureSpec.EXACTLY);
                             } else {
@@ -616,7 +616,7 @@ public class SlidingPaneLayout extends ViewGroup {
                         if (lp.height == LayoutParams.WRAP_CONTENT) {
                             childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,
                                     MeasureSpec.AT_MOST);
-                        } else if (lp.height == LayoutParams.FILL_PARENT) {
+                        } else if (lp.height == LayoutParams.MATCH_PARENT) {
                             childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,
                                     MeasureSpec.EXACTLY);
                         } else {
@@ -1433,7 +1433,7 @@ public class SlidingPaneLayout extends ViewGroup {
         Paint dimPaint;
 
         public LayoutParams() {
-            super(FILL_PARENT, FILL_PARENT);
+            super(MATCH_PARENT, MATCH_PARENT);
         }
 
         public LayoutParams(int width, int height) {

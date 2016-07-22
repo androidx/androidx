@@ -15,11 +15,24 @@
  */
 package android.support.v7.widget;
 
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -28,17 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static org.junit.Assert.*;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 
 public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
@@ -94,8 +96,8 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         if (config.mWrap) {
             mRecyclerView.setLayoutParams(
                     new ViewGroup.LayoutParams(
-                            config.mOrientation == HORIZONTAL ? WRAP_CONTENT : FILL_PARENT,
-                            config.mOrientation == VERTICAL ? WRAP_CONTENT : FILL_PARENT
+                            config.mOrientation == HORIZONTAL ? WRAP_CONTENT : MATCH_PARENT,
+                            config.mOrientation == VERTICAL ? WRAP_CONTENT : MATCH_PARENT
                     )
             );
         }
