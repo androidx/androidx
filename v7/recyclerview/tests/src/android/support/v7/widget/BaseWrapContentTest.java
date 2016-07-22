@@ -208,8 +208,7 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutParams(lp);
         Rect padding = mWrapContentConfig.padding;
-        recyclerView.setPadding(padding.left, padding.top,
-                padding.right, padding.bottom);
+        recyclerView.setPadding(padding.left, padding.top, padding.right, padding.bottom);
         setRecyclerView(recyclerView);
         recyclerView.waitUntilLayout();
         Snapshot snapshot = takeSnapshot();
