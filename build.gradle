@@ -58,6 +58,11 @@ if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
     project.ext.distDir = file("${project.rootDir}/../../out/dist")
 }
 
+subprojects {
+    // Change buildDir first so that all plugins pick up the new value.
+    project.buildDir = project.file("$project.parent.buildDir/../$project.name/build")
+}
+
 ext.docsDir = new File(buildDir, 'javadoc')
 ext.supportRepoOut = new File(buildDir, 'support_repo')
 ext.testApkDistOut = ext.distDir
@@ -349,14 +354,11 @@ subprojects {
     // Only modify android projects.
     if (project.name.equals('doclava')) return;
 
-    // Change buildDir first so that all plugins pick up the new value.
-    project.buildDir = project.file("$project.parent.buildDir/../$project.name/build")
     // current SDK is set in studioCompat.gradle
     project.ext.currentSdk = gradle.ext.currentSdk
     apply plugin: 'maven'
     project.ext.createApiSourceSets = this.&createApiSourceset
     project.ext.setApiModuleDependencies = this.&setApiModuleDependencies
-
 
     version = rootProject.ext.supportVersion
     group = 'com.android.support'
