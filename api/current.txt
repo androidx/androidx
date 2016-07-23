@@ -2897,10 +2897,6 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.HorizontalGridView getGridView();
   }
 
-  public class MediaNowPlayingView extends android.widget.LinearLayout {
-    ctor public MediaNowPlayingView(android.content.Context, android.util.AttributeSet);
-  }
-
   public abstract interface MultiActionsProvider {
     method public abstract android.support.v17.leanback.widget.MultiActionsProvider.MultiAction[] getActions();
   }
