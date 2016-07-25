@@ -40,11 +40,11 @@ class AppCompatTextHelperV17 extends AppCompatTextHelper {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AppCompatTextHelper,
                 defStyleAttr, 0);
-        if (a.hasValue(0)) {
+        if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableStart)) {
             mDrawableStartTint = createTintInfo(context, drawableManager,
                     a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableStart, 0));
         }
-        if (a.hasValue(1)) {
+        if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableEnd)) {
             mDrawableEndTint = createTintInfo(context, drawableManager,
                     a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableEnd, 0));
         }
