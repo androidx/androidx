@@ -55,19 +55,19 @@ class AppCompatTextHelper {
                 R.styleable.AppCompatTextHelper, defStyleAttr, 0);
         final int ap = a.getResourceId(R.styleable.AppCompatTextHelper_android_textAppearance, -1);
         // Now read the compound drawable and grab any tints
-        if (a.hasValue(1)) {
+        if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableLeft)) {
             mDrawableLeftTint = createTintInfo(context, drawableManager,
                     a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableLeft, 0));
         }
-        if (a.hasValue(2)) {
+        if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableTop)) {
             mDrawableTopTint = createTintInfo(context, drawableManager,
                     a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableTop, 0));
         }
-        if (a.hasValue(3)) {
+        if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableRight)) {
             mDrawableRightTint = createTintInfo(context, drawableManager,
                     a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableRight, 0));
         }
-        if (a.hasValue(4)) {
+        if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableBottom)) {
             mDrawableBottomTint = createTintInfo(context, drawableManager,
                     a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableBottom, 0));
         }
