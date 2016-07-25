@@ -142,27 +142,6 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
                 ContextCompat.checkSelfPermission(mContext,
                         android.Manifest.permission.WAKE_LOCK));
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            // As documented in http://developer.android.com/training/permissions/requesting.html
-            // starting in Android M (v23) dangerous permissions are not granted automactically
-            // to apps targeting SDK 23 even if those are defined in the manifest.
-            // This is why the following permissions are expected to be denied.
-            assertEquals("Read contacts permission granted", PackageManager.PERMISSION_DENIED,
-                    ContextCompat.checkSelfPermission(mContext,
-                            android.Manifest.permission.READ_CONTACTS));
-            assertEquals("Write contacts permission granted", PackageManager.PERMISSION_DENIED,
-                    ContextCompat.checkSelfPermission(mContext,
-                            android.Manifest.permission.WRITE_CONTACTS));
-        } else {
-            // And on older devices declared dangerous permissions are expected to be granted.
-            assertEquals("Read contacts permission denied", PackageManager.PERMISSION_GRANTED,
-                    ContextCompat.checkSelfPermission(mContext,
-                            android.Manifest.permission.READ_CONTACTS));
-            assertEquals("Write contacts permission denied", PackageManager.PERMISSION_GRANTED,
-                    ContextCompat.checkSelfPermission(mContext,
-                            android.Manifest.permission.WRITE_CONTACTS));
-        }
-
         // The following permissions (normal and dangerous) are expected to be denied as they are
         // not declared in our manifest.
         assertEquals("Access network state permission denied", PackageManager.PERMISSION_DENIED,
