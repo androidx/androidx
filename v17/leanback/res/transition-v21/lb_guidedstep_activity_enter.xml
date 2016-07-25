@@ -44,6 +44,7 @@
             <target android:targetId="@id/guidedactions_content" />
             <target android:targetId="@id/guidedactions_list" />
             <target android:targetId="@id/guidedactions_sub_list" />
+            <target android:targetId="@id/guidedactions_sub_list_background" />
             <target android:targetId="@id/guidedactions_list_background2" />
             <target android:targetId="@id/guidedactions_content2" />
             <target android:targetId="@id/guidedactions_list2" />

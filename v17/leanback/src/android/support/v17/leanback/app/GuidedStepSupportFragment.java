@@ -857,16 +857,25 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
             if (uiStyle == UI_STYLE_REPLACE) {
                 Object enterTransition = TransitionHelper.createFadeAndShortSlide(Gravity.END);
                 TransitionHelper.exclude(enterTransition, R.id.guidedstep_background, true);
+                TransitionHelper.exclude(enterTransition, R.id.guidedactions_sub_list_background,
+                        true);
                 TransitionHelper.setEnterTransition(this, enterTransition);
 
+                Object fade = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN |
+                        TransitionHelper.FADE_OUT);
+                TransitionHelper.include(fade, R.id.guidedactions_sub_list_background);
                 Object changeBounds = TransitionHelper.createChangeBounds(false);
-                TransitionHelper.setSharedElementEnterTransition(this, changeBounds);
+                Object sharedElementTransition = TransitionHelper.createTransitionSet(false);
+                TransitionHelper.addTransition(sharedElementTransition, fade);
+                TransitionHelper.addTransition(sharedElementTransition, changeBounds);
+                TransitionHelper.setSharedElementEnterTransition(this, sharedElementTransition);
             } else if (uiStyle == UI_STYLE_ENTRANCE) {
                 if (entranceTransitionType == SLIDE_FROM_SIDE) {
                     Object fade = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN |
                             TransitionHelper.FADE_OUT);
                     TransitionHelper.include(fade, R.id.guidedstep_background);
-                    Object slideFromSide = TransitionHelper.createFadeAndShortSlide(Gravity.END | Gravity.START);
+                    Object slideFromSide = TransitionHelper.createFadeAndShortSlide(Gravity.END |
+                            Gravity.START);
                     TransitionHelper.include(slideFromSide, R.id.content_fragment);
                     TransitionHelper.include(slideFromSide, R.id.action_fragment_root);
                     Object enterTransition = TransitionHelper.createTransitionSet(false);
@@ -874,7 +883,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                     TransitionHelper.addTransition(enterTransition, slideFromSide);
                     TransitionHelper.setEnterTransition(this, enterTransition);
                 } else {
-                    Object slideFromBottom = TransitionHelper.createFadeAndShortSlide(Gravity.BOTTOM);
+                    Object slideFromBottom = TransitionHelper.createFadeAndShortSlide(
+                            Gravity.BOTTOM);
                     TransitionHelper.include(slideFromBottom, R.id.guidedstep_background_view_root);
                     Object enterTransition = TransitionHelper.createTransitionSet(false);
                     TransitionHelper.addTransition(enterTransition, slideFromBottom);
@@ -891,6 +901,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
             // exitTransition is same for all style
             Object exitTransition = TransitionHelper.createFadeAndShortSlide(Gravity.START);
             TransitionHelper.exclude(exitTransition, R.id.guidedstep_background, true);
+            TransitionHelper.exclude(exitTransition, R.id.guidedactions_sub_list_background,
+                    true);
             TransitionHelper.setExitTransition(this, exitTransition);
         }
     }
