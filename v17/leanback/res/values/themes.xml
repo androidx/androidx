@@ -167,7 +167,7 @@
         <item name="guidedActionsElevation">@dimen/lb_guidedactions_elevation</item>
         <item name="guidedActionsBackground">@color/lb_guidedactions_background</item>
         <item name="guidedActionsBackgroundDark">@color/lb_guidedactions_background_dark</item>
-        <item name="guidedActionsSelectorDrawable">?android:attr/selectableItemBackground</item>
+        <item name="guidedActionsSelectorDrawable">@drawable/lb_selectable_item_background</item>
         <item name="guidedActionsListStyle">@style/Widget.Leanback.GuidedActionsListStyle</item>
         <item name="guidedSubActionsListStyle">@style/Widget.Leanback.GuidedSubActionsListStyle</item>
         <item name="guidedButtonActionsListStyle">@style/Widget.Leanback.GuidedButtonActionsListStyle</item>
@@ -186,6 +186,7 @@
         <item name="guidedActionDisabledChevronAlpha">@string/lb_guidedactions_item_disabled_chevron_alpha</item>
         <item name="guidedActionContentWidthWeight">@string/lb_guidedactions_width_weight</item>
         <item name="guidedActionContentWidthWeightTwoPanels">@string/lb_guidedactions_width_weight_two_panels</item>
+        <item name="guidedButtonActionsWidthWeight">@string/lb_guidedbuttonactions_width_weight</item>
         <item name="guidedActionTitleMinLines">@integer/lb_guidedactions_item_title_min_lines</item>
         <item name="guidedActionTitleMaxLines">@integer/lb_guidedactions_item_title_max_lines</item>
         <item name="guidedActionDescriptionMinLines">@integer/lb_guidedactions_item_description_min_lines</item>
@@ -209,4 +210,5 @@
         <item name="onboardingStartButtonStyle">@style/Widget.Leanback.OnboardingStartButtonStyle</item>
         <item name="onboardingLogoStyle">@style/Widget.Leanback.OnboardingLogoStyle</item>
     </style>
+
 </resources>
