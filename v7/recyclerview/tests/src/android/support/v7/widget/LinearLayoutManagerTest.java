@@ -432,7 +432,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             @Override
             public void run() {
                 int recyclerSize = mRecyclerView.mRecycler.getRecycledViewPool().size();
-                mRecyclerView.setLayoutManager(new TestLayoutManager());
+                ((ViewGroup)mRecyclerView.getParent()).removeView(mRecyclerView);
                 assertEquals("No views are recycled", recyclerSize,
                         mRecyclerView.mRecycler.getRecycledViewPool().size());
             }
@@ -449,7 +449,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 int recyclerSize = mRecyclerView.mRecycler.getRecycledViewPool().size();
                 mRecyclerView.mRecycler.getRecycledViewPool().setMaxRecycledViews(
                         mTestAdapter.getItemViewType(0), recyclerSize + childCount);
-                mRecyclerView.setLayoutManager(new TestLayoutManager());
+                ((ViewGroup)mRecyclerView.getParent()).removeView(mRecyclerView);
                 assertEquals("All children should be recycled", childCount + recyclerSize,
                         mRecyclerView.mRecycler.getRecycledViewPool().size());
             }

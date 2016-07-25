@@ -176,6 +176,72 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
+    public void detachRvAndLayoutManagerProperly() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final LayoutAllLayoutManager lm = new LayoutAllLayoutManager(true) {
+            @Override
+            public void onAttachedToWindow(RecyclerView view) {
+                super.onAttachedToWindow(view);
+                assertThat(view.mLayout, is((RecyclerView.LayoutManager) this));
+            }
+
+            @Override
+            public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {
+                super.onDetachedFromWindow(view, recycler);
+                assertThat(view.mLayout, is((RecyclerView.LayoutManager) this));
+            }
+        };
+        final Runnable check = new Runnable() {
+            @Override
+            public void run() {
+                assertThat("bound between the RV and the LM should be disconnected at the"
+                        + " same time", rv.mLayout == lm, is(lm.mRecyclerView == rv));
+            }
+        };
+        final AtomicInteger detachCounter = new AtomicInteger(0);
+        rv.setAdapter(new TestAdapter(10) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                holder.itemView.setFocusable(true);
+                holder.itemView.setFocusableInTouchMode(true);
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(TestViewHolder holder) {
+                super.onViewDetachedFromWindow(holder);
+                detachCounter.incrementAndGet();
+                check.run();
+            }
+
+            @Override
+            public void onViewRecycled(TestViewHolder holder) {
+                super.onViewRecycled(holder);
+                check.run();
+            }
+        });
+        rv.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        setRecyclerView(rv);
+        lm.waitForLayout(2);
+        assertThat("test sanity", rv.getChildCount(), is(10));
+
+        final TestLayoutManager replacement = new LayoutAllLayoutManager(true);
+        replacement.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                rv.setLayoutManager(replacement);
+            }
+        });
+        replacement.waitForLayout(2);
+        assertThat("test sanity", rv.getChildCount(), is(10));
+        assertThat("all initial views should be detached", detachCounter.get(), is(10));
+        checkForMainThreadException();
+    }
+
+    @Test
     public void focusSearchWithOtherFocusables() throws Throwable {
         final LinearLayout container = new LinearLayout(getActivity());
         container.setOrientation(LinearLayout.VERTICAL);
@@ -4122,11 +4188,24 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     public class LayoutAllLayoutManager extends TestLayoutManager {
+        private final boolean mAllowNullLayoutLatch;
+
+        public LayoutAllLayoutManager() {
+            // by default, we don't allow unexpected layouts.
+            this(false);
+        }
+        public LayoutAllLayoutManager(boolean allowNullLayoutLatch) {
+            mAllowNullLayoutLatch = allowNullLayoutLatch;
+        }
+
+
         @Override
         public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
             detachAndScrapAttachedViews(recycler);
             layoutRange(recycler, 0, state.getItemCount());
-            layoutLatch.countDown();
+            if (!mAllowNullLayoutLatch || layoutLatch != null) {
+                layoutLatch.countDown();
+            }
         }
     }
 
