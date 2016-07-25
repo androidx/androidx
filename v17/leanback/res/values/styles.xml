@@ -571,6 +571,9 @@
         <item name="android:focusableInTouchMode">false</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
+        <item name="verticalMargin">@dimen/lb_guidedactions_list_vertical_spacing</item>
+        <item name="android:paddingStart">@dimen/lb_guidedactions_list_padding_start</item>
+        <item name="android:paddingEnd">@dimen/lb_guidedactions_list_padding_end</item>
         <item name="focusOutEnd">false</item>
         <item name="focusOutFront">false</item>
     </style>
@@ -595,11 +598,10 @@
         <item name="android:foreground">?attr/guidedActionsSelectorDrawable</item>
         <item name="android:focusable">true</item>
         <item name="android:focusableInTouchMode">true</item>
-        <item name="android:minHeight">@dimen/lb_guidedactions_item_min_height</item>
-        <item name="android:paddingBottom">@dimen/lb_guidedactions_vertical_padding</item>
+        <item name="android:paddingBottom">@dimen/lb_guidedactions_item_bottom_padding</item>
         <item name="android:paddingStart">@dimen/lb_guidedactions_item_start_padding</item>
         <item name="android:paddingEnd">@dimen/lb_guidedactions_item_end_padding</item>
-        <item name="android:paddingTop">@dimen/lb_guidedactions_vertical_padding</item>
+        <item name="android:paddingTop">@dimen/lb_guidedactions_item_top_padding</item>
     </style>
 
     <!-- Style for an action's checkmark in a GuidedActionsStylist's default item layout. -->
@@ -650,6 +652,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:alpha">@string/lb_guidedactions_item_unselected_description_text_alpha</item>
         <item name="android:ellipsize">end</item>
+        <item name="android:layout_marginTop">@dimen/lb_guidedactions_item_space_between_title_and_description</item>
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:maxLines">@integer/lb_guidedactions_item_description_min_lines</item>
         <item name="android:textColor">@color/lb_guidedactions_item_unselected_text_color</item>
@@ -660,8 +663,8 @@
 
     <!-- Style for an action's chevron in a GuidedActionsStylist's default item layout. -->
     <style name="Widget.Leanback.GuidedActionItemChevronStyle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">12dp</item>
+        <item name="android:layout_height">12dp</item>
         <item name="android:layout_gravity">center</item>
         <item name="android:layout_marginStart">@dimen/lb_guidedactions_item_delimiter_padding</item>
         <item name="android:scaleType">fitCenter</item>
