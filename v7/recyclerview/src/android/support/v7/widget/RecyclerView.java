@@ -350,6 +350,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     private int mLayoutOrScrollCounter = 0;
 
+    /**
+     * Similar to mLayoutOrScrollCounter but logs a warning instead of throwing an exception
+     * (for API compatibility).
+     * <p>
+     * It is a bad practice for a developer to update the data in a scroll callback since it is
+     * potentially called during a layout.
+     */
+    private int mDispatchScrollCounter = 0;
+
     private EdgeEffectCompat mLeftGlow, mTopGlow, mRightGlow, mBottomGlow;
 
     ItemAnimator mItemAnimator = new DefaultItemAnimator();
@@ -2363,6 +2372,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             throw new IllegalStateException(message);
         }
+        if (mDispatchScrollCounter > 0) {
+            Log.w(TAG, "Cannot call this method in a scroll callback. Scroll callbacks might be run"
+                    + " during a measure & layout pass where you cannot change the RecyclerView"
+                    + " data. Any method call that might change the structure of the RecyclerView"
+                    + " or the adapter contents should be postponed to the next frame.",
+                    new IllegalStateException(""));
+        }
     }
 
     /**
@@ -4243,6 +4259,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     void dispatchOnScrolled(int hresult, int vresult) {
+        mDispatchScrollCounter ++;
         // Pass the current scrollX/scrollY values; no actual change in these properties occurred
         // but some general-purpose code may choose to respond to changes this way.
         final int scrollX = getScrollX();
@@ -4262,6 +4279,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 mScrollListeners.get(i).onScrolled(this, hresult, vresult);
             }
         }
+        mDispatchScrollCounter --;
     }
 
     /**
