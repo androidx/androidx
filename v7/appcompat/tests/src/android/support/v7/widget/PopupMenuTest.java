@@ -15,19 +15,36 @@
  */
 package android.support.v7.widget;
 
-import android.support.test.InstrumentationRegistry;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Before;
-import org.junit.Test;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.RootMatchers.isPlatformPopup;
+import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anything;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Root;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
@@ -42,23 +59,12 @@ import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.RootMatchers.isPlatformPopup;
-import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
+import org.junit.Test;
 
 public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity> {
     // Since PopupMenu doesn't expose any access to the underlying
@@ -107,22 +113,29 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         // Note that MenuItem.isVisible() refers to the current "data" visibility state
         // and not the "on screen" visibility state. This is why we're testing the display
         // visibility of our main and sub menu items.
-
+        // onData(anything()).atPosition(x) operates on the content of the popup. It is used to
+        // scroll the popup if necessary to make sure the menu item views are visible.
+        onData(anything()).atPosition(0).check(matches(isDisplayed()));
         onView(withText(mResources.getString(R.string.popup_menu_highlight)))
                 .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
+        onData(anything()).atPosition(1).check(matches(isDisplayed()));
         onView(withText(mResources.getString(R.string.popup_menu_edit)))
                 .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
+        onData(anything()).atPosition(2).check(matches(isDisplayed()));
         onView(withText(mResources.getString(R.string.popup_menu_delete)))
                 .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
+        onData(anything()).atPosition(3).check(matches(isDisplayed()));
         onView(withText(mResources.getString(R.string.popup_menu_ignore)))
                 .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
+        onData(anything()).atPosition(4).check(matches(isDisplayed()));
         onView(withText(mResources.getString(R.string.popup_menu_share)))
                 .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
+        onData(anything()).atPosition(5).check(matches(isDisplayed()));
         onView(withText(mResources.getString(R.string.popup_menu_print)))
                 .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
