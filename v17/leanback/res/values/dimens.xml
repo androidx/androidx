@@ -241,11 +241,16 @@
     <!-- GuidedStepFragment -->
     <dimen name="lb_guidedstep_slide_ime_distance">-100dp</dimen>
 
-    <item name="lb_guidedactions_width_weight" format="float" type="string">0.666666667</item>
-    <item name="lb_guidedactions_width_weight_two_panels" format="float" type="string">1</item>
-    <dimen name="lb_guidedactions_section_shadow_width">16dp</dimen>
+    <dimen name="lb_guidedactions_list_padding_start">24dp</dimen>
+    <dimen name="lb_guidedactions_list_padding_end">24dp</dimen>
+
+    <item name="lb_guidedactions_width_weight" format="float" type="string">0.71428571428</item>
+    <item name="lb_guidedactions_width_weight_two_panels" format="float" type="string">1.191780822</item>
+    <item name="lb_guidedbuttonactions_width_weight" format="float" type="string">0.45</item>
+
+    <dimen name="lb_guidedactions_section_shadow_width">32dp</dimen>
     <dimen name="lb_guidedactions_elevation">12dp</dimen>
-    <dimen name="lb_guidedactions_vertical_padding">12dp</dimen>
+    <dimen name="lb_guidedactions_list_vertical_spacing">8dp</dimen>
 
     <item name="lb_guidedstep_height_weight" format="float" type="string">2.0</item>
     <item name="lb_guidedstep_height_weight_translucent" format="float" type="string">1.0</item>
@@ -259,14 +264,17 @@
 
     <dimen name="lb_guidedactions_item_text_width">248dp</dimen>
     <dimen name="lb_guidedactions_item_text_width_no_icon">284dp</dimen>
-    <dimen name="lb_guidedactions_item_min_height">64dp</dimen>
-    <dimen name="lb_guidedactions_item_start_padding">28dp</dimen>
-    <dimen name="lb_guidedactions_item_end_padding">28dp</dimen>
+    <dimen name="lb_guidedactions_item_start_padding">16dp</dimen>
+    <dimen name="lb_guidedactions_item_end_padding">16dp</dimen>
+    <dimen name="lb_guidedactions_item_top_padding">14dp</dimen>
+    <dimen name="lb_guidedactions_item_bottom_padding">13dp</dimen>
+    <dimen name="lb_guidedactions_vertical_padding">14dp</dimen>
     <dimen name="lb_guidedactions_item_delimiter_padding">4dp</dimen>
     <dimen name="lb_guidedactions_item_checkmark_diameter">16dp</dimen>
     <dimen name="lb_guidedactions_item_icon_width">32dp</dimen>
     <dimen name="lb_guidedactions_item_icon_height">32dp</dimen>
-    <dimen name="lb_guidedactions_item_title_font_size">18sp</dimen>
+    <dimen name="lb_guidedactions_item_title_font_size">14sp</dimen>
+    <dimen name="lb_guidedactions_item_space_between_title_and_description">2dp</dimen>
     <dimen name="lb_guidedactions_item_description_font_size">12sp</dimen>
     <dimen name="lb_guidedactions_sublist_bottom_margin">28dp</dimen>
 
