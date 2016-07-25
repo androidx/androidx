@@ -19,9 +19,9 @@
     <string name="mr_system_route_name" msgid="5441529851481176817">"Համակարգ"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Սարքեր"</string>
     <string name="mr_button_content_description" msgid="3698378085901466129">"Հեռարձակման կոճակ"</string>
-    <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Հեռարձակման կոճակ: Անջատված է"</string>
-    <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Հեռարձակման կոճակ: Միանում է"</string>
-    <string name="mr_cast_button_connected" msgid="5088427771788648085">"Հեռարձակման կոճակ: Միացված է"</string>
+    <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Հեռարձակման կոճակ: Սարքն անջատված է"</string>
+    <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Հեռարձակման կոճակ: Սարքը կապակցվում է"</string>
+    <string name="mr_cast_button_connected" msgid="5088427771788648085">"Հեռարձակման կոճակ: Սարքը կապակցված է"</string>
     <string name="mr_chooser_title" msgid="414301941546135990">"Ընտրեք սարքը"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Սարքերի որոնում"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Անջատել"</string>

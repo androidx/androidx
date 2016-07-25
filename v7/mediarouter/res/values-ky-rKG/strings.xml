@@ -19,9 +19,9 @@
     <string name="mr_system_route_name" msgid="5441529851481176817">"Тутум"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Түзмөктөр"</string>
     <string name="mr_button_content_description" msgid="3698378085901466129">"Тышкы экранга чыгаруу баскычы"</string>
-    <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Тышкы экранга чыгаруу баскычы. Ажыратылды"</string>
-    <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Тышкы экранга чыгаруу баскычы. Туташууда"</string>
-    <string name="mr_cast_button_connected" msgid="5088427771788648085">"Тышкы экранга чыгаруу баскычы. Туташты"</string>
+    <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Тышкы экранга чыгаруу баскычы. Түзмөк ажырап турат."</string>
+    <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Тышкы экранга чыгаруу баскычы. Түзмөк туташууда"</string>
+    <string name="mr_cast_button_connected" msgid="5088427771788648085">"Тышкы экранга чыгаруу баскычы. Түзмөк туташып турат"</string>
     <string name="mr_chooser_title" msgid="414301941546135990">"Төмөнкүгө чыгаруу"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Түзмөктөр изделүүдө"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Ажыратуу"</string>
