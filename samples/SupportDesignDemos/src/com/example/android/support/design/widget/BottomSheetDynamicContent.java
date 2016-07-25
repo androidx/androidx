@@ -79,7 +79,7 @@ public class BottomSheetDynamicContent extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.design_bottom_sheet_dyanmic);
+        setContentView(R.layout.design_bottom_sheet_dynamic);
 
         RecyclerView list = (RecyclerView) findViewById(R.id.list);
         list.setLayoutManager(new LinearLayoutManager(this));
