@@ -719,7 +719,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
 
     @Test
     public void spanCountChangeOnRestoreSavedState() throws Throwable {
-        Config config = new Config(HORIZONTAL, true, 5, GAP_HANDLING_NONE);
+        Config config = new Config(HORIZONTAL, true, 5, GAP_HANDLING_NONE).itemCount(50);
         setupByConfig(config);
         waitFirstLayout();
 
@@ -759,7 +759,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                 config.mGapStrategy, mLayoutManager.getGapStrategy());
         assertTrue("when span count is dramatically changed after restore, # of child views "
                 + "should change", beforeChildCount > mLayoutManager.getChildCount());
-        // make sure LLM can layout all children. is some span info is leaked, this would crash
+        // make sure SGLM can layout all children. is some span info is leaked, this would crash
         smoothScrollToPosition(mAdapter.getItemCount() - 1);
     }
 
