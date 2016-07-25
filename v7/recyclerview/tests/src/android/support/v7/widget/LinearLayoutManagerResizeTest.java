@@ -78,7 +78,7 @@ public class LinearLayoutManagerResizeTest extends BaseLinearLayoutManagerTest {
                 if (config.mOrientation == HORIZONTAL) {
                     container.setPadding(0, 0, container.getWidth() / 2, 0);
                 } else {
-                    container.setPadding(0, 0, 0, container.getWidth() / 2);
+                    container.setPadding(0, 0, 0, container.getHeight() / 2);
                 }
             }
         });
@@ -92,7 +92,7 @@ public class LinearLayoutManagerResizeTest extends BaseLinearLayoutManagerTest {
         } else {
             assertEquals("[" + config + "]: first visible position should not change.",
                     firstVisibleItemPosition, mLayoutManager.findFirstVisibleItemPosition());
-            assertEquals("[" + config + "]: last completely visible position should not change",
+            assertEquals("[" + config + "]: first completely visible position should not change",
                     firstCompletelyVisibleItemPosition,
                     mLayoutManager.findFirstCompletelyVisibleItemPosition());
         }
