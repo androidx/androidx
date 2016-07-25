@@ -482,9 +482,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         Animation alpha = new Animation() {
             @Override
             public void applyTransformation(float interpolatedTime, Transformation t) {
-                mProgress
-                        .setAlpha((int) (startingAlpha+ ((endingAlpha - startingAlpha)
-                                * interpolatedTime)));
+                mProgress.setAlpha(
+                        (int) (startingAlpha + ((endingAlpha - startingAlpha) * interpolatedTime)));
             }
         };
         alpha.setDuration(ALPHA_ANIMATION_DURATION);
@@ -875,7 +874,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     @Override
     public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
-        return mNestedScrollingChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+        return mNestedScrollingChildHelper.dispatchNestedPreScroll(
+                dx, dy, consumed, offsetInWindow);
     }
 
     @Override
@@ -1030,7 +1030,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
             case MotionEventCompat.ACTION_POINTER_DOWN: {
                 pointerIndex = MotionEventCompat.getActionIndex(ev);
                 if (pointerIndex < 0) {
-                    Log.e(LOG_TAG, "Got ACTION_POINTER_DOWN event but have an invalid action index.");
+                    Log.e(LOG_TAG,
+                            "Got ACTION_POINTER_DOWN event but have an invalid action index.");
                     return false;
                 }
                 mActivePointerId = ev.getPointerId(pointerIndex);
@@ -1182,7 +1183,10 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      * triggers a refresh should implement this interface.
      */
     public interface OnRefreshListener {
-        public void onRefresh();
+        /**
+         * Called when a swipe gesture triggers a refresh.
+         */
+        void onRefresh();
     }
 
     /**
@@ -1199,6 +1203,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
          *
          * @return Whether it is possible for the child view of parent layout to scroll up.
          */
-        public boolean canChildScrollUp(SwipeRefreshLayout parent, @Nullable View child);
+        boolean canChildScrollUp(SwipeRefreshLayout parent, @Nullable View child);
     }
 }
