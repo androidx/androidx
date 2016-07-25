@@ -215,7 +215,7 @@ public class PlaybackControlsRow extends Row {
             if (numSpeeds < 1) {
                 throw new IllegalArgumentException("numSpeeds must be > 0");
             }
-            Drawable[] drawables = new Drawable[numSpeeds];
+            Drawable[] drawables = new Drawable[numSpeeds + 1];
             drawables[0] = getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_fast_forward);
             setDrawables(drawables);
@@ -226,7 +226,7 @@ public class PlaybackControlsRow extends Row {
             String[] labels2 = new String[getActionCount()];
             labels2[0] = labels[0];
 
-            for (int i = 1; i < numSpeeds; i++) {
+            for (int i = 1; i <= numSpeeds; i++) {
                 int multiplier = i + 1;
                 labels[i] = context.getResources().getString(
                         R.string.lb_control_display_fast_forward_multiplier, multiplier);
@@ -262,7 +262,7 @@ public class PlaybackControlsRow extends Row {
             if (numSpeeds < 1) {
                 throw new IllegalArgumentException("numSpeeds must be > 0");
             }
-            Drawable[] drawables = new Drawable[numSpeeds];
+            Drawable[] drawables = new Drawable[numSpeeds + 1];
             drawables[0] = getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_rewind);
             setDrawables(drawables);
@@ -273,7 +273,7 @@ public class PlaybackControlsRow extends Row {
             String[] labels2 = new String[getActionCount()];
             labels2[0] = labels[0];
 
-            for (int i = 1; i < numSpeeds; i++) {
+            for (int i = 1; i <= numSpeeds; i++) {
                 int multiplier = i + 1;
                 labels[i] = labels[i] = context.getResources().getString(
                         R.string.lb_control_display_rewind_multiplier, multiplier);
