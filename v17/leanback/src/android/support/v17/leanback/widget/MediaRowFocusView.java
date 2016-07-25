@@ -23,6 +23,7 @@ import android.support.v17.leanback.R;
 
 /**
  * Creates a view for a media item row in a playlist
+ * @hide
  */
 class MediaRowFocusView extends View {
 

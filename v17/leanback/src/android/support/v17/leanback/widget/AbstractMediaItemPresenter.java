@@ -365,10 +365,10 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
 
 
         /**
-         * Flips to the view at index 'position' specified in the layout file for media item number
-         * view.
-         * @param position The position of the new view within the layout file to which the media
-         *                 item number view is flipped.
+         * Flips to the view at index 'position'. This position corresponds to the index of a
+         * particular view within the ViewFlipper layout specified for the MediaItemNumberView
+         * (see playbackMediaItemNumberViewFlipperLayout attribute).
+         * @param position The index of the child view to display.
          */
         public void setSelectedMediaItemNumberView(int position) {
             if (position >= 0 & position < mMediaItemNumberViewFlipper.getChildCount()) {
@@ -551,8 +551,8 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
     }
 
     /**
-     * Unbinds the play state view from the given ViewHolder
-     * @param vh The ViewHolder to unbind from
+     * Called when the given ViewHolder wants to unbind the play state view.
+     * @param vh The ViewHolder to unbind from.
      */
     public void onUnbindMediaPlayState(ViewHolder vh) {
     }
