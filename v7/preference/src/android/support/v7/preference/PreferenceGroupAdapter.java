@@ -128,6 +128,11 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     }
 
     private void syncMyPreferences() {
+        for (final Preference preference : mPreferenceListInternal) {
+            // Clear out the listeners in anticipation of some items being removed. This listener
+            // will be (re-)added to the remaining prefs when we flatten.
+            preference.setOnPreferenceChangeInternalListener(null);
+        }
         final List<Preference> fullPreferenceList = new ArrayList<>(mPreferenceListInternal.size());
         flattenPreferenceGroup(fullPreferenceList, mPreferenceGroup);
 
@@ -223,6 +228,9 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
 
     @Override
     public void onPreferenceVisibilityChange(Preference preference) {
+        if (!mPreferenceListInternal.contains(preference)) {
+            return;
+        }
         if (preference.isVisible()) {
             // The preference has become visible, we need to add it in the correct location.
 
