@@ -218,20 +218,20 @@ public class SlidingPaneLayout extends ViewGroup {
          * @param panel The child view that was moved
          * @param slideOffset The new offset of this sliding pane within its range, from 0-1
          */
-        public void onPanelSlide(View panel, float slideOffset);
+        void onPanelSlide(View panel, float slideOffset);
         /**
          * Called when a sliding pane becomes slid completely open. The pane may or may not
          * be interactive at this point depending on how much of the pane is visible.
          * @param panel The child view that was slid to an open position, revealing other panes
          */
-        public void onPanelOpened(View panel);
+        void onPanelOpened(View panel);
 
         /**
          * Called when a sliding pane becomes slid completely closed. The pane is now guaranteed
          * to be interactive. It may now obscure other views in the layout.
          * @param panel The child view that was slid to a closed position
          */
-        public void onPanelClosed(View panel);
+        void onPanelClosed(View panel);
     }
 
     /**
@@ -357,10 +357,8 @@ public class SlidingPaneLayout extends ViewGroup {
 
     void updateObscuredViewsVisibility(View panel) {
         final boolean isLayoutRtl = isLayoutRtlSupport();
-        final int startBound = isLayoutRtl ? (getWidth() - getPaddingRight()) :
-            getPaddingLeft();
-        final int endBound = isLayoutRtl ? getPaddingLeft() :
-            (getWidth() - getPaddingRight());
+        final int startBound = isLayoutRtl ? (getWidth() - getPaddingRight()) : getPaddingLeft();
+        final int endBound = isLayoutRtl ? getPaddingLeft() : (getWidth() - getPaddingRight());
         final int topBound = getPaddingTop();
         final int bottomBound = getHeight() - getPaddingBottom();
         final int left;
@@ -386,15 +384,15 @@ public class SlidingPaneLayout extends ViewGroup {
                 continue;
             }
 
-            final int clampedChildLeft = Math.max((isLayoutRtl ? endBound :
-                startBound), child.getLeft());
+            final int clampedChildLeft = Math.max(
+                    (isLayoutRtl ? endBound : startBound), child.getLeft());
             final int clampedChildTop = Math.max(topBound, child.getTop());
-            final int clampedChildRight = Math.min((isLayoutRtl ? startBound :
-                endBound), child.getRight());
+            final int clampedChildRight = Math.min(
+                    (isLayoutRtl ? startBound : endBound), child.getRight());
             final int clampedChildBottom = Math.min(bottomBound, child.getBottom());
             final int vis;
-            if (clampedChildLeft >= left && clampedChildTop >= top &&
-                    clampedChildRight <= right && clampedChildBottom <= bottom) {
+            if (clampedChildLeft >= left && clampedChildTop >= top
+                    && clampedChildRight <= right && clampedChildBottom <= bottom) {
                 vis = INVISIBLE;
             } else {
                 vis = VISIBLE;
@@ -700,8 +698,7 @@ public class SlidingPaneLayout extends ViewGroup {
                         width - paddingEnd - mOverhangSize) - xStart - margin;
                 mSlideRange = range;
                 final int lpMargin = isLayoutRtl ? lp.rightMargin : lp.leftMargin;
-                lp.dimWhenOffset = xStart + lpMargin + range + childWidth / 2 >
-                        width - paddingEnd;
+                lp.dimWhenOffset = xStart + lpMargin + range + childWidth / 2 > width - paddingEnd;
                 final int pos = (int) (range * mSlideOffset);
                 xStart += pos + lpMargin;
                 mSlideOffset = (float) pos / mSlideRange;
@@ -800,8 +797,8 @@ public class SlidingPaneLayout extends ViewGroup {
                 mInitialMotionX = x;
                 mInitialMotionY = y;
 
-                if (mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y) &&
-                        isDimmed(mSlideableView)) {
+                if (mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)
+                        && isDimmed(mSlideableView)) {
                     interceptTap = true;
                 }
                 break;
@@ -853,8 +850,8 @@ public class SlidingPaneLayout extends ViewGroup {
                     final float dx = x - mInitialMotionX;
                     final float dy = y - mInitialMotionY;
                     final int slop = mDragHelper.getTouchSlop();
-                    if (dx * dx + dy * dy < slop * slop &&
-                            mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
+                    if (dx * dx + dy * dy < slop * slop
+                            && mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
                         // Taps close a dimmed open pane.
                         closePane(mSlideableView, 0);
                         break;
@@ -1200,8 +1197,8 @@ public class SlidingPaneLayout extends ViewGroup {
     private void parallaxOtherViews(float slideOffset) {
         final boolean isLayoutRtl = isLayoutRtlSupport();
         final LayoutParams slideLp = (LayoutParams) mSlideableView.getLayoutParams();
-        final boolean dimViews = slideLp.dimWhenOffset &&
-                (isLayoutRtl ? slideLp.rightMargin : slideLp.leftMargin) <= 0;
+        final boolean dimViews = slideLp.dimWhenOffset
+                && (isLayoutRtl ? slideLp.rightMargin : slideLp.leftMargin) <= 0;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View v = getChildAt(i);
@@ -1215,8 +1212,8 @@ public class SlidingPaneLayout extends ViewGroup {
             v.offsetLeftAndRight(isLayoutRtl ? -dx : dx);
 
             if (dimViews) {
-                dimChildView(v, isLayoutRtl ? mParallaxOffset - 1 :
-                    1 - mParallaxOffset, mCoveredFadeColor);
+                dimChildView(v, isLayoutRtl ? mParallaxOffset - 1
+                        : 1 - mParallaxOffset, mCoveredFadeColor);
             }
         }
     }
@@ -1243,9 +1240,9 @@ public class SlidingPaneLayout extends ViewGroup {
                 // TODO: Add versioned support here for transformed views.
                 // This will not work for transformed views in Honeycomb+
                 final View child = group.getChildAt(i);
-                if (x + scrollX >= child.getLeft() && x + scrollX < child.getRight() &&
-                        y + scrollY >= child.getTop() && y + scrollY < child.getBottom() &&
-                        canScroll(child, true, dx, x + scrollX - child.getLeft(),
+                if (x + scrollX >= child.getLeft() && x + scrollX < child.getRight()
+                        && y + scrollY >= child.getTop() && y + scrollY < child.getBottom()
+                        && canScroll(child, true, dx, x + scrollX - child.getLeft(),
                                 y + scrollY - child.getTop())) {
                     return true;
                 }
@@ -1383,8 +1380,8 @@ public class SlidingPaneLayout extends ViewGroup {
 
             final int newLeft;
             if (isLayoutRtlSupport()) {
-                int startBound = getWidth() -
-                        (getPaddingRight() + lp.rightMargin + mSlideableView.getWidth());
+                int startBound = getWidth()
+                        - (getPaddingRight() + lp.rightMargin + mSlideableView.getWidth());
                 int endBound =  startBound - mSlideRange;
                 newLeft = Math.max(Math.min(left, startBound), endBound);
             } else {
