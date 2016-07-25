@@ -5743,6 +5743,7 @@ package android.support.v4.os {
   public class BuildCompat {
     method public static boolean isAtLeastN();
     method public static boolean isAtLeastNMR1();
+    method public static boolean isAtLeastO();
   }
 
   public final class CancellationSignal {

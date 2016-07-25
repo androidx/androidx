@@ -45,4 +45,14 @@ public class BuildCompat {
     public static boolean isAtLeastNMR1() {
         return VERSION.SDK_INT >= 25;
     }
+
+    /**
+     * Check if the device is running on the Android O release or newer.
+     *
+     * @return {@code true} if O APIs are available for use
+     */
+    public static boolean isAtLeastO() {
+        return !"REL".equals(VERSION.CODENAME)
+                && "O".compareTo(VERSION.CODENAME) <= 0;
+    }
 }
