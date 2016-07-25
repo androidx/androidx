@@ -653,10 +653,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
         if (mFastForwardAction != null) {
             int index = 0;
             if (playbackSpeed >= PLAYBACK_SPEED_FAST_L0) {
-                index = playbackSpeed - PLAYBACK_SPEED_FAST_L0;
-                if (playbackSpeed < getMaxForwardSpeedId()) {
-                    index++;
-                }
+                index = playbackSpeed - PLAYBACK_SPEED_FAST_L0 + 1;
             }
             if (mFastForwardAction.getIndex() != index) {
                 mFastForwardAction.setIndex(index);
@@ -666,10 +663,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
         if (mRewindAction != null) {
             int index = 0;
             if (playbackSpeed <= -PLAYBACK_SPEED_FAST_L0) {
-                index = -playbackSpeed - PLAYBACK_SPEED_FAST_L0;
-                if (-playbackSpeed < getMaxRewindSpeedId()) {
-                    index++;
-                }
+                index = -playbackSpeed - PLAYBACK_SPEED_FAST_L0 + 1;
             }
             if (mRewindAction.getIndex() != index) {
                 mRewindAction.setIndex(index);

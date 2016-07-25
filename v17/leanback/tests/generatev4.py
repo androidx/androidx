@@ -78,7 +78,6 @@ for line in file:
 file.close()
 outfile.close()
 
-
 print "copy ParallaxIntEffectTest to ParallaxFloatEffectTest"
 file = open('java/android/support/v17/leanback/widget/ParallaxIntEffectTest.java', 'r')
 outfile = open('java/android/support/v17/leanback/widget/ParallaxFloatEffectTest.java', 'w')
@@ -91,7 +90,8 @@ for line in file:
 file.close()
 outfile.close()
 
-print "copy ParallaxIntEffectTest to ParallaxIntSourceTest"
+
+print "copy ParallaxIntSourceTest to ParallaxFloatSourceTest"
 file = open('java/android/support/v17/leanback/widget/ParallaxIntSourceTest.java', 'r')
 outfile = open('java/android/support/v17/leanback/widget/ParallaxFloatSourceTest.java', 'w')
 outfile.write("/* This file is auto-generated from ParallaxIntSourceTest.java.  DO NOT MODIFY. */\n\n")
@@ -100,6 +100,17 @@ for line in file:
     line = line.replace('IntVariable', 'FloatVariable')
     line = line.replace('IntValue', 'FloatValue')
     line = line.replace('assertEquals((int)', 'assertFloatEquals((float)')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+
+print "copy PlaybackControlGlueTest to PlaybackControlSupportGlueTest"
+file = open('java/android/support/v17/leanback/app/PlaybackControlGlueTest.java', 'r')
+outfile = open('java/android/support/v17/leanback/app/PlaybackControlSupportGlueTest.java', 'w')
+outfile.write("/* This file is auto-generated from PlaybackControlGlueTest.java.  DO NOT MODIFY. */\n\n")
+for line in file:
+    line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue')
     outfile.write(line)
 file.close()
 outfile.close()
