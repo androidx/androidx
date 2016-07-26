@@ -740,7 +740,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
          * Creates a new ramp-up scroller that reaches full velocity after a
          * specified duration.
          */
-        public ClampedScroller() {
+        ClampedScroller() {
             mStartTime = Long.MIN_VALUE;
             mStopTime = -1;
             mDeltaTime = 0;

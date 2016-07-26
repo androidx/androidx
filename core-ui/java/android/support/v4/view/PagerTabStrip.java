@@ -238,8 +238,8 @@ public class PagerTabStrip extends PagerTitleStrip {
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                if (Math.abs(x - mInitialMotionX) > mTouchSlop ||
-                        Math.abs(y - mInitialMotionY) > mTouchSlop) {
+                if (Math.abs(x - mInitialMotionX) > mTouchSlop
+                        || Math.abs(y - mInitialMotionY) > mTouchSlop) {
                     mIgnoreTap = true;
                 }
                 break;
