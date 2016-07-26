@@ -18,8 +18,10 @@ package android.support.v7.app;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
@@ -37,6 +39,47 @@ import android.view.Window;
 abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
     static final boolean DEBUG = false;
+
+    private static boolean sInstalledExceptionHandler;
+    private static final boolean SHOULD_INSTALL_EXCEPTION_HANDLER = Build.VERSION.SDK_INT < 21;
+
+    private static final String EXCEPTION_HANDLER_MESSAGE_SUFFIX= ". If the resource you are"
+            + " trying to use is a vector resource, you may be referencing it in an unsupported"
+            + " way. See AppCompatDelegate.setCompatVectorFromResourcesEnabled() for more info.";
+
+    static {
+        if (SHOULD_INSTALL_EXCEPTION_HANDLER && !sInstalledExceptionHandler) {
+            final Thread.UncaughtExceptionHandler defHandler
+                    = Thread.getDefaultUncaughtExceptionHandler();
+
+            Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                @Override
+                public void uncaughtException(Thread thread, final Throwable thowable) {
+                    if (shouldWrapException(thowable)) {
+                        // Now wrap the throwable, but append some extra information to the message
+                        final Throwable wrapped = new Resources.NotFoundException(
+                                thowable.getMessage() + EXCEPTION_HANDLER_MESSAGE_SUFFIX);
+                        wrapped.initCause(thowable.getCause());
+                        wrapped.setStackTrace(thowable.getStackTrace());
+                        defHandler.uncaughtException(thread, wrapped);
+                    } else {
+                        defHandler.uncaughtException(thread, thowable);
+                    }
+                }
+
+                private boolean shouldWrapException(Throwable throwable) {
+                    if (throwable instanceof Resources.NotFoundException) {
+                        final String message = throwable.getMessage();
+                        return message != null && (message.contains("drawable")
+                                || message.contains("Drawable"));
+                    }
+                    return false;
+                }
+            });
+
+            sInstalledExceptionHandler = true;
+        }
+    }
 
     private static final int[] sWindowBackgroundStyleable = {android.R.attr.windowBackground};
 

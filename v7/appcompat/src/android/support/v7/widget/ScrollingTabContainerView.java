@@ -469,7 +469,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
 
                 if (icon != null) {
                     if (mIconView == null) {
-                        ImageView iconView = new ImageView(getContext());
+                        ImageView iconView = new AppCompatImageView(getContext());
                         LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT,
                                 LayoutParams.WRAP_CONTENT);
                         lp.gravity = Gravity.CENTER_VERTICAL;
