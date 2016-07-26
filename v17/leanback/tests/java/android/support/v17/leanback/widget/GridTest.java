@@ -24,7 +24,7 @@ import java.io.StringWriter;
  * Base class for testing Grid algorithm
  * @hide
  */
-public abstract class GridTest extends AndroidTestCase {
+public abstract class GridTest {
 
     static class Provider implements Grid.Provider {
 

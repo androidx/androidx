@@ -15,15 +15,30 @@
  */
 package android.support.v17.leanback.widget;
 
+import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.junit.Test;
+
+import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.SmallTest;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+
 /**
  * Testing StaggeredGridDefault algorithm
  * @hide
  */
+@SmallTest
+@RunWith(AndroidJUnit4.class)
 public class StaggeredGridDefaultTest extends GridTest {
 
     StaggeredGridDefault mStaggeredGrid;
 
-    public void testWhenToFillNextRow() throws Throwable {
+    @Test
+    public void testWhenToFillNextRow()  {
         mProvider = new Provider(new int[]{100, 100, 100, 100, 40, 100, 100, 30, 100});
 
         // layout first 8 items then all items
