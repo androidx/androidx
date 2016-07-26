@@ -677,7 +677,7 @@ public class Toolbar extends ViewGroup {
 
     private void ensureLogoView() {
         if (mLogoView == null) {
-            mLogoView = new ImageView(getContext());
+            mLogoView = new AppCompatImageView(getContext());
         }
     }
 
@@ -746,7 +746,7 @@ public class Toolbar extends ViewGroup {
         if (!TextUtils.isEmpty(title)) {
             if (mTitleTextView == null) {
                 final Context context = getContext();
-                mTitleTextView = new TextView(context);
+                mTitleTextView = new AppCompatTextView(context);
                 mTitleTextView.setSingleLine();
                 mTitleTextView.setEllipsize(TextUtils.TruncateAt.END);
                 if (mTitleTextAppearance != 0) {
@@ -800,7 +800,7 @@ public class Toolbar extends ViewGroup {
         if (!TextUtils.isEmpty(subtitle)) {
             if (mSubtitleTextView == null) {
                 final Context context = getContext();
-                mSubtitleTextView = new TextView(context);
+                mSubtitleTextView = new AppCompatTextView(context);
                 mSubtitleTextView.setSingleLine();
                 mSubtitleTextView.setEllipsize(TextUtils.TruncateAt.END);
                 if (mSubtitleTextAppearance != 0) {
@@ -1353,7 +1353,7 @@ public class Toolbar extends ViewGroup {
 
     private void ensureNavButtonView() {
         if (mNavButtonView == null) {
-            mNavButtonView = new ImageButton(getContext(), null,
+            mNavButtonView = new AppCompatImageButton(getContext(), null,
                     R.attr.toolbarNavigationButtonStyle);
             final LayoutParams lp = generateDefaultLayoutParams();
             lp.gravity = GravityCompat.START | (mButtonGravity & Gravity.VERTICAL_GRAVITY_MASK);
@@ -1363,7 +1363,7 @@ public class Toolbar extends ViewGroup {
 
     private void ensureCollapseButtonView() {
         if (mCollapseButtonView == null) {
-            mCollapseButtonView = new ImageButton(getContext(), null,
+            mCollapseButtonView = new AppCompatImageButton(getContext(), null,
                     R.attr.toolbarNavigationButtonStyle);
             mCollapseButtonView.setImageDrawable(mCollapseIcon);
             mCollapseButtonView.setContentDescription(mCollapseDescription);
