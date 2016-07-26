@@ -240,7 +240,6 @@ public class ActivityOptionsCompat {
      * @return Returns a new ActivityOptions object that you can use to
      *         supply these options as the options Bundle when starting an activity.
      */
-    @SafeVarargs
     public static ActivityOptionsCompat makeSceneTransitionAnimation(Activity activity,
             Pair<View, String>... sharedElements) {
         if (Build.VERSION.SDK_INT >= 21) {
