@@ -30,6 +30,9 @@
     <string name="title_checkbox_preference">Checkbox preference</string>
     <string name="summary_checkbox_preference">This is a checkbox</string>
 
+    <string name="title_dropdown_preference">Dropdown preference</string>
+    <string name="summary_dropdown_preference">This is a dropdown</string>
+
     <string name="title_switch_preference">Switch preference</string>
     <string name="summary_switch_preference">This is a switch</string>
     <string name="summary_switch_preference_yes_no">This is a switch with custom text</string>
