@@ -702,10 +702,9 @@ public final class AppCompatDrawableManager {
             return;
         }
         // Here we will check that a known Vector drawable resource inside AppCompat can be
-        // correctly decoded. We use one that will almost definitely be used in the future to
-        // negate any wasted work
+        // correctly decoded
         mHasCheckedVectorDrawableSetup = true;
-        final Drawable d = getDrawable(context, R.drawable.abc_ic_ab_back_material);
+        final Drawable d = getDrawable(context, R.drawable.abc_vector_test);
         if (d == null || !isVectorDrawable(d)) {
             mHasCheckedVectorDrawableSetup = false;
             throw new IllegalStateException("This app has been built with an incorrect "
