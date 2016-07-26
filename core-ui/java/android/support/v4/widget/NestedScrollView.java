@@ -874,8 +874,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     private void onSecondaryPointerUp(MotionEvent ev) {
-        final int pointerIndex = (ev.getAction() & MotionEventCompat.ACTION_POINTER_INDEX_MASK) >>
-                MotionEventCompat.ACTION_POINTER_INDEX_SHIFT;
+        final int pointerIndex = (ev.getAction() & MotionEventCompat.ACTION_POINTER_INDEX_MASK)
+                >> MotionEventCompat.ACTION_POINTER_INDEX_SHIFT;
         final int pointerId = ev.getPointerId(pointerIndex);
         if (pointerId == mActivePointerId) {
             // This was our active pointer going up. Choose a new
@@ -1049,8 +1049,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                  * focusing
                  */
 
-                final boolean viewIsFullyContained = (top < viewTop) &&
-                        (viewBottom < bottom);
+                final boolean viewIsFullyContained = (top < viewTop) && (viewBottom < bottom);
 
                 if (focusCandidate == null) {
                     /* No candidate, take this one */
@@ -1058,9 +1057,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                     foundFullyContainedFocusable = viewIsFullyContained;
                 } else {
                     final boolean viewIsCloserToBoundary =
-                            (topFocus && viewTop < focusCandidate.getTop()) ||
-                                    (!topFocus && viewBottom > focusCandidate
-                                            .getBottom());
+                            (topFocus && viewTop < focusCandidate.getTop())
+                                    || (!topFocus && viewBottom > focusCandidate.getBottom());
 
                     if (foundFullyContainedFocusable) {
                         if (viewIsFullyContained && viewIsCloserToBoundary) {
@@ -1384,7 +1382,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     @Override
-    protected void measureChild(View child, int parentWidthMeasureSpec, int parentHeightMeasureSpec) {
+    protected void measureChild(View child, int parentWidthMeasureSpec,
+            int parentHeightMeasureSpec) {
         ViewGroup.LayoutParams lp = child.getLayoutParams();
 
         int childWidthMeasureSpec;
@@ -1577,10 +1576,10 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             direction = View.FOCUS_UP;
         }
 
-        final View nextFocus = previouslyFocusedRect == null ?
-                FocusFinder.getInstance().findNextFocus(this, null, direction) :
-                FocusFinder.getInstance().findNextFocusFromRect(this,
-                        previouslyFocusedRect, direction);
+        final View nextFocus = previouslyFocusedRect == null
+                ? FocusFinder.getInstance().findNextFocus(this, null, direction)
+                : FocusFinder.getInstance().findNextFocusFromRect(
+                        this, previouslyFocusedRect, direction);
 
         if (nextFocus == null) {
             return false;
@@ -1654,8 +1653,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         super.onSizeChanged(w, h, oldw, oldh);
 
         View currentFocused = findFocus();
-        if (null == currentFocused || this == currentFocused)
+        if (null == currentFocused || this == currentFocused) {
             return;
+        }
 
         // If the currently-focused view was visible on the screen when the
         // screen was at the old height, then scroll the screen to make that
@@ -1693,7 +1693,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             int bottom = getChildAt(0).getHeight();
 
             mScroller.fling(getScrollX(), getScrollY(), 0, velocityY, 0, 0, 0,
-                    Math.max(0, bottom - height), 0, height/2);
+                    Math.max(0, bottom - height), 0, height / 2);
 
             ViewCompat.postInvalidateOnAnimation(this);
         }
@@ -1701,8 +1701,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     private void flingWithNestedDispatch(int velocityY) {
         final int scrollY = getScrollY();
-        final boolean canFling = (scrollY > 0 || velocityY > 0) &&
-                (scrollY < getScrollRange() || velocityY < 0);
+        final boolean canFling = (scrollY > 0 || velocityY > 0)
+                && (scrollY < getScrollRange() || velocityY < 0);
         if (!dispatchNestedPreFling(0, velocityY)) {
             dispatchNestedFling(0, velocityY, canFling);
             if (canFling) {
@@ -1806,13 +1806,13 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
              */
             return 0;
         }
-        if ((my+n) > child) {
+        if ((my + n) > child) {
             /* this case:
              *                    |------ me ------|
              *     |------ child ------|
              *     |-- mScrollX --|
              */
-            return child-my;
+            return child - my;
         }
         return n;
     }
@@ -1845,7 +1845,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             super(superState);
         }
 
-        public SavedState(Parcel source) {
+        SavedState(Parcel source) {
             super(source);
             scrollPosition = source.readInt();
         }
@@ -1863,8 +1863,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                     + " scrollPosition=" + scrollPosition + "}";
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
             @Override
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);

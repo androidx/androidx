@@ -194,7 +194,7 @@ public class PagerTitleStrip extends ViewGroup {
      *
      * @param alpha Opacity value in the range 0-1f
      */
-    public void setNonPrimaryAlpha(@FloatRange(from=0.0, to=1.0) float alpha) {
+    public void setNonPrimaryAlpha(@FloatRange(from = 0.0, to = 1.0) float alpha) {
         mNonPrimaryAlpha = (int) (alpha * 255) & 0xFF;
         final int transparentColor = (mNonPrimaryAlpha << 24) | (mTextColor & 0xFFFFFF);
         mPrevText.setTextColor(transparentColor);
@@ -282,8 +282,8 @@ public class PagerTitleStrip extends ViewGroup {
         }
         mPrevText.setText(text);
 
-        mCurrText.setText(adapter != null && currentItem < itemCount ?
-                adapter.getPageTitle(currentItem) : null);
+        mCurrText.setText(adapter != null && currentItem < itemCount
+                ? adapter.getPageTitle(currentItem) : null);
 
         text = null;
         if (currentItem + 1 < itemCount && adapter != null) {

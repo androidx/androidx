@@ -71,7 +71,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
     private static final float CENTER_RADIUS_LARGE = 12.5f;
     private static final float STROKE_WIDTH_LARGE = 3f;
 
-    private final int[] COLORS = new int[] {
+    private static final int[] COLORS = new int[] {
         Color.BLACK
     };
 
@@ -115,7 +115,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
     private double mHeight;
     boolean mFinishing;
 
-    public MaterialProgressDrawable(Context context, View parent) {
+    MaterialProgressDrawable(Context context, View parent) {
         mParent = parent;
         mResources = context.getResources();
 
@@ -197,7 +197,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
      */
     public void setBackgroundColor(int color) {
         mRing.setBackgroundColor(color);
-     }
+    }
 
     /**
      * Set the colors used in the progress animation from color resources.
@@ -280,7 +280,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         // Already showing some part of the ring
         if (mRing.getEndTrim() != mRing.getStartTrim()) {
             mFinishing = true;
-            mAnimation.setDuration(ANIMATION_DURATION/2);
+            mAnimation.setDuration(ANIMATION_DURATION / 2);
             mParent.startAnimation(mAnimation);
         } else {
             mRing.setColorIndex(0);
@@ -318,10 +318,10 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         int endG = (endInt >> 8) & 0xff;
         int endB = endInt & 0xff;
 
-        return (int)((startA + (int)(fraction * (endA - startA))) << 24) |
-                (int)((startR + (int)(fraction * (endR - startR))) << 16) |
-                (int)((startG + (int)(fraction * (endG - startG))) << 8) |
-                (int)((startB + (int)(fraction * (endB - startB))));
+        return (int) ((startA + (int) (fraction * (endA - startA))) << 24)
+                | (int) ((startR + (int) (fraction * (endR - startR))) << 16)
+                | (int) ((startG + (int) (fraction * (endG - startG))) << 8)
+                | (int) ((startB + (int) (fraction * (endB - startB))));
     }
 
     /**
@@ -495,7 +495,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         private int mBackgroundColor;
         private int mCurrentColor;
 
-        public Ring(Callback callback) {
+        Ring(Callback callback) {
             mCallback = callback;
 
             mPaint.setStrokeCap(Paint.Cap.SQUARE);

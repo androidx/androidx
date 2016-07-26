@@ -33,8 +33,8 @@ import java.util.Comparator;
  * android.view.FocusFinder to work with generic collections of bounded items.
  */
 class FocusStrategy {
-    public static <L,T> T findNextFocusInRelativeDirection(@NonNull L focusables,
-            @NonNull CollectionAdapter<L,T> collectionAdapter, @NonNull BoundsAdapter<T> adapter,
+    public static <L, T> T findNextFocusInRelativeDirection(@NonNull L focusables,
+            @NonNull CollectionAdapter<L, T> collectionAdapter, @NonNull BoundsAdapter<T> adapter,
             @Nullable T focused, @FocusRelativeDirection int direction, boolean isLayoutRtl,
             boolean wrap) {
         final int count = collectionAdapter.size(focusables);
@@ -98,7 +98,7 @@ class FocusStrategy {
         private final boolean mIsLayoutRtl;
         private final BoundsAdapter<T> mAdapter;
 
-        public SequentialComparator(boolean isLayoutRtl, BoundsAdapter<T> adapter) {
+        SequentialComparator(boolean isLayoutRtl, BoundsAdapter<T> adapter) {
             mIsLayoutRtl = isLayoutRtl;
             mAdapter = adapter;
         }
@@ -137,8 +137,8 @@ class FocusStrategy {
         }
     }
 
-    public static <L,T> T findNextFocusInAbsoluteDirection(@NonNull L focusables,
-            @NonNull CollectionAdapter<L,T> collectionAdapter, @NonNull BoundsAdapter<T> adapter,
+    public static <L, T> T findNextFocusInAbsoluteDirection(@NonNull L focusables,
+            @NonNull CollectionAdapter<L, T> collectionAdapter, @NonNull BoundsAdapter<T> adapter,
             @Nullable T focused, @NonNull Rect focusedRect, int direction) {
         // Initialize the best candidate to something impossible so that
         // the first plausible view will become the best choice.
@@ -425,8 +425,7 @@ class FocusStrategy {
             case View.FOCUS_RIGHT:
                 // the distance between the center verticals
                 return Math.abs(
-                        ((source.top + source.height() / 2) -
-                                ((dest.top + dest.height() / 2))));
+                        ((source.top + source.height() / 2) - ((dest.top + dest.height() / 2))));
             case View.FOCUS_UP:
             case View.FOCUS_DOWN:
                 // the distance between the center horizontals
