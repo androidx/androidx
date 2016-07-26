@@ -35,7 +35,6 @@ android {
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDirs = ['java']
-        main.aidl.srcDirs = ['java']
 
         androidTest.setRoot('tests')
         androidTest.java.srcDir 'tests/java'
