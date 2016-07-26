@@ -31,7 +31,7 @@
         android:visibility="gone"
         android:background="?attr/guidedActionsBackgroundDark" />
 
-    <android.support.v17.leanback.widget.NonOverlappingFrameLayout
+    <android.support.v17.leanback.widget.NonOverlappingRelativeLayout
         android:id="@+id/guidedactions_content"
         android:transitionName="guidedactions_content"
         android:transitionGroup="false"
@@ -41,13 +41,23 @@
             android:transitionGroup="true"
             android:id="@+id/guidedactions_list"
             style="?attr/guidedActionsListStyle" />
+        <android.support.v17.leanback.widget.NonOverlappingView
+            android:id="@+id/guidedactions_sub_list_background"
+            android:transitionName="guidedactions_sub_list_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignTop="@+id/guidedactions_sub_list"
+            android:layout_alignBottom="@+id/guidedactions_sub_list"
+            android:layout_alignLeft="@+id/guidedactions_sub_list"
+            android:layout_alignRight="@+id/guidedactions_sub_list"
+            android:visibility="gone"
+            android:background="?attr/guidedActionsBackgroundDark" />
         <android.support.v17.leanback.widget.VerticalGridView
             android:transitionGroup="true"
             android:id="@+id/guidedactions_sub_list"
             style="?attr/guidedSubActionsListStyle"
-            android:visibility="invisible"
-            android:background="?attr/guidedActionsBackgroundDark" />
+            android:visibility="invisible" />
 
-    </android.support.v17.leanback.widget.NonOverlappingFrameLayout>
+    </android.support.v17.leanback.widget.NonOverlappingRelativeLayout>
 
 </RelativeLayout>
