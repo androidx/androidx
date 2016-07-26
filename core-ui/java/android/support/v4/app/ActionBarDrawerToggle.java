@@ -231,8 +231,8 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     private static boolean assumeMaterial(Context context) {
-        return context.getApplicationInfo().targetSdkVersion >= 21 &&
-                (Build.VERSION.SDK_INT >= 21);
+        return context.getApplicationInfo().targetSdkVersion >= 21
+                && (Build.VERSION.SDK_INT >= 21);
     }
 
     /**
@@ -296,8 +296,8 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         }
 
         if (mDrawerIndicatorEnabled) {
-            setActionBarUpIndicator(mSlider, mDrawerLayout.isDrawerOpen(GravityCompat.START) ?
-                    mCloseDrawerContentDescRes : mOpenDrawerContentDescRes);
+            setActionBarUpIndicator(mSlider, mDrawerLayout.isDrawerOpen(GravityCompat.START)
+                    ? mCloseDrawerContentDescRes : mOpenDrawerContentDescRes);
         }
     }
 
@@ -359,8 +359,8 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     public void setDrawerIndicatorEnabled(boolean enable) {
         if (enable != mDrawerIndicatorEnabled) {
             if (enable) {
-                setActionBarUpIndicator(mSlider, mDrawerLayout.isDrawerOpen(GravityCompat.START) ?
-                        mCloseDrawerContentDescRes : mOpenDrawerContentDescRes);
+                setActionBarUpIndicator(mSlider, mDrawerLayout.isDrawerOpen(GravityCompat.START)
+                        ? mCloseDrawerContentDescRes : mOpenDrawerContentDescRes);
             } else {
                 setActionBarUpIndicator(mHomeAsUpIndicator, 0);
             }
@@ -466,7 +466,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
      * {@link DrawerLayout.DrawerListener} callback method. If you do not use your
      * ActionBarDrawerToggle instance directly as your DrawerLayout's listener, you should call
      * through to this method from your own listener object.
-     * 
+     *
      * @param newState The new drawer motion state
      */
     @Override

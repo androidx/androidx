@@ -69,7 +69,7 @@ public abstract class AbsSavedState implements Parcelable {
         mSuperState = superState != null ? superState : EMPTY_STATE;
     }
 
-    final public Parcelable getSuperState() {
+    public final Parcelable getSuperState() {
         return mSuperState;
     }
 
@@ -83,20 +83,20 @@ public abstract class AbsSavedState implements Parcelable {
         dest.writeParcelable(mSuperState, flags);
     }
 
-    public static final Parcelable.Creator<AbsSavedState> CREATOR
-            = ParcelableCompat.newCreator(new ParcelableCompatCreatorCallbacks<AbsSavedState>() {
-        @Override
-        public AbsSavedState createFromParcel(Parcel in, ClassLoader loader) {
-            Parcelable superState = in.readParcelable(loader);
-            if (superState != null) {
-                throw new IllegalStateException("superState must be null");
-            }
-            return EMPTY_STATE;
-        }
+    public static final Parcelable.Creator<AbsSavedState> CREATOR = ParcelableCompat.newCreator(
+            new ParcelableCompatCreatorCallbacks<AbsSavedState>() {
+                @Override
+                public AbsSavedState createFromParcel(Parcel in, ClassLoader loader) {
+                    Parcelable superState = in.readParcelable(loader);
+                    if (superState != null) {
+                        throw new IllegalStateException("superState must be null");
+                    }
+                    return EMPTY_STATE;
+                }
 
-        @Override
-        public AbsSavedState[] newArray(int size) {
-            return new AbsSavedState[size];
-        }
-    });
+                @Override
+                public AbsSavedState[] newArray(int size) {
+                    return new AbsSavedState[size];
+                }
+            });
 }
