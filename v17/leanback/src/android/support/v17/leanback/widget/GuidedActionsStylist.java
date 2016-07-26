@@ -365,6 +365,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     private ViewGroup mMainView;
     private VerticalGridView mActionsGridView;
     private VerticalGridView mSubActionsGridView;
+    private View mSubActionsBackground;
     private View mBgView;
     private View mContentView;
     private boolean mButtonActions;
@@ -421,6 +422,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             if (!mButtonActions) {
                 mSubActionsGridView = (VerticalGridView) mMainView.findViewById(
                         R.id.guidedactions_sub_list);
+                mSubActionsBackground = mMainView.findViewById(
+                        R.id.guidedactions_sub_list_background);
             }
         }
         mActionsGridView.setFocusable(false);
@@ -476,6 +479,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         mExpandTransition = null;
         mActionsGridView = null;
         mSubActionsGridView = null;
+        mSubActionsBackground = null;
         mContentView = null;
         mBgView = null;
         mMainView = null;
@@ -1044,6 +1048,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             }
         }
         TransitionHelper.include(changeGridBounds, mSubActionsGridView);
+        TransitionHelper.include(changeGridBounds, mSubActionsBackground);
         TransitionHelper.addTransition(set, slideAndFade);
         // note that we don't run ChangeBounds for activating view due to the rounding problem
         // of multiple level views ChangeBounds animation causing vertical jittering.
@@ -1147,12 +1152,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 lp.height = ViewGroup.MarginLayoutParams.MATCH_PARENT;
                 mSubActionsGridView.setLayoutParams(lp);
                 mSubActionsGridView.setVisibility(View.VISIBLE);
+                mSubActionsBackground.setVisibility(View.VISIBLE);
                 mSubActionsGridView.requestFocus();
                 mSubActionsGridView.setSelectedPosition(0);
                 ((GuidedActionAdapter) mSubActionsGridView.getAdapter())
                         .setActions(avh.getAction().getSubActions());
             } else if (mSubActionsGridView.getVisibility() == View.VISIBLE) {
                 mSubActionsGridView.setVisibility(View.INVISIBLE);
+                mSubActionsBackground.setVisibility(View.INVISIBLE);
                 ViewGroup.MarginLayoutParams lp =
                         (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
                 lp.height = 0;
