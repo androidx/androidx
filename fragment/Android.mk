@@ -80,9 +80,7 @@ include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-fragment
 LOCAL_SDK_VERSION := 9
-LOCAL_AIDL_INCLUDES := frameworks/support/fragment/java
-LOCAL_SRC_FILES := $(call all-java-files-under, java) \
-    $(call all-Iaidl-files-under, java)
+LOCAL_SRC_FILES := $(call all-java-files-under, java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-fragment-api21
 LOCAL_JAVA_LIBRARIES := \
