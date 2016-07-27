@@ -178,7 +178,11 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
             mDrawable.setBounds(adjustedBounds);
         }
 
-        void recomputeBounds() {
+        /**
+         * After changing the {@link BoundsRule}, user should call this function
+         * for the drawable to recalculate its bounds.
+         */
+        public void recomputeBounds() {
             updateBounds(mParent.getBounds());
         }
 
