@@ -15,6 +15,7 @@ package android.support.v17.leanback.widget;
 
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.view.animation.LinearInterpolator;
 
 import java.util.List;
 
@@ -60,6 +61,7 @@ public abstract class ParallaxTarget {
 
         public PropertyValuesHolderTarget(Object targetObject, PropertyValuesHolder values) {
             mAnimator = ObjectAnimator.ofPropertyValuesHolder(targetObject, values);
+            mAnimator.setInterpolator(new LinearInterpolator());
             mAnimator.setDuration(PSEUDO_DURATION);
         }
 
