@@ -303,8 +303,8 @@ abstract class Grid {
         if (mLastVisibleIndex < 0) {
             return false;
         }
-        return mReversedFlow ? findRowMax(false, null) >= toLimit + mMargin :
-                    findRowMin(true, null) <= toLimit - mMargin;
+        return mReversedFlow ? findRowMax(false, null) >= toLimit - mMargin :
+                    findRowMin(true, null) <= toLimit + mMargin;
     }
 
     /**
