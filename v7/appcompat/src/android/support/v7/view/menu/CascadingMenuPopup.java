@@ -37,7 +37,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnAttachStateChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
@@ -723,6 +722,13 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
     @Override
     public void setShowTitle(boolean showTitle) {
         mShowTitle = showTitle;
+    }
+
+    @Override
+    protected boolean closeMenuOnSubMenuOpened() {
+        // Since we're cascading, we don't want the parent menu to be closed when a submenu
+        // is opened
+        return false;
     }
 
     private static class CascadingMenuInfo {

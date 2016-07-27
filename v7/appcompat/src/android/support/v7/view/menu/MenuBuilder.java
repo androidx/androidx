@@ -964,6 +964,11 @@ public class MenuBuilder implements SupportMenu {
                 close(true /* closeAllMenus */);
             }
         } else if (itemImpl.hasSubMenu() || providerHasSubMenu) {
+            if ((flags & SupportMenu.FLAG_KEEP_OPEN_ON_SUBMENU_OPENED) == 0) {
+                // If we're not flagged to keep the menu open, close it
+                close(false);
+            }
+
             if (!itemImpl.hasSubMenu()) {
                 itemImpl.setSubMenu(new SubMenuBuilder(getContext(), this, itemImpl));
             }
