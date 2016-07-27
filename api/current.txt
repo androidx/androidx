@@ -1225,6 +1225,7 @@ package android.support.v17.leanback.app {
     method public final android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public final android.support.v17.leanback.widget.PresenterSelector getPresenterSelector();
     method public int getSelectedPosition();
+    method public final android.support.v17.leanback.widget.VerticalGridView getVerticalGridView();
     method public void onTransitionEnd();
     method public boolean onTransitionPrepare();
     method public void onTransitionStart();
@@ -1239,6 +1240,7 @@ package android.support.v17.leanback.app {
     method public final android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public final android.support.v17.leanback.widget.PresenterSelector getPresenterSelector();
     method public int getSelectedPosition();
+    method public final android.support.v17.leanback.widget.VerticalGridView getVerticalGridView();
     method public void onTransitionEnd();
     method public boolean onTransitionPrepare();
     method public void onTransitionStart();
@@ -2181,8 +2183,22 @@ package android.support.v17.leanback.graphics {
     field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> TOP_FRACTION;
   }
 
+  public final class DetailsBackgroundParallaxHelper {
+    method public android.graphics.drawable.Drawable getDrawable();
+    method public void setBitmap(android.graphics.Bitmap);
+    method public void setColor(int);
+  }
+
+  public static class DetailsBackgroundParallaxHelper.ParallaxBuilder {
+    method public android.support.v17.leanback.graphics.DetailsBackgroundParallaxHelper build();
+    method public static android.support.v17.leanback.graphics.DetailsBackgroundParallaxHelper.ParallaxBuilder newBuilder();
+    method public android.support.v17.leanback.graphics.DetailsBackgroundParallaxHelper.ParallaxBuilder setBitmapMinVerticalOffset(int);
+    method public android.support.v17.leanback.graphics.DetailsBackgroundParallaxHelper.ParallaxBuilder setColor(int);
+    method public android.support.v17.leanback.graphics.DetailsBackgroundParallaxHelper.ParallaxBuilder setRecyclerView(android.support.v7.widget.RecyclerView);
+  }
+
   public class FitWidthBitmapDrawable extends android.graphics.drawable.Drawable {
-    ctor public FitWidthBitmapDrawable(android.graphics.Bitmap, android.graphics.Rect);
+    ctor public FitWidthBitmapDrawable();
     method public void draw(android.graphics.Canvas);
     method public android.graphics.Bitmap getBitmap();
     method public int getOpacity();
@@ -3130,6 +3146,14 @@ package android.support.v17.leanback.widget {
   public static final class ParallaxEffect.IntEffect extends android.support.v17.leanback.widget.ParallaxEffect {
     ctor public ParallaxEffect.IntEffect();
     method protected float calculateFraction(android.support.v17.leanback.widget.ParallaxSource);
+  }
+
+  public class ParallaxRecyclerViewSource extends android.support.v17.leanback.widget.ParallaxSource {
+    ctor public ParallaxRecyclerViewSource(android.support.v7.widget.RecyclerView);
+    method public android.support.v17.leanback.widget.ParallaxSource.IntVariable addVariable(int, int, int, float);
+    method public android.support.v17.leanback.widget.ParallaxSource.IntVariable getMaxParentVisibleSize();
+    method public java.util.List<android.support.v17.leanback.widget.ParallaxSource.IntVariable> getVariables();
+    method public void setListener(android.support.v17.leanback.widget.ParallaxSource.Listener);
   }
 
   public abstract class ParallaxSource {

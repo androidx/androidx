@@ -34,18 +34,13 @@ public class FitWidthBitmapDrawable extends Drawable {
     private Paint mPaint = new Paint();
     private Bitmap mBitmap;
     private Rect mSource;
+    private final Rect mDefaultSource = new Rect();
     private int mOffset;
 
     /**
      * Constructor.
-     *
-     * @param bitmap Bitmap to be drawn in the region.
-     * @param source Rectangle used to extract a rectangular region of the provided bitmap.
-     *               When source is null, we use the full bitmap.
      */
-    public FitWidthBitmapDrawable(Bitmap bitmap, Rect source) {
-        this.mBitmap = bitmap;
-        this.mSource = validateSource(source);
+    public FitWidthBitmapDrawable() {
     }
 
     /**
@@ -53,6 +48,12 @@ public class FitWidthBitmapDrawable extends Drawable {
      */
     public void setBitmap(Bitmap bitmap) {
         this.mBitmap = bitmap;
+        if (bitmap != null) {
+            this.mDefaultSource.set(0, 0, mBitmap.getWidth(), mBitmap.getHeight());
+        } else {
+            this.mDefaultSource.set(0, 0, 0, 0);
+        }
+        mSource = null;
     }
 
     /**
@@ -66,7 +67,7 @@ public class FitWidthBitmapDrawable extends Drawable {
      * Sets the {@link Rect} used for extracting the bitmap.
      */
     public void setSource(Rect source) {
-        this.mSource = validateSource(source);
+        this.mSource = source;
     }
 
     /**
@@ -94,16 +95,20 @@ public class FitWidthBitmapDrawable extends Drawable {
 
     @Override
     public void draw(Canvas canvas) {
-        Rect bounds = getBounds();
-        mDest.left = 0;
-        mDest.top = mOffset;
-        mDest.right = bounds.width();
-        float scale = (float) bounds.width() / mSource.width();
-        mDest.bottom = mDest.top + (int) (mSource.height() * scale);
-        int i = canvas.save();
-        canvas.clipRect(bounds);
-        canvas.drawBitmap(mBitmap, mSource, mDest, mPaint);
-        canvas.restoreToCount(i);
+        if (mBitmap != null) {
+            Rect bounds = getBounds();
+            mDest.left = 0;
+            mDest.top = mOffset;
+            mDest.right = bounds.width();
+
+            Rect source = validateSource();
+            float scale = (float) bounds.width() / source.width();
+            mDest.bottom = mDest.top + (int) (source.height() * scale);
+            int i = canvas.save();
+            canvas.clipRect(bounds);
+            canvas.drawBitmap(mBitmap, source, mDest, mPaint);
+            canvas.restoreToCount(i);
+        }
     }
 
     @Override
@@ -128,10 +133,11 @@ public class FitWidthBitmapDrawable extends Drawable {
     }
 
 
-    private Rect validateSource(Rect source) {
-        if (source == null) {
-            return new Rect(0, 0, mBitmap.getWidth(), mBitmap.getHeight());
+    private Rect validateSource() {
+        if (mSource == null) {
+            return mDefaultSource;
+        } else {
+            return mSource;
         }
-        return source;
     }
 }

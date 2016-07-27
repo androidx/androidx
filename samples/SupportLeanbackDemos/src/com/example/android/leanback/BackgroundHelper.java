@@ -136,6 +136,14 @@ public class BackgroundHelper {
         mHandler.postDelayed(mRunnable, SET_BACKGROUND_DELAY_MS);
     }
 
+    public void setDrawable(Activity activity, Drawable drawable) {
+        BackgroundManager backgroundManager = BackgroundManager.getInstance(activity);
+        if (!backgroundManager.isAttached()) {
+            backgroundManager.attach(activity.getWindow());
+        }
+        backgroundManager.setDrawable(drawable);
+    }
+
     static public void attach(Activity activity) {
         if (!ENABLED) {
             return;

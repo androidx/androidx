@@ -13,11 +13,13 @@
  */
 package com.example.android.leanback;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v17.leanback.graphics.DetailsBackgroundParallaxHelper;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -48,7 +50,6 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
     private ArrayObjectAdapter mRowsAdapter;
     private PhotoItem mPhotoItem;
     final CardPresenter cardPresenter = new CardPresenter();
-    private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
 
     private static final int ACTION_PLAY = 1;
     private static final int ACTION_RENT = 2;
@@ -66,6 +67,8 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
     private Action mActionBuy;
 
     private FullWidthDetailsOverviewSharedElementHelper mHelper;
+    private DetailsBackgroundParallaxHelper mParallaxHelper;
+    private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
 
     private void initializeTest() {
         TEST_SHARED_ELEMENT_TRANSITION = null != getActivity().getWindow().getSharedElementEnterTransition();
@@ -244,10 +247,19 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
     @Override
     public void onStart() {
         super.onStart();
-        if (mPhotoItem != null) {
-            mBackgroundHelper.setBackground(
-                    getActivity(), mPhotoItem.getImageResourceId());
-        }
+        mParallaxHelper = DetailsBackgroundParallaxHelper.ParallaxBuilder
+                .newBuilder()
+                .setRecyclerView(getRowsFragment().getVerticalGridView())
+                .setBitmapMinVerticalOffset(-300)
+                .build();
+        mBackgroundHelper.setDrawable(getActivity(), mParallaxHelper.getDrawable());
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Bitmap bitmap = BitmapFactory.decodeResource(getActivity().getResources(),
+                R.drawable.spiderman);
+        mParallaxHelper.setBitmap(bitmap);
+    }
 }
