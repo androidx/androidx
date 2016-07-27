@@ -52,5 +52,12 @@ public interface SupportMenu extends android.view.Menu {
      * @hide
      */
     static final int CATEGORY_SHIFT = 16;
+
+    /**
+     * Flag which stops the Menu being closed when a sub menu is opened
+     *
+     * @hide
+     */
+    static final int FLAG_KEEP_OPEN_ON_SUBMENU_OPENED = 4;
 }
 
