@@ -25,8 +25,12 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,33 +48,44 @@ import java.util.Map;
 @MediumTest
 @RunWith(Parameterized.class)
 public class TestResizingRelayoutWithAutoMeasure extends BaseRecyclerViewInstrumentationTest {
+    private final int mRvWidth;
+    private final int mRvHeight;
     private final RecyclerView.LayoutManager mLayoutManager;
     private final float mWidthMultiplier;
     private final float mHeightMultiplier;
 
     public TestResizingRelayoutWithAutoMeasure(@SuppressWarnings("UnusedParameters") String name,
+            int rvWidth, int rvHeight,
             RecyclerView.LayoutManager layoutManager, float widthMultiplier,
             float heightMultiplier) {
+        mRvWidth = rvWidth;
+        mRvHeight = rvHeight;
         mLayoutManager = layoutManager;
         mWidthMultiplier = widthMultiplier;
         mHeightMultiplier = heightMultiplier;
     }
 
-    @Parameterized.Parameters(name = "{0} w:{2} h:{3}")
+    @Parameterized.Parameters(name = "{0} rv w/h:{1}/{2} changed w/h:{4}/{5}")
     public static List<Object[]> getParams() {
         List<Object[]> params = new ArrayList<>();
-        for (float w : new float[]{.5f, 1f, 2f}) {
-            for (float h : new float[]{.5f, 1f, 2f}) {
-                params.add(
-                        new Object[]{"linear layout", new LinearLayoutManager(null), w, h}
-                );
-                params.add(
-                        new Object[]{"grid layout", new GridLayoutManager(null, 3), w, h}
-                );
-                params.add(
-                        new Object[]{"staggered", new StaggeredGridLayoutManager(3,
-                                StaggeredGridLayoutManager.VERTICAL), w, h}
-                );
+        for(int[] rvSize : new int[][]{new int[]{200, 200}, new int[]{200, 100},
+                new int[]{100, 200}}) {
+            for (float w : new float[]{.5f, 1f, 2f}) {
+                for (float h : new float[]{.5f, 1f, 2f}) {
+                    params.add(
+                            new Object[]{"linear layout", rvSize[0], rvSize[1],
+                                    new LinearLayoutManager(null), w, h}
+                    );
+                    params.add(
+                            new Object[]{"grid layout", rvSize[0], rvSize[1],
+                                    new GridLayoutManager(null, 3), w, h}
+                    );
+                    params.add(
+                            new Object[]{"staggered", rvSize[0], rvSize[1],
+                                    new StaggeredGridLayoutManager(3,
+                                    StaggeredGridLayoutManager.VERTICAL), w, h}
+                    );
+                }
             }
         }
         return params;
@@ -78,9 +93,12 @@ public class TestResizingRelayoutWithAutoMeasure extends BaseRecyclerViewInstrum
 
     @Test
     public void testResizeDuringMeasurements() throws Throwable {
-        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final WrappedRecyclerView recyclerView = new WrappedRecyclerView(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setAdapter(new TestAdapter(500));
+        StaticAdapter adapter = new StaticAdapter(50, ViewGroup.LayoutParams.MATCH_PARENT,
+                mRvHeight / 5);
+        recyclerView.setLayoutParams(new FrameLayout.LayoutParams(mRvWidth, mRvHeight));
+        recyclerView.setAdapter(adapter);
         setRecyclerView(recyclerView);
         getInstrumentation().waitForIdleSync();
         assertThat("Test sanity", recyclerView.getChildCount() > 0, is(true));
@@ -88,36 +106,55 @@ public class TestResizingRelayoutWithAutoMeasure extends BaseRecyclerViewInstrum
         smoothScrollToPosition(lastPosition);
         assertThat("test sanity", recyclerView.findViewHolderForAdapterPosition(lastPosition),
                 notNullValue());
+        assertThat("test sanity", mRvWidth, is(recyclerView.getWidth()));
+        assertThat("test sanity", mRvHeight, is(recyclerView.getHeight()));
+        recyclerView.waitUntilLayout();
+        recyclerView.waitUntilAnimations();
+        final Map<Integer, Rect> startPositions = capturePositions(recyclerView);
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                int startHeight = recyclerView.getMeasuredHeight();
-                int startWidth = recyclerView.getMeasuredWidth();
-                Map<Integer, Rect> startPositions = capturePositions(recyclerView);
                 recyclerView.measure(
-                        makeMeasureSpec((int) (startWidth * mWidthMultiplier),
+                        makeMeasureSpec((int) (mRvWidth * mWidthMultiplier),
                                 mWidthMultiplier == 1f ? EXACTLY : AT_MOST),
-                        makeMeasureSpec((int) (startHeight * mHeightMultiplier),
+                        makeMeasureSpec((int) (mRvHeight * mHeightMultiplier),
                                 mHeightMultiplier == 1f ? EXACTLY : AT_MOST));
 
                 recyclerView.measure(
-                        makeMeasureSpec(startWidth, EXACTLY),
-                        makeMeasureSpec(startHeight, EXACTLY));
+                        makeMeasureSpec(mRvWidth, EXACTLY),
+                        makeMeasureSpec(mRvHeight, EXACTLY));
                 recyclerView.dispatchLayout();
                 Map<Integer, Rect> endPositions = capturePositions(recyclerView);
                 assertStartItemPositions(startPositions, endPositions);
             }
         });
+        recyclerView.waitUntilLayout();
+        recyclerView.waitUntilAnimations();
+        checkForMainThreadException();
     }
 
     private void assertStartItemPositions(Map<Integer, Rect> startPositions,
             Map<Integer, Rect> endPositions) {
+        String log = log(startPositions, endPositions);
         for (Map.Entry<Integer, Rect> entry : startPositions.entrySet()) {
             Rect rect = endPositions.get(entry.getKey());
-            assertThat("view for position " + entry.getKey() + " at" + entry.getValue(), rect,
+            assertThat(log + "view for position " + entry.getKey() + " at" + entry.getValue(), rect,
                     notNullValue());
-            assertThat("rect for position " + entry.getKey(), entry.getValue(), is(rect));
+            assertThat(log + "rect for position " + entry.getKey(), entry.getValue(), is(rect));
         }
+    }
+
+    @NonNull
+    private String log(Map<Integer, Rect> startPositions, Map<Integer, Rect> endPositions) {
+        StringBuilder logBuilder = new StringBuilder();
+        for (Map.Entry<Integer, Rect> entry : startPositions.entrySet()) {
+            logBuilder.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
+        }
+        logBuilder.append("------\n");
+        for (Map.Entry<Integer, Rect> entry : endPositions.entrySet()) {
+            logBuilder.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
+        }
+        return logBuilder.toString();
     }
 
     private Map<Integer, Rect> capturePositions(RecyclerView recyclerView) {
@@ -137,5 +174,53 @@ public class TestResizingRelayoutWithAutoMeasure extends BaseRecyclerViewInstrum
             positions.put(childAdapterPosition, outRect);
         }
         return positions;
+    }
+
+    private class StaticAdapter extends RecyclerView.Adapter<TestViewHolder> {
+        final int mSize;
+        // is passed to the layout params of the item
+        final int mMinItemWidth;
+        final int mMinItemHeight;
+
+        public StaticAdapter(int size, int minItemWidth, int minItemHeight) {
+            mSize = size;
+            mMinItemWidth = minItemWidth;
+            mMinItemHeight = minItemHeight;
+        }
+
+        @Override
+        public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                int viewType) {
+            return new TestViewHolder(new View(parent.getContext()));
+        }
+
+        @Override
+        public void onBindViewHolder(TestViewHolder holder, int position) {
+            holder.mBoundItem = new Item(position, "none");
+            if (mMinItemHeight < 1 && mMinItemWidth < 1) {
+                return;
+            }
+            ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+            if (lp == null) {
+                lp = new ViewGroup.LayoutParams(0, 0);
+            }
+            if (mMinItemWidth > 0) {
+                lp.width = (int) (mMinItemWidth + (position % 10) * mMinItemWidth / 7f);
+            } else {
+                lp.width = mMinItemWidth;
+            }
+
+            if (mMinItemHeight > 0) {
+                lp.height = (int) (mMinItemHeight + (position % 10) * mMinItemHeight / 7f);
+            } else {
+                lp.height = mMinItemHeight;
+            }
+            holder.itemView.setLayoutParams(lp);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mSize;
+        }
     }
 }

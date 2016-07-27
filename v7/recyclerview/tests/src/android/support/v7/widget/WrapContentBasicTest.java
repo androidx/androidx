@@ -200,6 +200,63 @@ public class WrapContentBasicTest extends AndroidTestCase {
             return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
         }
+
+        // START MOCKITO OVERRIDES
+        // We override package protected methods to make them public. This is necessary to run
+        // mockito on Kitkat
+        @Override
+        public void setRecyclerView(RecyclerView recyclerView) {
+            super.setRecyclerView(recyclerView);
+        }
+
+        @Override
+        public void dispatchAttachedToWindow(RecyclerView view) {
+            super.dispatchAttachedToWindow(view);
+        }
+
+        @Override
+        public void dispatchDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {
+            super.dispatchDetachedFromWindow(view, recycler);
+        }
+
+        @Override
+        public void setExactMeasureSpecsFrom(RecyclerView recyclerView) {
+            super.setExactMeasureSpecsFrom(recyclerView);
+        }
+
+        @Override
+        public void setMeasureSpecs(int wSpec, int hSpec) {
+            super.setMeasureSpecs(wSpec, hSpec);
+        }
+
+        @Override
+        public void setMeasuredDimensionFromChildren(int widthSpec, int heightSpec) {
+            super.setMeasuredDimensionFromChildren(widthSpec, heightSpec);
+        }
+
+        @Override
+        public boolean shouldReMeasureChild(View child, int widthSpec, int heightSpec,
+                RecyclerView.LayoutParams lp) {
+            return super.shouldReMeasureChild(child, widthSpec, heightSpec, lp);
+        }
+
+        @Override
+        public boolean shouldMeasureChild(View child, int widthSpec, int heightSpec,
+                RecyclerView.LayoutParams lp) {
+            return super.shouldMeasureChild(child, widthSpec, heightSpec, lp);
+        }
+
+        @Override
+        public void removeAndRecycleScrapInt(RecyclerView.Recycler recycler) {
+            super.removeAndRecycleScrapInt(recycler);
+        }
+
+        @Override
+        public void stopSmoothScroller() {
+            super.stopSmoothScroller();
+        }
+
+        // END MOCKITO OVERRIDES
     }
 
     public class WrapAdapter extends RecyclerView.Adapter {

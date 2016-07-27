@@ -16,9 +16,17 @@
 
 package android.support.v7.widget;
 
+import android.app.Instrumentation;
 import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * RecyclerView wrapper used in tests. This class can fake behavior like layout direction w/o
@@ -50,6 +58,34 @@ public class WrappedRecyclerView extends RecyclerView {
     private void init(Context context) {
         //initializeScrollbars(null);
     }
+
+    public void waitUntilLayout() {
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        while (isLayoutRequested()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void waitUntilAnimations() throws InterruptedException {
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        final CountDownLatch latch = new CountDownLatch(1);
+        if (mItemAnimator == null || !mItemAnimator.isRunning(
+                new ItemAnimator.ItemAnimatorFinishedListener() {
+                    @Override
+                    public void onAnimationsFinished() {
+                        latch.countDown();
+                    }
+                })) {
+            latch.countDown();
+        }
+        MatcherAssert.assertThat("waiting too long for animations",
+                latch.await(60, TimeUnit.SECONDS), CoreMatchers.is(true));
+    }
+
 
     @Override
     public int getLayoutDirection() {
