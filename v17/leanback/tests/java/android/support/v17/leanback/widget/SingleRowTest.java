@@ -15,15 +15,29 @@
  */
 package android.support.v17.leanback.widget;
 
+import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.junit.Test;
+
+import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.SmallTest;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Testing SingleRow algorithm
  * @hide
  */
+@SmallTest
+@RunWith(AndroidJUnit4.class)
 public class SingleRowTest extends GridTest {
 
     SingleRow mSingleRow;
 
-    public void testAppendPrependRemove() throws Throwable {
+    @Test
+    public void testAppendPrependRemove() {
         mProvider = new Provider(new int[]{80, 80, 30, 100, 40, 10});
 
         mSingleRow = new SingleRow();
@@ -42,7 +56,7 @@ public class SingleRowTest extends GridTest {
 
         mSingleRow.appendVisibleItems(Integer.MAX_VALUE);
         assertEquals(dump(mSingleRow) + " Should filled 6 items",
-               5, mSingleRow.mLastVisibleIndex);
+                5, mSingleRow.mLastVisibleIndex);
         assertEquals(mProvider.getEdge(0), 0);
         assertEquals(mProvider.getEdge(1), 100);
         assertEquals(mProvider.getEdge(2), 200);
@@ -55,7 +69,7 @@ public class SingleRowTest extends GridTest {
 
         mSingleRow.appendVisibleItems(Integer.MAX_VALUE);
         assertEquals(dump(mSingleRow) + " Should filled 6 items",
-               5, mSingleRow.mLastVisibleIndex);
+                5, mSingleRow.mLastVisibleIndex);
 
         mSingleRow.removeInvisibleItemsAtFront(1000, 80);
         assertEquals(dump(mSingleRow) + " visible index should start from 1",
@@ -66,7 +80,8 @@ public class SingleRowTest extends GridTest {
                 0, mSingleRow.mFirstVisibleIndex);
     }
 
-    public void testAppendPrependRemoveReversed() throws Throwable {
+    @Test
+    public void testAppendPrependRemoveReversed() {
         mProvider = new Provider(new int[]{80, 80, 30, 100, 40, 10});
 
         mSingleRow = new SingleRow();
@@ -86,7 +101,7 @@ public class SingleRowTest extends GridTest {
 
         mSingleRow.appendVisibleItems(Integer.MIN_VALUE);
         assertEquals(dump(mSingleRow) + " Should filled 6 items",
-               5, mSingleRow.mLastVisibleIndex);
+                5, mSingleRow.mLastVisibleIndex);
         assertEquals(mProvider.getEdge(0), 0);
         assertEquals(mProvider.getEdge(1), -100);
         assertEquals(mProvider.getEdge(2), -200);
@@ -99,10 +114,55 @@ public class SingleRowTest extends GridTest {
 
         mSingleRow.appendVisibleItems(Integer.MIN_VALUE);
         assertEquals(dump(mSingleRow) + " Should filled 6 items",
-               5, mSingleRow.mLastVisibleIndex);
+                5, mSingleRow.mLastVisibleIndex);
 
         mSingleRow.removeInvisibleItemsAtFront(1000, -80);
         assertEquals(dump(mSingleRow) + " Should filled 6 items",
                 1, mSingleRow.mFirstVisibleIndex);
+    }
+
+    @Test
+    public void testPrependWithSpacing() {
+
+        mProvider = new Provider(new int[]{80, 80, 30, 100, 40, 10});
+
+        mSingleRow = new SingleRow();
+        mSingleRow.setMargin(20);
+        mSingleRow.setProvider(mProvider);
+        mSingleRow.appendVisibleItems(200);
+        assertEquals(dump(mSingleRow) + " Should filled 2 items", 1, mSingleRow.mLastVisibleIndex);
+
+        mProvider.scroll(90);
+        mSingleRow.removeInvisibleItemsAtFront(Integer.MAX_VALUE, 0);
+        mSingleRow.appendVisibleItems(200);
+        assertEquals(dump(mSingleRow) + " Should filled 1 ~ 3", 1, mSingleRow.mFirstVisibleIndex);
+        assertEquals(dump(mSingleRow) + " Should filled 1 ~ 3", 3, mSingleRow.mLastVisibleIndex);
+        assertEquals(mProvider.getEdge(1), 10);
+
+        mSingleRow.prependVisibleItems(0);
+        assertEquals(dump(mSingleRow) + " Should not prepend 0", 1, mSingleRow.mFirstVisibleIndex);
+    }
+
+    @Test
+    public void testPrependWithSpacingReversed() {
+
+        mProvider = new Provider(new int[]{80, 80, 30, 100, 40, 10});
+
+        mSingleRow = new SingleRow();
+        mSingleRow.setMargin(20);
+        mSingleRow.setProvider(mProvider);
+        mSingleRow.setReversedFlow(true);
+        mSingleRow.appendVisibleItems(-200);
+        assertEquals(dump(mSingleRow) + " Should filled 2 items", 1, mSingleRow.mLastVisibleIndex);
+
+        mProvider.scroll(-90);
+        mSingleRow.removeInvisibleItemsAtFront(Integer.MAX_VALUE, 0);
+        mSingleRow.appendVisibleItems(-200);
+        assertEquals(dump(mSingleRow) + " Should filled 1 ~ 3", 1, mSingleRow.mFirstVisibleIndex);
+        assertEquals(dump(mSingleRow) + " Should filled 1 ~ 3", 3, mSingleRow.mLastVisibleIndex);
+        assertEquals(mProvider.getEdge(1), -10);
+
+        mSingleRow.prependVisibleItems(0);
+        assertEquals(dump(mSingleRow) + " Should not prepend 0", 1, mSingleRow.mFirstVisibleIndex);
     }
 }
