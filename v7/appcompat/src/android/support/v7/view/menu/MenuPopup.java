@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.internal.view.SupportMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -123,7 +124,10 @@ abstract class MenuPopup implements ShowableListMenu, MenuPresenter,
 
         // Use the position from the outer adapter so that if a header view was added, we don't get
         // an off-by-1 error in position.
-        wrappedAdapter.mAdapterMenu.performItemAction((MenuItem) outerAdapter.getItem(position), 0);
+        wrappedAdapter.mAdapterMenu.performItemAction(
+                (MenuItem) outerAdapter.getItem(position),
+                this, // always make sure that we show the sub-menu
+                closeMenuOnSubMenuOpened() ? 0 : SupportMenu.FLAG_KEEP_OPEN_ON_SUBMENU_OPENED);
     }
 
     /**
@@ -194,17 +198,21 @@ abstract class MenuPopup implements ShowableListMenu, MenuPresenter,
      * @return Whether to preserve icon spacing.
      */
     protected static boolean shouldPreserveIconSpacing(MenuBuilder menu) {
-      boolean preserveIconSpacing = false;
-      final int count = menu.size();
+        boolean preserveIconSpacing = false;
+        final int count = menu.size();
 
-      for (int i = 0; i < count; i++) {
-          MenuItem childItem = menu.getItem(i);
-          if (childItem.isVisible() && childItem.getIcon() != null) {
-              preserveIconSpacing = true;
-              break;
-          }
-      }
+        for (int i = 0; i < count; i++) {
+            MenuItem childItem = menu.getItem(i);
+            if (childItem.isVisible() && childItem.getIcon() != null) {
+                preserveIconSpacing = true;
+                break;
+            }
+        }
 
-      return preserveIconSpacing;
+        return preserveIconSpacing;
+    }
+
+    protected boolean closeMenuOnSubMenuOpened() {
+        return true;
     }
 }
