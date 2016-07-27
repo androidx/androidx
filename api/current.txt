@@ -2094,20 +2094,6 @@ package android.support.v17.leanback.database {
 
 package android.support.v17.leanback.graphics {
 
-  public class BitmapRegionDrawable extends android.support.v17.leanback.graphics.RegionDrawable {
-    ctor public BitmapRegionDrawable(android.graphics.Bitmap, android.graphics.Rect);
-    method public void draw(android.graphics.Canvas);
-    method public android.graphics.Bitmap getBitmap();
-    method public int getOpacity();
-    method public android.graphics.Rect getSource();
-    method public void setAlpha(int);
-    method public void setBitmap(android.graphics.Bitmap);
-    method public void setColorFilter(android.graphics.ColorFilter);
-    method public void setSource(android.graphics.Rect);
-    method public void setVerticalOffset(int);
-    field protected int mOffset;
-  }
-
   public class BoundsRule {
     ctor public BoundsRule();
     method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule absoluteValue(int);
@@ -2120,7 +2106,11 @@ package android.support.v17.leanback.graphics {
     field public android.support.v17.leanback.graphics.BoundsRule.ValueRule mTop;
   }
 
-  public static class BoundsRule.ValueRule {
+  public static final class BoundsRule.ValueRule {
+    method public int getAbsoluteValue();
+    method public float getFraction();
+    method public void setAbsoluteValue(int);
+    method public void setFraction(float);
   }
 
   public final class ColorFilterCache {
@@ -2159,18 +2149,51 @@ package android.support.v17.leanback.graphics {
     method public void setColorFilter(android.graphics.ColorFilter);
   }
 
-  public class CompositeDrawable extends android.graphics.drawable.Drawable {
+  public class CompositeDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
     ctor public CompositeDrawable();
-    method public void addRegionDrawable(android.support.v17.leanback.graphics.RegionDrawable);
+    method public void addChildDrawable(android.graphics.drawable.Drawable);
     method public void draw(android.graphics.Canvas);
+    method public android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable getChildAt(int);
+    method public int getChildCount();
+    method public android.graphics.drawable.Drawable getDrawable(int);
     method public int getOpacity();
-    method public android.support.v17.leanback.graphics.RegionDrawable getRegion(int);
-    method public int getRegionCount();
-    method public void removeRegion(int);
-    method public void removeRegion(android.support.v17.leanback.graphics.RegionDrawable);
+    method public void invalidateDrawable(android.graphics.drawable.Drawable);
+    method public void removeChild(int);
+    method public void removeDrawable(android.graphics.drawable.Drawable);
+    method public void scheduleDrawable(android.graphics.drawable.Drawable, java.lang.Runnable, long);
     method public void setAlpha(int);
     method public void setColorFilter(android.graphics.ColorFilter);
-    field protected java.util.ArrayList<android.support.v17.leanback.graphics.RegionDrawable> regions;
+    method public void unscheduleDrawable(android.graphics.drawable.Drawable, java.lang.Runnable);
+    field protected java.util.ArrayList<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable> children;
+  }
+
+  public static final class CompositeDrawable.ChildDrawable {
+    ctor public CompositeDrawable.ChildDrawable(android.graphics.drawable.Drawable, android.support.v17.leanback.graphics.CompositeDrawable);
+    method public android.support.v17.leanback.graphics.BoundsRule getBoundsRule();
+    method public android.graphics.drawable.Drawable getDrawable();
+    method public void recomputeBounds();
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> BOTTOM_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> BOTTOM_FRACTION;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> LEFT_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> LEFT_FRACTION;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> RIGHT_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> RIGHT_FRACTION;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> TOP_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> TOP_FRACTION;
+  }
+
+  public class FitWidthBitmapDrawable extends android.graphics.drawable.Drawable {
+    ctor public FitWidthBitmapDrawable(android.graphics.Bitmap, android.graphics.Rect);
+    method public void draw(android.graphics.Canvas);
+    method public android.graphics.Bitmap getBitmap();
+    method public int getOpacity();
+    method public android.graphics.Rect getSource();
+    method public int getVerticalOffset();
+    method public void setAlpha(int);
+    method public void setBitmap(android.graphics.Bitmap);
+    method public void setColorFilter(android.graphics.ColorFilter);
+    method public void setSource(android.graphics.Rect);
+    method public void setVerticalOffset(int);
   }
 
   public abstract class RegionDrawable extends android.graphics.drawable.Drawable {

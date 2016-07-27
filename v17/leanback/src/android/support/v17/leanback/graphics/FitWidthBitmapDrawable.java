@@ -18,20 +18,23 @@ package android.support.v17.leanback.graphics;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
+import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 
 /**
- * Subclass of {@link RegionDrawable} that can be used to draw a bitmap into a region. Bitmap
+ * Subclass of {@link Drawable} that can be used to draw a bitmap into a region. Bitmap
  * will be scaled to fit the full width of the region and will be aligned to the top left corner.
  * Any region outside the bounds will be clipped during {@link #draw(Canvas)} call. Top
  * position of the bitmap can be controlled by {@link #setVerticalOffset(int)} call.
  */
-public class BitmapRegionDrawable extends RegionDrawable {
+public class FitWidthBitmapDrawable extends Drawable {
     private final Rect mDest = new Rect();
+    private Paint mPaint = new Paint();
     private Bitmap mBitmap;
     private Rect mSource;
-    protected int mOffset;
+    private int mOffset;
 
     /**
      * Constructor.
@@ -40,7 +43,7 @@ public class BitmapRegionDrawable extends RegionDrawable {
      * @param source Rectangle used to extract a rectangular region of the provided bitmap.
      *               When source is null, we use the full bitmap.
      */
-    public BitmapRegionDrawable(Bitmap bitmap, Rect source) {
+    public FitWidthBitmapDrawable(Bitmap bitmap, Rect source) {
         this.mBitmap = bitmap;
         this.mSource = validateSource(source);
     }
@@ -82,6 +85,13 @@ public class BitmapRegionDrawable extends RegionDrawable {
         invalidateSelf();
     }
 
+    /**
+     * Returns the current vertical offset.
+     */
+    public int getVerticalOffset() {
+        return this.mOffset;
+    }
+
     @Override
     public void draw(Canvas canvas) {
         Rect bounds = getBounds();
@@ -90,8 +100,10 @@ public class BitmapRegionDrawable extends RegionDrawable {
         mDest.right = bounds.width();
         float scale = (float) bounds.width() / mSource.width();
         mDest.bottom = mDest.top + (int) (mSource.height() * scale);
+        int i = canvas.save();
         canvas.clipRect(bounds);
         canvas.drawBitmap(mBitmap, mSource, mDest, mPaint);
+        canvas.restoreToCount(i);
     }
 
     @Override
