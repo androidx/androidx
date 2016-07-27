@@ -90,10 +90,22 @@ public class ParallaxIntEffectTest {
         verify(target, times(1)).update(0f);
         Mockito.reset(target);
 
+        // 25% complete
+        var1.setIntValue(405);
+        effect.performMapping(source);
+        verify(target, times(1)).update(0.25f);
+        Mockito.reset(target);
+
         // middle
         var1.setIntValue(270);
         effect.performMapping(source);
         verify(target, times(1)).update(.5f);
+        Mockito.reset(target);
+
+        // 75% complete
+        var1.setIntValue(135);
+        effect.performMapping(source);
+        verify(target, times(1)).update(0.75f);
         Mockito.reset(target);
 
         // end

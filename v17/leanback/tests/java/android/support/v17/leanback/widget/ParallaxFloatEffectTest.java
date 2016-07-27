@@ -92,10 +92,22 @@ public class ParallaxFloatEffectTest {
         verify(target, times(1)).update(0f);
         Mockito.reset(target);
 
+        // 25% complete
+        var1.setFloatValue(405);
+        effect.performMapping(source);
+        verify(target, times(1)).update(0.25f);
+        Mockito.reset(target);
+
         // middle
         var1.setFloatValue(270);
         effect.performMapping(source);
         verify(target, times(1)).update(.5f);
+        Mockito.reset(target);
+
+        // 75% complete
+        var1.setFloatValue(135);
+        effect.performMapping(source);
+        verify(target, times(1)).update(0.75f);
         Mockito.reset(target);
 
         // end
