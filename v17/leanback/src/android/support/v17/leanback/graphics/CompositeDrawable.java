@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 /**
  * Generic drawable class that can be composed of multiple children. Whenever the bounds changes
- * for this class, it updates those of it's children by calling {@link ChildDrawable#updateBounds}.
+ * for this class, it updates those of it's children.
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class CompositeDrawable extends Drawable implements Drawable.Callback {
