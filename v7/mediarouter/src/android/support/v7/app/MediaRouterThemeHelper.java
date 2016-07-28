@@ -137,6 +137,18 @@ final class MediaRouterThemeHelper {
         volumeSlider.setColor(controllerColor);
     }
 
+    // This is copied from {@link AlertDialog#resolveDialogTheme} to pre-evaluate theme in advance.
+    public static int getAlertDialogResolvedTheme(Context context, int themeResId) {
+        if (themeResId >= 0x01000000) {   // start of real resource IDs.
+            return themeResId;
+        } else {
+            TypedValue outValue = new TypedValue();
+            context.getTheme().resolveAttribute(
+                    android.support.v7.appcompat.R.attr.alertDialogTheme, outValue, true);
+            return outValue.resourceId;
+        }
+    }
+
     private static boolean isLightTheme(Context context) {
         TypedValue value = new TypedValue();
         return context.getTheme().resolveAttribute(

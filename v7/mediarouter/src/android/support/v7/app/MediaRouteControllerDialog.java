@@ -195,7 +195,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     public MediaRouteControllerDialog(Context context, int theme) {
-        super(MediaRouterThemeHelper.createThemedContext(context, theme), theme);
+        super(MediaRouterThemeHelper.createThemedContext(context,
+                MediaRouterThemeHelper.getAlertDialogResolvedTheme(context, theme)), theme);
         mContext = getContext();
 
         mControllerCallback = new MediaControllerCallback();
