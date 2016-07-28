@@ -117,6 +117,7 @@ for line in file:
     line = line.replace('DetailsActivity', 'DetailsSupportActivity')
     line = line.replace('PlaybackOverlayActivity', 'PlaybackOverlaySupportActivity')
     line = line.replace('SearchActivity', 'SearchSupportActivity')
+    line = line.replace('getRowsFragment', 'getRowsSupportFragment')
     outfile.write(line)
 file.close()
 outfile.close()
