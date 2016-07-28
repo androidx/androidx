@@ -29,6 +29,13 @@
             android:title="@string/title_checkbox_preference"
             android:summary="@string/summary_checkbox_preference" />
 
+        <DropDownPreference
+            android:key="dropdown_preference"
+            android:title="@string/title_dropdown_preference"
+            android:summary="@string/summary_dropdown_preference"
+            android:entries="@array/entries_list_preference"
+            android:entryValues="@array/entryvalues_list_preference" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
