@@ -525,7 +525,7 @@ public class NotificationCompat {
         public Notification build(Builder b, BuilderExtender extender) {
             Notification result = b.mNotification;
             result = NotificationCompatBase.add(result, b.mContext,
-                    b.mContentTitle, b.mContentText, b.mContentIntent, b.mFullScreenIntent);
+                    b.resolveTitle(), b.resolveText(), b.mContentIntent, b.mFullScreenIntent);
             // translate high priority requests into legacy flag
             if (b.mPriority > PRIORITY_DEFAULT) {
                 result.flags |= FLAG_HIGH_PRIORITY;
@@ -604,7 +604,7 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             Notification notification = NotificationCompatHoneycomb.add(b.mContext, b.mNotification,
-                    b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
+                    b.resolveTitle(), b.resolveText(), b.mContentInfo, b.mTickerView,
                     b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon);
             if (b.mContentView != null) {
                 notification.contentView = b.mContentView;
@@ -617,9 +617,9 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             NotificationCompatIceCreamSandwich.Builder builder =
-                    new NotificationCompatIceCreamSandwich.Builder(
-                            b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
-                            b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
+                    new NotificationCompatIceCreamSandwich.Builder(b.mContext, b.mNotification,
+                            b.resolveTitle(), b.resolveText(), b.mContentInfo, b.mTickerView,
+                            b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                             b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
             return extender.build(b, builder);
         }
@@ -629,7 +629,7 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             NotificationCompatJellybean.Builder builder = new NotificationCompatJellybean.Builder(
-                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
+                    b.mContext, b.mNotification, b.resolveTitle(), b.resolveText(), b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras,
@@ -638,7 +638,10 @@ public class NotificationCompat {
             addStyleToBuilderJellybean(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
             if (b.mStyle != null) {
-                b.mStyle.addCompatExtras(getExtras(notification));
+                Bundle extras = getExtras(notification);
+                if (extras != null) {
+                    b.mStyle.addCompatExtras(extras);
+                }
             }
             return notification;
         }
@@ -697,7 +700,7 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             NotificationCompatKitKat.Builder builder = new NotificationCompatKitKat.Builder(
-                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
+                    b.mContext, b.mNotification, b.resolveTitle(), b.resolveText(), b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly,
@@ -749,7 +752,7 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             NotificationCompatApi20.Builder builder = new NotificationCompatApi20.Builder(
-                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
+                    b.mContext, b.mNotification, b.resolveTitle(), b.resolveText(), b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mPeople, b.mExtras,
@@ -807,7 +810,7 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             NotificationCompatApi21.Builder builder = new NotificationCompatApi21.Builder(
-                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
+                    b.mContext, b.mNotification, b.resolveTitle(), b.resolveText(), b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
@@ -897,8 +900,6 @@ public class NotificationCompat {
                         bigPictureStyle.mPicture,
                         bigPictureStyle.mBigLargeIcon,
                         bigPictureStyle.mBigLargeIconSet);
-            } else if (style instanceof MessagingStyle) {
-                // TODO implement BigText fallback
             }
         }
     }
@@ -1788,6 +1789,25 @@ public class NotificationCompat {
         public int getColor() {
             return mColor;
         }
+
+
+        /**
+         * @return the text of the notification
+         *
+         * @hide
+         */
+        protected CharSequence resolveText() {
+            return mContentText;
+        }
+
+        /**
+         * @return the title of the notification
+         *
+         * @hide
+         */
+        protected CharSequence resolveTitle() {
+            return mContentTitle;
+        }
     }
 
     /**
@@ -1967,8 +1987,9 @@ public class NotificationCompat {
      * messages of varying types between any number of people.
      *
      * <br>
-     * If the platform does not provide large-format notifications, this method has no effect. The
-     * user will always see the normal notification view.
+     * In order to get a backwards compatible behavior, the app needs to use the v7 version of the
+     * notification builder together with this style, otherwise the user will see the normal
+     * notification view.
      * <br>
      * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior, like
      * so:
