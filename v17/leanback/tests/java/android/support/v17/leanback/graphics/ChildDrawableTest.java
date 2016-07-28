@@ -39,7 +39,8 @@ public class ChildDrawableTest {
     @Test
     public void updateBounds_noBoundsRule() {
         CompositeDrawable parentDrawable = new CompositeDrawable();
-        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable(bitmap, null);
+        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable();
+        drawable.setBitmap(bitmap);
         Rect bounds = new Rect(0, 0, WIDTH, HEIGHT);
         parentDrawable.addChildDrawable(drawable);
         parentDrawable.updateBounds(bounds);
@@ -52,7 +53,8 @@ public class ChildDrawableTest {
     public void updateBounds_withBoundsRule() {
         CompositeDrawable parentDrawable = new CompositeDrawable();
         float fraction = 0.5f;
-        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable(bitmap, null);
+        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable();
+        drawable.setBitmap(bitmap);
         Rect bounds = new Rect(0, 0, WIDTH, HEIGHT);
         assertEquals(HEIGHT, bounds.height());
         assertEquals(WIDTH, bounds.width());
@@ -101,7 +103,8 @@ public class ChildDrawableTest {
     public void updateBounds_withOverride() {
         CompositeDrawable parentDrawable = new CompositeDrawable();
         float fraction = 0.5f;
-        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable(bitmap, null);
+        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable();
+        drawable.setBitmap(bitmap);
         Rect bounds = new Rect(0, 0, WIDTH, HEIGHT);
         drawable.setBounds(bounds);
         assertEquals(HEIGHT, drawable.getBounds().height());

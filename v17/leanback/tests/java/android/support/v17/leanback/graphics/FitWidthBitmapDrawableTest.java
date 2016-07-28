@@ -44,7 +44,8 @@ public class FitWidthBitmapDrawableTest {
     @Test
     public void draw_withOffset() {
         int offset = 600;
-        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable(bitmap, null);
+        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable();
+        drawable.setBitmap(bitmap);
         drawable.setVerticalOffset(offset);
         Rect bounds = new Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         drawable.setBounds(bounds);
