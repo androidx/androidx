@@ -394,6 +394,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private int mLastTouchX;
     private int mLastTouchY;
     private int mTouchSlop;
+    private OnFlingListener mOnFlingListener;
     private final int mMinFlingVelocity;
     private final int mMaxFlingVelocity;
     // This value is used when handling generic motion events.
@@ -1092,6 +1093,28 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
         }
         requestLayout();
+    }
+
+    /**
+     * Set a {@link OnFlingListener} for this {@link RecyclerView}.
+     * <p>
+     * If the {@link OnFlingListener} is set then it will receive
+     * calls to {@link #fling(int,int)} and will be able to intercept them.
+     *
+     * @param onFlingListener The {@link OnFlingListener} instance.
+     */
+    public void setOnFlingListener(@Nullable OnFlingListener onFlingListener) {
+        mOnFlingListener = onFlingListener;
+    }
+
+    /**
+     * Get the current {@link OnFlingListener} from this {@link RecyclerView}.
+     *
+     * @return The {@link OnFlingListener} instance currently set (can be null).
+     */
+    @Nullable
+    public OnFlingListener getOnFlingListener() {
+        return mOnFlingListener;
     }
 
     @Override
@@ -1911,6 +1934,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (!dispatchNestedPreFling(velocityX, velocityY)) {
             final boolean canScroll = canScrollHorizontal || canScrollVertical;
             dispatchNestedFling(velocityX, velocityY, canScroll);
+
+            if (mOnFlingListener != null && mOnFlingListener.onFling(velocityX, velocityY)) {
+                return true;
+            }
 
             if (canScroll) {
                 velocityX = Math.max(-mMaxFlingVelocity, Math.min(velocityX, mMaxFlingVelocity));
@@ -10378,6 +10405,30 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 changed = true;
             }
         }
+
+        /**
+         * An interface which is optionally implemented by custom {@link RecyclerView.LayoutManager}
+         * to provide a hint to a {@link SmoothScroller} about the location of the target position.
+         */
+        public interface ScrollVectorProvider {
+            /**
+             * Should calculate the vector that points to the direction where the target position
+             * can be found.
+             * <p>
+             * This method is used by the {@link LinearSmoothScroller} to initiate a scroll towards
+             * the target position.
+             * <p>
+             * The magnitude of the vector is not important. It is always normalized before being
+             * used by the {@link LinearSmoothScroller}.
+             * <p>
+             * LayoutManager should not check whether the position exists in the adapter or not.
+             *
+             * @param targetPosition the target position to which the returned vector should point
+             *
+             * @return the scroll vector for a given position.
+             */
+            PointF computeScrollVectorForPosition(int targetPosition);
+        }
     }
 
     static class AdapterDataObservable extends Observable<AdapterDataObserver> {
@@ -10732,6 +10783,28 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     ", mRunPredictiveAnimations=" + mRunPredictiveAnimations +
                     '}';
         }
+    }
+
+    /**
+     * This class defines the behavior of fling if the developer wishes to handle it.
+     * <p>
+     * Subclasses of {@link OnFlingListener} can be used to implement custom fling behavior.
+     *
+     * @see #setOnFlingListener(OnFlingListener)
+     */
+    public static abstract class OnFlingListener {
+
+        /**
+         * Override this to handle a fling given the velocities in both x and y directions.
+         * Note that this method will only be called if the associated {@link LayoutManager}
+         * supports scrolling and the fling is not handled by nested scrolls first.
+         *
+         * @param velocityX the fling velocity on the X axis
+         * @param velocityY the fling velocity on the Y axis
+         *
+         * @return true if the fling washandled, false otherwise.
+         */
+        public abstract boolean onFling(int velocityX, int velocityY);
     }
 
     /**

@@ -18,6 +18,7 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.view.View;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -65,6 +66,21 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
             }
         }
         return variations;
+    }
+
+    protected static List<Config> addConfigVariation(List<Config> base, String fieldName,
+            Object... variations)
+            throws CloneNotSupportedException, NoSuchFieldException, IllegalAccessException {
+        List<Config> newConfigs = new ArrayList<Config>();
+        Field field = Config.class.getDeclaredField(fieldName);
+        for (Config config : base) {
+            for (Object variation : variations) {
+                Config newConfig = (Config) config.clone();
+                field.set(newConfig, variation);
+                newConfigs.add(newConfig);
+            }
+        }
+        return newConfigs;
     }
 
     public void waitForFirstLayout(RecyclerView recyclerView) throws Throwable {
@@ -137,6 +153,7 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
                 mCallbacks = new ArrayList<GridLayoutManagerTest.Callback>();
 
         Boolean mFakeRTL;
+        private CountDownLatch snapLatch;
 
         public WrappedGridLayoutManager(Context context, int spanCount) {
             super(context, spanCount);
@@ -202,6 +219,35 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
             checkForMainThreadException();
             MatcherAssert.assertThat("all layouts should complete on time",
                     mLayoutLatch.getCount(), CoreMatchers.is(0L));
+            // use a runnable to ensure RV layout is finished
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                }
+            });
+        }
+
+        public void expectIdleState(int count) {
+            snapLatch = new CountDownLatch(count);
+            mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        snapLatch.countDown();
+                        if (snapLatch.getCount() == 0L) {
+                            mRecyclerView.removeOnScrollListener(this);
+                        }
+                    }
+                }
+            });
+        }
+
+        public void waitForSnap(int seconds) throws Throwable {
+            snapLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
+            checkForMainThreadException();
+            MatcherAssert.assertThat("all scrolling should complete on time",
+                    snapLatch.getCount(), CoreMatchers.is(0L));
             // use a runnable to ensure RV layout is finished
             getInstrumentation().runOnMainSync(new Runnable() {
                 @Override
