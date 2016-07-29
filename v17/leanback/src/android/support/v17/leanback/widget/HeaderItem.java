@@ -23,6 +23,7 @@ public class HeaderItem {
 
     private final long mId;
     private final String mName;
+    private CharSequence mDescription;
     private CharSequence mContentDescription;
 
     /**
@@ -69,5 +70,20 @@ public class HeaderItem {
      */
     public void setContentDescription(CharSequence contentDescription) {
         mContentDescription = contentDescription;
+    }
+
+    /**
+     * Sets the description for the current header item. This will be visible when
+     * the row receives focus.
+     */
+    public void setDescription(CharSequence description) {
+        this.mDescription = description;
+    }
+
+    /**
+     * Returns the description for the current row.
+     */
+    public CharSequence getDescription() {
+        return mDescription;
     }
 }

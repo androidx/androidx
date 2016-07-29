@@ -72,10 +72,15 @@ public class RowHeaderPresenter extends Presenter {
         float mSelectLevel;
         int mOriginalTextColor;
         float mUnselectAlpha;
+        RowHeaderView mTitleView;
+        TextView mDescriptionView;
 
         public ViewHolder(View view) {
             super(view);
+            mTitleView = (RowHeaderView)view.findViewById(R.id.row_header);
+            mDescriptionView = (TextView)view.findViewById(R.id.row_header_description);
         }
+
         public final float getSelectLevel() {
             return mSelectLevel;
         }
@@ -83,11 +88,12 @@ public class RowHeaderPresenter extends Presenter {
 
     @Override
     public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
-        RowHeaderView headerView = (RowHeaderView) LayoutInflater.from(parent.getContext())
+        View root = LayoutInflater.from(parent.getContext())
                 .inflate(mLayoutResourceId, parent, false);
 
-        ViewHolder viewHolder = new ViewHolder(headerView);
-        viewHolder.mOriginalTextColor = headerView.getCurrentTextColor();
+        ViewHolder viewHolder = new ViewHolder(root);
+        viewHolder.mOriginalTextColor = viewHolder.mTitleView.getCurrentTextColor();
+
         viewHolder.mUnselectAlpha = parent.getResources().getFraction(
                 R.fraction.lb_browse_header_unselect_alpha, 1, 1);
         if (mAnimateSelect) {
@@ -99,22 +105,43 @@ public class RowHeaderPresenter extends Presenter {
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         HeaderItem headerItem = item == null ? null : ((Row) item).getHeaderItem();
-        if (headerItem == null) {
-            ((RowHeaderView) viewHolder.view).setText(null);
+        RowHeaderPresenter.ViewHolder vh = (RowHeaderPresenter.ViewHolder)viewHolder;
+        if (vh == null) {
+            vh.mTitleView.setText(null);
+
+            if (vh.mDescriptionView != null) {
+                vh.mDescriptionView.setText(null);
+            }
+
             viewHolder.view.setContentDescription(null);
             if (mNullItemVisibilityGone) {
                 viewHolder.view.setVisibility(View.GONE);
             }
         } else {
             viewHolder.view.setVisibility(View.VISIBLE);
-            ((RowHeaderView) viewHolder.view).setText(headerItem.getName());
+            vh.mTitleView.setText(headerItem.getName());
+
+            if (vh.mDescriptionView != null) {
+                if (headerItem.getDescription() != null) {
+                    vh.mDescriptionView.setText(headerItem.getDescription());
+                    vh.mDescriptionView.setVisibility(View.VISIBLE);
+                } else {
+                    vh.mDescriptionView.setVisibility(View.GONE);
+                }
+            }
             viewHolder.view.setContentDescription(headerItem.getContentDescription());
         }
     }
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-        ((RowHeaderView) viewHolder.view).setText(null);
+        RowHeaderPresenter.ViewHolder vh = (ViewHolder)viewHolder;
+        vh.mTitleView.setText(null);
+
+        if (vh.mDescriptionView != null) {
+            vh.mDescriptionView.setText(null);
+        }
+
         if (mAnimateSelect) {
             setSelectLevel((ViewHolder) viewHolder, 0);
         }

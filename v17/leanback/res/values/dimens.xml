@@ -40,6 +40,7 @@
     <!-- Derived from the ux spec of 48dp baseline to baseline -->
     <dimen name="lb_browse_headers_vertical_margin">21dp</dimen>
     <dimen name="lb_browse_header_text_size">20sp</dimen>
+    <dimen name="lb_browse_header_description_text_size">14sp</dimen>
     <dimen name="lb_browse_header_height">24dp</dimen>
     <dimen name="lb_browse_section_header_text_size">16sp</dimen>
     <dimen name="lb_browse_header_fading_length">12dp</dimen>

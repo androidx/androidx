@@ -60,6 +60,7 @@
         <item name="browseTitleViewStyle">@style/Widget.Leanback.TitleView</item>
 
         <item name="rowHeaderStyle">@style/Widget.Leanback.Row.Header</item>
+        <item name="rowHeaderDescriptionStyle">@style/Widget.Leanback.Row.Header.Description</item>
         <item name="rowHoverCardTitleStyle">@style/Widget.Leanback.Row.HoverCardTitle</item>
         <item name="rowHoverCardDescriptionStyle">@style/Widget.Leanback.Row.HoverCardDescription</item>
         <item name="rowHeaderDockStyle">@style/Widget.Leanback.Row.HeaderDock</item>

@@ -42,6 +42,11 @@
     <style name="TextAppearance.Leanback.Row.Header" parent="TextAppearance.Leanback.Header">
     </style>
 
+    <style name="TextAppearance.Leanback.Row.Header.Description" parent="TextAppearance.Leanback.Header">
+        <item name="android:textSize">@dimen/lb_browse_header_description_text_size</item>
+        <item name="android:textColor">@color/lb_browse_header_description_color</item>
+    </style>
+
     <style name="TextAppearance.Leanback.SearchTextEdit" parent="TextAppearance.Leanback">
         <item name="android:textSize">@dimen/lb_search_bar_text_size</item>
     </style>
@@ -267,6 +272,10 @@
 
     <style name="Widget.Leanback.Row.Header" parent="Widget.Leanback.Header">
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.Header</item>
+    </style>
+
+    <style name="Widget.Leanback.Row.Header.Description" parent="Widget.Leanback.Header">
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.Header.Description</item>
     </style>
 
     <style name="Widget.Leanback.Row.HeaderDock">
