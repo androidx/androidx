@@ -13,14 +13,14 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.support.v17.leanback.widget.ParallaxSource.FloatVariable;
-import android.support.v17.leanback.widget.ParallaxSource.FloatVariableKeyValue;
-import android.support.v17.leanback.widget.ParallaxSource.IntVariable;
-import android.support.v17.leanback.widget.ParallaxSource.IntVariableKeyValue;
-import android.support.v17.leanback.widget.ParallaxSource.Variable;
-import android.support.v17.leanback.widget.ParallaxSource.VariableKeyValue;
+import android.support.v17.leanback.widget.ParallaxSource.FloatProperty;
+import android.support.v17.leanback.widget.ParallaxSource.FloatPropertyKeyValue;
+import android.support.v17.leanback.widget.ParallaxSource.IntProperty;
+import android.support.v17.leanback.widget.ParallaxSource.IntPropertyKeyValue;
+import android.support.v17.leanback.widget.ParallaxSource.PropertyKeyValue;
 
 import android.animation.PropertyValuesHolder;
+import android.util.Property;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
  * ParallaxEffect class drives changes in {@link ParallaxTarget} in response to changes in
  * variables defined in {@link ParallaxSource}.
  * <p>
- * ParallaxEffect has a list of {@link VariableKeyValue}s which represents the range of values that
+ * ParallaxEffect has a list of {@link PropertyKeyValue}s which represents the range of values that
  * source variables can take. The main function is
  * {@link ParallaxEffect#performMapping(ParallaxSource)} which computes a fraction between 0 and 1
  * based on the current values of variables in {@link ParallaxSource}. As the parallax effect goes
@@ -39,21 +39,21 @@ import java.util.ArrayList;
  * ParallaxEffect has two concrete subclasses, {@link IntEffect} and {@link FloatEffect}.
  */
 public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
-        VariableKeyValueT extends ParallaxSource.VariableKeyValue> {
+        PropertyKeyValueT extends ParallaxSource.PropertyKeyValue> {
 
-    final List<VariableKeyValueT> mKeyValues = new ArrayList<VariableKeyValueT>(2);
+    final List<PropertyKeyValueT> mKeyValues = new ArrayList<PropertyKeyValueT>(2);
     final List<Float> mWeights = new ArrayList<Float>(2);
     final List<Float> mTotalWeights = new ArrayList<Float>(2);
     final List<ParallaxTarget> mTargets = new ArrayList<ParallaxTarget>(4);
 
     /**
-     * Returns the list of {@link VariableKeyValue}s, which represents the range of values that
+     * Returns the list of {@link PropertyKeyValue}s, which represents the range of values that
      * source variables can take.
      *
-     * @return A list of {@link VariableKeyValue}s.
+     * @return A list of {@link PropertyKeyValue}s.
      * @see #performMapping(ParallaxSource)
      */
-    public final List<VariableKeyValueT> getVariableRanges() {
+    public final List<PropertyKeyValueT> getPropertyRanges() {
         return mKeyValues;
     }
 
@@ -69,15 +69,15 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
     }
 
     /**
-     * Sets the list of {@link VariableKeyValue}s, which represents the range of values that
+     * Sets the list of {@link PropertyKeyValue}s, which represents the range of values that
      * source variables can take.
      *
-     * @param keyValues A list of {@link VariableKeyValue}s.
+     * @param keyValues A list of {@link PropertyKeyValue}s.
      * @see #performMapping(ParallaxSource)
      */
-    public final void setVariableRanges(VariableKeyValueT... keyValues) {
+    public final void setPropertyRanges(PropertyKeyValueT... keyValues) {
         mKeyValues.clear();
-        for (VariableKeyValueT keyValue : keyValues) {
+        for (PropertyKeyValueT keyValue : keyValues) {
             mKeyValues.add(keyValue);
         }
     }
@@ -177,6 +177,7 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
         if (mKeyValues.size() < 2) {
             return;
         }
+        source.verifyProperties();
         float fraction = calculateFraction(source);
         for (int i = 0; i < mTargets.size(); i++) {
             mTargets.get(i).update(fraction);
@@ -191,11 +192,6 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
      * @return Float value between 0 and 1.
      */
     protected abstract float calculateFraction(ParallaxSource source);
-
-    private static int getVariableIndex(Variable variable) {
-        List<Variable> variables = variable.getSource().getVariables();
-        return variables == null ? -1 : variables.indexOf(variable);
-    }
 
     /**
      * When there are multiple ranges (aka three or more keyvalues),  this method adjust the
@@ -230,21 +226,20 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
     /**
      * Implementation of {@link ParallaxEffect} for integer type.
      */
-    public static final class IntEffect extends ParallaxEffect<IntEffect, IntVariableKeyValue> {
+    public static final class IntEffect extends ParallaxEffect<IntEffect, IntPropertyKeyValue> {
 
         @Override
         protected float calculateFraction(ParallaxSource s) {
-            ParallaxSource<IntVariable> source = (ParallaxSource<IntVariable>) s;
-            ParallaxSource.verifyIntVariables(source.getVariables());
+            ParallaxSource.IntSource source = (ParallaxSource.IntSource) s;
             int lastIndex = 0;
             int lastValue = 0;
             int lastKeyValue = 0;
             // go through all KeyValues, find first KeyValue that current value is less than.
             for (int i = 0; i < mKeyValues.size(); i++) {
-                IntVariableKeyValue k = mKeyValues.get(i);
-                int index = getVariableIndex(k.getVariable());
-                int keyValue = k.getIntValue();
-                int currentValue = k.getVariable().getIntValue();
+                IntPropertyKeyValue k = mKeyValues.get(i);
+                int index = k.getProperty().getIndex();
+                int keyValue = k.getKeyValue(source);
+                int currentValue = source.getPropertyValue(index);
 
                 float fraction;
                 if (i == 0) {
@@ -256,12 +251,12 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
                         throw new IllegalStateException("KeyValue of same variable must be "
                                 + "descendant order");
                     }
-                    if (currentValue == IntVariable.UNKNOWN_AFTER) {
+                    if (currentValue == IntProperty.UNKNOWN_AFTER) {
                         // Implies lastValue is less than lastKeyValue and lastValue is not
                         // UNKNWON_AFTER.  Estimates based on distance of two variables is screen
                         // size.
                         fraction = (float)(lastKeyValue - lastValue) /
-                                source.getMaxParentVisibleSize().getIntValue();
+                                source.getMaxParentVisibleSize();
                         return getFractionWithWeightAdjusted(fraction, i);
                     } else if (currentValue >= keyValue) {
                         if (lastIndex == index) {
@@ -270,7 +265,7 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
                             // fraction moves from 0 to 1.
                             fraction = (float) (lastKeyValue - currentValue)
                                     / (lastKeyValue - keyValue);
-                        } else if (lastValue != IntVariable.UNKNOWN_BEFORE) {
+                        } else if (lastValue != IntProperty.UNKNOWN_BEFORE) {
                             // e.g. UIElement_1 at 300 scroll to UIElement_2 at 400, figure out when
                             // UIElement_1 is at keyValue=300,  keyValue of UIElement_2 by adding
                             // delta of values to keyValue of UIElement_2.
@@ -282,7 +277,7 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
                             // travel distance from last variable to this variable is screen visible
                             // size.
                             fraction = 1f - (float) (currentValue - keyValue)
-                                    / source.getMaxParentVisibleSize().getIntValue();
+                                    / source.getMaxParentVisibleSize();
                         }
                         return getFractionWithWeightAdjusted(fraction, i);
                     }
@@ -299,21 +294,20 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
      * Implementation of {@link ParallaxEffect} for float type.
      */
     public static final class FloatEffect extends ParallaxEffect<FloatEffect,
-            FloatVariableKeyValue> {
+            FloatPropertyKeyValue> {
 
         @Override
         protected float calculateFraction(ParallaxSource s) {
-            ParallaxSource<FloatVariable> source = (ParallaxSource<FloatVariable>) s;
-            ParallaxSource.verifyFloatVariables(source.getVariables());
+            ParallaxSource.FloatSource source = (ParallaxSource.FloatSource) s;
             int lastIndex = 0;
             float lastValue = 0;
             float lastKeyValue = 0;
             // go through all KeyValues, find first KeyValue that current value is less than.
             for (int i = 0; i < mKeyValues.size(); i++) {
-                FloatVariableKeyValue k = mKeyValues.get(i);
-                int index = getVariableIndex(k.getVariable());
-                float keyValue = k.getFloatValue();
-                float currentValue = k.getVariable().getFloatValue();
+                FloatPropertyKeyValue k = mKeyValues.get(i);
+                int index = k.getProperty().getIndex();
+                float keyValue = k.getKeyValue(source);
+                float currentValue = source.getPropertyValue(index);
 
                 float fraction;
                 if (i == 0) {
@@ -325,12 +319,12 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
                         throw new IllegalStateException("KeyValue of same variable must be "
                                 + "descendant order");
                     }
-                    if (currentValue == FloatVariable.UNKNOWN_AFTER) {
+                    if (currentValue == FloatProperty.UNKNOWN_AFTER) {
                         // Implies lastValue is less than lastKeyValue and lastValue is not
                         // UNKNWON_AFTER.  Estimates based on distance of two variables is screen
                         // size.
                         fraction = (float)(lastKeyValue - lastValue) /
-                                source.getMaxParentVisibleSize().getFloatValue();
+                                source.getMaxParentVisibleSize();
                         return getFractionWithWeightAdjusted(fraction, i);
                     } else if (currentValue >= keyValue) {
                         if (lastIndex == index) {
@@ -339,7 +333,7 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
                             // fraction moves from 0 to 1.
                             fraction = (float) (lastKeyValue - currentValue)
                                     / (lastKeyValue - keyValue);
-                        } else if (lastValue != FloatVariable.UNKNOWN_BEFORE) {
+                        } else if (lastValue != FloatProperty.UNKNOWN_BEFORE) {
                             // e.g. UIElement_1 at 300 scroll to UIElement_2 at 400, figure out when
                             // UIElement_1 is at keyValue=300,  keyValue of UIElement_2 by adding
                             // delta of values to keyValue of UIElement_2.
@@ -351,7 +345,7 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
                             // travel distance from last variable to this variable is screen visible
                             // size.
                             fraction = 1f - (float) (currentValue - keyValue)
-                                    / source.getMaxParentVisibleSize().getFloatValue();
+                                    / source.getMaxParentVisibleSize();
                         }
                         return getFractionWithWeightAdjusted(fraction, i);
                     }

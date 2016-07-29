@@ -50,9 +50,8 @@ import android.support.test.runner.AndroidJUnit4;
 @SmallTest
 public class ParallaxFloatSourceTest {
 
-    List<ParallaxSource.FloatVariable> variables;
-    ParallaxSource.FloatVariable screenMax;
-    ParallaxSource<ParallaxSource.FloatVariable> source;
+    ParallaxSource.FloatSource source;
+    float screenMax;
 
     static void assertFloatEquals(float expected, float actual) {
         org.junit.Assert.assertEquals((double)expected, (double)actual, 0.0001d);
@@ -60,118 +59,107 @@ public class ParallaxFloatSourceTest {
 
     @Before
     public void setUp() throws Exception {
-        source = new ParallaxSource<ParallaxSource.FloatVariable>() {
-            public List<ParallaxSource.FloatVariable> getVariables() {
-                return variables;
-            }
+        source = new ParallaxSource.FloatSource<ParallaxSource.FloatProperty>() {
 
             public void setListener(ParallaxSource.Listener listener) {
             }
 
-            public ParallaxSource.FloatVariable getMaxParentVisibleSize() {
+            public float getMaxParentVisibleSize() {
                 return screenMax;
             }
+
+            @Override
+            public FloatProperty createProperty(String name, int index) {
+                return new FloatProperty(name, index);
+            }
         };
-        variables = new ArrayList<ParallaxSource.FloatVariable>();
-        screenMax = new ParallaxSource.FloatVariable(source);
     }
 
     @Test
     public void testVariable() {
-        screenMax.setFloatValue(1080);
-        ParallaxSource.FloatVariable var1 = new ParallaxSource.FloatVariable(source);
-        variables.add(var1);
-        var1.setFloatValue(54);
-        assertFloatEquals((float)54, var1.getFloatValue());
-        var1.setName("testname123");
-        assertEquals(var1.getName(), "testname123");
-        var1.setFloatValue(2000);
-        assertFloatEquals((float)2000, var1.getFloatValue());
+        screenMax = 1080;
+        ParallaxSource.FloatProperty var1 = source.addProperty("var1");
+        var1.setFloatValue(source, 54);
+        assertFloatEquals((float)54, var1.getFloatValue(source));
+        assertEquals(var1.getName(), "var1");
+        var1.set(source, (float)2000);
+        assertFloatEquals((float)2000, var1.get(source).floatValue());
     }
 
     @Test
     public void testFixedKeyValue() {
-        screenMax.setFloatValue(1080);
-        ParallaxSource.FloatVariable var1 = new ParallaxSource.FloatVariable(source);
-        variables.add(var1);
+        screenMax = 1080;
+        ParallaxSource.FloatProperty var1 = source.addProperty("var1");
 
-        ParallaxSource.FloatVariableKeyValue keyValue = var1.at(1000);
-        assertSame(keyValue.getVariable(), var1);
-        assertFloatEquals((float)1000, keyValue.getFloatValue());
+        ParallaxSource.FloatPropertyKeyValue keyValue = var1.at(1000);
+        assertSame(keyValue.getProperty(), var1);
+        assertFloatEquals((float)1000, keyValue.getKeyValue(source));
     }
 
     @Test
     public void testFractionOfKeyValue() {
-        screenMax.setFloatValue(1080);
-        ParallaxSource.FloatVariable var1 = new ParallaxSource.FloatVariable(source);
-        variables.add(var1);
+        screenMax = 1080;
+        ParallaxSource.FloatProperty var1 = source.addProperty("var1");
 
-        ParallaxSource.FloatVariableKeyValue keyValue = var1.at(0, 0.5f);
-        assertSame(keyValue.getVariable(), var1);
-        assertFloatEquals((float)540, keyValue.getFloatValue());
+        ParallaxSource.FloatPropertyKeyValue keyValue = var1.at(0, 0.5f);
+        assertSame(keyValue.getProperty(), var1);
+        assertFloatEquals((float)540, keyValue.getKeyValue(source));
     }
 
     @Test
     public void testFixedKeyValueWithFraction() {
-        screenMax.setFloatValue(1080);
-        ParallaxSource.FloatVariable var1 = new ParallaxSource.FloatVariable(source);
-        variables.add(var1);
+        screenMax = 1080;
+        ParallaxSource.FloatProperty var1 = source.addProperty("var1");
 
-        ParallaxSource.FloatVariableKeyValue keyValue = var1.at(-100, 0.5f);
-        assertSame(keyValue.getVariable(), var1);
-        assertFloatEquals((float)440, keyValue.getFloatValue());
+        ParallaxSource.FloatPropertyKeyValue keyValue = var1.at(-100, 0.5f);
+        assertSame(keyValue.getProperty(), var1);
+        assertFloatEquals((float)440, keyValue.getKeyValue(source));
 
-        ParallaxSource.FloatVariableKeyValue keyValue2 = var1.at(100, 0.5f);
-        assertSame(keyValue2.getVariable(), var1);
-        assertFloatEquals((float)640, keyValue2.getFloatValue());
+        ParallaxSource.FloatPropertyKeyValue keyValue2 = var1.at(100, 0.5f);
+        assertSame(keyValue2.getProperty(), var1);
+        assertFloatEquals((float)640, keyValue2.getKeyValue(source));
     }
 
     @Test(expected=IllegalStateException.class)
-    public void testVerifyFloatVariables_wrongOrder() {
-        ParallaxSource.FloatVariable var1 = new ParallaxSource.FloatVariable(source);
-        variables.add(var1);
-        ParallaxSource.FloatVariable var2 = new ParallaxSource.FloatVariable(source);
-        variables.add(var2);
+    public void testVerifyFloatPropertys_wrongOrder() {
+        ParallaxSource.FloatProperty var1 = source.addProperty("var1");
+        ParallaxSource.FloatProperty var2 = source.addProperty("var2");;
 
-        var1.setFloatValue((int)500);
-        var2.setFloatValue((int)499);
+        var1.setFloatValue(source, (float)500);
+        var2.setFloatValue(source, (float)499);
 
-        ParallaxSource.verifyFloatVariables(variables);
+        source.verifyProperties();
     }
 
     @Test(expected=IllegalStateException.class)
-    public void testVerifyFloatVariablesWrong_combination() {
-        ParallaxSource.FloatVariable var1 = new ParallaxSource.FloatVariable(source);
-        variables.add(var1);
-        ParallaxSource.FloatVariable var2 = new ParallaxSource.FloatVariable(source);
-        variables.add(var2);
+    public void testVerifyFloatPropertysWrong_combination() {
+        ParallaxSource.FloatProperty var1 = source.addProperty("var1");
+        ParallaxSource.FloatProperty var2 = source.addProperty("var2");
 
-        var1.setFloatValue(ParallaxSource.FloatVariable.UNKNOWN_BEFORE);
-        var2.setFloatValue(ParallaxSource.FloatVariable.UNKNOWN_AFTER);
+        var1.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_BEFORE);
+        var2.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_AFTER);
 
-        ParallaxSource.verifyFloatVariables(variables);
+        source.verifyProperties();
     }
 
     @Test
-    public void testVerifyFloatVariables_success() {
-        ParallaxSource.FloatVariable var1 = new ParallaxSource.FloatVariable(source);
-        variables.add(var1);
-        ParallaxSource.FloatVariable var2 = new ParallaxSource.FloatVariable(source);
-        variables.add(var2);
+    public void testVerifyFloatPropertys_success() {
+        ParallaxSource.FloatProperty var1 = source.addProperty("var1");
+        ParallaxSource.FloatProperty var2 = source.addProperty("var2");
 
-        var1.setFloatValue((int)499);
-        var2.setFloatValue((int)500);
+        var1.setFloatValue(source, (float)499);
+        var2.setFloatValue(source, (float)500);
 
-        ParallaxSource.verifyFloatVariables(variables);
+        source.verifyProperties();
 
-        var1.setFloatValue(ParallaxSource.FloatVariable.UNKNOWN_BEFORE);
-        var2.setFloatValue((int)500);
+        var1.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_BEFORE);
+        var2.setFloatValue(source, (float)500);
 
-        ParallaxSource.verifyFloatVariables(variables);
+        source.verifyProperties();
 
-        var1.setFloatValue((int)499);
-        var2.setFloatValue(ParallaxSource.FloatVariable.UNKNOWN_AFTER);
+        var1.setFloatValue(source, (float)499);
+        var2.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_AFTER);
 
-        ParallaxSource.verifyFloatVariables(variables);
+        source.verifyProperties();
     }
 }

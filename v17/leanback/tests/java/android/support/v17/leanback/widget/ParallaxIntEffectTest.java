@@ -48,92 +48,89 @@ import android.support.test.runner.AndroidJUnit4;
 @SmallTest
 public class ParallaxIntEffectTest {
 
-    List<ParallaxSource.IntVariable> variables;
-    ParallaxSource.IntVariable screenMax;
-    ParallaxSource<ParallaxSource.IntVariable> source;
+    ParallaxSource.IntSource source;
+    int screenMax;
     ParallaxEffect.IntEffect effect;
     @Mock ParallaxTarget target;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        source = new ParallaxSource<ParallaxSource.IntVariable>() {
-            public List<ParallaxSource.IntVariable> getVariables() {
-                return variables;
-            }
+        source = new ParallaxSource.IntSource<ParallaxSource.IntProperty>() {
 
             public void setListener(ParallaxSource.Listener listener) {
             }
 
-            public ParallaxSource.IntVariable getMaxParentVisibleSize() {
+            public int getMaxParentVisibleSize() {
                 return screenMax;
             }
+
+            @Override
+            public IntProperty createProperty(String name, int index) {
+                return new IntProperty(name, index);
+            }
         };
-        variables = new ArrayList<ParallaxSource.IntVariable>();
-        screenMax = new ParallaxSource.IntVariable(source);
         effect = new ParallaxEffect.IntEffect();
     }
 
     @Test
     public void testOneVariable() {
-        screenMax.setIntValue(1080);
-        ParallaxSource.IntVariable var1 = new ParallaxSource.IntVariable(source);
-        variables.add(var1);
-        var1.setName("detail_banner_topEdge");
+        screenMax = 1080;
+        ParallaxSource.IntProperty var1 = source.addProperty("var1");
 
-        effect.setVariableRanges(var1.at(540), var1.at(0));
+        effect.setPropertyRanges(var1.at(540), var1.at(0));
         effect.target(target);
 
         // start
-        var1.setIntValue(540);
+        var1.setIntValue(source, 540);
         effect.performMapping(source);
         verify(target, times(1)).update(0f);
         Mockito.reset(target);
 
         // 25% complete
-        var1.setIntValue(405);
+        var1.setIntValue(source, 405);
         effect.performMapping(source);
         verify(target, times(1)).update(0.25f);
         Mockito.reset(target);
 
         // middle
-        var1.setIntValue(270);
+        var1.setIntValue(source, 270);
         effect.performMapping(source);
         verify(target, times(1)).update(.5f);
         Mockito.reset(target);
 
         // 75% complete
-        var1.setIntValue(135);
+        var1.setIntValue(source, 135);
         effect.performMapping(source);
         verify(target, times(1)).update(0.75f);
         Mockito.reset(target);
 
         // end
-        var1.setIntValue(0);
+        var1.setIntValue(source, 0);
         effect.performMapping(source);
         verify(target, times(1)).update(1f);
         Mockito.reset(target);
 
         // after end
-        var1.setIntValue(-1000);
+        var1.setIntValue(source, -1000);
         effect.performMapping(source);
         verify(target, times(1)).update(1f);
         Mockito.reset(target);
 
         // before start
-        var1.setIntValue(1000);
+        var1.setIntValue(source, 1000);
         effect.performMapping(source);
         verify(target, times(1)).update(0f);
         Mockito.reset(target);
 
         // unknown_before
-        var1.setIntValue(ParallaxSource.IntVariable.UNKNOWN_BEFORE);
+        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
         effect.performMapping(source);
         verify(target, times(1)).update(1f);
         Mockito.reset(target);
 
         // unknown_after
-        var1.setIntValue(ParallaxSource.IntVariable.UNKNOWN_AFTER);
+        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
         effect.performMapping(source);
         verify(target, times(1)).update(0f);
         Mockito.reset(target);
@@ -141,117 +138,111 @@ public class ParallaxIntEffectTest {
 
     @Test(expected=IllegalStateException.class)
     public void testVerifyKeyValueOfSameVariableInDesendantOrder() {
-        screenMax.setIntValue(1080);
-        ParallaxSource.IntVariable var1 = new ParallaxSource.IntVariable(source);
-        variables.add(var1);
-        var1.setName("detail_banner_topEdge");
+        screenMax = 1080;
+        ParallaxSource.IntProperty var1 = source.addProperty("var1");
 
-        effect.setVariableRanges(var1.at(540), var1.at(550));
+        effect.setPropertyRanges(var1.at(540), var1.at(550));
         effect.target(target);
-        var1.setIntValue(0);
+        var1.setIntValue(source, 0);
         effect.performMapping(source);
     }
 
     @Test
     public void testTwoVariable() {
-        screenMax.setIntValue(1080);
-        ParallaxSource.IntVariable var1 = new ParallaxSource.IntVariable(source);
-        variables.add(var1);
-        var1.setName("row1_top");
-        ParallaxSource.IntVariable var2 = new ParallaxSource.IntVariable(source);
-        variables.add(var2);
-        var2.setName("row2_top");
+        screenMax = 1080;
+        ParallaxSource.IntProperty var1 = source.addProperty("var1");
+        ParallaxSource.IntProperty var2 = source.addProperty("var2");
 
-        effect.setVariableRanges(var1.at(540), var2.at(540));
+        effect.setPropertyRanges(var1.at(540), var2.at(540));
         effect.target(target);
 
         // start
-        var1.setIntValue(540);
-        var2.setIntValue(840);
+        var1.setIntValue(source, 540);
+        var2.setIntValue(source, 840);
         effect.performMapping(source);
         verify(target, times(1)).update(0f);
         Mockito.reset(target);
 
         // middle
-        var1.setIntValue(390);
-        var2.setIntValue(690);
+        var1.setIntValue(source, 390);
+        var2.setIntValue(source, 690);
         effect.performMapping(source);
         verify(target, times(1)).update(.5f);
         Mockito.reset(target);
 
         // end
-        var1.setIntValue(240);
-        var2.setIntValue(540);
+        var1.setIntValue(source, 240);
+        var2.setIntValue(source, 540);
         effect.performMapping(source);
         verify(target, times(1)).update(1f);
         Mockito.reset(target);
 
         // after end
-        var1.setIntValue(200);
-        var2.setIntValue(500);
+        var1.setIntValue(source, 200);
+        var2.setIntValue(source, 500);
         effect.performMapping(source);
         verify(target, times(1)).update(1f);
         Mockito.reset(target);
 
         // before start
-        var1.setIntValue(1000);
-        var2.setIntValue(1300);
+        var1.setIntValue(source, 1000);
+        var2.setIntValue(source, 1300);
         effect.performMapping(source);
         verify(target, times(1)).update(0f);
         Mockito.reset(target);
 
         // unknown_before
-        var1.setIntValue(ParallaxSource.IntVariable.UNKNOWN_BEFORE);
-        var2.setIntValue(ParallaxSource.IntVariable.UNKNOWN_BEFORE);
+        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
         effect.performMapping(source);
         verify(target, times(1)).update(1f);
         Mockito.reset(target);
 
         // unknown_before
-        var1.setIntValue(ParallaxSource.IntVariable.UNKNOWN_BEFORE);
-        var2.setIntValue(-1000);
+        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(source, -1000);
         effect.performMapping(source);
         verify(target, times(1)).update(1f);
         Mockito.reset(target);
 
         // unknown_after
-        var1.setIntValue(ParallaxSource.IntVariable.UNKNOWN_AFTER);
-        var2.setIntValue(ParallaxSource.IntVariable.UNKNOWN_AFTER);
+        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
+        var2.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
         effect.performMapping(source);
         verify(target, times(1)).update(0f);
         Mockito.reset(target);
 
         // unknown_after
-        var1.setIntValue(1000);
-        var2.setIntValue(ParallaxSource.IntVariable.UNKNOWN_AFTER);
+        var1.setIntValue(source, 1000);
+        var2.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
         effect.performMapping(source);
         verify(target, times(1)).update(0f);
         Mockito.reset(target);
 
         // unknown_before and less
-        var1.setIntValue(ParallaxSource.IntVariable.UNKNOWN_BEFORE);
-        var2.setIntValue(500);
+        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(source, 500);
         effect.performMapping(source);
         verify(target, times(1)).update(1f);
         Mockito.reset(target);
 
         // unknown_before and hit second
-        var1.setIntValue(ParallaxSource.IntVariable.UNKNOWN_BEFORE);
-        var2.setIntValue(540);
+        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(source, 540);
         effect.performMapping(source);
         verify(target, times(1)).update(1f);
         Mockito.reset(target);
 
         // unknown_before with estimation
-        var1.setIntValue(ParallaxSource.IntVariable.UNKNOWN_BEFORE);
-        var2.setIntValue(1080);
+        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(source, 1080);
         effect.performMapping(source);
         verify(target, times(1)).update(0.5f);
         Mockito.reset(target);
 
         // unknown_after with estimation
-        var1.setIntValue(0);
-        var2.setIntValue(ParallaxSource.IntVariable.UNKNOWN_AFTER);
+        var1.setIntValue(source, 0);
+        var2.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
         effect.performMapping(source);
         verify(target, times(1)).update(0.5f);
         Mockito.reset(target);
