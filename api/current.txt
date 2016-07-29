@@ -2140,16 +2140,6 @@ package android.support.v17.leanback.graphics {
     method public void setActiveLevel(float);
   }
 
-  public class ColorRegionDrawable extends android.support.v17.leanback.graphics.RegionDrawable {
-    ctor public ColorRegionDrawable(int);
-    method public void draw(android.graphics.Canvas);
-    method public int getColor();
-    method public int getOpacity();
-    method public void setAlpha(int);
-    method public void setColor(int);
-    method public void setColorFilter(android.graphics.ColorFilter);
-  }
-
   public class CompositeDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
     ctor public CompositeDrawable();
     method public void addChildDrawable(android.graphics.drawable.Drawable);
@@ -2209,17 +2199,6 @@ package android.support.v17.leanback.graphics {
     method public void setColorFilter(android.graphics.ColorFilter);
     method public void setSource(android.graphics.Rect);
     method public void setVerticalOffset(int);
-  }
-
-  public abstract class RegionDrawable extends android.graphics.drawable.Drawable {
-    ctor public RegionDrawable();
-    method public android.support.v17.leanback.graphics.BoundsRule getBoundsRule();
-    method public void setOverrideBottom(int);
-    method public void setOverrideLeft(int);
-    method public void setOverrideRight(int);
-    method public void setOverrideTop(int);
-    method public void updateBounds(android.graphics.Rect);
-    field protected final android.graphics.Paint mPaint;
   }
 
 }
