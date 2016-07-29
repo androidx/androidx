@@ -475,6 +475,7 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
         // until bug is fixed, we'll fake it.
         // public issue id: 57819
         Boolean mFakeRTL;
+        CountDownLatch snapLatch;
 
         @Override
         boolean isLayoutRTL() {
@@ -490,6 +491,35 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
             checkForMainThreadException();
             MatcherAssert.assertThat("all layouts should complete on time",
                     layoutLatch.getCount(), CoreMatchers.is(0L));
+            // use a runnable to ensure RV layout is finished
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                }
+            });
+        }
+
+        public void expectIdleState(int count) {
+            snapLatch = new CountDownLatch(count);
+            mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        snapLatch.countDown();
+                        if (snapLatch.getCount() == 0L) {
+                            mRecyclerView.removeOnScrollListener(this);
+                        }
+                    }
+                }
+            });
+        }
+
+        public void waitForSnap(int seconds) throws Throwable {
+            snapLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
+            checkForMainThreadException();
+            MatcherAssert.assertThat("all scrolling should complete on time",
+                    snapLatch.getCount(), CoreMatchers.is(0L));
             // use a runnable to ensure RV layout is finished
             getInstrumentation().runOnMainSync(new Runnable() {
                 @Override
@@ -538,6 +568,28 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
             }
 
             return 0;
+        }
+
+        View findFirstVisibleItemClosestToCenter() {
+            final int boundsStart = mPrimaryOrientation.getStartAfterPadding();
+            final int boundsEnd = mPrimaryOrientation.getEndAfterPadding();
+            final int boundsCenter = (boundsStart + boundsEnd) / 2;
+            final Rect childBounds = new Rect();
+            int minDist = Integer.MAX_VALUE;
+            View closestChild = null;
+            for (int i = getChildCount() - 1; i >= 0; i--) {
+                final View child = getChildAt(i);
+                childBounds.setEmpty();
+                getDecoratedBoundsWithMargins(child, childBounds);
+                int childCenter = canScrollHorizontally()
+                        ? childBounds.centerX() : childBounds.centerY();
+                int dist = Math.abs(boundsCenter - childCenter);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closestChild = child;
+                }
+            }
+            return closestChild;
         }
 
         public WrappedLayoutManager(int spanCount, int orientation) {

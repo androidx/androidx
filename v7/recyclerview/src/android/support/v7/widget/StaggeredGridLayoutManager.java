@@ -52,7 +52,8 @@ import java.util.List;
  * StaggeredGridLayoutManager can offset spans independently or move items between spans. You can
  * control this behavior via {@link #setGapStrategy(int)}.
  */
-public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
+public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager implements
+        RecyclerView.SmoothScroller.ScrollVectorProvider {
 
     private static final String TAG = "StaggeredGridLayoutManager";
 
@@ -1996,22 +1997,26 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
+    public PointF computeScrollVectorForPosition(int targetPosition) {
+        final int direction = calculateScrollDirectionForPosition(targetPosition);
+        PointF outVector = new PointF();
+        if (direction == 0) {
+            return null;
+        }
+        if (mOrientation == HORIZONTAL) {
+            outVector.x = direction;
+            outVector.y = 0;
+        } else {
+            outVector.x = 0;
+            outVector.y = direction;
+        }
+        return outVector;
+    }
+
+    @Override
     public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,
             int position) {
-        LinearSmoothScroller scroller = new LinearSmoothScroller(recyclerView.getContext()) {
-            @Override
-            public PointF computeScrollVectorForPosition(int targetPosition) {
-                final int direction = calculateScrollDirectionForPosition(targetPosition);
-                if (direction == 0) {
-                    return null;
-                }
-                if (mOrientation == HORIZONTAL) {
-                    return new PointF(direction, 0);
-                } else {
-                    return new PointF(0, direction);
-                }
-            }
-        };
+        LinearSmoothScroller scroller = new LinearSmoothScroller(recyclerView.getContext());
         scroller.setTargetPosition(position);
         startSmoothScroll(scroller);
     }
