@@ -3866,6 +3866,7 @@ package android.support.v17.preference {
 
   public abstract class LeanbackPreferenceFragment extends android.support.v17.preference.BaseLeanbackPreferenceFragment {
     ctor public LeanbackPreferenceFragment();
+    method public void setTitle(java.lang.CharSequence);
   }
 
   public abstract class LeanbackSettingsFragment extends android.app.Fragment implements android.support.v14.preference.PreferenceFragment.OnPreferenceDisplayDialogCallback android.support.v14.preference.PreferenceFragment.OnPreferenceStartFragmentCallback android.support.v14.preference.PreferenceFragment.OnPreferenceStartScreenCallback {
