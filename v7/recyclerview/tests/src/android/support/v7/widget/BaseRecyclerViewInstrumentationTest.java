@@ -416,6 +416,25 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
     }
 
+    public void smoothScrollBy(final int dt) {
+        try {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mRecyclerView.getLayoutManager().canScrollHorizontally()) {
+                        mRecyclerView.smoothScrollBy(dt, 0);
+                    } else {
+                        mRecyclerView.smoothScrollBy(0, dt);
+                    }
+
+                }
+            });
+        } catch (Throwable throwable) {
+            Log.e(TAG, "", throwable);
+        }
+        getInstrumentation().waitForIdleSync();
+    }
+
     void scrollToPosition(final int position) throws Throwable {
         runTestOnUiThread(new Runnable() {
             @Override

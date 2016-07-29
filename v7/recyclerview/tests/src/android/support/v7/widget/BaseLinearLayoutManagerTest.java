@@ -27,6 +27,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -258,7 +259,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
     static class Config implements Cloneable {
 
-        static final int DEFAULT_ITEM_COUNT = 100;
+        static final int DEFAULT_ITEM_COUNT = 250;
 
         boolean mStackFromEnd;
 
@@ -342,6 +343,8 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
         CountDownLatch layoutLatch;
 
+        CountDownLatch snapLatch;
+
         OrientationHelper mSecondaryOrientation;
 
         OnLayoutListener mOnLayoutListener;
@@ -359,6 +362,35 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
             checkForMainThreadException();
             MatcherAssert.assertThat("all layouts should complete on time",
                     layoutLatch.getCount(), CoreMatchers.is(0L));
+            // use a runnable to ensure RV layout is finished
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                }
+            });
+        }
+
+        public void expectIdleState(int count) {
+            snapLatch = new CountDownLatch(count);
+            mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        snapLatch.countDown();
+                        if (snapLatch.getCount() == 0L) {
+                            mRecyclerView.removeOnScrollListener(this);
+                        }
+                    }
+                }
+            });
+        }
+
+        public void waitForSnap(int seconds) throws Throwable {
+            snapLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
+            checkForMainThreadException();
+            MatcherAssert.assertThat("all scrolling should complete on time",
+                    snapLatch.getCount(), CoreMatchers.is(0L));
             // use a runnable to ensure RV layout is finished
             getInstrumentation().runOnMainSync(new Runnable() {
                 @Override
@@ -544,7 +576,5 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
             }
             layoutLatch.countDown();
         }
-
-
     }
 }

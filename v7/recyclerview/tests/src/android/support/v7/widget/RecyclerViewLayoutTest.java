@@ -2193,8 +2193,11 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 LinearSmoothScroller linearSmoothScroller =
                         new LinearSmoothScroller(recyclerView.getContext()) {
                             @Override
-                            public PointF computeScrollVectorForPosition(int targetPosition) {
-                                return new PointF(0, 1);
+                            public boolean computeScrollVectorForPosition(int targetPosition,
+                                    PointF endVector) {
+                                endVector.x = 0;
+                                endVector.y = 1;
+                                return true;
                             }
 
                             @Override
@@ -3972,8 +3975,9 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 RecyclerView.SmoothScroller ss =
                         new LinearSmoothScroller(recyclerView.getContext()) {
                             @Override
-                            public PointF computeScrollVectorForPosition(int targetPosition) {
-                                return null;
+                            public boolean computeScrollVectorForPosition(int targetPosition,
+                                    PointF endVector) {
+                                return false;
                             }
                         };
                 ss.setTargetPosition(position);
@@ -4080,8 +4084,11 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 RecyclerView.SmoothScroller ss =
                         new LinearSmoothScroller(recyclerView.getContext()) {
                             @Override
-                            public PointF computeScrollVectorForPosition(int targetPosition) {
-                                return new PointF(0, 1);
+                            public boolean computeScrollVectorForPosition(int targetPosition,
+                                    PointF endVector) {
+                                endVector.x = 0;
+                                endVector.y = 1;
+                                return true;
                             }
 
                             @Override
