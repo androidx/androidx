@@ -27,8 +27,7 @@ import static android.support.v7.widget.RecyclerView.ViewHolder;
 /**
  * Implementation of {@link ParallaxSource} class for {@link RecyclerView}. This class
  * allows users to track position of specific views inside {@link RecyclerView} relative to
- * itself. @see {@link VariableDef} for details. For reference implementation, you can look at
- * {@link android.support.v17.leanback.app.DetailsFragment}.
+ * itself.
  */
 public class ParallaxRecyclerViewSource extends ParallaxSource<ParallaxSource.IntVariable> {
     private final RecyclerView mRecylerView;

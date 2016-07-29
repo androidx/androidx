@@ -52,8 +52,8 @@ import android.util.TypedValue;
  * create an instance of {@link DetailsBackgroundParallaxHelper}. Users must set the RecyclerView
  * instance on {@link ParallaxBuilder}. Then they should set the drawable obtained by
  * calling {@link #getDrawable} as the background of their current activity.
- * @<code>
- *     @Override
+ * <pre>
+ * {@code
  *     public void onStart() {
  *         super.onStart();
  *         mParallaxHelper = DetailsBackgroundParallaxHelper.ParallaxBuilder
@@ -63,15 +63,18 @@ import android.util.TypedValue;
  *             .build();
  *          mBackgroundManager.setDrawable(mParallaxHelper.getDrawable());
  *      }
- * </code>
+ * }
+ * </pre>
  * </li>
  * </li>
  * <li>Finally, users can set the bitmap through {@link #setBitmap(Bitmap)} call.
- * @<code>
+ * <pre>
+ * {@code
  *     public void onBitmapLoaded(Bitmap bitmap) {
  *         mParallaxHelper.setBitmap(bitmap);
  *     }
- * </code>
+ * }
+ * </pre>
  * </li>
  * </ul>
  *
