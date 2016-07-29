@@ -28,6 +28,7 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.EmptyFragmentTestActivity;
+import android.support.v4.view.ViewCompat;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -190,7 +191,8 @@ public class FragmentLifecycleTest {
         assertTrue("fragment 1 is not added", f1.isAdded());
         final View view = f1.getView();
         assertNotNull("fragment 1 returned null from getView", view);
-        assertTrue("fragment 1's view is not attached to a window", view.isAttachedToWindow());
+        assertTrue("fragment 1's view is not attached to a window",
+                ViewCompat.isAttachedToWindow(view));
 
         fm.beginTransaction().remove(f1).commit();
         executePendingTransactions(fm);
@@ -198,7 +200,7 @@ public class FragmentLifecycleTest {
         assertFalse("fragment 1 is added", f1.isAdded());
         assertNull("fragment 1 returned non-null from getView after removal", f1.getView());
         assertFalse("fragment 1's previous view is still attached to a window",
-                view.isAttachedToWindow());
+                ViewCompat.isAttachedToWindow(view));
     }
 
     @Test
@@ -216,7 +218,7 @@ public class FragmentLifecycleTest {
 
         View origView1 = f1.getView();
         assertNotNull("fragment 1 returned null view", origView1);
-        assertTrue("fragment 1's view not attached", origView1.isAttachedToWindow());
+        assertTrue("fragment 1's view not attached", ViewCompat.isAttachedToWindow(origView1));
 
         fm.beginTransaction().replace(android.R.id.content, f2).addToBackStack("stack1").commit();
         executePendingTransactions(fm);
@@ -224,10 +226,11 @@ public class FragmentLifecycleTest {
         assertFalse("fragment 1 is added", f1.isAdded());
         assertTrue("fragment 2 is added", f2.isAdded());
         assertNull("fragment 1 returned non-null view", f1.getView());
-        assertFalse("fragment 1's old view still attached", origView1.isAttachedToWindow());
+        assertFalse("fragment 1's old view still attached",
+                ViewCompat.isAttachedToWindow(origView1));
         View origView2 = f2.getView();
         assertNotNull("fragment 2 returned null view", origView2);
-        assertTrue("fragment 2's view not attached", origView2.isAttachedToWindow());
+        assertTrue("fragment 2's view not attached", ViewCompat.isAttachedToWindow(origView2));
 
         fm.popBackStack();
         executePendingTransactions(fm);
@@ -235,10 +238,10 @@ public class FragmentLifecycleTest {
         assertTrue("fragment 1 is not added", f1.isAdded());
         assertFalse("fragment 2 is added", f2.isAdded());
         assertNull("fragment 2 returned non-null view", f2.getView());
-        assertFalse("fragment 2's view still attached", origView2.isAttachedToWindow());
+        assertFalse("fragment 2's view still attached", ViewCompat.isAttachedToWindow(origView2));
         View newView1 = f1.getView();
         assertNotSame("fragment 1 had same view from last attachment", origView1, newView1);
-        assertTrue("fragment 1's view not attached", newView1.isAttachedToWindow());
+        assertTrue("fragment 1's view not attached", ViewCompat.isAttachedToWindow(newView1));
     }
 
     @Test
