@@ -211,7 +211,7 @@
         <item name="android:paddingStart">?attr/browsePaddingStart</item>
         <item name="focusOutFront">true</item>
         <item name="focusOutEnd">true</item>
-        <item name="verticalMargin">@dimen/lb_browse_headers_vertical_margin</item>
+        <item name="android:verticalSpacing">@dimen/lb_browse_headers_vertical_spacing</item>
         <item name="android:focusable">true</item>
         <item name="android:focusableInTouchMode">true</item>
         <item name="android:contentDescription">@string/lb_navigation_menu_contentDescription</item>
@@ -245,10 +245,10 @@
         <item name="android:focusableInTouchMode">true</item>
         <item name="android:paddingStart">?attr/browsePaddingStart</item>
         <item name="android:paddingEnd">?attr/browsePaddingEnd</item>
-        <item name="android:paddingBottom">@dimen/lb_browse_item_vertical_margin</item>
-        <item name="android:paddingTop">@dimen/lb_browse_item_vertical_margin</item>
-        <item name="horizontalMargin">@dimen/lb_browse_item_horizontal_margin</item>
-        <item name="verticalMargin">@dimen/lb_browse_item_vertical_margin</item>
+        <item name="android:paddingBottom">@dimen/lb_browse_item_vertical_spacing</item>
+        <item name="android:paddingTop">@dimen/lb_browse_item_vertical_spacing</item>
+        <item name="android:horizontalSpacing">@dimen/lb_browse_item_horizontal_spacing</item>
+        <item name="android:verticalSpacing">@dimen/lb_browse_item_vertical_spacing</item>
         <item name="focusOutFront">true</item>
     </style>
 
@@ -260,8 +260,8 @@
         <item name="android:paddingBottom">@dimen/lb_vertical_grid_padding_bottom</item>
         <item name="android:paddingTop">?attr/browseRowsMarginTop</item>
         <item name="android:gravity">center_horizontal</item>
-        <item name="horizontalMargin">@dimen/lb_browse_item_horizontal_margin</item>
-        <item name="verticalMargin">@dimen/lb_browse_item_vertical_margin</item>
+        <item name="android:horizontalSpacing">@dimen/lb_browse_item_horizontal_spacing</item>
+        <item name="android:verticalSpacing">@dimen/lb_browse_item_vertical_spacing</item>
         <item name="focusOutFront">true</item>
     </style>
 
@@ -571,7 +571,7 @@
         <item name="android:focusableInTouchMode">false</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="verticalMargin">@dimen/lb_guidedactions_list_vertical_spacing</item>
+        <item name="android:verticalSpacing">@dimen/lb_guidedactions_list_vertical_spacing</item>
         <item name="android:paddingStart">@dimen/lb_guidedactions_list_padding_start</item>
         <item name="android:paddingEnd">@dimen/lb_guidedactions_list_padding_end</item>
         <item name="focusOutEnd">false</item>

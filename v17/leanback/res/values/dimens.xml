@@ -38,7 +38,7 @@
     <item name="lb_browse_rows_scale" type="fraction">80%</item>
 
     <!-- Derived from the ux spec of 48dp baseline to baseline -->
-    <dimen name="lb_browse_headers_vertical_margin">21dp</dimen>
+    <dimen name="lb_browse_headers_vertical_spacing">21dp</dimen>
     <dimen name="lb_browse_header_text_size">20sp</dimen>
     <dimen name="lb_browse_header_height">24dp</dimen>
     <dimen name="lb_browse_section_header_text_size">16sp</dimen>
@@ -52,8 +52,8 @@
     <dimen name="lb_browse_row_hovercard_max_width">400dp</dimen>
     <dimen name="lb_browse_row_hovercard_title_font_size">18sp</dimen>
     <dimen name="lb_browse_row_hovercard_description_font_size">14sp</dimen>
-    <dimen name="lb_browse_item_horizontal_margin">8dp</dimen>
-    <dimen name="lb_browse_item_vertical_margin">8dp</dimen>
+    <dimen name="lb_browse_item_horizontal_spacing">8dp</dimen>
+    <dimen name="lb_browse_item_vertical_spacing">8dp</dimen>
     <dimen name="lb_browse_selected_row_top_padding">20dp</dimen>
     <dimen name="lb_browse_expanded_selected_row_top_padding">16dp</dimen>
     <dimen name="lb_browse_expanded_row_no_hovercard_bottom_padding">28dp</dimen>
@@ -75,7 +75,7 @@
     <dimen name="lb_details_overview_description_margin_bottom">12dp</dimen>
     <dimen name="lb_details_overview_image_margin_horizontal">24dp</dimen>
     <dimen name="lb_details_overview_image_margin_vertical">24dp</dimen>
-    <dimen name="lb_details_overview_action_items_margin">16dp</dimen>
+    <dimen name="lb_details_overview_action_items_spacing">16dp</dimen>
     <item name="lb_details_overview_action_select_duration" format="integer" type="dimen">150</item>
     <dimen name="lb_details_overview_actions_padding_start">294dp</dimen>
     <dimen name="lb_details_overview_actions_padding_end">132dp</dimen>

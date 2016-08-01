@@ -107,7 +107,7 @@ abstract class Grid {
 
     protected Provider mProvider;
     protected boolean mReversedFlow;
-    protected int mMargin;
+    protected int mSpacing;
     protected int mNumRows;
     protected int mFirstVisibleIndex = -1;
     protected int mLastVisibleIndex = -1;
@@ -133,10 +133,10 @@ abstract class Grid {
     }
 
     /**
-     * Sets the margin between items in a row
+     * Sets the space between items in a row
      */
-    public final void setMargin(int margin) {
-        mMargin = margin;
+    public final void setSpacing(int spacing) {
+        mSpacing = spacing;
     }
 
     /**
@@ -292,8 +292,8 @@ abstract class Grid {
         if (mLastVisibleIndex < 0) {
             return false;
         }
-        return mReversedFlow ? findRowMin(true, null) <= toLimit + mMargin :
-                    findRowMax(false, null) >= toLimit - mMargin;
+        return mReversedFlow ? findRowMin(true, null) <= toLimit + mSpacing :
+                    findRowMax(false, null) >= toLimit - mSpacing;
     }
 
     /**
@@ -303,8 +303,8 @@ abstract class Grid {
         if (mLastVisibleIndex < 0) {
             return false;
         }
-        return mReversedFlow ? findRowMax(false, null) >= toLimit - mMargin :
-                    findRowMin(true, null) <= toLimit + mMargin;
+        return mReversedFlow ? findRowMax(false, null) >= toLimit - mSpacing :
+                    findRowMin(true, null) <= toLimit + mSpacing;
     }
 
     /**
