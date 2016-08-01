@@ -103,5 +103,41 @@
 
     <!-- Size of smaller notification text (see TextAppearance.StatusBar.EventContent.Line2, Info,
          Time) -->
-    <dimen name="notification_subtext_size">12dp</dimen>
+    <dimen name="notification_subtext_size">13sp</dimen>
+
+    <!-- Size of notification action text -->
+    <dimen name="notification_action_text_size">13sp</dimen>
+
+    <!-- Top padding for notifications in the standard layout. -->
+    <dimen name="notification_top_pad">10dp</dimen>
+
+    <!-- Top padding for notification when text is large -->
+    <dimen name="notification_top_pad_large_text">5dp</dimen>
+
+    <!-- The size of the action icons -->
+    <dimen name="notification_action_icon_size">32dp</dimen>
+
+    <!-- the size of the small icon on the right of the largeIcon -->
+    <dimen name="notification_right_icon_size">16dp</dimen>
+
+    <!-- the padding of the small icon to the circle -->
+    <dimen name="notification_small_icon_background_padding">3dp</dimen>
+
+    <!-- the side margin of the big notification circle -->
+    <dimen name="notification_big_circle_margin">12dp</dimen>
+
+    <!-- small icon size when placed as large icon -->
+    <dimen name="notification_small_icon_size_as_large">24dp</dimen>
+
+    <!-- the margin at the beginning of the notification content -->
+    <dimen name="notification_content_margin_start">8dp</dimen>
+
+    <!-- image margin on the large icon in the narrow media template -->
+    <dimen name="notification_media_narrow_margin">@dimen/notification_content_margin_start</dimen>
+
+    <!-- the top padding of the notification content -->
+    <dimen name="notification_main_column_padding_top">10dp</dimen>
+
+    <!-- the paddingtop on the right side of the notification (for time etc.) -->
+    <dimen name="notification_right_side_padding_top">2dp</dimen>
 </resources>
