@@ -329,4 +329,35 @@
     <style name="TextAppearance.StatusBar.EventContent.Line2" parent=""/>
     <style name="TextAppearance.StatusBar.EventContent.Info" parent=""/>
     <style name="TextAppearance.StatusBar.EventContent.Time" parent=""/>
+
+    <style name="TextAppearance.AppCompat.Notification">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+    <style name="TextAppearance.AppCompat.Notification.Title">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+    <style name="TextAppearance.AppCompat.Notification.Info">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+    <style name="TextAppearance.AppCompat.Notification.Time">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+    <style name="TextAppearance.AppCompat.Notification.Line2" parent="TextAppearance.AppCompat.Notification.Info" />
+
+    <style name="TextAppearance.AppCompat.Notification.Title.Media" />
+
+    <style name="TextAppearance.AppCompat.Notification.Media" />
+
+    <style name="TextAppearance.AppCompat.Notification.Info.Media"/>
+
+    <style name="TextAppearance.AppCompat.Notification.Time.Media"/>
+
+    <style name="TextAppearance.AppCompat.Notification.Line2.Media" parent="TextAppearance.AppCompat.Notification.Info.Media"/>
+
+    <style name="Widget.AppCompat.NotificationActionText" parent=""/>
+    <style name="Widget.AppCompat.NotificationActionContainer" parent=""/>
 </resources>
