@@ -20,18 +20,18 @@
     android:layout_width="match_parent"
     android:layout_height="128dp"
     >
-    <ImageView android:id="@+id/icon"
+    <include layout="@layout/notification_template_icon_group"
         android:layout_width="@dimen/notification_large_icon_width"
         android:layout_height="@dimen/notification_large_icon_height"
-        android:scaleType="centerCrop"
-        />
+    />
     <include layout="@layout/notification_media_cancel_action"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp"
-        android:layout_alignParentRight="true"/>
-    <include layout="@layout/notification_template_lines"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+    <include layout="@layout/notification_template_lines_media"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="fill_vertical"

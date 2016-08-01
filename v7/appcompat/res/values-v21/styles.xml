@@ -1,0 +1,58 @@
+<!--
+  ~ Copyright (C) 2016 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<resources>
+
+    <!-- Use platform styles -->
+    <style name="TextAppearance.AppCompat.Notification.Info"
+        parent="@android:style/TextAppearance.Material.Notification.Info"/>
+
+    <style name="TextAppearance.AppCompat.Notification.Time"
+        parent="@android:style/TextAppearance.Material.Notification.Time"/>
+
+    <style name="TextAppearance.AppCompat.Notification.Title"
+        parent="@android:style/TextAppearance.Material.Notification.Title"/>
+
+    <style name="TextAppearance.AppCompat.Notification"
+        parent="@android:style/TextAppearance.Material.Notification"/>
+
+    <style name="TextAppearance.AppCompat.Notification.Media" >
+        <item name="android:textColor">@color/secondary_text_default_material_dark</item>
+    </style>
+
+    <style name="TextAppearance.AppCompat.Notification.Title.Media" >
+        <item name="android:textColor">@color/primary_text_default_material_dark</item>
+    </style>
+
+    <style name="TextAppearance.AppCompat.Notification.Info.Media">
+        <item name="android:textColor">@color/secondary_text_default_material_dark</item>
+    </style>
+
+    <style name="TextAppearance.AppCompat.Notification.Time.Media">
+        <item name="android:textColor">@color/secondary_text_default_material_dark</item>
+    </style>
+
+    <style name="Widget.AppCompat.NotificationActionText" parent="">
+        <item name="android:textAppearance">?android:attr/textAppearanceButton</item>
+        <item name="android:textColor">@color/secondary_text_default_material_light</item>
+        <item name="android:textSize">@dimen/notification_action_text_size</item>
+    </style>
+
+    <style name="Widget.AppCompat.NotificationActionContainer" parent="">
+        <item name="android:background">@drawable/notification_action_background</item>
+    </style>
+
+</resources>

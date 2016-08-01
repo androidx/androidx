@@ -35,7 +35,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"/>
 
-    <include layout="@layout/notification_template_lines"
+    <include layout="@layout/notification_template_lines_media"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="128dp"
