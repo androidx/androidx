@@ -124,7 +124,7 @@ public class GridLayoutTest {
         assertTrue("test sanity", left > 0);
         assertTrue("test sanity", right > 0);
         assertTrue("test sanity", total > 0);
-        assertTrue("right should be taller than left", right > left);
+        assertTrue("right should be taller than left", right >= left);
         assertTrue("total height should be smaller than what it could be",
                 total < ((ViewGroup) mGridView.getParent()).getHeight());
     }
