@@ -249,6 +249,10 @@
         <attr name="rowHorizontalGridStyle" format="reference" />
         <!-- header style inside a row -->
         <attr name="rowHeaderStyle" format="reference" />
+
+        <!-- header description style inside a row -->
+        <attr name="rowHeaderDescriptionStyle" format="reference" />
+
         <!-- style for the layout that hosting Header inside a row -->
         <attr name="rowHeaderDockStyle" format="reference" />
 

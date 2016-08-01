@@ -117,7 +117,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
 
     private void setupRows() {
         ListRowPresenter listRowPresenter = new ListRowPresenter();
-        listRowPresenter.setNumRows(2);
+        listRowPresenter.setNumRows(1);
         mRowsAdapter = new ArrayObjectAdapter(listRowPresenter);
         setAdapter(mRowsAdapter);
     }
@@ -130,7 +130,9 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
 
         mRowsAdapter.add(new SectionRow(new HeaderItem("section 0")));
         for (; i < NUM_ROWS; ++i) {
-            mRowsAdapter.add(new ListRow(new HeaderItem(i, "Row " + i), createListRowAdapter(i)));
+            HeaderItem headerItem = new HeaderItem(i, "Row " + i);
+            headerItem.setDescription("Description for Row "+i);
+            mRowsAdapter.add(new ListRow(headerItem, createListRowAdapter(i)));
         }
 
         mRowsAdapter.add(new DividerRow());
