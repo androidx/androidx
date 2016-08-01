@@ -2193,11 +2193,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 LinearSmoothScroller linearSmoothScroller =
                         new LinearSmoothScroller(recyclerView.getContext()) {
                             @Override
-                            public boolean computeScrollVectorForPosition(int targetPosition,
-                                    PointF endVector) {
-                                endVector.x = 0;
-                                endVector.y = 1;
-                                return true;
+                            public PointF computeScrollVectorForPosition(int targetPosition) {
+                                return new PointF(0, 1);
                             }
 
                             @Override
@@ -3975,9 +3972,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 RecyclerView.SmoothScroller ss =
                         new LinearSmoothScroller(recyclerView.getContext()) {
                             @Override
-                            public boolean computeScrollVectorForPosition(int targetPosition,
-                                    PointF endVector) {
-                                return false;
+                            public PointF computeScrollVectorForPosition(int targetPosition) {
+                                return null;
                             }
                         };
                 ss.setTargetPosition(position);
@@ -4084,11 +4080,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 RecyclerView.SmoothScroller ss =
                         new LinearSmoothScroller(recyclerView.getContext()) {
                             @Override
-                            public boolean computeScrollVectorForPosition(int targetPosition,
-                                    PointF endVector) {
-                                endVector.x = 0;
-                                endVector.y = 1;
-                                return true;
+                            public PointF computeScrollVectorForPosition(int targetPosition) {
+                                return new PointF(0, 1);
                             }
 
                             @Override
