@@ -169,21 +169,25 @@ class ViewCompatHC {
 
     static void offsetTopAndBottom(View view, int offset) {
         view.offsetTopAndBottom(offset);
-        tickleInvalidationFlag(view);
+        if (view.getVisibility() == View.VISIBLE) {
+            tickleInvalidationFlag(view);
 
-        ViewParent parent = view.getParent();
-        if (parent instanceof View) {
-            tickleInvalidationFlag((View) parent);
+            ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                tickleInvalidationFlag((View) parent);
+            }
         }
     }
 
     static void offsetLeftAndRight(View view, int offset) {
         view.offsetLeftAndRight(offset);
-        tickleInvalidationFlag(view);
+        if (view.getVisibility() == View.VISIBLE) {
+            tickleInvalidationFlag(view);
 
-        ViewParent parent = view.getParent();
-        if (parent instanceof View) {
-            tickleInvalidationFlag((View) parent);
+            ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                tickleInvalidationFlag((View) parent);
+            }
         }
     }
 
