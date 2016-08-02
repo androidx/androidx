@@ -21,16 +21,13 @@ import static android.support.v7.media.MediaRouter.RouteInfo.CONNECTION_STATE_CO
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
@@ -50,10 +47,8 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -80,8 +75,6 @@ public class MediaRouteChooserDialog extends Dialog {
     private RouteAdapter mAdapter;
     private ListView mListView;
     private boolean mAttachedToWindow;
-    private AsyncTask<Void, Void, Void> mRefreshRoutesTask;
-    private AsyncTask<Void, Void, Void> mOnItemClickTask;
     private long mLastUpdateTime;
     private final Handler mHandler = new Handler() {
         @Override
@@ -203,13 +196,6 @@ public class MediaRouteChooserDialog extends Dialog {
 
         mAttachedToWindow = true;
         mRouter.addCallback(mSelector, mCallback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
-        // refreshRoutes() could take some time, so initial list should be shown from the beginning.
-        List<MediaRouter.RouteInfo> routes = new ArrayList<>(mRouter.getRoutes());
-        onFilterRoutes(routes);
-        mRoutes.clear();
-        mRoutes.addAll(routes);
-        mAdapter.notifyDataSetChanged();
-        mLastUpdateTime = 0;
         refreshRoutes();
     }
 
@@ -227,45 +213,16 @@ public class MediaRouteChooserDialog extends Dialog {
      */
     public void refreshRoutes() {
         if (mAttachedToWindow) {
-            if (mRefreshRoutesTask != null) {
-                mRefreshRoutesTask.cancel(true);
-                mRefreshRoutesTask = null;
+            ArrayList<MediaRouter.RouteInfo> routes = new ArrayList<>(mRouter.getRoutes());
+            onFilterRoutes(routes);
+            Collections.sort(routes, RouteComparator.sInstance);
+            if (SystemClock.uptimeMillis() - mLastUpdateTime >= UPDATE_ROUTES_DELAY_MS) {
+                updateRoutes(routes);
+            } else {
+                mHandler.removeMessages(MSG_UPDATE_ROUTES);
+                mHandler.sendMessageAtTime(mHandler.obtainMessage(MSG_UPDATE_ROUTES, routes),
+                        mLastUpdateTime + UPDATE_ROUTES_DELAY_MS);
             }
-            mRefreshRoutesTask = new AsyncTask<Void, Void, Void>() {
-                private ArrayList<MediaRouter.RouteInfo> mNewRoutes;
-
-                @Override
-                protected void onPreExecute() {
-                    mNewRoutes = new ArrayList<>(mRouter.getRoutes());
-                    onFilterRoutes(mNewRoutes);
-                }
-
-                @Override
-                protected Void doInBackground(Void... params) {
-                    // In API 4 ~ 10, AsyncTasks are running in parallel. Needs synchronization.
-                    synchronized (MediaRouteChooserDialog.this) {
-                        if (!isCancelled()) {
-                            RouteComparator.getInstance(getContext())
-                                    .loadRouteUsageScores(mNewRoutes);
-                            Collections.sort(mNewRoutes, RouteComparator.sInstance);
-                        }
-                    }
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void params) {
-                    mRefreshRoutesTask = null;
-                    if (SystemClock.uptimeMillis() - mLastUpdateTime >= UPDATE_ROUTES_DELAY_MS) {
-                        updateRoutes(mNewRoutes);
-                    } else {
-                        mHandler.removeMessages(MSG_UPDATE_ROUTES);
-                        mHandler.sendMessageAtTime(
-                                mHandler.obtainMessage(MSG_UPDATE_ROUTES, mNewRoutes),
-                                mLastUpdateTime + UPDATE_ROUTES_DELAY_MS);
-                    }
-                }
-            }.execute();
         }
     }
 
@@ -344,27 +301,10 @@ public class MediaRouteChooserDialog extends Dialog {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            final MediaRouter.RouteInfo route = getItem(position);
-            if (route.isEnabled() && mOnItemClickTask == null) {
-                mOnItemClickTask = new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected void onPreExecute() {
-                        route.select();
-                    }
-
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        RouteComparator.getInstance(getContext())
-                                .storeRouteUsageScores(route.getId());
-                        return null;
-                    }
-
-                    @Override
-                    protected void onPostExecute(Void params) {
-                        dismiss();
-                        mOnItemClickTask = null;
-                    }
-                }.execute();
+            MediaRouter.RouteInfo route = getItem(position);
+            if (route.isEnabled()) {
+                route.select();
+                dismiss();
             }
         }
 
@@ -426,93 +366,11 @@ public class MediaRouteChooserDialog extends Dialog {
     }
 
     private static final class RouteComparator implements Comparator<MediaRouter.RouteInfo> {
-        private static final String PREF_ROUTE_IDS =
-                "android.support.v7.app.MediaRouteChooserDialog_route_ids";
-        private static final String PREF_USAGE_SCORE_PREFIX =
-                "android.support.v7.app.MediaRouteChooserDialog_route_usage_score_";
-        // Routes with the usage score less than MIN_USAGE_SCORE are decayed.
-        private static final float MIN_USAGE_SCORE = 0.1f;
-        private static final float USAGE_SCORE_DECAY_FACTOR = 0.95f;
-
-        private static RouteComparator sInstance;
-        private final HashMap<String, Float> mRouteUsageScoreMap;
-        private final SharedPreferences mPreferences;
-
-        public static RouteComparator getInstance(Context context) {
-            if (sInstance == null) {
-                sInstance = new RouteComparator(context);
-            }
-            return sInstance;
-        }
-
-        private RouteComparator(Context context) {
-            mRouteUsageScoreMap = new HashMap();
-            mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        }
+        public static final RouteComparator sInstance = new RouteComparator();
 
         @Override
         public int compare(MediaRouter.RouteInfo lhs, MediaRouter.RouteInfo rhs) {
-            if (lhs == null) {
-                return rhs == null ? 0 : -1;
-            } else if (rhs == null) {
-                return 1;
-            }
-            Float lhsUsageScore = mRouteUsageScoreMap.get(lhs.getId());
-            if (lhsUsageScore == null) {
-                lhsUsageScore = 0f;
-            }
-            Float rhsUsageScore = mRouteUsageScoreMap.get(rhs.getId());
-            if (rhsUsageScore == null) {
-                rhsUsageScore = 0f;
-            }
-            if (!lhsUsageScore.equals(rhsUsageScore)) {
-                return lhsUsageScore > rhsUsageScore ? -1 : 1;
-            }
             return lhs.getName().compareTo(rhs.getName());
-        }
-
-        private void loadRouteUsageScores(List<MediaRouter.RouteInfo> routes) {
-            for (MediaRouter.RouteInfo route : routes) {
-                if (mRouteUsageScoreMap.get(route.getId()) == null) {
-                    mRouteUsageScoreMap.put(route.getId(),
-                            mPreferences.getFloat(PREF_USAGE_SCORE_PREFIX + route.getId(), 0f));
-                }
-            }
-        }
-
-        private void storeRouteUsageScores(String selectedRouteId) {
-            SharedPreferences.Editor prefEditor = mPreferences.edit();
-            List<String> routeIds = new ArrayList<>(
-                    Arrays.asList(mPreferences.getString(PREF_ROUTE_IDS, "").split(",")));
-            if (!routeIds.contains(selectedRouteId)) {
-                routeIds.add(selectedRouteId);
-            }
-            StringBuilder routeIdsBuilder = new StringBuilder();
-            for (String routeId : routeIds) {
-                // The new route usage score is calculated as follows:
-                // 1) usageScore * USAGE_SCORE_DECAY_FACTOR + 1, if the route is selected,
-                // 2) 0, if usageScore * USAGE_SCORE_DECAY_FACTOR < MIN_USAGE_SCORE, or
-                // 3) usageScore * USAGE_SCORE_DECAY_FACTOR, otherwise,
-                String routeUsageScoreKey = PREF_USAGE_SCORE_PREFIX + routeId;
-                float newUsageScore = mPreferences.getFloat(routeUsageScoreKey, 0f)
-                        * USAGE_SCORE_DECAY_FACTOR;
-                if (selectedRouteId.equals(routeId)) {
-                    newUsageScore += 1f;
-                }
-                if (newUsageScore < MIN_USAGE_SCORE) {
-                    mRouteUsageScoreMap.remove(routeId);
-                    prefEditor.remove(routeId);
-                } else {
-                    mRouteUsageScoreMap.put(routeId, newUsageScore);
-                    prefEditor.putFloat(routeUsageScoreKey, newUsageScore);
-                    if (routeIdsBuilder.length() > 0) {
-                        routeIdsBuilder.append(',');
-                    }
-                    routeIdsBuilder.append(routeId);
-                }
-            }
-            prefEditor.putString(PREF_ROUTE_IDS, routeIdsBuilder.toString());
-            prefEditor.commit();
         }
     }
 }
