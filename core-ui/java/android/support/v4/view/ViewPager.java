@@ -243,6 +243,7 @@ public class ViewPager extends ViewGroup {
     private OnPageChangeListener mInternalPageChangeListener;
     private List<OnAdapterChangeListener> mAdapterChangeListeners;
     private PageTransformer mPageTransformer;
+    private int mPageTransformerLayerType;
     private Method mSetChildrenDrawingOrderEnabled;
 
     private static final int DRAW_ORDER_DEFAULT = 0;
@@ -749,18 +750,47 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
-     * Set a {@link PageTransformer} that will be called for each attached page whenever
+     * Sets a {@link PageTransformer} that will be called for each attached page whenever
      * the scroll position is changed. This allows the application to apply custom property
-     * transformations to each page, overriding the default sliding look and feel.
+     * transformations to each page, overriding the default sliding behavior.
      *
      * <p><em>Note:</em> Prior to Android 3.0 the property animation APIs did not exist.
-     * As a result, setting a PageTransformer prior to Android 3.0 (API 11) will have no effect.</p>
+     * As a result, setting a PageTransformer prior to Android 3.0 (API 11) will have no effect.
+     * By default, calling this method will cause contained pages to use
+     * {@link ViewCompat#LAYER_TYPE_HARDWARE}. This layer type allows custom alpha transformations,
+     * but it will cause issues if any of your pages contain a {@link android.view.SurfaceView}
+     * and you have not called {@link android.view.SurfaceView#setZOrderOnTop(boolean)} to put that
+     * {@link android.view.SurfaceView} above your app content. To disable this behavior, call
+     * {@link #setPageTransformer(boolean,PageTransformer,int)} and pass
+     * {@link ViewCompat#LAYER_TYPE_NONE} for {@code pageLayerType}.</p>
      *
      * @param reverseDrawingOrder true if the supplied PageTransformer requires page views
      *                            to be drawn from last to first instead of first to last.
      * @param transformer PageTransformer that will modify each page's animation properties
      */
     public void setPageTransformer(boolean reverseDrawingOrder, PageTransformer transformer) {
+        setPageTransformer(reverseDrawingOrder, transformer, ViewCompat.LAYER_TYPE_HARDWARE);
+    }
+
+    /**
+     * Sets a {@link PageTransformer} that will be called for each attached page whenever
+     * the scroll position is changed. This allows the application to apply custom property
+     * transformations to each page, overriding the default sliding behavior.
+     *
+     * <p><em>Note:</em> Prior to Android 3.0 ({@link Build.VERSION_CODES#HONEYCOMB API 11}),
+     * the property animation APIs did not exist. As a result, setting a PageTransformer prior
+     * to API 11 will have no effect.</p>
+     *
+     * @param reverseDrawingOrder true if the supplied PageTransformer requires page views
+     *                            to be drawn from last to first instead of first to last.
+     * @param transformer PageTransformer that will modify each page's animation properties
+     * @param pageLayerType View layer type that should be used for ViewPager pages. It should be
+     *                      either {@link ViewCompat#LAYER_TYPE_HARDWARE},
+     *                      {@link ViewCompat#LAYER_TYPE_SOFTWARE}, or
+     *                      {@link ViewCompat#LAYER_TYPE_NONE}.
+     */
+    public void setPageTransformer(boolean reverseDrawingOrder, PageTransformer transformer,
+            int pageLayerType) {
         if (Build.VERSION.SDK_INT >= 11) {
             final boolean hasTransformer = transformer != null;
             final boolean needsPopulate = hasTransformer != (mPageTransformer != null);
@@ -768,6 +798,7 @@ public class ViewPager extends ViewGroup {
             setChildrenDrawingOrderEnabledCompat(hasTransformer);
             if (hasTransformer) {
                 mDrawingOrder = reverseDrawingOrder ? DRAW_ORDER_REVERSE : DRAW_ORDER_FORWARD;
+                mPageTransformerLayerType = pageLayerType;
             } else {
                 mDrawingOrder = DRAW_ORDER_DEFAULT;
             }
@@ -2007,7 +2038,7 @@ public class ViewPager extends ViewGroup {
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final int layerType = enable
-                    ? ViewCompat.LAYER_TYPE_HARDWARE : ViewCompat.LAYER_TYPE_NONE;
+                    ? mPageTransformerLayerType : ViewCompat.LAYER_TYPE_NONE;
             ViewCompat.setLayerType(getChildAt(i), layerType, null);
         }
     }
