@@ -20,6 +20,7 @@
     android:layout_width="wrap_content"
     android:layout_height="@dimen/picker_item_height"
     android:importantForAccessibility="no"
+    android:verticalSpacing="@dimen/picker_item_spacing"
     lb:columnWidth="wrap_content"
     android:clipToPadding="false"
     android:paddingStart="@dimen/picker_column_horizontal_padding"

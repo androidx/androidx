@@ -479,8 +479,9 @@ public class Picker extends FrameLayout {
 
     private void updateColumnSize(VerticalGridView columnView) {
         ViewGroup.LayoutParams lp = columnView.getLayoutParams();
-        lp.height = (int) (getPickerItemHeightPixels() * (isActivated() ?
-                getActivatedVisibleItemCount() : getVisibleItemCount()));
+        float itemCount = isActivated() ? getActivatedVisibleItemCount() : getVisibleItemCount();
+        lp.height = (int) (getPickerItemHeightPixels() * itemCount
+                + columnView.getVerticalSpacing() * (itemCount - 1));
         columnView.setLayoutParams(lp);
     }
 

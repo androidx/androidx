@@ -286,7 +286,9 @@
     <!-- end GuidedStepFragment -->
 
     <!-- height for picker item. -->
-    <dimen name="picker_item_height">64dp</dimen>
+    <dimen name="picker_item_height">32dp</dimen>
+    <!-- vertical space between two picker item -->
+    <dimen name="picker_item_spacing">32dp</dimen>
     <!-- picker column horizontal padding-->
     <dimen name="picker_column_horizontal_padding">8dp</dimen>
     <!-- picker separator horizontal padding -->
