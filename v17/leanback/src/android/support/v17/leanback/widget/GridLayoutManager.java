@@ -516,19 +516,19 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Margin between items.
      */
-    private int mHorizontalMargin;
+    private int mHorizontalSpacing;
     /**
      * Margin between items vertically.
      */
-    private int mVerticalMargin;
+    private int mVerticalSpacing;
     /**
      * Margin in main direction.
      */
-    private int mMarginPrimary;
+    private int mSpacingPrimary;
     /**
      * Margin in second direction.
      */
-    private int mMarginSecondary;
+    private int mSpacingSecondary;
     /**
      * How to position child in secondary direction.
      */
@@ -758,33 +758,33 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    public void setItemMargin(int margin) {
-        mVerticalMargin = mHorizontalMargin = margin;
-        mMarginPrimary = mMarginSecondary = margin;
+    public void setItemSpacing(int space) {
+        mVerticalSpacing = mHorizontalSpacing = space;
+        mSpacingPrimary = mSpacingSecondary = space;
     }
 
-    public void setVerticalMargin(int margin) {
-        if (mOrientation == HORIZONTAL) {
-            mMarginSecondary = mVerticalMargin = margin;
+    public void setVerticalSpacing(int space) {
+        if (mOrientation == VERTICAL) {
+            mSpacingPrimary = mVerticalSpacing = space;
         } else {
-            mMarginPrimary = mVerticalMargin = margin;
+            mSpacingSecondary = mVerticalSpacing = space;
         }
     }
 
-    public void setHorizontalMargin(int margin) {
+    public void setHorizontalSpacing(int space) {
         if (mOrientation == HORIZONTAL) {
-            mMarginPrimary = mHorizontalMargin = margin;
+            mSpacingPrimary = mHorizontalSpacing = space;
         } else {
-            mMarginSecondary = mHorizontalMargin = margin;
+            mSpacingSecondary = mHorizontalSpacing = space;
         }
     }
 
-    public int getVerticalMargin() {
-        return mVerticalMargin;
+    public int getVerticalSpacing() {
+        return mVerticalSpacing;
     }
 
-    public int getHorizontalMargin() {
-        return mHorizontalMargin;
+    public int getHorizontalSpacing() {
+        return mHorizontalSpacing;
     }
 
     public void setGravity(int gravity) {
@@ -1095,7 +1095,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 !mForceFullLayout && mGrid != null && mGrid.getNumRows() == mNumRows) {
             updateScrollController();
             updateScrollSecondAxis();
-            mGrid.setMargin(mMarginPrimary);
+            mGrid.setSpacing(mSpacingPrimary);
             if (!focusViewWasInTree && mFocusPosition != NO_POSITION) {
                 mGrid.setStart(mFocusPosition);
             }
@@ -1112,7 +1112,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
             initScrollController();
             updateScrollSecondAxis();
-            mGrid.setMargin(mMarginPrimary);
+            mGrid.setSpacing(mSpacingPrimary);
             detachAndScrapAttachedViews(mRecycler);
             mGrid.resetVisibleIndex();
             if (mFocusPosition == NO_POSITION) {
@@ -1148,11 +1148,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         // in RTL flow
         if (mReverseFlowSecondary) {
             for (int i = mNumRows-1; i > rowIndex; i--) {
-                start += getRowSizeSecondary(i) + mMarginSecondary;
+                start += getRowSizeSecondary(i) + mSpacingSecondary;
             }
         } else {
             for (int i = 0; i < rowIndex; i++) {
-                start += getRowSizeSecondary(i) + mMarginSecondary;
+                start += getRowSizeSecondary(i) + mSpacingSecondary;
             }
         }
         return start;
@@ -1355,7 +1355,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mFixedRowSizeSecondary = mRowSizeSecondaryRequested == 0 ?
                         sizeSecondary - paddingSecondary: mRowSizeSecondaryRequested;
                 mNumRows = mNumRowsRequested == 0 ? 1 : mNumRowsRequested;
-                measuredSizeSecondary = mFixedRowSizeSecondary * mNumRows + mMarginSecondary
+                measuredSizeSecondary = mFixedRowSizeSecondary * mNumRows + mSpacingSecondary
                     * (mNumRows - 1) + paddingSecondary;
                 break;
             case MeasureSpec.AT_MOST:
@@ -1365,11 +1365,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     mFixedRowSizeSecondary = sizeSecondary - paddingSecondary;
                 } else if (mNumRowsRequested == 0) {
                     mFixedRowSizeSecondary = mRowSizeSecondaryRequested;
-                    mNumRows = (sizeSecondary + mMarginSecondary)
-                        / (mRowSizeSecondaryRequested + mMarginSecondary);
+                    mNumRows = (sizeSecondary + mSpacingSecondary)
+                        / (mRowSizeSecondaryRequested + mSpacingSecondary);
                 } else if (mRowSizeSecondaryRequested == 0) {
                     mNumRows = mNumRowsRequested;
-                    mFixedRowSizeSecondary = (sizeSecondary - paddingSecondary - mMarginSecondary
+                    mFixedRowSizeSecondary = (sizeSecondary - paddingSecondary - mSpacingSecondary
                             * (mNumRows - 1)) / mNumRows;
                 } else {
                     mNumRows = mNumRowsRequested;
@@ -1377,7 +1377,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
                 measuredSizeSecondary = sizeSecondary;
                 if (modeSecondary == MeasureSpec.AT_MOST) {
-                    int childrenSize = mFixedRowSizeSecondary * mNumRows + mMarginSecondary
+                    int childrenSize = mFixedRowSizeSecondary * mNumRows + mSpacingSecondary
                         * (mNumRows - 1) + paddingSecondary;
                     if (childrenSize < measuredSizeSecondary) {
                         measuredSizeSecondary = childrenSize;

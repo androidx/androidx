@@ -44,7 +44,7 @@ public class StaggeredGridDefaultTest extends GridTest {
         // layout first 8 items then all items
         mStaggeredGrid = new StaggeredGridDefault();
         mStaggeredGrid.setNumRows(3);
-        mStaggeredGrid.setMargin(20);
+        mStaggeredGrid.setSpacing(20);
         mStaggeredGrid.setProvider(mProvider);
         mStaggeredGrid.appendVisibleItems(210);
         assertEquals(dump(mStaggeredGrid) + " Should fill 8 items",
@@ -60,7 +60,7 @@ public class StaggeredGridDefaultTest extends GridTest {
         // layout all items together
         mStaggeredGrid = new StaggeredGridDefault();
         mStaggeredGrid.setNumRows(3);
-        mStaggeredGrid.setMargin(20);
+        mStaggeredGrid.setSpacing(20);
         mStaggeredGrid.setProvider(mProvider);
         mStaggeredGrid.appendVisibleItems(100000);
         assertEquals(dump(mStaggeredGrid) + " should fill 9 items",

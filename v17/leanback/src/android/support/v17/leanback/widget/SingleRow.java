@@ -82,9 +82,9 @@ class SingleRow extends Grid {
                 mLastVisibleIndex = mFirstVisibleIndex = index;
             } else {
                 if (mReversedFlow) {
-                    edge = mProvider.getEdge(index + 1) + mMargin + size;
+                    edge = mProvider.getEdge(index + 1) + mSpacing + size;
                 } else {
-                    edge = mProvider.getEdge(index + 1) - mMargin - size;
+                    edge = mProvider.getEdge(index + 1) - mSpacing - size;
                 }
                 mFirstVisibleIndex = index;
             }
@@ -115,9 +115,9 @@ class SingleRow extends Grid {
                 mLastVisibleIndex = mFirstVisibleIndex = index;
             } else {
                 if (mReversedFlow) {
-                    edge = mProvider.getEdge(index - 1) - mProvider.getSize(index - 1) - mMargin;
+                    edge = mProvider.getEdge(index - 1) - mProvider.getSize(index - 1) - mSpacing;
                 } else {
-                    edge = mProvider.getEdge(index - 1) + mProvider.getSize(index - 1) + mMargin;
+                    edge = mProvider.getEdge(index - 1) + mProvider.getSize(index - 1) + mSpacing;
                 }
                 mLastVisibleIndex = index;
             }
