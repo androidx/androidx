@@ -6696,6 +6696,7 @@ package android.support.v4.view {
     method public void setPageMarginDrawable(android.graphics.drawable.Drawable);
     method public void setPageMarginDrawable(int);
     method public void setPageTransformer(boolean, android.support.v4.view.ViewPager.PageTransformer);
+    method public void setPageTransformer(boolean, android.support.v4.view.ViewPager.PageTransformer, int);
     field public static final int SCROLL_STATE_DRAGGING = 1; // 0x1
     field public static final int SCROLL_STATE_IDLE = 0; // 0x0
     field public static final int SCROLL_STATE_SETTLING = 2; // 0x2
