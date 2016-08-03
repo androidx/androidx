@@ -36,6 +36,9 @@ ext.supportRepoOut = ''
 ext.buildToolsVersion = '23.0.2'
 ext.buildNumber = Integer.toString(ext.extraVersion)
 
+ext.testRunnerVersion = '0.6-alpha'
+ext.espressoVersion = '2.3-alpha'
+
 // Enforce the use of prebuilt dependencies in all sub-projects. This is
 // required for the doclava dependency.
 ext.usePrebuilts = "true"
