@@ -213,6 +213,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mInSelection = false;
             }
             dispatchChildSelected();
+            dispatchChildSelectedAndPositioned();
             super.onStop();
         }
 
@@ -842,6 +843,17 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
+    void fireOnChildViewHolderSelectedAndPositioned(RecyclerView parent, RecyclerView.ViewHolder
+            child, int position, int subposition) {
+        if (mChildViewHolderSelectedListeners == null) {
+            return;
+        }
+        for (int i = mChildViewHolderSelectedListeners.size() - 1; i >= 0 ; i--) {
+            mChildViewHolderSelectedListeners.get(i).onChildViewHolderSelectedAndPositioned(parent,
+                    child, position, subposition);
+        }
+    }
+
     void setOnChildLaidOutListener(OnChildLaidOutListener listener) {
         mChildLaidOutListener = listener;
     }
@@ -927,6 +939,27 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         }
+    }
+
+    private void dispatchChildSelectedAndPositioned() {
+        if (!hasOnChildViewHolderSelectedListener()) {
+            return;
+        }
+
+        if (TRACE) TraceHelper.beginSection("onChildSelectedAndPositioned");
+        View view = mFocusPosition == NO_POSITION ? null : findViewByPosition(mFocusPosition);
+        if (view != null) {
+            RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(view);
+            fireOnChildViewHolderSelectedAndPositioned(mBaseGridView, vh, mFocusPosition,
+                    mSubFocusPosition);
+        } else {
+            if (mChildSelectedListener != null) {
+                mChildSelectedListener.onChildSelected(mBaseGridView, null, NO_POSITION, NO_ID);
+            }
+            fireOnChildViewHolderSelectedAndPositioned(mBaseGridView, null, NO_POSITION, 0);
+        }
+        if (TRACE) TraceHelper.endSection();
+
     }
 
     @Override
@@ -1946,6 +1979,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // children and found none is focusable then dispatchChildSelected() here.
             dispatchChildSelected();
         }
+        dispatchChildSelectedAndPositioned();
 
         mInLayout = false;
         leaveContext();
@@ -2669,6 +2703,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mBaseGridView.smoothScrollBy(scrollX, scrollY);
             } else {
                 mBaseGridView.scrollBy(scrollX, scrollY);
+                dispatchChildSelectedAndPositioned();
             }
         }
     }

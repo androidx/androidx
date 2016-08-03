@@ -153,6 +153,9 @@ public final class TransitionHelper {
         public void beginDelayedTransition(ViewGroup sceneRoot, Object transitionObject);
 
         public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup);
+
+        public void setEpicenterCallback(Object transitionObject,
+                TransitionEpicenterCallback callback);
     }
 
     /**
@@ -385,6 +388,11 @@ public final class TransitionHelper {
 
         @Override
         public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
+        }
+
+        @Override
+        public void setEpicenterCallback(Object transitionObject,
+                TransitionEpicenterCallback callback) {
         }
     }
 
@@ -629,6 +637,11 @@ public final class TransitionHelper {
             return TransitionHelperApi21.createChangeTransform();
         }
 
+        @Override
+        public void setEpicenterCallback(Object transitionObject,
+                TransitionEpicenterCallback callback) {
+            TransitionHelperApi21.setEpicenterCallback(transitionObject, callback);
+        }
     }
 
     static {
@@ -838,6 +851,11 @@ public final class TransitionHelper {
 
     public static void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
         sImpl.setTransitionGroup(viewGroup, transitionGroup);
+    }
+
+    public static void setEpicenterCallback(Object transition,
+            TransitionEpicenterCallback callback) {
+        sImpl.setEpicenterCallback(transition, callback);
     }
 
     /**

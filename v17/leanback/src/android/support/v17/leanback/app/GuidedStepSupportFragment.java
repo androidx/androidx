@@ -140,7 +140,6 @@ import java.util.List;
 public class GuidedStepSupportFragment extends Fragment implements GuidedActionAdapter.FocusListener {
 
     private static final String TAG_LEAN_BACK_ACTIONS_FRAGMENT = "leanBackGuidedStepSupportFragment";
-    private static final String EXTRA_ACTION_SELECTED_INDEX = "selectedIndex";
     private static final String EXTRA_ACTION_PREFIX = "action_";
     private static final String EXTRA_BUTTON_ACTION_PREFIX = "buttonaction_";
 
@@ -258,8 +257,6 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     private GuidedActionAdapterGroup mAdapterGroup;
     private List<GuidedAction> mActions = new ArrayList<GuidedAction>();
     private List<GuidedAction> mButtonActions = new ArrayList<GuidedAction>();
-    private int mSelectedIndex = -1;
-    private int mButtonSelectedIndex = -1;
     private int entranceTransitionType = SLIDE_FROM_SIDE;
 
     public GuidedStepSupportFragment() {
@@ -359,6 +356,14 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     }
 
     /**
+     * @return True if is current expanded including subactions list or
+     * action with {@link GuidedAction#hasEditableActivatorView()} is true.
+     */
+    public boolean isExpanded() {
+        return mActionsStylist.isExpanded();
+    }
+
+    /**
      * @return True if the sub actions list is expanded, false otherwise.
      */
     public boolean isSubActionsExpanded() {
@@ -368,21 +373,25 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     /**
      * Expand a given action's sub actions list.
      * @param action GuidedAction to expand.
-     * @see GuidedAction#getSubActions()
+     * @see #expandAction(GuidedAction, boolean)
      */
     public void expandSubActions(GuidedAction action) {
-        final int actionPosition = mActions.indexOf(action);
-        if (actionPosition < 0) {
+        if (!action.hasSubActions()) {
             return;
         }
-        mActionsStylist.getActionsGridView().setSelectedPositionSmooth(actionPosition,
-                new ViewHolderTask() {
-            @Override
-            public void run(RecyclerView.ViewHolder vh) {
-                GuidedActionsStylist.ViewHolder avh = (GuidedActionsStylist.ViewHolder) vh;
-                mActionsStylist.setExpandedViewHolder(avh);
-            }
-        });
+        expandAction(action, true);
+    }
+
+    /**
+     * Expand a given action with sub actions list or
+     * {@link GuidedAction#hasEditableActivatorView()} is true. The method must be called after
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} creates fragment view.
+     *
+     * @param action GuidedAction to expand.
+     * @param withTransition True to run transition animation, false otherwise.
+     */
+    public void expandAction(GuidedAction action, boolean withTransition) {
+        mActionsStylist.expandAction(action, withTransition);
     }
 
     /**
@@ -390,7 +399,19 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @see GuidedAction#getSubActions()
      */
     public void collapseSubActions() {
-        mActionsStylist.setExpandedViewHolder(null);
+        collapseAction(true);
+    }
+
+    /**
+     * Collapse action which either has a sub actions list or action with
+     * {@link GuidedAction#hasEditableActivatorView()} is true.
+     *
+     * @param withTransition True to run transition animation, false otherwise.
+     */
+    public void collapseAction(boolean withTransition) {
+        if (mActionsStylist != null && mActionsStylist.getActionsGridView() != null) {
+            mActionsStylist.collapseAction(withTransition);
+        }
     }
 
     /**
@@ -539,7 +560,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @return BackStackEntry name for the GuidedStepSupportFragment or empty String if no entry is
      * associated.
      */
-    String generateStackEntryName() {
+    final String generateStackEntryName() {
         return generateStackEntryName(getUiStyle(), getClass());
     }
 
@@ -551,9 +572,6 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * associated.
      */
     static String generateStackEntryName(int uiStyle, Class guidedStepFragmentClass) {
-        if (!GuidedStepSupportFragment.class.isAssignableFrom(guidedStepFragmentClass)) {
-            return "";
-        }
         switch (uiStyle) {
         case UI_STYLE_REPLACE:
             return ENTRY_NAME_REPLACE + guidedStepFragmentClass.getName();
@@ -975,12 +993,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         if (DEBUG) Log.v(TAG, "onCreate");
         // Set correct transition from saved arguments.
         onProvideFragmentTransitions();
-        Bundle state = (savedInstanceState != null) ? savedInstanceState : getArguments();
-        if (state != null) {
-            if (mSelectedIndex == -1) {
-                mSelectedIndex = state.getInt(EXTRA_ACTION_SELECTED_INDEX, -1);
-            }
-        }
+
         ArrayList<GuidedAction> actions = new ArrayList<GuidedAction>();
         onCreateActions(actions, savedInstanceState);
         if (savedInstanceState != null) {
@@ -1067,10 +1080,10 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
             @Override
             public void onGuidedActionClicked(GuidedAction action) {
                 GuidedStepSupportFragment.this.onGuidedActionClicked(action);
-                if (isSubActionsExpanded()) {
-                    collapseSubActions();
-                } else if (action.hasSubActions()) {
-                    expandSubActions(action);
+                if (isExpanded()) {
+                    collapseAction(true);
+                } else if (action.hasSubActions() || action.hasEditableActivatorView()) {
+                    expandAction(action, true);
                 }
             }
         }, this, mActionsStylist, false);
@@ -1126,12 +1139,6 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
             }
         }
 
-        int pos = (mSelectedIndex >= 0 && mSelectedIndex < mActions.size()) ?
-                mSelectedIndex : getFirstCheckedAction();
-        setSelectedActionPosition(pos);
-
-        setSelectedButtonActionPosition(0);
-
         // Add the background view.
         View backgroundView = onCreateBackgroundView(inflater, root, savedInstanceState);
         if (backgroundView != null) {
@@ -1139,6 +1146,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                 R.id.guidedstep_background_view_root);
             backgroundViewRoot.addView(backgroundView, 0);
         }
+
         return root;
     }
 
@@ -1214,9 +1222,6 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         super.onSaveInstanceState(outState);
         onSaveActions(mActions, outState);
         onSaveButtonActions(mButtonActions, outState);
-        outState.putInt(EXTRA_ACTION_SELECTED_INDEX,
-                (mActionsStylist.getActionsGridView() != null) ?
-                        getSelectedActionPosition() : mSelectedIndex);
     }
 
     private static boolean isGuidedStepTheme(Context context) {
@@ -1245,7 +1250,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                     if (top != null) {
                         top.setUiStyle(UI_STYLE_ENTRANCE);
                     }
-                    fragmentManager.popBackStack(entry.getId(),
+                    fragmentManager.popBackStackImmediate(entry.getId(),
                             FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     return;
                 }
@@ -1271,7 +1276,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                 BackStackEntry entry = fragmentManager.getBackStackEntryAt(i);
                 String entryClassName = getGuidedStepSupportFragmentClassName(entry.getName());
                 if (className.equals(entryClassName)) {
-                    fragmentManager.popBackStack(entry.getId(), flags);
+                    fragmentManager.popBackStackImmediate(entry.getId(), flags);
                     return;
                 }
             }

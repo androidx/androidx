@@ -118,8 +118,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
                     mGroup.openIme(GuidedActionAdapter.this, avh);
                 } else if (action.hasEditableActivatorView()) {
                     if (DEBUG_EDIT) Log.v(TAG_EDIT, "toggle editing mode by click");
-                    getGuidedActionsStylist().setEditingMode(avh, avh.getAction(),
-                            !avh.isInEditingActivatorView());
+                    performOnActionClick(avh);
                 } else {
                     handleCheckedActions(avh);
                     if (action.isEnabled() && !action.infoOnly()) {
