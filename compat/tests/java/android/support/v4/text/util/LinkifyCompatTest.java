@@ -18,6 +18,7 @@ package android.support.v4.text.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -214,16 +215,9 @@ public class LinkifyCompatTest {
         if (Locale.US.equals(Locale.getDefault())) {
             assertTrue(LinkifyCompat.addLinks(spannable, Linkify.PHONE_NUMBERS));
             URLSpan[] spans = spannable.getSpans(0, spannable.length(), URLSpan.class);
-            assertEquals(9, spans.length);
-            assertEquals("tel:8121234562", spans[0].getURL());
-            assertEquals("tel:8121234563", spans[1].getURL());
-            assertEquals("tel:8005551210", spans[2].getURL());
-            assertEquals("tel:8005551211", spans[3].getURL());
-            assertEquals("tel:5551212", spans[4].getURL());
-            assertEquals("tel:+4408121234564", spans[5].getURL());
-            assertEquals("tel:+4408121234565", spans[6].getURL());
-            assertEquals("tel:+18005551213", spans[7].getURL());
-            assertEquals("tel:+18005551214", spans[8].getURL());
+            // We cannot assert the contents of the spans as support library falls back to the
+            // framework libphonenumber which behaves differently for different API levels.
+            assertNotEquals("There should be more than zero phone number spans.", 0, spans.length);
         }
 
         try {
