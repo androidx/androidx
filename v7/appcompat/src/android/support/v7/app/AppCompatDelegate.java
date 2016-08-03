@@ -46,34 +46,42 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * This class represents a delegate which you can use to extend AppCompat's support to any
  * {@link android.app.Activity}.
- * <p>
- * When using an {@link AppCompatDelegate}, you should extend any methods exposed in it rather than
- * the {@link android.app.Activity} method of the same name. This applies to:
+ *
+ * <p>When using an {@link AppCompatDelegate}, you should call the following methods instead of the
+ * {@link android.app.Activity} method of the same name:</p>
  * <ul>
  *     <li>{@link #addContentView(android.view.View, android.view.ViewGroup.LayoutParams)}</li>
  *     <li>{@link #setContentView(int)}</li>
  *     <li>{@link #setContentView(android.view.View)}</li>
  *     <li>{@link #setContentView(android.view.View, android.view.ViewGroup.LayoutParams)}</li>
  *     <li>{@link #requestWindowFeature(int)}</li>
+ *     <li>{@link #hasWindowFeature(int)}</li>
  *     <li>{@link #invalidateOptionsMenu()}</li>
  *     <li>{@link #startSupportActionMode(android.support.v7.view.ActionMode.Callback)}</li>
  *     <li>{@link #setSupportActionBar(android.support.v7.widget.Toolbar)}</li>
  *     <li>{@link #getSupportActionBar()}</li>
  *     <li>{@link #getMenuInflater()}</li>
+ *     <li>{@link #findViewById(int)}</li>
  * </ul>
- * There also some Activity lifecycle methods which should be proxied to the delegate:
+ *
+ * <p>The following methods should be called from the {@link android.app.Activity} method of the
+ * same name:</p>
  * <ul>
  *     <li>{@link #onCreate(android.os.Bundle)}</li>
  *     <li>{@link #onPostCreate(android.os.Bundle)}</li>
  *     <li>{@link #onConfigurationChanged(android.content.res.Configuration)}</li>
+ *     <li>{@link #onStart()}</li>
+ *     <li>{@link #onStop()}</li>
+ *     <li>{@link #onPostResume()}</li>
+ *     <li>{@link #onSaveInstanceState(Bundle)}</li>
  *     <li>{@link #setTitle(CharSequence)}</li>
  *     <li>{@link #onStop()}</li>
  *     <li>{@link #onDestroy()}</li>
  * </ul>
- * <p>
- * An {@link Activity} can only be linked with one {@link AppCompatDelegate} instance,
- * so the instance returned from {@link #create(Activity, AppCompatCallback)} should be kept
- * until the Activity is destroyed.
+ *
+ * <p>An {@link Activity} can only be linked with one {@link AppCompatDelegate} instance,
+ * therefore the instance returned from {@link #create(Activity, AppCompatCallback)} should be
+ * retained until the Activity is destroyed.</p>
  */
 public abstract class AppCompatDelegate {
 
