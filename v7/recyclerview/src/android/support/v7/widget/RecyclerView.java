@@ -854,6 +854,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     /**
+     * Returns whether this RecyclerView will clip its children to its padding, and resize (but
+     * not clip) any EdgeEffect to the padded region, if padding is present.
+     * <p>
+     * By default, children are clipped to the padding of their parent
+     * RecyclerView. This clipping behavior is only enabled if padding is non-zero.
+     *
+     * @return true if this RecyclerView clips children to its padding and resizes (but doesn't
+     *         clip) any EdgeEffect to the padded region, false otherwise.
+     *
+     * @attr name android:clipToPadding
+     */
+    public boolean getClipToPadding() {
+        return mClipToPadding;
+    }
+
+    /**
      * Configure the scrolling touch slop for a specific use case.
      *
      * Set up the RecyclerView's scrolling motion threshold based on common usages.
@@ -4238,6 +4254,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         for (int i = 0; i < childCount; i++) {
             mChildHelper.getChildAt(i).offsetLeftAndRight(dx);
         }
+    }
+
+    /**
+     * Returns the bounds of the view including its decoration and margins.
+     *
+     * @param view The view element to check
+     * @param outBounds A rect that will receive the bounds of the element including its
+     *                  decoration and margins.
+     */
+    public void getDecoratedBoundsWithMargins(View view, Rect outBounds) {
+        getDecoratedBoundsWithMarginsInt(view, outBounds);
+    }
+
+    static void getDecoratedBoundsWithMarginsInt(View view, Rect outBounds) {
+        final LayoutParams lp = (LayoutParams) view.getLayoutParams();
+        final Rect insets = lp.mDecorInsets;
+        outBounds.set(view.getLeft() - insets.left - lp.leftMargin,
+                view.getTop() - insets.top - lp.topMargin,
+                view.getRight() + insets.right + lp.rightMargin,
+                view.getBottom() + insets.bottom + lp.bottomMargin);
     }
 
     Rect getItemDecorInsetsForChild(View child) {
@@ -8118,12 +8154,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *                  decoration and margins.
          */
         public void getDecoratedBoundsWithMargins(View view, Rect outBounds) {
-            final LayoutParams lp = (LayoutParams) view.getLayoutParams();
-            final Rect insets = lp.mDecorInsets;
-            outBounds.set(view.getLeft() - insets.left - lp.leftMargin,
-                    view.getTop() - insets.top - lp.topMargin,
-                    view.getRight() + insets.right + lp.rightMargin,
-                    view.getBottom() + insets.bottom + lp.bottomMargin);
+            RecyclerView.getDecoratedBoundsWithMarginsInt(view, outBounds);
         }
 
         /**

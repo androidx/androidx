@@ -9341,6 +9341,14 @@ package android.support.v7.widget {
     method public void runPendingAnimations();
   }
 
+  public class DividerItemDecoration extends android.support.v7.widget.RecyclerView.ItemDecoration {
+    ctor public DividerItemDecoration(android.content.Context, int);
+    method public void setDrawable(android.graphics.drawable.Drawable);
+    method public void setOrientation(int);
+    field public static final int HORIZONTAL = 0; // 0x0
+    field public static final int VERTICAL = 1; // 0x1
+  }
+
   public class GridLayout extends android.view.ViewGroup {
     ctor public GridLayout(android.content.Context, android.util.AttributeSet, int);
     ctor public GridLayout(android.content.Context, android.util.AttributeSet);
@@ -9699,6 +9707,7 @@ package android.support.v7.widget {
     method public deprecated int getChildPosition(android.view.View);
     method public android.support.v7.widget.RecyclerView.ViewHolder getChildViewHolder(android.view.View);
     method public android.support.v7.widget.RecyclerViewAccessibilityDelegate getCompatAccessibilityDelegate();
+    method public void getDecoratedBoundsWithMargins(android.view.View, android.graphics.Rect);
     method public android.support.v7.widget.RecyclerView.ItemAnimator getItemAnimator();
     method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
     method public int getMaxFlingVelocity();
