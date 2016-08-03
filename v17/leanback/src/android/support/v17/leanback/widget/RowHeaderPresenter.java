@@ -106,7 +106,7 @@ public class RowHeaderPresenter extends Presenter {
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         HeaderItem headerItem = item == null ? null : ((Row) item).getHeaderItem();
         RowHeaderPresenter.ViewHolder vh = (RowHeaderPresenter.ViewHolder)viewHolder;
-        if (vh == null) {
+        if (headerItem == null) {
             vh.mTitleView.setText(null);
 
             if (vh.mDescriptionView != null) {
@@ -118,18 +118,12 @@ public class RowHeaderPresenter extends Presenter {
                 viewHolder.view.setVisibility(View.GONE);
             }
         } else {
-            viewHolder.view.setVisibility(View.VISIBLE);
             vh.mTitleView.setText(headerItem.getName());
-
             if (vh.mDescriptionView != null) {
-                if (headerItem.getDescription() != null) {
-                    vh.mDescriptionView.setText(headerItem.getDescription());
-                    vh.mDescriptionView.setVisibility(View.VISIBLE);
-                } else {
-                    vh.mDescriptionView.setVisibility(View.GONE);
-                }
+                vh.mDescriptionView.setText(headerItem.getDescription());
             }
             viewHolder.view.setContentDescription(headerItem.getContentDescription());
+            viewHolder.view.setVisibility(View.VISIBLE);
         }
     }
 
