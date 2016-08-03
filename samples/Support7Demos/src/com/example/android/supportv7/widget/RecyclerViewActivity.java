@@ -17,20 +17,20 @@
 
 package com.example.android.supportv7.widget;
 
-import com.example.android.supportv7.Cheeses;
-import com.example.android.supportv7.widget.adapter.SimpleStringAdapter;
-import com.example.android.supportv7.widget.decorator.DividerItemDecoration;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.android.supportv7.Cheeses;
+import com.example.android.supportv7.widget.adapter.SimpleStringAdapter;
 
 public class RecyclerViewActivity extends Activity {
 
@@ -68,7 +68,7 @@ public class RecyclerViewActivity extends Activity {
                 return vh;
             }
         });
-        rv.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+        rv.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         setContentView(rv);
         mRecyclerView = rv;
     }
