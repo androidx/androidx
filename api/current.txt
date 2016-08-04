@@ -7925,6 +7925,7 @@ package android.support.v7.app {
 
   public class NotificationCompat extends android.support.v4.app.NotificationCompat {
     ctor public NotificationCompat();
+    method public static android.support.v4.media.session.MediaSessionCompat.Token getMediaSession(android.app.Notification);
   }
 
   public static class NotificationCompat.Builder extends android.support.v4.app.NotificationCompat.Builder {
