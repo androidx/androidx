@@ -166,7 +166,7 @@
     <dimen name="lb_control_button_text_size">22sp</dimen>
 
     <dimen name="lb_error_image_max_height">120dp</dimen>
-    <integer name="lb_error_message_max_lines">1</integer>
+    <integer name="lb_error_message_max_lines">3</integer>
     <dimen name="lb_error_message_max_width">600dp</dimen>
     <dimen name="lb_error_message_text_size">16sp</dimen>
     <dimen name="lb_error_under_image_baseline_margin">36dp</dimen>
