@@ -20,6 +20,10 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Parcel;
+import android.support.v4.app.BundleCompat;
 import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v7.appcompat.R;
@@ -33,6 +37,38 @@ import android.widget.RemoteViews;
  * You should start using this variant if you need support any of these styles.
  */
 public class NotificationCompat extends android.support.v4.app.NotificationCompat {
+
+    /**
+     * Extracts a {@link MediaSessionCompat.Token} from the extra values
+     * in the {@link MediaStyle} {@link android.app.Notification notification}.
+     *
+     * @param notification The notification to extract a {@link MediaSessionCompat.Token} from.
+     * @return The {@link MediaSessionCompat.Token} in the {@code notification} if it contains,
+     *         null otherwise.
+     */
+    public static MediaSessionCompat.Token getMediaSession(Notification notification) {
+        Bundle extras = getExtras(notification);
+        if (extras != null) {
+            if (Build.VERSION.SDK_INT >= 21) {
+                Object tokenInner = extras.getParcelable(EXTRA_MEDIA_SESSION);
+                if (tokenInner != null) {
+                    return MediaSessionCompat.Token.fromToken(tokenInner);
+                }
+            } else {
+                IBinder tokenInner = BundleCompat.getBinder(extras, EXTRA_MEDIA_SESSION);
+                if (tokenInner != null) {
+                    Parcel p = Parcel.obtain();
+                    p.writeStrongBinder(tokenInner);
+                    p.setDataPosition(0);
+                    MediaSessionCompat.Token token =
+                            MediaSessionCompat.Token.CREATOR.createFromParcel(p);
+                    p.recycle();
+                    return token;
+                }
+            }
+        }
+        return null;
+    }
 
     private static void addStyleToBuilderApi24(NotificationBuilderWithBuilderAccessor builder,
             android.support.v4.app.NotificationCompat.Builder b) {
@@ -373,7 +409,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
 
         /**
-         * Request up to 3 actions (by index in the order of addition) to be shown in the compact
+         * Requests up to 3 actions (by index in the order of addition) to be shown in the compact
          * notification view.
          *
          * @param actions the indices of the actions to show in the compact notification view
@@ -384,7 +420,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
 
         /**
-         * Attach a {@link MediaSessionCompat.Token} to this Notification
+         * Attaches a {@link MediaSessionCompat.Token} to this Notification
          * to provide additional playback information and control to the SystemUI.
          */
         public MediaStyle setMediaSession(MediaSessionCompat.Token token) {
