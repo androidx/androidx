@@ -19,6 +19,8 @@ package android.support.v7.app;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -26,8 +28,15 @@ import android.os.Parcel;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.text.BidiFormatter;
 import android.support.v7.appcompat.R;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.TextAppearanceSpan;
 import android.widget.RemoteViews;
+
+import java.util.List;
 
 /**
  * An extension of {@link android.support.v4.app.NotificationCompat} which supports
@@ -76,7 +85,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
             NotificationCompatImpl24.addDecoratedCustomViewStyle(builder);
         } else if (b.mStyle instanceof DecoratedMediaCustomViewStyle) {
             NotificationCompatImpl24.addDecoratedMediaCustomViewStyle(builder);
-        } else {
+        } else if (!(b.mStyle instanceof MessagingStyle)) {
             addStyleGetContentViewLollipop(builder, b);
         }
     }
@@ -112,10 +121,105 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 setBackgroundColor(b.mContext, contentViewMedia, b.getColor());
                 return contentViewMedia;
             }
+            return null;
         } else if (b.mStyle instanceof DecoratedCustomViewStyle) {
             return getDecoratedContentView(b);
         }
+        return addStyleGetContentViewJellybean(builder, b);
+    }
+
+    private static RemoteViews addStyleGetContentViewJellybean(
+            NotificationBuilderWithBuilderAccessor builder,
+            android.support.v4.app.NotificationCompat.Builder b) {
+        if (b.mStyle instanceof MessagingStyle) {
+            addMessagingFallBackStyle((MessagingStyle) b.mStyle, builder, b);
+        }
+        return addStyleGetContentViewIcs(builder, b);
+    }
+
+    private static MessagingStyle.Message findLatestIncomingMessage(MessagingStyle style) {
+        List<MessagingStyle.Message> messages = style.getMessages();
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            MessagingStyle.Message m = messages.get(i);
+            // Incoming messages have a non-empty sender.
+            if (!TextUtils.isEmpty(m.getSender())) {
+                return m;
+            }
+        }
+        if (!messages.isEmpty()) {
+            // No incoming messages, fall back to outgoing message
+            return messages.get(messages.size() - 1);
+        }
         return null;
+    }
+
+    private static CharSequence makeMessageLine(android.support.v4.app.NotificationCompat.Builder b,
+            MessagingStyle style,
+            MessagingStyle.Message m) {
+        BidiFormatter bidi = BidiFormatter.getInstance();
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        boolean afterLollipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        int color = afterLollipop || Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1
+                ? Color.BLACK : Color.WHITE;
+        CharSequence replyName = m.getSender();
+        if (TextUtils.isEmpty(m.getSender())) {
+            replyName = style.getUserDisplayName() == null
+                    ? "" : style.getUserDisplayName();
+            color = afterLollipop && b.getColor() != NotificationCompat.COLOR_DEFAULT
+                    ? b.getColor()
+                    : color;
+        }
+        CharSequence senderText = bidiWrapIfNotSpanned(bidi, replyName);
+        sb.append(senderText);
+        sb.setSpan(makeFontColorSpan(color),
+                sb.length() - senderText.length(),
+                sb.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE /* flags */);
+        CharSequence text = m.getText() == null ? "" : m.getText();
+        sb.append("  ").append(bidiWrapIfNotSpanned(bidi, text));
+        return sb;
+    }
+
+    private static CharSequence bidiWrapIfNotSpanned(BidiFormatter bidi, CharSequence replyName) {
+        // Unfortunately bidiFormatter doesn't support CharSequences in support
+        if (replyName instanceof Spanned) {
+            return replyName;
+        }
+        return bidi.unicodeWrap(replyName.toString());
+    }
+
+    private static TextAppearanceSpan makeFontColorSpan(int color) {
+        return new TextAppearanceSpan(null, 0, 0, ColorStateList.valueOf(color), null);
+    }
+
+    private static void addMessagingFallBackStyle(MessagingStyle style,
+            NotificationBuilderWithBuilderAccessor builder,
+            android.support.v4.app.NotificationCompat.Builder b) {
+        SpannableStringBuilder completeMessage = new SpannableStringBuilder();
+        List<MessagingStyle.Message> messages = style.getMessages();
+        boolean showNames = style.getConversationTitle() != null
+                || hasMessagesWithoutSender(style.getMessages());
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            MessagingStyle.Message m = messages.get(i);
+            CharSequence line;
+            line = showNames ? makeMessageLine(b, style, m) : m.getText();
+            if (i != messages.size() - 1) {
+                completeMessage.insert(0, "\n");
+            }
+            completeMessage.insert(0, line);
+        }
+        NotificationCompatImplJellybean.addBigTextStyle(builder, completeMessage);
+    }
+
+    private static boolean hasMessagesWithoutSender(
+            List<MessagingStyle.Message> messages) {
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            MessagingStyle.Message m = messages.get(i);
+            if (m.getSender() == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static RemoteViews addStyleGetContentViewIcs(
@@ -274,6 +378,43 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
 
         /**
+         * @return the text of the notification
+         *
+         * @hide
+         */
+        @Override
+        protected CharSequence resolveText() {
+            if (mStyle instanceof MessagingStyle) {
+                MessagingStyle style = (MessagingStyle) mStyle;
+                MessagingStyle.Message m = findLatestIncomingMessage(style);
+                CharSequence conversationTitle = style.getConversationTitle();
+                if (m != null) {
+                    return conversationTitle != null ? makeMessageLine(this, style, m)
+                            : m.getText();
+                }
+            }
+            return super.resolveText();
+        }
+
+        /**
+         * @return the title of the notification
+         *
+         * @hide
+         */
+        @Override
+        protected CharSequence resolveTitle() {
+            if (mStyle instanceof MessagingStyle) {
+                MessagingStyle style = (MessagingStyle) mStyle;
+                MessagingStyle.Message m = findLatestIncomingMessage(style);
+                CharSequence conversationTitle = style.getConversationTitle();
+                if (conversationTitle != null || m != null) {
+                    return conversationTitle != null ? conversationTitle : m.getSender();
+                }
+            }
+            return super.resolveTitle();
+        }
+
+        /**
          * @hide
          */
         @Override
@@ -315,7 +456,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         @Override
         public Notification build(android.support.v4.app.NotificationCompat.Builder b,
                 NotificationBuilderWithBuilderAccessor builder) {
-            RemoteViews contentView = addStyleGetContentViewIcs(builder, b);
+            RemoteViews contentView = addStyleGetContentViewJellybean(builder, b);
             Notification n = builder.build();
             // The above call might override decorated content views again, let's make sure it
             // sticks.
