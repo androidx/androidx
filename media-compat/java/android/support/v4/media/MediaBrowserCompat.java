@@ -457,7 +457,8 @@ public final class MediaBrowserCompat {
         }
 
         /**
-         * Returns the media id for this item.
+         * Returns the media id in the {@link MediaDescriptionCompat} for this item.
+         * @see MediaMetadataCompat#METADATA_KEY_MEDIA_ID
          */
         public @NonNull String getMediaId() {
             return mDescription.getMediaId();
