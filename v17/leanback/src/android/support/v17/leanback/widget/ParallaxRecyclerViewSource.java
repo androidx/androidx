@@ -27,41 +27,145 @@ import static android.support.v7.widget.RecyclerView.ViewHolder;
 /**
  * Implementation of {@link ParallaxSource} class for {@link RecyclerView}. This class
  * allows users to track position of specific views inside {@link RecyclerView} relative to
- * itself.
+ * itself. @see {@link ChildPositionProperty} for details.
  */
-public class ParallaxRecyclerViewSource extends ParallaxSource<ParallaxSource.IntVariable> {
+public class ParallaxRecyclerViewSource extends
+        ParallaxSource.IntSource<ParallaxRecyclerViewSource.ChildPositionProperty> {
     private final RecyclerView mRecylerView;
-    private List<VariableDef> mVarDefs = new ArrayList<>();
-    private List<ParallaxSource.IntVariable> mParallaxSourceVars = new ArrayList<>();
-    private ParallaxSource.IntVariable mParentSize;
     private Listener mListener;
+    private final boolean mIsVertical;
 
     /**
-     * Generic container for storing view information that user is interested in tracking.
-     * Using this class, users can track the view position relative to the view height i.e.
+     * Subclass of {@link ParallaxSource.IntProperty}. Using this Property, users can track a
+     * RecylerView child's position inside recyclerview. i.e.
      *
      * tracking_pos = view.top + fraction * view.height() + offset
      *
-     * This way we can track the start/end of the same variable just by changing the fraction
-     * attribute.
+     * This way we can track top using fraction 0 and bottom using fraction 1.
      */
-    static final class VariableDef {
-        public int offset;
-        public int viewId;
-        public int adapterPosition;
-        public float fraction;
+    public static final class ChildPositionProperty extends ParallaxSource.IntProperty {
+        int mAdapterPosition;
+        int mViewId;
+        int mOffset;
+        float mFraction;
 
-        public VariableDef(int adapterPosition, int viewId, int offset, float fraction) {
-            this.adapterPosition = adapterPosition;
-            this.viewId = viewId;
-            this.offset = offset;
-            this.fraction = fraction;
+        ChildPositionProperty(String name, int index) {
+            super(name, index);
+        }
+
+        /**
+         * Sets adapter position of the recyclerview child to track.
+         *
+         * @param adapterPosition Zero based position in adapter.
+         * @return This ChildPositionProperty object.
+         */
+        public ChildPositionProperty adapterPosition(int adapterPosition) {
+            mAdapterPosition = adapterPosition;
+            return this;
+        };
+
+        /**
+         * Sets view Id of a descendant of recyclerview child to track.
+         *
+         * @param viewId Id of a descendant of recyclerview child.
+         * @return This ChildPositionProperty object.
+         */
+        public ChildPositionProperty viewId(int viewId) {
+            mViewId = viewId;
+            return this;
+        }
+
+        /**
+         * Sets offset in pixels added to the view's start position.
+         *
+         * @param offset Offset in pixels added to the view's start position.
+         * @return This ChildPositionProperty object.
+         */
+        public ChildPositionProperty offset(int offset) {
+            mOffset = offset;
+            return this;
+        }
+
+        /**
+         * Sets fraction of size to be added to view's start position.  e.g. to track the
+         * center position of the view, use fraction 0.5; to track the end position of the view
+         * use fraction 1.
+         *
+         * @param fraction Fraction of size of the view.
+         * @return This ChildPositionProperty object.
+         */
+        public ChildPositionProperty fraction(float fraction) {
+            mFraction = fraction;
+            return this;
+        }
+
+        /**
+         * Returns adapter position of the recyclerview child to track.
+         */
+        public int getAdapterPosition() {
+            return mAdapterPosition;
+        }
+
+        /**
+         * Returns view Id of a descendant of recyclerview child to track.
+         */
+        public int getViewId() {
+            return mViewId;
+        }
+
+        /**
+         * Returns offset in pixels added to the view's start position.
+         */
+        public int getOffset() {
+            return mOffset;
+        }
+
+        /**
+         * Returns fraction of size to be added to view's start position.  e.g. to track the
+         * center position of the view, use fraction 0.5; to track the end position of the view
+         * use fraction 1.
+         */
+        public float getFraction() {
+            return mFraction;
+        }
+
+        void updateValue(ParallaxRecyclerViewSource source) {
+            RecyclerView recyclerView = source.mRecylerView;
+            ViewHolder viewHolder
+                    = recyclerView.findViewHolderForAdapterPosition(mAdapterPosition);
+            if (viewHolder == null) {
+                View firstChild = recyclerView.getChildAt(0);
+                ViewHolder vh = recyclerView.findContainingViewHolder(
+                        firstChild);
+                int firstPosition = vh.getAdapterPosition();
+                if (firstPosition < mAdapterPosition) {
+                    source.setPropertyValue(getIndex(), IntProperty.UNKNOWN_AFTER);
+                } else {
+                    source.setPropertyValue(getIndex(), IntProperty.UNKNOWN_BEFORE);
+                }
+            } else {
+                View trackingView = viewHolder.itemView.findViewById(mViewId);
+                if (trackingView == null) {
+                    return;
+                }
+
+                Rect rect = new Rect(
+                        0, 0, trackingView.getWidth(), trackingView.getHeight());
+                recyclerView.offsetDescendantRectToMyCoords(trackingView, rect);
+                if (source.mIsVertical) {
+                    source.setPropertyValue(getIndex(), rect.top + mOffset +
+                            (int) (mFraction * rect.height()));
+                } else {
+                    source.setPropertyValue(getIndex(), rect.left + mOffset +
+                            (int) (mFraction * rect.width()));
+                }
+            }
         }
     }
 
     @Override
-    public List<IntVariable> getVariables() {
-        return mParallaxSourceVars;
+    public ChildPositionProperty createProperty(String name, int index) {
+        return new ChildPositionProperty(name, index);
     }
 
     @Override
@@ -70,34 +174,11 @@ public class ParallaxRecyclerViewSource extends ParallaxSource<ParallaxSource.In
     }
 
     @Override
-    public IntVariable getMaxParentVisibleSize() {
-        if (mParentSize == null) {
-            mParentSize = new ParallaxSource.IntVariable(this);
+    public int getMaxParentVisibleSize() {
+        if (mRecylerView == null) {
+            return 0;
         }
-        mParentSize.setIntValue(mRecylerView.getHeight());
-        return mParentSize;
-    }
-
-    /**
-     * Adds the source variable to be tracked in relation to it's own height/width. This provides
-     * more flexibility to users for expressing the position of source variable.
-     * Following formulate is used for calculating the final position -
-     * final_pos = view.top + fraction * view.height() + offset
-     *
-     * This way we can track the start/end of the same view by changing just the fraction
-     * attribute.
-     *
-     * @param adapterPositon Adapter position used to find this view (given by viewId).
-     * @param viewId Resource id of the view.
-     * @param offset Offset used to alter the tracked position.
-     * @param fraction Percentage of the view width/height to be used for calculating the
-     *                 target position.
-     */
-    public IntVariable addVariable(int adapterPositon, int viewId, int offset, float fraction) {
-        mVarDefs.add(new VariableDef(adapterPositon, viewId, offset, fraction));
-        ParallaxSource.IntVariable intVariable = new ParallaxSource.IntVariable(this);
-        mParallaxSourceVars.add(intVariable);
-        return intVariable;
+        return mIsVertical ? mRecylerView.getHeight() : mRecylerView.getWidth();
     }
 
     /**
@@ -105,6 +186,9 @@ public class ParallaxRecyclerViewSource extends ParallaxSource<ParallaxSource.In
      */
     public ParallaxRecyclerViewSource(RecyclerView parent) {
         this.mRecylerView = parent;
+        LayoutManager.Properties properties = mRecylerView.getLayoutManager()
+                .getProperties(mRecylerView.getContext(), null, 0, 0);
+        mIsVertical = properties.orientation == RecyclerView.VERTICAL;
         setupScrollListener();
     }
 
@@ -112,46 +196,10 @@ public class ParallaxRecyclerViewSource extends ParallaxSource<ParallaxSource.In
         mRecylerView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                for (int i = 0; i < mVarDefs.size(); i++) {
-                    VariableDef varDef = mVarDefs.get(i);
-                    ParallaxSource.IntVariable parallaxSourceVar = mParallaxSourceVars.get(i);
-                    ViewHolder viewHolder
-                            = mRecylerView.findViewHolderForAdapterPosition(varDef.adapterPosition);
-                    if (viewHolder == null) {
-                        View firstChild = mRecylerView.getChildAt(0);
-                        ViewHolder vh = mRecylerView.findContainingViewHolder(
-                                firstChild);
-                        int firstPosition = vh.getAdapterPosition();
-                        if (firstPosition < varDef.adapterPosition) {
-                            parallaxSourceVar.setIntValue(IntVariable.UNKNOWN_AFTER);
-                        } else {
-                            parallaxSourceVar.setIntValue(IntVariable.UNKNOWN_BEFORE);
-                        }
-                    } else {
-                        View trackingView = viewHolder.itemView.findViewById(varDef.viewId);
-                        if (trackingView == null) {
-                            return;
-                        }
-
-                        Rect rect = new Rect(
-                                0, 0, trackingView.getWidth(), trackingView.getHeight());
-                        mRecylerView.offsetDescendantRectToMyCoords(trackingView, rect);
-
-                        LayoutManager.Properties properties = mRecylerView.getLayoutManager()
-                                .getProperties(mRecylerView.getContext(), null, 0, 0);
-                        if (properties.orientation == RecyclerView.VERTICAL) {
-                            parallaxSourceVar.setIntValue(rect.top + varDef.offset
-                                    + (int) (varDef.fraction * rect.height()));
-                        } else {
-                            parallaxSourceVar.setIntValue(rect.left + varDef.offset
-                                    + (int) (varDef.fraction * rect.width()));
-                        }
-                    }
+                for (ChildPositionProperty prop: getProperties()) {
+                    prop.updateValue(ParallaxRecyclerViewSource.this);
                 }
-
-                mListener.onVariableChanged(ParallaxRecyclerViewSource.this);
+                mListener.onPropertiesChanged(ParallaxRecyclerViewSource.this);
             }
         });
     }

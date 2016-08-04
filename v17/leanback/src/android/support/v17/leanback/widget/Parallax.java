@@ -16,8 +16,8 @@ package android.support.v17.leanback.widget;
 import java.util.List;
 import java.util.ArrayList;
 
-import android.support.v17.leanback.widget.ParallaxSource.IntVariableKeyValue;
-import android.support.v17.leanback.widget.ParallaxSource.FloatVariableKeyValue;
+import android.support.v17.leanback.widget.ParallaxSource.IntPropertyKeyValue;
+import android.support.v17.leanback.widget.ParallaxSource.FloatPropertyKeyValue;
 import android.support.v17.leanback.widget.ParallaxEffect.FloatEffect;
 import android.support.v17.leanback.widget.ParallaxEffect.IntEffect;
 
@@ -32,7 +32,7 @@ public final class Parallax {
 
     private final ParallaxSource.Listener mSourceListener = new ParallaxSource.Listener() {
         @Override
-        public void onVariableChanged(ParallaxSource source) {
+        public void onPropertiesChanged(ParallaxSource source) {
             for (int i = 0; i < mEffects.size(); i++) {
                 mEffects.get(i).performMapping(source);
             }
@@ -107,9 +107,9 @@ public final class Parallax {
      * @param ranges A list of key values that defines the ranges.
      * @return Newly created ParallaxEffect object.
      */
-    public ParallaxEffect addEffect(IntVariableKeyValue... ranges) {
+    public ParallaxEffect addEffect(IntPropertyKeyValue... ranges) {
         IntEffect effect = new IntEffect();
-        effect.setVariableRanges(ranges);
+        effect.setPropertyRanges(ranges);
         addEffect(effect);
         return effect;
     }
@@ -121,9 +121,9 @@ public final class Parallax {
      * @param ranges A list of key values that defines the ranges.
      * @return Newly created ParallaxEffect object.
      */
-    public ParallaxEffect addEffect(FloatVariableKeyValue... ranges) {
+    public ParallaxEffect addEffect(FloatPropertyKeyValue... ranges) {
         FloatEffect effect = new FloatEffect();
-        effect.setVariableRanges(ranges);
+        effect.setPropertyRanges(ranges);
         addEffect(effect);
         return effect;
     }

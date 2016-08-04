@@ -48,9 +48,8 @@ import android.support.test.runner.AndroidJUnit4;
 @SmallTest
 public class ParallaxIntSourceTest {
 
-    List<ParallaxSource.IntVariable> variables;
-    ParallaxSource.IntVariable screenMax;
-    ParallaxSource<ParallaxSource.IntVariable> source;
+    ParallaxSource.IntSource source;
+    int screenMax;
 
     static void assertFloatEquals(float expected, float actual) {
         org.junit.Assert.assertEquals((double)expected, (double)actual, 0.0001d);
@@ -58,118 +57,107 @@ public class ParallaxIntSourceTest {
 
     @Before
     public void setUp() throws Exception {
-        source = new ParallaxSource<ParallaxSource.IntVariable>() {
-            public List<ParallaxSource.IntVariable> getVariables() {
-                return variables;
-            }
+        source = new ParallaxSource.IntSource<ParallaxSource.IntProperty>() {
 
             public void setListener(ParallaxSource.Listener listener) {
             }
 
-            public ParallaxSource.IntVariable getMaxParentVisibleSize() {
+            public int getMaxParentVisibleSize() {
                 return screenMax;
             }
+
+            @Override
+            public IntProperty createProperty(String name, int index) {
+                return new IntProperty(name, index);
+            }
         };
-        variables = new ArrayList<ParallaxSource.IntVariable>();
-        screenMax = new ParallaxSource.IntVariable(source);
     }
 
     @Test
     public void testVariable() {
-        screenMax.setIntValue(1080);
-        ParallaxSource.IntVariable var1 = new ParallaxSource.IntVariable(source);
-        variables.add(var1);
-        var1.setIntValue(54);
-        assertEquals((int)54, var1.getIntValue());
-        var1.setName("testname123");
-        assertEquals(var1.getName(), "testname123");
-        var1.setIntValue(2000);
-        assertEquals((int)2000, var1.getIntValue());
+        screenMax = 1080;
+        ParallaxSource.IntProperty var1 = source.addProperty("var1");
+        var1.setIntValue(source, 54);
+        assertEquals((int)54, var1.getIntValue(source));
+        assertEquals(var1.getName(), "var1");
+        var1.set(source, (int)2000);
+        assertEquals((int)2000, var1.get(source).intValue());
     }
 
     @Test
     public void testFixedKeyValue() {
-        screenMax.setIntValue(1080);
-        ParallaxSource.IntVariable var1 = new ParallaxSource.IntVariable(source);
-        variables.add(var1);
+        screenMax = 1080;
+        ParallaxSource.IntProperty var1 = source.addProperty("var1");
 
-        ParallaxSource.IntVariableKeyValue keyValue = var1.at(1000);
-        assertSame(keyValue.getVariable(), var1);
-        assertEquals((int)1000, keyValue.getIntValue());
+        ParallaxSource.IntPropertyKeyValue keyValue = var1.at(1000);
+        assertSame(keyValue.getProperty(), var1);
+        assertEquals((int)1000, keyValue.getKeyValue(source));
     }
 
     @Test
     public void testFractionOfKeyValue() {
-        screenMax.setIntValue(1080);
-        ParallaxSource.IntVariable var1 = new ParallaxSource.IntVariable(source);
-        variables.add(var1);
+        screenMax = 1080;
+        ParallaxSource.IntProperty var1 = source.addProperty("var1");
 
-        ParallaxSource.IntVariableKeyValue keyValue = var1.at(0, 0.5f);
-        assertSame(keyValue.getVariable(), var1);
-        assertEquals((int)540, keyValue.getIntValue());
+        ParallaxSource.IntPropertyKeyValue keyValue = var1.at(0, 0.5f);
+        assertSame(keyValue.getProperty(), var1);
+        assertEquals((int)540, keyValue.getKeyValue(source));
     }
 
     @Test
     public void testFixedKeyValueWithFraction() {
-        screenMax.setIntValue(1080);
-        ParallaxSource.IntVariable var1 = new ParallaxSource.IntVariable(source);
-        variables.add(var1);
+        screenMax = 1080;
+        ParallaxSource.IntProperty var1 = source.addProperty("var1");
 
-        ParallaxSource.IntVariableKeyValue keyValue = var1.at(-100, 0.5f);
-        assertSame(keyValue.getVariable(), var1);
-        assertEquals((int)440, keyValue.getIntValue());
+        ParallaxSource.IntPropertyKeyValue keyValue = var1.at(-100, 0.5f);
+        assertSame(keyValue.getProperty(), var1);
+        assertEquals((int)440, keyValue.getKeyValue(source));
 
-        ParallaxSource.IntVariableKeyValue keyValue2 = var1.at(100, 0.5f);
-        assertSame(keyValue2.getVariable(), var1);
-        assertEquals((int)640, keyValue2.getIntValue());
+        ParallaxSource.IntPropertyKeyValue keyValue2 = var1.at(100, 0.5f);
+        assertSame(keyValue2.getProperty(), var1);
+        assertEquals((int)640, keyValue2.getKeyValue(source));
     }
 
     @Test(expected=IllegalStateException.class)
-    public void testVerifyIntVariables_wrongOrder() {
-        ParallaxSource.IntVariable var1 = new ParallaxSource.IntVariable(source);
-        variables.add(var1);
-        ParallaxSource.IntVariable var2 = new ParallaxSource.IntVariable(source);
-        variables.add(var2);
+    public void testVerifyIntPropertys_wrongOrder() {
+        ParallaxSource.IntProperty var1 = source.addProperty("var1");
+        ParallaxSource.IntProperty var2 = source.addProperty("var2");;
 
-        var1.setIntValue((int)500);
-        var2.setIntValue((int)499);
+        var1.setIntValue(source, (int)500);
+        var2.setIntValue(source, (int)499);
 
-        ParallaxSource.verifyIntVariables(variables);
+        source.verifyProperties();
     }
 
     @Test(expected=IllegalStateException.class)
-    public void testVerifyIntVariablesWrong_combination() {
-        ParallaxSource.IntVariable var1 = new ParallaxSource.IntVariable(source);
-        variables.add(var1);
-        ParallaxSource.IntVariable var2 = new ParallaxSource.IntVariable(source);
-        variables.add(var2);
+    public void testVerifyIntPropertysWrong_combination() {
+        ParallaxSource.IntProperty var1 = source.addProperty("var1");
+        ParallaxSource.IntProperty var2 = source.addProperty("var2");
 
-        var1.setIntValue(ParallaxSource.IntVariable.UNKNOWN_BEFORE);
-        var2.setIntValue(ParallaxSource.IntVariable.UNKNOWN_AFTER);
+        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
 
-        ParallaxSource.verifyIntVariables(variables);
+        source.verifyProperties();
     }
 
     @Test
-    public void testVerifyIntVariables_success() {
-        ParallaxSource.IntVariable var1 = new ParallaxSource.IntVariable(source);
-        variables.add(var1);
-        ParallaxSource.IntVariable var2 = new ParallaxSource.IntVariable(source);
-        variables.add(var2);
+    public void testVerifyIntPropertys_success() {
+        ParallaxSource.IntProperty var1 = source.addProperty("var1");
+        ParallaxSource.IntProperty var2 = source.addProperty("var2");
 
-        var1.setIntValue((int)499);
-        var2.setIntValue((int)500);
+        var1.setIntValue(source, (int)499);
+        var2.setIntValue(source, (int)500);
 
-        ParallaxSource.verifyIntVariables(variables);
+        source.verifyProperties();
 
-        var1.setIntValue(ParallaxSource.IntVariable.UNKNOWN_BEFORE);
-        var2.setIntValue((int)500);
+        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(source, (int)500);
 
-        ParallaxSource.verifyIntVariables(variables);
+        source.verifyProperties();
 
-        var1.setIntValue((int)499);
-        var2.setIntValue(ParallaxSource.IntVariable.UNKNOWN_AFTER);
+        var1.setIntValue(source, (int)499);
+        var2.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
 
-        ParallaxSource.verifyIntVariables(variables);
+        source.verifyProperties();
     }
 }
