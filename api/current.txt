@@ -157,6 +157,8 @@ package android.support.customtabs {
   public final class CustomTabsIntent {
     method public static int getMaxToolbarItems();
     method public void launchUrl(android.app.Activity, android.net.Uri);
+    method public static android.content.Intent setAlwaysUseBrowserUI(android.content.Intent);
+    method public static boolean shouldAlwaysUseBrowserUI(android.content.Intent);
     field public static final java.lang.String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
     field public static final java.lang.String EXTRA_CLOSE_BUTTON_ICON = "android.support.customtabs.extra.CLOSE_BUTTON_ICON";
     field public static final java.lang.String EXTRA_DEFAULT_SHARE_MENU_ITEM = "android.support.customtabs.extra.SHARE_MENU_ITEM";

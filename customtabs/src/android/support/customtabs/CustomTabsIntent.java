@@ -46,6 +46,19 @@ import java.util.ArrayList;
 public final class CustomTabsIntent {
 
     /**
+     * Indicates that the user explicitly opted out of Custom Tabs in the calling application.
+     * <p>
+     * If an application provides a mechanism for users to opt out of Custom Tabs, this extra should
+     * be provided with {@link Intent#FLAG_ACTIVITY_NEW_TASK} to ensure the browser does not attempt
+     * to trigger any Custom Tab-like experiences as a result of the VIEW intent.
+     * <p>
+     * If this extra is present with {@link Intent#FLAG_ACTIVITY_NEW_TASK}, all Custom Tabs
+     * customizations will be ignored.
+     */
+    private static final String EXTRA_USER_OPT_OUT_FROM_CUSTOM_TABS =
+            "android.support.customtabs.extra.user_opt_out";
+
+    /**
      * Extra used to match the session. This has to be included in the intent to open in
      * a custom tab. This is the same IBinder that gets passed to ICustomTabsService#newSession.
      * Null if there is no need to match any service side sessions with the intent.
@@ -519,5 +532,31 @@ public final class CustomTabsIntent {
      */
     public static int getMaxToolbarItems() {
         return MAX_TOOLBAR_ITEMS;
+    }
+
+    /**
+     * Adds the necessary flags and extras to signal any browser supporting custom tabs to use the
+     * browser UI at all times and avoid showing custom tab like UI. Calling this with an intent
+     * will override any custom tabs related customizations.
+     * @param intent The intent to modify for always showing browser UI.
+     * @return The same intent with the necessary flags and extras added.
+     */
+    public static Intent setAlwaysUseBrowserUI(Intent intent) {
+        if (intent == null) intent = new Intent(Intent.ACTION_VIEW);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(EXTRA_USER_OPT_OUT_FROM_CUSTOM_TABS, true);
+        return intent;
+    }
+
+    /**
+     * Whether a browser receiving the given intent should always use browser UI and avoid using any
+     * custom tabs UI.
+     *
+     * @param intent The intent to check for the required flags and extras.
+     * @return Whether the browser UI should be used exclusively.
+     */
+    public static boolean shouldAlwaysUseBrowserUI(Intent intent) {
+        return intent.getBooleanExtra(EXTRA_USER_OPT_OUT_FROM_CUSTOM_TABS, false)
+                && (intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0;
     }
 }
