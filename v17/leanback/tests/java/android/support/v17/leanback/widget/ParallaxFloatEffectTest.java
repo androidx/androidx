@@ -80,7 +80,7 @@ public class ParallaxFloatEffectTest {
         screenMax = 1080;
         ParallaxSource.FloatProperty var1 = source.addProperty("var1");
 
-        effect.setPropertyRanges(var1.at(540), var1.at(0));
+        effect.setPropertyRanges(var1.atAbsolute(540), var1.atAbsolute(0));
         effect.target(target);
 
         // start
@@ -143,7 +143,7 @@ public class ParallaxFloatEffectTest {
         screenMax = 1080;
         ParallaxSource.FloatProperty var1 = source.addProperty("var1");
 
-        effect.setPropertyRanges(var1.at(540), var1.at(550));
+        effect.setPropertyRanges(var1.atAbsolute(540), var1.atAbsolute(550));
         effect.target(target);
         var1.setFloatValue(source, 0);
         effect.performMapping(source);
@@ -155,7 +155,7 @@ public class ParallaxFloatEffectTest {
         ParallaxSource.FloatProperty var1 = source.addProperty("var1");
         ParallaxSource.FloatProperty var2 = source.addProperty("var2");
 
-        effect.setPropertyRanges(var1.at(540), var2.at(540));
+        effect.setPropertyRanges(var1.atAbsolute(540), var2.atAbsolute(540));
         effect.target(target);
 
         // start

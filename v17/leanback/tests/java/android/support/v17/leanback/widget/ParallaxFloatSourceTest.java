@@ -91,7 +91,7 @@ public class ParallaxFloatSourceTest {
         screenMax = 1080;
         ParallaxSource.FloatProperty var1 = source.addProperty("var1");
 
-        ParallaxSource.FloatPropertyKeyValue keyValue = var1.at(1000);
+        ParallaxSource.FloatPropertyKeyValue keyValue = var1.atAbsolute(1000);
         assertSame(keyValue.getProperty(), var1);
         assertFloatEquals((float)1000, keyValue.getKeyValue(source));
     }

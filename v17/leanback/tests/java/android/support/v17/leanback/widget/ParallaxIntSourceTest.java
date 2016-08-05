@@ -89,7 +89,7 @@ public class ParallaxIntSourceTest {
         screenMax = 1080;
         ParallaxSource.IntProperty var1 = source.addProperty("var1");
 
-        ParallaxSource.IntPropertyKeyValue keyValue = var1.at(1000);
+        ParallaxSource.IntPropertyKeyValue keyValue = var1.atAbsolute(1000);
         assertSame(keyValue.getProperty(), var1);
         assertEquals((int)1000, keyValue.getKeyValue(source));
     }
