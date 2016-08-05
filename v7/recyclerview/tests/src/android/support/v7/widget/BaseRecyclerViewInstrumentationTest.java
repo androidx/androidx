@@ -108,6 +108,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     @Before
     public final void setUpInsThread() throws Exception {
         mInstrumentationThread = Thread.currentThread();
+        Item.idCounter.set(0);
     }
 
     void setHasTransientState(final View view, final boolean value) {
