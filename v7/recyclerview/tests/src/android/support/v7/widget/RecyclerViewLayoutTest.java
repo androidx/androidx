@@ -967,28 +967,39 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
-    public void scrollCalllbackOnVisibleRangeExpand() throws Throwable {
+    public void scrollCallbackFromEmptyToSome() throws Throwable {
+        scrollCallbackOnVisibleRangeChange(1, new int[]{0, 0}, new int[]{0, 1});
+    }
+
+    @Test
+    public void scrollCallbackOnVisibleRangeExpand() throws Throwable {
         scrollCallbackOnVisibleRangeChange(10, new int[]{3, 5}, new int[]{3, 6});
     }
 
     @Test
-    public void scrollCalllbackOnVisibleRangeShrink() throws Throwable {
+    public void scrollCallbackOnVisibleRangeShrink() throws Throwable {
         scrollCallbackOnVisibleRangeChange(10, new int[]{3, 6}, new int[]{3, 5});
     }
 
     @Test
-    public void scrollCalllbackOnVisibleRangeExpand2() throws Throwable {
+    public void scrollCallbackOnVisibleRangeExpand2() throws Throwable {
         scrollCallbackOnVisibleRangeChange(10, new int[]{3, 5}, new int[]{2, 5});
     }
 
     @Test
-    public void scrollCalllbackOnVisibleRangeShrink2() throws Throwable {
+    public void scrollCallbackOnVisibleRangeShrink2() throws Throwable {
         scrollCallbackOnVisibleRangeChange(10, new int[]{3, 6}, new int[]{2, 6});
     }
 
     private void scrollCallbackOnVisibleRangeChange(int itemCount, final int[] beforeRange,
             final int[] afterRange) throws Throwable {
-        RecyclerView recyclerView = new RecyclerView(getActivity());
+        RecyclerView recyclerView = new RecyclerView(getActivity()) {
+            @Override
+            void dispatchLayout() {
+                super.dispatchLayout();
+                ((TestLayoutManager) getLayoutManager()).layoutLatch.countDown();
+            }
+        };
         final AtomicBoolean beforeState = new AtomicBoolean(true);
         TestLayoutManager tlm = new TestLayoutManager() {
             @Override
@@ -996,7 +1007,6 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 detachAndScrapAttachedViews(recycler);
                 int[] range = beforeState.get() ? beforeRange : afterRange;
                 layoutRange(recycler, range[0], range[1]);
-                layoutLatch.countDown();
             }
         };
         recyclerView.setLayoutManager(tlm);
