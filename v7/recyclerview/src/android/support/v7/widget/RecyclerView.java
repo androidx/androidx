@@ -3486,8 +3486,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private void findMinMaxChildLayoutPositions(int[] into) {
         final int count = mChildHelper.getChildCount();
         if (count == 0) {
-            into[0] = 0;
-            into[1] = 0;
+            into[0] = NO_POSITION;
+            into[1] = NO_POSITION;
             return;
         }
         int minPositionPreLayout = Integer.MAX_VALUE;
@@ -3510,11 +3510,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     private boolean didChildRangeChange(int minPositionPreLayout, int maxPositionPreLayout) {
-        int count = mChildHelper.getChildCount();
-        if (count == 0) {
-            return minPositionPreLayout != 0 || maxPositionPreLayout != 0;
-        }
-        // get the new min max
         findMinMaxChildLayoutPositions(mMinMaxLayoutPositions);
         return mMinMaxLayoutPositions[0] != minPositionPreLayout ||
                 mMinMaxLayoutPositions[1] != maxPositionPreLayout;
