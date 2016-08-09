@@ -56,7 +56,6 @@ public class FragmentReplaceTest {
     }
 
     @Test
-    @UiThreadTest
     public void testReplaceFragment() throws Throwable {
         final FragmentActivity activity = mActivityRule.getActivity();
         final FragmentManager fm = activity.getSupportFragmentManager();
@@ -101,7 +100,6 @@ public class FragmentReplaceTest {
 
     @SdkSuppress(minSdkVersion = 11)
     @Test
-    @UiThreadTest
     public void testBackPressWithFrameworkFragment() throws Throwable {
         final Activity activity = mActivityRule.getActivity();
 
