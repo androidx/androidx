@@ -40,7 +40,7 @@
         <item name="contentInsetStart">@dimen/abc_action_bar_content_inset_material</item>
         <item name="contentInsetStartWithNavigation">@dimen/abc_action_bar_content_inset_with_nav</item>
         <item name="contentInsetEnd">@dimen/abc_action_bar_content_inset_material</item>
-        <item name="elevation">8dp</item>
+        <item name="elevation">@dimen/abc_action_bar_elevation_material</item>
         <item name="popupTheme">?attr/actionBarPopupTheme</item>
     </style>
 
