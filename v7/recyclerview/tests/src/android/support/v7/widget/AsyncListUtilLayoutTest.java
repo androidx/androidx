@@ -92,7 +92,7 @@ public class AsyncListUtilLayoutTest extends BaseRecyclerViewInstrumentationTest
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mAsyncListUtil = new AsyncListUtil<String>(
+                mAsyncListUtil = new AsyncListUtil<>(
                         String.class, TILE_SIZE, mDataCallback, mViewCallback);
             }
         });
@@ -129,10 +129,9 @@ public class AsyncListUtilLayoutTest extends BaseRecyclerViewInstrumentationTest
         Thread.sleep(500);  // Wait for possible spurious messages.
     }
 
-    private void assertAllLoaded(String context)
-            throws InterruptedException {
-        assertTrue(context + ", timed out while waiting for items", mAdapter.waitForItems(2));
-        assertTrue(context + ", timed out while waiting for tiles", mDataCallback.waitForTiles(2));
+    private void assertAllLoaded(String context) throws InterruptedException {
+        assertTrue(context + ", timed out while waiting for items", mAdapter.waitForItems(10));
+        assertTrue(context + ", timed out while waiting for tiles", mDataCallback.waitForTiles(10));
         assertEquals(context + ", empty child found", 0, getEmptyVisibleChildCount());
     }
 
