@@ -22,6 +22,7 @@ import com.example.android.support.design.Shakespeare;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -31,6 +32,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.util.Random;
@@ -46,10 +48,10 @@ abstract class AppBarLayoutUsageBase extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout)
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout)
                 findViewById(R.id.collapsing_app_bar);
-        if (appBarLayout != null && displayTitle()) {
-            appBarLayout.setTitle(getTitle());
+        if (collapsingToolbarLayout != null && displayTitle()) {
+            collapsingToolbarLayout.setTitle(getTitle());
         }
 
         TextView dialog = (TextView) findViewById(R.id.textview_dialogue);
@@ -90,6 +92,23 @@ abstract class AppBarLayoutUsageBase extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.sample_actions, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_toggle_expand: {
+                AppBarLayout abl = (AppBarLayout) findViewById(R.id.app_bar);
+                abl.setExpanded(true);
+                return true;
+            }
+            case R.id.action_toggle_collapse: {
+                AppBarLayout abl = (AppBarLayout) findViewById(R.id.app_bar);
+                abl.setExpanded(false);
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void addRandomTab(TabLayout tabLayout) {
