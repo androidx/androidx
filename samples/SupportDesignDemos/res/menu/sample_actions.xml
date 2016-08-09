@@ -19,7 +19,10 @@
           android:title="@string/menu_search"
           android:icon="@drawable/ic_search"
           app:showAsAction="ifRoom"/>
-    <item android:id="@+id/action_settings"
-          android:title="@string/menu_settings"
-          app:showAsAction="never"/>
+    <item android:id="@+id/action_toggle_expand"
+          android:title="@string/menu_expand"
+          app:showAsAction="never" />
+    <item android:id="@+id/action_toggle_collapse"
+          android:title="@string/menu_collapse"
+          app:showAsAction="never" />
 </menu>
