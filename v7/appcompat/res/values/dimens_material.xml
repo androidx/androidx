@@ -41,6 +41,7 @@
     <dimen name="abc_action_bar_overflow_padding_start_material">6dp</dimen>
     <!-- Padding to add to the end of the overflow action button. -->
     <dimen name="abc_action_bar_overflow_padding_end_material">10dp</dimen>
+    <dimen name="abc_action_bar_elevation_material">4dp</dimen>
 
     <dimen name="abc_action_button_min_width_overflow_material">36dp</dimen>
     <dimen name="abc_action_button_min_width_material">48dp</dimen>
