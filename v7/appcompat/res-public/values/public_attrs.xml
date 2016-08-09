@@ -86,7 +86,6 @@
      <public type="attr" name="colorControlNormal"/>
      <public type="attr" name="colorPrimary"/>
      <public type="attr" name="colorPrimaryDark"/>
-     <public type="attr" name="colorSwitchThumbNormal"/>
      <public type="attr" name="commitIcon"/>
      <public type="attr" name="contentInsetEnd"/>
      <public type="attr" name="contentInsetEndWithActions"/>
