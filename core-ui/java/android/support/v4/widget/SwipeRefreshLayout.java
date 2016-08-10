@@ -233,6 +233,10 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      * near the top of the refreshing content. This position is a consistent
      * location, but can be adjusted in either direction based on whether or not
      * there is a toolbar or actionbar present.
+     * <p>
+     * <strong>Note:</strong> Calling this will reset the position of the refresh indicator to
+     * <code>start</code>.
+     * </p>
      *
      * @param scale Set to true if there is no view at a higher z-order than where the progress
      *              spinner is set to appear. Setting it to true will cause indicator to be scaled
@@ -245,11 +249,11 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      */
     public void setProgressViewOffset(boolean scale, int start, int end) {
         mScale = scale;
-        mCircleView.setVisibility(View.GONE);
-        mOriginalOffsetTop = mCurrentTargetOffsetTop = start;
+        mOriginalOffsetTop = start;
         mSpinnerFinalOffset = end;
         mUsingCustomStart = true;
-        mCircleView.invalidate();
+        reset();
+        mRefreshing = false;
     }
 
     /**
