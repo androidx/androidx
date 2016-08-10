@@ -30,6 +30,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import android.os.Binder;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -125,9 +126,16 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
             @Override
             public Result call() throws Exception {
                 mTaskInvoked.set(true);
-
-                Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-                return postResult(doInBackground(mParams));
+                Result result = null;
+                try {
+                    Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                    //noinspection unchecked
+                    result = doInBackground(mParams);
+                    Binder.flushPendingCommands();
+                } finally {
+                    postResult(result);
+                }
+                return result;
             }
         };
 
