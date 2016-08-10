@@ -21,6 +21,8 @@ import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 
 import android.graphics.Rect;
+import android.os.Build;
+import android.support.test.filters.SdkSuppress;
 import android.support.v4.view.ViewCompat;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Gravity;
@@ -45,6 +47,7 @@ public class LinearLayoutManagerWrapContentTest extends BaseWrapContentTest {
         mConfig = config;
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testUnspecifiedWithHint() throws Throwable {
         unspecifiedWithHintTest(mConfig.mOrientation == StaggeredGridLayoutManager.HORIZONTAL);
