@@ -195,9 +195,9 @@ public final class PrintHelper {
         @Override
         public void printBitmap(String jobName, Bitmap bitmap,
                 final OnPrintFinishCallback callback) {
-            RealHelper.OnPrintFinishCallback delegateCallback = null;
+            PrintHelperKitkat.OnPrintFinishCallback delegateCallback = null;
             if (callback != null) {
-                delegateCallback = new RealHelper.OnPrintFinishCallback() {
+                delegateCallback = new PrintHelperKitkat.OnPrintFinishCallback() {
                     @Override
                     public void onFinish() {
                         callback.onFinish();
@@ -210,9 +210,9 @@ public final class PrintHelper {
         @Override
         public void printBitmap(String jobName, Uri imageFile,
                 final OnPrintFinishCallback callback) throws FileNotFoundException {
-            RealHelper.OnPrintFinishCallback delegateCallback = null;
+            PrintHelperKitkat.OnPrintFinishCallback delegateCallback = null;
             if (callback != null) {
-                delegateCallback = new RealHelper.OnPrintFinishCallback() {
+                delegateCallback = new PrintHelperKitkat.OnPrintFinishCallback() {
                     @Override
                     public void onFinish() {
                         callback.onFinish();
