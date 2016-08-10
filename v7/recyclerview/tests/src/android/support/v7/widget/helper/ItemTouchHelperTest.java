@@ -16,30 +16,27 @@
 
 package android.support.v7.widget.helper;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static android.support.v7.widget.helper.ItemTouchHelper.*;
 
-import android.app.Instrumentation;
-import android.os.SystemClock;
+import static org.junit.Assert.*;
+
+import android.os.Build;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.util.TouchUtils;
 import android.support.v7.widget.BaseRecyclerViewInstrumentationTest;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.WrappedRecyclerView;
-import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.v7.widget.helper.ItemTouchHelper.*;
-import static org.junit.Assert.*;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -117,12 +114,14 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
         basicSwipeTest(END, START | END, getActivity().getWindow().getDecorView().getWidth());
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Test
     public void swipeStartInRTL() throws Throwable {
         mSetupRTL = true;
         basicSwipeTest(START, START | END, getActivity().getWindow().getDecorView().getWidth());
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Test
     public void swipeEndInRTL() throws Throwable {
         mSetupRTL = true;
@@ -177,7 +176,7 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
 
         private List<RecyclerView.ViewHolder> mCleared = new ArrayList<RecyclerView.ViewHolder>();
 
-        public LoggingCalback(int dragDirs, int swipeDirs) {
+        LoggingCalback(int dragDirs, int swipeDirs) {
             super(dragDirs, swipeDirs);
         }
 
@@ -247,8 +246,7 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
 
         RecyclerView.ViewHolder from, to;
 
-        public MoveRecord(RecyclerView.ViewHolder from,
-                RecyclerView.ViewHolder to) {
+        MoveRecord(RecyclerView.ViewHolder from, RecyclerView.ViewHolder to) {
             this.from = from;
             this.to = to;
             fromPos = from.getAdapterPosition();
