@@ -25,6 +25,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import android.app.Activity;
 import android.graphics.Rect;
+import android.os.Build;
+import android.support.test.filters.SdkSuppress;
 import android.view.Gravity;
 import android.view.View;
 
@@ -73,6 +75,7 @@ public class GridLayoutManagerWrapContentTest extends BaseWrapContentTest {
         return recyclerView;
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testUnspecifiedWithHint() throws Throwable {
         unspecifiedWithHintTest(mHorizontal);
