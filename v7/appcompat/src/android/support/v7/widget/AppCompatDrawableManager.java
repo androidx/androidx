@@ -205,6 +205,16 @@ public final class AppCompatDrawableManager {
         return drawable;
     }
 
+    public void onConfigurationChanged(@NonNull Context context) {
+        synchronized (mDrawableCacheLock) {
+            LongSparseArray<WeakReference<ConstantState>> cache = mDrawableCaches.get(context);
+            if (cache != null) {
+                // Crude, but we'll just clear the cache when the configuration changes
+                cache.clear();
+            }
+        }
+    }
+
     private static long createCacheKey(TypedValue tv) {
         return (((long) tv.assetCookie) << 32) | tv.data;
     }
