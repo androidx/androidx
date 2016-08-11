@@ -46,6 +46,14 @@
                   android:theme="@style/Theme.Leanback.Browse"
                   android:exported="true" />
 
+        <activity android:name="android.support.v17.leanback.app.GuidedStepFragmentTestActivity"
+                  android:theme="@style/Theme.Leanback.GuidedStep"
+                  android:exported="true" />
+
+        <activity android:name="android.support.v17.leanback.app.GuidedStepSupportFragmentTestActivity"
+                  android:theme="@style/Theme.Leanback.GuidedStep"
+                  android:exported="true" />
+
     </application>
 
 </manifest>

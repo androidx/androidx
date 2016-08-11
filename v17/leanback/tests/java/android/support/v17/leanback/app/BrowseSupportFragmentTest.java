@@ -1,4 +1,4 @@
-/* This file is auto-generated from BrowseFrgamentTest.java.  DO NOT MODIFY. */
+/* This file is auto-generated from BrowseFragmentTest.java.  DO NOT MODIFY. */
 
 /*
  * Copyright (C) 2015 The Android Open Source Project

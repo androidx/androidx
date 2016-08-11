@@ -111,7 +111,7 @@ public class BrowseTestSupportFragment extends BrowseSupportFragment {
                 listRowAdapter.add("Hello world");
                 listRowAdapter.add("Android TV");
                 listRowAdapter.add("Leanback");
-                listRowAdapter.add("GuidedStepFragment");
+                listRowAdapter.add("GuidedStepSupportFragment");
             }
             HeaderItem header = new HeaderItem(i, "Row " + i);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
