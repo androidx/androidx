@@ -137,6 +137,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     final AnchorInfo mAnchorInfo = new AnchorInfo();
 
     /**
+     * Stashed to avoid allocation, currently only used in #fill()
+     */
+    private final LayoutChunkResult mLayoutChunkResult = new LayoutChunkResult();
+
+    /**
      * Creates a vertical LinearLayoutManager
      *
      * @param context Current context, will be used to access resources.
@@ -1366,7 +1371,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             recycleByLayoutState(recycler, layoutState);
         }
         int remainingSpace = layoutState.mAvailable + layoutState.mExtra;
-        LayoutChunkResult layoutChunkResult = new LayoutChunkResult();
+        LayoutChunkResult layoutChunkResult = mLayoutChunkResult;
         while ((layoutState.mInfinite || remainingSpace > 0) && layoutState.hasMore(state)) {
             layoutChunkResult.resetInternal();
             layoutChunk(recycler, state, layoutState, layoutChunkResult);
