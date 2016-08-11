@@ -17,22 +17,40 @@
 
 package android.support.v7.widget;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
+import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.test.InstrumentationRegistry;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.SystemClock;
-import android.support.test.InstrumentationRegistry;
+import android.support.annotation.Nullable;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.util.TouchUtils;
@@ -48,6 +66,11 @@ import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,17 +79,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
-import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
-
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-import static org.hamcrest.CoreMatchers.is;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -642,7 +654,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                                             RecyclerView.Recycler recycler,
                                             RecyclerView.State state) {
                 try {
-                    View view = recycler.getViewForPosition(state.getItemCount() - 1);
+                    recycler.getViewForPosition(state.getItemCount() - 1);
                 } catch (Throwable t) {
                     postExceptionToInstrumentation(t);
                 }
@@ -924,26 +936,26 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         recyclerView.setAdapter(adapter);
         final AtomicInteger rvCounter = new AtomicInteger(0);
         final AtomicInteger viewGroupCounter = new AtomicInteger(0);
-        recyclerView.getViewTreeObserver().addOnScrollChangedListener(
-                new ViewTreeObserver.OnScrollChangedListener() {
-                    @Override
-                    public void onScrollChanged() {
-                        viewGroupCounter.incrementAndGet();
-                    }
-                });
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 rvCounter.incrementAndGet();
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
-        tlm.expectLayouts(1);
 
+        getRecyclerViewContainer().getViewTreeObserver().addOnScrollChangedListener(
+                new ViewTreeObserver.OnScrollChangedListener() {
+                    @Override
+                    public void onScrollChanged() {
+                        viewGroupCounter.incrementAndGet();
+                    }
+                });
+
+        tlm.expectLayouts(1);
         setRecyclerView(recyclerView);
         tlm.waitForLayout(2);
-        // wait for draw :/
-        Thread.sleep(1000);
 
         assertEquals("RV on scroll should be called for initialization", 1, rvCounter.get());
         assertEquals("VTO on scroll should be called for initialization", 1,
@@ -1406,16 +1418,19 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void transientStateRecycleViaAdapter() throws Throwable {
         transientStateRecycleTest(true, false);
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void transientStateRecycleViaTransientStateCleanup() throws Throwable {
         transientStateRecycleTest(false, true);
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void transientStateDontRecycle() throws Throwable {
         transientStateRecycleTest(false, false);
@@ -1423,8 +1438,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public void transientStateRecycleTest(final boolean succeed, final boolean unsetTransientState)
             throws Throwable {
-        final List<View> failedToRecycle = new ArrayList<View>();
-        final List<View> recycled = new ArrayList<View>();
+        final List<View> failedToRecycle = new ArrayList<>();
+        final List<View> recycled = new ArrayList<>();
         TestAdapter testAdapter = new TestAdapter(10) {
             @Override
             public boolean onFailedToRecycleView(
@@ -1577,9 +1592,11 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN) // transientState is API 16
     @Test
     public void avoidLeakingRecyclerViewIfViewIsNotRecycled() throws Throwable {
         final AtomicBoolean failedToRecycle = new AtomicBoolean(false);
+        final AtomicInteger recycledViewCount = new AtomicInteger(0);
         RecyclerView rv = new RecyclerView(getActivity());
         TestLayoutManager tlm = new TestLayoutManager() {
             @Override
@@ -1595,6 +1612,12 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     TestViewHolder holder) {
                 failedToRecycle.set(true);
                 return false;
+            }
+
+            @Override
+            public void onViewRecycled(TestViewHolder holder) {
+                recycledViewCount.incrementAndGet();
+                super.onViewRecycled(holder);
             }
         };
         rv.setAdapter(adapter);
@@ -1621,6 +1644,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     }
                 });
         assertTrue(animationsLatch.await(2, TimeUnit.SECONDS));
+        assertThat(recycledViewCount.get(), is(9));
         assertTrue(failedToRecycle.get());
         assertNull(vh.mOwnerRecyclerView);
         checkForMainThreadException();
@@ -1781,7 +1805,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         final View v2 = recyclerView.getChildAt(index2);
         boolean v1Hidden = recyclerView.mChildHelper.isHidden(v1);
         boolean v2Hidden = recyclerView.mChildHelper.isHidden(v2);
-        // must unhide before swap otherwise bucket indices will become invalid.
+        // must un-hide before swap otherwise bucket indices will become invalid.
         if (v1Hidden) {
             mRecyclerView.mChildHelper.unhide(v1);
         }
@@ -1826,7 +1850,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             public void run() {
                 try {
                     final int count = recyclerView.getChildCount();
-                    Map<View, Integer> layoutPositions = new HashMap<View, Integer>();
+                    Map<View, Integer> layoutPositions = new HashMap<>();
                     assertTrue("test sanity", count > 0);
                     for (int i = 0; i < count; i++) {
                         View view = recyclerView.getChildAt(i);
@@ -1879,7 +1903,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
         final int[] stateCnts = new int[10];
         final CountDownLatch latch = new CountDownLatch(2);
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 stateCnts[newState] = stateCnts[newState] + 1;
@@ -1910,7 +1934,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
         final int[] stateCnts = new int[10];
         final CountDownLatch latch = new CountDownLatch(1);
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 stateCnts[newState] = stateCnts[newState] + 1;
@@ -1948,7 +1972,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
         final int[] stateCnts = new int[10];
         final CountDownLatch latch = new CountDownLatch(2);
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 stateCnts[newState] = stateCnts[newState] + 1;
@@ -1982,7 +2006,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
         final int[] stateCnts = new int[10];
         final CountDownLatch latch = new CountDownLatch(1);
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 stateCnts[newState] = stateCnts[newState] + 1;
@@ -2022,7 +2046,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         getInstrumentation().waitForIdleSync();
         assertEquals(SCROLL_STATE_IDLE, recyclerView.getScrollState());
         final int[] stateCnts = new int[10];
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 stateCnts[newState] = stateCnts[newState] + 1;
@@ -2720,7 +2744,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         final RecyclerView recyclerView = new RecyclerView(getActivity());
         recyclerView.setAdapter(adapter);
 
-        final Map<Long, Boolean> changes = new HashMap<Long, Boolean>();
+        final Map<Long, Boolean> changes = new HashMap<>();
 
         TestLayoutManager testLayoutManager = new TestLayoutManager() {
             @Override
@@ -2737,9 +2761,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                                 continue; //nothing to test
                             }
                             assertEquals(
-                                    "Decord insets validation for VH should have expected value.",
-                                    changes.get(vh.getItemId()).booleanValue(),
-                                    lp.mInsetsDirty);
+                                    "Decor insets validation for VH should have expected value.",
+                                    changes.get(vh.getItemId()), lp.mInsetsDirty);
                         }
                     }
                     detachAndScrapAttachedViews(recycler);
@@ -2777,8 +2800,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         for (int i = 0; i < adapter.getItemCount(); i++) {
             changes.put(mRecyclerView.findViewHolderForLayoutPosition(i).getItemId(), false);
         }
-        for (int i = 0; i < changedItems.length; i++) {
-            changes.put(mRecyclerView.findViewHolderForLayoutPosition(changedItems[i]).getItemId(),
+        for (int changedItem : changedItems) {
+            changes.put(mRecyclerView.findViewHolderForLayoutPosition(changedItem).getItemId(),
                     true);
         }
         testLayoutManager.expectLayouts(1);
@@ -3132,24 +3155,15 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     @Test
     public void notifyDataSetChangedWithStableIds() throws Throwable {
-        final int defaultViewType = 1;
-        final Map<Item, Integer> viewTypeMap = new HashMap<Item, Integer>();
-        final Map<Integer, Integer> oldPositionToNewPositionMapping =
-                new HashMap<Integer, Integer>();
+        final Map<Integer, Integer> oldPositionToNewPositionMapping = new HashMap<>();
         final TestAdapter adapter = new TestAdapter(100) {
-            @Override
-            public int getItemViewType(int position) {
-                Integer type = viewTypeMap.get(mItems.get(position));
-                return type == null ? defaultViewType : type;
-            }
-
             @Override
             public long getItemId(int position) {
                 return mItems.get(position).mId;
             }
         };
         adapter.setHasStableIds(true);
-        final ArrayList<Item> previousItems = new ArrayList<Item>();
+        final ArrayList<Item> previousItems = new ArrayList<>();
         previousItems.addAll(adapter.mItems);
 
         final AtomicInteger layoutStart = new AtomicInteger(50);
@@ -3194,7 +3208,6 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                             assertEquals("view holder's position should be correct",
                                     oldPositionToNewPositionMapping.get(oldPos).intValue(),
                                     tvh.getLayoutPosition());
-                            ;
                         }
                     }
                 } catch (Throwable t) {
@@ -3876,7 +3889,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
-    public void computeScrollOfsetWithoutLayoutManager() throws Throwable {
+    public void computeScrollOffsetWithoutLayoutManager() throws Throwable {
         RecyclerView rv = new RecyclerView(getActivity());
         rv.setAdapter(new TestAdapter(10));
         setRecyclerView(rv);
@@ -3890,7 +3903,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
-    public void computeScrollOfsetWithoutAdapter() throws Throwable {
+    public void computeScrollOffsetWithoutAdapter() throws Throwable {
         RecyclerView rv = new RecyclerView(getActivity());
         rv.setLayoutManager(new TestLayoutManager());
         setRecyclerView(rv);
@@ -4168,7 +4181,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         List<Item> mItems;
 
         private TestAdapter2(int count) {
-            mItems = new ArrayList<Item>(count);
+            mItems = new ArrayList<>(count);
             for (int i = 0; i < count; i++) {
                 mItems.add(new Item(i, "Item " + i));
             }
@@ -4247,7 +4260,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         }
     }
 
-    private static interface ViewRunnable {
+    private interface ViewRunnable {
         void run(View view) throws RuntimeException;
     }
 }
