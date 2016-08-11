@@ -1234,5 +1234,15 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         public boolean performAction(int virtualViewId, int action, Bundle arguments) {
             return ExploreByTouchHelper.this.performAction(virtualViewId, action, arguments);
         }
+
+        @Override
+        public AccessibilityNodeInfoCompat findFocus(int focusType) {
+            int focusedId = (focusType == AccessibilityNodeInfoCompat.FOCUS_ACCESSIBILITY) ?
+                    mAccessibilityFocusedVirtualViewId : mKeyboardFocusedVirtualViewId;
+            if (focusedId == INVALID_ID) {
+                return null;
+            }
+            return createAccessibilityNodeInfo(focusedId);
+        }
     }
 }
