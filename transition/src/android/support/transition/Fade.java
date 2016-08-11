@@ -75,17 +75,17 @@ public class Fade extends Visibility {
      */
     public Fade(int fadingMode) {
         super(true);
-        if (Build.VERSION.SDK_INT < 19) {
-            if (fadingMode < 0) {
-                mImpl = new FadeIcs(this, fadingMode);
-            } else {
-                mImpl = new FadeIcs(this);
-            }
-        } else {
-            if (fadingMode < 0) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            if (fadingMode > 0) {
                 mImpl = new FadeKitKat(this, fadingMode);
             } else {
                 mImpl = new FadeKitKat(this);
+            }
+        } else {
+            if (fadingMode > 0) {
+                mImpl = new FadeIcs(this, fadingMode);
+            } else {
+                mImpl = new FadeIcs(this);
             }
         }
     }
