@@ -59,6 +59,7 @@ import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPresenter;
 import android.support.v7.view.menu.MenuView;
 import android.support.v7.widget.ActionBarContextView;
+import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.ContentFrameLayout;
 import android.support.v7.widget.DecorContentParent;
 import android.support.v7.widget.FitWindowsViewGroup;
@@ -242,6 +243,9 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
                 ab.onConfigurationChanged(newConfig);
             }
         }
+
+        // Make sure that the DrawableManager knows about the new config
+        AppCompatDrawableManager.get().onConfigurationChanged(mContext);
 
         // Re-apply Day/Night to the new configuration
         applyDayNight();
