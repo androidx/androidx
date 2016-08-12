@@ -24,6 +24,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -2593,6 +2594,67 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         View replacement = lm.findViewByPosition(pos);
         assertNotNull("re-layout should replace ignored child w/ another one", replacement);
         assertNotSame("replacement should be a different view", replacement, ignored[0]);
+    }
+
+    @Test
+    public void itemDecorsWithPredictive() throws Throwable {
+        LayoutAllLayoutManager lm = new LayoutAllLayoutManager(true);
+        lm.setSupportsPredictive(true);
+        final Object changePayload = new Object();
+        final TestAdapter adapter = new TestAdapter(10) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position, List<Object> payloads) {
+                super.onBindViewHolder(holder, position);
+                holder.setData(payloads.isEmpty() ? null : payloads.get(0));
+            }
+        };
+        final Map<Integer, Object> preLayoutData = new HashMap<>();
+        final Map<Integer, Object> postLayoutData = new HashMap<>();
+
+        final RecyclerView.ItemDecoration decoration = new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                    RecyclerView.State state) {
+                try {
+                    TestViewHolder tvh = (TestViewHolder) parent.getChildViewHolder(view);
+                    Object data = tvh.getData();
+                    int adapterPos = tvh.getAdapterPosition();
+                    assertThat(adapterPos, is(not(NO_POSITION)));
+                    if (state.isPreLayout()) {
+                        preLayoutData.put(adapterPos, data);
+                    } else {
+                        postLayoutData.put(adapterPos, data);
+                    }
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
+
+            }
+        };
+        RecyclerView rv = new RecyclerView(getActivity());
+        rv.addItemDecoration(decoration);
+        rv.setAdapter(adapter);
+        rv.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        setRecyclerView(rv);
+        lm.waitForLayout(2);
+
+        preLayoutData.clear();
+        postLayoutData.clear();
+        lm.expectLayouts(2);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyItemChanged(3, changePayload);
+            }
+        });
+        lm.waitForLayout(2);
+        assertThat(preLayoutData.containsKey(3), is(false));
+        assertThat(postLayoutData.get(3), is(changePayload));
+        assertThat(preLayoutData.size(), is(0));
+        assertThat(postLayoutData.size(), is(1));
+        checkForMainThreadException();
     }
 
     @Test
