@@ -4277,6 +4277,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return lp.mDecorInsets;
         }
 
+        if (mState.isPreLayout() && (lp.isItemChanged() || lp.isViewInvalid())) {
+            // changed/invalid items should not be updated until they are rebound.
+            return lp.mDecorInsets;
+        }
         final Rect insets = lp.mDecorInsets;
         insets.set(0, 0, 0, 0);
         final int decorCount = mItemDecorations.size();
@@ -5886,6 +5890,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             TraceCompat.beginSection(TRACE_BIND_VIEW_TAG);
             onBindViewHolder(holder, position, holder.getUnmodifiedPayloads());
             holder.clearPayload();
+            final ViewGroup.LayoutParams layoutParams = holder.itemView.getLayoutParams();
+            if (layoutParams instanceof RecyclerView.LayoutParams) {
+                ((LayoutParams) layoutParams).mInsetsDirty = true;
+            }
             TraceCompat.endSection();
         }
 

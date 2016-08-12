@@ -527,6 +527,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     public class TestViewHolder extends RecyclerView.ViewHolder {
 
         Item mBoundItem;
+        Object mData;
 
         public TestViewHolder(View itemView) {
             super(itemView);
@@ -535,7 +536,15 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
         @Override
         public String toString() {
-            return super.toString() + " item:" + mBoundItem;
+            return super.toString() + " item:" + mBoundItem + ", data:" + mData;
+        }
+
+        public Object getData() {
+            return mData;
+        }
+
+        public void setData(Object data) {
+            mData = data;
         }
     }
     class DumbLayoutManager extends TestLayoutManager {
