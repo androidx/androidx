@@ -54,8 +54,6 @@
     <public type="style" name="TextAppearance.AppCompat.Widget.ActionMode.Title"/>
     <public type="style" name="TextAppearance.AppCompat.Widget.ActionMode.Title.Inverse"/>
     <public type="style" name="TextAppearance.AppCompat.Widget.Button"/>
-    <public type="style" name="TextAppearance.AppCompat.Widget.Button.Borderless.Colored"/>
-    <public type="style" name="TextAppearance.AppCompat.Widget.Button.Colored"/>
     <public type="style" name="TextAppearance.AppCompat.Widget.Button.Inverse"/>
     <public type="style" name="TextAppearance.AppCompat.Widget.DropDownItem"/>
     <public type="style" name="TextAppearance.AppCompat.Widget.PopupMenu.Header"/>
