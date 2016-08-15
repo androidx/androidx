@@ -278,7 +278,8 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         // Allow for off-by-one mismatch in anchoring
         assertEquals("Anchoring X", anchorOnScreenXY[0] + popupInWindowXY[0],
                 popupOnScreenXY[0], 1);
-        assertEquals("Anchoring Y", anchorOnScreenXY[1] + popupInWindowXY[1] + mButton.getHeight(),
+        assertEquals("Anchoring Y",
+                anchorOnScreenXY[1] + popupInWindowXY[1] + mButton.getHeight() - popupPadding.top,
                 popupOnScreenXY[1], 1);
     }
 
