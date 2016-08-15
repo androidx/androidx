@@ -1134,9 +1134,13 @@ public class TabLayout extends HorizontalScrollView {
                     setSelectedTabView(newPosition);
                 }
             }
-            dispatchTabUnselected(currentTab);
+            if (currentTab != null) {
+                dispatchTabUnselected(currentTab);
+            }
             mSelectedTab = tab;
-            dispatchTabSelected(tab);
+            if (tab != null) {
+                dispatchTabSelected(tab);
+            }
         }
     }
 
