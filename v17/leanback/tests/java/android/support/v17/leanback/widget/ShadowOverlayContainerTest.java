@@ -16,12 +16,13 @@
 package android.support.v17.leanback.widget;
 
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-
+@MediumTest
 public class ShadowOverlayContainerTest extends AndroidTestCase {
 
     public void testWrapContent() {

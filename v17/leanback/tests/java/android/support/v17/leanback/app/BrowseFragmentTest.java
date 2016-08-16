@@ -16,6 +16,7 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.test.R;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.KeyEvent;
 
 import android.support.v17.leanback.widget.Presenter;
@@ -40,6 +41,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @hide from javadoc
  */
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class BrowseFragmentTest {
 
