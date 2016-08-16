@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.support.v17.leanback.app.HeadersFragment;
 import android.support.v17.leanback.R;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.ContextThemeWrapper;
 import android.widget.FrameLayout;
 import android.view.View;
@@ -28,6 +29,7 @@ import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.DividerPresenter;
 import android.view.ContextThemeWrapper;
 
+@MediumTest
 public class PresenterTest extends AndroidTestCase {
 
     public void testZoomFactors() throws Throwable {

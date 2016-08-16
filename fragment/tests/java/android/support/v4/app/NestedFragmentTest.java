@@ -26,10 +26,12 @@ import android.support.v4.app.test.FragmentTestActivity.ChildFragment;
 import android.support.v4.app.test.FragmentTestActivity.ParentFragment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
+import android.test.suitebuilder.annotation.LargeTest;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@LargeTest
 public class NestedFragmentTest extends ActivityInstrumentationTestCase2<FragmentTestActivity> {
 
     ParentFragment mParentFragment;
