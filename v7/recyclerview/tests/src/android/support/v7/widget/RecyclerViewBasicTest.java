@@ -309,7 +309,6 @@ public class RecyclerViewBasicTest {
         layout();
     }
 
-
     @Test
     public void dontSaveChildrenState() throws InterruptedException {
         MockLayoutManager mlm = new MockLayoutManager() {
@@ -341,6 +340,20 @@ public class RecyclerViewBasicTest {
         mRecyclerView.saveHierarchyState(container);
         assertEquals("children's save state method should not be called", 0,
                 loggingView.getOnSavedInstanceCnt());
+    }
+
+    @Test
+    public void prefetchChangesCacheSize() {
+        MockLayoutManager mlm = new MockLayoutManager() {
+            @Override
+            int getItemPrefetchCount() {
+                return 3;
+            }
+        };
+        RecyclerView.Recycler recycler = mRecyclerView.mRecycler;
+        assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE, recycler.mViewCacheMax);
+        mRecyclerView.setLayoutManager(mlm);
+        assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE + 3, recycler.mViewCacheMax);
     }
 
     static class MockLayoutManager extends RecyclerView.LayoutManager {

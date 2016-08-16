@@ -1180,6 +1180,36 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                 && mOrientationHelper.getEnd() == 0;
     }
 
+    @Override
+    int getItemPrefetchCount() {
+        return 1;
+    }
+
+    int gatherPrefetchIndicesForLayoutState(RecyclerView.State state, LayoutState layoutState,
+            int[] outIndices) {
+        final int pos = layoutState.mCurrentPosition;
+        if (pos >= 0 && pos < state.getItemCount()) {
+            outIndices[0] = pos;
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
+    int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+        int delta = (mOrientation == HORIZONTAL) ? dx : dy;
+        if (delta == 0) {
+            // not scrolling in supported direction, don't bother prefetching
+            return 0;
+        }
+
+
+        final int layoutDirection = delta > 0 ? LayoutState.LAYOUT_END : LayoutState.LAYOUT_START;
+        final int absDy = Math.abs(delta);
+        updateLayoutState(layoutDirection, absDy, true, state);
+        return gatherPrefetchIndicesForLayoutState(state, mLayoutState, outIndices);
+    }
+
     int scrollBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
         if (getChildCount() == 0 || dy == 0) {
             return 0;
@@ -1323,7 +1353,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                 }
             }
         }
-
     }
 
     /**
