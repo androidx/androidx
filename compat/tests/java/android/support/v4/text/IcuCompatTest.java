@@ -16,10 +16,13 @@
 
 package android.support.v4.text;
 
+import android.test.suitebuilder.annotation.SmallTest;
+
 import junit.framework.TestCase;
 
 import java.util.Locale;
 
+@SmallTest
 public class IcuCompatTest extends TestCase {
     public void testMaximizeAndGetScript() {
         assertEquals("Latn", ICUCompat.maximizeAndGetScript(new Locale("en", "US")));
