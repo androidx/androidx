@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,46 +13,45 @@
  */
 package android.support.v17.leanback.app;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
-import android.support.v17.leanback.widget.Action;
-import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.view.InputEvent;
-import android.view.animation.AccelerateInterpolator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.widget.RecyclerView;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.animation.LogAccelerateInterpolator;
 import android.support.v17.leanback.animation.LogDecelerateInterpolator;
+import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.ObjectAdapter.DataObserver;
-import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
+import android.support.v17.leanback.widget.PlaybackRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.InputEvent;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 
 import java.util.ArrayList;
 
 /**
  * A fragment for displaying playback controls and related content.
  * <p>
- * A PlaybackOverlayFragment renders the elements of its {@link ObjectAdapter} as a set
+ * A PlaybackFragment renders the elements of its {@link ObjectAdapter} as a set
  * of rows in a vertical list.  The Adapter's {@link PresenterSelector} must maintain subclasses
  * of {@link RowPresenter}.
  * </p>
@@ -60,14 +59,8 @@ import java.util.ArrayList;
  * An instance of {@link android.support.v17.leanback.widget.PlaybackControlsRow} is expected to be
  * at position 0 in the adapter.
  * </p>
- * <p>
- *  This class is now deprecated, please us
- * </p>
- * @deprecated Use {@link PlaybackFragment}.
  */
-@Deprecated
-public class PlaybackOverlayFragment extends DetailsFragment {
-
+public class PlaybackFragment extends Fragment {
     /**
      * No background.
      */
@@ -78,10 +71,49 @@ public class PlaybackOverlayFragment extends DetailsFragment {
      */
     public static final int BG_DARK = 1;
 
+    private class SetSelectionRunnable implements Runnable {
+        int mPosition;
+        boolean mSmooth = true;
+
+        @Override
+        public void run() {
+            if (mRowsFragment == null) {
+                return;
+            }
+            mRowsFragment.setSelectedPosition(mPosition, mSmooth);
+        }
+    }
+
     /**
      * A light translucent background.
      */
     public static final int BG_LIGHT = 2;
+    private RowsFragment mRowsFragment;
+    private ObjectAdapter mAdapter;
+    private BaseOnItemViewClickedListener mExternalItemClickedListener;
+    private BaseOnItemViewClickedListener mPlaybackItemClickedListener;
+    private BaseOnItemViewClickedListener mOnItemViewClickedListener = new BaseOnItemViewClickedListener() {
+        @Override
+        public void onItemClicked(Presenter.ViewHolder itemViewHolder,
+                                  Object item,
+                                  RowPresenter.ViewHolder rowViewHolder,
+                                  Object row) {
+            if (mPlaybackItemClickedListener != null
+                    && rowViewHolder instanceof PlaybackRowPresenter.ViewHolder) {
+                mPlaybackItemClickedListener.onItemClicked(
+                        itemViewHolder, item, rowViewHolder, row);
+            }
+            if (mExternalItemClickedListener != null) {
+                mExternalItemClickedListener.onItemClicked(
+                        itemViewHolder, item, rowViewHolder, row);
+            }
+        }
+    };
+    private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
+
+    public ObjectAdapter getAdapter() {
+        return mAdapter;
+    }
 
     /**
      * Listener allowing the application to receive notification of fade in and/or fade out
@@ -90,11 +122,12 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     public static class OnFadeCompleteListener {
         public void onFadeInComplete() {
         }
+
         public void onFadeOutComplete() {
         }
     }
 
-    private static final String TAG = "PlaybackOverlayFragment";
+    private static final String TAG = "PlaybackFragment";
     private static final boolean DEBUG = false;
     private static final int ANIMATION_MULTIPLIER = 1;
 
@@ -115,52 +148,63 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     private int mMajorFadeTranslateY, mMinorFadeTranslateY;
     private int mAnimationTranslateY;
     private OnFadeCompleteListener mFadeCompleteListener;
-    private PlaybackControlGlue.InputEventHandler mInputEventHandler;
+    private View.OnKeyListener mInputEventHandler;
     private boolean mFadingEnabled = true;
     private int mFadingStatus = IDLE;
     private int mBgAlpha;
     private ValueAnimator mBgFadeInAnimator, mBgFadeOutAnimator;
     private ValueAnimator mControlRowFadeInAnimator, mControlRowFadeOutAnimator;
-    private ValueAnimator mDescriptionFadeInAnimator, mDescriptionFadeOutAnimator;
     private ValueAnimator mOtherRowFadeInAnimator, mOtherRowFadeOutAnimator;
-    private boolean mTranslateAnimationEnabled;
-    private boolean mResetControlsToPrimaryActionsPending;
-    private RecyclerView.ItemAnimator mItemAnimator;
 
     private final Animator.AnimatorListener mFadeListener =
             new Animator.AnimatorListener() {
-        @Override
-        public void onAnimationStart(Animator animation) {
-            enableVerticalGridAnimations(false);
-        }
-        @Override
-        public void onAnimationRepeat(Animator animation) {
-        }
-        @Override
-        public void onAnimationCancel(Animator animation) {
-        }
-        @Override
-        public void onAnimationEnd(Animator animation) {
-            if (DEBUG) Log.v(TAG, "onAnimationEnd " + mBgAlpha);
-            if (mBgAlpha > 0) {
-                enableVerticalGridAnimations(true);
-                startFadeTimer();
-                if (mFadeCompleteListener != null) {
-                    mFadeCompleteListener.onFadeInComplete();
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    enableVerticalGridAnimations(false);
                 }
-            } else {
-                VerticalGridView verticalView = getVerticalGridView();
-                // reset focus to the primary actions only if the selected row was the controls row
-                if (verticalView != null && verticalView.getSelectedPosition() == 0) {
-                    resetControlsToPrimaryActions(null);
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
                 }
-                if (mFadeCompleteListener != null) {
-                    mFadeCompleteListener.onFadeOutComplete();
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
                 }
-            }
-            mFadingStatus = IDLE;
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    if (DEBUG) Log.v(TAG, "onAnimationEnd " + mBgAlpha);
+                    if (mBgAlpha > 0) {
+                        enableVerticalGridAnimations(true);
+                        startFadeTimer();
+                        if (mFadeCompleteListener != null) {
+                            mFadeCompleteListener.onFadeInComplete();
+                        }
+                    } else {
+                        VerticalGridView verticalView = getVerticalGridView();
+                        // reset focus to the primary actions only if the selected row was the controls row
+                        if (verticalView != null && verticalView.getSelectedPosition() == 0) {
+                            ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder)
+                                    verticalView.findViewHolderForAdapterPosition(0);
+                            if (vh != null && vh.getPresenter() instanceof PlaybackRowPresenter) {
+                                ((PlaybackRowPresenter)vh.getPresenter()).onReappear(
+                                        (RowPresenter.ViewHolder) vh.getViewHolder());
+                            }
+                        }
+                        if (mFadeCompleteListener != null) {
+                            mFadeCompleteListener.onFadeOutComplete();
+                        }
+                    }
+                    mFadingStatus = IDLE;
+                }
+            };
+
+    private VerticalGridView getVerticalGridView() {
+        if (mRowsFragment == null) {
+            return null;
         }
-    };
+        return mRowsFragment.getVerticalGridView();
+    }
 
     private final Handler mHandler = new Handler() {
         @Override
@@ -173,19 +217,19 @@ public class PlaybackOverlayFragment extends DetailsFragment {
 
     private final VerticalGridView.OnTouchInterceptListener mOnTouchInterceptListener =
             new VerticalGridView.OnTouchInterceptListener() {
-        @Override
-        public boolean onInterceptTouchEvent(MotionEvent event) {
-            return onInterceptInputEvent(event);
-        }
-    };
+                @Override
+                public boolean onInterceptTouchEvent(MotionEvent event) {
+                    return onInterceptInputEvent(event);
+                }
+            };
 
     private final VerticalGridView.OnKeyInterceptListener mOnKeyInterceptListener =
             new VerticalGridView.OnKeyInterceptListener() {
-        @Override
-        public boolean onInterceptKeyEvent(KeyEvent event) {
-            return onInterceptInputEvent(event);
-        }
-    };
+                @Override
+                public boolean onInterceptKeyEvent(KeyEvent event) {
+                    return onInterceptInputEvent(event);
+                }
+            };
 
     private void setBgAlpha(int alpha) {
         mBgAlpha = alpha;
@@ -200,25 +244,11 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         }
     }
 
-    private void resetControlsToPrimaryActions(ItemBridgeAdapter.ViewHolder vh) {
-        if (vh == null && getVerticalGridView() != null) {
-            vh = (ItemBridgeAdapter.ViewHolder) getVerticalGridView().findViewHolderForPosition(0);
-        }
-        if (vh == null) {
-            mResetControlsToPrimaryActionsPending = true;
-        } else if (vh.getPresenter() instanceof PlaybackControlsRowPresenter) {
-            mResetControlsToPrimaryActionsPending = false;
-            ((PlaybackControlsRowPresenter) vh.getPresenter()).showPrimaryActions(
-                    (PlaybackControlsRowPresenter.ViewHolder) vh.getViewHolder());
-        }
-    }
-
     /**
      * Enables or disables view fading.  If enabled,
      * the view will be faded in when the fragment starts,
      * and will fade out after a time period.  The timeout
      * period is reset each time {@link #tickle} is called.
-     *
      */
     public void setFadingEnabled(boolean enabled) {
         if (DEBUG) Log.v(TAG, "setFadingEnabled " + enabled);
@@ -258,37 +288,17 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         return mFadeCompleteListener;
     }
 
-    @Deprecated
-    public interface InputEventHandler extends PlaybackControlGlue.InputEventHandler {
-    }
-
     /**
      * Sets the input event handler.
      */
-    @Deprecated
-    public final void setInputEventHandler(InputEventHandler handler) {
+    public final void setOnKeyInterceptListener(View.OnKeyListener handler) {
         mInputEventHandler = handler;
     }
 
     /**
      * Returns the input event handler.
      */
-    @Deprecated
-    public final InputEventHandler getInputEventHandler() {
-        return (InputEventHandler)mInputEventHandler;
-    }
-
-    /**
-     * Sets the input event handler.
-     */
-    public final void setEventHandler(PlaybackControlGlue.InputEventHandler handler) {
-        mInputEventHandler = handler;
-    }
-
-    /**
-     * Returns the input event handler.
-     */
-    public final PlaybackControlGlue.InputEventHandler getEventHandler() {
+    public final View.OnKeyListener getEventHandler() {
         return mInputEventHandler;
     }
 
@@ -328,11 +338,11 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         boolean consumeEvent = false;
         int keyCode = KeyEvent.KEYCODE_UNKNOWN;
 
-        if (mInputEventHandler != null) {
-            consumeEvent = mInputEventHandler.handleInputEvent(event);
-        }
         if (event instanceof KeyEvent) {
             keyCode = ((KeyEvent) event).getKeyCode();
+            if (mInputEventHandler != null) {
+                consumeEvent = mInputEventHandler.onKey(getView(), keyCode, (KeyEvent)event);
+            }
         }
 
         switch (keyCode) {
@@ -409,8 +419,8 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         mBgFadeOutAnimator.addListener(mFadeListener);
     }
 
-    private TimeInterpolator mLogDecelerateInterpolator = new LogDecelerateInterpolator(100,0);
-    private TimeInterpolator mLogAccelerateInterpolator = new LogAccelerateInterpolator(100,0);
+    private TimeInterpolator mLogDecelerateInterpolator = new LogDecelerateInterpolator(100, 0);
+    private TimeInterpolator mLogAccelerateInterpolator = new LogAccelerateInterpolator(100, 0);
 
     private View getControlRowView() {
         if (getVerticalGridView() == null) {
@@ -504,36 +514,6 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         mOtherRowFadeOutAnimator.setInterpolator(new AccelerateInterpolator());
     }
 
-    private void loadDescriptionAnimator() {
-        AnimatorUpdateListener listener = new AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator arg0) {
-                if (getVerticalGridView() == null) {
-                    return;
-                }
-                ItemBridgeAdapter.ViewHolder adapterVh = (ItemBridgeAdapter.ViewHolder)
-                        getVerticalGridView().findViewHolderForPosition(0);
-                if (adapterVh != null && adapterVh.getViewHolder()
-                        instanceof PlaybackControlsRowPresenter.ViewHolder) {
-                    final Presenter.ViewHolder vh = ((PlaybackControlsRowPresenter.ViewHolder)
-                            adapterVh.getViewHolder()).mDescriptionViewHolder;
-                    if (vh != null) {
-                        vh.view.setAlpha((Float) arg0.getAnimatedValue());
-                    }
-                }
-            }
-        };
-
-        mDescriptionFadeInAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_description_fade_in);
-        mDescriptionFadeInAnimator.addUpdateListener(listener);
-        mDescriptionFadeInAnimator.setInterpolator(mLogDecelerateInterpolator);
-
-        mDescriptionFadeOutAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_description_fade_out);
-        mDescriptionFadeOutAnimator.addUpdateListener(listener);
-    }
-
     private void fade(boolean fadeIn) {
         if (DEBUG) Log.v(TAG, "fade " + fadeIn);
         if (getView() == null) {
@@ -556,24 +536,20 @@ public class PlaybackOverlayFragment extends DetailsFragment {
                 mBgFadeInAnimator.start();
                 mControlRowFadeInAnimator.start();
                 mOtherRowFadeInAnimator.start();
-                mDescriptionFadeInAnimator.start();
             } else {
                 mBgFadeOutAnimator.start();
                 mControlRowFadeOutAnimator.start();
                 mOtherRowFadeOutAnimator.start();
-                mDescriptionFadeOutAnimator.start();
             }
         } else {
             if (fadeIn) {
                 mBgFadeOutAnimator.reverse();
                 mControlRowFadeOutAnimator.reverse();
                 mOtherRowFadeOutAnimator.reverse();
-                mDescriptionFadeOutAnimator.reverse();
             } else {
                 mBgFadeInAnimator.reverse();
                 mControlRowFadeInAnimator.reverse();
                 mOtherRowFadeInAnimator.reverse();
-                mDescriptionFadeInAnimator.reverse();
             }
         }
 
@@ -590,20 +566,37 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     }
 
     /**
-     * Sets the list of rows for the fragment.
+     * Sets the selected row position with smooth animation.
      */
-    @Override
-    public void setAdapter(ObjectAdapter adapter) {
-        if (getAdapter() != null) {
-            getAdapter().unregisterObserver(mObserver);
-        }
-        super.setAdapter(adapter);
-        if (adapter != null) {
-            adapter.registerObserver(mObserver);
+    public void setSelectedPosition(int position) {
+        setSelectedPosition(position, true);
+    }
+
+    /**
+     * Sets the selected row position.
+     */
+    public void setSelectedPosition(int position, boolean smooth) {
+        mSetSelectionRunnable.mPosition = position;
+        mSetSelectionRunnable.mSmooth = smooth;
+        if (getView() != null && getView().getHandler() != null) {
+            getView().getHandler().post(mSetSelectionRunnable);
         }
     }
 
-    @Override
+    /**
+     * Sets the list of rows for the fragment.
+     */
+    public void setAdapter(ObjectAdapter adapter) {
+        mAdapter = adapter;
+        if (mRowsFragment != null) {
+            mRowsFragment.setAdapter(adapter);
+        }
+    }
+
+    private void setupChildFragmentLayout() {
+        setVerticalGridViewLayout(mRowsFragment.getVerticalGridView());
+    }
+
     void setVerticalGridViewLayout(VerticalGridView listview) {
         if (listview == null) {
             return;
@@ -649,7 +642,6 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         loadBgAnimator();
         loadControlRowAnimator();
         loadOtherRowAnimator();
-        loadDescriptionAnimator();
     }
 
     /**
@@ -659,16 +651,16 @@ public class PlaybackOverlayFragment extends DetailsFragment {
      */
     public void setBackgroundType(int type) {
         switch (type) {
-        case BG_LIGHT:
-        case BG_DARK:
-        case BG_NONE:
-            if (type != mBackgroundType) {
-                mBackgroundType = type;
-                updateBackground();
-            }
-            break;
-        default:
-            throw new IllegalArgumentException("Invalid background type");
+            case BG_LIGHT:
+            case BG_DARK:
+            case BG_NONE:
+                if (type != mBackgroundType) {
+                    mBackgroundType = type;
+                    updateBackground();
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid background type");
         }
     }
 
@@ -683,71 +675,85 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         if (mRootView != null) {
             int color = mBgDarkColor;
             switch (mBackgroundType) {
-                case BG_DARK: break;
-                case BG_LIGHT: color = mBgLightColor; break;
-                case BG_NONE: color = Color.TRANSPARENT; break;
+                case BG_DARK:
+                    break;
+                case BG_LIGHT:
+                    color = mBgLightColor;
+                    break;
+                case BG_NONE:
+                    color = Color.TRANSPARENT;
+                    break;
             }
             mRootView.setBackground(new ColorDrawable(color));
         }
     }
 
-    private void updateControlsBottomSpace(ItemBridgeAdapter.ViewHolder vh) {
-        // Add extra space between rows 0 and 1
-        if (vh == null && getVerticalGridView() != null) {
-            vh = (ItemBridgeAdapter.ViewHolder)
-                    getVerticalGridView().findViewHolderForPosition(0);
-        }
-        if (vh != null && vh.getPresenter() instanceof PlaybackControlsRowPresenter) {
-            final int adapterSize = getAdapter() == null ? 0 : getAdapter().size();
-            ((PlaybackControlsRowPresenter) vh.getPresenter()).showBottomSpace(
-                    (PlaybackControlsRowPresenter.ViewHolder) vh.getViewHolder(),
-                    adapterSize > 1);
-        }
-    }
-
     private final ItemBridgeAdapter.AdapterListener mAdapterListener =
             new ItemBridgeAdapter.AdapterListener() {
-        @Override
-        public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder vh) {
-            if (DEBUG) Log.v(TAG, "onAttachedToWindow " + vh.getViewHolder().view);
-            if ((mFadingStatus == IDLE && mBgAlpha == 0) || mFadingStatus == OUT) {
-                if (DEBUG) Log.v(TAG, "setting alpha to 0");
-                vh.getViewHolder().view.setAlpha(0);
-            }
-            if (vh.getPosition() == 0 && mResetControlsToPrimaryActionsPending) {
-                resetControlsToPrimaryActions(vh);
-            }
-        }
-        @Override
-        public void onDetachedFromWindow(ItemBridgeAdapter.ViewHolder vh) {
-            if (DEBUG) Log.v(TAG, "onDetachedFromWindow " + vh.getViewHolder().view);
-            // Reset animation state
-            vh.getViewHolder().view.setAlpha(1f);
-            vh.getViewHolder().view.setTranslationY(0);
-            if (vh.getViewHolder() instanceof PlaybackControlsRowPresenter.ViewHolder) {
-                Presenter.ViewHolder descriptionVh = ((PlaybackControlsRowPresenter.ViewHolder)
-                        vh.getViewHolder()).mDescriptionViewHolder;
-                if (descriptionVh != null) {
-                    descriptionVh.view.setAlpha(1f);
+                @Override
+                public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder vh) {
+                    if (DEBUG) Log.v(TAG, "onAttachedToWindow " + vh.getViewHolder().view);
+                    if ((mFadingStatus == IDLE && mBgAlpha == 0) || mFadingStatus == OUT) {
+                        if (DEBUG) Log.v(TAG, "setting alpha to 0");
+                        vh.getViewHolder().view.setAlpha(0);
+                    }
                 }
-            }
-        }
-        @Override
-        public void onBind(ItemBridgeAdapter.ViewHolder vh) {
-            if (vh.getPosition() == 0) {
-                updateControlsBottomSpace(vh);
-            }
-        }
-    };
+
+                @Override
+                public void onDetachedFromWindow(ItemBridgeAdapter.ViewHolder vh) {
+                    if (DEBUG) Log.v(TAG, "onDetachedFromWindow " + vh.getViewHolder().view);
+                    // Reset animation state
+                    vh.getViewHolder().view.setAlpha(1f);
+                    vh.getViewHolder().view.setTranslationY(0);
+                    vh.getViewHolder().view.setAlpha(1f);
+                }
+
+                @Override
+                public void onBind(ItemBridgeAdapter.ViewHolder vh) {
+                }
+            };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        mRootView = super.onCreateView(inflater, container, savedInstanceState);
+                             Bundle savedInstanceState) {
+        mRootView = inflater.inflate(R.layout.lb_playback_fragment, container, false);
+        mRowsFragment = (RowsFragment) getChildFragmentManager().findFragmentById(
+                R.id.playback_controls_dock);
+        if (mRowsFragment == null) {
+            mRowsFragment = new RowsFragment();
+            getChildFragmentManager().beginTransaction()
+                    .replace(R.id.playback_controls_dock, mRowsFragment)
+                    .commit();
+        }
+        mRowsFragment.setAdapter(mAdapter);
+        mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
+
         mBgAlpha = 255;
         updateBackground();
-        getRowsFragment().setExternalAdapterListener(mAdapterListener);
+        mRowsFragment.setExternalAdapterListener(mAdapterListener);
         return mRootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        setupChildFragmentLayout();
+    }
+
+    /**
+     * This listener is called every time there is a click in {@link RowsFragment}. This can
+     * be used by users to take additional actions such as animations.
+     */
+    public void setOnItemViewClickedListener(final BaseOnItemViewClickedListener listener) {
+        mExternalItemClickedListener = listener;
+    }
+
+    /**
+     * Sets the {@link BaseOnItemViewClickedListener} that would be invoked for clicks
+     * only on {@link android.support.v17.leanback.widget.PlaybackRowPresenter.ViewHolder}.
+     */
+    public void setOnPlaybackItemViewClickedListener(final BaseOnItemViewClickedListener listener) {
+        mPlaybackItemClickedListener = listener;
     }
 
     @Override
@@ -756,13 +762,6 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         super.onDestroyView();
     }
 
-    private final DataObserver mObserver = new DataObserver() {
-        @Override
-        public void onChanged() {
-            updateControlsBottomSpace(null);
-        }
-    };
-
     static abstract class AnimatorListener implements Animator.AnimatorListener {
         ArrayList<View> mViews = new ArrayList<View>();
         ArrayList<Integer> mLayerType = new ArrayList<Integer>();
@@ -770,9 +769,11 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         @Override
         public void onAnimationCancel(Animator animation) {
         }
+
         @Override
         public void onAnimationRepeat(Animator animation) {
         }
+
         @Override
         public void onAnimationStart(Animator animation) {
             getViews(mViews);
@@ -781,6 +782,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
                 view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
             }
         }
+
         @Override
         public void onAnimationEnd(Animator animation) {
             for (int i = 0; i < mViews.size(); i++) {
@@ -789,7 +791,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             mLayerType.clear();
             mViews.clear();
         }
-        abstract void getViews(ArrayList<View> views);
 
-    };
+        abstract void getViews(ArrayList<View> views);
+    }
 }

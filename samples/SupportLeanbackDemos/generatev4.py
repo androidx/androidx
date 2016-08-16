@@ -301,19 +301,9 @@ outfile = open('src/com/example/android/leanback/PlaybackOverlaySupportFragment.
 write_java_head(outfile, "PlaybackOverlayFragment")
 for line in file:
     line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
-    line = line.replace('PlaybackControlHelper', 'PlaybackControlSupportHelper')
     line = line.replace('PlaybackOverlayActivity', 'PlaybackOverlaySupportActivity')
-    outfile.write(line)
-file.close()
-outfile.close()
-
-file = open('src/com/example/android/leanback/PlaybackControlHelper.java', 'r')
-outfile = open('src/com/example/android/leanback/PlaybackControlSupportHelper.java', 'w')
-write_java_head(outfile, "PlaybackControlHelper")
-for line in file:
-    line = line.replace('PlaybackControlHelper', 'PlaybackControlSupportHelper')
-    line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue')
-    line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
+    line = line.replace('PlaybackFragmentGlueHost', 'PlaybackSupportFragmentGlueHost')
+    line = line.replace('PlaybackFragment', 'PlaybackSupportFragment')
     outfile.write(line)
 file.close()
 outfile.close()

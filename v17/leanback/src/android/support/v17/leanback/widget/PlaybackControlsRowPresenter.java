@@ -41,7 +41,7 @@ import android.widget.LinearLayout;
  * detailed description ViewHolder from {@link ViewHolder#mDescriptionViewHolder}.
  * </p>
  */
-public class PlaybackControlsRowPresenter extends RowPresenter {
+public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
 
     static class BoundData extends PlaybackControlsPresenter.BoundData {
         ViewHolder mRowViewHolder;
@@ -50,7 +50,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     /**
      * A ViewHolder for the PlaybackControlsRow.
      */
-    public class ViewHolder extends RowPresenter.ViewHolder {
+    public class ViewHolder extends PlaybackRowPresenter.ViewHolder {
         public final Presenter.ViewHolder mDescriptionViewHolder;
         final ViewGroup mCard;
         final ViewGroup mCardRightPanel;
@@ -296,6 +296,11 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     public void showPrimaryActions(ViewHolder vh) {
         mPlaybackControlsPresenter.showPrimaryActions(vh.mControlsVh);
         mPlaybackControlsPresenter.resetFocus(vh.mControlsVh);
+    }
+
+    @Override
+    public void onReappear(RowPresenter.ViewHolder rowViewHolder) {
+        showPrimaryActions((ViewHolder) rowViewHolder);
     }
 
     private int getDefaultBackgroundColor(Context context) {

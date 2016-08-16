@@ -63,8 +63,8 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
         }
     };
 
-    public PlaybackControlHelper(Context context, PlaybackOverlayFragment fragment) {
-        super(context, fragment, sFastForwardSpeeds);
+    public PlaybackControlHelper(Context context, PlaybackGlueHost host) {
+        super(context, host, sFastForwardSpeeds, sFastForwardSpeeds);
         mThumbsUpAction = new PlaybackControlsRow.ThumbsUpAction(context);
         mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsUpAction.OUTLINE);
         mThumbsDownAction = new PlaybackControlsRow.ThumbsDownAction(context);

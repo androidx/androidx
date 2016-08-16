@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package android.support.v17.leanback.app;
 
 import android.content.Context;
@@ -21,14 +34,13 @@ import android.view.InputEvent;
 import android.view.KeyEvent;
 import android.view.View;
 
-
 /**
- * A helper class for managing a {@link android.support.v17.leanback.widget.PlaybackControlsRow} and
- * {@link PlaybackOverlayFragment} that implements a recommended approach to handling standard
- * playback control actions such as play/pause, fast forward/rewind at progressive speed levels,
- * and skip to next/previous.  This helper class is a glue layer in that it manages the
- * configuration of and interaction between the leanback UI components by defining a functional
- * interface to the media player.
+ * A helper class for managing a {@link android.support.v17.leanback.widget.PlaybackControlsRow}
+ * and {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost} that implements a
+ * recommended approach to handling standard playback control actions such as play/pause,
+ * fast forward/rewind at progressive speed levels, and skip to next/previous. This helper class
+ * is a glue layer in that it manages the configuration of and interaction between the
+ * leanback UI components by defining a functional interface to the media player.
  *
  * <p>You can instantiate a concrete subclass such as {@link MediaControllerGlue} or you must
  * subclass this abstract helper.  To create a subclass you must implement all of the
@@ -37,8 +49,8 @@ import android.view.View;
  * </p>
  *
  * <p>To use an instance of the glue layer, first construct an instance.  Constructor parameters
- * inform the glue what speed levels are supported for fast forward/rewind.  Providing a
- * {@link android.support.v17.leanback.app.PlaybackOverlayFragment} is optional.
+ * inform the glue what speed levels are supported for fast forward/rewind. Providing a
+ * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost} is optional.
  * </p>
  *
  * <p>If you have your own controls row you must pass it to {@link #setControlsRow}.
@@ -48,7 +60,7 @@ import android.view.View;
  * </p>
  *
  * <p>The helper sets a {@link android.support.v17.leanback.widget.SparseArrayObjectAdapter}
- * on the controls row as the primary actions adapter, and adds actions to it.  You can provide
+ * on the controls row as the primary actions adapter, and adds actions to it. You can provide
  * additional actions by overriding {@link #createPrimaryActionsAdapter}.  This helper does not
  * deal in secondary actions so those you may add separately.
  * </p>
@@ -59,10 +71,10 @@ import android.view.View;
  * will be handled.  Your listener will be called only for unhandled actions.
  * </p>
  *
- * <p>The helper implements a key event handler.  If you pass a
- * {@link android.support.v17.leanback.app.PlaybackOverlayFragment} the fragment's input event
- * handler will be set.  Otherwise, you should set the glue object as key event handler to the
- * ViewHolder when bound by your row presenter; see
+ * <p>This helper implements a key event handler. If you pass a
+ * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost}, it will configure it's
+ * fragment to intercept all key events.  Otherwise, you should set the glue object as key event
+ * handler to the ViewHolder when bound by your row presenter; see
  * {@link RowPresenter.ViewHolder#setOnKeyListener(android.view.View.OnKeyListener)}.
  * </p>
  *
@@ -72,7 +84,8 @@ import android.view.View;
  * </p>
  *
  */
-public abstract class PlaybackControlGlue implements OnActionClickedListener, View.OnKeyListener {
+public abstract class PlaybackControlGlue extends PlaybackGlue
+        implements OnActionClickedListener, View.OnKeyListener {
     /**
      * The adapter key for the first custom control on the left side
      * of the predefined primary controls.
@@ -163,8 +176,6 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
     private static final int NUMBER_OF_SEEK_SPEEDS = PLAYBACK_SPEED_FAST_L4 -
             PLAYBACK_SPEED_FAST_L0 + 1;
 
-    private final PlaybackOverlayFragment mFragment;
-    private final Context mContext;
     private final int[] mFastForwardSpeeds;
     private final int[] mRewindSpeeds;
     private PlaybackControlsRow mControlsRow;
@@ -174,7 +185,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
     private PlaybackControlsRow.SkipPreviousAction mSkipPreviousAction;
     private PlaybackControlsRow.FastForwardAction mFastForwardAction;
     private PlaybackControlsRow.RewindAction mRewindAction;
-    private OnItemViewClickedListener mExternalOnItemViewClickedListener;
+    OnItemViewClickedListener mExternalOnItemViewClickedListener;
     private int mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
     private boolean mFadeWhenPlaying = true;
 
@@ -187,22 +198,21 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
         }
     };
 
-    private final OnItemViewClickedListener mOnItemViewClickedListener =
-            new OnItemViewClickedListener() {
-        @Override
-        public void onItemClicked(Presenter.ViewHolder viewHolder, Object object,
-                                  RowPresenter.ViewHolder viewHolder2, Row row) {
-            if (DEBUG) Log.v(TAG, "onItemClicked " + object);
-            boolean handled = false;
-            if (object instanceof Action) {
-                handled = dispatchAction((Action) object, null);
-            }
-            if (!handled && mExternalOnItemViewClickedListener != null) {
-                mExternalOnItemViewClickedListener.onItemClicked(viewHolder, object,
-                        viewHolder2, row);
-            }
-        }
-    };
+    /**
+     * Interface allowing the application to handle input events.
+     * @deprecated Use
+     * {@link PlaybackGlue.PlaybackGlueHost#setOnKeyInterceptListener(View.OnKeyListener)}.
+     */
+    @Deprecated
+    public interface InputEventHandler {
+        /**
+         * Called when an {@link InputEvent} is received.
+         *
+         * @return If the event should be consumed, return true. To allow the event to
+         * continue on to the next handler, return false.
+         */
+        boolean handleInputEvent(InputEvent event);
+    }
 
     /**
      * Constructor for the glue.
@@ -211,7 +221,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
      * @param seekSpeeds Array of seek speeds for fast forward and rewind.
      */
     public PlaybackControlGlue(Context context, int[] seekSpeeds) {
-        this(context, null, seekSpeeds, seekSpeeds);
+        this(context, (PlaybackGlueHost) null, seekSpeeds, seekSpeeds);
     }
 
     /**
@@ -224,7 +234,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
     public PlaybackControlGlue(Context context,
                                int[] fastForwardSpeeds,
                                int[] rewindSpeeds) {
-        this(context, null, fastForwardSpeeds, rewindSpeeds);
+        this(context, (PlaybackGlueHost) null, fastForwardSpeeds, rewindSpeeds);
     }
 
     /**
@@ -233,7 +243,10 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
      * @param context
      * @param fragment Optional; if using a {@link PlaybackOverlayFragment}, pass it in.
      * @param seekSpeeds Array of seek speeds for fast forward and rewind.
+     * @deprecated Use
+     * {@link #PlaybackControlGlue(Context, PlaybackGlue.PlaybackGlueHost, int[], int[])}.
      */
+    @Deprecated
     public PlaybackControlGlue(Context context,
                                PlaybackOverlayFragment fragment,
                                int[] seekSpeeds) {
@@ -247,16 +260,32 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
      * @param fragment Optional; if using a {@link PlaybackOverlayFragment}, pass it in.
      * @param fastForwardSpeeds Array of seek speeds for fast forward.
      * @param rewindSpeeds Array of seek speeds for rewind.
+     * @deprecated Use
+     * {@link #PlaybackControlGlue(Context, PlaybackGlue.PlaybackGlueHost, int[], int[])}.
      */
+    @Deprecated
     public PlaybackControlGlue(Context context,
                                PlaybackOverlayFragment fragment,
                                int[] fastForwardSpeeds,
                                int[] rewindSpeeds) {
-        mContext = context;
-        mFragment = fragment;
-        if (fragment != null) {
-            attachToFragment();
-        }
+        this(context, fragment == null ? (PlaybackGlueHost) null:
+                new PlaybackGlueHostOld(fragment), fastForwardSpeeds, rewindSpeeds);
+    }
+
+    /**
+     * Constructor for the glue.
+     *
+     * @param context
+     * @param host Optional; if using a {@link PlaybackGlue.PlaybackGlueHost}, pass it in.
+     * @param fastForwardSpeeds Array of seek speeds for fast forward.
+     * @param rewindSpeeds Array of seek speeds for rewind.
+     */
+    public PlaybackControlGlue(Context context,
+                               PlaybackGlueHost host,
+                               int[] fastForwardSpeeds,
+                               int[] rewindSpeeds) {
+        super(context);
+        setHost(host);
         if (fastForwardSpeeds.length == 0 || fastForwardSpeeds.length > NUMBER_OF_SEEK_SPEEDS) {
             throw new IllegalStateException("invalid fastForwardSpeeds array size");
         }
@@ -267,32 +296,28 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
         mRewindSpeeds = rewindSpeeds;
     }
 
-    private final PlaybackOverlayFragment.InputEventHandler mOnInputEventHandler =
-            new PlaybackOverlayFragment.InputEventHandler() {
-        @Override
-        public boolean handleInputEvent(InputEvent event) {
-            if (event instanceof KeyEvent) {
-                KeyEvent keyEvent = (KeyEvent) event;
-                return onKey(null, keyEvent.getKeyCode(), keyEvent);
+    @Override
+    public void setHost(PlaybackGlueHost host) {
+        super.setHost(host);
+        if (mPlaybackGlueHost != null) {
+            if (mPlaybackGlueHost instanceof PlaybackGlueHostOld) {
+                ((PlaybackGlueHostOld) mPlaybackGlueHost).mGlue = this;
             }
-            return false;
+            mPlaybackGlueHost.setOnKeyInterceptListener(this);
+            mPlaybackGlueHost.setOnActionClickedListener(this);
         }
-    };
-
-    private void attachToFragment() {
-        mFragment.setInputEventHandler(mOnInputEventHandler);
     }
 
+
     /**
-     * Helper method for instantiating a
-     * {@link android.support.v17.leanback.widget.PlaybackControlsRow} and corresponding
-     * {@link android.support.v17.leanback.widget.PlaybackControlsRowPresenter}.
+     * Helper method for instantiating a {@link PlaybackControlsRow} and corresponding
+     * {@link PlaybackControlsRowPresenter}.
      */
     public PlaybackControlsRowPresenter createControlsRowAndPresenter() {
         PlaybackControlsRow controlsRow = new PlaybackControlsRow(this);
         setControlsRow(controlsRow);
 
-        AbstractDetailsDescriptionPresenter detailsPresenter =
+        final AbstractDetailsDescriptionPresenter detailsPresenter =
                 new AbstractDetailsDescriptionPresenter() {
             @Override
             protected void onBindDescription(AbstractDetailsDescriptionPresenter.ViewHolder
@@ -307,6 +332,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
                 }
             }
         };
+
         return new PlaybackControlsRowPresenter(detailsPresenter) {
             @Override
             protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
@@ -323,16 +349,14 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
 
     /**
      * Returns the fragment.
+     * @deprecated The glue is no longer associated with a fragment, use {@link #getHost()}.
      */
+    @Deprecated
     public PlaybackOverlayFragment getFragment() {
-        return mFragment;
-    }
-
-    /**
-     * Returns the context.
-     */
-    public Context getContext() {
-        return mContext;
+        if (mPlaybackGlueHost instanceof PlaybackGlueHostOld) {
+            return ((PlaybackGlueHostOld)mPlaybackGlueHost).mFragment;
+        }
+        return null;
     }
 
     /**
@@ -354,8 +378,8 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
      */
     public void setFadingEnabled(boolean enable) {
         mFadeWhenPlaying = enable;
-        if (!mFadeWhenPlaying && mFragment != null) {
-            mFragment.setFadingEnabled(false);
+        if (!mFadeWhenPlaying && mPlaybackGlueHost != null) {
+            mPlaybackGlueHost.setFadingEnabled(false);
         }
     }
 
@@ -370,20 +394,18 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
      * Set the {@link OnItemViewClickedListener} to be called if the click event
      * is not handled internally.
      * @param listener
-     * @deprecated Don't call this.  Instead set the listener on the fragment yourself,
-     * and call {@link #onActionClicked} to handle clicks.
+     * @deprecated Don't call this. Instead use the listener on the fragment yourself.
      */
     @Deprecated
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
         mExternalOnItemViewClickedListener = listener;
-        if (mFragment != null) {
-            mFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
-        }
     }
 
     /**
      * Returns the {@link OnItemViewClickedListener}.
+     * @deprecated Don't call this. Instead use the listener on the fragment yourself.
      */
+    @Deprecated
     public OnItemViewClickedListener getOnItemViewClickedListener() {
         return mExternalOnItemViewClickedListener;
     }
@@ -465,14 +487,15 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
                 return false;
         }
         Action action = mControlsRow.getActionForKeyCode(mPrimaryActionsAdapter, keyCode);
+
         if (action != null) {
             if (action == mPrimaryActionsAdapter.lookup(ACTION_PLAY_PAUSE) ||
                     action == mPrimaryActionsAdapter.lookup(ACTION_REWIND) ||
                     action == mPrimaryActionsAdapter.lookup(ACTION_FAST_FORWARD) ||
                     action == mPrimaryActionsAdapter.lookup(ACTION_SKIP_TO_PREVIOUS) ||
                     action == mPrimaryActionsAdapter.lookup(ACTION_SKIP_TO_NEXT)) {
-                if (((KeyEvent) event).getAction() == KeyEvent.ACTION_DOWN) {
-                    dispatchAction(action, (KeyEvent) event);
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    dispatchAction(action, event);
                 }
                 return true;
             }
@@ -604,7 +627,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
         final long actions = getSupportedActions();
         if ((actions & ACTION_SKIP_TO_PREVIOUS) != 0) {
             if (mSkipPreviousAction == null) {
-                mSkipPreviousAction = new PlaybackControlsRow.SkipPreviousAction(mContext);
+                mSkipPreviousAction = new PlaybackControlsRow.SkipPreviousAction(getContext());
             }
             mPrimaryActionsAdapter.set(ACTION_SKIP_TO_PREVIOUS, mSkipPreviousAction);
         } else {
@@ -613,7 +636,8 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
         }
         if ((actions & ACTION_REWIND) != 0) {
             if (mRewindAction == null) {
-                mRewindAction = new PlaybackControlsRow.RewindAction(mContext,
+                mRewindAction = new PlaybackControlsRow.RewindAction(
+                        getContext(),
                         mRewindSpeeds.length);
             }
             mPrimaryActionsAdapter.set(ACTION_REWIND, mRewindAction);
@@ -623,7 +647,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
         }
         if ((actions & ACTION_PLAY_PAUSE) != 0) {
             if (mPlayPauseAction == null) {
-                mPlayPauseAction = new PlaybackControlsRow.PlayPauseAction(mContext);
+                mPlayPauseAction = new PlaybackControlsRow.PlayPauseAction(getContext());
             }
             mPrimaryActionsAdapter.set(ACTION_PLAY_PAUSE, mPlayPauseAction);
         } else {
@@ -632,7 +656,8 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
         }
         if ((actions & ACTION_FAST_FORWARD) != 0) {
             if (mFastForwardAction == null) {
-                mFastForwardAction = new PlaybackControlsRow.FastForwardAction(mContext,
+                mFastForwardAction = new PlaybackControlsRow.FastForwardAction(
+                        getContext(),
                         mFastForwardSpeeds.length);
             }
             mPrimaryActionsAdapter.set(ACTION_FAST_FORWARD, mFastForwardAction);
@@ -642,7 +667,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
         }
         if ((actions & ACTION_SKIP_TO_NEXT) != 0) {
             if (mSkipNextAction == null) {
-                mSkipNextAction = new PlaybackControlsRow.SkipNextAction(mContext);
+                mSkipNextAction = new PlaybackControlsRow.SkipNextAction(getContext());
             }
             mPrimaryActionsAdapter.set(ACTION_SKIP_TO_NEXT, mSkipNextAction);
         } else {
@@ -678,8 +703,8 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
             enableProgressUpdating(true);
         }
 
-        if (mFadeWhenPlaying && mFragment != null) {
-            mFragment.setFadingEnabled(playbackSpeed == PLAYBACK_SPEED_NORMAL);
+        if (mFadeWhenPlaying && mPlaybackGlueHost != null) {
+            mPlaybackGlueHost.setFadingEnabled(playbackSpeed == PLAYBACK_SPEED_NORMAL);
         }
 
         if (mPlayPauseAction != null) {
@@ -848,5 +873,50 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
     protected void onMetadataChanged() {
         if (DEBUG) Log.v(TAG, "onMetadataChanged");
         updateRowMetadata();
+    }
+
+    static final class PlaybackGlueHostOld extends PlaybackGlueHost {
+        final PlaybackOverlayFragment mFragment;
+        PlaybackControlGlue mGlue;
+
+        public PlaybackGlueHostOld(PlaybackOverlayFragment fragment) {
+            mFragment = fragment;
+        }
+
+        @Override
+        public void setFadingEnabled(boolean enable) {
+            mFragment.setFadingEnabled(enable);
+        }
+
+        @Override
+        public void setOnKeyInterceptListener(final View.OnKeyListener onKeyListenerr) {
+            mFragment.setEventHandler( new InputEventHandler() {
+                @Override
+                public boolean handleInputEvent(InputEvent event) {
+                    if (event instanceof KeyEvent) {
+                        KeyEvent keyEvent = (KeyEvent) event;
+                        return onKeyListenerr.onKey(null, keyEvent.getKeyCode(), keyEvent);
+                    }
+                    return false;
+                }
+            });
+        }
+
+        @Override
+        public void setOnActionClickedListener(final OnActionClickedListener listener) {
+            mFragment.setOnItemViewClickedListener(new OnItemViewClickedListener() {
+                @Override
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                                          RowPresenter.ViewHolder rowViewHolder, Row row) {
+                    if (item instanceof Action) {
+                        listener.onActionClicked((Action)item);
+                        if (mGlue.mExternalOnItemViewClickedListener != null) {
+                            mGlue.mExternalOnItemViewClickedListener.onItemClicked(itemViewHolder,
+                                    item, rowViewHolder, row);
+                        }
+                    }
+                }
+            });
+        }
     }
 }
