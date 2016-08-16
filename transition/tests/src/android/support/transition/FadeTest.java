@@ -24,13 +24,14 @@ import static org.junit.Assert.assertThat;
 import android.animation.Animator;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.junit.Before;
 import org.junit.Test;
 
-
+@MediumTest
 public class FadeTest extends BaseTest {
 
     private View mView;
