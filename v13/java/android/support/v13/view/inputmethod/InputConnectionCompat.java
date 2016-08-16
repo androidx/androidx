@@ -114,7 +114,7 @@ public final class InputConnectionCompat {
                 final ClipDescription description = data.getParcelable(
                         COMMIT_CONTENT_DESCRIPTION_KEY);
                 final Uri linkUri = data.getParcelable(COMMIT_CONTENT_LINK_URI_KEY);
-                final int flags = data.getParcelable(COMMIT_CONTENT_FLAGS_KEY);
+                final int flags = data.getInt(COMMIT_CONTENT_FLAGS_KEY);
                 final Bundle opts = data.getParcelable(COMMIT_CONTENT_OPTS_KEY);
                 final InputContentInfoCompat inputContentInfo =
                         new InputContentInfoCompat(contentUri, description, linkUri);
