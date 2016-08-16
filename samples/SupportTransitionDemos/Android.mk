@@ -21,6 +21,8 @@ include $(CLEAR_VARS)
 LOCAL_PACKAGE_NAME := SupportTransitionDemos
 LOCAL_MODULE_TAGS := samples
 LOCAL_SDK_VERSION := current
+LOCAL_MIN_SDK_VERSION := 14
+LOCAL_DEX_PREOPT := false
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_STATIC_JAVA_LIBRARIES := \
         android-support-v4 \
