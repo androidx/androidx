@@ -16,6 +16,7 @@ package android.support.v17.leanback.transition;
 import android.R;
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Rect;
 import android.transition.ChangeTransform;
 import android.transition.Transition;
 import android.transition.TransitionManager;
@@ -108,5 +109,20 @@ final class TransitionHelperApi21 {
 
     public static void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
         viewGroup.setTransitionGroup(transitionGroup);
+    }
+
+    public static void setEpicenterCallback(Object transitionObject,
+            final TransitionEpicenterCallback callback) {
+        Transition transition = (Transition) transitionObject;
+        if (callback == null) {
+            transition.setEpicenterCallback(null);
+        } else {
+            transition.setEpicenterCallback(new Transition.EpicenterCallback() {
+                @Override
+                public Rect onGetEpicenter(Transition transition) {
+                    return callback.onGetEpicenter(transition);
+                }
+            });
+        }
     }
 }

@@ -1593,7 +1593,9 @@ package android.support.v17.leanback.app {
     method public static int add(android.app.FragmentManager, android.support.v17.leanback.app.GuidedStepFragment);
     method public static int add(android.app.FragmentManager, android.support.v17.leanback.app.GuidedStepFragment, int);
     method public static int addAsRoot(android.app.Activity, android.support.v17.leanback.app.GuidedStepFragment, int);
+    method public void collapseAction(boolean);
     method public void collapseSubActions();
+    method public void expandAction(android.support.v17.leanback.widget.GuidedAction, boolean);
     method public void expandSubActions(android.support.v17.leanback.widget.GuidedAction);
     method public android.support.v17.leanback.widget.GuidedAction findActionById(long);
     method public int findActionPositionById(long);
@@ -1611,6 +1613,7 @@ package android.support.v17.leanback.app {
     method public int getSelectedActionPosition();
     method public int getSelectedButtonActionPosition();
     method public int getUiStyle();
+    method public boolean isExpanded();
     method public boolean isFocusOutEndAllowed();
     method public boolean isFocusOutStartAllowed();
     method public boolean isSubActionsExpanded();
@@ -1650,7 +1653,9 @@ package android.support.v17.leanback.app {
     method public static int add(android.support.v4.app.FragmentManager, android.support.v17.leanback.app.GuidedStepSupportFragment);
     method public static int add(android.support.v4.app.FragmentManager, android.support.v17.leanback.app.GuidedStepSupportFragment, int);
     method public static int addAsRoot(android.support.v4.app.FragmentActivity, android.support.v17.leanback.app.GuidedStepSupportFragment, int);
+    method public void collapseAction(boolean);
     method public void collapseSubActions();
+    method public void expandAction(android.support.v17.leanback.widget.GuidedAction, boolean);
     method public void expandSubActions(android.support.v17.leanback.widget.GuidedAction);
     method public android.support.v17.leanback.widget.GuidedAction findActionById(long);
     method public int findActionPositionById(long);
@@ -1668,6 +1673,7 @@ package android.support.v17.leanback.app {
     method public int getSelectedActionPosition();
     method public int getSelectedButtonActionPosition();
     method public int getUiStyle();
+    method public boolean isExpanded();
     method public boolean isFocusOutEndAllowed();
     method public boolean isFocusOutStartAllowed();
     method public boolean isSubActionsExpanded();
@@ -2705,12 +2711,17 @@ package android.support.v17.leanback.widget {
 
   public class GuidedActionsStylist implements android.support.v17.leanback.widget.FragmentAnimationProvider {
     ctor public GuidedActionsStylist();
+    method public void collapseAction(boolean);
+    method public void expandAction(android.support.v17.leanback.widget.GuidedAction, boolean);
     method public android.support.v17.leanback.widget.VerticalGridView getActionsGridView();
     method public android.support.v17.leanback.widget.GuidedAction getExpandedAction();
     method public int getItemViewType(android.support.v17.leanback.widget.GuidedAction);
     method public android.support.v17.leanback.widget.VerticalGridView getSubActionsGridView();
+    method public final boolean isBackKeyToCollapseActivatorView();
+    method public final boolean isBackKeyToCollapseSubActions();
     method public boolean isButtonActions();
     method public boolean isExpandTransitionSupported();
+    method public boolean isExpanded();
     method public boolean isInExpandTransition();
     method public boolean isSubActionsExpanded();
     method public void onAnimateItemChecked(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
@@ -2725,7 +2736,8 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder onCreateViewHolder(android.view.ViewGroup);
     method public android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
     method public void onDestroyView();
-    method protected void onEditingModeChange(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction, boolean);
+    method protected deprecated void onEditingModeChange(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction, boolean);
+    method protected void onEditingModeChange(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean, boolean);
     method public void onImeAppearing(java.util.List<android.animation.Animator>);
     method public void onImeDisappearing(java.util.List<android.animation.Animator>);
     method public int onProvideItemLayoutId();
@@ -2734,10 +2746,11 @@ package android.support.v17.leanback.widget {
     method public boolean onUpdateActivatorView(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public void onUpdateExpandedViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
     method public void setAsButtonActions();
-    method public void setEditingMode(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction, boolean);
-    method public void setExpandedViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
+    method public final void setBackKeyToCollapseActivatorView(boolean);
+    method public final void setBackKeyToCollapseSubActions(boolean);
+    method public deprecated void setExpandedViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
     method protected void setupImeOptions(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
-    method public void startExpandedTransition(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
+    method public deprecated void startExpandedTransition(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
     field public static final int VIEW_TYPE_DATE_PICKER = 1; // 0x1
     field public static final int VIEW_TYPE_DEFAULT = 0; // 0x0
   }
@@ -3080,6 +3093,7 @@ package android.support.v17.leanback.widget {
   public abstract class OnChildViewHolderSelectedListener {
     ctor public OnChildViewHolderSelectedListener();
     method public void onChildViewHolderSelected(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, int, int);
+    method public void onChildViewHolderSelectedAndPositioned(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, int, int);
   }
 
   public abstract interface OnItemViewClickedListener implements android.support.v17.leanback.widget.BaseOnItemViewClickedListener {
