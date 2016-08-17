@@ -36,4 +36,7 @@
     <string name="fragment_state_pager_support">Fragment/State Pager</string>
 
     <string name="action_bar_tabs_pager">Fragment/Action Bar Tabs Pager</string>
+
+    <string name="commit_content_support">View/Input Method/Commit Content</string>
+
 </resources>
