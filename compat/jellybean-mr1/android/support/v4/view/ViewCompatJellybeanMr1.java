@@ -17,6 +17,7 @@
 package android.support.v4.view;
 
 import android.graphics.Paint;
+import android.view.Display;
 import android.view.View;
 
 /**
@@ -62,5 +63,9 @@ class ViewCompatJellybeanMr1 {
 
     public static boolean isPaddingRelative(View view) {
         return view.isPaddingRelative();
+    }
+
+    public static Display getDisplay(View view) {
+        return view.getDisplay();
     }
 }

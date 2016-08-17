@@ -15,18 +15,39 @@
  */
 package android.support.v4.view;
 
+import android.app.Activity;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.view.Display;
 import android.view.View;
+import android.support.v4.BaseInstrumentationTestCase;
+import android.support.compat.test.R;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
-public class ViewCompatTest {
+@MediumTest
+public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivity> {
+
+    private View mView;
+
+    public ViewCompatTest() {
+        super(ViewCompatActivity.class);
+    }
+
+    @Before
+    public void setUp() {
+        final Activity activity = mActivityTestRule.getActivity();
+        mView = activity.findViewById(R.id.view);
+    }
+
     @Test
     public void testConstants() {
         // Compat constants must match core constants since they can be used interchangeably
@@ -34,4 +55,18 @@ public class ViewCompatTest {
         assertEquals("LTR constants", View.LAYOUT_DIRECTION_LTR, ViewCompat.LAYOUT_DIRECTION_LTR);
         assertEquals("RTL constants", View.LAYOUT_DIRECTION_RTL, ViewCompat.LAYOUT_DIRECTION_RTL);
     }
+
+    @Test
+    public void testGetDisplay() {
+        final Display display = ViewCompat.getDisplay(mView);
+        assertNotNull(display);
+    }
+
+    @Test
+    public void testGetDisplay_returnsNullForUnattachedView() {
+        final View view = new View(mActivityTestRule.getActivity());
+        final Display display = ViewCompat.getDisplay(view);
+        assertNull(display);
+    }
+
 }
