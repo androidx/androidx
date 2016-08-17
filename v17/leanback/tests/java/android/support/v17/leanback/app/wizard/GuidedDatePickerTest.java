@@ -25,6 +25,7 @@ import android.support.v17.leanback.widget.GuidedDatePickerAction;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.picker.DatePicker;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -37,6 +38,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+@MediumTest
 public class GuidedDatePickerTest extends
         ActivityInstrumentationTestCase2<GuidedStepAttributesTestActivity> {
 

@@ -26,6 +26,7 @@ import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class WrapContentBasicTest extends AndroidTestCase {
 
