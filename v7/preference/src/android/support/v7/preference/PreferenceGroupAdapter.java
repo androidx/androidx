@@ -19,6 +19,7 @@ package android.support.v7.preference;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -144,10 +145,49 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
             }
         }
 
+        final List<Preference> oldVisibleList = mPreferenceList;
         mPreferenceList = visiblePreferenceList;
         mPreferenceListInternal = fullPreferenceList;
 
-        notifyDataSetChanged();
+        final PreferenceManager preferenceManager = mPreferenceGroup.getPreferenceManager();
+        if (preferenceManager != null
+                && preferenceManager.getPreferenceComparisonCallback() != null) {
+            final PreferenceManager.PreferenceComparisonCallback comparisonCallback =
+                    preferenceManager.getPreferenceComparisonCallback();
+            final DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return oldVisibleList.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return visiblePreferenceList.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    return comparisonCallback.arePreferenceItemsTheSame(
+                            oldVisibleList.get(oldItemPosition),
+                            visiblePreferenceList.get(newItemPosition));
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    return comparisonCallback.arePreferenceContentsTheSame(
+                            oldVisibleList.get(oldItemPosition),
+                            visiblePreferenceList.get(newItemPosition));
+                }
+            });
+
+            result.dispatchUpdatesTo(this);
+        } else {
+            notifyDataSetChanged();
+        }
+
+        for (final Preference preference : fullPreferenceList) {
+            preference.clearWasDetached();
+        }
     }
 
     private void flattenPreferenceGroup(List<Preference> preferences, PreferenceGroup group) {
