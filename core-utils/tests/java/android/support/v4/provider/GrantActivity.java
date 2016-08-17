@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.tests;
+package android.support.v4.provider;
 
 import android.app.Activity;
 import android.content.ContentResolver;
