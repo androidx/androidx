@@ -27,6 +27,7 @@ import android.support.graphics.drawable.animated.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
@@ -47,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class AnimatedVectorDrawableTest {
     @Rule public final ActivityTestRule<DrawableStubActivity> mActivityTestRule;

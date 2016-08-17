@@ -22,6 +22,7 @@ import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -30,9 +31,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@MediumTest
 public class GuidedStepAttributesTest extends
-        ActivityInstrumentationTestCase2<GuidedStepAttributesTestActivity>
-{
+        ActivityInstrumentationTestCase2<GuidedStepAttributesTestActivity> {
     static final long TRANSITION_LENGTH = 1000;
 
     static final String TAG = "GuidedStepAttributesTest";

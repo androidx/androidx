@@ -27,6 +27,7 @@ import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerViewAccessibilityDelegate;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.text.Selection;
 import android.text.Spannable;
 import android.util.SparseArray;
@@ -44,6 +45,7 @@ import java.util.HashMap;
 /**
  * @hide from javadoc
  */
+@MediumTest
 public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivity> {
 
     private static final boolean HUMAN_DELAY = false;

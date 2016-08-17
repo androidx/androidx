@@ -16,16 +16,17 @@
 
 package android.support.v4.content;
 
+import static org.junit.Assert.fail;
+
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class ModernAsyncTaskTest {
@@ -37,6 +38,7 @@ public class ModernAsyncTaskTest {
      *
      * @throws Throwable
      */
+    @LargeTest
     @Test
     public void testCancellationWithException() throws Throwable {
         final CountDownLatch readyToCancel = new CountDownLatch(1);
