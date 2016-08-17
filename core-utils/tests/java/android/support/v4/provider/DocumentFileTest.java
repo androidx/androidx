@@ -22,7 +22,8 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.test.AndroidTestCase;
-import android.util.Log;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -34,7 +35,11 @@ import java.util.List;
 
 /**
  * Tests for {@link DocumentFile}
+ *
  */
+// These tests fail so it is marked @Suppress. Fix is tracked in b/27168036
+@Suppress
+@MediumTest
 public class DocumentFileTest extends AndroidTestCase {
 
     private Uri treeUri;

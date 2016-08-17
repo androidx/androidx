@@ -20,8 +20,9 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.tests.R;
+import android.support.compat.test.R;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Gravity;
 
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import java.util.List;
 /**
  * Tests for {@link android.support.v4.app.NotificationCompat.WearableExtender}.
  */
+@MediumTest
 public class NotificationCompatWearableExtenderTest extends AndroidTestCase {
     public static final int CUSTOM_CONTENT_HEIGHT_DP = 256;
 
