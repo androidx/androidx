@@ -6555,6 +6555,7 @@ package android.support.v4.view {
     method public static android.content.res.ColorStateList getBackgroundTintList(android.view.View);
     method public static android.graphics.PorterDuff.Mode getBackgroundTintMode(android.view.View);
     method public static android.graphics.Rect getClipBounds(android.view.View);
+    method public static android.view.Display getDisplay(android.view.View);
     method public static float getElevation(android.view.View);
     method public static boolean getFitsSystemWindows(android.view.View);
     method public static int getImportantForAccessibility(android.view.View);

@@ -31,6 +31,7 @@ import android.support.v4.os.BuildCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -484,6 +485,7 @@ public class ViewCompat {
         void offsetTopAndBottom(View view, int offset);
         void offsetLeftAndRight(View view, int offset);
         void setPointerIcon(View view, PointerIconCompat pointerIcon);
+        Display getDisplay(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -1147,6 +1149,11 @@ public class ViewCompat {
         public void setPointerIcon(View view, PointerIconCompat pointerIcon) {
             // no-op
         }
+
+        @Override
+        public Display getDisplay(View view) {
+            return ViewCompatBase.getDisplay(view);
+        }
     }
 
     static class HCViewCompatImpl extends BaseViewCompatImpl {
@@ -1538,6 +1545,11 @@ public class ViewCompat {
         @Override
         public boolean isPaddingRelative(View view) {
             return ViewCompatJellybeanMr1.isPaddingRelative(view);
+        }
+
+        @Override
+        public Display getDisplay(View view) {
+            return ViewCompatJellybeanMr1.getDisplay(view);
         }
     }
 
@@ -3342,7 +3354,7 @@ public class ViewCompat {
      * <p>
      * Compatibility:
      * <ul>
-     *     <li>API < 18: Always returns {@code false}</li>
+     *     <li>API &lt; 18: Always returns {@code false}</li>
      * </ul>
      *
      * @return whether the view hierarchy is currently undergoing a layout pass
@@ -3364,7 +3376,7 @@ public class ViewCompat {
      * <p>
      * Compatibility:
      * <ul>
-     *     <li>API < 19: Always returns {@code false}</li>
+     *     <li>API &lt; 19: Always returns {@code false}</li>
      * </ul>
      *
      * @return true if layout direction has been resolved.
@@ -3391,7 +3403,7 @@ public class ViewCompat {
      * <p>
      * Compatibility:
      * <ul>
-     *     <li>API < 21: No-op
+     *     <li>API &lt; 21: No-op
      * </ul>
      *
      * @param z The visual z position of this view, in pixels.
@@ -3530,6 +3542,20 @@ public class ViewCompat {
      */
     public static void setPointerIcon(@NonNull View view, PointerIconCompat pointerIcon) {
         IMPL.setPointerIcon(view, pointerIcon);
+    }
+
+    /**
+     * Gets the logical display to which the view's window has been attached.
+     * <p>
+     * Compatibility:
+     * <ul>
+     * <li>API &lt; 17: Returns the default display when the view is attached. Otherwise, null.
+     * </ul>
+     *
+     * @return The logical display, or null if the view is not currently attached to a window.
+     */
+    public static Display getDisplay(@NonNull View view) {
+        return IMPL.getDisplay(view);
     }
 
     protected ViewCompat() {}
