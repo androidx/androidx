@@ -74,7 +74,7 @@ public class ActivityCompat extends ContextCompat {
 
     /**
      * This class should not be instantiated, but the constructor must be
-     * visible for the class to be extended (ex. in support-v13).
+     * visible for the class to be extended (as in support-v13).
      */
     protected ActivityCompat() {
         // Not publicly instantiable, but may be extended.

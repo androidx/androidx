@@ -1317,6 +1317,7 @@ package android.support.media.tv {
     method public int getTransportStreamId();
     method public java.lang.String getType();
     method public java.lang.String getVideoFormat();
+    method public boolean isBrowsable();
     method public boolean isSearchable();
     method public android.content.ContentValues toContentValues();
   }
@@ -1349,6 +1350,13 @@ package android.support.media.tv {
     method public android.support.media.tv.Channel.Builder setTransportStreamId(int);
     method public android.support.media.tv.Channel.Builder setType(java.lang.String);
     method public android.support.media.tv.Channel.Builder setVideoFormat(java.lang.String);
+  }
+
+  public class ChannelLogoUtils {
+    ctor public ChannelLogoUtils();
+    method public static android.graphics.Bitmap loadChannelLogo(android.content.Context, long);
+    method public static boolean storeChannelLogo(android.content.Context, long, android.net.Uri);
+    method public static boolean storeChannelLogo(android.content.Context, long, android.graphics.Bitmap);
   }
 
   public final class PreviewProgram extends android.support.media.tv.BasePreviewProgram {
@@ -1879,6 +1887,24 @@ package android.support.transition {
     method public void setResizeClip(boolean);
   }
 
+  public class ChangeClipBounds extends android.support.transition.Transition {
+    ctor public ChangeClipBounds();
+    ctor public ChangeClipBounds(android.content.Context, android.util.AttributeSet);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+  }
+
+  public class CircularPropagation extends android.support.transition.VisibilityPropagation {
+    ctor public CircularPropagation();
+    method public long getStartDelay(android.view.ViewGroup, android.support.transition.Transition, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public void setPropagationSpeed(float);
+  }
+
+  public class Explode extends android.support.transition.Visibility {
+    ctor public Explode();
+    ctor public Explode(android.content.Context, android.util.AttributeSet);
+  }
+
   public class Fade extends android.support.transition.Visibility {
     ctor public Fade(int);
     ctor public Fade();
@@ -1931,9 +1957,12 @@ package android.support.transition {
     method public android.support.transition.Transition excludeTarget(java.lang.String, boolean);
     method public android.support.transition.Transition excludeTarget(java.lang.Class, boolean);
     method public long getDuration();
+    method public android.graphics.Rect getEpicenter();
+    method public android.support.transition.Transition.EpicenterCallback getEpicenterCallback();
     method public android.animation.TimeInterpolator getInterpolator();
     method public java.lang.String getName();
     method public android.support.transition.PathMotion getPathMotion();
+    method public android.support.transition.TransitionPropagation getPropagation();
     method public long getStartDelay();
     method public java.util.List<java.lang.Integer> getTargetIds();
     method public java.util.List<java.lang.String> getTargetNames();
@@ -1947,14 +1976,21 @@ package android.support.transition {
     method public android.support.transition.Transition removeTarget(java.lang.String);
     method public android.support.transition.Transition removeTarget(java.lang.Class);
     method public android.support.transition.Transition setDuration(long);
+    method public void setEpicenterCallback(android.support.transition.Transition.EpicenterCallback);
     method public android.support.transition.Transition setInterpolator(android.animation.TimeInterpolator);
     method public void setMatchOrder(int...);
     method public void setPathMotion(android.support.transition.PathMotion);
+    method public void setPropagation(android.support.transition.TransitionPropagation);
     method public android.support.transition.Transition setStartDelay(long);
     field public static final int MATCH_ID = 3; // 0x3
     field public static final int MATCH_INSTANCE = 1; // 0x1
     field public static final int MATCH_ITEM_ID = 4; // 0x4
     field public static final int MATCH_NAME = 2; // 0x2
+  }
+
+  public static abstract class Transition.EpicenterCallback {
+    ctor public Transition.EpicenterCallback();
+    method public abstract android.graphics.Rect onGetEpicenter(android.support.transition.Transition);
   }
 
   public static abstract interface Transition.TransitionListener {
@@ -1980,6 +2016,13 @@ package android.support.transition {
     method public void setTransition(android.support.transition.Scene, android.support.transition.Transition);
     method public void setTransition(android.support.transition.Scene, android.support.transition.Scene, android.support.transition.Transition);
     method public void transitionTo(android.support.transition.Scene);
+  }
+
+  public abstract class TransitionPropagation {
+    ctor public TransitionPropagation();
+    method public abstract void captureValues(android.support.transition.TransitionValues);
+    method public abstract java.lang.String[] getPropagationProperties();
+    method public abstract long getStartDelay(android.view.ViewGroup, android.support.transition.Transition, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
   }
 
   public class TransitionSet extends android.support.transition.Transition {
@@ -2017,6 +2060,15 @@ package android.support.transition {
     method public void setMode(int);
     field public static final int MODE_IN = 1; // 0x1
     field public static final int MODE_OUT = 2; // 0x2
+  }
+
+  public abstract class VisibilityPropagation extends android.support.transition.TransitionPropagation {
+    ctor public VisibilityPropagation();
+    method public void captureValues(android.support.transition.TransitionValues);
+    method public java.lang.String[] getPropagationProperties();
+    method public int getViewVisibility(android.support.transition.TransitionValues);
+    method public int getViewX(android.support.transition.TransitionValues);
+    method public int getViewY(android.support.transition.TransitionValues);
   }
 
 }
@@ -6927,7 +6979,6 @@ package android.support.v4.media.session {
     method public java.lang.Object getRemoteControlClient();
     method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
     method public boolean isActive();
-    method public static deprecated android.support.v4.media.session.MediaSessionCompat obtain(android.content.Context, java.lang.Object);
     method public void release();
     method public void removeOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener);
     method public void sendSessionEvent(java.lang.String, android.os.Bundle);
@@ -6998,7 +7049,6 @@ package android.support.v4.media.session {
     method public android.support.v4.media.MediaDescriptionCompat getDescription();
     method public long getQueueId();
     method public java.lang.Object getQueueItem();
-    method public static deprecated android.support.v4.media.session.MediaSessionCompat.QueueItem obtain(java.lang.Object);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.support.v4.media.session.MediaSessionCompat.QueueItem> CREATOR;
     field public static final int UNKNOWN_ID = -1; // 0xffffffff
