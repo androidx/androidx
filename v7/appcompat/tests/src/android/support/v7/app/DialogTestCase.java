@@ -20,10 +20,12 @@ import org.junit.Test;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+@MediumTest
 public class DialogTestCase extends BaseInstrumentationTestCase<WindowDecorActionBarActivity> {
 
     public DialogTestCase() {
