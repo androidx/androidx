@@ -132,7 +132,7 @@ class TransitionManagerPort {
 
         if (runningTransitions != null && runningTransitions.size() > 0) {
             for (TransitionPort runningTransition : runningTransitions) {
-                runningTransition.pause();
+                runningTransition.pause(sceneRoot);
             }
         }
 
@@ -397,7 +397,7 @@ class TransitionManagerPort {
             ArrayList<TransitionPort> runningTransitions = getRunningTransitions().get(mSceneRoot);
             if (runningTransitions != null && runningTransitions.size() > 0) {
                 for (TransitionPort runningTransition : runningTransitions) {
-                    runningTransition.resume();
+                    runningTransition.resume(mSceneRoot);
                 }
             }
             mTransition.clearValues(true);
@@ -430,7 +430,7 @@ class TransitionManagerPort {
             mTransition.captureValues(mSceneRoot, false);
             if (previousRunningTransitions != null) {
                 for (TransitionPort runningTransition : previousRunningTransitions) {
-                    runningTransition.resume();
+                    runningTransition.resume(mSceneRoot);
                 }
             }
             mTransition.playTransition(mSceneRoot);
