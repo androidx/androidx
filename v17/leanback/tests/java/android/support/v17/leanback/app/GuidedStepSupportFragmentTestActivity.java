@@ -41,13 +41,15 @@ public class GuidedStepSupportFragmentTestActivity extends FragmentActivity {
         Intent intent = getIntent();
 
         if (savedInstanceState == null) {
-            GuidedStepTestSupportFragment testFragment = new GuidedStepTestSupportFragment(
-                    intent.getStringExtra(EXTRA_TEST_NAME));
-            if (intent.getBooleanExtra(EXTRA_ADD_AS_ROOT, true)) {
-                GuidedStepTestSupportFragment.addAsRoot(this, testFragment, android.R.id.content);
-            } else {
-                GuidedStepTestSupportFragment.add(getSupportFragmentManager(), testFragment,
-                        android.R.id.content);
+            String firstTestName = intent.getStringExtra(EXTRA_TEST_NAME);
+            if (firstTestName != null) {
+                GuidedStepTestSupportFragment testFragment = new GuidedStepTestSupportFragment(firstTestName);
+                if (intent.getBooleanExtra(EXTRA_ADD_AS_ROOT, true)) {
+                    GuidedStepTestSupportFragment.addAsRoot(this, testFragment, android.R.id.content);
+                } else {
+                    GuidedStepTestSupportFragment.add(getSupportFragmentManager(), testFragment,
+                            android.R.id.content);
+                }
             }
         }
     }

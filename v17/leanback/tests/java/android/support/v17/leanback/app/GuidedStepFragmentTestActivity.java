@@ -39,13 +39,15 @@ public class GuidedStepFragmentTestActivity extends Activity {
         Intent intent = getIntent();
 
         if (savedInstanceState == null) {
-            GuidedStepTestFragment testFragment = new GuidedStepTestFragment(
-                    intent.getStringExtra(EXTRA_TEST_NAME));
-            if (intent.getBooleanExtra(EXTRA_ADD_AS_ROOT, true)) {
-                GuidedStepTestFragment.addAsRoot(this, testFragment, android.R.id.content);
-            } else {
-                GuidedStepTestFragment.add(getFragmentManager(), testFragment,
-                        android.R.id.content);
+            String firstTestName = intent.getStringExtra(EXTRA_TEST_NAME);
+            if (firstTestName != null) {
+                GuidedStepTestFragment testFragment = new GuidedStepTestFragment(firstTestName);
+                if (intent.getBooleanExtra(EXTRA_ADD_AS_ROOT, true)) {
+                    GuidedStepTestFragment.addAsRoot(this, testFragment, android.R.id.content);
+                } else {
+                    GuidedStepTestFragment.add(getFragmentManager(), testFragment,
+                            android.R.id.content);
+                }
             }
         }
     }
