@@ -343,7 +343,8 @@ abstract class TransitionPort implements Cloneable {
                             view = start.view;
                         }
                         if (animator != null) {
-                            AnimationInfo info = new AnimationInfo(view, getName(), infoValues);
+                            AnimationInfo info = new AnimationInfo(view, getName(),
+                                    WindowIdPort.getWindowId(sceneRoot), infoValues);
                             runningAnimators.put(animator, info);
                             mAnimators.add(animator);
                         }
@@ -788,13 +789,17 @@ abstract class TransitionPort implements Cloneable {
      *
      * @hide
      */
-    public void pause() {
+    public void pause(View sceneRoot) {
         if (!mEnded) {
             ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
             int numOldAnims = runningAnimators.size();
+            WindowIdPort windowId = WindowIdPort.getWindowId(sceneRoot);
             for (int i = numOldAnims - 1; i >= 0; i--) {
-                Animator anim = runningAnimators.keyAt(i);
-//                anim.pause();
+                AnimationInfo info = runningAnimators.valueAt(i);
+                if (info.view != null && windowId.equals(info.windowId)) {
+                    Animator anim = runningAnimators.keyAt(i);
+                    anim.cancel(); // pause() is API Level 19
+                }
             }
             if (mListeners != null && mListeners.size() > 0) {
                 ArrayList<TransitionListener> tmpListeners =
@@ -815,14 +820,18 @@ abstract class TransitionPort implements Cloneable {
      *
      * @hide
      */
-    public void resume() {
+    public void resume(View sceneRoot) {
         if (mPaused) {
             if (!mEnded) {
                 ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
                 int numOldAnims = runningAnimators.size();
+                WindowIdPort windowId = WindowIdPort.getWindowId(sceneRoot);
                 for (int i = numOldAnims - 1; i >= 0; i--) {
-                    Animator anim = runningAnimators.keyAt(i);
-//                    anim.resume();
+                    AnimationInfo info = runningAnimators.valueAt(i);
+                    if (info.view != null && windowId.equals(info.windowId)) {
+                        Animator anim = runningAnimators.keyAt(i);
+                        anim.end(); // resume() is API Level 19
+                    }
                 }
                 if (mListeners != null && mListeners.size() > 0) {
                     ArrayList<TransitionListener> tmpListeners =
@@ -1211,10 +1220,13 @@ abstract class TransitionPort implements Cloneable {
 
         TransitionValues values;
 
-        AnimationInfo(View view, String name, TransitionValues values) {
+        WindowIdPort windowId;
+
+        AnimationInfo(View view, String name, WindowIdPort windowId, TransitionValues values) {
             this.view = view;
             this.name = name;
             this.values = values;
+            this.windowId = windowId;
         }
     }
 
