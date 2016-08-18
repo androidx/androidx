@@ -1508,7 +1508,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         waitForScrollIdleAndItemAnimation(mVerifyLayout);
 
         assertFalse("GridView should not be scrolled", scrolled[0]);
-        assertTrue(mGridView.getChildAt(1).hasFocus());
+        assertTrue(mGridView.getLayoutManager().findViewByPosition(2).hasFocus());
 
     }
 
