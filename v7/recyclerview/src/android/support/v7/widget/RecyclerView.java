@@ -174,6 +174,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     static final boolean ALLOW_SIZE_IN_UNSPECIFIED_SPEC = Build.VERSION.SDK_INT >= 23;
 
+    static final boolean POST_UPDATES_ON_ANIMATION = Build.VERSION.SDK_INT >= 16;
+
     static final boolean DISPATCH_TEMP_DETACH = false;
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -330,7 +332,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     // binary OR of change events that were eaten during a layout or scroll.
     private int mEatenAccessibilityChangeFlags;
     private boolean mAdapterUpdateDuringMeasure;
-    private final boolean mPostUpdatesOnAnimation;
+
     private final AccessibilityManager mAccessibilityManager;
     private List<OnChildAttachStateChangeListener> mOnChildAttachStateListeners;
 
@@ -501,8 +503,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         setScrollContainer(true);
         setFocusableInTouchMode(true);
-        final int version = Build.VERSION.SDK_INT;
-        mPostUpdatesOnAnimation = version >= 16;
 
         final ViewConfiguration vc = ViewConfiguration.get(context);
         mTouchSlop = vc.getScaledTouchSlop();
@@ -4687,7 +4687,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         void triggerUpdateProcessor() {
-            if (mPostUpdatesOnAnimation && mHasFixedSize && mIsAttached) {
+            if (POST_UPDATES_ON_ANIMATION && mHasFixedSize && mIsAttached) {
                 ViewCompat.postOnAnimation(RecyclerView.this, mUpdateChildViewsRunnable);
             } else {
                 mAdapterUpdateDuringMeasure = true;

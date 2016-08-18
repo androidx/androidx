@@ -29,6 +29,8 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
@@ -131,7 +133,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        testViewHolder.itemView.setBackground(stl);
+                        //noinspection deprecation using this for kitkat tests
+                        testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
 
@@ -284,11 +287,13 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void horizontalAccessibilitySpanIndices() throws Throwable {
         accessibilitySpanIndicesTest(HORIZONTAL);
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void verticalAccessibilitySpanIndices() throws Throwable {
         accessibilitySpanIndicesTest(VERTICAL);
     }
