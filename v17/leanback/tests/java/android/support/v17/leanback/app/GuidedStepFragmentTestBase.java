@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v17.leanback.testutils.PollingCheck;
 import android.view.ViewGroup;
 import android.view.View;
 import android.view.LayoutInflater;
@@ -53,8 +54,7 @@ import static org.junit.Assert.*;
  */
 public class GuidedStepFragmentTestBase {
 
-    static final long SMALL_DELAY = 250;
-    static final long TIMEOUT = 5000;
+    private static final long TIMEOUT = 5000;
 
     @Rule
     public ActivityTestRule<GuidedStepFragmentTestActivity> activityTestRule
@@ -65,53 +65,57 @@ public class GuidedStepFragmentTestBase {
         GuidedStepTestFragment.clearTests();
     }
 
-    public static void waitEnterTransitionFinish(GuidedStepTestFragment.Provider provider) {
-        long totalWait = 0;
-        int[] lastLocation = null;
-        int[] newLocation = new int[2];
-        while (true) {
-            GuidedStepTestFragment fragment = provider.getFragment();
+    public static class ExpandTransitionFinish extends PollingCheck.PollingCheckCondition {
+        GuidedStepTestFragment.Provider mProvider;
+
+        public ExpandTransitionFinish(GuidedStepTestFragment.Provider provider) {
+            mProvider = provider;
+        }
+
+        @Override
+        public boolean canPreProceed() {
+            return false;
+        }
+
+        @Override
+        public boolean canProceed() {
+            GuidedStepTestFragment fragment = mProvider.getFragment();
             if (fragment != null && fragment.getView() != null) {
-                View view = fragment.getView().findViewById(R.id.guidance_title);
-                if (view != null) {
-                    if (lastLocation == null) {
-                        // get initial location
-                        lastLocation = new int[2];
-                        view.getLocationInWindow(lastLocation);
-                    } else {
-                        // get new location and compare to old location
-                        view.getLocationInWindow(newLocation);
-                        if (newLocation[0] == lastLocation[0]
-                                && newLocation[1] == lastLocation[1]) {
-                            // location stable,  animation finished
-                            return;
-                        }
-                        lastLocation[0] = newLocation[0];
-                        lastLocation[1] = newLocation[1];
-                    }
+                if (!fragment.getGuidedActionsStylist().isInExpandTransition()) {
+                    // expand transition finishes
+                    return true;
                 }
             }
-            try {
-                Thread.sleep(SMALL_DELAY);
-            } catch (InterruptedException ex) {
-            }
-            totalWait += SMALL_DELAY;
-            assertTrue("Timeout in wait GuidedStepTestFragment transition", totalWait < TIMEOUT);
+            return false;
         }
     }
 
-    public static void waitActivityDestroy(Activity activity) {
-        long totalWait = 0;
-        while (true) {
-            if (activity.isDestroyed()) {
-                return;
+    public static void waitOnDestroy(GuidedStepTestFragment.Provider provider,
+            int times) {
+        verify(provider, timeout((int)TIMEOUT).times(times)).onDestroy();
+    }
+
+    public static class EnterTransitionFinish extends PollingCheck.PollingCheckCondition {
+        PollingCheck.ViewScreenPositionDetector mDector =
+                new PollingCheck.ViewScreenPositionDetector();
+
+        GuidedStepTestFragment.Provider mProvider;
+
+        public EnterTransitionFinish(GuidedStepTestFragment.Provider provider) {
+            mProvider = provider;
+        }
+        @Override
+        public boolean canProceed() {
+            GuidedStepTestFragment fragment = mProvider.getFragment();
+            if (fragment != null && fragment.getView() != null) {
+                View view = fragment.getView().findViewById(R.id.guidance_title);
+                if (view != null) {
+                    if (mDector.isViewStableOnScreen(view)) {
+                        return true;
+                    }
+                }
             }
-            try {
-                Thread.sleep(SMALL_DELAY);
-            } catch (InterruptedException ex) {
-            }
-            totalWait += SMALL_DELAY;
-            assertTrue("Timeout in wait activity destroy", totalWait < TIMEOUT);
+            return false;
         }
     }
 
@@ -122,6 +126,14 @@ public class GuidedStepFragmentTestBase {
     public GuidedStepFragmentTestActivity launchTestActivity(String firstTestName) {
         Intent intent = new Intent();
         intent.putExtra(GuidedStepFragmentTestActivity.EXTRA_TEST_NAME, firstTestName);
+        return activityTestRule.launchActivity(intent);
+    }
+
+    public GuidedStepFragmentTestActivity launchTestActivity(String firstTestName,
+            boolean addAsRoot) {
+        Intent intent = new Intent();
+        intent.putExtra(GuidedStepFragmentTestActivity.EXTRA_TEST_NAME, firstTestName);
+        intent.putExtra(GuidedStepFragmentTestActivity.EXTRA_ADD_AS_ROOT, addAsRoot);
         return activityTestRule.launchActivity(intent);
     }
 
