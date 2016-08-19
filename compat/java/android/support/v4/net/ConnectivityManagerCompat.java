@@ -153,9 +153,15 @@ public final class ConnectivityManagerCompat {
     /**
      * Returns if the currently active data network is metered. A network is
      * classified as metered when the user is sensitive to heavy data usage on
-     * that connection. You should check this before doing large data transfers,
-     * and warn the user or delay the operation until another network is
-     * available.
+     * that connection due to monetary costs, data limitations or
+     * battery/performance issues. You should check this before doing large
+     * data transfers, and warn the user or delay the operation until another
+     * network is available.
+     * <p>This method requires the caller to hold the permission
+     * {@link android.Manifest.permission#ACCESS_NETWORK_STATE}.
+     *
+     * @return {@code true} if large transfers should be avoided, otherwise
+     *        {@code false}.
      */
     public static boolean isActiveNetworkMetered(ConnectivityManager cm) {
         return IMPL.isActiveNetworkMetered(cm);
