@@ -1107,11 +1107,21 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         return Looper.myLooper() == Looper.getMainLooper();
     }
 
-    public void runTestOnUiThread(Runnable r) throws Throwable {
+    public void runTestOnUiThread(final Runnable r) throws Throwable {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             r.run();
         } else {
-            InstrumentationRegistry.getInstrumentation().runOnMainSync(r);
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        r.run();
+                    } catch (Throwable t) {
+                        postExceptionToInstrumentation(t);
+                    }
+                }
+            });
+            checkForMainThreadException();
         }
     }
 

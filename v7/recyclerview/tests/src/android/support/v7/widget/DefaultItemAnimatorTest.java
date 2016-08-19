@@ -440,13 +440,4 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
     private interface ThrowingRunnable {
         void run() throws Throwable;
     }
-
-    @Override
-    public void runTestOnUiThread(Runnable r) throws Throwable {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            r.run();
-        } else {
-            super.runTestOnUiThread(r);
-        }
-    }
 }
