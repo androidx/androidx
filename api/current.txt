@@ -1306,6 +1306,7 @@ package android.support.v17.leanback.app {
     method public int getBrandColor();
     method public android.support.v17.leanback.app.HeadersFragment getHeadersFragment();
     method public int getHeadersState();
+    method public android.app.Fragment getMainFragment();
     method public final android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapterRegistry getMainFragmentRegistry();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
@@ -1407,6 +1408,7 @@ package android.support.v17.leanback.app {
     method public int getBrandColor();
     method public int getHeadersState();
     method public android.support.v17.leanback.app.HeadersSupportFragment getHeadersSupportFragment();
+    method public android.support.v4.app.Fragment getMainFragment();
     method public final android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentAdapterRegistry getMainFragmentRegistry();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
