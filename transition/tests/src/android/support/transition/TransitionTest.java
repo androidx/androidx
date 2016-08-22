@@ -26,6 +26,7 @@ import android.animation.Animator;
 import android.animation.TimeInterpolator;
 import android.support.test.annotation.UiThreadTest;
 import android.support.transition.test.R;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+@MediumTest
 public class TransitionTest extends BaseTest {
 
     @Test

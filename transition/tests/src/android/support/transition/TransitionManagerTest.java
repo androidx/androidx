@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.transition.test.R;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.ViewGroup;
 
 import org.junit.Before;
@@ -32,6 +33,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class TransitionManagerTest extends BaseTest {
 
     private Scene[] mScenes = new Scene[2];
