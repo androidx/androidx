@@ -171,4 +171,4 @@ fi
 export GRADLE_USER_HOME="$ANDROID_GRADLE_ROOT/.gradle"
 export M2_HOME="$ANDROID_GRADLE_ROOT/.m2"
 
-exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain --project-cache-dir=$ANDROID_CACHE_DIR "$@"
+ANDROID_DAILY_OVERRIDE=6b69cae66637d4ff736587c13cf7db9a3fbaa7f1 exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain --project-cache-dir=$ANDROID_CACHE_DIR "$@"
