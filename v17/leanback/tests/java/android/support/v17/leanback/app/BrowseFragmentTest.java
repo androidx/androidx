@@ -59,7 +59,7 @@ public class BrowseFragmentTest {
         Intent intent = new Intent();
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
-        activityTestRule.launchActivity(intent);
+        mActivity = activityTestRule.launchActivity(intent);
 
         Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
 
@@ -75,7 +75,7 @@ public class BrowseFragmentTest {
         Intent intent = new Intent();
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
-        activityTestRule.launchActivity(intent);
+        mActivity = activityTestRule.launchActivity(intent);
 
         Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
 
@@ -91,7 +91,7 @@ public class BrowseFragmentTest {
         Intent intent = new Intent();
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
-        activityTestRule.launchActivity(intent);
+        mActivity = activityTestRule.launchActivity(intent);
 
         assertNull(mActivity.getBrowseTestFragment().getMainFragment());
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
