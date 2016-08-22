@@ -53,5 +53,5 @@ limitations under the License.
     <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
     <string name="lb_time_separator" msgid="2763247350845477227">":"</string>
     <string name="lb_onboarding_get_started" msgid="6961440391306351139">"ZAPOČNITE"</string>
-    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"Sljedeća"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"Naprijed"</string>
 </resources>
