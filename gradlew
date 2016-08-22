@@ -42,11 +42,6 @@ case "`uname`" in
     ;;
 esac
 
-# For Cygwin, ensure paths are in UNIX format before anything is touched.
-if $cygwin ; then
-    [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
-fi
-
 # Attempt to set APP_HOME
 # Resolve links: $0 may be a link
 PRG="$0"
@@ -61,9 +56,9 @@ while [ -h "$PRG" ] ; do
     fi
 done
 SAVED="`pwd`"
-cd "`dirname \"$PRG\"`/" >&-
+cd "`dirname \"$PRG\"`/" >/dev/null
 APP_HOME="`pwd -P`"
-cd "$SAVED" >&-
+cd "$SAVED" >/dev/null
 
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
@@ -114,6 +109,7 @@ fi
 if $cygwin ; then
     APP_HOME=`cygpath --path --mixed "$APP_HOME"`
     CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
+    JAVACMD=`cygpath --unix "$JAVACMD"`
 
     # We build the pattern for arguments to be converted via cygpath
     ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
@@ -161,14 +157,4 @@ function splitJvmOpts() {
 eval splitJvmOpts $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS
 JVM_OPTS[${#JVM_OPTS[*]}]="-Dorg.gradle.appname=$APP_BASE_NAME"
 
-# Change the project's .gradle to the android out dir.
-ANDROID_GRADLE_ROOT="$APP_HOME/../../out/host/gradle/frameworks/support"
-if [[ -z "$ANDROID_CACHE_DIR" ]]; then
-  ANDROID_CACHE_DIR="$ANDROID_GRADLE_ROOT/.gradle"
-fi
-
-# Change the local user directories to be under the android out dir
-export GRADLE_USER_HOME="$ANDROID_GRADLE_ROOT/.gradle"
-export M2_HOME="$ANDROID_GRADLE_ROOT/.m2"
-
-exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain --project-cache-dir=$ANDROID_CACHE_DIR "$@"
+exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
