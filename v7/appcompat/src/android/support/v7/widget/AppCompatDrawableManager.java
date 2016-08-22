@@ -85,7 +85,8 @@ public final class AppCompatDrawableManager {
 
     private static void installDefaultInflateDelegates(@NonNull AppCompatDrawableManager manager) {
         final int sdk = Build.VERSION.SDK_INT;
-        if (sdk < 23) {
+        // This sdk version check will affect src:appCompat code path.
+        if (sdk < 24) {
             // We only want to use the automatic VectorDrawableCompat handling where it's
             // needed: on devices running before Lollipop
             manager.addDelegate("vector", new VdcInflateDelegate());

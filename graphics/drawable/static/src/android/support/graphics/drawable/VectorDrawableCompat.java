@@ -54,7 +54,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 /**
- * For API 23 and above, this class is delegating to the framework's {@link VectorDrawable}.
+ * For API 24 and above, this class is delegating to the framework's {@link VectorDrawable}.
  * For older API version, this class lets you create a drawable based on an XML vector graphic.
  * <p>
  * VectorDrawableCompat are defined in the same XML format as {@link VectorDrawable}.
@@ -401,7 +401,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     @Nullable
     public static VectorDrawableCompat create(@NonNull Resources res, @DrawableRes int resId,
                                               @Nullable Theme theme) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 24) {
             final VectorDrawableCompat drawable = new VectorDrawableCompat();
             drawable.mDelegateDrawable = ResourcesCompat.getDrawable(res, resId, theme);
             drawable.mCachedConstantStateDelegate = new VectorDrawableDelegateState(
@@ -720,7 +720,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     /**
-     * Constant state for delegating the creating drawable job for SDK >= 23.
+     * Constant state for delegating the creating drawable job for SDK >= 24.
      * Instead of creating a VectorDrawable, create a VectorDrawableCompat instance which contains
      * a delegated VectorDrawable instance.
      */
