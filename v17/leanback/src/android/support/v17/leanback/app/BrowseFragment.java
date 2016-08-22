@@ -800,6 +800,13 @@ public class BrowseFragment extends BaseFragment {
     }
 
     /**
+     * @return Current main fragment or null if not created.
+     */
+    public Fragment getMainFragment() {
+        return mMainFragment;
+    }
+
+    /**
      * Get currently bound HeadersFragment or null if HeadersFragment has not been created yet.
      * @return Currently bound HeadersFragment or null if HeadersFragment has not been created yet.
      */
@@ -967,8 +974,10 @@ public class BrowseFragment extends BaseFragment {
             } else if (direction == towardEnd) {
                 if (isVerticalScrolling()) {
                     return focused;
+                } else if (mMainFragment != null && mMainFragment.getView() != null) {
+                    return mMainFragment.getView();
                 }
-                return mMainFragment.getView();
+                return focused;
             } else if (direction == View.FOCUS_DOWN && mShowingHeaders) {
                 // disable focus_down moving into PageFragment.
                 return focused;
