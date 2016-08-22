@@ -16,6 +16,8 @@
 package android.support.v4.media.session;
 
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -32,8 +34,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Playback state for a {@link MediaSessionCompat}. This includes a state like
  * {@link PlaybackStateCompat#STATE_PLAYING}, the current playback position,
@@ -49,7 +49,8 @@ public final class PlaybackStateCompat implements Parcelable {
             ACTION_SKIP_TO_PREVIOUS, ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_SET_RATING,
             ACTION_SEEK_TO, ACTION_PLAY_PAUSE, ACTION_PLAY_FROM_MEDIA_ID, ACTION_PLAY_FROM_SEARCH,
             ACTION_SKIP_TO_QUEUE_ITEM, ACTION_PLAY_FROM_URI, ACTION_PREPARE,
-            ACTION_PREPARE_FROM_MEDIA_ID, ACTION_PREPARE_FROM_SEARCH, ACTION_PREPARE_FROM_URI})
+            ACTION_PREPARE_FROM_MEDIA_ID, ACTION_PREPARE_FROM_SEARCH, ACTION_PREPARE_FROM_URI,
+            ACTION_SET_REPEAT_MODE, ACTION_SET_SHUFFLE_MODE_ENABLED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Actions {}
 
@@ -189,6 +190,20 @@ public final class PlaybackStateCompat implements Parcelable {
     public static final long ACTION_PREPARE_FROM_URI = 1 << 17;
 
     /**
+     * Indicates this session supports the set repeat mode command.
+     *
+     * @see Builder#setActions(long)
+     */
+    public static final long ACTION_SET_REPEAT_MODE = 1 << 18;
+
+    /**
+     * Indicates this session supports the set shuffle mode enabled command.
+     *
+     * @see Builder#setActions(long)
+     */
+    public static final long ACTION_SET_SHUFFLE_MODE_ENABLED = 1 << 19;
+
+    /**
      * @hide
      */
     @RestrictTo(GROUP_ID)
@@ -299,6 +314,31 @@ public final class PlaybackStateCompat implements Parcelable {
      * Use this value for the position to indicate the position is not known.
      */
     public final static long PLAYBACK_POSITION_UNKNOWN = -1;
+
+    /**
+     * @hide
+     */
+    @IntDef({REPEAT_MODE_NONE, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RepeatMode {}
+
+    /**
+     * Use this value with {@link MediaControllerCompat.TransportControls#setRepeatMode}
+     * to indicate that the playback will be stopped at the end of the playing media list.
+     */
+    public static final int REPEAT_MODE_NONE = 0;
+
+    /**
+     * Use this value with {@link MediaControllerCompat.TransportControls#setRepeatMode}
+     * to indicate that the playback of the current playing media item will be repeated.
+     */
+    public static final int REPEAT_MODE_ONE = 1;
+
+    /**
+     * Use this value with {@link MediaControllerCompat.TransportControls#setRepeatMode}
+     * to indicate that the playback of the playing media list will be repeated.
+     */
+    public static final int REPEAT_MODE_ALL = 2;
 
     // KeyEvent constants only available on API 11+
     private static final int KEYCODE_MEDIA_PAUSE = 127;
@@ -490,6 +530,8 @@ public final class PlaybackStateCompat implements Parcelable {
      * <li> {@link PlaybackStateCompat#ACTION_PREPARE_FROM_MEDIA_ID}</li>
      * <li> {@link PlaybackStateCompat#ACTION_PREPARE_FROM_SEARCH}</li>
      * <li> {@link PlaybackStateCompat#ACTION_PREPARE_FROM_URI}</li>
+     * <li> {@link PlaybackStateCompat#ACTION_SET_REPEAT_MODE}</li>
+     * <li> {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE_ENABLED}</li>
      * </ul>
      */
     @Actions
@@ -1000,6 +1042,8 @@ public final class PlaybackStateCompat implements Parcelable {
          * <li> {@link PlaybackStateCompat#ACTION_PREPARE_FROM_MEDIA_ID}</li>
          * <li> {@link PlaybackStateCompat#ACTION_PREPARE_FROM_SEARCH}</li>
          * <li> {@link PlaybackStateCompat#ACTION_PREPARE_FROM_URI}</li>
+         * <li> {@link PlaybackStateCompat#ACTION_SET_REPEAT_MODE}</li>
+         * <li> {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE_ENABLED}</li>
          * </ul>
          *
          * @return this

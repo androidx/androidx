@@ -68,7 +68,9 @@ public final class MediaControllerCompat {
         }
         mToken = session.getSessionToken();
 
-        if (android.os.Build.VERSION.SDK_INT >= 24) {
+        if (android.os.Build.VERSION.SDK_INT >= 25) {
+            mImpl = new MediaControllerImplApi25(context, session);
+        } else if (android.os.Build.VERSION.SDK_INT >= 24) {
             mImpl = new MediaControllerImplApi24(context, session);
         } else if (android.os.Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaControllerImplApi23(context, session);
@@ -93,7 +95,9 @@ public final class MediaControllerCompat {
         }
         mToken = sessionToken;
 
-        if (android.os.Build.VERSION.SDK_INT >= 24) {
+        if (android.os.Build.VERSION.SDK_INT >= 25) {
+            mImpl = new MediaControllerImplApi25(context, sessionToken);
+        } else if (android.os.Build.VERSION.SDK_INT >= 24) {
             mImpl = new MediaControllerImplApi24(context, sessionToken);
         } else if (android.os.Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaControllerImplApi23(context, sessionToken);
@@ -185,6 +189,25 @@ public final class MediaControllerCompat {
      */
     public int getRatingType() {
         return mImpl.getRatingType();
+    }
+
+    /**
+     * Get the repeat mode for this session.
+     *
+     * @return The latest repeat mode set to the session, or
+     *         {@link PlaybackStateCompat#REPEAT_MODE_NONE} if not set.
+     */
+    public int getRepeatMode() {
+        return mImpl.getRepeatMode();
+    }
+
+    /**
+     * Return whether the shuffle mode is enabled for this session.
+     *
+     * @return {@code true} if the shuffle mode is enabled, {@code false} if disabled or not set.
+     */
+    public boolean isShuffleModeEnabled() {
+        return mImpl.isShuffleModeEnabled();
     }
 
     /**
@@ -348,7 +371,9 @@ public final class MediaControllerCompat {
         boolean mRegistered = false;
 
         public Callback() {
-            if (android.os.Build.VERSION.SDK_INT >= 21) {
+            if (android.os.Build.VERSION.SDK_INT >= 25) {
+                mCallbackObj = MediaControllerCompatApi25.createCallback(new StubApi25());
+            } else if (android.os.Build.VERSION.SDK_INT >= 21) {
                 mCallbackObj = MediaControllerCompatApi21.createCallback(new StubApi21());
             } else {
                 mCallbackObj = new StubCompat();
@@ -428,6 +453,25 @@ public final class MediaControllerCompat {
         public void onAudioInfoChanged(PlaybackInfo info) {
         }
 
+        /**
+         * Override to handle changes to the repeat mode.
+         *
+         * @param repeatMode The repeat mode. It should be one of followings:
+         *            {@link PlaybackStateCompat#REPEAT_MODE_NONE},
+         *            {@link PlaybackStateCompat#REPEAT_MODE_ONE},
+         *            {@link PlaybackStateCompat#REPEAT_MODE_ALL}
+         */
+        public void onRepeatModeChanged(@PlaybackStateCompat.RepeatMode int repeatMode) {
+        }
+
+        /**
+         * Override to handle changes to the shuffle mode.
+         *
+         * @param enabled {@code true} if the shuffle mode is enabled, {@code false} otherwise.
+         */
+        public void onShuffleModeChanged(boolean enabled) {
+        }
+
         @Override
         public void binderDied() {
             onSessionDestroyed();
@@ -485,6 +529,18 @@ public final class MediaControllerCompat {
                     int type, int stream, int control, int max, int current) {
                 Callback.this.onAudioInfoChanged(
                         new PlaybackInfo(type, stream, control, max, current));
+            }
+        }
+
+        private class StubApi25 extends StubApi21 implements MediaControllerCompatApi25.Callback {
+            @Override
+            public void onRepeatModeChanged(@PlaybackStateCompat.RepeatMode int repeatMode) {
+                Callback.this.onRepeatModeChanged(repeatMode);
+            }
+
+            @Override
+            public void onShuffleModeChanged(boolean enabled) {
+                Callback.this.onShuffleModeChanged(enabled);
             }
         }
 
@@ -749,6 +805,23 @@ public final class MediaControllerCompat {
         public abstract void setRating(RatingCompat rating);
 
         /**
+         * Set the repeat mode for this session.
+         *
+         * @param repeatMode The repeat mode. Must be one of the followings:
+         *            {@link PlaybackStateCompat#REPEAT_MODE_NONE},
+         *            {@link PlaybackStateCompat#REPEAT_MODE_ONE},
+         *            {@link PlaybackStateCompat#REPEAT_MODE_ALL}
+         */
+        public abstract void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode);
+
+        /**
+         * Set the shuffle mode for this session.
+         *
+         * @param enabled {@code true} to enable the shuffle mode, {@code false} to disable.
+         */
+        public abstract void setShuffleModeEnabled(boolean enabled);
+
+        /**
          * Send a custom action for the {@link MediaSessionCompat} to perform.
          *
          * @param customAction The action to perform.
@@ -873,6 +946,8 @@ public final class MediaControllerCompat {
         CharSequence getQueueTitle();
         Bundle getExtras();
         int getRatingType();
+        int getRepeatMode();
+        boolean isShuffleModeEnabled();
         long getFlags();
         PlaybackInfo getPlaybackInfo();
         PendingIntent getSessionActivity();
@@ -1006,6 +1081,18 @@ public final class MediaControllerCompat {
                 Log.e(TAG, "Dead object in getRatingType. " + e);
             }
             return 0;
+        }
+
+        @Override
+        public int getRepeatMode() {
+            // TODO: implement this
+            return 0;
+        }
+
+        @Override
+        public boolean isShuffleModeEnabled() {
+            // TODO: implement this
+            return false;
         }
 
         @Override
@@ -1246,6 +1333,16 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
+            // TODO: impletment this
+        }
+
+        @Override
+        public void setShuffleModeEnabled(boolean enabled) {
+            // TODO: impletment this
+        }
+
+        @Override
         public void sendCustomAction(CustomAction customAction, Bundle args) {
             sendCustomAction(customAction.getAction(), args);
         }
@@ -1328,6 +1425,18 @@ public final class MediaControllerCompat {
         @Override
         public int getRatingType() {
             return MediaControllerCompatApi21.getRatingType(mControllerObj);
+        }
+
+        @Override
+        public int getRepeatMode() {
+            // TODO: implement this
+            return 0;
+        }
+
+        @Override
+        public boolean isShuffleModeEnabled() {
+            // TODO: implement this
+            return false;
         }
 
         @Override
@@ -1460,6 +1569,16 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
+            // TODO: implement this
+        }
+
+        @Override
+        public void setShuffleModeEnabled(boolean enabled) {
+            // TODO: implement this
+        }
+
+        @Override
         public void playFromMediaId(String mediaId, Bundle extras) {
             MediaControllerCompatApi21.TransportControls.playFromMediaId(mControlsObj, mediaId,
                     extras);
@@ -1576,6 +1695,52 @@ public final class MediaControllerCompat {
         @Override
         public void prepareFromUri(Uri uri, Bundle extras) {
             MediaControllerCompatApi24.TransportControls.prepareFromUri(mControlsObj, uri, extras);
+        }
+    }
+
+    static class MediaControllerImplApi25 extends MediaControllerImplApi24 {
+
+        MediaControllerImplApi25(Context context, MediaSessionCompat session) {
+            super(context, session);
+        }
+
+        MediaControllerImplApi25(Context context, MediaSessionCompat.Token sessionToken)
+                throws RemoteException {
+            super(context, sessionToken);
+        }
+
+        @Override
+        public TransportControls getTransportControls() {
+            Object controlsObj = MediaControllerCompatApi21.getTransportControls(mControllerObj);
+            return controlsObj != null ? new TransportControlsApi25(controlsObj) : null;
+        }
+
+        @Override
+        public int getRepeatMode() {
+            return MediaControllerCompatApi25.getRepeatMode(mControllerObj);
+        }
+
+        @Override
+        public boolean isShuffleModeEnabled() {
+            return MediaControllerCompatApi25.isShuffleModeEnabled(mControllerObj);
+        }
+    }
+
+    static class TransportControlsApi25 extends TransportControlsApi24 {
+
+        TransportControlsApi25(Object controlsObj) {
+            super(controlsObj);
+        }
+
+        @Override
+        public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
+            MediaControllerCompatApi25.TransportControls.setRepeatMode(mControlsObj, repeatMode);
+        }
+
+        @Override
+        public void setShuffleModeEnabled(boolean enabled) {
+            MediaControllerCompatApi25.TransportControls.setShuffleModeEnabled(mControlsObj,
+                    enabled);
         }
     }
 
