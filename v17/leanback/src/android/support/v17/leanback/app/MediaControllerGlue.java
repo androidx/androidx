@@ -48,14 +48,17 @@ public abstract class MediaControllerGlue extends PlaybackControlGlue {
      *
      * <p>The {@link PlaybackOverlayFragment} must be passed in.
      * A {@link android.support.v17.leanback.widget.OnItemViewClickedListener} and
-     * {@link PlaybackOverlayFragment.InputEventHandler}
+     * {@link android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler}
      * will be set on the fragment.
      * </p>
      *
      * @param context
      * @param fragment
      * @param seekSpeeds Array of seek speeds for fast forward and rewind.
+     * @deprecated Use
+     * {@link #MediaControllerGlue(Context, PlaybackGlue.PlaybackGlueHost, int[], int[])}.
      */
+    @Deprecated
     public MediaControllerGlue(Context context,
                                PlaybackOverlayFragment fragment,
                                int[] seekSpeeds) {
@@ -67,7 +70,7 @@ public abstract class MediaControllerGlue extends PlaybackControlGlue {
      *
      * <p>The {@link PlaybackOverlayFragment} must be passed in.
      * A {@link android.support.v17.leanback.widget.OnItemViewClickedListener} and
-     * {@link PlaybackOverlayFragment.InputEventHandler}
+     * {@link android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler}
      * will be set on the fragment.
      * </p>
      *
@@ -75,12 +78,30 @@ public abstract class MediaControllerGlue extends PlaybackControlGlue {
      * @param fragment
      * @param fastForwardSpeeds Array of seek speeds for fast forward.
      * @param rewindSpeeds Array of seek speeds for rewind.
+     * @deprecated Use
+     * {@link #MediaControllerGlue(Context, PlaybackGlue.PlaybackGlueHost, int[], int[])}.
      */
+    @Deprecated
     public MediaControllerGlue(Context context,
                                PlaybackOverlayFragment fragment,
                                int[] fastForwardSpeeds,
                                int[] rewindSpeeds) {
         super(context, fragment, fastForwardSpeeds, rewindSpeeds);
+    }
+
+    /**
+     * Constructor for the glue.
+     *
+     * @param context
+     * @param host Optional; if using a {@link PlaybackGlue.PlaybackGlueHost}, pass it in.
+     * @param fastForwardSpeeds Array of seek speeds for fast forward.
+     * @param rewindSpeeds Array of seek speeds for rewind.
+     */
+    public MediaControllerGlue(Context context,
+            PlaybackGlueHost host,
+            int[] fastForwardSpeeds,
+            int[] rewindSpeeds) {
+        super(context, host, fastForwardSpeeds, rewindSpeeds);
     }
 
     /**

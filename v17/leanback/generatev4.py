@@ -20,7 +20,7 @@ import sys
 print "Generate v4 fragment related code for leanback"
 
 cls = ['Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Error', 'Headers',
-      'PlaybackOverlay', 'Rows', 'Search', 'VerticalGrid', 'Branded', 'GuidedStep', 'Onboarding']
+      'PlaybackOverlay', 'Playback', 'Rows', 'Search', 'VerticalGrid', 'Branded', 'GuidedStep', 'Onboarding']
 
 for w in cls:
     print "copy {}Fragment to {}SupportFragment".format(w, w)
@@ -42,14 +42,3 @@ for w in cls:
         outfile.write(line)
     file.close()
     outfile.close()
-
-file = open('src/android/support/v17/leanback/app/PlaybackControlGlue.java', 'r')
-outfile = open('src/android/support/v17/leanback/app/PlaybackControlSupportGlue.java', 'w')
-outfile.write("/* This file is auto-generated from PlaybackControlGlue.java.  DO NOT MODIFY. */\n\n")
-for line in file:
-    line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue');
-    line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment');
-    outfile.write(line)
-file.close()
-outfile.close()
-
