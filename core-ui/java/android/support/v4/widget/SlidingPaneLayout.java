@@ -31,6 +31,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.AbsSavedState;
@@ -1145,7 +1146,7 @@ public class SlidingPaneLayout extends ViewGroup {
      * @param resId Resource ID of a drawable to use
      */
     public void setShadowResourceLeft(int resId) {
-        setShadowDrawableLeft(getResources().getDrawable(resId));
+        setShadowDrawableLeft(ContextCompat.getDrawable(getContext(), resId));
     }
 
     /**
@@ -1155,9 +1156,8 @@ public class SlidingPaneLayout extends ViewGroup {
      * @param resId Resource ID of a drawable to use
      */
     public void setShadowResourceRight(int resId) {
-        setShadowDrawableRight(getResources().getDrawable(resId));
+        setShadowDrawableRight(ContextCompat.getDrawable(getContext(), resId));
     }
-
 
     @Override
     public void draw(Canvas c) {

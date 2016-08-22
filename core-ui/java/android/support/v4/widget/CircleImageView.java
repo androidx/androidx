@@ -24,6 +24,7 @@ import android.graphics.RadialGradient;
 import android.graphics.Shader;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.view.animation.Animation;
 import android.widget.ImageView;
@@ -113,7 +114,7 @@ class CircleImageView extends ImageView {
      * @param colorRes Id of a color resource.
      */
     public void setBackgroundColorRes(int colorRes) {
-        setBackgroundColor(getContext().getResources().getColor(colorRes));
+        setBackgroundColor(ContextCompat.getColor(getContext(), colorRes));
     }
 
     @Override
