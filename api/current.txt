@@ -7437,6 +7437,8 @@ package android.support.v4.widget {
     ctor public SwipeRefreshLayout(android.content.Context, android.util.AttributeSet);
     method public boolean canChildScrollUp();
     method public int getProgressCircleDiameter();
+    method public int getProgressViewEndOffset();
+    method public int getProgressViewStartOffset();
     method public boolean isRefreshing();
     method protected void onLayout(boolean, int, int, int, int);
     method public void onMeasure(int, int);
