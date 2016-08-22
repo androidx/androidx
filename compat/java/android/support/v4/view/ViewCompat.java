@@ -21,6 +21,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IdRes;
@@ -456,6 +457,7 @@ public class ViewCompat {
         void setSaveFromParentEnabled(View view, boolean enabled);
         void setActivated(View view, boolean activated);
         boolean isPaddingRelative(View view);
+        void setBackground(View view, Drawable background);
         ColorStateList getBackgroundTintList(View view);
         void setBackgroundTintList(View view, ColorStateList tintList);
         PorterDuff.Mode getBackgroundTintMode(View view);
@@ -976,6 +978,11 @@ public class ViewCompat {
         }
 
         @Override
+        public void setBackground(View view, Drawable background) {
+            view.setBackgroundDrawable(background);
+        }
+
+        @Override
         public ColorStateList getBackgroundTintList(View view) {
             return ViewCompatBase.getBackgroundTintList(view);
         }
@@ -1492,6 +1499,11 @@ public class ViewCompat {
         @Override
         public boolean hasOverlappingRendering(View view) {
             return ViewCompatJB.hasOverlappingRendering(view);
+        }
+
+        @Override
+        public void setBackground(View view, Drawable background) {
+            ViewCompatJB.setBackground(view, background);
         }
     }
 
@@ -3091,6 +3103,16 @@ public class ViewCompat {
      */
     public static boolean isPaddingRelative(View view) {
         return IMPL.isPaddingRelative(view);
+    }
+
+    /**
+     * Set the background of the {@code view} to a given Drawable, or remove the background. If the
+     * background has padding, {@code view}'s padding is set to the background's padding. However,
+     * when a background is removed, this View's padding isn't touched. If setting the padding is
+     * desired, please use{@code setPadding(int, int, int, int)}.
+     */
+    public static void setBackground(View view, Drawable background) {
+        IMPL.setBackground(view, background);
     }
 
     /**
