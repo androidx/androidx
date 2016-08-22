@@ -257,7 +257,6 @@ public class SortedListTest extends TestCase {
                 for (int index = mList.size(); index < mList.mData.length; index++) {
                     assertNull(mList.mData[index]);
                 }
-
             }
         } catch (Throwable t) {
             Collections.sort(copy, sItemComparator);
