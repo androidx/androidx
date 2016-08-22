@@ -141,7 +141,11 @@
         <item name="android:windowSharedElementReturnTransition">@null</item>
     </style>
 
-    <style name="Theme.Leanback.GuidedStep" parent="Theme.LeanbackBase">
+    <style name="Theme.Leanback.GuidedStepBase" parent="Theme.LeanbackBase">
+        <item name="guidedActionsSelectorDrawable">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="Theme.Leanback.GuidedStep" parent="Theme.Leanback.GuidedStepBase">
         <item name="guidedStepThemeFlag">true</item>
         <item name="guidedStepHeightWeight">@string/lb_guidedstep_height_weight</item>
 
@@ -167,7 +171,6 @@
         <item name="guidedActionsElevation">@dimen/lb_guidedactions_elevation</item>
         <item name="guidedActionsBackground">@color/lb_guidedactions_background</item>
         <item name="guidedActionsBackgroundDark">@color/lb_guidedactions_background_dark</item>
-        <item name="guidedActionsSelectorDrawable">@drawable/lb_selectable_item_background</item>
         <item name="guidedActionsListStyle">@style/Widget.Leanback.GuidedActionsListStyle</item>
         <item name="guidedSubActionsListStyle">@style/Widget.Leanback.GuidedSubActionsListStyle</item>
         <item name="guidedButtonActionsListStyle">@style/Widget.Leanback.GuidedButtonActionsListStyle</item>
