@@ -792,7 +792,7 @@ public class SortedList<T> {
 
         @Override
         public void onMoved(int fromPosition, int toPosition) {
-            mBatchingListUpdateCallback.onInserted(fromPosition, toPosition);
+            mBatchingListUpdateCallback.onMoved(fromPosition, toPosition);
         }
 
         @Override
