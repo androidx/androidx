@@ -83,7 +83,7 @@ final class StaticShadowHelper {
      * Returns the StaticShadowHelper.
      */
     private StaticShadowHelper() {
-        if (Build.VERSION.SDK_INT >= 18) {
+        if (Build.VERSION.SDK_INT >= 21) {
             mSupportsShadow = true;
             mImpl = new ShadowHelperJbmr2Impl();
         } else {
