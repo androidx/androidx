@@ -19,6 +19,7 @@ package android.support.v7.preference;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -295,7 +296,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
 
         final View view = inflater.inflate(pl.resId, parent, false);
         if (view.getBackground() == null) {
-            view.setBackgroundDrawable(background);
+            ViewCompat.setBackground(view, background);
         }
 
         final ViewGroup widgetFrame = (ViewGroup) view.findViewById(android.R.id.widget_frame);

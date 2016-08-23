@@ -18,6 +18,7 @@ package android.support.v7.view.menu;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.widget.TintTypedArray;
 import android.util.AttributeSet;
@@ -84,7 +85,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        setBackgroundDrawable(mBackground);
+        ViewCompat.setBackground(this, mBackground);
 
         mTitleView = (TextView) findViewById(R.id.title);
         if (mTextAppearance != -1) {
