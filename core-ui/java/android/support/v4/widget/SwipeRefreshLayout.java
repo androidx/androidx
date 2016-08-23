@@ -23,6 +23,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingChildHelper;
@@ -528,7 +529,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      * @param colorRes Resource id of the color.
      */
     public void setProgressBackgroundColorSchemeResource(@ColorRes int colorRes) {
-        setProgressBackgroundColorSchemeColor(getResources().getColor(colorRes));
+        setProgressBackgroundColorSchemeColor(ContextCompat.getColor(getContext(), colorRes));
     }
 
     /**
@@ -557,10 +558,10 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      * @param colorResIds
      */
     public void setColorSchemeResources(@ColorRes int... colorResIds) {
-        final Resources res = getResources();
+        final Context context = getContext();
         int[] colorRes = new int[colorResIds.length];
         for (int i = 0; i < colorResIds.length; i++) {
-            colorRes[i] = res.getColor(colorResIds[i]);
+            colorRes[i] = ContextCompat.getColor(context, colorResIds[i]);
         }
         setColorSchemeColors(colorRes);
     }
