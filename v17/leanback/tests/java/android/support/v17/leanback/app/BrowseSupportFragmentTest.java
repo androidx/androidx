@@ -28,12 +28,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.espresso.action.ViewActions;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -57,11 +59,15 @@ public class BrowseSupportFragmentTest {
 
     @Test
     public void testTwoBackKeysWithBackStack() throws Throwable {
+        final long dataLoadingDelay = 1000;
         Intent intent = new Intent();
-        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, (long) 1000);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
         intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
         activityTestRule.launchActivity(intent);
 
+        Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
+
+        assertNotNull(mActivity.getBrowseTestSupportFragment().getMainFragment());
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
         Thread.sleep(TRANSITION_LENGTH);
         sendKeys(KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_BACK);
@@ -69,14 +75,30 @@ public class BrowseSupportFragmentTest {
 
     @Test
     public void testTwoBackKeysWithoutBackStack() throws Throwable {
+        final long dataLoadingDelay = 1000;
         Intent intent = new Intent();
-        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, (long) 1000);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
         intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
         activityTestRule.launchActivity(intent);
 
+        Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
+
+        assertNotNull(mActivity.getBrowseTestSupportFragment().getMainFragment());
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
         Thread.sleep(TRANSITION_LENGTH);
         sendKeys(KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_BACK);
+    }
+
+    @Test
+    public void testPressRightBeforeMainFragmentCreated() throws Throwable {
+        final long dataLoadingDelay = 1000;
+        Intent intent = new Intent();
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
+        activityTestRule.launchActivity(intent);
+
+        assertNull(mActivity.getBrowseTestSupportFragment().getMainFragment());
+        sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
     }
 
     @Test
@@ -114,7 +136,7 @@ public class BrowseSupportFragmentTest {
 
     private void sendKeys(int ...keys) {
         for (int i = 0; i < keys.length; i++) {
-            ViewActions.pressKey(keys[i]);
+            InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keys[i]);
         }
     }
 
