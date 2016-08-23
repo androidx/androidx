@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
 import android.util.AttributeSet;
@@ -57,7 +58,7 @@ public class ActionBarContainer extends FrameLayout {
         final Drawable bg = Build.VERSION.SDK_INT >= 21
                 ? new ActionBarBackgroundDrawableV21(this)
                 : new ActionBarBackgroundDrawable(this);
-        setBackgroundDrawable(bg);
+        ViewCompat.setBackground(this, bg);
 
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.ActionBar);
