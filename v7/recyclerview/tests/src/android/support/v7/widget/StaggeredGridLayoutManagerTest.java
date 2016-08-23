@@ -323,7 +323,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        testViewHolder.itemView.setBackground(stl);
+                        //noinspection deprecation used to support kitkat tests
+                        testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
 
@@ -681,9 +682,15 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         smoothScrollToPosition(mAdapter.getItemCount() / 2);
         final int changePosition = mAdapter.getItemCount() / 4;
         mLayoutManager.expectLayouts(1);
-        mAdapter.changeAndNotify(changePosition, 1);
-        mLayoutManager.assertNoLayout("no layout should happen when an invisible child is updated",
-                1);
+        if (RecyclerView.POST_UPDATES_ON_ANIMATION) {
+            mAdapter.changeAndNotify(changePosition, 1);
+            mLayoutManager.assertNoLayout("no layout should happen when an invisible child is "
+                    + "updated", 1);
+        } else {
+            mAdapter.changeAndNotify(changePosition, 1);
+            mLayoutManager.waitForLayout(1);
+        }
+
         // delete an item before visible area
         int deletedPosition = mLayoutManager.getPosition(mLayoutManager.getChildAt(0)) - 2;
         assertTrue("test sanity", deletedPosition >= 0);
