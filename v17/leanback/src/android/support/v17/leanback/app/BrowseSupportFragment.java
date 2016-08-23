@@ -969,8 +969,10 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             } else if (direction == towardEnd) {
                 if (isVerticalScrolling()) {
                     return focused;
+                } else if (mMainFragment != null && mMainFragment.getView() != null) {
+                    return mMainFragment.getView();
                 }
-                return mMainFragment.getView();
+                return focused;
             } else if (direction == View.FOCUS_DOWN && mShowingHeaders) {
                 // disable focus_down moving into PageFragment.
                 return focused;
