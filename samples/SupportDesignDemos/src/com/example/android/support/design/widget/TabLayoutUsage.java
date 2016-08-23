@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
@@ -166,7 +167,7 @@ public class TabLayoutUsage extends AppCompatActivity {
             final TextView tv = new TextView(container.getContext());
             tv.setText(getPageTitle(position));
             tv.setGravity(Gravity.CENTER);
-            tv.setTextAppearance(tv.getContext(), R.style.TextAppearance_AppCompat_Title);
+            TextViewCompat.setTextAppearance(tv, R.style.TextAppearance_AppCompat_Title);
             container.addView(tv, ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT);
 
