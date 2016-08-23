@@ -46,6 +46,7 @@ import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.KeyEventCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.CollapsibleActionView;
@@ -313,8 +314,10 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         mCollapsedIcon = (ImageView) findViewById(R.id.search_mag_icon);
 
         // Set up icons and backgrounds.
-        mSearchPlate.setBackgroundDrawable(a.getDrawable(R.styleable.SearchView_queryBackground));
-        mSubmitArea.setBackgroundDrawable(a.getDrawable(R.styleable.SearchView_submitBackground));
+        ViewCompat.setBackground(mSearchPlate,
+                a.getDrawable(R.styleable.SearchView_queryBackground));
+        ViewCompat.setBackground(mSubmitArea,
+                a.getDrawable(R.styleable.SearchView_submitBackground));
         mSearchButton.setImageDrawable(a.getDrawable(R.styleable.SearchView_searchIcon));
         mGoButton.setImageDrawable(a.getDrawable(R.styleable.SearchView_goIcon));
         mCloseButton.setImageDrawable(a.getDrawable(R.styleable.SearchView_closeIcon));

@@ -29,6 +29,7 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ResourceCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -190,12 +191,12 @@ public class PaletteActivity extends AppCompatActivity {
                 ImageView imageView = (ImageView) view.findViewById(R.id.image);
                 imageView.setImageDrawable(null);
 
-                view.findViewById(R.id.text_vibrant).setBackgroundDrawable(null);
-                view.findViewById(R.id.text_muted).setBackgroundDrawable(null);
-                view.findViewById(R.id.text_light_vibrant).setBackgroundDrawable(null);
-                view.findViewById(R.id.text_light_muted).setBackgroundDrawable(null);
-                view.findViewById(R.id.text_dark_vibrant).setBackgroundDrawable(null);
-                view.findViewById(R.id.text_dark_muted).setBackgroundDrawable(null);
+                ViewCompat.setBackground(view.findViewById(R.id.text_vibrant), null);
+                ViewCompat.setBackground(view.findViewById(R.id.text_muted), null);
+                ViewCompat.setBackground(view.findViewById(R.id.text_light_vibrant), null);
+                ViewCompat.setBackground(view.findViewById(R.id.text_light_muted), null);
+                ViewCompat.setBackground(view.findViewById(R.id.text_dark_vibrant), null);
+                ViewCompat.setBackground(view.findViewById(R.id.text_dark_muted), null);
 
                 final long id = cursor.getLong(
                         cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID));

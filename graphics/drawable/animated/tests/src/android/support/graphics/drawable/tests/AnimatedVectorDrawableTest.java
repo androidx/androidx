@@ -27,6 +27,7 @@ import android.support.graphics.drawable.animated.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.view.ViewCompat;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -201,7 +202,7 @@ public class AnimatedVectorDrawableTest {
             public void run() {
                 AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
                         R.drawable.animated_color_fill);
-                imageButton.setBackgroundDrawable(avd);
+                ViewCompat.setBackground(imageButton, avd);
                 avd.start();
             }
         });
