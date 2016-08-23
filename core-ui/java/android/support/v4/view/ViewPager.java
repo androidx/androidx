@@ -32,6 +32,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
@@ -929,7 +930,7 @@ public class ViewPager extends ViewGroup {
      * @param resId Resource ID of a drawable to display between pages
      */
     public void setPageMarginDrawable(@DrawableRes int resId) {
-        setPageMarginDrawable(getContext().getResources().getDrawable(resId));
+        setPageMarginDrawable(ContextCompat.getDrawable(getContext(), resId));
     }
 
     @Override
