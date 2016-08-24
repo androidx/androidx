@@ -132,6 +132,26 @@ public class BrowseSupportFragmentTest {
         assertEquals(selectItem, row.getGridView().getSelectedPosition());
     }
 
+    @Test
+    public void activityRecreate_notCrash() throws InterruptedException {
+        final long dataLoadingDelay = 1000;
+        Intent intent = new Intent();
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_SET_ADAPTER_AFTER_DATA_LOAD, true);
+        mActivity = activityTestRule.launchActivity(intent);
+
+        Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
+
+        InstrumentationRegistry.getInstrumentation().callActivityOnRestart(mActivity);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.recreate();
+            }
+        });
+    }
+
     private void sendKeys(int ...keys) {
         for (int i = 0; i < keys.length; i++) {
             InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keys[i]);
