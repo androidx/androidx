@@ -10077,12 +10077,6 @@ package android.support.v7.widget {
     method public boolean onFling(int, int);
   }
 
-  public final deprecated class Space extends android.support.v4.widget.Space {
-    ctor public Space(android.content.Context);
-    ctor public Space(android.content.Context, android.util.AttributeSet);
-    ctor public Space(android.content.Context, android.util.AttributeSet, int);
-  }
-
   public class StaggeredGridLayoutManager extends android.support.v7.widget.RecyclerView.LayoutManager implements android.support.v7.widget.RecyclerView.SmoothScroller.ScrollVectorProvider {
     ctor public StaggeredGridLayoutManager(android.content.Context, android.util.AttributeSet, int, int);
     ctor public StaggeredGridLayoutManager(int, int);
