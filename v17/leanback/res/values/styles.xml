@@ -168,7 +168,7 @@
         <item name="android:layout_toStartOf">@+id/extra_badge</item>
         <item name="android:maxLines">1</item>
         <item name="android:textAlignment">viewStart</item>
-        <item name="android:ellipsize">none</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.ImageCardView.Content</item>
     </style>
 
