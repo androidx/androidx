@@ -32,6 +32,7 @@ public class BrowseFragmentTestActivity extends Activity {
     public static final String EXTRA_REPEAT_PER_ROW = "repeatPerRow";
     public static final String EXTRA_LOAD_DATA_DELAY = "loadDataDelay";
     public static final String EXTRA_TEST_ENTRANCE_TRANSITION = "testEntranceTransition";
+    public final static String EXTRA_SET_ADAPTER_AFTER_DATA_LOAD = "set_adapter_after_data_load";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,6 +48,9 @@ public class BrowseFragmentTestActivity extends Activity {
         BrowseTestFragment.TEST_ENTRANCE_TRANSITION = intent.getBooleanExtra(
                 EXTRA_TEST_ENTRANCE_TRANSITION,
                 BrowseTestFragment.DEFAULT_TEST_ENTRANCE_TRANSITION);
+        BrowseTestFragment.SET_ADAPTER_AFTER_DATA_LOAD = intent.getBooleanExtra(
+                EXTRA_SET_ADAPTER_AFTER_DATA_LOAD,
+                BrowseTestFragment.DEFAULT_SET_ADAPTER_AFTER_DATA_LOAD);
         setContentView(R.layout.browse);
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.main_frame, new BrowseTestFragment());
