@@ -506,7 +506,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      * @param gravity Which drawer the shadow should apply to
      */
     public void setDrawerShadow(@DrawableRes int resId, @EdgeGravity int gravity) {
-        setDrawerShadow(getResources().getDrawable(resId), gravity);
+        setDrawerShadow(ContextCompat.getDrawable(getContext(), resId), gravity);
     }
 
     /**

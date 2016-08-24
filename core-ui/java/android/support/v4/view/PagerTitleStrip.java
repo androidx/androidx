@@ -22,6 +22,7 @@ import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
+import android.support.v4.widget.TextViewCompat;
 import android.text.TextUtils.TruncateAt;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -127,9 +128,9 @@ public class PagerTitleStrip extends ViewGroup {
         final TypedArray a = context.obtainStyledAttributes(attrs, ATTRS);
         final int textAppearance = a.getResourceId(0, 0);
         if (textAppearance != 0) {
-            mPrevText.setTextAppearance(context, textAppearance);
-            mCurrText.setTextAppearance(context, textAppearance);
-            mNextText.setTextAppearance(context, textAppearance);
+            TextViewCompat.setTextAppearance(mPrevText, textAppearance);
+            TextViewCompat.setTextAppearance(mCurrText, textAppearance);
+            TextViewCompat.setTextAppearance(mNextText, textAppearance);
         }
         final int textSize = a.getDimensionPixelSize(1, 0);
         if (textSize != 0) {
