@@ -126,12 +126,13 @@ public class PaletteDetailActivity extends AppCompatActivity {
         ImageLoader.loadMediaStoreThumbnail(mImageView, id, new ImageLoader.Listener() {
             @Override
             public void onImageLoaded(Bitmap bitmap) {
-                Palette.generateAsync(bitmap, numColors, new Palette.PaletteAsyncListener() {
-                    @Override
-                    public void onGenerated(Palette palette) {
-                        populatePalette(palette);
-                    }
-                });
+                new Palette.Builder(bitmap).maximumColorCount(numColors).generate(
+                        new Palette.PaletteAsyncListener() {
+                            @Override
+                            public void onGenerated(Palette palette) {
+                                populatePalette(palette);
+                            }
+                        });
             }
         });
     }

@@ -102,6 +102,7 @@ public abstract class OverlayDisplayWindow {
     /**
      * Implementation for older versions.
      */
+    @SuppressWarnings("deprecation") // Intentionally using deprecated APIs for pre JB MR1 devices.
     private static final class LegacyImpl extends OverlayDisplayWindow {
         private final WindowManager mWindowManager;
 
