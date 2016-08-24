@@ -67,7 +67,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
         setTitle("Leanback Sample App");
         setHeadersState(HEADERS_ENABLED);
-        setupRows();
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,6 +100,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         // simulates in a real world use case  data being loaded two seconds later
         new Handler().postDelayed(new Runnable() {
             public void run() {
+                setupRows();
                 loadData();
                 startEntranceTransition();
             }

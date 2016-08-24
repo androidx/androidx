@@ -1194,7 +1194,9 @@ public class BrowseFragment extends BaseFragment {
 
     private void setupMainFragment() {
         if (mMainFragmentRowsAdapter != null) {
-            mMainFragmentRowsAdapter.setAdapter(new ListRowDataAdapter(mAdapter));
+            if (mAdapter != null) {
+                mMainFragmentRowsAdapter.setAdapter(new ListRowDataAdapter(mAdapter));
+            }
             mMainFragmentRowsAdapter.setOnItemViewSelectedListener(
                     new MainFragmentItemViewSelectedListener(mMainFragmentRowsAdapter));
             mMainFragmentRowsAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
