@@ -74,4 +74,28 @@ public class SwipeRefreshLayoutActions {
             }
         };
     }
+
+    public static ViewAction setEnabled(final boolean enabled) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(SwipeRefreshLayout.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Set SwipeRefreshLayout enabled state";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view;
+                swipeRefreshLayout.setEnabled(enabled);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
 }
