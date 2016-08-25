@@ -72,6 +72,9 @@ public abstract class ObjectAdapter {
 
     private static final class DataObservable extends Observable<DataObserver> {
 
+        DataObservable() {
+        }
+
         public void notifyChanged() {
             for (int i = mObservers.size() - 1; i >= 0; i--) {
                 mObservers.get(i).onChanged();

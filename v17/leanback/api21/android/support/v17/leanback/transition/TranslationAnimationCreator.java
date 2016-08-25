@@ -83,7 +83,7 @@ class TranslationAnimationCreator {
         private final float mTerminalX;
         private final float mTerminalY;
 
-        private TransitionPositionListener(View movingView, View viewInHierarchy,
+        TransitionPositionListener(View movingView, View viewInHierarchy,
                 int startX, int startY, float terminalX, float terminalY) {
             mMovingView = movingView;
             mViewInHierarchy = viewInHierarchy;

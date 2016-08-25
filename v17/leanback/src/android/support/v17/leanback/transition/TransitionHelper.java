@@ -162,6 +162,9 @@ public final class TransitionHelper {
 
         private static class TransitionStub {
             ArrayList<TransitionListener> mTransitionListeners;
+
+            TransitionStub() {
+            }
         }
 
         @Override

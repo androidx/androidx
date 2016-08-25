@@ -59,6 +59,9 @@ final class RoundedRectHelper {
      * Implementation used prior to L.
      */
     private static final class StubImpl implements Impl {
+        StubImpl() {
+        }
+
         @Override
         public void setClipToRoundedOutline(View view, boolean clip, int radius) {
             // Not supported
@@ -69,6 +72,9 @@ final class RoundedRectHelper {
      * Implementation used on api 21 (and above).
      */
     private static final class Api21Impl implements Impl {
+        Api21Impl() {
+        }
+
         @Override
         public void setClipToRoundedOutline(View view, boolean clip, int radius) {
             RoundedRectHelperApi21.setClipToRoundedOutline(view, clip, radius);

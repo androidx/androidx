@@ -44,11 +44,11 @@ import java.util.List;
  * @hide
  */
 public class GuidedActionAdapter extends RecyclerView.Adapter {
-    private static final String TAG = "GuidedActionAdapter";
-    private static final boolean DEBUG = false;
+    static final String TAG = "GuidedActionAdapter";
+    static final boolean DEBUG = false;
 
-    private static final String TAG_EDIT = "EditableAction";
-    private static final boolean DEBUG_EDIT = false;
+    static final String TAG_EDIT = "EditableAction";
+    static final boolean DEBUG_EDIT = false;
 
     /**
      * Object listening for click events within a {@link GuidedActionAdapter}.
@@ -105,7 +105,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
     private final ActionEditListener mActionEditListener;
     private final List<GuidedAction> mActions;
     private ClickListener mClickListener;
-    private final GuidedActionsStylist mStylist;
+    final GuidedActionsStylist mStylist;
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -227,7 +227,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
         return mStylist.getItemViewType(mActions.get(position));
     }
 
-    private RecyclerView getRecyclerView() {
+    RecyclerView getRecyclerView() {
         return mIsSubAdapter ? mStylist.getSubActionsGridView() : mStylist.getActionsGridView();
     }
 
@@ -390,6 +390,9 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
 
         private boolean mKeyPressed = false;
 
+        ActionOnKeyListener() {
+        }
+
         /**
          * Now only handles KEYCODE_ENTER and KEYCODE_NUMPAD_ENTER key event.
          */
@@ -453,6 +456,9 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
 
     private class ActionEditListener implements OnEditorActionListener,
             ImeKeyMonitor.ImeKeyListener {
+
+        ActionEditListener() {
+        }
 
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {

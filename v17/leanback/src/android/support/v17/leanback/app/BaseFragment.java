@@ -81,8 +81,8 @@ class BaseFragment extends BrandedFragment {
 
     final StateMachine mEnterTransitionStates;
 
-    private Object mEntranceTransition;
-    private final ProgressBarManager mProgressBarManager = new ProgressBarManager();
+    Object mEntranceTransition;
+    final ProgressBarManager mProgressBarManager = new ProgressBarManager();
 
     BaseFragment() {
         mEnterTransitionStates = new StateMachine();

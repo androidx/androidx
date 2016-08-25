@@ -63,14 +63,14 @@ import java.util.List;
  * </p>
  */
 public class SearchBar extends RelativeLayout {
-    private static final String TAG = SearchBar.class.getSimpleName();
-    private static final boolean DEBUG = false;
+    static final String TAG = SearchBar.class.getSimpleName();
+    static final boolean DEBUG = false;
 
-    private static final float FULL_LEFT_VOLUME = 1.0f;
-    private static final float FULL_RIGHT_VOLUME = 1.0f;
-    private static final int DEFAULT_PRIORITY = 1;
-    private static final int DO_NOT_LOOP = 0;
-    private static final float DEFAULT_RATE = 1.0f;
+    static final float FULL_LEFT_VOLUME = 1.0f;
+    static final float FULL_RIGHT_VOLUME = 1.0f;
+    static final int DEFAULT_PRIORITY = 1;
+    static final int DO_NOT_LOOP = 0;
+    static final float DEFAULT_RATE = 1.0f;
 
     /**
      * Interface for receiving notification of search query changes.
@@ -125,17 +125,17 @@ public class SearchBar extends RelativeLayout {
                 }
             };
 
-    private SearchBarListener mSearchBarListener;
-    private SearchEditText mSearchTextEditor;
-    private SpeechOrbView mSpeechOrbView;
+    SearchBarListener mSearchBarListener;
+    SearchEditText mSearchTextEditor;
+    SpeechOrbView mSpeechOrbView;
     private ImageView mBadgeView;
-    private String mSearchQuery;
+    String mSearchQuery;
     private String mHint;
     private String mTitle;
     private Drawable mBadgeDrawable;
-    private final Handler mHandler = new Handler();
+    final Handler mHandler = new Handler();
     private final InputMethodManager mInputMethodManager;
-    private boolean mAutoStartRecognition = false;
+    boolean mAutoStartRecognition = false;
     private Drawable mBarBackground;
 
     private final int mTextColor;
@@ -148,9 +148,9 @@ public class SearchBar extends RelativeLayout {
     private SpeechRecognizer mSpeechRecognizer;
     private SpeechRecognitionCallback mSpeechRecognitionCallback;
     private boolean mListening;
-    private SoundPool mSoundPool;
-    private SparseIntArray mSoundMap = new SparseIntArray();
-    private boolean mRecognizing = false;
+    SoundPool mSoundPool;
+    SparseIntArray mSoundMap = new SparseIntArray();
+    boolean mRecognizing = false;
     private final Context mContext;
     private AudioManager mAudioManager;
     private SearchBarPermissionListener mPermissionListener;
@@ -366,7 +366,7 @@ public class SearchBar extends RelativeLayout {
         setSearchQueryInternal(query);
     }
 
-    private void setSearchQueryInternal(String query) {
+    void setSearchQueryInternal(String query) {
         if (DEBUG) Log.v(TAG, "setSearchQueryInternal " + query);
         if (TextUtils.equals(mSearchQuery, query)) {
             return;
@@ -480,12 +480,12 @@ public class SearchBar extends RelativeLayout {
         }
     }
 
-    private void hideNativeKeyboard() {
+    void hideNativeKeyboard() {
         mInputMethodManager.hideSoftInputFromWindow(mSearchTextEditor.getWindowToken(),
                 InputMethodManager.RESULT_UNCHANGED_SHOWN);
     }
 
-    private void showNativeKeyboard() {
+    void showNativeKeyboard() {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -520,7 +520,7 @@ public class SearchBar extends RelativeLayout {
         }
     }
 
-    private void toggleRecognition() {
+    void toggleRecognition() {
         if (mRecognizing) {
             stopRecognition();
         } else {
@@ -741,7 +741,7 @@ public class SearchBar extends RelativeLayout {
         mSpeechRecognizer.startListening(recognizerIntent);
     }
 
-    private void updateUi(boolean hasFocus) {
+    void updateUi(boolean hasFocus) {
         if (hasFocus) {
             mBarBackground.setAlpha(mBackgroundSpeechAlpha);
             if (isVoiceMode()) {
@@ -764,7 +764,7 @@ public class SearchBar extends RelativeLayout {
         return mSpeechOrbView.isFocused();
     }
 
-    private void submitQuery() {
+    void submitQuery() {
         if (!TextUtils.isEmpty(mSearchQuery) && null != mSearchBarListener) {
             mSearchBarListener.onSearchQuerySubmit(mSearchQuery);
         }
@@ -793,11 +793,11 @@ public class SearchBar extends RelativeLayout {
         });
     }
 
-    private void playSearchOpen() {
+    void playSearchOpen() {
         play(R.raw.lb_voice_open);
     }
 
-    private void playSearchFailure() {
+    void playSearchFailure() {
         play(R.raw.lb_voice_failure);
     }
 
@@ -805,7 +805,7 @@ public class SearchBar extends RelativeLayout {
         play(R.raw.lb_voice_no_input);
     }
 
-    private void playSearchSuccess() {
+    void playSearchSuccess() {
         play(R.raw.lb_voice_success);
     }
 
