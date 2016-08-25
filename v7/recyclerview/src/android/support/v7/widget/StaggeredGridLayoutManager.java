@@ -610,8 +610,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
             }
         }
 
-        if (!anchorInfo.mValid || mPendingScrollPosition != NO_POSITION ||
-                mPendingSavedState != null) {
+        boolean recalculateAnchor = !anchorInfo.mValid || mPendingScrollPosition != NO_POSITION ||
+                mPendingSavedState != null;
+        if (recalculateAnchor) {
             anchorInfo.reset();
             if (mPendingSavedState != null) {
                 applyPendingSavedState(anchorInfo);
@@ -619,7 +620,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
                 resolveShouldLayoutReverse();
                 anchorInfo.mLayoutFromEnd = mShouldReverseLayout;
             }
-
             updateAnchorInfoForLayout(state, anchorInfo);
             anchorInfo.mValid = true;
         }
@@ -642,8 +642,18 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
                     }
                 }
             } else {
-                for (int i = 0; i < mSpanCount; i++) {
-                    mSpans[i].cacheReferenceLineAndClear(mShouldReverseLayout, anchorInfo.mOffset);
+                if (recalculateAnchor || mAnchorInfo.mSpanReferenceLines == null) {
+                    for (int i = 0; i < mSpanCount; i++) {
+                        mSpans[i].cacheReferenceLineAndClear(mShouldReverseLayout,
+                                anchorInfo.mOffset);
+                    }
+                    mAnchorInfo.saveSpanReferenceLines(mSpans);
+                } else {
+                    for (int i = 0; i < mSpanCount; i++) {
+                        final Span span = mSpans[i];
+                        span.clear();
+                        span.setLine(mAnchorInfo.mSpanReferenceLines[i]);
+                    }
                 }
             }
         }
@@ -2085,6 +2095,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         mPrimaryOrientation.offsetChildren(-totalScroll);
         // always reset this if we scroll for a proper save instance state
         mLastLayoutFromEnd = mShouldReverseLayout;
+        mLayoutState.mAvailable = 0;
+        recycle(recycler, mLayoutState);
         return totalScroll;
     }
 
@@ -3041,6 +3053,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         boolean mLayoutFromEnd;
         boolean mInvalidateOffsets;
         boolean mValid;
+        // this is where we save span reference lines in case we need to re-use them for multi-pass
+        // measure steps
+        int[] mSpanReferenceLines;
 
         public AnchorInfo() {
             reset();
@@ -3052,6 +3067,20 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
             mLayoutFromEnd = false;
             mInvalidateOffsets = false;
             mValid = false;
+            if (mSpanReferenceLines != null) {
+                Arrays.fill(mSpanReferenceLines, -1);
+            }
+        }
+
+        void saveSpanReferenceLines(Span[] spans) {
+            int spanCount = spans.length;
+            if (mSpanReferenceLines == null || mSpanReferenceLines.length < spanCount) {
+                mSpanReferenceLines = new int[mSpans.length];
+            }
+            for (int i = 0; i < spanCount; i++) {
+                // does not matter start or end since this is only recorded when span is reset
+                mSpanReferenceLines[i] = spans[i].getStartLine(Span.INVALID_LINE);
+            }
         }
 
         void assignCoordinateFromPadding() {
