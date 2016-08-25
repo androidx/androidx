@@ -29,8 +29,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.example.android.supportv4.Shakespeare;
+
 import com.example.android.supportv4.R;
+import com.example.android.supportv4.Shakespeare;
 
 /**
  * This example illustrates a common usage of SlidingPaneLayout in the Android support library.
@@ -98,7 +99,7 @@ public class SlidingPaneLayoutActivity extends Activity {
          * as the left pane contains content one level up in the navigation hierarchy.
          */
         if (item.getItemId() == android.R.id.home && !mSlidingLayout.isOpen()) {
-            mSlidingLayout.smoothSlideOpen();
+            mSlidingLayout.openPane();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -114,7 +115,7 @@ public class SlidingPaneLayoutActivity extends Activity {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mContent.setText(Shakespeare.DIALOGUE[position]);
             mActionBar.setTitle(Shakespeare.TITLES[position]);
-            mSlidingLayout.smoothSlideClosed();
+            mSlidingLayout.closePane();
         }
     }
 
@@ -206,7 +207,7 @@ public class SlidingPaneLayoutActivity extends Activity {
 
         @Override
         public void onFirstLayout() {
-            if (mSlidingLayout.canSlide() && !mSlidingLayout.isOpen()) {
+            if (mSlidingLayout.isSlideable() && !mSlidingLayout.isOpen()) {
                 onPanelClosed();
             } else {
                 onPanelOpened();

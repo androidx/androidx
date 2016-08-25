@@ -37,8 +37,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.pm.ActivityInfoCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SearchViewCompat;
-import android.support.v4.widget.SearchViewCompat.OnCloseListenerCompat;
-import android.support.v4.widget.SearchViewCompat.OnQueryTextListenerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -411,8 +409,6 @@ public class LoaderCustomSupport extends FragmentActivity {
         // If non-null, this is the current filter the user has provided.
         String mCurFilter;
 
-        OnQueryTextListenerCompat mOnQueryTextListenerCompat;
-
         @Override public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
@@ -444,18 +440,23 @@ public class LoaderCustomSupport extends FragmentActivity {
             final View searchView = SearchViewCompat.newSearchView(getActivity());
             if (searchView != null) {
                 SearchViewCompat.setOnQueryTextListener(searchView,
-                        new OnQueryTextListenerCompat() {
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        // Called when the action bar search text has changed.  Since this
-                        // is a simple array adapter, we can just have it do the filtering.
-                        mCurFilter = !TextUtils.isEmpty(newText) ? newText : null;
-                        mAdapter.getFilter().filter(mCurFilter);
-                        return true;
-                    }
-                });
+                        new SearchViewCompat.OnQueryTextListener() {
+                            @Override
+                            public boolean onQueryTextChange(String newText) {
+                                // Called when the action bar search text has changed.  Since this
+                                // is a simple array adapter, we can just have it do the filtering.
+                                mCurFilter = !TextUtils.isEmpty(newText) ? newText : null;
+                                mAdapter.getFilter().filter(mCurFilter);
+                                return true;
+                            }
+
+                            @Override
+                            public boolean onQueryTextSubmit(String query) {
+                                return false;
+                            }
+                        });
                 SearchViewCompat.setOnCloseListener(searchView,
-                        new OnCloseListenerCompat() {
+                        new SearchViewCompat.OnCloseListener() {
                             @Override
                             public boolean onClose() {
                                 if (!TextUtils.isEmpty(SearchViewCompat.getQuery(searchView))) {
@@ -463,8 +464,7 @@ public class LoaderCustomSupport extends FragmentActivity {
                                 }
                                 return true;
                             }
-                    
-                });
+                        });
                 MenuItemCompat.setActionView(item, searchView);
             }
         }
