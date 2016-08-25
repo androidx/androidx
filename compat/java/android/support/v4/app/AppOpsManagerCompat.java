@@ -48,6 +48,9 @@ public final class AppOpsManagerCompat {
     public static final int MODE_DEFAULT = 3;
 
     private static class AppOpsManagerImpl {
+        AppOpsManagerImpl() {
+        }
+
         public String permissionToOp(String permission) {
             return null;
         }
@@ -62,6 +65,9 @@ public final class AppOpsManagerCompat {
     }
 
     private static class AppOpsManager23 extends AppOpsManagerImpl {
+        AppOpsManager23() {
+        }
+
         @Override
         public String permissionToOp(String permission) {
             return AppOpsManagerCompat23.permissionToOp(permission);

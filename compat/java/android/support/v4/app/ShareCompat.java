@@ -150,7 +150,7 @@ public final class ShareCompat {
         }
     }
 
-    private static ShareCompatImpl IMPL;
+    static ShareCompatImpl IMPL;
 
     static {
         if (Build.VERSION.SDK_INT >= 16) {
