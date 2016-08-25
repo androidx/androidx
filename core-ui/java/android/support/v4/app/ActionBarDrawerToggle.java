@@ -110,6 +110,9 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     private static class ActionBarDrawerToggleImplBase implements ActionBarDrawerToggleImpl {
+        ActionBarDrawerToggleImplBase() {
+        }
+
         @Override
         public Drawable getThemeUpIndicator(Activity activity) {
             return null;
@@ -130,6 +133,9 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     private static class ActionBarDrawerToggleImplHC implements ActionBarDrawerToggleImpl {
+        ActionBarDrawerToggleImplHC() {
+        }
+
         @Override
         public Drawable getThemeUpIndicator(Activity activity) {
             return ActionBarDrawerToggleHoneycomb.getThemeUpIndicator(activity);
@@ -151,6 +157,9 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
     private static class ActionBarDrawerToggleImplJellybeanMR2
             implements ActionBarDrawerToggleImpl {
+        ActionBarDrawerToggleImplJellybeanMR2() {
+        }
+
         @Override
         public Drawable getThemeUpIndicator(Activity activity) {
             return ActionBarDrawerToggleJellybeanMR2.getThemeUpIndicator(activity);
@@ -189,7 +198,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     // android.R.id.home as defined by public API in v11
     private static final int ID_HOME = 0x0102002c;
 
-    private final Activity mActivity;
+    final Activity mActivity;
     private final Delegate mActivityImpl;
     private final DrawerLayout mDrawerLayout;
     private boolean mDrawerIndicatorEnabled = true;
@@ -505,7 +514,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         private float mPosition;
         private float mOffset;
 
-        private SlideDrawable(Drawable wrapped) {
+        SlideDrawable(Drawable wrapped) {
             super(wrapped, 0);
         }
 

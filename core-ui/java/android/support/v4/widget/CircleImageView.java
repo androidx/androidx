@@ -46,7 +46,7 @@ class CircleImageView extends ImageView {
     private static final int SHADOW_ELEVATION = 4;
 
     private Animation.AnimationListener mListener;
-    private int mShadowRadius;
+    int mShadowRadius;
 
     CircleImageView(Context context, int color) {
         super(context);
