@@ -435,6 +435,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
 
     private static class IceCreamSandwichExtender extends BuilderExtender {
 
+        IceCreamSandwichExtender() {
+        }
+
         @Override
         public Notification build(android.support.v4.app.NotificationCompat.Builder b,
                 NotificationBuilderWithBuilderAccessor builder) {
@@ -453,6 +456,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
 
     private static class JellybeanExtender extends BuilderExtender {
 
+        JellybeanExtender() {
+        }
+
         @Override
         public Notification build(android.support.v4.app.NotificationCompat.Builder b,
                 NotificationBuilderWithBuilderAccessor builder) {
@@ -469,6 +475,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     private static class LollipopExtender extends BuilderExtender {
+
+        LollipopExtender() {
+        }
 
         @Override
         public Notification build(android.support.v4.app.NotificationCompat.Builder b,

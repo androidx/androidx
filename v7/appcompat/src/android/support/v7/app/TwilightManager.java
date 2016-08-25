@@ -195,5 +195,8 @@ class TwilightManager {
         long todaySunset;
         long tomorrowSunrise;
         long nextUpdate;
+
+        TwilightState() {
+        }
     }
 }

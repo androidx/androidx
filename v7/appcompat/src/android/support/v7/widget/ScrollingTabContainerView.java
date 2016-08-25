@@ -58,7 +58,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     Runnable mTabSelector;
     private TabClickListener mTabClickListener;
 
-    private LinearLayoutCompat mTabLayout;
+    LinearLayoutCompat mTabLayout;
     private Spinner mTabSpinner;
     private boolean mAllowCollapse;
 
@@ -285,7 +285,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         }
     }
 
-    private TabView createTabView(ActionBar.Tab tab, boolean forAdapter) {
+    TabView createTabView(ActionBar.Tab tab, boolean forAdapter) {
         final TabView tabView = new TabView(getContext(), tab, forAdapter);
         if (forAdapter) {
             tabView.setBackgroundDrawable(null);
@@ -543,6 +543,9 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     private class TabAdapter extends BaseAdapter {
+        TabAdapter() {
+        }
+
         @Override
         public int getCount() {
             return mTabLayout.getChildCount();
@@ -570,6 +573,9 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     }
 
     private class TabClickListener implements OnClickListener {
+        TabClickListener() {
+        }
+
         @Override
         public void onClick(View view) {
             TabView tabView = (TabView) view;
