@@ -62,7 +62,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
     // Default fade duration for fading in/out tool bar.
     private static final long DEFAULT_FADE_DURATION_MS = 200;
 
-    private Toolbar mToolbar;
+    Toolbar mToolbar;
 
     private int mDisplayOpts;
     private View mTabView;
@@ -74,12 +74,12 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
     private Drawable mNavIcon;
 
     private boolean mTitleSet;
-    private CharSequence mTitle;
+    CharSequence mTitle;
     private CharSequence mSubtitle;
     private CharSequence mHomeDescription;
 
-    private Window.Callback mWindowCallback;
-    private boolean mMenuPrepared;
+    Window.Callback mWindowCallback;
+    boolean mMenuPrepared;
     private ActionMenuPresenter mActionMenuPresenter;
 
     private int mNavigationMode = ActionBar.NAVIGATION_MODE_STANDARD;

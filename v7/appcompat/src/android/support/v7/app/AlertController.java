@@ -60,12 +60,12 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 class AlertController {
     private final Context mContext;
-    private final AppCompatDialog mDialog;
+    final AppCompatDialog mDialog;
     private final Window mWindow;
 
     private CharSequence mTitle;
     private CharSequence mMessage;
-    private ListView mListView;
+    ListView mListView;
     private View mView;
 
     private int mViewLayoutResId;
@@ -76,19 +76,19 @@ class AlertController {
     private int mViewSpacingBottom;
     private boolean mViewSpacingSpecified = false;
 
-    private Button mButtonPositive;
+    Button mButtonPositive;
     private CharSequence mButtonPositiveText;
-    private Message mButtonPositiveMessage;
+    Message mButtonPositiveMessage;
 
-    private Button mButtonNegative;
+    Button mButtonNegative;
     private CharSequence mButtonNegativeText;
-    private Message mButtonNegativeMessage;
+    Message mButtonNegativeMessage;
 
-    private Button mButtonNeutral;
+    Button mButtonNeutral;
     private CharSequence mButtonNeutralText;
-    private Message mButtonNeutralMessage;
+    Message mButtonNeutralMessage;
 
-    private NestedScrollView mScrollView;
+    NestedScrollView mScrollView;
 
     private int mIconId = 0;
     private Drawable mIcon;
@@ -98,20 +98,20 @@ class AlertController {
     private TextView mMessageView;
     private View mCustomTitleView;
 
-    private ListAdapter mAdapter;
+    ListAdapter mAdapter;
 
-    private int mCheckedItem = -1;
+    int mCheckedItem = -1;
 
     private int mAlertDialogLayout;
     private int mButtonPanelSideLayout;
-    private int mListLayout;
-    private int mMultiChoiceItemLayout;
-    private int mSingleChoiceItemLayout;
-    private int mListItemLayout;
+    int mListLayout;
+    int mMultiChoiceItemLayout;
+    int mSingleChoiceItemLayout;
+    int mListItemLayout;
 
     private int mButtonPanelLayoutHint = AlertDialog.LAYOUT_HINT_NONE;
 
-    private Handler mHandler;
+    Handler mHandler;
 
     private final View.OnClickListener mButtonHandler = new View.OnClickListener() {
         @Override
@@ -700,7 +700,7 @@ class AlertController {
         }
     }
 
-    private static void manageScrollIndicators(View v, View upIndicator, View downIndicator) {
+    static void manageScrollIndicators(View v, View upIndicator, View downIndicator) {
         if (upIndicator != null) {
             upIndicator.setVisibility(
                     ViewCompat.canScrollVertically(v, -1) ? View.VISIBLE : View.INVISIBLE);

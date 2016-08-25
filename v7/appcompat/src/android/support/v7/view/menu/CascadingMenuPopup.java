@@ -66,21 +66,21 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
     @IntDef({HORIZ_POSITION_LEFT, HORIZ_POSITION_RIGHT})
     public @interface HorizPosition {}
 
-    private static final int HORIZ_POSITION_LEFT = 0;
-    private static final int HORIZ_POSITION_RIGHT = 1;
+    static final int HORIZ_POSITION_LEFT = 0;
+    static final int HORIZ_POSITION_RIGHT = 1;
 
     /**
      * Delay between hovering over a menu item with a mouse and receiving
      * side-effects (ex. opening a sub-menu or closing unrelated menus).
      */
-    private static final int SUBMENU_TIMEOUT_MS = 200;
+    static final int SUBMENU_TIMEOUT_MS = 200;
 
     private final Context mContext;
     private final int mMenuMaxWidth;
     private final int mPopupStyleAttr;
     private final int mPopupStyleRes;
     private final boolean mOverflowOnly;
-    private final Handler mSubMenuHoverHandler;
+    final Handler mSubMenuHoverHandler;
 
     /** List of menus that were added before this popup was shown. */
     private final List<MenuBuilder> mPendingMenus = new LinkedList<>();
@@ -89,7 +89,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
      * List of open menus. The first item is the root menu and each
      * subsequent item is a direct submenu of the previous item.
      */
-    private final List<CascadingMenuInfo> mShowingMenus = new ArrayList<>();
+    final List<CascadingMenuInfo> mShowingMenus = new ArrayList<>();
 
     private final OnGlobalLayoutListener mGlobalLayoutListener = new OnGlobalLayoutListener() {
         @Override
@@ -175,7 +175,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
     private int mRawDropDownGravity = Gravity.NO_GRAVITY;
     private int mDropDownGravity = Gravity.NO_GRAVITY;
     private View mAnchorView;
-    private View mShownAnchorView;
+    View mShownAnchorView;
     private int mLastPosition;
     private boolean mHasXOffset;
     private boolean mHasYOffset;
@@ -188,7 +188,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
     private PopupWindow.OnDismissListener mOnDismissListener;
 
     /** Whether popup menus should disable exit animations when closing. */
-    private boolean mShouldCloseImmediately;
+    boolean mShouldCloseImmediately;
 
     /**
      * Initializes a new cascading-capable menu popup.

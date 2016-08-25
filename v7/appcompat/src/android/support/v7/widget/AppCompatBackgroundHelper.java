@@ -222,6 +222,9 @@ class AppCompatBackgroundHelper {
         // modified for actual tinting purposes
         public ColorStateList mOriginalTintList;
 
+        BackgroundTintInfo() {
+        }
+
         @Override
         void clear() {
             super.clear();

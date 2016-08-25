@@ -83,17 +83,17 @@ public class WindowDecorActionBar extends ActionBar implements
      */
     private static final boolean ALLOW_SHOW_HIDE_ANIMATIONS = Build.VERSION.SDK_INT >= 14;
 
-    private Context mContext;
+    Context mContext;
     private Context mThemedContext;
     private Activity mActivity;
     private Dialog mDialog;
 
-    private ActionBarOverlayLayout mOverlayLayout;
-    private ActionBarContainer mContainerView;
-    private DecorToolbar mDecorToolbar;
-    private ActionBarContextView mContextView;
-    private View mContentView;
-    private ScrollingTabContainerView mTabScrollView;
+    ActionBarOverlayLayout mOverlayLayout;
+    ActionBarContainer mContainerView;
+    DecorToolbar mDecorToolbar;
+    ActionBarContextView mContextView;
+    View mContentView;
+    ScrollingTabContainerView mTabScrollView;
 
     private ArrayList<TabImpl> mTabs = new ArrayList<TabImpl>();
 
@@ -120,14 +120,14 @@ public class WindowDecorActionBar extends ActionBar implements
 
     private int mCurWindowVisibility = View.VISIBLE;
 
-    private boolean mContentAnimations = true;
-    private boolean mHiddenByApp;
-    private boolean mHiddenBySystem;
+    boolean mContentAnimations = true;
+    boolean mHiddenByApp;
+    boolean mHiddenBySystem;
     private boolean mShowingForMode;
 
     private boolean mNowShowing = true;
 
-    private ViewPropertyAnimatorCompatSet mCurrentShowAnim;
+    ViewPropertyAnimatorCompatSet mCurrentShowAnim;
     private boolean mShowHideAnimationEnabled;
     boolean mHideOnContentScroll;
 
@@ -729,7 +729,7 @@ public class WindowDecorActionBar extends ActionBar implements
         mOverlayLayout.setActionBarHideOffset(offset);
     }
 
-    private static boolean checkShowingFlags(boolean hiddenByApp, boolean hiddenBySystem,
+    static boolean checkShowingFlags(boolean hiddenByApp, boolean hiddenBySystem,
             boolean showingForMode) {
         if (showingForMode) {
             return true;

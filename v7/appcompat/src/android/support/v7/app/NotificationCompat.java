@@ -66,8 +66,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         return null;
     }
 
-    private static void addMediaStyleToBuilderLollipop(
-            NotificationBuilderWithBuilderAccessor builder, android.support.v4.app.NotificationCompat.Style style) {
+    static void addMediaStyleToBuilderLollipop(
+            NotificationBuilderWithBuilderAccessor builder,
+            android.support.v4.app.NotificationCompat.Style style) {
         if (style instanceof MediaStyle) {
             MediaStyle mediaStyle = (MediaStyle) style;
             NotificationCompatImpl21.addMediaStyle(builder,
@@ -76,7 +77,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
     }
 
-    private static void addMediaStyleToBuilderIcs(NotificationBuilderWithBuilderAccessor builder,
+    static void addMediaStyleToBuilderIcs(NotificationBuilderWithBuilderAccessor builder,
             android.support.v4.app.NotificationCompat.Builder b) {
         if (b.mStyle instanceof MediaStyle) {
             MediaStyle mediaStyle = (MediaStyle) b.mStyle;
@@ -89,7 +90,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
     }
 
-    private static void addBigMediaStyleToBuilderJellybean(Notification n,
+    static void addBigMediaStyleToBuilderJellybean(Notification n,
             android.support.v4.app.NotificationCompat.Builder b) {
         if (b.mStyle instanceof MediaStyle) {
             MediaStyle mediaStyle = (MediaStyle) b.mStyle;
@@ -141,6 +142,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
 
     private static class IceCreamSandwichExtender extends BuilderExtender {
 
+        IceCreamSandwichExtender() {
+        }
+
         @Override
         public Notification build(android.support.v4.app.NotificationCompat.Builder b,
                 NotificationBuilderWithBuilderAccessor builder) {
@@ -150,6 +154,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     private static class JellybeanExtender extends BuilderExtender {
+
+        JellybeanExtender() {
+        }
 
         @Override
         public Notification build(android.support.v4.app.NotificationCompat.Builder b,
@@ -162,6 +169,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     private static class LollipopExtender extends BuilderExtender {
+
+        LollipopExtender() {
+        }
 
         @Override
         public Notification build(android.support.v4.app.NotificationCompat.Builder b,
