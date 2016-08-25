@@ -18,6 +18,7 @@ package android.support.v4.widget;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.v4.widget.SwipeRefreshLayoutActions.setEnabled;
 import static android.support.v4.widget.SwipeRefreshLayoutActions.setRefreshing;
 import static android.support.v4.widget.SwipeRefreshLayoutActions.setSize;
 
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
+import android.app.Activity;
 import android.support.test.espresso.action.ViewActions;
 import android.support.coreui.test.R;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -96,19 +98,7 @@ public class SwipeRefreshLayoutTest
     public void testSwipeDownToRefresh() throws Throwable {
         assertFalse(mSwipeRefresh.isRefreshing());
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                latch.countDown();
-                assertTrue(mSwipeRefresh.isRefreshing());
-                mSwipeRefresh.setRefreshing(false);
-            }
-        };
-        mSwipeRefresh.setOnRefreshListener(listener);
-        onView(withId(R.id.content)).perform(ViewActions.swipeDown());
-        assertTrue("SwipeRefreshLayout never started refreshing",
-                latch.await(500, TimeUnit.MILLISECONDS));
+        swipeToRefreshVerifyThenStopRefreshing(true);
     }
 
     @Test
@@ -144,5 +134,48 @@ public class SwipeRefreshLayoutTest
         assertTrue(mSwipeRefresh.canChildScrollUp());
         assertFalse(mSwipeRefresh.canChildScrollUp());
         assertFalse(mSwipeRefresh.canChildScrollUp());
+    }
+
+    @Test
+    @SmallTest
+    public void testSwipeDownToRefreshInitiallyDisabled() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivityTestRule.getActivity().setContentView(
+                        R.layout.swipe_refresh_layout_disabled_activity);
+            }
+        });
+        mSwipeRefresh = (SwipeRefreshLayout) mActivityTestRule.getActivity().findViewById(
+                R.id.swipe_refresh);
+
+        assertFalse(mSwipeRefresh.isRefreshing());
+
+        swipeToRefreshVerifyThenStopRefreshing(false);
+
+        onView(withId(R.id.swipe_refresh)).perform(setEnabled(true));
+
+        swipeToRefreshVerifyThenStopRefreshing(true);
+    }
+
+    private void swipeToRefreshVerifyThenStopRefreshing(boolean expectRefreshing) throws Throwable {
+        final CountDownLatch latch = new CountDownLatch(1);
+        SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                latch.countDown();
+                assertTrue(mSwipeRefresh.isRefreshing());
+                mSwipeRefresh.setRefreshing(false);
+            }
+        };
+        mSwipeRefresh.setOnRefreshListener(listener);
+        onView(withId(R.id.content)).perform(ViewActions.swipeDown());
+        if (expectRefreshing) {
+            assertTrue("SwipeRefreshLayout never started refreshing",
+                    latch.await(500, TimeUnit.MILLISECONDS));
+        } else {
+            assertFalse("SwipeRefreshLayout unexpectedly started refreshing",
+                    latch.await(500, TimeUnit.MILLISECONDS));
+        }
     }
 }
