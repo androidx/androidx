@@ -122,7 +122,7 @@ public class ViewPager extends ViewGroup {
 
     private static final int MIN_FLING_VELOCITY = 400; // dips
 
-    private static final int[] LAYOUT_ATTRS = new int[] {
+    static final int[] LAYOUT_ATTRS = new int[] {
         android.R.attr.layout_gravity
     };
 
@@ -160,8 +160,8 @@ public class ViewPager extends ViewGroup {
 
     private final Rect mTempRect = new Rect();
 
-    private PagerAdapter mAdapter;
-    private int mCurItem;   // Index of currently displayed page.
+    PagerAdapter mAdapter;
+    int mCurItem;   // Index of currently displayed page.
     private int mRestoredCurItem = -1;
     private Parcelable mRestoredAdapterState = null;
     private ClassLoader mRestoredClassLoader = null;
@@ -488,7 +488,7 @@ public class ViewPager extends ViewGroup {
         super.onDetachedFromWindow();
     }
 
-    private void setScrollState(int newState) {
+    void setScrollState(int newState) {
         if (mScrollState == newState) {
             return;
         }
@@ -3109,6 +3109,9 @@ public class ViewPager extends ViewGroup {
     }
 
     private class PagerObserver extends DataSetObserver {
+        PagerObserver() {
+        }
+
         @Override
         public void onChanged() {
             dataSetChanged();
