@@ -21,9 +21,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.graphics.drawable.TintAwareDrawable;
 
-/**
- * @hide
- */
 public class TestTintAwareDrawable extends BitmapDrawable implements TintAwareDrawable {
 
     public TestTintAwareDrawable() {

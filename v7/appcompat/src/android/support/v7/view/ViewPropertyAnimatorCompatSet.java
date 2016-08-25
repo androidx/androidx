@@ -16,6 +16,7 @@
 
 package android.support.v7.view;
 
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
@@ -24,12 +25,15 @@ import android.view.animation.Interpolator;
 
 import java.util.ArrayList;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * A very naive implementation of a set of
  * {@link android.support.v4.view.ViewPropertyAnimatorCompat}.
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class ViewPropertyAnimatorCompatSet {
 
     final ArrayList<ViewPropertyAnimatorCompat> mAnimators;

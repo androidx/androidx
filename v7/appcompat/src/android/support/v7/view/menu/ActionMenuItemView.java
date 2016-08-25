@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcelable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.ConfigurationHelper;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
@@ -40,9 +41,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class ActionMenuItemView extends AppCompatTextView
         implements MenuView.ItemView, View.OnClickListener, View.OnLongClickListener,
         ActionMenuView.ActionMenuChildView {

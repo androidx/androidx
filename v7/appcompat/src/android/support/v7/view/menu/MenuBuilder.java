@@ -27,6 +27,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.internal.view.SupportMenu;
 import android.support.v4.internal.view.SupportMenuItem;
@@ -46,12 +47,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Implementation of the {@link android.support.v4.internal.view.SupportMenu} interface for creating a
  * standard menu UI.
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class MenuBuilder implements SupportMenu {
 
     private static final String TAG = "MenuBuilder";
@@ -184,6 +188,8 @@ public class MenuBuilder implements SupportMenu {
      * Called by menu to notify of close and selection changes.
      * @hide
      */
+
+    @RestrictTo(GROUP_ID)
     public interface Callback {
 
         /**
@@ -193,22 +199,23 @@ public class MenuBuilder implements SupportMenu {
          * @param item The menu item that is selected
          * @return whether the menu item selection was handled
          */
-        public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item);
+        boolean onMenuItemSelected(MenuBuilder menu, MenuItem item);
 
         /**
          * Called when the mode of the menu changes (for example, from icon to expanded).
          *
          * @param menu the menu that has changed modes
          */
-        public void onMenuModeChange(MenuBuilder menu);
+        void onMenuModeChange(MenuBuilder menu);
     }
 
     /**
      * Called by menu items to execute their associated action
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public interface ItemInvoker {
-        public boolean invokeItem(MenuItemImpl item);
+        boolean invokeItem(MenuItemImpl item);
     }
 
     public MenuBuilder(Context context) {

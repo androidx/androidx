@@ -28,6 +28,7 @@ import android.support.annotation.AttrRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StringRes;
 import android.support.annotation.StyleRes;
 import android.support.v7.appcompat.R;
@@ -40,6 +41,8 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A subclass of Dialog that can display one, two or three buttons. If you only want to
@@ -185,8 +188,6 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
     /**
      * Internal api to allow hinting for the best button panel layout.
-     *
-     * @hide
      */
     void setButtonPanelLayoutHint(int layoutHint) {
         mAlert.setButtonPanelLayoutHint(layoutHint);
@@ -875,6 +876,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * be able to put padding around the view.
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         @Deprecated
         public Builder setView(View view, int viewSpacingLeft, int viewSpacingTop,
                 int viewSpacingRight, int viewSpacingBottom) {
@@ -907,6 +909,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         /**
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public Builder setRecycleOnMeasureEnabled(boolean enabled) {
             P.mRecycleOnMeasure = enabled;
             return this;

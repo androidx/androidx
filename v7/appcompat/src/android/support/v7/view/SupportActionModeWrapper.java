@@ -19,6 +19,7 @@ package android.support.v7.view;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RestrictTo;
 import android.support.v4.internal.view.SupportMenu;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.util.SimpleArrayMap;
@@ -30,12 +31,15 @@ import android.view.View;
 
 import java.util.ArrayList;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Wraps a support {@link android.support.v7.view.ActionMode} as a framework
  * {@link android.view.ActionMode}.
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class SupportActionModeWrapper extends ActionMode {
 
@@ -136,6 +140,7 @@ public class SupportActionModeWrapper extends ActionMode {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public static class CallbackWrapper implements android.support.v7.view.ActionMode.Callback {
         final Callback mWrappedCallback;
         final Context mContext;

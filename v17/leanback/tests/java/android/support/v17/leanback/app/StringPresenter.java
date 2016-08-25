@@ -19,9 +19,6 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-/**
- * @hide from javadoc
- */
 public class StringPresenter extends Presenter {
     private static final boolean DEBUG = false;
     private static final String TAG = "StringPresenter";

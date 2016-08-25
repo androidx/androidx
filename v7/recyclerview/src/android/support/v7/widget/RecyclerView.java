@@ -34,6 +34,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
@@ -80,6 +81,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 import static android.support.v7.widget.AdapterHelper.Callback;
 import static android.support.v7.widget.AdapterHelper.UpdateOp;
 
@@ -10699,6 +10701,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * This is public so that the CREATOR can be access on cold launch.
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public static class SavedState extends AbsSavedState {
 
         Parcelable mLayoutState;

@@ -18,7 +18,10 @@ package android.support.v7.view.menu;
 
 import android.content.Context;
 import android.os.Parcelable;
+import android.support.annotation.RestrictTo;
 import android.view.ViewGroup;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A MenuPresenter is responsible for building views for a Menu object. It takes over some
@@ -26,20 +29,19 @@ import android.view.ViewGroup;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public interface MenuPresenter {
 
     /**
      * Called by menu implementation to notify another component of open/close events.
-     *
-     * @hide
      */
-    public interface Callback {
+    interface Callback {
         /**
          * Called when a menu is closing.
          * @param menu
          * @param allMenusAreClosing
          */
-        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing);
+        void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing);
 
         /**
          * Called when a submenu opens. Useful for notifying the application
@@ -50,7 +52,7 @@ public interface MenuPresenter {
          * @return true if the Callback will handle presenting the submenu, false if
          *         the presenter should attempt to do so.
          */
-        public boolean onOpenSubMenu(MenuBuilder subMenu);
+        boolean onOpenSubMenu(MenuBuilder subMenu);
     }
 
     /**
@@ -61,7 +63,7 @@ public interface MenuPresenter {
      * @param context Context for this presenter; used for view creation and resource management
      * @param menu Menu to host
      */
-    public void initForMenu(Context context, MenuBuilder menu);
+    void initForMenu(Context context, MenuBuilder menu);
 
     /**
      * Retrieve a MenuView to display the menu specified in
@@ -70,7 +72,7 @@ public interface MenuPresenter {
      * @param root Intended parent of the MenuView.
      * @return A freshly created MenuView.
      */
-    public MenuView getMenuView(ViewGroup root);
+    MenuView getMenuView(ViewGroup root);
 
     /**
      * Update the menu UI in response to a change. Called by
@@ -78,14 +80,14 @@ public interface MenuPresenter {
      *
      * @param cleared true if the menu was entirely cleared
      */
-    public void updateMenuView(boolean cleared);
+    void updateMenuView(boolean cleared);
 
     /**
      * Set a callback object that will be notified of menu events
      * related to this specific presentation.
      * @param cb Callback that will be notified of future events
      */
-    public void setCallback(Callback cb);
+    void setCallback(Callback cb);
 
     /**
      * Called by Menu implementations to indicate that a submenu item
@@ -95,7 +97,7 @@ public interface MenuPresenter {
      * @param subMenu SubMenu being opened
      * @return true if the the event was handled, false otherwise.
      */
-    public boolean onSubMenuSelected(SubMenuBuilder subMenu);
+    boolean onSubMenuSelected(SubMenuBuilder subMenu);
 
     /**
      * Called by Menu implementations to indicate that a menu or submenu is
@@ -105,13 +107,13 @@ public interface MenuPresenter {
      * @param menu Menu or submenu that is closing.
      * @param allMenusAreClosing True if all associated menus are closing.
      */
-    public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing);
+    void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing);
 
     /**
      * Called by Menu implementations to flag items that will be shown as actions.
      * @return true if this presenter changed the action status of any items.
      */
-    public boolean flagActionItems();
+    boolean flagActionItems();
 
     /**
      * Called when a menu item with a collapsible action view should expand its action view.
@@ -120,7 +122,7 @@ public interface MenuPresenter {
      * @param item Item to be expanded
      * @return true if this presenter expanded the action view, false otherwise.
      */
-    public boolean expandItemActionView(MenuBuilder menu, MenuItemImpl item);
+    boolean expandItemActionView(MenuBuilder menu, MenuItemImpl item);
 
     /**
      * Called when a menu item with a collapsible action view should collapse its action view.
@@ -129,13 +131,13 @@ public interface MenuPresenter {
      * @param item Item to be collapsed
      * @return true if this presenter collapsed the action view, false otherwise.
      */
-    public boolean collapseItemActionView(MenuBuilder menu, MenuItemImpl item);
+    boolean collapseItemActionView(MenuBuilder menu, MenuItemImpl item);
 
     /**
      * Returns an ID for determining how to save/restore instance state.
      * @return a valid ID value.
      */
-    public int getId();
+    int getId();
 
     /**
      * Returns a Parcelable describing the current state of the presenter.
@@ -143,11 +145,11 @@ public interface MenuPresenter {
      * method of the presenter sharing the same ID later.
      * @return The saved instance state
      */
-    public Parcelable onSaveInstanceState();
+    Parcelable onSaveInstanceState();
 
     /**
      * Supplies the previously saved instance state to be restored.
      * @param state The previously saved instance state
      */
-    public void onRestoreInstanceState(Parcelable state);
+    void onRestoreInstanceState(Parcelable state);
 }

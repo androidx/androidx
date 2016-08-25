@@ -5,9 +5,6 @@ import android.os.Parcelable;
 
 import java.util.Arrays;
 
-/**
- * @hide
- */
 class BundleUtil {
     /**
      * Get an array of Bundle objects from a parcelable array field in a bundle.

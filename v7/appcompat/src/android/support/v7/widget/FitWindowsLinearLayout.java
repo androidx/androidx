@@ -18,12 +18,16 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class FitWindowsLinearLayout extends LinearLayout implements FitWindowsViewGroup {
 
     private OnFitSystemWindowsListener mListener;

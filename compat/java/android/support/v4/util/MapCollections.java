@@ -25,7 +25,6 @@ import java.util.Set;
 /**
  * Helper for writing standard Java collection interfaces to a data
  * structure like {@link ArrayMap}.
- * @hide
  */
 abstract class MapCollections<K, V> {
     EntrySet mEntrySet;

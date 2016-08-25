@@ -15,6 +15,7 @@ package android.support.v17.leanback.transition;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RestrictTo;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,10 +23,13 @@ import android.view.Window;
 
 import java.util.ArrayList;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Helper for view transitions.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public final class TransitionHelper {
 
     public static final int FADE_IN = 0x1;

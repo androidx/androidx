@@ -28,7 +28,6 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Testing SingleRow algorithm
- * @hide
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)

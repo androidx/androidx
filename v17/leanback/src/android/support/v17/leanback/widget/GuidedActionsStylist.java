@@ -20,6 +20,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
@@ -47,6 +48,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 import static android.support.v17.leanback.widget.GuidedAction.EDITING_ACTIVATOR_VIEW;
 import static android.support.v17.leanback.widget.GuidedAction.EDITING_DESCRIPTION;
 import static android.support.v17.leanback.widget.GuidedAction.EDITING_NONE;
@@ -890,6 +892,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * Sets listener for reporting view being edited.
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public void setEditListener(EditListener listener) {
         mEditListener = listener;
     }

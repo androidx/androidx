@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v14.preference.PreferenceFragment;
 import android.support.v7.preference.ListPreference;
@@ -32,6 +33,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Space;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * This fragment provides a container for displaying a {@link LeanbackPreferenceFragment}
@@ -185,6 +188,7 @@ public abstract class LeanbackSettingsFragment extends Fragment
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public static class DummyFragment extends Fragment {
 
         @Override

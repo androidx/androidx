@@ -1,5 +1,6 @@
 package android.support.v17.leanback.transition;
 
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 
 import android.animation.Animator;
@@ -12,12 +13,15 @@ import android.transition.TransitionValues;
 import android.transition.Transition.TransitionListener;
 import android.view.View;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * This class is used by Slide and Explode to create an animator that goes from the start
  * position to the end position. It takes into account the canceled position so that it
  * will not blink out or shift suddenly when the transition is interrupted.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 class TranslationAnimationCreator {
 
     /**

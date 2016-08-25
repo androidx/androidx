@@ -16,10 +16,13 @@
 
 package android.support.v7.view;
 
+import android.support.annotation.RestrictTo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Represents a contextual mode of the user interface. Action modes can be used to provide
@@ -216,6 +219,7 @@ public abstract class ActionMode {
      * @return true if the UI used to show this action mode can take focus
      * @hide Internal use only
      */
+    @RestrictTo(GROUP_ID)
     public boolean isUiFocusable() {
         return true;
     }

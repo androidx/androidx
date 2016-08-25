@@ -16,6 +16,7 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_HEAD;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_TAIL;
 import static android.support.v7.widget.LayoutState.LAYOUT_END;
@@ -29,6 +30,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
@@ -2974,6 +2976,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public static class SavedState implements Parcelable {
 
         int mAnchorPosition;

@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.view.ViewCompat;
@@ -52,6 +53,8 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import java.lang.reflect.Method;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Static library support version of the framework's {@link android.widget.ListPopupWindow}.
@@ -346,6 +349,7 @@ public class ListPopupWindow implements ShowableListMenu {
      *
      * @hide Used only by AutoCompleteTextView to handle some internal special cases.
      */
+    @RestrictTo(GROUP_ID)
     public void setForceIgnoreOutsideTouch(boolean forceIgnoreOutsideTouch) {
         mForceIgnoreOutsideTouch = forceIgnoreOutsideTouch;
     }
@@ -361,6 +365,7 @@ public class ListPopupWindow implements ShowableListMenu {
      *
      * @hide Only used by AutoCompleteTextView under special conditions.
      */
+    @RestrictTo(GROUP_ID)
     public void setDropDownAlwaysVisible(boolean dropDownAlwaysVisible) {
         mDropDownAlwaysVisible = dropDownAlwaysVisible;
     }
@@ -370,6 +375,7 @@ public class ListPopupWindow implements ShowableListMenu {
      *
      * @hide Only used by AutoCompleteTextView under special conditions.
      */
+    @RestrictTo(GROUP_ID)
     public boolean isDropDownAlwaysVisible() {
         return mDropDownAlwaysVisible;
     }
@@ -504,6 +510,7 @@ public class ListPopupWindow implements ShowableListMenu {
      * @param bounds anchor-relative bounds
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public void setEpicenterBounds(Rect bounds) {
         mEpicenterBounds = bounds;
     }

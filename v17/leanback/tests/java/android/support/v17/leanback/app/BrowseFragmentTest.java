@@ -40,9 +40,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-/**
- * @hide from javadoc
- */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class BrowseFragmentTest {

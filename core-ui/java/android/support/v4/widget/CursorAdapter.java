@@ -21,6 +21,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.os.Handler;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,8 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.FilterQueryProvider;
 import android.widget.Filterable;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Static library support version of the framework's {@link android.widget.CursorAdapter}.
@@ -42,46 +45,55 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
+    @RestrictTo(GROUP_ID)
     protected boolean mDataValid;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
+    @RestrictTo(GROUP_ID)
     protected boolean mAutoRequery;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
+    @RestrictTo(GROUP_ID)
     protected Cursor mCursor;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
+    @RestrictTo(GROUP_ID)
     protected Context mContext;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
+    @RestrictTo(GROUP_ID)
     protected int mRowIDColumn;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
+    @RestrictTo(GROUP_ID)
     protected ChangeObserver mChangeObserver;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
+    @RestrictTo(GROUP_ID)
     protected DataSetObserver mDataSetObserver;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
+    @RestrictTo(GROUP_ID)
     protected CursorFilter mCursorFilter;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
+    @RestrictTo(GROUP_ID)
     protected FilterQueryProvider mFilterQueryProvider;
 
     /**
