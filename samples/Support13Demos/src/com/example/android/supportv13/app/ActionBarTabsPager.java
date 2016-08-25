@@ -103,7 +103,7 @@ public class ActionBarTabsPager extends Activity {
             mActionBar = activity.getActionBar();
             mViewPager = pager;
             mViewPager.setAdapter(this);
-            mViewPager.setOnPageChangeListener(this);
+            mViewPager.addOnPageChangeListener(this);
         }
 
         public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
