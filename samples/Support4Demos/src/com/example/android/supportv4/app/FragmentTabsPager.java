@@ -15,8 +15,6 @@
  */
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.R;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -27,6 +25,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TabHost;
 import android.widget.TabWidget;
+
+import com.example.android.supportv4.R;
 
 import java.util.ArrayList;
 
@@ -125,7 +125,7 @@ public class FragmentTabsPager extends FragmentActivity {
             mViewPager = pager;
             mTabHost.setOnTabChangedListener(this);
             mViewPager.setAdapter(this);
-            mViewPager.setOnPageChangeListener(this);
+            mViewPager.addOnPageChangeListener(this);
         }
 
         public void addTab(TabHost.TabSpec tabSpec, Class<?> clss, Bundle args) {

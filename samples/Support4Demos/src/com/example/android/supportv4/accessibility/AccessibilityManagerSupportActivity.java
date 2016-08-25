@@ -23,7 +23,6 @@ import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityManagerCompat;
-import android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -85,7 +84,7 @@ public class AccessibilityManagerSupportActivity extends Activity {
         // platform API version is lower and the called API is not available no listener
         // is added and you will not receive a call of onAccessibilityStateChanged.
         AccessibilityManagerCompat.addAccessibilityStateChangeListener(mAccessibilityManager,
-                new AccessibilityStateChangeListenerCompat() {
+                new AccessibilityManagerCompat.AccessibilityStateChangeListener() {
             @Override
             public void onAccessibilityStateChanged(boolean enabled) {
                 Toast.makeText(AccessibilityManagerSupportActivity.this,
@@ -119,7 +118,8 @@ public class AccessibilityManagerSupportActivity extends Activity {
                         R.string.accessibility_manager_enabled_service,
                         resolveInfo.loadLabel(getPackageManager()),
                         AccessibilityServiceInfoCompat.feedbackTypeToString(service.feedbackType),
-                        AccessibilityServiceInfoCompat.getDescription(service),
+                        AccessibilityServiceInfoCompat.loadDescription(
+                                service, getPackageManager()),
                         AccessibilityServiceInfoCompat.getSettingsActivityName(service));
                 builder.append(serviceDescription);
             }
