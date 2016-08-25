@@ -50,7 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * For API 23 and above, this class is delegating to the framework's {@link AnimatedVectorDrawable}.
+ * For API 24 and above, this class is delegating to the framework's {@link AnimatedVectorDrawable}.
  * For older API version, this class uses {@link android.animation.ObjectAnimator} and
  * {@link android.animation.AnimatorSet} to animate the properties of a
  * {@link VectorDrawableCompat} to create an animated drawable.
@@ -118,7 +118,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
     @Nullable
     public static AnimatedVectorDrawableCompat create(@NonNull Context context,
                                                       @DrawableRes int resId) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 24) {
             final AnimatedVectorDrawableCompat drawable = new AnimatedVectorDrawableCompat(context);
             drawable.mDelegateDrawable = ResourcesCompat.getDrawable(context.getResources(), resId,
                     context.getTheme());
@@ -165,7 +165,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
 
     /**
      * {@inheritDoc}
-     * <strong>Note</strong> that we don't support constant state when SDK < 23.
+     * <strong>Note</strong> that we don't support constant state when SDK < 24.
      * Make sure you check the return value before using it.
      */
     @Override
@@ -510,12 +510,12 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
 
         @Override
         public Drawable newDrawable() {
-            throw new IllegalStateException("No constant state support for SDK < 23.");
+            throw new IllegalStateException("No constant state support for SDK < 24.");
         }
 
         @Override
         public Drawable newDrawable(Resources res) {
-            throw new IllegalStateException("No constant state support for SDK < 23.");
+            throw new IllegalStateException("No constant state support for SDK < 24.");
         }
 
         @Override
