@@ -43,12 +43,12 @@ import android.support.v4.util.TimeUtils;
  * </p>
  */
 public final class MediaSessionStatus {
-    private static final String KEY_TIMESTAMP = "timestamp";
-    private static final String KEY_SESSION_STATE = "sessionState";
-    private static final String KEY_QUEUE_PAUSED = "queuePaused";
-    private static final String KEY_EXTRAS = "extras";
+    static final String KEY_TIMESTAMP = "timestamp";
+    static final String KEY_SESSION_STATE = "sessionState";
+    static final String KEY_QUEUE_PAUSED = "queuePaused";
+    static final String KEY_EXTRAS = "extras";
 
-    private final Bundle mBundle;
+    final Bundle mBundle;
 
     /**
      * Session state: Active.
@@ -82,7 +82,7 @@ public final class MediaSessionStatus {
      */
     public static final int SESSION_STATE_INVALIDATED = 2;
 
-    private MediaSessionStatus(Bundle bundle) {
+    MediaSessionStatus(Bundle bundle) {
         mBundle = bundle;
     }
 

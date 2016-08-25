@@ -44,17 +44,17 @@ import java.util.List;
  * </pre>
  */
 public final class MediaRouteSelector {
-    private static final String KEY_CONTROL_CATEGORIES = "controlCategories";
+    static final String KEY_CONTROL_CATEGORIES = "controlCategories";
 
     private final Bundle mBundle;
-    private List<String> mControlCategories;
+    List<String> mControlCategories;
 
     /**
      * An empty media route selector that will not match any routes.
      */
     public static final MediaRouteSelector EMPTY = new MediaRouteSelector(new Bundle(), null);
 
-    private MediaRouteSelector(Bundle bundle, List<String> controlCategories) {
+    MediaRouteSelector(Bundle bundle, List<String> controlCategories) {
         mBundle = bundle;
         mControlCategories = controlCategories;
     }
@@ -69,7 +69,7 @@ public final class MediaRouteSelector {
         return mControlCategories;
     }
 
-    private void ensureControlCategories() {
+    void ensureControlCategories() {
         if (mControlCategories == null) {
             mControlCategories = mBundle.getStringArrayList(KEY_CONTROL_CATEGORIES);
             if (mControlCategories == null || mControlCategories.isEmpty()) {
