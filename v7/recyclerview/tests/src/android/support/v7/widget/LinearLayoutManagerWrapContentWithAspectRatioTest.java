@@ -122,8 +122,8 @@ public class LinearLayoutManagerWrapContentWithAspectRatioTest
         }
 
         RecyclerView.LayoutManager layoutManager = createFromConfig();
-        BaseWrapContentTest.WrappedRecyclerView
-                recyclerView = new BaseWrapContentTest.WrappedRecyclerView(getActivity());
+        WrappedRecyclerView
+                recyclerView = new WrappedRecyclerView(getActivity());
         recyclerView.setBackgroundColor(Color.rgb(0, 0, 255));
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setLayoutParams(wrapContent);

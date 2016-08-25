@@ -78,7 +78,7 @@ public class GridLayoutManagerWrapContentWithAspectRatioTest
 
     RecyclerView.LayoutManager mLayoutManager;
 
-    BaseWrapContentTest.WrappedRecyclerView mRecyclerView;
+    WrappedRecyclerView mRecyclerView;
 
     OrientationHelper mHelper;
 
@@ -102,7 +102,7 @@ public class GridLayoutManagerWrapContentWithAspectRatioTest
         }
         mLayoutManager = createFromConfig();
 
-        mRecyclerView = new BaseWrapContentTest.WrappedRecyclerView(getActivity());
+        mRecyclerView = new WrappedRecyclerView(getActivity());
         mHelper = OrientationHelper.createOrientationHelper(
                 mLayoutManager, 1 - mConfig.mOrientation);
 
