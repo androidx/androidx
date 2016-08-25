@@ -60,9 +60,9 @@
         <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_radio_material</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
 
-        <item name="android:textSelectHandle">@drawable/abc_text_select_handle_middle_mtrl_alpha</item>
-        <item name="android:textSelectHandleLeft">@drawable/abc_text_select_handle_left_mtrl_alpha</item>
-        <item name="android:textSelectHandleRight">@drawable/abc_text_select_handle_right_mtrl_alpha</item>
+        <item name="android:textSelectHandle">@drawable/abc_text_select_handle_middle_mtrl_dark</item>
+        <item name="android:textSelectHandleLeft">@drawable/abc_text_select_handle_left_mtrl_dark</item>
+        <item name="android:textSelectHandleRight">@drawable/abc_text_select_handle_right_mtrl_dark</item>
     </style>
 
     <style name="Platform.AppCompat.Light" parent="android:Theme.Light">
@@ -104,9 +104,9 @@
         <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_radio_material</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
 
-        <item name="android:textSelectHandle">@drawable/abc_text_select_handle_middle_mtrl_alpha</item>
-        <item name="android:textSelectHandleLeft">@drawable/abc_text_select_handle_left_mtrl_alpha</item>
-        <item name="android:textSelectHandleRight">@drawable/abc_text_select_handle_right_mtrl_alpha</item>
+        <item name="android:textSelectHandle">@drawable/abc_text_select_handle_middle_mtrl_light</item>
+        <item name="android:textSelectHandleLeft">@drawable/abc_text_select_handle_left_mtrl_light</item>
+        <item name="android:textSelectHandleRight">@drawable/abc_text_select_handle_right_mtrl_light</item>
     </style>
 
     <!-- Themes in the "Base.Theme" family vary based on the current platform
