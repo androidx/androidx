@@ -501,43 +501,6 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
         return true;
     }
 
-    static class WrappedRecyclerView extends RecyclerView {
-
-        public WrappedRecyclerView(Context context) {
-            super(context);
-        }
-
-        public void waitUntilLayout() {
-            while (isLayoutRequested()) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        public void waitUntilAnimations() throws InterruptedException {
-            final CountDownLatch latch = new CountDownLatch(1);
-            if (mItemAnimator == null || !mItemAnimator.isRunning(
-                    new ItemAnimator.ItemAnimatorFinishedListener() {
-                        @Override
-                        public void onAnimationsFinished() {
-                            latch.countDown();
-                        }
-                    })) {
-                latch.countDown();
-            }
-            MatcherAssert.assertThat("waiting too long for animations",
-                    latch.await(60, TimeUnit.SECONDS), CoreMatchers.is(true));
-        }
-
-        @Override
-        protected void onLayout(boolean changed, int l, int t, int r, int b) {
-            super.onLayout(changed, l, t, r, b);
-        }
-    }
-
     static class WrapContentConfig {
 
         public boolean unlimitedWidth;
