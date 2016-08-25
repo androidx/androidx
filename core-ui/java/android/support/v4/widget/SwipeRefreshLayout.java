@@ -339,10 +339,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         setWillNotDraw(false);
         mDecelerateInterpolator = new DecelerateInterpolator(DECELERATE_INTERPOLATION_FACTOR);
 
-        final TypedArray a = context.obtainStyledAttributes(attrs, LAYOUT_ATTRS);
-        setEnabled(a.getBoolean(0, true));
-        a.recycle();
-
         final DisplayMetrics metrics = getResources().getDisplayMetrics();
         mCircleDiameter = (int) (CIRCLE_DIAMETER * metrics.density);
 
@@ -358,6 +354,10 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
         mOriginalOffsetTop = mCurrentTargetOffsetTop = -mCircleDiameter;
         moveToStart(1.0f);
+
+        final TypedArray a = context.obtainStyledAttributes(attrs, LAYOUT_ATTRS);
+        setEnabled(a.getBoolean(0, true));
+        a.recycle();
     }
 
     @Override
