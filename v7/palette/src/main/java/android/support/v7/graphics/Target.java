@@ -47,13 +47,13 @@ public final class Target {
     private static final float WEIGHT_LUMA = 0.52f;
     private static final float WEIGHT_POPULATION = 0.24f;
 
-    private static final int INDEX_MIN = 0;
-    private static final int INDEX_TARGET = 1;
-    private static final int INDEX_MAX = 2;
+    static final int INDEX_MIN = 0;
+    static final int INDEX_TARGET = 1;
+    static final int INDEX_MAX = 2;
 
-    private static final int INDEX_WEIGHT_SAT = 0;
-    private static final int INDEX_WEIGHT_LUMA = 1;
-    private static final int INDEX_WEIGHT_POP = 2;
+    static final int INDEX_WEIGHT_SAT = 0;
+    static final int INDEX_WEIGHT_LUMA = 1;
+    static final int INDEX_WEIGHT_POP = 2;
 
     /**
      * A target which has the characteristics of a vibrant color which is light in luminance.
@@ -111,18 +111,18 @@ public final class Target {
         setDefaultMutedSaturationValues(DARK_MUTED);
     }
 
-    private final float[] mSaturationTargets = new float[3];
-    private final float[] mLightnessTargets = new float[3];
-    private final float[] mWeights = new float[3];
-    private boolean mIsExclusive = true; // default to true
+    final float[] mSaturationTargets = new float[3];
+    final float[] mLightnessTargets = new float[3];
+    final float[] mWeights = new float[3];
+    boolean mIsExclusive = true; // default to true
 
-    private Target() {
+    Target() {
         setTargetDefaultValues(mSaturationTargets);
         setTargetDefaultValues(mLightnessTargets);
         setDefaultWeights();
     }
 
-    private Target(Target from) {
+    Target(Target from) {
         System.arraycopy(from.mSaturationTargets, 0, mSaturationTargets, 0,
                 mSaturationTargets.length);
         System.arraycopy(from.mLightnessTargets, 0, mLightnessTargets, 0,
