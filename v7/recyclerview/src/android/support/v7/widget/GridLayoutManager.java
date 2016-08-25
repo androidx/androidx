@@ -1080,9 +1080,9 @@ public class GridLayoutManager extends LinearLayoutManager {
          */
         public static final int INVALID_SPAN_ID = -1;
 
-        private int mSpanIndex = INVALID_SPAN_ID;
+        int mSpanIndex = INVALID_SPAN_ID;
 
-        private int mSpanSize = 0;
+        int mSpanSize = 0;
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);

@@ -761,7 +761,7 @@ public class SortedList<T> {
      */
     public static class BatchedCallback<T2> extends Callback<T2> {
 
-        private final Callback<T2> mWrappedCallback;
+        final Callback<T2> mWrappedCallback;
         private final BatchingListUpdateCallback mBatchingListUpdateCallback;
         /**
          * Creates a new BatchedCallback that wraps the provided Callback.
