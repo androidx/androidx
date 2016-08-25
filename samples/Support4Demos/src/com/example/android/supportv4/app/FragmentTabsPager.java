@@ -125,7 +125,7 @@ public class FragmentTabsPager extends FragmentActivity {
             mViewPager = pager;
             mTabHost.setOnTabChangedListener(this);
             mViewPager.setAdapter(this);
-            mViewPager.setOnPageChangeListener(this);
+            mViewPager.addOnPageChangeListener(this);
         }
 
         public void addTab(TabHost.TabSpec tabSpec, Class<?> clss, Bundle args) {
