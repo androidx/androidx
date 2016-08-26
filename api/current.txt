@@ -2379,11 +2379,11 @@ package android.support.v17.leanback.widget {
     ctor public BaseCardView(android.content.Context, android.util.AttributeSet);
     ctor public BaseCardView(android.content.Context, android.util.AttributeSet, int);
     method public int getCardType();
-    method public int getExtraVisibility();
+    method public deprecated int getExtraVisibility();
     method public int getInfoVisibility();
     method public boolean isSelectedAnimationDelayed();
     method public void setCardType(int);
-    method public void setExtraVisibility(int);
+    method public deprecated void setExtraVisibility(int);
     method public void setInfoVisibility(int);
     method public void setSelectedAnimationDelayed(boolean);
     field public static final int CARD_REGION_VISIBLE_ACTIVATED = 1; // 0x1
