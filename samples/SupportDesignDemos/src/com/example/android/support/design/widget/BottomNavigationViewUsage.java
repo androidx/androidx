@@ -50,8 +50,17 @@ public class BottomNavigationViewUsage extends AppCompatActivity {
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MenuItem item = bottom.getMenu().add("Bananas");
-                item.setIcon(android.R.drawable.ic_lock_power_off);
+                if (bottom.getMenu().size() < 5) {
+                    MenuItem item = bottom.getMenu().add("Bananas");
+                    item.setIcon(android.R.drawable.ic_lock_power_off);
+                }
+            }
+        });
+        Button buttonRemove = (Button) findViewById(R.id.button_remove);
+        buttonRemove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bottom.getMenu().removeItem(0);
             }
         });
         Button buttonTint = (Button) findViewById(R.id.button_tint);
