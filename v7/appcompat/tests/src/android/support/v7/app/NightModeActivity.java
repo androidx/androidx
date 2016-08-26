@@ -20,8 +20,31 @@ import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
 
 public class NightModeActivity extends BaseTestActivity {
+
+    /**
+     * Warning, gross hack here. Since night mode uses recreate(), we need a way to be able to
+     * grab the top activity. The test runner only keeps reference to the original Activity which
+     * is no good for these tests. Fixed by keeping a static reference to the 'top' instance, and
+     * updating it in onResume and onPause. I said it was gross.
+     */
+    static NightModeActivity TOP_ACTIVITY = null;
+
     @Override
     protected int getContentViewLayoutResId() {
         return R.layout.activity_night_mode;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TOP_ACTIVITY = this;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (TOP_ACTIVITY == this) {
+            TOP_ACTIVITY = null;
+        }
     }
 }
