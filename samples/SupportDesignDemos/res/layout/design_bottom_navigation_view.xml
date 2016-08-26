@@ -14,7 +14,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<FrameLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
@@ -30,15 +30,22 @@
         android:id="@+id/button_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="@string/bottomnavigation_add"/>
+        android:text="@string/bottomnavigation_add"
+        android:layout_below="@+id/button_disable"/>
+
+    <Button
+        android:id="@+id/button_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bottomnavigation_remove"
+        android:layout_below="@+id/button_add"/>
 
     <Button
         android:id="@+id/button_tint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:text="@string/bottomnavigation_tint"/>
+        android:text="@string/bottomnavigation_tint"
+        android:layout_below="@+id/button_remove"/>
 
     <android.support.design.widget.BottomNavigationView
             android:id="@+id/bottom_navigation"
@@ -46,6 +53,7 @@
             android:layout_height="56dp"
             android:layout_gravity="bottom"
             android:background="#eee"
+            android:layout_alignParentBottom="true"
             app:menu="@menu/sample_bottom_menu"/>
 
-</FrameLayout>
+</RelativeLayout>
