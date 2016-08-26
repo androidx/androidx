@@ -124,6 +124,7 @@
     <string name="design_bottom_navigation_view">Bottom navigation view</string>
 
     <string name="bottomnavigation_disable">Disable item</string>
-    <string name="bottomnavigation_add">Add item</string>
+    <string name="bottomnavigation_add">Add an item</string>
+    <string name="bottomnavigation_remove">Remove an item</string>
     <string name="bottomnavigation_tint">Toggle tint</string>
 </resources>
