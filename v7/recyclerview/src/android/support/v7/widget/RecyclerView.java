@@ -58,6 +58,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.FocusFinder;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -74,8 +75,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static android.support.v7.widget.AdapterHelper.Callback;
 import static android.support.v7.widget.AdapterHelper.UpdateOp;
@@ -176,6 +179,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     static final boolean POST_UPDATES_ON_ANIMATION = Build.VERSION.SDK_INT >= 16;
 
+    /**
+     * On L+, with RenderThread, the UI thread has idle time after it has passed a frame off to
+     * RenderThread but before the next frame begins. We schedule prefetch work in this window.
+     */
+    private static final boolean ALLOW_PREFETCHING = Build.VERSION.SDK_INT >= 21;
+
     static final boolean DISPATCH_TEMP_DETACH = false;
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -237,6 +246,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * doing extra operations in onBindViewHolder call.
      */
     private static final String TRACE_BIND_VIEW_TAG = "RV OnBindView";
+
+    /**
+     * RecyclerView is attempting to pre-populate off screen views.
+     */
+    private static final String TRACE_PREFETCH_TAG = "RV Prefetch";
 
     /**
      * RecyclerView is creating a new View.
@@ -404,6 +418,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private boolean mPreserveFocusAfterLayout = true;
 
     private final ViewFlinger mViewFlinger = new ViewFlinger();
+
+    private static final long MIN_PREFETCH_TIME_NANOS = TimeUnit.MILLISECONDS.toNanos(4);
+    ViewPrefetcher mViewPrefetcher = ALLOW_PREFETCHING ? new ViewPrefetcher() : null;
 
     final State mState = new State();
 
@@ -1108,6 +1125,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 mLayout.dispatchAttachedToWindow(this);
             }
         }
+        mRecycler.updateViewCacheSize();
         requestLayout();
     }
 
@@ -2357,6 +2375,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mLayout.dispatchAttachedToWindow(this);
         }
         mPostedAnimatorRunner = false;
+        Display display = ViewCompat.getDisplay(this);
+        if (ALLOW_PREFETCHING
+                && display != null
+                && display.getRefreshRate() >= 30.0f) {
+            // break 60 fps assumption if data appears good
+            mViewPrefetcher.mFrameIntervalNanos = (long) (1000000000 / display.getRefreshRate());
+        }
     }
 
     @Override
@@ -2722,6 +2747,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                             canScrollVertically ? dy : 0,
                             vtev)) {
                         getParent().requestDisallowInterceptTouchEvent(true);
+                    }
+                    if (ALLOW_PREFETCHING) {
+                        mViewPrefetcher.postFromTraversal(dx, dy);
                     }
                 }
             } break;
@@ -4398,6 +4426,76 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 || mAdapterHelper.hasPendingUpdates();
     }
 
+    /**
+     * Runs prefetch work immediately after a traversal, in the downtime while the UI thread is
+     * waiting for VSYNC.
+     */
+    class ViewPrefetcher implements Runnable {
+        long mFrameIntervalNanos = TimeUnit.MILLISECONDS.toNanos(16);
+
+        long mPostTimeNanos;
+        private int mDx;
+        private int mDy;
+
+        private int[] mItemPrefetchArray;
+
+        /**
+         * Schedule a prefetch immediately after the current traversal.
+         */
+        public void postFromTraversal(int dx, int dy) {
+            if (ALLOW_PREFETCHING
+                    && mAdapter != null
+                    && mLayout != null
+                    && mLayout.getItemPrefetchCount() > 0) {
+                mDx = dx;
+                mDy = dy;
+                mPostTimeNanos = System.nanoTime();
+                RecyclerView.this.post(this);
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                TraceCompat.beginSection(TRACE_PREFETCH_TAG);
+                final int prefetchCount = mLayout.getItemPrefetchCount();
+                if (mAdapter == null
+                        || mLayout == null
+                        || !mLayout.isItemPrefetchEnabled()
+                        || prefetchCount < 1
+                        || hasPendingAdapterUpdates()) {
+                    // abort - no work
+                    return;
+                }
+
+                // Query last vsync so we can predict next one. Note that drawing time not yet
+                // valid in animation/input callbacks, so query it here to be safe.
+                long lastFrameVsyncNanos = TimeUnit.MILLISECONDS.toNanos(getDrawingTime());
+                if (lastFrameVsyncNanos == 0) {
+                    // abort - couldn't get last vsync for estimating next
+                    return;
+                }
+
+                long nowNanos = System.nanoTime();
+                long nextFrameNanos = lastFrameVsyncNanos + mFrameIntervalNanos;
+                if (nowNanos - mPostTimeNanos > mFrameIntervalNanos
+                        || nextFrameNanos - nowNanos < MIN_PREFETCH_TIME_NANOS) {
+                    // abort - Executing either too far after post, or too near next scheduled vsync
+                    return;
+                }
+
+                if (mItemPrefetchArray == null || mItemPrefetchArray.length < prefetchCount) {
+                    mItemPrefetchArray = new int[prefetchCount];
+                }
+                Arrays.fill(mItemPrefetchArray, -1);
+                int viewCount = mLayout.gatherPrefetchIndices(mDx, mDy, mState, mItemPrefetchArray);
+                mRecycler.prefetch(mItemPrefetchArray, viewCount);
+            } finally {
+                TraceCompat.endSection();
+            }
+        }
+    }
+
     private class ViewFlinger implements Runnable {
         private int mLastFlingX;
         private int mLastFlingY;
@@ -4514,6 +4612,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     setScrollState(SCROLL_STATE_IDLE); // setting state to idle will stop this.
                 } else {
                     postOnAnimation();
+                    if (ALLOW_PREFETCHING) {
+                        mViewPrefetcher.postFromTraversal(dx, dy);
+                    }
                 }
             }
             // call this after the onAnimation is complete not to have inconsistent callbacks etc.
@@ -4830,13 +4931,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         private final List<ViewHolder>
                 mUnmodifiableAttachedScrap = Collections.unmodifiableList(mAttachedScrap);
 
-        private int mViewCacheMax = DEFAULT_CACHE_SIZE;
+        private int mRequestedCacheMax = DEFAULT_CACHE_SIZE;
+        int mViewCacheMax = DEFAULT_CACHE_SIZE;
 
         private RecycledViewPool mRecyclerPool;
 
         private ViewCacheExtension mViewCacheExtension;
 
-        private static final int DEFAULT_CACHE_SIZE = 2;
+        static final int DEFAULT_CACHE_SIZE = 2;
 
         /**
          * Clear scrap views out of this recycler. Detached views contained within a
@@ -4853,9 +4955,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param viewCount Number of views to keep before sending views to the shared pool
          */
         public void setViewCacheSize(int viewCount) {
-            mViewCacheMax = viewCount;
+            mRequestedCacheMax = viewCount;
+            updateViewCacheSize();
+        }
+
+        void updateViewCacheSize() {
+            int extraCache = 0;
+            if (mLayout != null && ALLOW_PREFETCHING) {
+                extraCache = mLayout.isItemPrefetchEnabled() ? mLayout.getItemPrefetchCount() : 0;
+            }
+            mViewCacheMax = mRequestedCacheMax + extraCache;
             // first, try the views that can be recycled
-            for (int i = mCachedViews.size() - 1; i >= 0 && mCachedViews.size() > viewCount; i--) {
+            for (int i = mCachedViews.size() - 1;
+                    i >= 0 && mCachedViews.size() > mViewCacheMax; i--) {
                 recycleCachedViewAt(i);
             }
         }
@@ -5734,6 +5846,21 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 }
             }
         }
+
+        void prefetch(int[] itemPrefetchArray, int viewCount) {
+            if (viewCount == 0) return;
+
+            int childPosition = itemPrefetchArray[viewCount - 1];
+            if (childPosition < 0) {
+                throw new IllegalArgumentException("Recycler requested to prefetch invalid view "
+                        + childPosition);
+            }
+            View prefetchView = getViewForPosition(childPosition);
+            if (viewCount > 1) {
+                prefetch(itemPrefetchArray, viewCount - 1);
+            }
+            recycleView(prefetchView);
+        }
     }
 
     /**
@@ -6379,6 +6506,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         private boolean mMeasurementCacheEnabled = true;
 
+        private boolean mItemPrefetchEnabled = true;
 
         /**
          * These measure specs might be the measure specs that were passed into RecyclerView's
@@ -6658,6 +6786,52 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         public boolean supportsPredictiveItemAnimations() {
             return false;
+        }
+
+        /**
+         * Sets whether the LayoutManager should be queried for views outside of
+         * its viewport while the UI thread is idle between frames.
+         *
+         * <p>If enabled, the LayoutManager will be queried for items to inflate/bind in between
+         * view system traversals on devices running API 21 or greater. Default value is true.</p>
+         *
+         * <p>On platforms API level 21 and higher, the UI thread is idle between passing a frame
+         * to RenderThread and the starting up its next frame at the next VSync pulse. By
+         * prefetching out of window views in this time period, delays from inflation and view
+         * binding are much less likely to cause jank and stuttering during scrolls and flings.</p>
+         *
+         * <p>While prefetch is enabled, it will have the side effect of expanding the effective
+         * size of the View cache to hold prefetched views.</p>
+         *
+         * @param enabled <code>True</code> if items should be prefetched in between traversals.
+         *
+         * @see #isItemPrefetchEnabled()
+         */
+        public final void setItemPrefetchEnabled(boolean enabled) {
+            if (enabled != mItemPrefetchEnabled) {
+                mItemPrefetchEnabled = enabled;
+                if (mRecyclerView != null) {
+                    mRecyclerView.mRecycler.updateViewCacheSize();
+                }
+            }
+        }
+
+        /**
+         * Sets whether the LayoutManager should be queried for views outside of
+         * its viewport while the UI thread is idle between frames.
+         *
+         * @see #setItemPrefetchEnabled(boolean)
+         *
+         * @return true if item prefetch is enabled, false otherwise
+         */
+        public final boolean isItemPrefetchEnabled() {
+            return mItemPrefetchEnabled;
+        }
+
+        int getItemPrefetchCount() { return 0; }
+
+        int gatherPrefetchIndices(int dx, int dy, State state, int[] outIndices) {
+            return 0;
         }
 
         void dispatchAttachedToWindow(RecyclerView view) {
