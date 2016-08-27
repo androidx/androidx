@@ -10063,6 +10063,7 @@ package android.support.v7.widget {
     method public boolean isAttachedToWindow();
     method public boolean isAutoMeasureEnabled();
     method public boolean isFocused();
+    method public final boolean isItemPrefetchEnabled();
     method public boolean isLayoutHierarchical(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public boolean isMeasurementCacheEnabled();
     method public boolean isSmoothScrolling();
@@ -10116,6 +10117,7 @@ package android.support.v7.widget {
     method public void scrollToPosition(int);
     method public int scrollVerticallyBy(int, android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public void setAutoMeasureEnabled(boolean);
+    method public final void setItemPrefetchEnabled(boolean);
     method public void setMeasuredDimension(android.graphics.Rect, int, int);
     method public void setMeasuredDimension(int, int);
     method public void setMeasurementCacheEnabled(boolean);
