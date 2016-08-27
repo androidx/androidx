@@ -35,9 +35,19 @@ import java.util.concurrent.TimeUnit;
 public class WrappedRecyclerView extends RecyclerView {
 
     Boolean mFakeRTL;
+    private long mDrawingTimeOffsetMs;
 
     public void setFakeRTL(Boolean fakeRTL) {
         mFakeRTL = fakeRTL;
+    }
+
+    public void setDrawingTimeOffset(long offsetMs) {
+        mDrawingTimeOffsetMs = offsetMs;
+    }
+
+    @Override
+    public long getDrawingTime() {
+        return super.getDrawingTime() + mDrawingTimeOffsetMs;
     }
 
     public WrappedRecyclerView(Context context) {

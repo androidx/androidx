@@ -345,6 +345,8 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
         CountDownLatch snapLatch;
 
+        CountDownLatch prefetchLatch;
+
         OrientationHelper mSecondaryOrientation;
 
         OnLayoutListener mOnLayoutListener;
@@ -362,6 +364,23 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
             checkForMainThreadException();
             MatcherAssert.assertThat("all layouts should complete on time",
                     layoutLatch.getCount(), CoreMatchers.is(0L));
+            // use a runnable to ensure RV layout is finished
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                }
+            });
+        }
+
+        public void expectPrefetch(int count) {
+            prefetchLatch = new CountDownLatch(count);
+        }
+
+        public void waitForPrefetch(int seconds) throws Throwable {
+            prefetchLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
+            checkForMainThreadException();
+            MatcherAssert.assertThat("all prefetches should complete on time",
+                    prefetchLatch.getCount(), CoreMatchers.is(0L));
             // use a runnable to ensure RV layout is finished
             getInstrumentation().runOnMainSync(new Runnable() {
                 @Override
@@ -575,6 +594,12 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
                 postExceptionToInstrumentation(t);
             }
             layoutLatch.countDown();
+        }
+
+        @Override
+        int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+            if (prefetchLatch != null) prefetchLatch.countDown();
+            return super.gatherPrefetchIndices(dx, dy, state, outIndices);
         }
     }
 }

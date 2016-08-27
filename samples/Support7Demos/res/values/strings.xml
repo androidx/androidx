@@ -144,6 +144,9 @@
     <string name="enableAnimations">Animate</string>
     <string name="enablePredictiveAnimations">Predictive</string>
     <string name="enableInPlaceChange">In Place Change</string>
+    <string name="enable_inflate_slowdown">Slow inflate</string>
+    <string name="enable_bind_slowdown">Slow bind</string>
+    <string name="enable_prefetch">Prefetch</string>
     <string name="add_item">Add</string>
     <string name="delete_item">Del</string>
     <string name="add_delete_item">A+D</string>

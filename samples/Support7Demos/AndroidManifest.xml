@@ -389,8 +389,17 @@
         </activity>
 
         <activity android:name=".widget.LinearLayoutManagerActivity"
-                  android:label="@string/linear_layout_manager"
-                  android:theme="@style/Theme.AppCompat">
+            android:label="@string/linear_layout_manager"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.LinearLayoutManagerJankActivity"
+            android:label="@string/linear_layout_manager"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
