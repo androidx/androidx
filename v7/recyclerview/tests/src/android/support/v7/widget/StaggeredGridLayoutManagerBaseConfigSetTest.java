@@ -304,9 +304,9 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
                 final String boundsLog = mLayoutManager.getBoundsLog();
                 VisibleChildren queryResult = new VisibleChildren(mLayoutManager.getSpanCount());
                 queryResult.findFirstPartialVisibleClosestToStart = mLayoutManager
-                        .findFirstVisibleItemClosestToStart(false, true);
+                        .findFirstVisibleItemClosestToStart(false);
                 queryResult.findFirstPartialVisibleClosestToEnd = mLayoutManager
-                        .findFirstVisibleItemClosestToEnd(false, true);
+                        .findFirstVisibleItemClosestToEnd(false);
                 queryResult.firstFullyVisiblePositions = mLayoutManager
                         .findFirstCompletelyVisibleItemPositions(
                                 provideArr ? new int[mLayoutManager.getSpanCount()] : null);
