@@ -580,6 +580,16 @@ public final class MediaControllerCompat {
             }
 
             @Override
+            public void onRepeatModeChanged(int repeatMode) throws RemoteException {
+                mHandler.post(MessageHandler.MSG_UPDATE_REPEAT_MODE, repeatMode, null);
+            }
+
+            @Override
+            public void onShuffleModeChanged(boolean enabled) throws RemoteException {
+                mHandler.post(MessageHandler.MSG_UPDATE_SHUFFLE_MODE, enabled, null);
+            }
+
+            @Override
             public void onExtrasChanged(Bundle extras) throws RemoteException {
                 mHandler.post(MessageHandler.MSG_UPDATE_EXTRAS, extras, null);
             }
@@ -604,6 +614,8 @@ public final class MediaControllerCompat {
             private static final int MSG_UPDATE_QUEUE_TITLE = 6;
             private static final int MSG_UPDATE_EXTRAS = 7;
             private static final int MSG_DESTROYED = 8;
+            private static final int MSG_UPDATE_REPEAT_MODE = 9;
+            private static final int MSG_UPDATE_SHUFFLE_MODE = 10;
 
             public MessageHandler(Looper looper) {
                 super(looper);
@@ -629,6 +641,12 @@ public final class MediaControllerCompat {
                         break;
                     case MSG_UPDATE_QUEUE_TITLE:
                         onQueueTitleChanged((CharSequence) msg.obj);
+                        break;
+                    case MSG_UPDATE_REPEAT_MODE:
+                        onRepeatModeChanged((int) msg.obj);
+                        break;
+                    case MSG_UPDATE_SHUFFLE_MODE:
+                        onShuffleModeChanged((boolean) msg.obj);
                         break;
                     case MSG_UPDATE_EXTRAS:
                         onExtrasChanged((Bundle) msg.obj);
@@ -1085,13 +1103,21 @@ public final class MediaControllerCompat {
 
         @Override
         public int getRepeatMode() {
-            // TODO: implement this
+            try {
+                return mBinder.getRepeatMode();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in getRepeatMode. " + e);
+            }
             return 0;
         }
 
         @Override
         public boolean isShuffleModeEnabled() {
-            // TODO: implement this
+            try {
+                return mBinder.isShuffleModeEnabled();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in isShuffleModeEnabled. " + e);
+            }
             return false;
         }
 
@@ -1334,12 +1360,20 @@ public final class MediaControllerCompat {
 
         @Override
         public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
-            // TODO: impletment this
+            try {
+                mBinder.setRepeatMode(repeatMode);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in setRepeatMode. " + e);
+            }
         }
 
         @Override
         public void setShuffleModeEnabled(boolean enabled) {
-            // TODO: impletment this
+            try {
+                mBinder.setShuffleModeEnabled(enabled);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in setShuffleModeEnabled. " + e);
+            }
         }
 
         @Override

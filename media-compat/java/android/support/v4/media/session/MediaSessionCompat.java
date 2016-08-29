@@ -1358,6 +1358,8 @@ public class MediaSessionCompat {
         List<QueueItem> mQueue;
         CharSequence mQueueTitle;
         @RatingCompat.Style int mRatingType;
+        @PlaybackStateCompat.RepeatMode int mRepeatMode;
+        boolean mShuffleModeEnabled;
         Bundle mExtras;
 
         int mVolumeType;
@@ -1661,12 +1663,18 @@ public class MediaSessionCompat {
 
         @Override
         public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
-            // TODO: implement this
+            if (mRepeatMode != repeatMode) {
+                mRepeatMode = repeatMode;
+                sendRepeatMode(repeatMode);
+            }
         }
 
         @Override
         public void setShuffleModeEnabled(boolean enabled) {
-            // TODO: implement this
+            if (mShuffleModeEnabled != enabled) {
+                mShuffleModeEnabled = enabled;
+                sendShuffleModeEnabled(enabled);
+            }
         }
 
         @Override
@@ -1888,6 +1896,30 @@ public class MediaSessionCompat {
             mControllerCallbacks.finishBroadcast();
         }
 
+        private void sendRepeatMode(int repeatMode) {
+            int size = mControllerCallbacks.beginBroadcast();
+            for (int i = size - 1; i >= 0; i--) {
+                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                try {
+                    cb.onRepeatModeChanged(repeatMode);
+                } catch (RemoteException e) {
+                }
+            }
+            mControllerCallbacks.finishBroadcast();
+        }
+
+        private void sendShuffleModeEnabled(boolean enabled) {
+            int size = mControllerCallbacks.beginBroadcast();
+            for (int i = size - 1; i >= 0; i--) {
+                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                try {
+                    cb.onShuffleModeChanged(enabled);
+                } catch (RemoteException e) {
+                }
+            }
+            mControllerCallbacks.finishBroadcast();
+        }
+
         private void sendExtras(Bundle extras) {
             int size = mControllerCallbacks.beginBroadcast();
             for (int i = size - 1; i >= 0; i--) {
@@ -2084,6 +2116,16 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void setRepeatMode(int repeatMode) throws RemoteException {
+                postToHandler(MessageHandler.MSG_SET_REPEAT_MODE, repeatMode);
+            }
+
+            @Override
+            public void setShuffleModeEnabled(boolean enabled) throws RemoteException {
+                postToHandler(MessageHandler.MSG_SET_SHUFFLE_MODE_ENABLED, enabled);
+            }
+
+            @Override
             public void sendCustomAction(String action, Bundle args)
                     throws RemoteException {
                 postToHandler(MessageHandler.MSG_CUSTOM_ACTION, action, args);
@@ -2122,6 +2164,17 @@ public class MediaSessionCompat {
             @RatingCompat.Style
             public int getRatingType() {
                 return mRatingType;
+            }
+
+            @Override
+            @PlaybackStateCompat.RepeatMode
+            public int getRepeatMode() {
+                return mRepeatMode;
+            }
+
+            @Override
+            public boolean isShuffleModeEnabled() {
+                return mShuffleModeEnabled;
             }
 
             @Override
@@ -2166,6 +2219,8 @@ public class MediaSessionCompat {
             private static final int MSG_CUSTOM_ACTION = 20;
             private static final int MSG_MEDIA_BUTTON = 21;
             private static final int MSG_SET_VOLUME = 22;
+            private static final int MSG_SET_REPEAT_MODE = 23;
+            private static final int MSG_SET_SHUFFLE_MODE_ENABLED = 24;
 
             // KeyEvent constants only available on API 11+
             private static final int KEYCODE_MEDIA_PAUSE = 127;
@@ -2272,6 +2327,12 @@ public class MediaSessionCompat {
                         break;
                     case MSG_SET_VOLUME:
                         setVolumeTo((int) msg.obj, 0);
+                        break;
+                    case MSG_SET_REPEAT_MODE:
+                        cb.onSetRepeatMode((int) msg.obj);
+                        break;
+                    case MSG_SET_SHUFFLE_MODE_ENABLED:
+                        cb.onSetShuffleModeEnabled((boolean) msg.obj);
                         break;
                 }
             }
