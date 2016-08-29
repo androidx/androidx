@@ -1066,8 +1066,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
             return 0;
         }
         return ScrollbarHelper.computeScrollOffset(state, mPrimaryOrientation,
-                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled, true)
-                , findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled, true),
+                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled),
+                findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled),
                 this, mSmoothScrollbarEnabled, mShouldReverseLayout);
     }
 
@@ -1086,8 +1086,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
             return 0;
         }
         return ScrollbarHelper.computeScrollExtent(state, mPrimaryOrientation,
-                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled, true)
-                , findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled, true),
+                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled),
+                findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled),
                 this, mSmoothScrollbarEnabled);
     }
 
@@ -1106,8 +1106,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
             return 0;
         }
         return ScrollbarHelper.computeScrollRange(state, mPrimaryOrientation,
-                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled, true)
-                , findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled, true),
+                findFirstVisibleItemClosestToStart(!mSmoothScrollbarEnabled),
+                findFirstVisibleItemClosestToEnd(!mSmoothScrollbarEnabled),
                 this, mSmoothScrollbarEnabled);
     }
 
@@ -1260,8 +1260,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         if (getChildCount() > 0) {
             final AccessibilityRecordCompat record = AccessibilityEventCompat
                     .asRecord(event);
-            final View start = findFirstVisibleItemClosestToStart(false, true);
-            final View end = findFirstVisibleItemClosestToEnd(false, true);
+            final View start = findFirstVisibleItemClosestToStart(false);
+            final View end = findFirstVisibleItemClosestToEnd(false);
             if (start == null || end == null) {
                 return;
             }
@@ -1283,8 +1283,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      * of returning null.
      */
     int findFirstVisibleItemPositionInt() {
-        final View first = mShouldReverseLayout ? findFirstVisibleItemClosestToEnd(true, true) :
-                findFirstVisibleItemClosestToStart(true, true);
+        final View first = mShouldReverseLayout ? findFirstVisibleItemClosestToEnd(true) :
+                findFirstVisibleItemClosestToStart(true);
         return first == null ? NO_POSITION : getPosition(first);
     }
 
@@ -1312,7 +1312,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      * This method does not do any sorting based on child's start coordinate, instead, it uses
      * children order.
      */
-    View findFirstVisibleItemClosestToStart(boolean fullyVisible, boolean acceptPartiallyVisible) {
+    View findFirstVisibleItemClosestToStart(boolean fullyVisible) {
         final int boundsStart = mPrimaryOrientation.getStartAfterPadding();
         final int boundsEnd = mPrimaryOrientation.getEndAfterPadding();
         final int limit = getChildCount();
@@ -1329,7 +1329,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
                 // as long as fully visible is not requested.
                 return child;
             }
-            if (acceptPartiallyVisible && partiallyVisible == null) {
+            if (partiallyVisible == null) {
                 partiallyVisible = child;
             }
         }
@@ -1342,7 +1342,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      * This method does not do any sorting based on child's end coordinate, instead, it uses
      * children order.
      */
-    View findFirstVisibleItemClosestToEnd(boolean fullyVisible, boolean acceptPartiallyVisible) {
+    View findFirstVisibleItemClosestToEnd(boolean fullyVisible) {
         final int boundsStart = mPrimaryOrientation.getStartAfterPadding();
         final int boundsEnd = mPrimaryOrientation.getEndAfterPadding();
         View partiallyVisible = null;
@@ -1358,7 +1358,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
                 // as long as fully visible is not requested.
                 return child;
             }
-            if (acceptPartiallyVisible && partiallyVisible == null) {
+            if (partiallyVisible == null) {
                 partiallyVisible = child;
             }
         }

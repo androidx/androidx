@@ -135,17 +135,17 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         assertEquals("last completely visible item from span 1 should be 1", 1, into[1]);
         assertEquals("first fully visible child should be at position",
                 0, mRecyclerView.getChildViewHolder(mLayoutManager.
-                        findFirstVisibleItemClosestToStart(true, true)).getPosition());
+                        findFirstVisibleItemClosestToStart(true)).getPosition());
         assertEquals("last fully visible child should be at position",
                 4, mRecyclerView.getChildViewHolder(mLayoutManager.
-                        findFirstVisibleItemClosestToEnd(true, true)).getPosition());
+                        findFirstVisibleItemClosestToEnd(true)).getPosition());
 
         assertEquals("first visible child should be at position",
                 0, mRecyclerView.getChildViewHolder(mLayoutManager.
-                        findFirstVisibleItemClosestToStart(false, true)).getPosition());
+                        findFirstVisibleItemClosestToStart(false)).getPosition());
         assertEquals("last visible child should be at position",
                 4, mRecyclerView.getChildViewHolder(mLayoutManager.
-                        findFirstVisibleItemClosestToEnd(false, true)).getPosition());
+                        findFirstVisibleItemClosestToEnd(false)).getPosition());
 
     }
 
@@ -807,10 +807,10 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                 .asRecord(event);
         final int start = mRecyclerView
                 .getChildLayoutPosition(
-                        mLayoutManager.findFirstVisibleItemClosestToStart(false, true));
+                        mLayoutManager.findFirstVisibleItemClosestToStart(false));
         final int end = mRecyclerView
                 .getChildLayoutPosition(
-                        mLayoutManager.findFirstVisibleItemClosestToEnd(false, true));
+                        mLayoutManager.findFirstVisibleItemClosestToEnd(false));
         assertEquals("first item position should match",
                 Math.min(start, end), record.getFromIndex());
         assertEquals("last item position should match",
