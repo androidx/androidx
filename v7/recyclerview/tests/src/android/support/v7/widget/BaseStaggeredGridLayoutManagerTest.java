@@ -84,8 +84,7 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
         mRecyclerView = new RecyclerView(getActivity());
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new WrappedLayoutManager(config.mSpanCount,
-                config.mOrientation);
+        mLayoutManager = new WrappedLayoutManager(config.mSpanCount, config.mOrientation);
         mLayoutManager.setGapStrategy(config.mGapStrategy);
         mLayoutManager.setReverseLayout(config.mReverseLayout);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -475,7 +474,7 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
         // until bug is fixed, we'll fake it.
         // public issue id: 57819
         Boolean mFakeRTL;
-        CountDownLatch snapLatch;
+        CountDownLatch mSnapLatch;
 
         @Override
         boolean isLayoutRTL() {
@@ -500,14 +499,14 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
         }
 
         public void expectIdleState(int count) {
-            snapLatch = new CountDownLatch(count);
+            mSnapLatch = new CountDownLatch(count);
             mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        snapLatch.countDown();
-                        if (snapLatch.getCount() == 0L) {
+                        mSnapLatch.countDown();
+                        if (mSnapLatch.getCount() == 0L) {
                             mRecyclerView.removeOnScrollListener(this);
                         }
                     }
@@ -516,10 +515,10 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
         }
 
         public void waitForSnap(int seconds) throws Throwable {
-            snapLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
+            mSnapLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
             checkForMainThreadException();
             MatcherAssert.assertThat("all scrolling should complete on time",
-                    snapLatch.getCount(), CoreMatchers.is(0L));
+                    mSnapLatch.getCount(), CoreMatchers.is(0L));
             // use a runnable to ensure RV layout is finished
             getInstrumentation().runOnMainSync(new Runnable() {
                 @Override
@@ -854,6 +853,7 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
                         / AVG_ITEM_PER_VIEW : mRecyclerViewHeight / AVG_ITEM_PER_VIEW;
             }
             super.onBindViewHolder(holder, position);
+
             Item item = mItems.get(position);
             RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) holder.itemView
                     .getLayoutParams();
@@ -862,8 +862,8 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
                         .setFullSpan(mFullSpanItems.contains(item.mAdapterIndex));
             } else {
                 StaggeredGridLayoutManager.LayoutParams slp
-                        = (StaggeredGridLayoutManager.LayoutParams) mLayoutManager
-                        .generateDefaultLayoutParams();
+                    = (StaggeredGridLayoutManager.LayoutParams) mLayoutManager
+                    .generateDefaultLayoutParams();
                 holder.itemView.setLayoutParams(slp);
                 slp.setFullSpan(mFullSpanItems.contains(item.mAdapterIndex));
                 lp = slp;
