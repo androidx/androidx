@@ -68,6 +68,9 @@ class MediaBrowserServiceCompatApi21 {
             } else if (result instanceof Parcel) {
                 mResultObj.sendResult(
                         MediaBrowser.MediaItem.CREATOR.createFromParcel((Parcel) result));
+            } else {
+                // The result is null or an invalid instance.
+                mResultObj.sendResult(null);
             }
         }
 
