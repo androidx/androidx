@@ -1198,8 +1198,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     @Override
     int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
         int delta = (mOrientation == HORIZONTAL) ? dx : dy;
-        if (delta == 0) {
-            // not scrolling in supported direction, don't bother prefetching
+        if (getChildCount() == 0 || delta == 0) {
+            // can't support this scroll, so don't bother prefetching
             return 0;
         }
 
