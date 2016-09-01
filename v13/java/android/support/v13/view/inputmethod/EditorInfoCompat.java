@@ -23,6 +23,10 @@ import android.support.v4.os.BuildCompat;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
+/**
+ * Helper for accessing features in {@link EditorInfo} introduced after API level 13 in a backwards
+ * compatible fashion.
+ */
 public final class EditorInfoCompat {
 
     private interface EditorInfoCompatImpl {
