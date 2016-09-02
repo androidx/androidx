@@ -4437,7 +4437,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         private int mDx;
         private int mDy;
 
-        private int[] mItemPrefetchArray;
+        int[] mItemPrefetchArray;
 
         /**
          * Schedule a prefetch immediately after the current traversal.
@@ -4451,6 +4451,24 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 mDy = dy;
                 mPostTimeNanos = System.nanoTime();
                 RecyclerView.this.post(this);
+            }
+        }
+
+        public boolean lastPrefetchIncludedPosition(int position) {
+            if (mItemPrefetchArray != null) {
+                for (int i = 0; i < mItemPrefetchArray.length; i++) {
+                    if (mItemPrefetchArray[i] == position) return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Called when prefetch indices are no longer valid for cache prioritization.
+         */
+        public void clearPrefetchPositions() {
+            if (mItemPrefetchArray != null) {
+                Arrays.fill(mItemPrefetchArray, -1);
             }
         }
 
@@ -4610,6 +4628,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
                 if (scroller.isFinished() || !fullyConsumedAny) {
                     setScrollState(SCROLL_STATE_IDLE); // setting state to idle will stop this.
+                    if (ALLOW_PREFETCHING) {
+                        mViewPrefetcher.clearPrefetchPositions();
+                    }
                 } else {
                     postOnAnimation();
                     if (ALLOW_PREFETCHING) {
@@ -5341,6 +5362,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 recycleCachedViewAt(i);
             }
             mCachedViews.clear();
+            if (ALLOW_PREFETCHING) {
+                mViewPrefetcher.clearPrefetchPositions();
+            }
         }
 
         /**
@@ -5401,18 +5425,33 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         holder);
             }
             if (forceRecycle || holder.isRecyclable()) {
-                if (!holder.hasAnyOfTheFlags(ViewHolder.FLAG_INVALID | ViewHolder.FLAG_REMOVED
-                        | ViewHolder.FLAG_UPDATE)) {
+                if (mViewCacheMax > 0
+                        && !holder.hasAnyOfTheFlags(ViewHolder.FLAG_INVALID
+                                | ViewHolder.FLAG_REMOVED | ViewHolder.FLAG_UPDATE)) {
                     // Retire oldest cached view
                     int cachedViewSize = mCachedViews.size();
                     if (cachedViewSize >= mViewCacheMax && cachedViewSize > 0) {
                         recycleCachedViewAt(0);
-                        cachedViewSize --;
+                        cachedViewSize--;
                     }
-                    if (cachedViewSize < mViewCacheMax) {
-                        mCachedViews.add(holder);
-                        cached = true;
+
+                    int targetCacheIndex = cachedViewSize;
+                    if (ALLOW_PREFETCHING
+                            && cachedViewSize > 0
+                            && !mViewPrefetcher.lastPrefetchIncludedPosition(holder.mPosition)) {
+                        // when adding the view, skip past most recently prefetched views
+                        int cacheIndex = cachedViewSize - 1;
+                        while (cacheIndex >= 0) {
+                            int cachedPos = mCachedViews.get(cacheIndex).mPosition;
+                            if (!mViewPrefetcher.lastPrefetchIncludedPosition(cachedPos)) {
+                                break;
+                            }
+                            cacheIndex--;
+                        }
+                        targetCacheIndex = cacheIndex + 1;
                     }
+                    mCachedViews.add(targetCacheIndex, holder);
+                    cached = true;
                 }
                 if (!cached) {
                     addViewHolderToRecycledViewPool(holder);
