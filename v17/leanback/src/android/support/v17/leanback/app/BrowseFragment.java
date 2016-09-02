@@ -1701,6 +1701,8 @@ public class BrowseFragment extends BaseFragment {
         void execute() {
             mView.getViewTreeObserver().addOnPreDrawListener(this);
             mainFragmentAdapter.setExpand(false);
+            // always trigger onPreDraw even adapter setExpand() does nothing.
+            mView.invalidate();
             mState = STATE_INIT;
         }
 
@@ -1712,6 +1714,8 @@ public class BrowseFragment extends BaseFragment {
             }
             if (mState == STATE_INIT) {
                 mainFragmentAdapter.setExpand(true);
+                // always trigger onPreDraw even adapter setExpand() does nothing.
+                mView.invalidate();
                 mState = STATE_FIRST_DRAW;
             } else if (mState == STATE_FIRST_DRAW) {
                 mCallback.run();
