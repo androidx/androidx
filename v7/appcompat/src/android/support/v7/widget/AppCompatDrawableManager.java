@@ -732,6 +732,9 @@ public final class AppCompatDrawableManager {
     }
 
     private static class VdcInflateDelegate implements InflateDelegate {
+        VdcInflateDelegate() {
+        }
+
         @Override
         public Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
                 @NonNull AttributeSet attrs, @Nullable Resources.Theme theme) {
@@ -746,6 +749,9 @@ public final class AppCompatDrawableManager {
     }
 
     private static class AvdcInflateDelegate implements InflateDelegate {
+        AvdcInflateDelegate() {
+        }
+
         @Override
         public Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
                 @NonNull AttributeSet attrs, @Nullable Resources.Theme theme) {

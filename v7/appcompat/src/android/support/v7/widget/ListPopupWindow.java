@@ -71,7 +71,7 @@ public class ListPopupWindow implements ShowableListMenu {
      * must leave a pointer down without scrolling to expand
      * the autocomplete dropdown list to cover the IME.
      */
-    private static final int EXPAND_LIST_TIMEOUT = 250;
+    static final int EXPAND_LIST_TIMEOUT = 250;
 
     private static Method sClipToWindowEnabledMethod;
     private static Method sGetMaxAvailableHeightMethod;
@@ -101,7 +101,7 @@ public class ListPopupWindow implements ShowableListMenu {
 
     private Context mContext;
     private ListAdapter mAdapter;
-    private DropDownListView mDropDownList;
+    DropDownListView mDropDownList;
 
     private int mDropDownHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
     private int mDropDownWidth = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -129,13 +129,13 @@ public class ListPopupWindow implements ShowableListMenu {
     private AdapterView.OnItemClickListener mItemClickListener;
     private OnItemSelectedListener mItemSelectedListener;
 
-    private final ResizePopupRunnable mResizePopupRunnable = new ResizePopupRunnable();
+    final ResizePopupRunnable mResizePopupRunnable = new ResizePopupRunnable();
     private final PopupTouchInterceptor mTouchInterceptor = new PopupTouchInterceptor();
     private final PopupScrollListener mScrollListener = new PopupScrollListener();
     private final ListSelectorHider mHideSelector = new ListSelectorHider();
     private Runnable mShowDropDownRunnable;
 
-    private final Handler mHandler;
+    final Handler mHandler;
 
     private final Rect mTempRect = new Rect();
 
@@ -1291,6 +1291,9 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     private class PopupDataSetObserver extends DataSetObserver {
+        PopupDataSetObserver() {
+        }
+
         @Override
         public void onChanged() {
             if (isShowing()) {
@@ -1306,6 +1309,9 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     private class ListSelectorHider implements Runnable {
+        ListSelectorHider() {
+        }
+
         @Override
         public void run() {
             clearListSelection();
@@ -1313,6 +1319,9 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     private class ResizePopupRunnable implements Runnable {
+        ResizePopupRunnable() {
+        }
+
         @Override
         public void run() {
             if (mDropDownList != null && ViewCompat.isAttachedToWindow(mDropDownList)
@@ -1325,6 +1334,9 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     private class PopupTouchInterceptor implements OnTouchListener {
+        PopupTouchInterceptor() {
+        }
+
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             final int action = event.getAction();
@@ -1343,6 +1355,9 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     private class PopupScrollListener implements ListView.OnScrollListener {
+        PopupScrollListener() {
+        }
+
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
                 int totalItemCount) {

@@ -149,7 +149,7 @@ public class Toolbar extends ViewGroup {
 
     private Drawable mCollapseIcon;
     private CharSequence mCollapseDescription;
-    private ImageButton mCollapseButtonView;
+    ImageButton mCollapseButtonView;
     View mExpandedActionView;
 
     /** Context against which to inflate popup menus. */
@@ -161,7 +161,7 @@ public class Toolbar extends ViewGroup {
     private int mTitleTextAppearance;
     private int mSubtitleTextAppearance;
 
-    private int mButtonGravity;
+    int mButtonGravity;
 
     private int mMaxButtonHeight;
 
@@ -193,7 +193,7 @@ public class Toolbar extends ViewGroup {
 
     private final int[] mTempMargins = new int[2];
 
-    private OnMenuItemClickListener mOnMenuItemClickListener;
+    OnMenuItemClickListener mOnMenuItemClickListener;
 
     private final ActionMenuView.OnMenuItemClickListener mMenuViewItemClickListener =
             new ActionMenuView.OnMenuItemClickListener() {
@@ -1361,7 +1361,7 @@ public class Toolbar extends ViewGroup {
         }
     }
 
-    private void ensureCollapseButtonView() {
+    void ensureCollapseButtonView() {
         if (mCollapseButtonView == null) {
             mCollapseButtonView = new AppCompatImageButton(getContext(), null,
                     R.attr.toolbarNavigationButtonStyle);
@@ -2283,6 +2283,9 @@ public class Toolbar extends ViewGroup {
     private class ExpandedActionViewMenuPresenter implements MenuPresenter {
         MenuBuilder mMenu;
         MenuItemImpl mCurrentExpandedItem;
+
+        ExpandedActionViewMenuPresenter() {
+        }
 
         @Override
         public void initForMenu(Context context, MenuBuilder menu) {

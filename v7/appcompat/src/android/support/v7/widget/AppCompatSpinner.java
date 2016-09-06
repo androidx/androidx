@@ -64,7 +64,7 @@ import android.widget.SpinnerAdapter;
  */
 public class AppCompatSpinner extends Spinner implements TintableBackgroundView {
 
-    private static final boolean IS_AT_LEAST_M = Build.VERSION.SDK_INT >= 23;
+    static final boolean IS_AT_LEAST_M = Build.VERSION.SDK_INT >= 23;
     private static final boolean IS_AT_LEAST_JB = Build.VERSION.SDK_INT >= 16;
 
     private static final int[] ATTRS_ANDROID_SPINNERMODE = {android.R.attr.spinnerMode};
@@ -90,11 +90,11 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
 
     private boolean mPopupSet;
 
-    private DropdownPopup mPopup;
+    DropdownPopup mPopup;
 
-    private int mDropDownWidth;
+    int mDropDownWidth;
 
-    private final Rect mTempRect = new Rect();
+    final Rect mTempRect = new Rect();
 
     /**
      * Construct a new spinner with the given context's theme.
@@ -530,7 +530,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         }
     }
 
-    private int compatMeasureContentWidth(SpinnerAdapter adapter, Drawable background) {
+    int compatMeasureContentWidth(SpinnerAdapter adapter, Drawable background) {
         if (adapter == null) {
             return 0;
         }
@@ -693,7 +693,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
 
     private class DropdownPopup extends ListPopupWindow {
         private CharSequence mHintText;
-        private ListAdapter mAdapter;
+        ListAdapter mAdapter;
         private final Rect mVisibleRect = new Rect();
 
         public DropdownPopup(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -821,7 +821,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         /**
          * Simplified version of the the hidden View.isVisibleToUser()
          */
-        private boolean isVisibleToUser(View view) {
+        boolean isVisibleToUser(View view) {
             return ViewCompat.isAttachedToWindow(view) && view.getGlobalVisibleRect(mVisibleRect);
         }
     }
