@@ -35,8 +35,8 @@ import java.util.Iterator;
  * </p>
  */
 public class RemotePlaybackClient {
-    private static final String TAG = "RemotePlaybackClient";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final String TAG = "RemotePlaybackClient";
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final Context mContext;
     private final MediaRouter.RouteInfo mRoute;
@@ -50,9 +50,9 @@ public class RemotePlaybackClient {
     private boolean mRouteSupportsSessionManagement;
     private boolean mRouteSupportsMessaging;
 
-    private String mSessionId;
-    private StatusCallback mStatusCallback;
-    private OnMessageReceivedListener mOnMessageReceivedListener;
+    String mSessionId;
+    StatusCallback mStatusCallback;
+    OnMessageReceivedListener mOnMessageReceivedListener;
 
     /**
      * Creates a remote playback client for a route.
@@ -748,20 +748,20 @@ public class RemotePlaybackClient {
         });
     }
 
-    private void adoptSession(String sessionId) {
+    void adoptSession(String sessionId) {
         if (sessionId != null) {
             setSessionId(sessionId);
         }
     }
 
-    private void handleInvalidResult(Intent intent, ActionCallback callback,
+    void handleInvalidResult(Intent intent, ActionCallback callback,
             Bundle data) {
         Log.w(TAG, "Received invalid result data from " + intent.getAction()
                 + ": data=" + bundleToString(data));
         callback.onError(null, MediaControlIntent.ERROR_UNKNOWN, data);
     }
 
-    private void handleError(Intent intent, ActionCallback callback,
+    void handleError(Intent intent, ActionCallback callback,
             String error, Bundle data) {
         final int code;
         if (data != null) {
@@ -840,7 +840,7 @@ public class RemotePlaybackClient {
         }
     }
 
-    private static String inferMissingResult(String request, String result) {
+    static String inferMissingResult(String request, String result) {
         if (result == null) {
             // Result is missing.
             return request;
@@ -859,7 +859,7 @@ public class RemotePlaybackClient {
         }
     }
 
-    private static String bundleToString(Bundle bundle) {
+    static String bundleToString(Bundle bundle) {
         if (bundle != null) {
             bundle.size(); // force bundle to be unparcelled
             return bundle.toString();
@@ -874,6 +874,9 @@ public class RemotePlaybackClient {
                 "android.support.v7.media.actions.ACTION_SESSION_STATUS_CHANGED";
         public static final String ACTION_MESSAGE_RECEIVED =
                 "android.support.v7.media.actions.ACTION_MESSAGE_RECEIVED";
+
+        ActionReceiver() {
+        }
 
         @Override
         public void onReceive(Context context, Intent intent) {
