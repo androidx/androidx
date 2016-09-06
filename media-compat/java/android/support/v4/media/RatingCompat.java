@@ -96,7 +96,7 @@ public final class RatingCompat implements Parcelable {
 
     private Object mRatingObj; // framework Rating object
 
-    private RatingCompat(@Style int ratingStyle, float rating) {
+    RatingCompat(@Style int ratingStyle, float rating) {
         mRatingStyle = ratingStyle;
         mRatingValue = rating;
     }

@@ -269,11 +269,11 @@ public final class MediaMetadataCompat implements Parcelable {
     @Retention(RetentionPolicy.SOURCE)
     public @interface RatingKey {}
 
-    private static final int METADATA_TYPE_LONG = 0;
-    private static final int METADATA_TYPE_TEXT = 1;
-    private static final int METADATA_TYPE_BITMAP = 2;
-    private static final int METADATA_TYPE_RATING = 3;
-    private static final ArrayMap<String, Integer> METADATA_KEYS_TYPE;
+    static final int METADATA_TYPE_LONG = 0;
+    static final int METADATA_TYPE_TEXT = 1;
+    static final int METADATA_TYPE_BITMAP = 2;
+    static final int METADATA_TYPE_RATING = 3;
+    static final ArrayMap<String, Integer> METADATA_KEYS_TYPE;
 
     static {
         METADATA_KEYS_TYPE = new ArrayMap<String, Integer>();
@@ -330,15 +330,15 @@ public final class MediaMetadataCompat implements Parcelable {
             METADATA_KEY_ALBUM_ART_URI
     };
 
-    private final Bundle mBundle;
+    final Bundle mBundle;
     private Object mMetadataObj;
     private MediaDescriptionCompat mDescription;
 
-    private MediaMetadataCompat(Bundle bundle) {
+    MediaMetadataCompat(Bundle bundle) {
         mBundle = new Bundle(bundle);
     }
 
-    private MediaMetadataCompat(Parcel in) {
+    MediaMetadataCompat(Parcel in) {
         mBundle = in.readBundle();
     }
 

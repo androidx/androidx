@@ -52,7 +52,7 @@ import java.util.List;
  * introduced after API level 4 in a backwards compatible fashion.
  */
 public final class MediaControllerCompat {
-    private static final String TAG = "MediaControllerCompat";
+    static final String TAG = "MediaControllerCompat";
 
     private final MediaControllerImpl mImpl;
     private final MediaSessionCompat.Token mToken;
@@ -343,9 +343,9 @@ public final class MediaControllerCompat {
      */
     public static abstract class Callback implements IBinder.DeathRecipient {
         private final Object mCallbackObj;
-        private MessageHandler mHandler;
+        MessageHandler mHandler;
 
-        private boolean mRegistered = false;
+        boolean mRegistered = false;
 
         public Callback() {
             if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -441,6 +441,9 @@ public final class MediaControllerCompat {
         }
 
         private class StubApi21 implements MediaControllerCompatApi21.Callback {
+            StubApi21() {
+            }
+
             @Override
             public void onSessionDestroyed() {
                 Callback.this.onSessionDestroyed();
@@ -486,6 +489,9 @@ public final class MediaControllerCompat {
         }
 
         private class StubCompat extends IMediaControllerCallback.Stub {
+
+            StubCompat() {
+            }
 
             @Override
             public void onEvent(String event, Bundle extras) throws RemoteException {

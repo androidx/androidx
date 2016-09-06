@@ -59,8 +59,8 @@ import static android.support.v4.media.MediaBrowserProtocol.*;
  * </p>
  */
 public final class MediaBrowserCompat {
-    private static final String TAG = "MediaBrowserCompat";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final String TAG = "MediaBrowserCompat";
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
      * Used as an int extra field to denote the page number to subscribe.
@@ -388,7 +388,7 @@ public final class MediaBrowserCompat {
         /**
          * Private constructor.
          */
-        private MediaItem(Parcel in) {
+        MediaItem(Parcel in) {
             mFlags = in.readInt();
             mDescription = MediaDescriptionCompat.CREATOR.createFromParcel(in);
         }
@@ -470,7 +470,7 @@ public final class MediaBrowserCompat {
      */
     public static class ConnectionCallback {
         final Object mConnectionCallbackObj;
-        private ConnectionCallbackInternal mConnectionCallbackInternal;
+        ConnectionCallbackInternal mConnectionCallbackInternal;
 
         public ConnectionCallback() {
             if (Build.VERSION.SDK_INT >= 21) {
@@ -511,6 +511,9 @@ public final class MediaBrowserCompat {
         }
 
         private class StubApi21 implements MediaBrowserCompatApi21.ConnectionCallback {
+            StubApi21() {
+            }
+
             @Override
             public void onConnected() {
                 if (mConnectionCallbackInternal != null) {
@@ -543,7 +546,7 @@ public final class MediaBrowserCompat {
     public static abstract class SubscriptionCallback {
         private final Object mSubscriptionCallbackObj;
         private final IBinder mToken;
-        private WeakReference<Subscription> mSubscriptionRef;
+        WeakReference<Subscription> mSubscriptionRef;
 
         public SubscriptionCallback() {
             if (Build.VERSION.SDK_INT >= 24 || BuildCompat.isAtLeastN()) {
@@ -614,6 +617,9 @@ public final class MediaBrowserCompat {
         }
 
         private class StubApi21 implements MediaBrowserCompatApi21.SubscriptionCallback {
+            StubApi21() {
+            }
+
             @Override
             public void onChildrenLoaded(@NonNull String parentId, List<?> children) {
                 Subscription sub = mSubscriptionRef == null ? null : mSubscriptionRef.get();
@@ -667,6 +673,9 @@ public final class MediaBrowserCompat {
 
         private class StubApi24 extends StubApi21
                 implements MediaBrowserCompatApi24.SubscriptionCallback {
+            StubApi24() {
+            }
+
             @Override
             public void onChildrenLoaded(@NonNull String parentId, List<?> children,
                     @NonNull Bundle options) {
@@ -712,6 +721,9 @@ public final class MediaBrowserCompat {
         }
 
         private class StubApi23 implements MediaBrowserCompatApi23.ItemCallback {
+            StubApi23() {
+            }
+
             @Override
             public void onItemLoaded(Parcel itemParcel) {
                 itemParcel.setDataPosition(0);
@@ -750,22 +762,22 @@ public final class MediaBrowserCompat {
 
     static class MediaBrowserImplBase
             implements MediaBrowserImpl, MediaBrowserServiceCallbackImpl {
-        private static final int CONNECT_STATE_DISCONNECTED = 0;
-        private static final int CONNECT_STATE_CONNECTING = 1;
+        static final int CONNECT_STATE_DISCONNECTED = 0;
+        static final int CONNECT_STATE_CONNECTING = 1;
         private static final int CONNECT_STATE_CONNECTED = 2;
-        private static final int CONNECT_STATE_SUSPENDED = 3;
+        static final int CONNECT_STATE_SUSPENDED = 3;
 
-        private final Context mContext;
-        private final ComponentName mServiceComponent;
-        private final ConnectionCallback mCallback;
-        private final Bundle mRootHints;
-        private final CallbackHandler mHandler = new CallbackHandler(this);
+        final Context mContext;
+        final ComponentName mServiceComponent;
+        final ConnectionCallback mCallback;
+        final Bundle mRootHints;
+        final CallbackHandler mHandler = new CallbackHandler(this);
         private final ArrayMap<String, Subscription> mSubscriptions = new ArrayMap<>();
 
-        private int mState = CONNECT_STATE_DISCONNECTED;
-        private MediaServiceConnection mServiceConnection;
-        private ServiceBinderWrapper mServiceBinderWrapper;
-        private Messenger mCallbacksMessenger;
+        int mState = CONNECT_STATE_DISCONNECTED;
+        MediaServiceConnection mServiceConnection;
+        ServiceBinderWrapper mServiceBinderWrapper;
+        Messenger mCallbacksMessenger;
         private String mRootId;
         private MediaSessionCompat.Token mMediaSessionToken;
         private Bundle mExtras;
@@ -880,7 +892,7 @@ public final class MediaBrowserCompat {
          * for a clean shutdown, but everywhere else is a dirty shutdown and should
          * notify the app.
          */
-        private void forceCloseConnection() {
+        void forceCloseConnection() {
             if (mServiceConnection != null) {
                 mContext.unbindService(mServiceConnection);
             }
@@ -1183,6 +1195,9 @@ public final class MediaBrowserCompat {
          * ServiceConnection to the other app.
          */
         private class MediaServiceConnection implements ServiceConnection {
+            MediaServiceConnection() {
+            }
+
             @Override
             public void onServiceConnected(final ComponentName name, final IBinder binder) {
                 postOrRun(new Runnable() {
@@ -1274,7 +1289,7 @@ public final class MediaBrowserCompat {
             /**
              * Return true if this is the current ServiceConnection. Also logs if it's not.
              */
-            private boolean isCurrent(String funcName) {
+            boolean isCurrent(String funcName) {
                 if (mServiceConnection != this) {
                     if (mState != CONNECT_STATE_DISCONNECTED) {
                         // Check mState, because otherwise this log is noisy.

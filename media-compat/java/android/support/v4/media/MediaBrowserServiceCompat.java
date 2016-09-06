@@ -96,8 +96,8 @@ import java.util.List;
  * </pre>
  */
 public abstract class MediaBrowserServiceCompat extends Service {
-    private static final String TAG = "MBServiceCompat";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final String TAG = "MBServiceCompat";
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private MediaBrowserServiceImpl mImpl;
 
@@ -113,16 +113,16 @@ public abstract class MediaBrowserServiceCompat extends Service {
      */
     public static final String KEY_MEDIA_ITEM = "media_item";
 
-    private static final int RESULT_FLAG_OPTION_NOT_HANDLED = 0x00000001;
+    static final int RESULT_FLAG_OPTION_NOT_HANDLED = 0x00000001;
 
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag=true, value = { RESULT_FLAG_OPTION_NOT_HANDLED })
     private @interface ResultFlags { }
 
-    private final ArrayMap<IBinder, ConnectionRecord> mConnections = new ArrayMap<>();
-    private ConnectionRecord mCurConnection;
-    private final ServiceHandler mHandler = new ServiceHandler();
+    final ArrayMap<IBinder, ConnectionRecord> mConnections = new ArrayMap<>();
+    ConnectionRecord mCurConnection;
+    final ServiceHandler mHandler = new ServiceHandler();
     MediaSessionCompat.Token mSession;
 
     interface MediaBrowserServiceImpl {
@@ -400,6 +400,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
     private final class ServiceHandler extends Handler {
         private final ServiceBinderImpl mServiceBinderImpl = new ServiceBinderImpl();
 
+        ServiceHandler() {
+        }
+
         @Override
         public void handleMessage(Message msg) {
             Bundle data = msg.getData();
@@ -470,6 +473,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
         ServiceCallbacks callbacks;
         BrowserRoot root;
         HashMap<String, List<Pair<IBinder, Bundle>>> subscriptions = new HashMap();
+
+        ConnectionRecord() {
+        }
     }
 
     /**
@@ -539,6 +545,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     private class ServiceBinderImpl {
+        ServiceBinderImpl() {
+        }
+
         public void connect(final String pkg, final int uid, final Bundle rootHints,
                 final ServiceCallbacks callbacks) {
 
@@ -959,7 +968,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     /**
      * Return whether the given package is one of the ones that is owned by the uid.
      */
-    private boolean isValidPackage(String pkg, int uid) {
+    boolean isValidPackage(String pkg, int uid) {
         if (pkg == null) {
             return false;
         }
@@ -977,7 +986,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     /**
      * Save the subscription and if it is a new subscription send the results.
      */
-    private void addSubscription(String id, ConnectionRecord connection, IBinder token,
+    void addSubscription(String id, ConnectionRecord connection, IBinder token,
             Bundle options) {
         // Save the subscription
         List<Pair<IBinder, Bundle>> callbackList = connection.subscriptions.get(id);
@@ -999,7 +1008,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     /**
      * Remove the subscription.
      */
-    private boolean removeSubscription(String id, ConnectionRecord connection, IBinder token) {
+    boolean removeSubscription(String id, ConnectionRecord connection, IBinder token) {
         if (token == null) {
             return connection.subscriptions.remove(id) != null;
         }
@@ -1025,7 +1034,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * <p>
      * Callers must make sure that this connection is still connected.
      */
-    private void performLoadChildren(final String parentId, final ConnectionRecord connection,
+    void performLoadChildren(final String parentId, final ConnectionRecord connection,
             final Bundle options) {
         final Result<List<MediaBrowserCompat.MediaItem>> result
                 = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
@@ -1066,7 +1075,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    private List<MediaBrowserCompat.MediaItem> applyOptions(List<MediaBrowserCompat.MediaItem> list,
+    List<MediaBrowserCompat.MediaItem> applyOptions(List<MediaBrowserCompat.MediaItem> list,
             final Bundle options) {
         if (list == null) {
             return null;
@@ -1087,7 +1096,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         return list.subList(fromIndex, toIndex);
     }
 
-    private void performLoadItem(String itemId, ConnectionRecord connection,
+    void performLoadItem(String itemId, ConnectionRecord connection,
             final ResultReceiver receiver) {
         final Result<MediaBrowserCompat.MediaItem> result =
                 new Result<MediaBrowserCompat.MediaItem>(itemId) {

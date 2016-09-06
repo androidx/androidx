@@ -80,7 +80,7 @@ import java.util.List;
  * backwards compatible fashion.
  */
 public class MediaSessionCompat {
-    private static final String TAG = "MediaSessionCompat";
+    static final String TAG = "MediaSessionCompat";
 
     private final MediaSessionImpl mImpl;
     private final MediaControllerCompat mController;
@@ -163,7 +163,7 @@ public class MediaSessionCompat {
     private static final int MAX_BITMAP_SIZE_IN_DP = 320;
 
     // Maximum size of the bitmap in px. It shouldn't be changed.
-    private static int sMaxBitmapSize;
+    static int sMaxBitmapSize;
 
     /**
      * Creates a new session. You must call {@link #release()} when finished with the session.
@@ -773,6 +773,9 @@ public class MediaSessionCompat {
 
         private class StubApi21 implements MediaSessionCompatApi21.Callback {
 
+            StubApi21() {
+            }
+
             @Override
             public void onCommand(String command, Bundle extras, ResultReceiver cb) {
                 Callback.this.onCommand(command, extras, cb);
@@ -871,6 +874,9 @@ public class MediaSessionCompat {
 
         private class StubApi23 extends StubApi21 implements MediaSessionCompatApi23.Callback {
 
+            StubApi23() {
+            }
+
             @Override
             public void onPlayFromUri(Uri uri, Bundle extras) {
                 Callback.this.onPlayFromUri(uri, extras);
@@ -878,6 +884,9 @@ public class MediaSessionCompat {
         }
 
         private class StubApi24 extends StubApi23 implements MediaSessionCompatApi24.Callback {
+
+            StubApi24() {
+            }
 
             @Override
             public void onPrepare() {
@@ -1043,7 +1052,7 @@ public class MediaSessionCompat {
             mItem = queueItem;
         }
 
-        private QueueItem(Parcel in) {
+        QueueItem(Parcel in) {
             mDescription = MediaDescriptionCompat.CREATOR.createFromParcel(in);
             mId = in.readLong();
         }
@@ -1252,34 +1261,34 @@ public class MediaSessionCompat {
         private final Object mRccObj;
         private final MediaSessionStub mStub;
         private final Token mToken;
-        private final String mPackageName;
-        private final String mTag;
-        private final AudioManager mAudioManager;
+        final String mPackageName;
+        final String mTag;
+        final AudioManager mAudioManager;
 
-        private final Object mLock = new Object();
-        private final RemoteCallbackList<IMediaControllerCallback> mControllerCallbacks
+        final Object mLock = new Object();
+        final RemoteCallbackList<IMediaControllerCallback> mControllerCallbacks
                 = new RemoteCallbackList<>();
 
         private MessageHandler mHandler;
-        private boolean mDestroyed = false;
+        boolean mDestroyed = false;
         private boolean mIsActive = false;
         private boolean mIsRccRegistered = false;
         private boolean mIsMbrRegistered = false;
-        private volatile Callback mCallback;
+        volatile Callback mCallback;
 
-        private @SessionFlags int mFlags;
+        @SessionFlags int mFlags;
 
-        private MediaMetadataCompat mMetadata;
-        private PlaybackStateCompat mState;
-        private PendingIntent mSessionActivity;
-        private List<QueueItem> mQueue;
-        private CharSequence mQueueTitle;
-        private @RatingCompat.Style int mRatingType;
-        private Bundle mExtras;
+        MediaMetadataCompat mMetadata;
+        PlaybackStateCompat mState;
+        PendingIntent mSessionActivity;
+        List<QueueItem> mQueue;
+        CharSequence mQueueTitle;
+        @RatingCompat.Style int mRatingType;
+        Bundle mExtras;
 
-        private int mVolumeType;
-        private int mLocalStream;
-        private VolumeProviderCompat mVolumeProvider;
+        int mVolumeType;
+        int mLocalStream;
+        VolumeProviderCompat mVolumeProvider;
 
         private VolumeProviderCompat.Callback mVolumeCallback
                 = new VolumeProviderCompat.Callback() {
@@ -1381,15 +1390,15 @@ public class MediaSessionCompat {
             }
         }
 
-        private void postToHandler(int what) {
+        void postToHandler(int what) {
             postToHandler(what, null);
         }
 
-        private void postToHandler(int what, Object obj) {
+        void postToHandler(int what, Object obj) {
             postToHandler(what, obj, null);
         }
 
-        private void postToHandler(int what, Object obj, Bundle extras) {
+        void postToHandler(int what, Object obj, Bundle extras) {
             synchronized (mLock) {
                 if (mHandler != null) {
                     mHandler.post(what, obj, extras);
@@ -1653,7 +1662,7 @@ public class MediaSessionCompat {
             return registeredRcc;
         }
 
-        private void adjustVolume(int direction, int flags) {
+        void adjustVolume(int direction, int flags) {
             if (mVolumeType == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE) {
                 if (mVolumeProvider != null) {
                     mVolumeProvider.onAdjustVolume(direction);
@@ -1663,7 +1672,7 @@ public class MediaSessionCompat {
             }
         }
 
-        private void setVolumeTo(int value, int flags) {
+        void setVolumeTo(int value, int flags) {
             if (mVolumeType == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE) {
                 if (mVolumeProvider != null) {
                     mVolumeProvider.onSetVolumeTo(value);
@@ -1673,7 +1682,7 @@ public class MediaSessionCompat {
             }
         }
 
-        private PlaybackStateCompat getStateWithUpdatedPosition() {
+        PlaybackStateCompat getStateWithUpdatedPosition() {
             PlaybackStateCompat state;
             long duration = -1;
             synchronized (mLock) {
@@ -1710,7 +1719,7 @@ public class MediaSessionCompat {
             return result == null ? state : result;
         }
 
-        private void sendVolumeInfoChanged(ParcelableVolumeInfo info) {
+        void sendVolumeInfoChanged(ParcelableVolumeInfo info) {
             int size = mControllerCallbacks.beginBroadcast();
             for (int i = size - 1; i >= 0; i--) {
                 IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);

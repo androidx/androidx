@@ -145,7 +145,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      */
     private Object mDescriptionObj;
 
-    private MediaDescriptionCompat(String mediaId, CharSequence title, CharSequence subtitle,
+    MediaDescriptionCompat(String mediaId, CharSequence title, CharSequence subtitle,
             CharSequence description, Bitmap icon, Uri iconUri, Bundle extras, Uri mediaUri) {
         mMediaId = mediaId;
         mTitle = title;
@@ -157,7 +157,7 @@ public final class MediaDescriptionCompat implements Parcelable {
         mMediaUri = mediaUri;
     }
 
-    private MediaDescriptionCompat(Parcel in) {
+    MediaDescriptionCompat(Parcel in) {
         mMediaId = in.readString();
         mTitle = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
         mSubtitle = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
