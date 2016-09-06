@@ -499,5 +499,8 @@ public final class LinkifyCompat {
         String url;
         int start;
         int end;
+
+        LinkSpec() {
+        }
     }
 }

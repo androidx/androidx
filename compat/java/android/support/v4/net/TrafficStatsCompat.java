@@ -43,6 +43,9 @@ public final class TrafficStatsCompat {
     static class BaseTrafficStatsCompatImpl implements TrafficStatsCompatImpl {
         private static class SocketTags {
             public int statsTag = -1;
+
+            SocketTags() {
+            }
         }
 
         private ThreadLocal<SocketTags> mThreadSocketTags = new ThreadLocal<SocketTags>() {

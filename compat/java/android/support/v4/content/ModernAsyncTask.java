@@ -83,7 +83,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
 
     private volatile Status mStatus = Status.PENDING;
 
-    private final AtomicBoolean mTaskInvoked = new AtomicBoolean();
+    final AtomicBoolean mTaskInvoked = new AtomicBoolean();
 
     /**
      * Indicates the current status of the task. Each status will be set only once
@@ -161,14 +161,14 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
         };
     }
 
-    private void postResultIfNotInvoked(Result result) {
+    void postResultIfNotInvoked(Result result) {
         final boolean wasTaskInvoked = mTaskInvoked.get();
         if (!wasTaskInvoked) {
             postResult(result);
         }
     }
 
-    private Result postResult(Result result) {
+    Result postResult(Result result) {
         Message message = getHandler().obtainMessage(MESSAGE_POST_RESULT,
                 new AsyncTaskResult<Result>(this, result));
         message.sendToTarget();
@@ -469,7 +469,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
         }
     }
 
-    private void finish(Result result) {
+    void finish(Result result) {
         if (isCancelled()) {
             onCancelled(result);
         } else {
@@ -501,6 +501,9 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
 
     private static abstract class WorkerRunnable<Params, Result> implements Callable<Result> {
         Params[] mParams;
+
+        WorkerRunnable() {
+        }
     }
 
     @SuppressWarnings({"RawUseOfParameterizedType"})

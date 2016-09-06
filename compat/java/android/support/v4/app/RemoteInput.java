@@ -40,7 +40,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     private final boolean mAllowFreeFormInput;
     private final Bundle mExtras;
 
-    private RemoteInput(String resultKey, CharSequence label, CharSequence[] choices,
+    RemoteInput(String resultKey, CharSequence label, CharSequence[] choices,
             boolean allowFreeFormInput, Bundle extras) {
         this.mResultKey = resultKey;
         this.mLabel = label;

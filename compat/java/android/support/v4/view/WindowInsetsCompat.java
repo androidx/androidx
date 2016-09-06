@@ -50,6 +50,9 @@ public class WindowInsetsCompat {
     }
 
     private static class WindowInsetsCompatBaseImpl implements WindowInsetsCompatImpl {
+        WindowInsetsCompatBaseImpl() {
+        }
+
         @Override
         public int getSystemWindowInsetLeft(Object insets) {
             return 0;
@@ -142,6 +145,9 @@ public class WindowInsetsCompat {
     }
 
     private static class WindowInsetsCompatApi20Impl extends WindowInsetsCompatBaseImpl {
+        WindowInsetsCompatApi20Impl() {
+        }
+
         @Override
         public WindowInsetsCompat consumeSystemWindowInsets(Object insets) {
             return new WindowInsetsCompat(
@@ -197,6 +203,9 @@ public class WindowInsetsCompat {
     }
 
     private static class WindowInsetsCompatApi21Impl extends WindowInsetsCompatApi20Impl {
+        WindowInsetsCompatApi21Impl() {
+        }
+
         @Override
         public WindowInsetsCompat consumeStableInsets(Object insets) {
             return new WindowInsetsCompat(WindowInsetsCompatApi21.consumeStableInsets(insets));
@@ -254,7 +263,7 @@ public class WindowInsetsCompat {
 
     private final Object mInsets;
 
-    private WindowInsetsCompat(Object insets) {
+    WindowInsetsCompat(Object insets) {
         mInsets = insets;
     }
 

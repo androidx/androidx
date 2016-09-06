@@ -83,7 +83,7 @@ public final class NotificationManagerCompat {
     /** Hidden field Settings.Secure.ENABLED_NOTIFICATION_LISTENERS */
     private static final String SETTING_ENABLED_NOTIFICATION_LISTENERS =
             "enabled_notification_listeners";
-    private static final int SIDE_CHANNEL_BIND_FLAGS;
+    static final int SIDE_CHANNEL_BIND_FLAGS;
 
     /** Cache of enabled notification listener components */
     private static final Object sEnabledNotificationListenersLock = new Object();

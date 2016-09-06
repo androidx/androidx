@@ -27,6 +27,9 @@ public final class SharedPreferencesCompat {
         private static EditorCompat sInstance;
 
         private static class Helper {
+            Helper() {
+            }
+
             public void apply(@NonNull SharedPreferences.Editor editor) {
                 try {
                     editor.apply();

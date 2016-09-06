@@ -46,6 +46,9 @@ public class AccessibilityWindowInfoCompat {
 
     private static class AccessibilityWindowInfoStubImpl implements AccessibilityWindowInfoImpl {
 
+        AccessibilityWindowInfoStubImpl() {
+        }
+
         @Override
         public Object obtain() {
             return null;
@@ -126,6 +129,9 @@ public class AccessibilityWindowInfoCompat {
     }
 
     private static class AccessibilityWindowInfoApi21Impl extends AccessibilityWindowInfoStubImpl {
+        AccessibilityWindowInfoApi21Impl() {
+        }
+
         @Override
         public Object obtain() {
             return AccessibilityWindowInfoCompatApi21.obtain();
@@ -198,6 +204,9 @@ public class AccessibilityWindowInfoCompat {
     }
 
     private static class AccessibilityWindowInfoApi24Impl extends AccessibilityWindowInfoApi21Impl {
+        AccessibilityWindowInfoApi24Impl() {
+        }
+
         @Override
         public CharSequence getTitle(Object info) {
             return AccessibilityWindowInfoCompatApi24.getTitle(info);

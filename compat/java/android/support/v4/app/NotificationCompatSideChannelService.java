@@ -71,6 +71,9 @@ public abstract class NotificationCompatSideChannelService extends Service {
     public abstract void cancelAll(String packageName);
 
     private class NotificationSideChannelStub extends INotificationSideChannel.Stub {
+        NotificationSideChannelStub() {
+        }
+
         @Override
         public void notify(String packageName, int id, String tag, Notification notification)
                 throws RemoteException {
@@ -106,7 +109,7 @@ public abstract class NotificationCompatSideChannelService extends Service {
         }
     }
 
-    private void checkPermission(int callingUid, String packageName) {
+    void checkPermission(int callingUid, String packageName) {
         for (String validPackage : getPackageManager().getPackagesForUid(callingUid)) {
             if (validPackage.equals(packageName)) {
                 return;

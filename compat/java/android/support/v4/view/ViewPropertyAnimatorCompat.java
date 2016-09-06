@@ -25,9 +25,9 @@ import java.util.WeakHashMap;
 public final class ViewPropertyAnimatorCompat {
     private static final String TAG = "ViewAnimatorCompat";
     private WeakReference<View> mView;
-    private Runnable mStartAction = null;
-    private Runnable mEndAction = null;
-    private int mOldLayerType = -1;
+    Runnable mStartAction = null;
+    Runnable mEndAction = null;
+    int mOldLayerType = -1;
     // HACK ALERT! Choosing this id knowing that the framework does not use it anywhere
     // internally and apps should use ids higher than it
     static final int LISTENER_TAG_ID = 0x7e000000;
@@ -290,7 +290,7 @@ public final class ViewPropertyAnimatorCompat {
             // noop
         }
 
-        private void startAnimation(ViewPropertyAnimatorCompat vpa, View view) {
+        void startAnimation(ViewPropertyAnimatorCompat vpa, View view) {
             Object listenerTag = view.getTag(LISTENER_TAG_ID);
             ViewPropertyAnimatorListener listener = null;
             if (listenerTag instanceof ViewPropertyAnimatorListener) {
@@ -319,7 +319,7 @@ public final class ViewPropertyAnimatorCompat {
             WeakReference<View> mViewRef;
             ViewPropertyAnimatorCompat mVpa;
 
-            private Starter(ViewPropertyAnimatorCompat vpa, View view) {
+            Starter(ViewPropertyAnimatorCompat vpa, View view) {
                 mViewRef = new WeakReference<View>(view);
                 mVpa = vpa;
             }

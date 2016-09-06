@@ -31,6 +31,9 @@ public final class ScaleGestureDetectorCompat {
     }
 
     private static class BaseScaleGestureDetectorImpl implements ScaleGestureDetectorImpl {
+        BaseScaleGestureDetectorImpl() {
+        }
+
         @Override
         public void setQuickScaleEnabled(Object o, boolean enabled) {
             // Intentionally blank
@@ -43,6 +46,9 @@ public final class ScaleGestureDetectorCompat {
     }
 
     private static class ScaleGestureDetectorCompatKitKatImpl implements ScaleGestureDetectorImpl {
+        ScaleGestureDetectorCompatKitKatImpl() {
+        }
+
         @Override
         public void setQuickScaleEnabled(Object o, boolean enabled) {
             ScaleGestureDetectorCompatKitKat.setQuickScaleEnabled(o, enabled);

@@ -25,6 +25,9 @@ import java.util.Locale;
 
 public final class TextUtilsCompat {
     private static class TextUtilsCompatImpl {
+        TextUtilsCompatImpl() {
+        }
+
         @NonNull
         public String htmlEncode(@NonNull String s) {
             StringBuilder sb = new StringBuilder();
@@ -100,6 +103,9 @@ public final class TextUtilsCompat {
     }
 
     private static class TextUtilsCompatJellybeanMr1Impl extends TextUtilsCompatImpl {
+        TextUtilsCompatJellybeanMr1Impl() {
+        }
+
         @Override
         @NonNull
         public String htmlEncode(@NonNull String s) {
@@ -148,8 +154,8 @@ public final class TextUtilsCompat {
 
     public static final Locale ROOT = new Locale("", "");
 
-    private static String ARAB_SCRIPT_SUBTAG = "Arab";
-    private static String HEBR_SCRIPT_SUBTAG = "Hebr";
+    static String ARAB_SCRIPT_SUBTAG = "Arab";
+    static String HEBR_SCRIPT_SUBTAG = "Hebr";
 
     private TextUtilsCompat() {}
 }
