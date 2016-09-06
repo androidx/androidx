@@ -267,7 +267,7 @@ public final class FingerprintManagerCompat {
             }
         }
 
-        private static CryptoObject unwrapCryptoObject(
+        static CryptoObject unwrapCryptoObject(
                 FingerprintManagerCompatApi23.CryptoObject cryptoObject) {
             if (cryptoObject == null) {
                 return null;
