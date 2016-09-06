@@ -76,7 +76,7 @@ public abstract class FragmentManager {
      * with {@link FragmentTransaction#addToBackStack(String)
      * FragmentTransaction.addToBackStack()}.  Entries can later be
      * retrieved with {@link FragmentManager#getBackStackEntryAt(int)
-     * FragmentManager.getBackStackEntry()}.
+     * FragmentManager.getBackStackEntryAt()}.
      *
      * <p>Note that you should never hold on to a BackStackEntry object;
      * the identifier as returned by {@link #getId} is the only thing that
