@@ -176,14 +176,14 @@ public class ShareActionProvider extends ActionProvider {
     /**
      * Context for accessing resources.
      */
-    private final Context mContext;
+    final Context mContext;
 
     /**
      * The name of the file with share history data.
      */
-    private String mShareHistoryFileName = DEFAULT_SHARE_HISTORY_FILE_NAME;
+    String mShareHistoryFileName = DEFAULT_SHARE_HISTORY_FILE_NAME;
 
-    private OnShareTargetSelectedListener mOnShareTargetSelectedListener;
+    OnShareTargetSelectedListener mOnShareTargetSelectedListener;
 
     private OnChooseActivityListener mOnChooseActivityListener;
 
@@ -353,6 +353,9 @@ public class ShareActionProvider extends ActionProvider {
      * Reusable listener for handling share item clicks.
      */
     private class ShareMenuItemOnMenuItemClickListener implements OnMenuItemClickListener {
+        ShareMenuItemOnMenuItemClickListener() {
+        }
+
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             ActivityChooserModel dataModel = ActivityChooserModel.get(mContext,
@@ -390,6 +393,9 @@ public class ShareActionProvider extends ActionProvider {
      * Policy that delegates to the {@link OnShareTargetSelectedListener}, if such.
      */
     private class ShareActivityChooserModelPolicy implements OnChooseActivityListener {
+        ShareActivityChooserModelPolicy() {
+        }
+
         @Override
         public boolean onChooseActivity(ActivityChooserModel host, Intent intent) {
             if (mOnShareTargetSelectedListener != null) {
@@ -400,7 +406,7 @@ public class ShareActionProvider extends ActionProvider {
         }
     }
 
-    private void updateIntent(Intent intent) {
+    void updateIntent(Intent intent) {
         if (Build.VERSION.SDK_INT >= 21) {
             // If we're on Lollipop, we can open the intent as a document
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT |

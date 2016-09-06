@@ -117,12 +117,12 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
     private DrawerArrowDrawable mSlider;
     private Drawable mHomeAsUpIndicator;
-    private boolean mDrawerIndicatorEnabled = true;
+    boolean mDrawerIndicatorEnabled = true;
     private boolean mHasCustomUpIndicator;
     private final int mOpenDrawerContentDescRes;
     private final int mCloseDrawerContentDescRes;
     // used in toolbar mode when DrawerToggle is disabled
-    private View.OnClickListener mToolbarNavigationClickListener;
+    View.OnClickListener mToolbarNavigationClickListener;
     // If developer does not set displayHomeAsUp, DrawerToggle won't show up.
     // DrawerToggle logs a warning if this case is detected
     private boolean mWarnedForDisplayHomeAsUp = false;
@@ -280,7 +280,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         return false;
     }
 
-    private void toggle() {
+    void toggle() {
         int drawerLockMode = mDrawerLayout.getDrawerLockMode(GravityCompat.START);
         if (mDrawerLayout.isDrawerVisible(GravityCompat.START)
                 && (drawerLockMode != DrawerLayout.LOCK_MODE_LOCKED_OPEN)) {
@@ -499,7 +499,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         final Activity mActivity;
         ActionBarDrawerToggleHoneycomb.SetIndicatorInfo mSetIndicatorInfo;
 
-        private HoneycombDelegate(Activity activity) {
+        HoneycombDelegate(Activity activity) {
             mActivity = activity;
         }
 
@@ -552,7 +552,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
         final Activity mActivity;
 
-        private JellybeanMr2Delegate(Activity activity) {
+        JellybeanMr2Delegate(Activity activity) {
             mActivity = activity;
         }
 

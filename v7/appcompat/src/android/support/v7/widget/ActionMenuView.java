@@ -61,13 +61,13 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     private boolean mReserveOverflow;
     private ActionMenuPresenter mPresenter;
     private MenuPresenter.Callback mActionMenuPresenterCallback;
-    private MenuBuilder.Callback mMenuBuilderCallback;
+    MenuBuilder.Callback mMenuBuilderCallback;
     private boolean mFormatItems;
     private int mFormatItemsWidth;
     private int mMinCellSize;
     private int mGeneratedItemPadding;
 
-    private OnMenuItemClickListener mOnMenuItemClickListener;
+    OnMenuItemClickListener mOnMenuItemClickListener;
 
     public ActionMenuView(Context context) {
         this(context, null);
@@ -753,6 +753,9 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     }
 
     private class MenuBuilderCallback implements MenuBuilder.Callback {
+        MenuBuilderCallback() {
+        }
+
         @Override
         public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
             return mOnMenuItemClickListener != null &&
@@ -768,6 +771,9 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     }
 
     private class ActionMenuPresenterCallback implements ActionMenuPresenter.Callback {
+        ActionMenuPresenterCallback() {
+        }
+
         @Override
         public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
         }

@@ -69,7 +69,7 @@ import android.widget.ListView;
  */
 public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
-    private final AlertController mAlert;
+    final AlertController mAlert;
 
     /**
      * No layout hint.
@@ -103,7 +103,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         setOnCancelListener(cancelListener);
     }
 
-    private static int resolveDialogTheme(@NonNull Context context, @StyleRes int resid) {
+    static int resolveDialogTheme(@NonNull Context context, @StyleRes int resid) {
         if (resid >= 0x01000000) {   // start of real resource IDs.
             return resid;
         } else {

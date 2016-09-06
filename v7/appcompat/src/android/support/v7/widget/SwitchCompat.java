@@ -160,7 +160,7 @@ public class SwitchCompat extends CompoundButton {
     private Layout mOnLayout;
     private Layout mOffLayout;
     private TransformationMethod mSwitchTransformationMethod;
-    private ThumbAnimation mPositionAnimator;
+    ThumbAnimation mPositionAnimator;
 
     @SuppressWarnings("hiding")
     private final Rect mTempRect = new Rect();
@@ -1046,7 +1046,7 @@ public class SwitchCompat extends CompoundButton {
      *
      * @param position new position between [0,1]
      */
-    private void setThumbPosition(float position) {
+    void setThumbPosition(float position) {
         mThumbPosition = position;
         invalidate();
     }
@@ -1424,7 +1424,7 @@ public class SwitchCompat extends CompoundButton {
         final float mEndPosition;
         final float mDiff;
 
-        private ThumbAnimation(float startPosition, float endPosition) {
+        ThumbAnimation(float startPosition, float endPosition) {
             mStartPosition = startPosition;
             mEndPosition = endPosition;
             mDiff = endPosition - startPosition;

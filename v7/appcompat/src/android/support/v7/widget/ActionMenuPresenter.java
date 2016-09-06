@@ -55,7 +55,7 @@ class ActionMenuPresenter extends BaseMenuPresenter
 
     private static final String TAG = "ActionMenuPresenter";
 
-    private OverflowMenuButton mOverflowButton;
+    OverflowMenuButton mOverflowButton;
     private Drawable mPendingOverflowIcon;
     private boolean mPendingOverflowIconSet;
     private boolean mReserveOverflow;
@@ -75,10 +75,10 @@ class ActionMenuPresenter extends BaseMenuPresenter
 
     private View mScrapActionButtonView;
 
-    private OverflowPopup mOverflowPopup;
-    private ActionButtonSubmenu mActionButtonPopup;
+    OverflowPopup mOverflowPopup;
+    ActionButtonSubmenu mActionButtonPopup;
 
-    private OpenOverflowRunnable mPostedOpenRunnable;
+    OpenOverflowRunnable mPostedOpenRunnable;
     private ActionMenuPopupCallback mPopupCallback;
 
     final PopupPresenterCallback mPopupPresenterCallback = new PopupPresenterCallback();
@@ -764,6 +764,9 @@ class ActionMenuPresenter extends BaseMenuPresenter
     }
 
     private class PopupPresenterCallback implements Callback {
+        PopupPresenterCallback() {
+        }
+
         @Override
         public boolean onOpenSubMenu(MenuBuilder subMenu) {
             if (subMenu == null) return false;
@@ -805,6 +808,9 @@ class ActionMenuPresenter extends BaseMenuPresenter
     }
 
     private class ActionMenuPopupCallback extends ActionMenuItemView.PopupCallback {
+        ActionMenuPopupCallback() {
+        }
+
         @Override
         public ShowableListMenu getPopup() {
             return mActionButtonPopup != null ? mActionButtonPopup.getPopup() : null;

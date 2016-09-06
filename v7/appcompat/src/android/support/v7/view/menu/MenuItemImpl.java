@@ -66,7 +66,7 @@ public final class MenuItemImpl implements SupportMenuItem {
     private int mIconResId = NO_ICON;
 
     /** The menu to which this item belongs */
-    private MenuBuilder mMenu;
+    MenuBuilder mMenu;
     /** If this item should launch a sub menu, this is the sub menu to launch */
     private SubMenuBuilder mSubMenu;
 
