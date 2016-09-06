@@ -2063,10 +2063,35 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         requestLayout();
     }
 
-    int scrollBy(int dt, RecyclerView.Recycler recycler, RecyclerView.State state) {
+    @Override
+    int getItemPrefetchCount() {
+        return mSpanCount;
+    }
+
+    @Override
+    int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+        int delta = (mOrientation == HORIZONTAL) ? dx : dy;
+        if (getChildCount() == 0 || delta == 0) {
+            // can't support this scroll, so don't bother prefetching
+            return 0;
+        }
+        prepareLayoutStateForDelta(delta, state);
+        int remainingSpan = mSpanCount;
+        int count = 0;
+        while (count < mSpanCount && mLayoutState.hasMore(state) && remainingSpan > 0) {
+            final int pos = mLayoutState.mCurrentPosition;
+            outIndices[count] = pos;
+            remainingSpan--;
+            mLayoutState.mCurrentPosition += mLayoutState.mItemDirection;
+            count++;
+        }
+        return count;
+    }
+
+    void prepareLayoutStateForDelta(int delta, RecyclerView.State state) {
         final int referenceChildPosition;
         final int layoutDir;
-        if (dt > 0) { // layout towards end
+        if (delta > 0) { // layout towards end
             layoutDir = LAYOUT_END;
             referenceChildPosition = getLastChildPosition();
         } else {
@@ -2077,11 +2102,20 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         updateLayoutState(referenceChildPosition, state);
         setLayoutStateDirection(layoutDir);
         mLayoutState.mCurrentPosition = referenceChildPosition + mLayoutState.mItemDirection;
-        final int absDt = Math.abs(dt);
+        final int absDt = Math.abs(delta);
         mLayoutState.mAvailable = absDt;
+    }
+
+    int scrollBy(int dt, RecyclerView.Recycler recycler, RecyclerView.State state) {
+        if (getChildCount() == 0 || dt == 0) {
+            return 0;
+        }
+
+        prepareLayoutStateForDelta(dt, state);
         int consumed = fill(recycler, mLayoutState, state);
+        final int available = mLayoutState.mAvailable;
         final int totalScroll;
-        if (absDt < consumed) {
+        if (available < consumed) {
             totalScroll = dt;
         } else if (dt < 0) {
             totalScroll = -consumed;
