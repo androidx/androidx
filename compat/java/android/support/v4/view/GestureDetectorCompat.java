@@ -69,16 +69,16 @@ public final class GestureDetectorCompat {
         private static final int TAP = 3;
 
         private final Handler mHandler;
-        private final OnGestureListener mListener;
-        private OnDoubleTapListener mDoubleTapListener;
+        final OnGestureListener mListener;
+        OnDoubleTapListener mDoubleTapListener;
 
-        private boolean mStillDown;
-        private boolean mDeferConfirmSingleTap;
+        boolean mStillDown;
+        boolean mDeferConfirmSingleTap;
         private boolean mInLongPress;
         private boolean mAlwaysInTapRegion;
         private boolean mAlwaysInBiggerTapRegion;
 
-        private MotionEvent mCurrentDownEvent;
+        MotionEvent mCurrentDownEvent;
         private MotionEvent mPreviousUpEvent;
 
         /**
@@ -453,7 +453,7 @@ public final class GestureDetectorCompat {
             return (deltaX * deltaX + deltaY * deltaY < mDoubleTapSlopSquare);
         }
 
-        private void dispatchLongPress() {
+        void dispatchLongPress() {
             mHandler.removeMessages(TAP);
             mDeferConfirmSingleTap = false;
             mInLongPress = true;

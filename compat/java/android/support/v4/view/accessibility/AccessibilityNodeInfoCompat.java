@@ -401,7 +401,7 @@ public class AccessibilityNodeInfoCompat {
         public static final AccessibilityActionCompat ACTION_SET_PROGRESS =
                 new AccessibilityActionCompat(IMPL.getActionSetProgress());
 
-        private final Object mAction;
+        final Object mAction;
 
         /**
          * Creates a new instance.
@@ -413,7 +413,7 @@ public class AccessibilityNodeInfoCompat {
             this(IMPL.newAccessibilityAction(actionId, label));
         }
 
-        private AccessibilityActionCompat(Object action) {
+        AccessibilityActionCompat(Object action) {
             mAction = action;
         }
 
@@ -496,7 +496,7 @@ public class AccessibilityNodeInfoCompat {
                     hierarchical));
         }
 
-        private CollectionInfoCompat(Object info) {
+        CollectionInfoCompat(Object info) {
             mInfo = info;
         }
 
@@ -554,7 +554,7 @@ public class AccessibilityNodeInfoCompat {
      */
     public static class CollectionItemInfoCompat {
 
-        private final Object mInfo;
+        final Object mInfo;
 
         /**
          * Returns a cached instance if such is available otherwise a new one.
@@ -589,7 +589,7 @@ public class AccessibilityNodeInfoCompat {
                     columnIndex, columnSpan, heading));
         }
 
-        private CollectionItemInfoCompat(Object info) {
+        CollectionItemInfoCompat(Object info) {
             mInfo = info;
         }
 
@@ -673,9 +673,9 @@ public class AccessibilityNodeInfoCompat {
             return new RangeInfoCompat(IMPL.obtainRangeInfo(type, min, max, current));
         }
 
-        private final Object mInfo;
+        final Object mInfo;
 
-        private RangeInfoCompat(Object info) {
+        RangeInfoCompat(Object info) {
             mInfo = info;
         }
 
@@ -2361,7 +2361,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
-    private static final AccessibilityNodeInfoImpl IMPL;
+    static final AccessibilityNodeInfoImpl IMPL;
 
     private final Object mInfo;
 

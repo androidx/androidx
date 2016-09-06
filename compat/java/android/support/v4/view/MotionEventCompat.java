@@ -74,6 +74,9 @@ public final class MotionEventCompat {
      * Interface implementation for devices with at least v14 APIs.
      */
     private static class ICSMotionEventVersionImpl extends HoneycombMr1MotionEventVersionImpl {
+        ICSMotionEventVersionImpl() {
+        }
+
         @Override
         public int getButtonState(MotionEvent event) {
             return MotionEventCompatICS.getButtonState(event);
