@@ -24,7 +24,7 @@ class ListRowDataAdapter extends ObjectAdapter {
     public static final int ON_CHANGED = 16;
 
     private final ObjectAdapter mAdapter;
-    private int mLastVisibleRowIndex;
+    int mLastVisibleRowIndex;
 
     public ListRowDataAdapter(ObjectAdapter adapter) {
         super(adapter.getPresenterSelector());
@@ -43,7 +43,7 @@ class ListRowDataAdapter extends ObjectAdapter {
         }
     }
 
-    private void initialize() {
+    void initialize() {
         int i = mAdapter.size() - 1;
         while (i >= 0) {
             Row item = (Row) mAdapter.get(i);
@@ -65,7 +65,7 @@ class ListRowDataAdapter extends ObjectAdapter {
         return mAdapter.get(index);
     }
 
-    private void doNotify(int eventType, int positionStart, int itemCount) {
+    void doNotify(int eventType, int positionStart, int itemCount) {
         switch (eventType) {
             case ON_ITEM_RANGE_CHANGED:
                 notifyItemRangeChanged(positionStart, itemCount);
@@ -84,6 +84,9 @@ class ListRowDataAdapter extends ObjectAdapter {
     }
 
     private class SimpleDataObserver extends DataObserver {
+
+        SimpleDataObserver() {
+        }
 
         @Override
         public void onItemRangeChanged(int positionStart, int itemCount) {
@@ -147,6 +150,9 @@ class ListRowDataAdapter extends ObjectAdapter {
      * only to the final data, we call notifyChange().
      */
     private class QueueBasedDataObserver extends DataObserver {
+
+        QueueBasedDataObserver() {
+        }
 
         @Override
         public void onChanged() {

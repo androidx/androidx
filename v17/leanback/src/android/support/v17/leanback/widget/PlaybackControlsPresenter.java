@@ -179,7 +179,7 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
         }
     }
 
-    private static void formatTime(int seconds, StringBuilder sb) {
+    static void formatTime(int seconds, StringBuilder sb) {
         int minutes = seconds / 60;
         int hours = minutes / 60;
         seconds -= minutes * 60;

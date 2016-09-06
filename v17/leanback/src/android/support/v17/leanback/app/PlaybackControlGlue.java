@@ -155,10 +155,10 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
      */
     public static final int PLAYBACK_SPEED_FAST_L4 = 14;
 
-    private static final String TAG = "PlaybackControlGlue";
-    private static final boolean DEBUG = false;
+    static final String TAG = "PlaybackControlGlue";
+    static final boolean DEBUG = false;
 
-    private static final int MSG_UPDATE_PLAYBACK_STATE = 100;
+    static final int MSG_UPDATE_PLAYBACK_STATE = 100;
     private static final int UPDATE_PLAYBACK_STATE_DELAY_MS = 2000;
     private static final int NUMBER_OF_SEEK_SPEEDS = PLAYBACK_SPEED_FAST_L4 -
             PLAYBACK_SPEED_FAST_L0 + 1;
@@ -174,7 +174,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
     private PlaybackControlsRow.SkipPreviousAction mSkipPreviousAction;
     private PlaybackControlsRow.FastForwardAction mFastForwardAction;
     private PlaybackControlsRow.RewindAction mRewindAction;
-    private OnItemViewClickedListener mExternalOnItemViewClickedListener;
+    OnItemViewClickedListener mExternalOnItemViewClickedListener;
     private int mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
     private boolean mFadeWhenPlaying = true;
 
@@ -483,7 +483,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
     /**
      * Called when the given action is invoked, either by click or keyevent.
      */
-    private boolean dispatchAction(Action action, KeyEvent keyEvent) {
+    boolean dispatchAction(Action action, KeyEvent keyEvent) {
         boolean handled = false;
         if (action == mPlayPauseAction) {
             boolean canPlay = keyEvent == null ||
@@ -589,7 +589,7 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
         onRowChanged(mControlsRow);
     }
 
-    private void updatePlaybackState() {
+    void updatePlaybackState() {
         if (hasValidMedia()) {
             mPlaybackSpeed = getCurrentSpeedId();
             updatePlaybackState(mPlaybackSpeed);

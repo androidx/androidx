@@ -587,7 +587,7 @@ public class PlaybackControlsRow extends Row {
         }
     }
 
-    private static Bitmap createBitmap(Bitmap bitmap, int color) {
+    static Bitmap createBitmap(Bitmap bitmap, int color) {
         Bitmap dst = bitmap.copy(bitmap.getConfig(), true);
         Canvas canvas = new Canvas(dst);
         Paint paint = new Paint();
@@ -596,7 +596,7 @@ public class PlaybackControlsRow extends Row {
         return dst;
     }
 
-    private static int getIconHighlightColor(Context context) {
+    static int getIconHighlightColor(Context context) {
         TypedValue outValue = new TypedValue();
         if (context.getTheme().resolveAttribute(R.attr.playbackControlsIconHighlightColor,
                 outValue, true)) {
@@ -605,7 +605,7 @@ public class PlaybackControlsRow extends Row {
         return context.getResources().getColor(R.color.lb_playback_icon_highlight_no_theme);
     }
 
-    private static Drawable getStyledDrawable(Context context, int index) {
+    static Drawable getStyledDrawable(Context context, int index) {
         TypedValue outValue = new TypedValue();
         if (!context.getTheme().resolveAttribute(
                 R.attr.playbackControlsActionIcons, outValue, false)) {

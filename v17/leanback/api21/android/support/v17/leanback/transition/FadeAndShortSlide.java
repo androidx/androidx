@@ -49,6 +49,9 @@ public class FadeAndShortSlide extends Visibility {
 
     private static abstract class CalculateSlide {
 
+        CalculateSlide() {
+        }
+
         /** Returns the translation X value for view when it goes out of the scene */
         float getGoneX(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
             return view.getTranslationX();
