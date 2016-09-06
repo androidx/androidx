@@ -337,20 +337,20 @@ public final class PlaybackStateCompat implements Parcelable {
         return KeyEvent.KEYCODE_UNKNOWN;
     }
 
-    private final int mState;
-    private final long mPosition;
-    private final long mBufferedPosition;
-    private final float mSpeed;
-    private final long mActions;
-    private final CharSequence mErrorMessage;
-    private final long mUpdateTime;
-    private List<PlaybackStateCompat.CustomAction> mCustomActions;
-    private final long mActiveItemId;
-    private final Bundle mExtras;
+    final int mState;
+    final long mPosition;
+    final long mBufferedPosition;
+    final float mSpeed;
+    final long mActions;
+    final CharSequence mErrorMessage;
+    final long mUpdateTime;
+    List<PlaybackStateCompat.CustomAction> mCustomActions;
+    final long mActiveItemId;
+    final Bundle mExtras;
 
     private Object mStateObj;
 
-    private PlaybackStateCompat(int state, long position, long bufferedPosition,
+    PlaybackStateCompat(int state, long position, long bufferedPosition,
             float rate, long actions, CharSequence errorMessage, long updateTime,
             List<PlaybackStateCompat.CustomAction> customActions,
             long activeItemId, Bundle extras) {
@@ -366,7 +366,7 @@ public final class PlaybackStateCompat implements Parcelable {
         mExtras = extras;
     }
 
-    private PlaybackStateCompat(Parcel in) {
+    PlaybackStateCompat(Parcel in) {
         mState = in.readInt();
         mPosition = in.readLong();
         mSpeed = in.readFloat();
@@ -638,14 +638,14 @@ public final class PlaybackStateCompat implements Parcelable {
         /**
          * Use {@link PlaybackStateCompat.CustomAction.Builder#build()}.
          */
-        private CustomAction(String action, CharSequence name, int icon, Bundle extras) {
+        CustomAction(String action, CharSequence name, int icon, Bundle extras) {
             mAction = action;
             mName = name;
             mIcon = icon;
             mExtras = extras;
         }
 
-        private CustomAction(Parcel in) {
+        CustomAction(Parcel in) {
             mAction = in.readString();
             mName = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
             mIcon = in.readInt();
