@@ -115,8 +115,8 @@ public class BaseCardView extends FrameLayout {
     private int mExtraVisibility;
 
     private ArrayList<View> mMainViewList;
-    private ArrayList<View> mInfoViewList;
-    private ArrayList<View> mExtraViewList;
+    ArrayList<View> mInfoViewList;
+    ArrayList<View> mExtraViewList;
 
     private int mMeasuredWidth;
     private int mMeasuredHeight;
@@ -125,9 +125,9 @@ public class BaseCardView extends FrameLayout {
     private final int mActivatedAnimDuration;
     private final int mSelectedAnimDuration;
 
-    private float mInfoOffset;
-    private float mInfoVisFraction;
-    private float mInfoAlpha = 1.0f;
+    float mInfoOffset;
+    float mInfoVisFraction;
+    float mInfoAlpha = 1.0f;
     private Animation mAnim;
 
     private final static int[] LB_PRESSED_STATE_SET = new int[]{
@@ -649,7 +649,7 @@ public class BaseCardView extends FrameLayout {
     // This animation changes the Y offset of the info and extra views,
     // so that they animate UP to make the extra info area visible when a
     // card is selected.
-    private void animateInfoOffset(boolean shown) {
+    void animateInfoOffset(boolean shown) {
         cancelAnimations();
 
         int extraHeight = 0;

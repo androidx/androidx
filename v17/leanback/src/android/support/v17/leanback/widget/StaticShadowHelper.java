@@ -42,6 +42,9 @@ final class StaticShadowHelper {
      * Interface used when we do not support Shadow animations.
      */
     private static final class ShadowHelperStubImpl implements ShadowHelperVersionImpl {
+        ShadowHelperStubImpl() {
+        }
+
         @Override
         public void prepareParent(ViewGroup parent) {
             // do nothing
@@ -63,6 +66,9 @@ final class StaticShadowHelper {
      * Implementation used on JBMR2 (and above).
      */
     private static final class ShadowHelperJbmr2Impl implements ShadowHelperVersionImpl {
+        ShadowHelperJbmr2Impl() {
+        }
+
         @Override
         public void prepareParent(ViewGroup parent) {
             ShadowHelperJbmr2.prepareParent(parent);

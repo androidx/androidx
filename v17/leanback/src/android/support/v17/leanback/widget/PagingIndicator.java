@@ -88,12 +88,12 @@ public class PagingIndicator extends View {
     };
 
     // attribute
-    private boolean mIsLtr;
-    private final int mDotDiameter;
-    private final int mDotRadius;
+    boolean mIsLtr;
+    final int mDotDiameter;
+    final int mDotRadius;
     private final int mDotGap;
-    private final int mArrowDiameter;
-    private final int mArrowRadius;
+    final int mArrowDiameter;
+    final int mArrowRadius;
     private final int mArrowGap;
     private final int mShadowRadius;
     private Dot[] mDots;
@@ -103,7 +103,7 @@ public class PagingIndicator extends View {
     private int[] mDotSelectedPrevX;
     // X position when the dot is located to the right of the selected dot.
     private int[] mDotSelectedNextX;
-    private int mDotCenterY;
+    int mDotCenterY;
 
     // state
     private int mPageCount;
@@ -112,15 +112,15 @@ public class PagingIndicator extends View {
 
     // drawing
     @ColorInt
-    private final int mDotFgSelectColor;
-    private final Paint mBgPaint;
-    private final Paint mFgPaint;
+    final int mDotFgSelectColor;
+    final Paint mBgPaint;
+    final Paint mFgPaint;
     private final AnimatorSet mShowAnimator;
     private final AnimatorSet mHideAnimator;
     private final AnimatorSet mAnimator = new AnimatorSet();
-    private Bitmap mArrow;
-    private final Rect mArrowRect;
-    private final float mArrowToBgRatio;
+    Bitmap mArrow;
+    final Rect mArrowRect;
+    final float mArrowToBgRatio;
 
     public PagingIndicator(Context context) {
         this(context, null, 0);

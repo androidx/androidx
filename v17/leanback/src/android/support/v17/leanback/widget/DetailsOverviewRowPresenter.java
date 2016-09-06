@@ -65,8 +65,8 @@ import java.util.Collection;
 @Deprecated
 public class DetailsOverviewRowPresenter extends RowPresenter {
 
-    private static final String TAG = "DetailsOverviewRowPresenter";
-    private static final boolean DEBUG = false;
+    static final String TAG = "DetailsOverviewRowPresenter";
+    static final boolean DEBUG = false;
 
     private static final int MORE_ACTIONS_FADE_MS = 100;
     private static final long DEFAULT_TIMEOUT = 5000;
@@ -227,7 +227,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             return (view.getRight() - view.getLeft()) / 2;
         }
 
-        private void checkFirstAndLastPosition(boolean fromScroll) {
+        void checkFirstAndLastPosition(boolean fromScroll) {
             RecyclerView.ViewHolder viewHolder;
 
             viewHolder = mActionsRow.findViewHolderForPosition(mNumItems - 1);
@@ -289,8 +289,8 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         }
     }
 
-    private final Presenter mDetailsPresenter;
-    private OnActionClickedListener mActionClickedListener;
+    final Presenter mDetailsPresenter;
+    OnActionClickedListener mActionClickedListener;
 
     private int mBackgroundColor = Color.TRANSPARENT;
     private boolean mBackgroundColorSet;
@@ -460,7 +460,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         return (height > 0 ? height : 0);
     }
 
-    private void bindImageDrawable(ViewHolder vh) {
+    void bindImageDrawable(ViewHolder vh) {
         DetailsOverviewRow row = (DetailsOverviewRow) vh.getRow();
 
         ViewGroup.MarginLayoutParams layoutParams =

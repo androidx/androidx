@@ -154,10 +154,10 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
     private boolean mProgressColorSet;
     private boolean mSecondaryActionsHidden;
     private Presenter mDescriptionPresenter;
-    private PlaybackControlsPresenter mPlaybackControlsPresenter;
+    PlaybackControlsPresenter mPlaybackControlsPresenter;
     private ControlBarPresenter mSecondaryControlsPresenter;
-    private OnActionClickedListener mOnActionClickedListener;
-    private static float sShadowZ;
+    OnActionClickedListener mOnActionClickedListener;
+    static float sShadowZ;
 
     private final OnControlSelectedListener mOnControlSelectedListener =
             new OnControlSelectedListener() {

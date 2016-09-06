@@ -36,15 +36,15 @@ import java.util.List;
 
 final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
 
-    private static final String TAG = "DetailsOverviewSharedElementHelper";
-    private static final boolean DEBUG = false;
+    static final String TAG = "DetailsOverviewSharedElementHelper";
+    static final boolean DEBUG = false;
 
-    private ViewHolder mViewHolder;
-    private Activity mActivityToRunTransition;
-    private boolean mStartedPostpone;
-    private String mSharedElementName;
-    private int mRightPanelWidth;
-    private int mRightPanelHeight;
+    ViewHolder mViewHolder;
+    Activity mActivityToRunTransition;
+    boolean mStartedPostpone;
+    String mSharedElementName;
+    int mRightPanelWidth;
+    int mRightPanelHeight;
 
     private ScaleType mSavedScaleType;
     private Matrix mSavedMatrix;
@@ -255,7 +255,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         });
     }
 
-    private void startPostponedEnterTransition() {
+    void startPostponedEnterTransition() {
         if (!mStartedPostpone) {
             if (DEBUG) {
                 Log.d(TAG, "startPostponedEnterTransition " + mActivityToRunTransition);

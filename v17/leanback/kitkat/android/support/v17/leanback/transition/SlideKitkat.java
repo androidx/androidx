@@ -64,6 +64,9 @@ class SlideKitkat extends Visibility {
     }
 
     private static abstract class CalculateSlideHorizontal implements CalculateSlide {
+        CalculateSlideHorizontal() {
+        }
+
         @Override
         public float getHere(View view) {
             return view.getTranslationX();
@@ -76,6 +79,9 @@ class SlideKitkat extends Visibility {
     }
 
     private static abstract class CalculateSlideVertical implements CalculateSlide {
+        CalculateSlideVertical() {
+        }
+
         @Override
         public float getHere(View view) {
             return view.getTranslationY();

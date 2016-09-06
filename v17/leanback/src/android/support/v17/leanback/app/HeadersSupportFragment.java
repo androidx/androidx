@@ -72,7 +72,7 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
     }
 
     private OnHeaderViewSelectedListener mOnHeaderViewSelectedListener;
-    private OnHeaderClickedListener mOnHeaderClickedListener;
+    OnHeaderClickedListener mOnHeaderClickedListener;
     private boolean mHeadersEnabled = true;
     private boolean mHeadersGone = false;
     private int mBackgroundColor;
@@ -139,7 +139,7 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
 
     };
 
-    private static OnLayoutChangeListener sLayoutChangeListener = new OnLayoutChangeListener() {
+    static OnLayoutChangeListener sLayoutChangeListener = new OnLayoutChangeListener() {
         @Override
         public void onLayoutChange(View v, int left, int top, int right, int bottom,
             int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -216,7 +216,7 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
 
     // Wrapper needed because of conflict between RecyclerView's use of alpha
     // for ADD animations, and RowHeaderPresenter's use of alpha for selected level.
-    private final ItemBridgeAdapter.Wrapper mWrapper = new ItemBridgeAdapter.Wrapper() {
+    final ItemBridgeAdapter.Wrapper mWrapper = new ItemBridgeAdapter.Wrapper() {
         @Override
         public void wrap(View wrapper, View wrapped) {
             ((FrameLayout) wrapper).addView(wrapped);

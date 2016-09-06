@@ -29,8 +29,8 @@ import android.view.ViewGroup;
  */
 public class TitleHelper {
 
-    private ViewGroup mSceneRoot;
-    private View mTitleView;
+    ViewGroup mSceneRoot;
+    View mTitleView;
     private Object mTitleUpTransition;
     private Object mTitleDownTransition;
     private Object mSceneWithTitle;

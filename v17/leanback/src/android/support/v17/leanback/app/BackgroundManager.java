@@ -88,10 +88,10 @@ public final class BackgroundManager {
         public boolean isResumed();
     }
 
-    private static final String TAG = "BackgroundManager";
-    private static final boolean DEBUG = false;
+    static final String TAG = "BackgroundManager";
+    static final boolean DEBUG = false;
 
-    private static final int FULL_ALPHA = 255;
+    static final int FULL_ALPHA = 255;
     private static final int DIM_ALPHA_ON_SOLID = (int) (0.8f * FULL_ALPHA);
     private static final int CHANGE_BG_DELAY_MS = 500;
     private static final int FADE_DURATION = 500;
@@ -106,8 +106,8 @@ public final class BackgroundManager {
     private static final String WINDOW_NAME = "BackgroundManager";
     private static final String FRAGMENT_TAG = BackgroundManager.class.getCanonicalName();
 
-    private Context mContext;
-    private Handler mHandler;
+    Context mContext;
+    Handler mHandler;
     private Window mWindow;
     private WindowManager mWindowManager;
     private View mBgView;
@@ -117,7 +117,7 @@ public final class BackgroundManager {
 
     private int mHeightPx;
     private int mWidthPx;
-    private Drawable mBackgroundDrawable;
+    Drawable mBackgroundDrawable;
     private int mBackgroundColor;
     private boolean mAttached;
     private long mLastSetTime;
@@ -205,7 +205,7 @@ public final class BackgroundManager {
         }
     }
 
-    private static class DrawableWrapper {
+    static class DrawableWrapper {
         private int mAlpha = FULL_ALPHA;
         private Drawable mDrawable;
         private ColorFilter mColorFilter;
@@ -439,9 +439,9 @@ public final class BackgroundManager {
         return result;
     }
 
-    private TranslucentLayerDrawable mLayerDrawable;
+    TranslucentLayerDrawable mLayerDrawable;
     private Drawable mDimDrawable;
-    private ChangeBackgroundRunnable mChangeRunnable;
+    ChangeBackgroundRunnable mChangeRunnable;
     private boolean mChangeRunnablePending;
 
     private final Animator.AnimatorListener mAnimationListener = new Animator.AnimatorListener() {
@@ -690,17 +690,17 @@ public final class BackgroundManager {
         mFragmentState = fragment;
     }
 
-    private DrawableWrapper getImageInWrapper() {
+    DrawableWrapper getImageInWrapper() {
         return mLayerDrawable == null ? null :
                 mLayerDrawable.findWrapperById(R.id.background_imagein);
     }
 
-    private DrawableWrapper getImageOutWrapper() {
+    DrawableWrapper getImageOutWrapper() {
         return mLayerDrawable == null ? null :
                 mLayerDrawable.findWrapperById(R.id.background_imageout);
     }
 
-    private DrawableWrapper getDimWrapper() {
+    DrawableWrapper getDimWrapper() {
         return mLayerDrawable == null ? null :
                 mLayerDrawable.findWrapperById(R.id.background_dim);
     }
@@ -880,11 +880,11 @@ public final class BackgroundManager {
         releaseBackgroundBitmap();
     }
 
-    private void releaseBackgroundBitmap() {
+    void releaseBackgroundBitmap() {
         mBackgroundDrawable = null;
     }
 
-    private void setBackgroundDrawable(Drawable drawable) {
+    void setBackgroundDrawable(Drawable drawable) {
         mBackgroundDrawable = drawable;
         mService.setDrawable(mBackgroundDrawable);
     }
@@ -911,7 +911,7 @@ public final class BackgroundManager {
         return ContextCompat.getDrawable(mContext, R.color.lb_background_protection);
     }
 
-    private void postChangeRunnable() {
+    void postChangeRunnable() {
         if (mChangeRunnable == null || !mChangeRunnablePending) {
             return;
         }
@@ -1076,7 +1076,7 @@ public final class BackgroundManager {
         setDrawableInternal(bitmapDrawable);
     }
 
-    private void applyBackgroundChanges() {
+    void applyBackgroundChanges() {
         if (!mAttached) {
             return;
         }
@@ -1129,7 +1129,7 @@ public final class BackgroundManager {
         return mBackgroundDrawable;
     }
 
-    private boolean sameDrawable(Drawable first, Drawable second) {
+    boolean sameDrawable(Drawable first, Drawable second) {
         if (first == null || second == null) {
             return false;
         }
@@ -1148,7 +1148,7 @@ public final class BackgroundManager {
      * Task which changes the background.
      */
     class ChangeBackgroundRunnable implements Runnable {
-        private Drawable mDrawable;
+        Drawable mDrawable;
 
         ChangeBackgroundRunnable(Drawable drawable) {
             mDrawable = drawable;
@@ -1188,7 +1188,7 @@ public final class BackgroundManager {
         }
     }
 
-    private static Drawable createEmptyDrawable(Context context) {
+    static Drawable createEmptyDrawable(Context context) {
         Bitmap bitmap = null;
         return new BitmapDrawable(context.getResources(), bitmap);
     }

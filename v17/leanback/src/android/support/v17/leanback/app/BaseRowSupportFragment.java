@@ -35,10 +35,10 @@ import android.view.ViewGroup;
 abstract class BaseRowSupportFragment extends Fragment {
     private static final String CURRENT_SELECTED_POSITION = "currentSelectedPosition";
     private ObjectAdapter mAdapter;
-    private VerticalGridView mVerticalGridView;
+    VerticalGridView mVerticalGridView;
     private PresenterSelector mPresenterSelector;
-    private ItemBridgeAdapter mBridgeAdapter;
-    private int mSelectedPosition = -1;
+    ItemBridgeAdapter mBridgeAdapter;
+    int mSelectedPosition = -1;
     private boolean mPendingTransitionPrepare;
     private LateSelectionObserver mLateSelectionObserver = new LateSelectionObserver();
 
@@ -91,6 +91,9 @@ abstract class BaseRowSupportFragment extends Fragment {
      */
     private class LateSelectionObserver extends RecyclerView.AdapterDataObserver {
         boolean mIsLateSelection = false;
+
+        LateSelectionObserver() {
+        }
 
         @Override
         public void onChanged() {

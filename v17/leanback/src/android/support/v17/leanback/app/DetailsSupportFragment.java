@@ -71,12 +71,15 @@ import android.view.ViewGroup;
  * </p>
  */
 public class DetailsSupportFragment extends BaseSupportFragment {
-    private static final String TAG = "DetailsSupportFragment";
-    private static boolean DEBUG = false;
+    static final String TAG = "DetailsSupportFragment";
+    static boolean DEBUG = false;
 
     private class SetSelectionRunnable implements Runnable {
         int mPosition;
         boolean mSmooth = true;
+
+        SetSelectionRunnable() {
+        }
 
         @Override
         public void run() {
@@ -87,11 +90,11 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         }
     }
 
-    private RowsSupportFragment mRowsSupportFragment;
+    RowsSupportFragment mRowsSupportFragment;
 
     private ObjectAdapter mAdapter;
     private int mContainerListAlignTop;
-    private BaseOnItemViewSelectedListener mExternalOnItemViewSelectedListener;
+    BaseOnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private BaseOnItemViewClickedListener mOnItemViewClickedListener;
 
     private Object mSceneAfterEntranceTransition;
@@ -230,7 +233,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
      * that setup should only change the Presenter behavior that is meaningful in DetailsSupportFragment.  For
      * example how a row is aligned in details Fragment.   The default implementation invokes
      * {@link #setupDetailsOverviewRowPresenter(FullWidthDetailsOverviewRowPresenter)}
-     * 
+     *
      */
     protected void setupPresenter(Presenter rowPresenter) {
         if (rowPresenter instanceof FullWidthDetailsOverviewRowPresenter) {
@@ -312,7 +315,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         }
     }
 
-    private void onRowSelected(int selectedPosition, int selectedSubPosition) {
+    void onRowSelected(int selectedPosition, int selectedSubPosition) {
         ObjectAdapter adapter = getAdapter();
         if (adapter == null || adapter.size() == 0 ||
                 (selectedPosition == 0 && selectedSubPosition == 0)) {

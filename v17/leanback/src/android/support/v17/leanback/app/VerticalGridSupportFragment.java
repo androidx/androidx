@@ -39,13 +39,13 @@ import android.view.ViewGroup;
  * an {@link ObjectAdapter}.
  */
 public class VerticalGridSupportFragment extends BaseSupportFragment {
-    private static final String TAG = "VerticalGridSupportFragment";
-    private static boolean DEBUG = false;
+    static final String TAG = "VerticalGridSupportFragment";
+    static boolean DEBUG = false;
 
     private ObjectAdapter mAdapter;
     private VerticalGridPresenter mGridPresenter;
-    private VerticalGridPresenter.ViewHolder mGridViewHolder;
-    private OnItemViewSelectedListener mOnItemViewSelectedListener;
+    VerticalGridPresenter.ViewHolder mGridViewHolder;
+    OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private Object mSceneAfterEntranceTransition;
     private int mSelectedPosition = -1;
@@ -118,14 +118,14 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
         mOnItemViewSelectedListener = listener;
     }
 
-    private void gridOnItemSelected(int position) {
+    void gridOnItemSelected(int position) {
         if (position != mSelectedPosition) {
             mSelectedPosition = position;
             showOrHideTitle();
         }
     }
 
-    private void showOrHideTitle() {
+    void showOrHideTitle() {
         if (mGridViewHolder.getGridView().findViewHolderForAdapterPosition(mSelectedPosition)
                 == null) {
             return;

@@ -132,7 +132,7 @@ public class ListRowPresenter extends RowPresenter {
 
         private int mItemPosition;
         private boolean mSmoothScroll = true;
-        private Presenter.ViewHolderTask mItemTask;
+        Presenter.ViewHolderTask mItemTask;
 
         public SelectItemViewHolderTask(int itemPosition) {
             setItemPosition(itemPosition);
@@ -280,7 +280,7 @@ public class ListRowPresenter extends RowPresenter {
     private boolean mRoundedCornersEnabled = true;
     private boolean mKeepChildForeground = true;
     private HashMap<Presenter, Integer> mRecycledPoolSize = new HashMap<Presenter, Integer>();
-    private ShadowOverlayHelper mShadowOverlayHelper;
+    ShadowOverlayHelper mShadowOverlayHelper;
     private ItemBridgeAdapter.Wrapper mShadowOverlayWrapper;
 
     private static int sSelectedRowTopPadding;
@@ -484,7 +484,7 @@ public class ListRowPresenter extends RowPresenter {
     /*
      * Perform operations when a child of horizontal grid view is selected.
      */
-    private void selectChildView(ViewHolder rowViewHolder, View view, boolean fireEvent) {
+    void selectChildView(ViewHolder rowViewHolder, View view, boolean fireEvent) {
         if (view != null) {
             if (rowViewHolder.mSelected) {
                 ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)

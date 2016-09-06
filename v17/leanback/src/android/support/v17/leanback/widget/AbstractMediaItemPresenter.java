@@ -153,22 +153,22 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
      */
     public static class ViewHolder extends RowPresenter.ViewHolder {
 
-        private final View mMediaRowView;
-        private final View mSelectorView;
+        final View mMediaRowView;
+        final View mSelectorView;
         private final View mMediaItemDetailsView;
-        private final ViewFlipper mMediaItemNumberViewFlipper;
-        private final TextView mMediaItemNumberView;
-        private final View mMediaItemPausedView;
+        final ViewFlipper mMediaItemNumberViewFlipper;
+        final TextView mMediaItemNumberView;
+        final View mMediaItemPausedView;
 
-        private final View mMediaItemPlayingView;
+        final View mMediaItemPlayingView;
         private final TextView mMediaItemNameView;
         private final TextView mMediaItemDurationView;
         private final View mMediaItemRowSeparator;
         private final ViewGroup mMediaItemActionsContainer;
         private final List<Presenter.ViewHolder> mActionViewHolders;
-        private MultiActionsProvider.MultiAction[] mMediaItemRowActions;
+        MultiActionsProvider.MultiAction[] mMediaItemRowActions;
         AbstractMediaItemPresenter mRowPresenter;
-        private ValueAnimator mFocusViewAnimator;
+        ValueAnimator mFocusViewAnimator;
 
         public ViewHolder(View view) {
             super(view);
@@ -582,7 +582,7 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
      * @param isDetails Whether the changed-focused view is for a media item details (true) or
      *                  an action (false).
      */
-    private static ValueAnimator updateSelector(final View selectorView,
+    static ValueAnimator updateSelector(final View selectorView,
             View focusChangedView, ValueAnimator layoutAnimator, boolean isDetails) {
         int animationDuration = focusChangedView.getContext().getResources()
                 .getInteger(android.R.integer.config_shortAnimTime);

@@ -46,15 +46,15 @@ import java.util.List;
 public class FullWidthDetailsOverviewSharedElementHelper extends
         FullWidthDetailsOverviewRowPresenter.Listener {
 
-    private static final String TAG = "FullWidthDetailsOverviewSharedElementHelper";
-    private static final boolean DEBUG = false;
+    static final String TAG = "FullWidthDetailsOverviewSharedElementHelper";
+    static final boolean DEBUG = false;
 
     private static final long DEFAULT_TIMEOUT = 5000;
 
-    private ViewHolder mViewHolder;
-    private Activity mActivityToRunTransition;
+    ViewHolder mViewHolder;
+    Activity mActivityToRunTransition;
     private boolean mStartedPostpone;
-    private String mSharedElementName;
+    String mSharedElementName;
     private boolean mAutoStartSharedElementTransition = true;
 
     public void setSharedElementEnterTransition(Activity activity, String sharedElementName) {
@@ -174,7 +174,7 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
         });
     }
 
-    private void startPostponedEnterTransitionInternal() {
+    void startPostponedEnterTransitionInternal() {
         if (!mStartedPostpone && mViewHolder != null) {
             if (DEBUG) {
                 Log.d(TAG, "startPostponedEnterTransition " + mActivityToRunTransition);
