@@ -33,6 +33,9 @@ public final class TraceHelper {
     }
 
     private static final class TraceHelperStubImpl implements TraceHelperVersionImpl {
+        TraceHelperStubImpl() {
+        }
+
         @Override
         public void beginSection(String section) {
         }
@@ -43,6 +46,9 @@ public final class TraceHelper {
     }
 
     private static final class TraceHelperJbmr2Impl implements TraceHelperVersionImpl {
+        TraceHelperJbmr2Impl() {
+        }
+
         @Override
         public void beginSection(String section) {
             TraceHelperJbmr2.beginSection(section);

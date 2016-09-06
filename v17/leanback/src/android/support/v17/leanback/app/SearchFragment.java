@@ -65,20 +65,20 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
  * </p>
  */
 public class SearchFragment extends Fragment {
-    private static final String TAG = SearchFragment.class.getSimpleName();
-    private static final boolean DEBUG = false;
+    static final String TAG = SearchFragment.class.getSimpleName();
+    static final boolean DEBUG = false;
 
     private static final String EXTRA_LEANBACK_BADGE_PRESENT = "LEANBACK_BADGE_PRESENT";
     private static final String ARG_PREFIX = SearchFragment.class.getCanonicalName();
     private static final String ARG_QUERY =  ARG_PREFIX + ".query";
     private static final String ARG_TITLE = ARG_PREFIX  + ".title";
 
-    private static final long SPEECH_RECOGNITION_DELAY_MS = 300;
+    static final long SPEECH_RECOGNITION_DELAY_MS = 300;
 
-    private static final int RESULTS_CHANGED = 0x1;
-    private static final int QUERY_COMPLETE = 0x2;
+    static final int RESULTS_CHANGED = 0x1;
+    static final int QUERY_COMPLETE = 0x2;
 
-    private static final int AUDIO_PERMISSION_REQUEST_CODE = 0;
+    static final int AUDIO_PERMISSION_REQUEST_CODE = 0;
 
     /**
      * Search API to be provided by the application.
@@ -119,7 +119,7 @@ public class SearchFragment extends Fragment {
         public boolean onQueryTextSubmit(String query);
     }
 
-    private final DataObserver mAdapterObserver = new DataObserver() {
+    final DataObserver mAdapterObserver = new DataObserver() {
         @Override
         public void onChanged() {
             // onChanged() may be called multiple times e.g. the provider add
@@ -129,9 +129,9 @@ public class SearchFragment extends Fragment {
         }
     };
 
-    private final Handler mHandler = new Handler();
+    final Handler mHandler = new Handler();
 
-    private final Runnable mResultsChangedCallback = new Runnable() {
+    final Runnable mResultsChangedCallback = new Runnable() {
         @Override
         public void run() {
             if (DEBUG) Log.v(TAG, "results changed, new size " + mResultAdapter.size());
@@ -194,7 +194,7 @@ public class SearchFragment extends Fragment {
         }
     };
 
-    private final Runnable mStartRecognitionRunnable = new Runnable() {
+    final Runnable mStartRecognitionRunnable = new Runnable() {
         @Override
         public void run() {
             mAutoStartRecognition = false;
@@ -202,14 +202,14 @@ public class SearchFragment extends Fragment {
         }
     };
 
-    private RowsFragment mRowsFragment;
-    private SearchBar mSearchBar;
-    private SearchResultProvider mProvider;
-    private String mPendingQuery = null;
+    RowsFragment mRowsFragment;
+    SearchBar mSearchBar;
+    SearchResultProvider mProvider;
+    String mPendingQuery = null;
 
-    private OnItemViewSelectedListener mOnItemViewSelectedListener;
+    OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
-    private ObjectAdapter mResultAdapter;
+    ObjectAdapter mResultAdapter;
     private SpeechRecognitionCallback mSpeechRecognitionCallback;
 
     private String mTitle;
@@ -218,8 +218,8 @@ public class SearchFragment extends Fragment {
 
     private SpeechRecognizer mSpeechRecognizer;
 
-    private int mStatus;
-    private boolean mAutoStartRecognition = true;
+    int mStatus;
+    boolean mAutoStartRecognition = true;
 
     private boolean mIsPaused;
     private boolean mPendingStartRecognitionWhenPaused;
@@ -613,33 +613,33 @@ public class SearchFragment extends Fragment {
         return recognizerIntent;
     }
 
-    private void retrieveResults(String searchQuery) {
+    void retrieveResults(String searchQuery) {
         if (DEBUG) Log.v(TAG, "retrieveResults " + searchQuery);
         if (mProvider.onQueryTextChange(searchQuery)) {
             mStatus &= ~QUERY_COMPLETE;
         }
     }
 
-    private void submitQuery(String query) {
+    void submitQuery(String query) {
         queryComplete();
         if (null != mProvider) {
             mProvider.onQueryTextSubmit(query);
         }
     }
 
-    private void queryComplete() {
+    void queryComplete() {
         if (DEBUG) Log.v(TAG, "queryComplete");
         mStatus |= QUERY_COMPLETE;
         focusOnResults();
     }
 
-    private void updateSearchBarVisibility() {
+    void updateSearchBarVisibility() {
         int position = mRowsFragment != null ? mRowsFragment.getSelectedPosition() : -1;
         mSearchBar.setVisibility(position <=0 || mResultAdapter == null
                 || mResultAdapter.size() == 0 ? View.VISIBLE : View.GONE);
     }
 
-    private void updateSearchBarNextFocusId() {
+    void updateSearchBarNextFocusId() {
         if (mSearchBar == null || mResultAdapter == null) {
             return;
         }
@@ -649,7 +649,7 @@ public class SearchFragment extends Fragment {
         mSearchBar.setNextFocusDownId(viewId);
     }
 
-    private void updateFocus() {
+    void updateFocus() {
         if (mResultAdapter != null && mResultAdapter.size() > 0 &&
                 mRowsFragment != null && mRowsFragment.getAdapter() == mResultAdapter) {
             focusOnResults();
@@ -674,14 +674,14 @@ public class SearchFragment extends Fragment {
         mHandler.post(mSetSearchResultProvider);
     }
 
-    private void releaseAdapter() {
+    void releaseAdapter() {
         if (mResultAdapter != null) {
             mResultAdapter.unregisterObserver(mAdapterObserver);
             mResultAdapter = null;
         }
     }
 
-    private void executePendingQuery() {
+    void executePendingQuery() {
         if (null != mPendingQuery && null != mResultAdapter) {
             String query = mPendingQuery;
             mPendingQuery = null;

@@ -187,7 +187,7 @@ abstract class BaseGridView extends RecyclerView {
     private OnTouchInterceptListener mOnTouchInterceptListener;
     private OnMotionInterceptListener mOnMotionInterceptListener;
     private OnKeyInterceptListener mOnKeyInterceptListener;
-    private RecyclerView.RecyclerListener mChainedRecyclerListener;
+    RecyclerView.RecyclerListener mChainedRecyclerListener;
     private OnUnhandledKeyListener mOnUnhandledKeyListener;
 
     public BaseGridView(Context context, AttributeSet attrs, int defStyle) {
@@ -328,7 +328,7 @@ abstract class BaseGridView extends RecyclerView {
      * Returns the offset percent for window alignment in addition to
      * {@link #getWindowAlignmentOffset()}.
      *
-     * @return Percentage to offset. E.g., 40 means 40% of the width from the 
+     * @return Percentage to offset. E.g., 40 means 40% of the width from the
      *         low edge, or {@link #WINDOW_ALIGN_OFFSET_PERCENT_DISABLED} if
      *         disabled. Default value is 50.
      */

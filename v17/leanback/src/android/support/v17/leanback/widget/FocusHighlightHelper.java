@@ -35,7 +35,7 @@ public class FocusHighlightHelper {
         return zoomIndex == ZOOM_FACTOR_NONE || getResId(zoomIndex) > 0;
     }
 
-    private static int getResId(int zoomIndex) {
+    static int getResId(int zoomIndex) {
         switch (zoomIndex) {
             case ZOOM_FACTOR_SMALL:
                 return R.fraction.lb_focus_zoom_factor_small;
@@ -209,7 +209,7 @@ public class FocusHighlightHelper {
         private static boolean sInitialized;
         private static float sSelectScale;
         private static int sDuration;
-        private BaseGridView mGridView;
+        BaseGridView mGridView;
 
         HeaderItemFocusHighlight(BaseGridView gridView) {
             mGridView = gridView;

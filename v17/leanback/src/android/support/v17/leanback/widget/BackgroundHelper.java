@@ -34,6 +34,9 @@ public final class BackgroundHelper {
     }
 
     private static final class BackgroundHelperStubImpl implements BackgroundHelperVersionImpl {
+        BackgroundHelperStubImpl() {
+        }
+
         @Override
         public void setBackgroundPreservingAlpha(View view, Drawable drawable) {
             // Cannot query drawable alpha
@@ -42,6 +45,9 @@ public final class BackgroundHelper {
     }
 
     private static final class BackgroundHelperKitkatImpl implements BackgroundHelperVersionImpl {
+        BackgroundHelperKitkatImpl() {
+        }
+
         @Override
         public void setBackgroundPreservingAlpha(View view, Drawable drawable) {
             BackgroundHelperKitkat.setBackgroundPreservingAlpha(view, drawable);

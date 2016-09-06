@@ -38,11 +38,11 @@ class WindowAlignment {
          * will be scaled up.
          */
         private float mScrollCenter;
-        /** 
-         * Right or bottom edge of last child. 
+        /**
+         * Right or bottom edge of last child.
          */
         private int mMaxEdge;
-        /** 
+        /**
          * Left or top edge of first child, typically should be zero.
          */
         private int mMinEdge;
@@ -159,7 +159,7 @@ class WindowAlignment {
             return scrollTarget;
         }
 
-        private void reset() {
+        void reset() {
             mScrollCenter = Integer.MIN_VALUE;
             mMinEdge = Integer.MIN_VALUE;
             mMaxEdge = Integer.MAX_VALUE;

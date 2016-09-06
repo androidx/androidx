@@ -102,16 +102,16 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         public boolean handleInputEvent(InputEvent event);
     }
 
-    private static final String TAG = "PlaybackOverlayFragment";
-    private static final boolean DEBUG = false;
+    static final String TAG = "PlaybackOverlayFragment";
+    static final boolean DEBUG = false;
     private static final int ANIMATION_MULTIPLIER = 1;
 
-    private static int START_FADE_OUT = 1;
+    static int START_FADE_OUT = 1;
 
     // Fading status
-    private static final int IDLE = 0;
+    static final int IDLE = 0;
     private static final int IN = 1;
-    private static final int OUT = 2;
+    static final int OUT = 2;
 
     private int mPaddingTop;
     private int mPaddingBottom;
@@ -121,18 +121,18 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     private int mBgLightColor;
     private int mShowTimeMs;
     private int mMajorFadeTranslateY, mMinorFadeTranslateY;
-    private int mAnimationTranslateY;
-    private OnFadeCompleteListener mFadeCompleteListener;
+    int mAnimationTranslateY;
+    OnFadeCompleteListener mFadeCompleteListener;
     private InputEventHandler mInputEventHandler;
-    private boolean mFadingEnabled = true;
-    private int mFadingStatus = IDLE;
-    private int mBgAlpha;
+    boolean mFadingEnabled = true;
+    int mFadingStatus = IDLE;
+    int mBgAlpha;
     private ValueAnimator mBgFadeInAnimator, mBgFadeOutAnimator;
     private ValueAnimator mControlRowFadeInAnimator, mControlRowFadeOutAnimator;
     private ValueAnimator mDescriptionFadeInAnimator, mDescriptionFadeOutAnimator;
     private ValueAnimator mOtherRowFadeInAnimator, mOtherRowFadeOutAnimator;
     private boolean mTranslateAnimationEnabled;
-    private boolean mResetControlsToPrimaryActionsPending;
+    boolean mResetControlsToPrimaryActionsPending;
     private RecyclerView.ItemAnimator mItemAnimator;
 
     private final Animator.AnimatorListener mFadeListener =
@@ -195,20 +195,20 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         }
     };
 
-    private void setBgAlpha(int alpha) {
+    void setBgAlpha(int alpha) {
         mBgAlpha = alpha;
         if (mRootView != null) {
             mRootView.getBackground().setAlpha(alpha);
         }
     }
 
-    private void enableVerticalGridAnimations(boolean enable) {
+    void enableVerticalGridAnimations(boolean enable) {
         if (getVerticalGridView() != null) {
             getVerticalGridView().setAnimateChildLayout(enable);
         }
     }
 
-    private void resetControlsToPrimaryActions(ItemBridgeAdapter.ViewHolder vh) {
+    void resetControlsToPrimaryActions(ItemBridgeAdapter.ViewHolder vh) {
         if (vh == null && getVerticalGridView() != null) {
             vh = (ItemBridgeAdapter.ViewHolder) getVerticalGridView().findViewHolderForPosition(0);
         }
@@ -310,7 +310,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         return mFadingStatus == IDLE && mBgAlpha == 0;
     }
 
-    private boolean onInterceptInputEvent(InputEvent event) {
+    boolean onInterceptInputEvent(InputEvent event) {
         final boolean controlsHidden = areControlsHidden();
         if (DEBUG) Log.v(TAG, "onInterceptInputEvent hidden " + controlsHidden + " " + event);
         boolean consumeEvent = false;
@@ -367,7 +367,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         getVerticalGridView().setOnKeyInterceptListener(mOnKeyInterceptListener);
     }
 
-    private void startFadeTimer() {
+    void startFadeTimer() {
         if (mHandler != null) {
             mHandler.removeMessages(START_FADE_OUT);
             mHandler.sendEmptyMessageDelayed(START_FADE_OUT, mShowTimeMs);
@@ -400,7 +400,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     private TimeInterpolator mLogDecelerateInterpolator = new LogDecelerateInterpolator(100,0);
     private TimeInterpolator mLogAccelerateInterpolator = new LogAccelerateInterpolator(100,0);
 
-    private View getControlRowView() {
+    View getControlRowView() {
         if (getVerticalGridView() == null) {
             return null;
         }
@@ -522,7 +522,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         mDescriptionFadeOutAnimator.addUpdateListener(listener);
     }
 
-    private void fade(boolean fadeIn) {
+    void fade(boolean fadeIn) {
         if (DEBUG) Log.v(TAG, "fade " + fadeIn);
         if (getView() == null) {
             return;
@@ -679,7 +679,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         }
     }
 
-    private void updateControlsBottomSpace(ItemBridgeAdapter.ViewHolder vh) {
+    void updateControlsBottomSpace(ItemBridgeAdapter.ViewHolder vh) {
         // Add extra space between rows 0 and 1
         if (vh == null && getVerticalGridView() != null) {
             vh = (ItemBridgeAdapter.ViewHolder)

@@ -30,7 +30,7 @@ import android.widget.LinearLayout;
  */
 class ControlBarPresenter extends Presenter {
 
-    private static final int MAX_CONTROLS = 7;
+    static final int MAX_CONTROLS = 7;
 
     /**
      * The data type expected by this presenter.
@@ -181,8 +181,8 @@ class ControlBarPresenter extends Presenter {
         }
     }
 
-    private OnControlClickedListener mOnControlClickedListener;
-    private OnControlSelectedListener mOnControlSelectedListener;
+    OnControlClickedListener mOnControlClickedListener;
+    OnControlSelectedListener mOnControlSelectedListener;
     private int mLayoutResourceId;
     private static int sChildMarginDefault;
     private static int sControlIconWidth;

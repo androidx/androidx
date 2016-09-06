@@ -24,6 +24,9 @@ final class ForegroundHelper {
      * Implementation used on api 23 (and above).
      */
     private static final class ForegroundHelperApi23Impl implements ForegroundHelperVersionImpl {
+        ForegroundHelperApi23Impl() {
+        }
+
         @Override
         public void setForeground(View view, Drawable drawable) {
             ForegroundHelperApi23.setForeground(view, drawable);
@@ -39,6 +42,9 @@ final class ForegroundHelper {
      * Stub implementation
      */
     private static final class ForegroundHelperStubImpl implements ForegroundHelperVersionImpl {
+        ForegroundHelperStubImpl() {
+        }
+
         @Override
         public void setForeground(View view, Drawable drawable) {
         }

@@ -16,10 +16,10 @@ import android.util.Log;
  * {@link android.support.v4.media.session.MediaControllerCompat}.
  */
 public abstract class MediaControllerGlue extends PlaybackControlGlue {
-    private static final String TAG = "MediaControllerGlue";
-    private static final boolean DEBUG = false;
+    static final String TAG = "MediaControllerGlue";
+    static final boolean DEBUG = false;
 
-    private MediaControllerCompat mMediaController;
+    MediaControllerCompat mMediaController;
 
     private final MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
         @Override

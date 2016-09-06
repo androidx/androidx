@@ -99,7 +99,7 @@ public class VerticalGridPresenter extends Presenter {
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private boolean mRoundedCornersEnabled = true;
-    private ShadowOverlayHelper mShadowOverlayHelper;
+    ShadowOverlayHelper mShadowOverlayHelper;
     private ItemBridgeAdapter.Wrapper mShadowOverlayWrapper;
 
     /**
@@ -378,7 +378,7 @@ public class VerticalGridPresenter extends Presenter {
         return mOnItemViewClickedListener;
     }
 
-    private void selectChildView(ViewHolder vh, View view) {
+    void selectChildView(ViewHolder vh, View view) {
         if (getOnItemViewSelectedListener() != null) {
             ItemBridgeAdapter.ViewHolder ibh = (view == null) ? null :
                     (ItemBridgeAdapter.ViewHolder) vh.getGridView().getChildViewHolder(view);
