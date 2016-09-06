@@ -56,7 +56,7 @@ import java.lang.reflect.Method;
  * @hide
  */
 public class SupportMenuInflater extends MenuInflater {
-    private static final String LOG_TAG = "SupportMenuInflater";
+    static final String LOG_TAG = "SupportMenuInflater";
 
     /** Menu tag name in XML. */
     private static final String XML_MENU = "menu";
@@ -67,18 +67,18 @@ public class SupportMenuInflater extends MenuInflater {
     /** Item tag name in XML. */
     private static final String XML_ITEM = "item";
 
-    private static final int NO_ID = 0;
+    static final int NO_ID = 0;
 
-    private static final Class<?>[] ACTION_VIEW_CONSTRUCTOR_SIGNATURE = new Class[] {Context.class};
+    static final Class<?>[] ACTION_VIEW_CONSTRUCTOR_SIGNATURE = new Class[] {Context.class};
 
-    private static final Class<?>[] ACTION_PROVIDER_CONSTRUCTOR_SIGNATURE =
+    static final Class<?>[] ACTION_PROVIDER_CONSTRUCTOR_SIGNATURE =
             ACTION_VIEW_CONSTRUCTOR_SIGNATURE;
 
-    private final Object[] mActionViewConstructorArguments;
+    final Object[] mActionViewConstructorArguments;
 
-    private final Object[] mActionProviderConstructorArguments;
+    final Object[] mActionProviderConstructorArguments;
 
-    private Context mContext;
+    Context mContext;
     private Object mRealOwner;
 
     /**
@@ -209,7 +209,7 @@ public class SupportMenuInflater extends MenuInflater {
         }
     }
 
-    private Object getRealOwner() {
+    Object getRealOwner() {
         if (mRealOwner == null) {
             mRealOwner = findRealOwner(mContext);
         }
@@ -315,7 +315,7 @@ public class SupportMenuInflater extends MenuInflater {
 
         private String itemListenerMethodName;
 
-        private ActionProvider itemActionProvider;
+        ActionProvider itemActionProvider;
 
         private static final int defaultGroupId = NO_ID;
         private static final int defaultItemId = NO_ID;

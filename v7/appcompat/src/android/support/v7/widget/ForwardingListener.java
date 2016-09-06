@@ -41,7 +41,7 @@ public abstract class ForwardingListener implements View.OnTouchListener {
     private final int mLongPressTimeout;
 
     /** Source view from which events are forwarded. */
-    private final View mSrc;
+    final View mSrc;
 
     /** Runnable used to prevent conflicts with scrolling parents. */
     private Runnable mDisallowIntercept;
@@ -199,7 +199,7 @@ public abstract class ForwardingListener implements View.OnTouchListener {
         }
     }
 
-    private void onLongPress() {
+    void onLongPress() {
         clearCallbacks();
 
         final View src = mSrc;
@@ -290,6 +290,9 @@ public abstract class ForwardingListener implements View.OnTouchListener {
     }
 
     private class DisallowIntercept implements Runnable {
+        DisallowIntercept() {
+        }
+
         @Override
         public void run() {
             final ViewParent parent = mSrc.getParent();
@@ -300,6 +303,9 @@ public abstract class ForwardingListener implements View.OnTouchListener {
     }
 
     private class TriggerLongPress implements Runnable {
+        TriggerLongPress() {
+        }
+
         @Override
         public void run() {
             onLongPress();

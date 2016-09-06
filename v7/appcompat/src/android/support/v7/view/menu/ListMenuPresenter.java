@@ -45,7 +45,7 @@ public class ListMenuPresenter implements MenuPresenter, AdapterView.OnItemClick
 
     ExpandedMenuView mMenuView;
 
-    private int mItemIndexOffset;
+    int mItemIndexOffset;
     int mThemeRes;
     int mItemLayoutRes;
 

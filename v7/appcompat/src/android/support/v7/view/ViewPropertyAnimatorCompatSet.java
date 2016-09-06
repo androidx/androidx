@@ -32,11 +32,11 @@ import java.util.ArrayList;
  */
 public class ViewPropertyAnimatorCompatSet {
 
-    private final ArrayList<ViewPropertyAnimatorCompat> mAnimators;
+    final ArrayList<ViewPropertyAnimatorCompat> mAnimators;
 
     private long mDuration = -1;
     private Interpolator mInterpolator;
-    private ViewPropertyAnimatorListener mListener;
+    ViewPropertyAnimatorListener mListener;
 
     private boolean mIsStarted;
 
@@ -77,7 +77,7 @@ public class ViewPropertyAnimatorCompatSet {
         mIsStarted = true;
     }
 
-    private void onAnimationsEnded() {
+    void onAnimationsEnded() {
         mIsStarted = false;
     }
 

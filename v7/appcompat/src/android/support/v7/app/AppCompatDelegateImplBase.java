@@ -43,7 +43,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     private static boolean sInstalledExceptionHandler;
     private static final boolean SHOULD_INSTALL_EXCEPTION_HANDLER = Build.VERSION.SDK_INT < 21;
 
-    private static final String EXCEPTION_HANDLER_MESSAGE_SUFFIX= ". If the resource you are"
+    static final String EXCEPTION_HANDLER_MESSAGE_SUFFIX= ". If the resource you are"
             + " trying to use is a vector resource, you may be referencing it in an unsupported"
             + " way. See AppCompatDelegate.setCompatVectorFromResourcesEnabled() for more info.";
 
@@ -195,6 +195,9 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     }
 
     private class ActionBarDrawableToggleImpl implements ActionBarDrawerToggle.Delegate {
+        ActionBarDrawableToggleImpl() {
+        }
+
         @Override
         public Drawable getThemeUpIndicator() {
             final TintTypedArray a = TintTypedArray.obtainStyledAttributes(
