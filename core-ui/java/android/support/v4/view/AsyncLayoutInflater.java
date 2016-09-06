@@ -67,9 +67,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 public final class AsyncLayoutInflater {
     private static final String TAG = "AsyncLayoutInflater";
 
-    private LayoutInflater mInflater;
-    private Handler mHandler;
-    private InflateThread mInflateThread;
+    LayoutInflater mInflater;
+    Handler mHandler;
+    InflateThread mInflateThread;
 
     public AsyncLayoutInflater(@NonNull Context context) {
         mInflater = new BasicInflater(context);
@@ -116,6 +116,9 @@ public final class AsyncLayoutInflater {
         int resid;
         View view;
         OnInflateFinishedListener callback;
+
+        InflateRequest() {
+        }
     }
 
     private static class BasicInflater extends LayoutInflater {

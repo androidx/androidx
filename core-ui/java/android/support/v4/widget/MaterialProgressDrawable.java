@@ -50,7 +50,7 @@ import java.util.ArrayList;
  */
 class MaterialProgressDrawable extends Drawable implements Animatable {
     private static final Interpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
-    private static final Interpolator MATERIAL_INTERPOLATOR = new FastOutSlowInInterpolator();
+    static final Interpolator MATERIAL_INTERPOLATOR = new FastOutSlowInInterpolator();
 
     private static final float FULL_ROTATION = 1080.0f;
     @Retention(RetentionPolicy.SOURCE)
@@ -110,7 +110,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
     private Resources mResources;
     private View mParent;
     private Animation mAnimation;
-    private float mRotationCount;
+    float mRotationCount;
     private double mWidth;
     private double mHeight;
     boolean mFinishing;
@@ -299,7 +299,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         mRing.resetOriginals();
     }
 
-    private float getMinProgressArc(Ring ring) {
+    float getMinProgressArc(Ring ring) {
         return (float) Math.toRadians(
                 ring.getStrokeWidth() / (2 * Math.PI * ring.getCenterRadius()));
     }
@@ -329,7 +329,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
      * The new ring color will be a translation from the starting ring color to
      * the next color.
      */
-    private void updateRingColor(float interpolatedTime, Ring ring) {
+    void updateRingColor(float interpolatedTime, Ring ring) {
         if (interpolatedTime > COLOR_START_DELAY_OFFSET) {
             // scale the interpolatedTime so that the full
             // transformation from 0 - 1 takes place in the
@@ -340,7 +340,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         }
     }
 
-    private void applyFinishTranslation(float interpolatedTime, Ring ring) {
+    void applyFinishTranslation(float interpolatedTime, Ring ring) {
         // shrink back down and complete a full rotation before
         // starting other circles
         // Rotation goes between [0..1].
