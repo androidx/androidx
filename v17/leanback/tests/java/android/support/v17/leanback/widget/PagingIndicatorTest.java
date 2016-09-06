@@ -15,23 +15,31 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.test.AndroidTestCase;
+import static org.junit.Assert.assertEquals;
+
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Tests for {@link PagingIndicator}.
  * @hide
  */
 @SmallTest
-public class PagingIndicatorTest extends AndroidTestCase {
+@RunWith(AndroidJUnit4.class)
+public class PagingIndicatorTest {
     private PagingIndicator mIndicator;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        mIndicator = new PagingIndicator(getContext());
+    @Before
+    public void setup() throws Exception {
+        mIndicator = new PagingIndicator(InstrumentationRegistry.getTargetContext());
     }
 
+    @Test
     public void testDotPosition() {
         mIndicator.setPageCount(3);
         assertDotPosition();
