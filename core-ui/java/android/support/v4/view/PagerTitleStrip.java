@@ -54,7 +54,7 @@ public class PagerTitleStrip extends ViewGroup {
     TextView mNextText;
 
     private int mLastKnownCurrentPage = -1;
-    private float mLastKnownPositionOffset = -1;
+    float mLastKnownPositionOffset = -1;
     private int mScaledTextSpacing;
     private int mGravity;
 
@@ -479,6 +479,9 @@ public class PagerTitleStrip extends ViewGroup {
     private class PageListener extends DataSetObserver implements ViewPager.OnPageChangeListener,
             ViewPager.OnAdapterChangeListener {
         private int mScrollState;
+
+        PageListener() {
+        }
 
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {

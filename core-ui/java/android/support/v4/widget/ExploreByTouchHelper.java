@@ -717,7 +717,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      *         about the specified item
      */
     @NonNull
-    private AccessibilityNodeInfoCompat obtainAccessibilityNodeInfo(int virtualViewId) {
+    AccessibilityNodeInfoCompat obtainAccessibilityNodeInfo(int virtualViewId) {
         if (virtualViewId == HOST_ID) {
             return createNodeForHost();
         }
@@ -867,7 +867,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         return node;
     }
 
-    private boolean performAction(int virtualViewId, int action, Bundle arguments) {
+    boolean performAction(int virtualViewId, int action, Bundle arguments) {
         switch (virtualViewId) {
             case HOST_ID:
                 return performActionForHost(action, arguments);
@@ -1221,6 +1221,9 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * Exposes a virtual view hierarchy to the accessibility framework.
      */
     private class MyNodeProvider extends AccessibilityNodeProviderCompat {
+        MyNodeProvider() {
+        }
+
         @Override
         public AccessibilityNodeInfoCompat createAccessibilityNodeInfo(int virtualViewId) {
             // The caller takes ownership of the node and is expected to
