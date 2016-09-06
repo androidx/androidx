@@ -40,7 +40,7 @@ class PathParser {
      * @throws IllegalArgumentException       if {@code start > end}
      * @throws NullPointerException           if {@code original == null}
      */
-    private static float[] copyOfRange(float[] original, int start, int end) {
+    static float[] copyOfRange(float[] original, int start, int end) {
         if (start > end) {
             throw new IllegalArgumentException();
         }
@@ -183,6 +183,9 @@ class PathParser {
         // next float starts with a '-' or a '.'.
         int mEndPosition;
         boolean mEndWithNegOrDot;
+
+        ExtractFloatResult() {
+        }
     }
 
     /**
@@ -294,12 +297,12 @@ class PathParser {
         char type;
         float[] params;
 
-        private PathDataNode(char type, float[] params) {
+        PathDataNode(char type, float[] params) {
             this.type = type;
             this.params = params;
         }
 
-        private PathDataNode(PathDataNode n) {
+        PathDataNode(PathDataNode n) {
             type = n.type;
             params = copyOfRange(n.params, 0, n.params.length);
         }
