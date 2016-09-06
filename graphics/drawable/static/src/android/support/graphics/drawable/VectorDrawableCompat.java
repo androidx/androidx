@@ -108,11 +108,11 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     private final Matrix mTmpMatrix = new Matrix();
     private final Rect mTmpBounds = new Rect();
 
-    private VectorDrawableCompat() {
+    VectorDrawableCompat() {
         mVectorState = new VectorDrawableCompatState();
     }
 
-    private VectorDrawableCompat(@NonNull VectorDrawableCompatState state) {
+    VectorDrawableCompat(@NonNull VectorDrawableCompatState state) {
         mVectorState = state;
         mTintFilter = updateTintFilter(mTintFilter, state.mTint, state.mTintMode);
     }
@@ -442,7 +442,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         return drawable;
     }
 
-    private static int applyAlpha(int color, float alpha) {
+    static int applyAlpha(int color, float alpha) {
         int alphaBytes = Color.alpha(color);
         color &= 0x00FFFFFF;
         color |= ((int) (alphaBytes * alpha)) << 24;
@@ -920,7 +920,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         /////////////////////////////////////////////////////
         // Variables below need to be copied (deep copy if applicable) for mutation.
         private int mChangingConfigurations;
-        private final VGroup mRootGroup;
+        final VGroup mRootGroup;
         float mBaseWidth = 0;
         float mBaseHeight = 0;
         float mViewportWidth = 0;
@@ -1136,7 +1136,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         // Variables below need to be copied (deep copy if applicable) for mutation.
         final ArrayList<Object> mChildren = new ArrayList<Object>();
 
-        private float mRotate = 0;
+        float mRotate = 0;
         private float mPivotX = 0;
         private float mPivotY = 0;
         private float mScaleX = 1;
@@ -1147,7 +1147,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         // mLocalMatrix is updated based on the update of transformation information,
         // either parsed from the XML or by animation.
         private final Matrix mLocalMatrix = new Matrix();
-        private int mChangingConfigurations;
+        int mChangingConfigurations;
         private int[] mThemeAttrs;
         private String mGroupName = null;
 
