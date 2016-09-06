@@ -51,10 +51,10 @@ public class FragmentTabHost extends TabHost
     private boolean mAttached;
 
     static final class TabInfo {
-        private final String tag;
-        private final Class<?> clss;
-        private final Bundle args;
-        private Fragment fragment;
+        final String tag;
+        final Class<?> clss;
+        final Bundle args;
+        Fragment fragment;
 
         TabInfo(String _tag, Class<?> _class, Bundle _args) {
             tag = _tag;
@@ -86,7 +86,7 @@ public class FragmentTabHost extends TabHost
             super(superState);
         }
 
-        private SavedState(Parcel in) {
+        SavedState(Parcel in) {
             super(in);
             curTab = in.readString();
         }

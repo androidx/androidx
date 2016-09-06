@@ -33,6 +33,9 @@ public class ViewCompat extends android.support.v4.view.ViewCompat {
     }
 
     private static class BaseViewCompatImpl implements ViewCompatImpl {
+        BaseViewCompatImpl() {
+        }
+
         @Override
         public boolean startDragAndDrop(View v, ClipData data, View.DragShadowBuilder shadowBuilder,
                 Object localState, int flags) {
@@ -51,6 +54,9 @@ public class ViewCompat extends android.support.v4.view.ViewCompat {
     }
 
     private static class Api24ViewCompatImpl implements ViewCompatImpl {
+        Api24ViewCompatImpl() {
+        }
+
         @Override
         public boolean startDragAndDrop(View v, ClipData data, View.DragShadowBuilder shadowBuilder,
                 Object localState, int flags) {
