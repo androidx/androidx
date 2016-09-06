@@ -405,11 +405,11 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
         if (super.onMenuItemSelected(featureId, item)) {
             return true;
         }
-        
+
         switch (featureId) {
             case Window.FEATURE_OPTIONS_PANEL:
                 return mFragments.dispatchOptionsItemSelected(item);
-                
+
             case Window.FEATURE_CONTEXT_MENU:
                 return mFragments.dispatchContextItemSelected(item);
 
@@ -430,7 +430,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
         }
         super.onPanelClosed(featureId, menu);
     }
-    
+
     /**
      * Dispatch onPause() to fragments.
      */
@@ -984,7 +984,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
     /**
      * Called by Fragment.requestPermissions() to implement its behavior.
      */
-    private void requestPermissionsFromFragment(Fragment fragment, String[] permissions,
+    void requestPermissionsFromFragment(Fragment fragment, String[] permissions,
             int requestCode) {
         if (requestCode == -1) {
             ActivityCompat.requestPermissions(this, permissions, requestCode);
