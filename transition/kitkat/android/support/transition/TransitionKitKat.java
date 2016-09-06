@@ -325,15 +325,18 @@ class TransitionKitKat extends TransitionImpl {
 
         private final ArrayList<TransitionInterfaceListener> mListeners = new ArrayList<>();
 
-        private void addListener(TransitionInterfaceListener listener) {
+        CompatListener() {
+        }
+
+        void addListener(TransitionInterfaceListener listener) {
             mListeners.add(listener);
         }
 
-        private void removeListener(TransitionInterfaceListener listener) {
+        void removeListener(TransitionInterfaceListener listener) {
             mListeners.remove(listener);
         }
 
-        private boolean isEmpty() {
+        boolean isEmpty() {
             return mListeners.isEmpty();
         }
 

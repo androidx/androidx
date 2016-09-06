@@ -226,5 +226,8 @@ abstract class VisibilityPort extends TransitionPort {
         ViewGroup startParent;
 
         ViewGroup endParent;
+
+        VisibilityInfo() {
+        }
     }
 }
