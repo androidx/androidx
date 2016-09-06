@@ -38,7 +38,7 @@ class TransitionManagerPort {
     private static ThreadLocal<WeakReference<ArrayMap<ViewGroup, ArrayList<TransitionPort>>>>
             sRunningTransitions = new ThreadLocal<>();
 
-    private static ArrayList<ViewGroup> sPendingTransitions = new ArrayList<>();
+    static ArrayList<ViewGroup> sPendingTransitions = new ArrayList<>();
 
     ArrayMap<ScenePort, TransitionPort> mSceneTransitions = new ArrayMap<>();
 
@@ -105,7 +105,7 @@ class TransitionManagerPort {
         sceneChangeRunTransition(sceneRoot, transitionClone);
     }
 
-    private static ArrayMap<ViewGroup, ArrayList<TransitionPort>> getRunningTransitions() {
+    static ArrayMap<ViewGroup, ArrayList<TransitionPort>> getRunningTransitions() {
         WeakReference<ArrayMap<ViewGroup, ArrayList<TransitionPort>>> runningTransitions =
                 sRunningTransitions.get();
         if (runningTransitions == null || runningTransitions.get() == null) {
