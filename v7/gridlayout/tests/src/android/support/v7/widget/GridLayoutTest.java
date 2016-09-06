@@ -40,9 +40,9 @@ import static org.junit.Assert.assertTrue;
 public class GridLayoutTest {
     @Rule public final ActivityTestRule<GridLayoutTestActivity> mActivityTestRule;
 
-    private View mLeftView;
-    private View mRightView;
-    private View mGridView;
+    View mLeftView;
+    View mRightView;
+    View mGridView;
 
     public GridLayoutTest() {
         mActivityTestRule = new ActivityTestRule<>(GridLayoutTestActivity.class);
