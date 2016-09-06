@@ -78,7 +78,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
 
     AnimatedVectorDrawableDelegateState mCachedConstantStateDelegate;
 
-    private AnimatedVectorDrawableCompat() {
+    AnimatedVectorDrawableCompat() {
         this(null, null, null);
     }
 
@@ -632,7 +632,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         }
     }
 
-    private final Callback mCallback = new Callback() {
+    final Callback mCallback = new Callback() {
         @Override
         public void invalidateDrawable(Drawable who) {
             invalidateSelf();
