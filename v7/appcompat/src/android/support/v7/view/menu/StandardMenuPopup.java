@@ -53,7 +53,7 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
     private final int mPopupStyleRes;
     // The popup window is final in order to couple its lifecycle to the lifecycle of the
     // StandardMenuPopup.
-    private final MenuPopupWindow mPopup;
+    final MenuPopupWindow mPopup;
 
     private final OnGlobalLayoutListener mGlobalLayoutListener = new OnGlobalLayoutListener() {
         @Override
@@ -76,7 +76,7 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
     private PopupWindow.OnDismissListener mOnDismissListener;
 
     private View mAnchorView;
-    private View mShownAnchorView;
+    View mShownAnchorView;
     private Callback mPresenterCallback;
     private ViewTreeObserver mTreeObserver;
 

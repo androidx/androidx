@@ -45,10 +45,10 @@ public class PopupMenu {
     private final Context mContext;
     private final MenuBuilder mMenu;
     private final View mAnchor;
-    private final MenuPopupHelper mPopup;
+    final MenuPopupHelper mPopup;
 
-    private OnMenuItemClickListener mMenuItemClickListener;
-    private OnDismissListener mOnDismissListener;
+    OnMenuItemClickListener mMenuItemClickListener;
+    OnDismissListener mOnDismissListener;
     private View.OnTouchListener mDragListener;
 
     /**

@@ -57,7 +57,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     // The main UI elements that we handle the layout of.
     private ContentFrameLayout mContent;
-    private ActionBarContainer mActionBarTop;
+    ActionBarContainer mActionBarTop;
 
     // Some interior UI elements.
     private DecorToolbar mDecorToolbar;
@@ -69,7 +69,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     private boolean mOverlayMode;
     private boolean mHasNonEmbeddedTabs;
     private boolean mHideOnContentScroll;
-    private boolean mAnimatingForFling;
+    boolean mAnimatingForFling;
     private int mHideOnContentScrollReference;
     private int mLastSystemUiVisibility;
     private final Rect mBaseContentInsets = new Rect();
@@ -85,9 +85,9 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     private ScrollerCompat mFlingEstimator;
 
-    private ViewPropertyAnimatorCompat mCurrentActionBarTopAnimator;
+    ViewPropertyAnimatorCompat mCurrentActionBarTopAnimator;
 
-    private final ViewPropertyAnimatorListener mTopAnimatorListener
+    final ViewPropertyAnimatorListener mTopAnimatorListener
             = new ViewPropertyAnimatorListenerAdapter() {
         @Override
         public void onAnimationEnd(View view) {
@@ -565,7 +565,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         ViewCompat.setTranslationY(mActionBarTop, -offset);
     }
 
-    private void haltActionBarHideOffsetAnimations() {
+    void haltActionBarHideOffsetAnimations() {
         removeCallbacks(mRemoveActionBarHideOffset);
         removeCallbacks(mAddActionBarHideOffset);
         if (mCurrentActionBarTopAnimator != null) {

@@ -120,8 +120,8 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
 
     private boolean mLongPressBackDown;
 
-    private boolean mInvalidatePanelMenuPosted;
-    private int mInvalidatePanelMenuFeatures;
+    boolean mInvalidatePanelMenuPosted;
+    int mInvalidatePanelMenuFeatures;
     private final Runnable mInvalidatePanelMenuRunnable = new Runnable() {
         @Override
         public void run() {
@@ -870,7 +870,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         return mSubDecorInstalled && mSubDecor != null && ViewCompat.isLaidOut(mSubDecor);
     }
 
-    private void endOnGoingFadeAnimation() {
+    void endOnGoingFadeAnimation() {
         if (mFadeAnim != null) {
             mFadeAnim.cancel();
         }
@@ -1403,7 +1403,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         return true;
     }
 
-    private void checkCloseActionMenu(MenuBuilder menu) {
+    void checkCloseActionMenu(MenuBuilder menu) {
         if (mClosingActionMenu) {
             return;
         }
@@ -1417,11 +1417,11 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         mClosingActionMenu = false;
     }
 
-    private void closePanel(int featureId) {
+    void closePanel(int featureId) {
         closePanel(getPanelState(featureId, true), true);
     }
 
-    private void closePanel(PanelFeatureState st, boolean doCallback) {
+    void closePanel(PanelFeatureState st, boolean doCallback) {
         if (doCallback && st.featureId == FEATURE_OPTIONS_PANEL &&
                 mDecorContentParent != null && mDecorContentParent.isOverflowMenuShowing()) {
             checkCloseActionMenu(st.menu);
@@ -1517,7 +1517,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         return handled;
     }
 
-    private void callOnPanelClosed(int featureId, PanelFeatureState panel, Menu menu) {
+    void callOnPanelClosed(int featureId, PanelFeatureState panel, Menu menu) {
         // Try to get a menu
         if (menu == null) {
             // Need a panel to grab the menu, so try to get that
@@ -1545,7 +1545,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         }
     }
 
-    private PanelFeatureState findMenuPanel(Menu menu) {
+    PanelFeatureState findMenuPanel(Menu menu) {
         final PanelFeatureState[] panels = mPanels;
         final int N = panels != null ? panels.length : 0;
         for (int i = 0; i < N; i++) {
@@ -1608,7 +1608,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         }
     }
 
-    private void doInvalidatePanelMenu(int featureId) {
+    void doInvalidatePanelMenu(int featureId) {
         PanelFeatureState st = getPanelState(featureId, true);
         Bundle savedActionViewStates = null;
         if (st.menu != null) {
@@ -1641,7 +1641,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
      * @param insetTop the current top system window inset
      * @return the new top system window inset
      */
-    private int updateStatusGuard(int insetTop) {
+    int updateStatusGuard(int insetTop) {
         boolean showStatusGuard = false;
         // Show the status guard when the non-overlay contextual action bar is showing
         if (mActionModeView != null) {
@@ -1736,7 +1736,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         return mSubDecor;
     }
 
-    private void dismissPopups() {
+    void dismissPopups() {
         if (mDecorContentParent != null) {
             mDecorContentParent.dismissPopups();
         }
@@ -1819,6 +1819,9 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
     }
 
     private final class PanelMenuPresenterCallback implements MenuPresenter.Callback {
+        PanelMenuPresenterCallback() {
+        }
+
         @Override
         public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
             final Menu parentMenu = menu.getRootMenu();
@@ -1849,6 +1852,9 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
     }
 
     private final class ActionMenuPresenterCallback implements MenuPresenter.Callback {
+        ActionMenuPresenterCallback() {
+        }
+
         @Override
         public boolean onOpenSubMenu(MenuBuilder subMenu) {
             Window.Callback cb = getWindowCallback();
@@ -2046,6 +2052,9 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
             boolean isOpen;
             Bundle menuState;
 
+            SavedState() {
+            }
+
             @Override
             public int describeContents() {
                 return 0;
@@ -2061,7 +2070,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
                 }
             }
 
-            private static SavedState readFromParcel(Parcel source, ClassLoader loader) {
+            static SavedState readFromParcel(Parcel source, ClassLoader loader) {
                 SavedState savedState = new SavedState();
                 savedState.featureId = source.readInt();
                 savedState.isOpen = source.readInt() == 1;

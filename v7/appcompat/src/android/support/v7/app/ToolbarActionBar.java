@@ -45,9 +45,9 @@ import android.widget.SpinnerAdapter;
 import java.util.ArrayList;
 
 class ToolbarActionBar extends ActionBar {
-    private DecorToolbar mDecorToolbar;
-    private boolean mToolbarMenuPrepared;
-    private Window.Callback mWindowCallback;
+    DecorToolbar mDecorToolbar;
+    boolean mToolbarMenuPrepared;
+    Window.Callback mWindowCallback;
     private boolean mMenuCallbackSet;
 
     private boolean mLastMenuVisibility;
@@ -511,7 +511,7 @@ class ToolbarActionBar extends ActionBar {
         }
     }
 
-    private View getListMenuView(Menu menu) {
+    View getListMenuView(Menu menu) {
         ensureListMenuPresenter(menu);
 
         if (menu == null || mListMenuPresenter == null) {
@@ -598,6 +598,9 @@ class ToolbarActionBar extends ActionBar {
     private final class ActionMenuPresenterCallback implements MenuPresenter.Callback {
         private boolean mClosingActionMenu;
 
+        ActionMenuPresenterCallback() {
+        }
+
         @Override
         public boolean onOpenSubMenu(MenuBuilder subMenu) {
             if (mWindowCallback != null) {
@@ -623,6 +626,9 @@ class ToolbarActionBar extends ActionBar {
     }
 
     private final class PanelMenuPresenterCallback implements MenuPresenter.Callback {
+        PanelMenuPresenterCallback() {
+        }
+
         @Override
         public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
             if (mWindowCallback != null) {
@@ -640,6 +646,9 @@ class ToolbarActionBar extends ActionBar {
     }
 
     private final class MenuBuilderCallback implements MenuBuilder.Callback {
+
+        MenuBuilderCallback() {
+        }
 
         @Override
         public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {

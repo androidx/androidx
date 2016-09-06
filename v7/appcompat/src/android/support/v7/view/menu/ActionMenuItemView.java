@@ -49,12 +49,12 @@ public class ActionMenuItemView extends AppCompatTextView
 
     private static final String TAG = "ActionMenuItemView";
 
-    private MenuItemImpl mItemData;
+    MenuItemImpl mItemData;
     private CharSequence mTitle;
     private Drawable mIcon;
-    private MenuBuilder.ItemInvoker mItemInvoker;
+    MenuBuilder.ItemInvoker mItemInvoker;
     private ForwardingListener mForwardingListener;
-    private PopupCallback mPopupCallback;
+    PopupCallback mPopupCallback;
 
     private boolean mAllowTextWithIcon;
     private boolean mExpandedFormat;

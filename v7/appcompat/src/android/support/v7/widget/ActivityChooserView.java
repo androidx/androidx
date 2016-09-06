@@ -72,7 +72,7 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * An adapter for displaying the activities in an {@link android.widget.AdapterView}.
      */
-    private final ActivityChooserViewAdapter mAdapter;
+    final ActivityChooserViewAdapter mAdapter;
 
     /**
      * Implementation of various interfaces to avoid publishing them in the APIs.
@@ -92,7 +92,7 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * The expand activities action button;
      */
-    private final FrameLayout mExpandActivityOverflowButton;
+    final FrameLayout mExpandActivityOverflowButton;
 
     /**
      * The image for the expand activities action button;
@@ -102,7 +102,7 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * The default activities action button;
      */
-    private final FrameLayout mDefaultActivityButton;
+    final FrameLayout mDefaultActivityButton;
 
     /**
      * The image for the default activities action button;
@@ -122,7 +122,7 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * Observer for the model data.
      */
-    private final DataSetObserver mModelDataSetObserver = new DataSetObserver() {
+    final DataSetObserver mModelDataSetObserver = new DataSetObserver() {
 
         @Override
         public void onChanged() {
@@ -160,17 +160,17 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * Listener for the dismissal of the popup/alert.
      */
-    private PopupWindow.OnDismissListener mOnDismissListener;
+    PopupWindow.OnDismissListener mOnDismissListener;
 
     /**
      * Flag whether a default activity currently being selected.
      */
-    private boolean mIsSelectingDefaultActivity;
+    boolean mIsSelectingDefaultActivity;
 
     /**
      * The count of activities in the popup.
      */
-    private int mInitialActivityCount = ActivityChooserViewAdapter.MAX_ACTIVITY_COUNT_DEFAULT;
+    int mInitialActivityCount = ActivityChooserViewAdapter.MAX_ACTIVITY_COUNT_DEFAULT;
 
     /**
      * Flag whether this view is attached to a window.
@@ -344,7 +344,7 @@ public class ActivityChooserView extends ViewGroup implements
      *
      * @param maxActivityCount The max number of activities to display.
      */
-    private void showPopupUnchecked(int maxActivityCount) {
+    void showPopupUnchecked(int maxActivityCount) {
         if (mAdapter.getDataModel() == null) {
             throw new IllegalStateException("No data model. Did you call #setDataModel?");
         }
@@ -501,7 +501,7 @@ public class ActivityChooserView extends ViewGroup implements
      *
      * @return The popup.
      */
-    private ListPopupWindow getListPopupWindow() {
+    ListPopupWindow getListPopupWindow() {
         if (mListPopupWindow == null) {
             mListPopupWindow = new ListPopupWindow(getContext());
             mListPopupWindow.setAdapter(mAdapter);
@@ -516,7 +516,7 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * Updates the buttons state.
      */
-    private void updateAppearance() {
+    void updateAppearance() {
         // Expand overflow button.
         if (mAdapter.getCount() > 0) {
             mExpandActivityOverflowButton.setEnabled(true);
@@ -553,6 +553,9 @@ public class ActivityChooserView extends ViewGroup implements
      */
     private class Callbacks implements AdapterView.OnItemClickListener,
             View.OnClickListener, View.OnLongClickListener, PopupWindow.OnDismissListener {
+
+        Callbacks() {
+        }
 
         // AdapterView#OnItemClickListener
         @Override
@@ -660,6 +663,9 @@ public class ActivityChooserView extends ViewGroup implements
         private boolean mHighlightDefaultActivity;
 
         private boolean mShowFooterView;
+
+        ActivityChooserViewAdapter() {
+        }
 
         public void setDataModel(ActivityChooserModel dataModel) {
             ActivityChooserModel oldDataModel = mAdapter.getDataModel();
