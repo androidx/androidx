@@ -44,7 +44,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
 
     private static final String TAG = "LinearLayoutManager";
 
-    private static final boolean DEBUG = false;
+    static final boolean DEBUG = false;
 
     public static final int HORIZONTAL = OrientationHelper.HORIZONTAL;
 
@@ -2204,7 +2204,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                     '}';
         }
 
-        private boolean isViewValidAsAnchor(View child, RecyclerView.State state) {
+        boolean isViewValidAsAnchor(View child, RecyclerView.State state) {
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
             return !lp.isItemRemoved() && lp.getViewLayoutPosition() >= 0
                     && lp.getViewLayoutPosition() < state.getItemCount();

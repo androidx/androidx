@@ -57,7 +57,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
 
     private static final String TAG = "StaggeredGridLayoutManager";
 
-    private static final boolean DEBUG = false;
+    static final boolean DEBUG = false;
 
     public static final int HORIZONTAL = OrientationHelper.HORIZONTAL;
 
@@ -96,7 +96,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      */
     public static final int GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS = 2;
 
-    private static final int INVALID_OFFSET = Integer.MIN_VALUE;
+    static final int INVALID_OFFSET = Integer.MIN_VALUE;
     /**
      * While trying to find next view to focus, LayoutManager will not try to scroll more
      * than this factor times the total space of the list. If layout is vertical, total space is the
@@ -109,7 +109,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      */
     private int mSpanCount = -1;
 
-    private Span[] mSpans;
+    Span[] mSpans;
 
     /**
      * Primary orientation is the layout's orientation, secondary orientation is the orientation
@@ -130,7 +130,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     @NonNull
     private final LayoutState mLayoutState;
 
-    private boolean mReverseLayout = false;
+    boolean mReverseLayout = false;
 
     /**
      * Aggregated reverse layout value that takes RTL into account.
@@ -260,7 +260,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      * When a full span item is laid out in reverse direction, it sets a flag which we check when
      * scroll is stopped (or re-layout happens) and re-layout after first valid item.
      */
-    private boolean checkForGaps() {
+    boolean checkForGaps() {
         if (getChildCount() == 0 || mGapStrategy == GAP_HANDLING_NONE || !isAttachedToWindow()) {
             return false;
         }
@@ -2356,13 +2356,13 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     class Span {
 
         static final int INVALID_LINE = Integer.MIN_VALUE;
-        private ArrayList<View> mViews = new ArrayList<>();
+        ArrayList<View> mViews = new ArrayList<>();
         int mCachedStart = INVALID_LINE;
         int mCachedEnd = INVALID_LINE;
         int mDeletedSize = 0;
         final int mIndex;
 
-        private Span(int index) {
+        Span(int index) {
             mIndex = index;
         }
 
