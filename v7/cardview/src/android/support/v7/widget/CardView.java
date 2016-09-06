@@ -100,11 +100,11 @@ public class CardView extends FrameLayout {
      * CardView works around this issue by recording user given parameters and using an internal
      * method to set them.
      */
-    private int mUserSetMinWidth, mUserSetMinHeight;
+    int mUserSetMinWidth, mUserSetMinHeight;
 
-    private final Rect mContentPadding = new Rect();
+    final Rect mContentPadding = new Rect();
 
-    private final Rect mShadowBounds = new Rect();
+    final Rect mShadowBounds = new Rect();
 
     public CardView(Context context) {
         super(context);
