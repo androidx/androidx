@@ -81,7 +81,7 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
 
     void setupByConfig(Config config, GridTestAdapter adapter) throws Throwable {
         mAdapter = adapter;
-        mRecyclerView = new RecyclerView(getActivity());
+        mRecyclerView = new WrappedRecyclerView(getActivity());
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new WrappedLayoutManager(config.mSpanCount, config.mOrientation);
@@ -469,6 +469,7 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
     class WrappedLayoutManager extends StaggeredGridLayoutManager {
 
         CountDownLatch layoutLatch;
+        CountDownLatch prefetchLatch;
         OnLayoutListener mOnLayoutListener;
         // gradle does not yet let us customize manifest for tests which is necessary to test RTL.
         // until bug is fixed, we'll fake it.
@@ -490,6 +491,23 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
             checkForMainThreadException();
             MatcherAssert.assertThat("all layouts should complete on time",
                     layoutLatch.getCount(), CoreMatchers.is(0L));
+            // use a runnable to ensure RV layout is finished
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                }
+            });
+        }
+
+        public void expectPrefetch(int count) {
+            prefetchLatch = new CountDownLatch(count);
+        }
+
+        public void waitForPrefetch(int seconds) throws Throwable {
+            prefetchLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
+            checkForMainThreadException();
+            MatcherAssert.assertThat("all prefetches should complete on time",
+                    prefetchLatch.getCount(), CoreMatchers.is(0L));
             // use a runnable to ensure RV layout is finished
             getInstrumentation().runOnMainSync(new Runnable() {
                 @Override
@@ -784,6 +802,12 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
                             layoutToString("ERROR") + "\n msg:" + msg);
                 }
             }
+        }
+
+        @Override
+        int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+            if (prefetchLatch != null) prefetchLatch.countDown();
+            return super.gatherPrefetchIndices(dx, dy, state, outIndices);
         }
     }
 
