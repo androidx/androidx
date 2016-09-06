@@ -485,7 +485,7 @@ public class NotificationCompat {
      */
     public static final String CATEGORY_STATUS = NotificationCompatApi21.CATEGORY_STATUS;
 
-    private static final NotificationCompatImpl IMPL;
+    static final NotificationCompatImpl IMPL;
 
     interface NotificationCompatImpl {
         public Notification build(Builder b, BuilderExtender extender);
@@ -864,14 +864,14 @@ public class NotificationCompat {
         }
     }
 
-    private static void addActionsToBuilder(NotificationBuilderWithActions builder,
+    static void addActionsToBuilder(NotificationBuilderWithActions builder,
             ArrayList<Action> actions) {
         for (Action action : actions) {
             builder.addAction(action);
         }
     }
 
-    private static void addStyleToBuilderJellybean(NotificationBuilderWithBuilderAccessor builder,
+    static void addStyleToBuilderJellybean(NotificationBuilderWithBuilderAccessor builder,
             Style style) {
         if (style != null) {
             if (style instanceof BigTextStyle) {
@@ -903,7 +903,7 @@ public class NotificationCompat {
         }
     }
 
-    private static void addStyleToBuilderApi24(NotificationBuilderWithBuilderAccessor builder,
+    static void addStyleToBuilderApi24(NotificationBuilderWithBuilderAccessor builder,
             Style style) {
         if (style != null) {
             if (style instanceof MessagingStyle) {
@@ -2316,7 +2316,7 @@ public class NotificationCompat {
      * to attach actions.
      */
     public static class Action extends NotificationCompatBase.Action {
-        private final Bundle mExtras;
+        final Bundle mExtras;
         private final RemoteInput[] mRemoteInputs;
         private boolean mAllowGeneratedReplies = false;
 
@@ -2338,7 +2338,7 @@ public class NotificationCompat {
             this(icon, title, intent, new Bundle(), null, false);
         }
 
-        private Action(int icon, CharSequence title, PendingIntent intent, Bundle extras,
+        Action(int icon, CharSequence title, PendingIntent intent, Bundle extras,
                 RemoteInput[] remoteInputs, boolean allowGeneratedReplies) {
             this.icon = icon;
             this.title = NotificationCompat.Builder.limitCharSequenceLength(title);
@@ -3937,7 +3937,7 @@ public class NotificationCompat {
      * Update the bundle to have a typed array so fetches in the future don't need
      * to do an array copy.
      */
-    private static Notification[] getNotificationArrayFromBundle(Bundle bundle, String key) {
+    static Notification[] getNotificationArrayFromBundle(Bundle bundle, String key) {
         Parcelable[] array = bundle.getParcelableArray(key);
         if (array instanceof Notification[] || array == null) {
             return (Notification[]) array;

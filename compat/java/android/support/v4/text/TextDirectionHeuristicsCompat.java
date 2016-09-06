@@ -75,7 +75,7 @@ public final class TextDirectionHeuristicsCompat {
     private static final int STATE_FALSE = 1;
     private static final int STATE_UNKNOWN = 2;
 
-    private static int isRtlText(int directionality) {
+    static int isRtlText(int directionality) {
         switch (directionality) {
             case Character.DIRECTIONALITY_LEFT_TO_RIGHT:
                 return STATE_FALSE;
@@ -87,7 +87,7 @@ public final class TextDirectionHeuristicsCompat {
         }
     }
 
-    private static int isRtlTextOrFormat(int directionality) {
+    static int isRtlTextOrFormat(int directionality) {
         switch (directionality) {
             case Character.DIRECTIONALITY_LEFT_TO_RIGHT:
             case Character.DIRECTIONALITY_LEFT_TO_RIGHT_EMBEDDING:
@@ -151,8 +151,8 @@ public final class TextDirectionHeuristicsCompat {
     private static class TextDirectionHeuristicInternal extends TextDirectionHeuristicImpl {
         private final boolean mDefaultIsRtl;
 
-        private TextDirectionHeuristicInternal(TextDirectionAlgorithm algorithm,
-                                               boolean defaultIsRtl) {
+        TextDirectionHeuristicInternal(TextDirectionAlgorithm algorithm,
+                boolean defaultIsRtl) {
             super(algorithm);
             mDefaultIsRtl = defaultIsRtl;
         }

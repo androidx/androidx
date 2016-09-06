@@ -43,6 +43,9 @@ public class AccessibilityNodeProviderCompat {
 
     private static class AccessibilityNodeProviderJellyBeanImpl
             extends AccessibilityNodeProviderStubImpl {
+        AccessibilityNodeProviderJellyBeanImpl() {
+        }
+
         @Override
         public Object newAccessibilityNodeProviderBridge(
                 final AccessibilityNodeProviderCompat compat) {
@@ -89,6 +92,9 @@ public class AccessibilityNodeProviderCompat {
 
     private static class AccessibilityNodeProviderKitKatImpl
             extends AccessibilityNodeProviderStubImpl {
+        AccessibilityNodeProviderKitKatImpl() {
+        }
+
         @Override
         public Object newAccessibilityNodeProviderBridge(
                 final AccessibilityNodeProviderCompat compat) {
