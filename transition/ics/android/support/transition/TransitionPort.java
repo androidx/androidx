@@ -99,7 +99,7 @@ abstract class TransitionPort implements Cloneable {
 
     // Track all animators in use in case the transition gets canceled and needs to
     // cancel running animators
-    private ArrayList<Animator> mCurrentAnimators = new ArrayList<>();
+    ArrayList<Animator> mCurrentAnimators = new ArrayList<>();
 
     // Whether this transition has ended. Used to avoid pause/resume on transitions
     // that have completed
