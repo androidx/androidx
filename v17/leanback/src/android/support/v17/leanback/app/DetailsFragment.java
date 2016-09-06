@@ -69,12 +69,15 @@ import android.view.ViewGroup;
  * </p>
  */
 public class DetailsFragment extends BaseFragment {
-    private static final String TAG = "DetailsFragment";
-    private static boolean DEBUG = false;
+    static final String TAG = "DetailsFragment";
+    static boolean DEBUG = false;
 
     private class SetSelectionRunnable implements Runnable {
         int mPosition;
         boolean mSmooth = true;
+
+        SetSelectionRunnable() {
+        }
 
         @Override
         public void run() {
@@ -85,11 +88,11 @@ public class DetailsFragment extends BaseFragment {
         }
     }
 
-    private RowsFragment mRowsFragment;
+    RowsFragment mRowsFragment;
 
     private ObjectAdapter mAdapter;
     private int mContainerListAlignTop;
-    private BaseOnItemViewSelectedListener mExternalOnItemViewSelectedListener;
+    BaseOnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private BaseOnItemViewClickedListener mOnItemViewClickedListener;
 
     private Object mSceneAfterEntranceTransition;
@@ -228,7 +231,7 @@ public class DetailsFragment extends BaseFragment {
      * that setup should only change the Presenter behavior that is meaningful in DetailsFragment.  For
      * example how a row is aligned in details Fragment.   The default implementation invokes
      * {@link #setupDetailsOverviewRowPresenter(FullWidthDetailsOverviewRowPresenter)}
-     * 
+     *
      */
     protected void setupPresenter(Presenter rowPresenter) {
         if (rowPresenter instanceof FullWidthDetailsOverviewRowPresenter) {
@@ -310,7 +313,7 @@ public class DetailsFragment extends BaseFragment {
         }
     }
 
-    private void onRowSelected(int selectedPosition, int selectedSubPosition) {
+    void onRowSelected(int selectedPosition, int selectedSubPosition) {
         ObjectAdapter adapter = getAdapter();
         if (adapter == null || adapter.size() == 0 ||
                 (selectedPosition == 0 && selectedSubPosition == 0)) {

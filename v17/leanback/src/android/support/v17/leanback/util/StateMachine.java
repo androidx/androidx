@@ -46,7 +46,7 @@ public final class StateMachine {
     public static class State {
 
         private int mStatus;
-        private ArrayList<State> mPriorStates;
+        ArrayList<State> mPriorStates;
 
         /**
          * Run State, Subclass may override.

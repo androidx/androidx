@@ -352,7 +352,7 @@ public class DatePicker extends Picker {
     // scrolling vertically and thus fixes the animation jumps that used to happen when we reached
     // the endpoint date field values since the adapter values do not change while scrolling up
     // & down across a single field.
-    private void updateSpinnersImpl(boolean animation) {
+    void updateSpinnersImpl(boolean animation) {
         // set the spinner ranges respecting the min and max dates
         int dateFieldIndices[] = {mColDayIndex, mColMonthIndex, mColYearIndex};
 

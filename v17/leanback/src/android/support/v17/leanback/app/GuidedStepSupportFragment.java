@@ -250,7 +250,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
 
     private ContextThemeWrapper mThemeWrapper;
     private GuidanceStylist mGuidanceStylist;
-    private GuidedActionsStylist mActionsStylist;
+    GuidedActionsStylist mActionsStylist;
     private GuidedActionsStylist mButtonActionsStylist;
     private GuidedActionAdapter mAdapter;
     private GuidedActionAdapter mSubAdapter;
@@ -1362,7 +1362,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         return 0;
     }
 
-    private void runImeAnimations(boolean entering) {
+    void runImeAnimations(boolean entering) {
         ArrayList<Animator> animators = new ArrayList<Animator>();
         if (entering) {
             mGuidanceStylist.onImeAppearing(animators);

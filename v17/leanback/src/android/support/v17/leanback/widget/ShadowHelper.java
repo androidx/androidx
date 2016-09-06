@@ -40,6 +40,9 @@ final class ShadowHelper {
      * Interface used when we do not support Shadow animations.
      */
     private static final class ShadowHelperStubImpl implements ShadowHelperVersionImpl {
+        ShadowHelperStubImpl() {
+        }
+
         @Override
         public Object addDynamicShadow(
                 View shadowContainer, float focusedZ, float unfocusedZ, int roundedCornerRadius) {
@@ -62,6 +65,9 @@ final class ShadowHelper {
      * Implementation used on api 21 (and above).
      */
     private static final class ShadowHelperApi21Impl implements ShadowHelperVersionImpl {
+        ShadowHelperApi21Impl() {
+        }
+
         @Override
         public Object addDynamicShadow(
                 View shadowContainer, float unfocusedZ, float focusedZ, int roundedCornerRadius) {

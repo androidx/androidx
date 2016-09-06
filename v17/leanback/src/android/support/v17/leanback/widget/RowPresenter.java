@@ -153,7 +153,7 @@ public abstract class RowPresenter extends Presenter {
         float mSelectLevel = 0f; // initially unselected
         protected final ColorOverlayDimmer mColorDimmer;
         private View.OnKeyListener mOnKeyListener;
-        private BaseOnItemViewSelectedListener mOnItemViewSelectedListener;
+        BaseOnItemViewSelectedListener mOnItemViewSelectedListener;
         private BaseOnItemViewClickedListener mOnItemViewClickedListener;
 
         /**
@@ -329,7 +329,7 @@ public abstract class RowPresenter extends Presenter {
 
     /**
      * Called to create a ViewHolder object for a Row. Subclasses will override
-     * this method to return a different concrete ViewHolder object. 
+     * this method to return a different concrete ViewHolder object.
      *
      * @param parent The parent View for the Row's view holder.
      * @return A ViewHolder for the Row's View.

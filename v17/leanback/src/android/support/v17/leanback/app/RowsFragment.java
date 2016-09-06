@@ -131,18 +131,18 @@ public class RowsFragment extends BaseRowFragment implements
 
     }
 
-    private static final String TAG = "RowsFragment";
-    private static final boolean DEBUG = false;
+    static final String TAG = "RowsFragment";
+    static final boolean DEBUG = false;
 
-    private ItemBridgeAdapter.ViewHolder mSelectedViewHolder;
+    ItemBridgeAdapter.ViewHolder mSelectedViewHolder;
     private int mSubPosition;
-    private boolean mExpand = true;
-    private boolean mViewsCreated;
+    boolean mExpand = true;
+    boolean mViewsCreated;
     private int mAlignedTop;
-    private boolean mAfterEntranceTransition = true;
+    boolean mAfterEntranceTransition = true;
 
-    private BaseOnItemViewSelectedListener mOnItemViewSelectedListener;
-    private BaseOnItemViewClickedListener mOnItemViewClickedListener;
+    BaseOnItemViewSelectedListener mOnItemViewSelectedListener;
+    BaseOnItemViewClickedListener mOnItemViewClickedListener;
 
     // Select animation and interpolator are not intended to be
     // exposed at this moment. They might be synced with vertical scroll
@@ -153,7 +153,7 @@ public class RowsFragment extends BaseRowFragment implements
     private RecyclerView.RecycledViewPool mRecycledViewPool;
     private ArrayList<Presenter> mPresenterMapper;
 
-    private ItemBridgeAdapter.AdapterListener mExternalAdapterListener;
+    ItemBridgeAdapter.AdapterListener mExternalAdapterListener;
 
     @Override
     protected VerticalGridView findGridViewFromRoot(View view) {
@@ -311,11 +311,11 @@ public class RowsFragment extends BaseRowFragment implements
         mExternalAdapterListener = listener;
     }
 
-    private static void setRowViewExpanded(ItemBridgeAdapter.ViewHolder vh, boolean expanded) {
+    static void setRowViewExpanded(ItemBridgeAdapter.ViewHolder vh, boolean expanded) {
         ((RowPresenter) vh.getPresenter()).setRowViewExpanded(vh.getViewHolder(), expanded);
     }
 
-    private static void setRowViewSelected(ItemBridgeAdapter.ViewHolder vh, boolean selected,
+    static void setRowViewSelected(ItemBridgeAdapter.ViewHolder vh, boolean selected,
             boolean immediate) {
         RowViewHolderExtra extra = (RowViewHolderExtra) vh.getExtraObject();
         extra.animateSelect(selected, immediate);
@@ -396,7 +396,7 @@ public class RowsFragment extends BaseRowFragment implements
         }
     };
 
-    private void setupSharedViewPool(ItemBridgeAdapter.ViewHolder bridgeVh) {
+    void setupSharedViewPool(ItemBridgeAdapter.ViewHolder bridgeVh) {
         RowPresenter rowPresenter = (RowPresenter) bridgeVh.getPresenter();
         RowPresenter.ViewHolder rowVh = rowPresenter.getRowViewHolder(bridgeVh.getViewHolder());
 
