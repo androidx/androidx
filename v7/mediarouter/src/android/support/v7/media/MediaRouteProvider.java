@@ -55,8 +55,8 @@ import android.support.v7.media.MediaRouter.ControlRequestCallback;
  * </p>
  */
 public abstract class MediaRouteProvider {
-    private static final int MSG_DELIVER_DESCRIPTOR_CHANGED = 1;
-    private static final int MSG_DELIVER_DISCOVERY_REQUEST_CHANGED = 2;
+    static final int MSG_DELIVER_DESCRIPTOR_CHANGED = 1;
+    static final int MSG_DELIVER_DISCOVERY_REQUEST_CHANGED = 2;
 
     private final Context mContext;
     private final ProviderMetadata mMetadata;
@@ -159,7 +159,7 @@ public abstract class MediaRouteProvider {
         }
     }
 
-    private void deliverDiscoveryRequestChanged() {
+    void deliverDiscoveryRequestChanged() {
         mPendingDiscoveryRequestChange = false;
         onDiscoveryRequestChanged(mDiscoveryRequest);
     }
@@ -230,7 +230,7 @@ public abstract class MediaRouteProvider {
         }
     }
 
-    private void deliverDescriptorChanged() {
+    void deliverDescriptorChanged() {
         mPendingDescriptorChange = false;
 
         if (mCallback != null) {
@@ -427,6 +427,9 @@ public abstract class MediaRouteProvider {
     }
 
     private final class ProviderHandler extends Handler {
+        ProviderHandler() {
+        }
+
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
