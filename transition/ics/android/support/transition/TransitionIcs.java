@@ -234,6 +234,9 @@ class TransitionIcs extends TransitionImpl {
 
         private final ArrayList<TransitionInterfaceListener> mListeners = new ArrayList<>();
 
+        CompatListener() {
+        }
+
         public void addListener(TransitionInterfaceListener listener) {
             mListeners.add(listener);
         }
