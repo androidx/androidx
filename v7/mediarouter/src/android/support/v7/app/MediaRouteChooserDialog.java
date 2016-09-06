@@ -61,11 +61,11 @@ import java.util.List;
  * @see MediaRouteActionProvider
  */
 public class MediaRouteChooserDialog extends Dialog {
-    private static final String TAG = "MediaRouteChooserDialog";
+    static final String TAG = "MediaRouteChooserDialog";
 
     // Do not update the route list immediately to avoid unnatural dialog change.
     private static final long UPDATE_ROUTES_DELAY_MS = 300L;
-    private static final int MSG_UPDATE_ROUTES = 1;
+    static final int MSG_UPDATE_ROUTES = 1;
 
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
@@ -226,7 +226,7 @@ public class MediaRouteChooserDialog extends Dialog {
         }
     }
 
-    private void updateRoutes(List<MediaRouter.RouteInfo> routes) {
+    void updateRoutes(List<MediaRouter.RouteInfo> routes) {
         mLastUpdateTime = SystemClock.uptimeMillis();
         mRoutes.clear();
         mRoutes.addAll(routes);
@@ -344,6 +344,9 @@ public class MediaRouteChooserDialog extends Dialog {
     }
 
     private final class MediaRouterCallback extends MediaRouter.Callback {
+        MediaRouterCallback() {
+        }
+
         @Override
         public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
             refreshRoutes();

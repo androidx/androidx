@@ -58,13 +58,13 @@ import android.support.v4.util.TimeUtils;
  * </p>
  */
 public final class MediaItemStatus {
-    private static final String KEY_TIMESTAMP = "timestamp";
-    private static final String KEY_PLAYBACK_STATE = "playbackState";
-    private static final String KEY_CONTENT_POSITION = "contentPosition";
-    private static final String KEY_CONTENT_DURATION = "contentDuration";
-    private static final String KEY_EXTRAS = "extras";
+    static final String KEY_TIMESTAMP = "timestamp";
+    static final String KEY_PLAYBACK_STATE = "playbackState";
+    static final String KEY_CONTENT_POSITION = "contentPosition";
+    static final String KEY_CONTENT_DURATION = "contentDuration";
+    static final String KEY_EXTRAS = "extras";
 
-    private final Bundle mBundle;
+    final Bundle mBundle;
 
     /**
      * Playback state: Pending.
@@ -195,7 +195,7 @@ public final class MediaItemStatus {
     public static final String EXTRA_HTTP_RESPONSE_HEADERS =
             "android.media.status.extra.HTTP_RESPONSE_HEADERS";
 
-    private MediaItemStatus(Bundle bundle) {
+    MediaItemStatus(Bundle bundle) {
         mBundle = bundle;
     }
 

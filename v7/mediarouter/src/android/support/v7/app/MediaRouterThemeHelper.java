@@ -36,8 +36,8 @@ final class MediaRouterThemeHelper {
     @Retention(RetentionPolicy.SOURCE)
     private @interface ControllerColorType {}
 
-    private static final int COLOR_DARK_ON_LIGHT_BACKGROUND = 0xDE000000; /* Opacity of 87% */
-    private static final int COLOR_WHITE_ON_DARK_BACKGROUND = Color.WHITE;
+    static final int COLOR_DARK_ON_LIGHT_BACKGROUND = 0xDE000000; /* Opacity of 87% */
+    static final int COLOR_WHITE_ON_DARK_BACKGROUND = Color.WHITE;
 
     private MediaRouterThemeHelper() {
     }

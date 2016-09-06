@@ -85,7 +85,7 @@ final class RegisteredMediaRouteProviderWatcher {
         }
     }
 
-    private void scanPackages() {
+    void scanPackages() {
         if (!mRunning) {
             return;
         }
