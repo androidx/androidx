@@ -348,7 +348,7 @@ final class BackStackRecord extends FragmentTransaction implements
                                 writer.println("Removed:");
                             }
                             writer.print(innerPrefix); writer.print("  #"); writer.print(i);
-                                    writer.print(": "); 
+                                    writer.print(": ");
                         }
                         writer.println(op.removed.get(i));
                     }
@@ -678,7 +678,7 @@ final class BackStackRecord extends FragmentTransaction implements
         disallowAddToBackStack();
         mManager.execSingleAction(this, true);
     }
-    
+
     int commitInternal(boolean allowStateLoss) {
         if (mCommitted) throw new IllegalStateException("commit already called");
         if (FragmentManagerImpl.DEBUG) {
@@ -1349,7 +1349,7 @@ final class BackStackRecord extends FragmentTransaction implements
         }
     }
 
-    private void callSharedElementEnd(TransitionState state, Fragment inFragment,
+    void callSharedElementEnd(TransitionState state, Fragment inFragment,
             Fragment outFragment, boolean isBack, ArrayMap<String, View> namedViews) {
         SharedElementCallback sharedElementCallback = isBack ?
                 outFragment.mEnterTransitionCallback :
@@ -1361,7 +1361,7 @@ final class BackStackRecord extends FragmentTransaction implements
         }
     }
 
-    private void setEpicenterIn(ArrayMap<String, View> namedViews, TransitionState state) {
+    void setEpicenterIn(ArrayMap<String, View> namedViews, TransitionState state) {
         if (mSharedElementTargetNames != null && !namedViews.isEmpty()) {
             // now we know the epicenter of the entering transition.
             View epicenter = namedViews
@@ -1372,7 +1372,7 @@ final class BackStackRecord extends FragmentTransaction implements
         }
     }
 
-    private ArrayMap<String, View> mapSharedElementsIn(TransitionState state,
+    ArrayMap<String, View> mapSharedElementsIn(TransitionState state,
             boolean isBack, Fragment inFragment) {
         // Now map the shared elements in the incoming fragment
         ArrayMap<String, View> namedViews = mapEnteringSharedElements(state, inFragment, isBack);
@@ -1459,7 +1459,7 @@ final class BackStackRecord extends FragmentTransaction implements
         });
     }
 
-    private void excludeHiddenFragments(TransitionState state, int containerId, Object transition) {
+    void excludeHiddenFragments(TransitionState state, int containerId, Object transition) {
         if (mManager.mAdded != null) {
             for (int i = 0; i < mManager.mAdded.size(); i++) {
                 Fragment fragment = mManager.mAdded.get(i);
