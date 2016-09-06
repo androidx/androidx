@@ -44,11 +44,11 @@ import static android.support.v7.media.MediaRouteProviderProtocol.*;
  */
 final class RegisteredMediaRouteProvider extends MediaRouteProvider
         implements ServiceConnection {
-    private static final String TAG = "MediaRouteProviderProxy";  // max. 23 chars
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final String TAG = "MediaRouteProviderProxy";  // max. 23 chars
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final ComponentName mComponentName;
-    private final PrivateHandler mPrivateHandler;
+    final PrivateHandler mPrivateHandler;
     private final ArrayList<Controller> mControllers = new ArrayList<Controller>();
 
     private boolean mStarted;
@@ -241,7 +241,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         return null;
     }
 
-    private void onConnectionReady(Connection connection) {
+    void onConnectionReady(Connection connection) {
         if (mActiveConnection == connection) {
             mConnectionReady = true;
             attachControllersToConnection();
@@ -253,7 +253,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    private void onConnectionDied(Connection connection) {
+    void onConnectionDied(Connection connection) {
         if (mActiveConnection == connection) {
             if (DEBUG) {
                 Log.d(TAG, this + ": Service connection died");
@@ -262,7 +262,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    private void onConnectionError(Connection connection, String error) {
+    void onConnectionError(Connection connection, String error) {
         if (mActiveConnection == connection) {
             if (DEBUG) {
                 Log.d(TAG, this + ": Service connection error - " + error);
@@ -271,7 +271,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    private void onConnectionDescriptorChanged(Connection connection,
+    void onConnectionDescriptorChanged(Connection connection,
             MediaRouteProviderDescriptor descriptor) {
         if (mActiveConnection == connection) {
             if (DEBUG) {
@@ -291,7 +291,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    private void onControllerReleased(Controller controller) {
+    void onControllerReleased(Controller controller) {
         mControllers.remove(controller);
         controller.detachConnection();
         updateBinding();
@@ -454,7 +454,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             });
         }
 
-        private void failPendingCallbacks() {
+        void failPendingCallbacks() {
             int count = 0;
             for (int i = 0; i < mPendingCallbacks.size(); i++) {
                 mPendingCallbacks.valueAt(i).onError(null, null);
@@ -615,6 +615,8 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     }
 
     private final class PrivateHandler extends Handler {
+        PrivateHandler() {
+        }
     }
 
     /**

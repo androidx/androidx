@@ -76,8 +76,8 @@ import java.util.Set;
  * </p>
  */
 public final class MediaRouter {
-    private static final String TAG = "MediaRouter";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final String TAG = "MediaRouter";
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
      * Passed to {@link android.support.v7.media.MediaRouteProvider.RouteController#onUnselect(int)}
@@ -1882,31 +1882,31 @@ public final class MediaRouter {
     private static final class GlobalMediaRouter
             implements SystemMediaRouteProvider.SyncCallback,
             RegisteredMediaRouteProviderWatcher.Callback {
-        private final Context mApplicationContext;
-        private final ArrayList<WeakReference<MediaRouter>> mRouters = new ArrayList<>();
+        final Context mApplicationContext;
+        final ArrayList<WeakReference<MediaRouter>> mRouters = new ArrayList<>();
         private final ArrayList<RouteInfo> mRoutes = new ArrayList<>();
         private final Map<Pair<String, String>, String> mUniqueIdMap = new HashMap<>();
         private final ArrayList<ProviderInfo> mProviders = new ArrayList<>();
         private final ArrayList<RemoteControlClientRecord> mRemoteControlClients =
                 new ArrayList<>();
-        private final RemoteControlClientCompat.PlaybackInfo mPlaybackInfo =
+        final RemoteControlClientCompat.PlaybackInfo mPlaybackInfo =
                 new RemoteControlClientCompat.PlaybackInfo();
         private final ProviderCallback mProviderCallback = new ProviderCallback();
-        private final CallbackHandler mCallbackHandler = new CallbackHandler();
+        final CallbackHandler mCallbackHandler = new CallbackHandler();
         private final DisplayManagerCompat mDisplayManager;
-        private final SystemMediaRouteProvider mSystemProvider;
+        final SystemMediaRouteProvider mSystemProvider;
         private final boolean mLowRam;
 
         private RegisteredMediaRouteProviderWatcher mRegisteredProviderWatcher;
         private RouteInfo mDefaultRoute;
-        private RouteInfo mSelectedRoute;
+        RouteInfo mSelectedRoute;
         private RouteController mSelectedRouteController;
         // A map from route descriptor ID to RouteController for the member routes in the currently
         // selected route group.
         private final Map<String, RouteController> mRouteControllerMap = new HashMap<>();
         private MediaRouteDiscoveryRequest mDiscoveryRequest;
         private MediaSessionRecord mMediaSession;
-        private MediaSessionCompat mRccMediaSession;
+        MediaSessionCompat mRccMediaSession;
         private MediaSessionCompat mCompatSession;
         private MediaSessionCompat.OnActiveChangeListener mSessionActiveListener =
                 new MediaSessionCompat.OnActiveChangeListener() {
@@ -2195,7 +2195,7 @@ public final class MediaRouter {
             }
         }
 
-        private void updateProviderDescriptor(MediaRouteProvider providerInstance,
+        void updateProviderDescriptor(MediaRouteProvider providerInstance,
                 MediaRouteProviderDescriptor descriptor) {
             int index = findProviderInfo(providerInstance);
             if (index >= 0) {
@@ -2669,6 +2669,9 @@ public final class MediaRouter {
         }
 
         private final class ProviderCallback extends MediaRouteProvider.Callback {
+            ProviderCallback() {
+            }
+
             @Override
             public void onDescriptorChanged(MediaRouteProvider provider,
                     MediaRouteProviderDescriptor descriptor) {
@@ -2793,6 +2796,9 @@ public final class MediaRouter {
             public static final int MSG_PROVIDER_ADDED = MSG_TYPE_PROVIDER | 1;
             public static final int MSG_PROVIDER_REMOVED = MSG_TYPE_PROVIDER | 2;
             public static final int MSG_PROVIDER_CHANGED = MSG_TYPE_PROVIDER | 3;
+
+            CallbackHandler() {
+            }
 
             public void post(int msg, Object obj) {
                 obtainMessage(msg, obj).sendToTarget();

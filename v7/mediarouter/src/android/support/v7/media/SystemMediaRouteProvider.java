@@ -103,7 +103,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
      * Legacy implementation for platform versions prior to Jellybean.
      */
     static class LegacyImpl extends SystemMediaRouteProvider {
-        private static final int PLAYBACK_STREAM = AudioManager.STREAM_MUSIC;
+        static final int PLAYBACK_STREAM = AudioManager.STREAM_MUSIC;
 
         private static final ArrayList<IntentFilter> CONTROL_FILTERS;
         static {
@@ -115,9 +115,9 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             CONTROL_FILTERS.add(f);
         }
 
-        private final AudioManager mAudioManager;
+        final AudioManager mAudioManager;
         private final VolumeChangeReceiver mVolumeChangeReceiver;
-        private int mLastReportedVolume = -1;
+        int mLastReportedVolume = -1;
 
         public LegacyImpl(Context context) {
             super(context);
@@ -129,7 +129,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             publishRoutes();
         }
 
-        private void publishRoutes() {
+        void publishRoutes() {
             Resources r = getContext().getResources();
             int maxVolume = mAudioManager.getStreamMaxVolume(PLAYBACK_STREAM);
             mLastReportedVolume = mAudioManager.getStreamVolume(PLAYBACK_STREAM);

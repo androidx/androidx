@@ -31,12 +31,12 @@ import android.widget.ImageButton;
  * Chevron/Caret button to expand/collapse group volume list with animation.
  */
 class MediaRouteExpandCollapseButton extends ImageButton {
-    private final AnimationDrawable mExpandAnimationDrawable;
-    private final AnimationDrawable mCollapseAnimationDrawable;
-    private final String mExpandGroupDescription;
-    private final String mCollapseGroupDescription;
-    private boolean mIsGroupExpanded;
-    private OnClickListener mListener;
+    final AnimationDrawable mExpandAnimationDrawable;
+    final AnimationDrawable mCollapseAnimationDrawable;
+    final String mExpandGroupDescription;
+    final String mCollapseGroupDescription;
+    boolean mIsGroupExpanded;
+    OnClickListener mListener;
 
     public MediaRouteExpandCollapseButton(Context context) {
         this(context, null);

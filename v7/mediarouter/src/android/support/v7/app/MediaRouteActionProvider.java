@@ -279,7 +279,7 @@ public class MediaRouteActionProvider extends ActionProvider {
                 MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE);
     }
 
-    private void refreshRoute() {
+    void refreshRoute() {
         refreshVisibility();
     }
 
