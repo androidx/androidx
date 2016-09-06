@@ -231,7 +231,7 @@ public class GridLayout extends ViewGroup {
     private static final int DEFAULT_ORIENTATION = HORIZONTAL;
     private static final int DEFAULT_COUNT = UNDEFINED;
     private static final boolean DEFAULT_USE_DEFAULT_MARGINS = false;
-    private static final boolean DEFAULT_ORDER_PRESERVED = true;
+    static final boolean DEFAULT_ORDER_PRESERVED = true;
     private static final int DEFAULT_ALIGNMENT_MODE = ALIGN_MARGINS;
 
     // TypedArray indices
@@ -798,7 +798,7 @@ public class GridLayout extends ViewGroup {
         return (LayoutParams) c.getLayoutParams();
     }
 
-    private static void handleInvalidParams(String msg) {
+    static void handleInvalidParams(String msg) {
         throw new IllegalArgumentException(msg + ". ");
     }
 
@@ -1090,9 +1090,9 @@ public class GridLayout extends ViewGroup {
      for the vertical one.
      */
     final class Axis {
-        private static final int NEW = 0;
-        private static final int PENDING = 1;
-        private static final int COMPLETE = 2;
+        static final int NEW = 0;
+        static final int PENDING = 1;
+        static final int COMPLETE = 2;
 
         public final boolean horizontal;
 
@@ -1129,7 +1129,7 @@ public class GridLayout extends ViewGroup {
         private MutableInt parentMin = new MutableInt(0);
         private MutableInt parentMax = new MutableInt(-MAX_SIZE);
 
-        private Axis(boolean horizontal) {
+        Axis(boolean horizontal) {
             this.horizontal = horizontal;
         }
 
@@ -2195,7 +2195,7 @@ public class GridLayout extends ViewGroup {
         public final K[] keys;
         public final V[] values;
 
-        private PackedMap(K[] keys, V[] values) {
+        PackedMap(K[] keys, V[] values) {
             this.index = createIndex(keys);
 
             this.keys = compact(keys, index);
@@ -2255,7 +2255,7 @@ public class GridLayout extends ViewGroup {
         public int after;
         public int flexibility; // we're flexible iff all included specs are flexible
 
-        private Bounds() {
+        Bounds() {
             reset();
         }
 
@@ -2433,7 +2433,7 @@ public class GridLayout extends ViewGroup {
             this.weight = weight;
         }
 
-        private Spec(boolean startDefined, int start, int size, Alignment alignment, float weight) {
+        Spec(boolean startDefined, int start, int size, Alignment alignment, float weight) {
             this(startDefined, new Interval(start, start + size), alignment, weight);
         }
 
@@ -2916,6 +2916,6 @@ public class GridLayout extends ViewGroup {
         return (flexibility & CAN_STRETCH) != 0;
     }
 
-    private static final int INFLEXIBLE = 0;
-    private static final int CAN_STRETCH = 2;
+    static final int INFLEXIBLE = 0;
+    static final int CAN_STRETCH = 2;
 }
