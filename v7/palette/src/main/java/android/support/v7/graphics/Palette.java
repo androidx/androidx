@@ -84,14 +84,14 @@ public final class Palette {
         void onGenerated(Palette palette);
     }
 
-    private static final int DEFAULT_RESIZE_BITMAP_AREA = 160 * 160;
-    private static final int DEFAULT_CALCULATE_NUMBER_COLORS = 16;
+    static final int DEFAULT_RESIZE_BITMAP_AREA = 160 * 160;
+    static final int DEFAULT_CALCULATE_NUMBER_COLORS = 16;
 
-    private static final float MIN_CONTRAST_TITLE_TEXT = 3.0f;
-    private static final float MIN_CONTRAST_BODY_TEXT = 4.5f;
+    static final float MIN_CONTRAST_TITLE_TEXT = 3.0f;
+    static final float MIN_CONTRAST_BODY_TEXT = 4.5f;
 
-    private static final String LOG_TAG = "Palette";
-    private static final boolean LOG_TIMINGS = false;
+    static final String LOG_TAG = "Palette";
+    static final boolean LOG_TIMINGS = false;
 
     /**
      * Start generating a {@link Palette} with the returned {@link Builder} instance.
@@ -151,7 +151,7 @@ public final class Palette {
 
     private final Swatch mDominantSwatch;
 
-    private Palette(List<Swatch> swatches, List<Target> targets) {
+    Palette(List<Swatch> swatches, List<Target> targets) {
         mSwatches = swatches;
         mTargets = targets;
 
@@ -345,7 +345,7 @@ public final class Palette {
         return mDominantSwatch != null ? mDominantSwatch.getRgb() : defaultColor;
     }
 
-    private void generate() {
+    void generate() {
         // We need to make sure that the scored targets are generated first. This is so that
         // inherited targets have something to inherit from
         for (int i = 0, count = mTargets.size(); i < count; i++) {
@@ -951,7 +951,7 @@ public final class Palette {
     /**
      * The default filter.
      */
-    private static final Filter DEFAULT_FILTER = new Filter() {
+    static final Filter DEFAULT_FILTER = new Filter() {
         private static final float BLACK_MAX_LIGHTNESS = 0.05f;
         private static final float WHITE_MIN_LIGHTNESS = 0.95f;
 
