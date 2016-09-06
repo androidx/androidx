@@ -146,7 +146,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         }
     };
 
-    private void setSearchOrbZ(float fraction) {
+    void setSearchOrbZ(float fraction) {
         ShadowHelper.getInstance().setZ(mSearchOrbView,
                 mUnfocusedZ + fraction * (mFocusedZ - mUnfocusedZ));
     }
@@ -359,7 +359,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         }
     }
 
-    private void setOrbViewColor(int color) {
+    void setOrbViewColor(int color) {
         if (mSearchOrbView.getBackground() instanceof GradientDrawable) {
             ((GradientDrawable) mSearchOrbView.getBackground()).setColor(color);
         }

@@ -170,19 +170,19 @@ abstract public class OnboardingSupportFragment extends Fragment {
 
     private ContextThemeWrapper mThemeWrapper;
 
-    private PagingIndicator mPageIndicator;
-    private View mStartButton;
+    PagingIndicator mPageIndicator;
+    View mStartButton;
     private ImageView mLogoView;
-    private TextView mTitleView;
-    private TextView mDescriptionView;
+    TextView mTitleView;
+    TextView mDescriptionView;
 
-    private boolean mIsLtr;
+    boolean mIsLtr;
 
     // No need to save/restore the logo resource ID, because the logo animation will not appear when
     // the fragment is restored.
     private int mLogoResourceId;
-    private boolean mEnterTransitionFinished;
-    private int mCurrentPageIndex;
+    boolean mEnterTransitionFinished;
+    int mCurrentPageIndex;
 
     private AnimatorSet mAnimator;
 
@@ -237,13 +237,13 @@ abstract public class OnboardingSupportFragment extends Fragment {
         }
     };
 
-    private void moveToPreviousPage() {
+    void moveToPreviousPage() {
         if (mCurrentPageIndex > 0) {
             --mCurrentPageIndex;
             onPageChangedInternal(mCurrentPageIndex + 1);
         }
     }
-    private void moveToNextPage() {
+    void moveToNextPage() {
         if (mCurrentPageIndex < getPageCount() - 1) {
             ++mCurrentPageIndex;
             onPageChangedInternal(mCurrentPageIndex - 1);
@@ -367,7 +367,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
         return null;
     }
 
-    private boolean startLogoAnimation() {
+    boolean startLogoAnimation() {
         Animator animator = null;
         if (mLogoResourceId != 0) {
             mLogoView.setVisibility(View.VISIBLE);
@@ -451,7 +451,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
         mDescriptionView.setText(getPageDescription(mCurrentPageIndex));
     }
 
-    private void startEnterAnimation() {
+    void startEnterAnimation() {
         mEnterTransitionFinished = true;
         initializeViews(getView());
         List<Animator> animators = new ArrayList<>();

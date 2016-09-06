@@ -37,20 +37,20 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
      * The ViewHolder for the {@link AbstractDetailsDescriptionPresenter}.
      */
     public static class ViewHolder extends Presenter.ViewHolder {
-        private final TextView mTitle;
-        private final TextView mSubtitle;
-        private final TextView mBody;
-        private final int mTitleMargin;
-        private final int mUnderTitleBaselineMargin;
-        private final int mUnderSubtitleBaselineMargin;
-        private final int mTitleLineSpacing;
-        private final int mBodyLineSpacing;
-        private final int mBodyMaxLines;
-        private final int mBodyMinLines;
-        private final FontMetricsInt mTitleFontMetricsInt;
-        private final FontMetricsInt mSubtitleFontMetricsInt;
-        private final FontMetricsInt mBodyFontMetricsInt;
-        private final int mTitleMaxLines;
+        final TextView mTitle;
+        final TextView mSubtitle;
+        final TextView mBody;
+        final int mTitleMargin;
+        final int mUnderTitleBaselineMargin;
+        final int mUnderSubtitleBaselineMargin;
+        final int mTitleLineSpacing;
+        final int mBodyLineSpacing;
+        final int mBodyMaxLines;
+        final int mBodyMinLines;
+        final FontMetricsInt mTitleFontMetricsInt;
+        final FontMetricsInt mSubtitleFontMetricsInt;
+        final FontMetricsInt mBodyFontMetricsInt;
+        final int mTitleMaxLines;
         private ViewTreeObserver.OnPreDrawListener mPreDrawListener;
 
         public ViewHolder(final View view) {

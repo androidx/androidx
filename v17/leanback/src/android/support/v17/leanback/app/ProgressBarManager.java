@@ -18,12 +18,12 @@ public final class ProgressBarManager {
     private static final long DEFAULT_PROGRESS_BAR_DELAY = 1000;
 
     private long mInitialDelay = DEFAULT_PROGRESS_BAR_DELAY;
-    private ViewGroup rootView;
-    private View mProgressBarView;
+    ViewGroup rootView;
+    View mProgressBarView;
     private Handler mHandler = new Handler();
-    private boolean mEnableProgressBar = true;
-    private boolean mUserProvidedProgressBar;
-    private boolean mIsShowing;
+    boolean mEnableProgressBar = true;
+    boolean mUserProvidedProgressBar;
+    boolean mIsShowing;
 
     private Runnable runnable = new Runnable() {
         @Override
