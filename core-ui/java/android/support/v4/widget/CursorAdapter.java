@@ -476,6 +476,9 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
     }
 
     private class MyDataSetObserver extends DataSetObserver {
+        MyDataSetObserver() {
+        }
+
         @Override
         public void onChanged() {
             mDataValid = true;

@@ -134,13 +134,13 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
     private static final int VERTICAL = 1;
 
     /** Scroller used to control acceleration toward maximum velocity. */
-    private final ClampedScroller mScroller = new ClampedScroller();
+    final ClampedScroller mScroller = new ClampedScroller();
 
     /** Interpolator used to scale velocity with touch position. */
     private final Interpolator mEdgeInterpolator = new AccelerateInterpolator();
 
     /** The view to auto-scroll. Might not be the source of touch events. */
-    private final View mTarget;
+    final View mTarget;
 
     /** Runnable used to animate scrolling. */
     private Runnable mRunnable;
@@ -170,13 +170,13 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
     private boolean mAlreadyDelayed;
 
     /** Whether to reset the scroller start time on the next animation. */
-    private boolean mNeedsReset;
+    boolean mNeedsReset;
 
     /** Whether to send a cancel motion event to the target view. */
-    private boolean mNeedsCancel;
+    boolean mNeedsCancel;
 
     /** Whether the auto-scroller is actively scrolling. */
-    private boolean mAnimating;
+    boolean mAnimating;
 
     /** Whether the auto-scroller is enabled. */
     private boolean mEnabled;
@@ -488,7 +488,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
     /**
      * @return whether the target is able to scroll in the requested direction
      */
-    private boolean shouldAnimate() {
+    boolean shouldAnimate() {
         final ClampedScroller scroller = mScroller;
         final int verticalDirection = scroller.getVerticalDirection();
         final int horizontalDirection = scroller.getHorizontalDirection();
@@ -649,7 +649,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
         return 0;
     }
 
-    private static int constrain(int value, int min, int max) {
+    static int constrain(int value, int min, int max) {
         if (value > max) {
             return max;
         } else if (value < min) {
@@ -659,7 +659,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
         }
     }
 
-    private static float constrain(float value, float min, float max) {
+    static float constrain(float value, float min, float max) {
         if (value > max) {
             return max;
         } else if (value < min) {
@@ -673,7 +673,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      * Sends a {@link MotionEvent#ACTION_CANCEL} event to the target view,
      * canceling any ongoing touch events.
      */
-    private void cancelTargetTouch() {
+    void cancelTargetTouch() {
         final long eventTime = SystemClock.uptimeMillis();
         final MotionEvent cancel = MotionEvent.obtain(
                 eventTime, eventTime, MotionEvent.ACTION_CANCEL, 0, 0, 0);
@@ -682,6 +682,9 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
     }
 
     private class ScrollAnimationRunnable implements Runnable {
+        ScrollAnimationRunnable() {
+        }
+
         @Override
         public void run() {
             if (!mAnimating) {

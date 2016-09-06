@@ -103,8 +103,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     private static final int DEFAULT_CIRCLE_TARGET = 64;
 
     private View mTarget; // the target of the gesture
-    private OnRefreshListener mListener;
-    private boolean mRefreshing = false;
+    OnRefreshListener mListener;
+    boolean mRefreshing = false;
     private int mTouchSlop;
     private float mTotalDragDistance = -1;
 
@@ -119,14 +119,14 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     private boolean mNestedScrollInProgress;
 
     private int mMediumAnimationDuration;
-    private int mCurrentTargetOffsetTop;
+    int mCurrentTargetOffsetTop;
 
     private float mInitialMotionY;
     private float mInitialDownY;
     private boolean mIsBeingDragged;
     private int mActivePointerId = INVALID_POINTER;
     // Whether this item is scaled up rather than clipped
-    private boolean mScale;
+    boolean mScale;
 
     // Target is returning to its start offset because it was cancelled or a
     // refresh was triggered.
@@ -136,18 +136,18 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         android.R.attr.enabled
     };
 
-    private CircleImageView mCircleView;
+    CircleImageView mCircleView;
     private int mCircleViewIndex = -1;
 
     protected int mFrom;
 
-    private float mStartingScale;
+    float mStartingScale;
 
     protected int mOriginalOffsetTop;
 
-    private int mSpinnerOffsetEnd;
+    int mSpinnerOffsetEnd;
 
-    private MaterialProgressDrawable mProgress;
+    MaterialProgressDrawable mProgress;
 
     private Animation mScaleAnimation;
 
@@ -159,12 +159,12 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     private Animation mScaleDownToStartAnimation;
 
-    private boolean mNotify;
+    boolean mNotify;
 
     private int mCircleDiameter;
 
     // Whether the client has set a custom starting position;
-    private boolean mUsingCustomStart;
+    boolean mUsingCustomStart;
 
     private OnChildScrollUpCallback mChildScrollUpCallback;
 
@@ -195,7 +195,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         }
     };
 
-    private void reset() {
+    void reset() {
         mCircleView.clearAnimation();
         mProgress.stop();
         mCircleView.setVisibility(View.GONE);
@@ -451,7 +451,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      * Pre API 11, this does an alpha animation.
      * @param progress
      */
-    private void setAnimationProgress(float progress) {
+    void setAnimationProgress(float progress) {
         if (isAlphaUsedForScale()) {
             setColorViewAlpha((int) (progress * MAX_ALPHA));
         } else {
@@ -473,7 +473,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         }
     }
 
-    private void startScaleDownAnimation(Animation.AnimationListener listener) {
+    void startScaleDownAnimation(Animation.AnimationListener listener) {
         mScaleDownAnimation = new Animation() {
             @Override
             public void applyTransformation(float interpolatedTime, Transformation t) {
@@ -1141,7 +1141,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         }
     };
 
-    private void moveToStart(float interpolatedTime) {
+    void moveToStart(float interpolatedTime) {
         int targetTop = 0;
         targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
         int offset = targetTop - mCircleView.getTop();
@@ -1179,7 +1179,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         mCircleView.startAnimation(mScaleDownToStartAnimation);
     }
 
-    private void setTargetOffsetTopAndBottom(int offset, boolean requiresUpdate) {
+    void setTargetOffsetTopAndBottom(int offset, boolean requiresUpdate) {
         mCircleView.bringToFront();
         ViewCompat.offsetTopAndBottom(mCircleView, offset);
         mCurrentTargetOffsetTop = mCircleView.getTop();

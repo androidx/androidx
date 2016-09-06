@@ -31,13 +31,13 @@ public class ContentLoadingProgressBar extends ProgressBar {
     private static final int MIN_SHOW_TIME = 500; // ms
     private static final int MIN_DELAY = 500; // ms
 
-    private long mStartTime = -1;
+    long mStartTime = -1;
 
-    private boolean mPostedHide = false;
+    boolean mPostedHide = false;
 
-    private boolean mPostedShow = false;
+    boolean mPostedShow = false;
 
-    private boolean mDismissed = false;
+    boolean mDismissed = false;
 
     private final Runnable mDelayedHide = new Runnable() {
 
