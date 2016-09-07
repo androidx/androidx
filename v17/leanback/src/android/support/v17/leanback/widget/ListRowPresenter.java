@@ -425,7 +425,7 @@ public class ListRowPresenter extends RowPresenter {
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter,
                 mFocusZoomFactor, mUseFocusDimmer);
         rowViewHolder.mGridView.setFocusDrawingOrderEnabled(mShadowOverlayHelper.getShadowType()
-                == ShadowOverlayHelper.SHADOW_STATIC);
+                != ShadowOverlayHelper.SHADOW_DYNAMIC);
         rowViewHolder.mGridView.setOnChildSelectedListener(
                 new OnChildSelectedListener() {
             @Override
@@ -677,9 +677,9 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     /**
-     * Returns true if SDK >= 18, where default shadow
-     * is applied to each individual child of {@link HorizontalGridView}.
-     * Subclass may return false to disable.
+     * Default implementation returns true if SDK version >= 21, shadow (either static or z-order
+     * based) will be applied to each individual child of {@link HorizontalGridView}.
+     * Subclass may return false to disable default implementation of shadow and provide its own.
      */
     public boolean isUsingDefaultShadow() {
         return ShadowOverlayHelper.supportsShadow();
