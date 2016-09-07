@@ -16,6 +16,7 @@
 package android.support.v7.app;
 
 import android.os.Build;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.action.GeneralLocation;
 import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Press;
@@ -90,6 +91,31 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
             onView(withId(R.id.drawer_layout)).perform(closeDrawer(GravityCompat.START, false));
             assertFalse("Closed drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
         }
+    }
+
+    @Test
+    @MediumTest
+    public void testDrawerOpenCloseFocus() {
+        assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mContentView.setFocusableInTouchMode(true);
+                mContentView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        fail("Unnecessary focus change");
+                    }
+                });
+            }
+        });
+
+        onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START));
+        assertTrue("Opened drawer", mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+        onView(withId(R.id.drawer_layout)).perform(closeDrawer(GravityCompat.START));
+        assertFalse("Closed drawer", mDrawerLayout.isDrawerOpen(GravityCompat.START));
     }
 
     @Test
