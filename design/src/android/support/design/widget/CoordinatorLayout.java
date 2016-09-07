@@ -1143,8 +1143,6 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         GravityCompat.apply(resolveGravity(lp.gravity), child.getMeasuredWidth(),
                 child.getMeasuredHeight(), parent, out, layoutDirection);
         child.layout(out.left, out.top, out.right, out.bottom);
-        ViewCompat.offsetLeftAndRight(child, lp.mInsetOffsetX);
-        ViewCompat.offsetTopAndBottom(child, lp.mInsetOffsetY);
     }
 
     /**
@@ -1261,7 +1259,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
             }
 
             // Dodge inset edges if necessary
-            if (lp.dodgeInsetEdges != Gravity.NO_GRAVITY) {
+            if (lp.dodgeInsetEdges != Gravity.NO_GRAVITY && child.getVisibility() == View.VISIBLE) {
                 offsetChildByInset(child, inset, layoutDirection);
             }
 
@@ -1313,7 +1311,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         }
     }
 
-    private void offsetChildByInset(View child, Rect inset, int layoutDirection) {
+    private void offsetChildByInset(final View child, final Rect inset, final int layoutDirection) {
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         final int absDodgeInsetEdges = GravityCompat.getAbsoluteGravity(lp.dodgeInsetEdges,
                 layoutDirection);
@@ -1322,9 +1320,17 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         final Rect rect = mTempRect3;
         if (behavior != null && behavior.getInsetDodgeRect(this, child, rect)) {
             // Make sure that it intersects the views bounds
-            rect.intersect(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
+            if (!rect.intersect(child.getLeft(), child.getTop(),
+                    child.getRight(), child.getBottom())) {
+                throw new IllegalArgumentException("Rect should intersect with child's bounds.");
+            }
         } else {
             rect.set(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
+        }
+
+        if (rect.isEmpty()) {
+            // Rect is empty so there is nothing to dodge against, skip...
+            return;
         }
 
         boolean offsetY = false;
@@ -2436,8 +2442,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * Called when a view is set to dodge view insets.
          *
          * <p>This method allows a behavior to update the rectangle that should be dodged.
-         * The rectangle should be in the parents coordinate system, and within the child's
-         * bounds.</p>
+         * The rectangle should be in the parent's coordinate system and within the child's
+         * bounds. If not, a {@link IllegalArgumentException} is thrown.</p>
          *
          * @param parent the CoordinatorLayout parent of the view this Behavior is
          *               associated with
