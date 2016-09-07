@@ -884,8 +884,6 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             if (hasWindowFocus()) {
                 sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
             }
-
-            drawerView.requestFocus();
         }
     }
 
