@@ -42,11 +42,20 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
     // Handles the snap on scroll case.
     private final RecyclerView.OnScrollListener mScrollListener =
             new RecyclerView.OnScrollListener() {
+                boolean mScrolled = false;
+
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE && mScrolled) {
+                        mScrolled = false;
                         snapToTargetExistingView();
+                    }
+                }
+
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    if (dx != 0 || dy != 0) {
+                        mScrolled = true;
                     }
                 }
             };
