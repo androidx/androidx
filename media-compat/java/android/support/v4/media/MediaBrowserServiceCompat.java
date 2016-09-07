@@ -331,9 +331,13 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     = new Result<MediaBrowserCompat.MediaItem>(itemId) {
                 @Override
                 void onResultSent(MediaBrowserCompat.MediaItem item, @ResultFlags int flags) {
-                    Parcel parcelItem = Parcel.obtain();
-                    item.writeToParcel(parcelItem, 0);
-                    resultWrapper.sendResult(parcelItem);
+                    if (item == null) {
+                        resultWrapper.sendResult(null);
+                    } else {
+                        Parcel parcelItem = Parcel.obtain();
+                        item.writeToParcel(parcelItem, 0);
+                        resultWrapper.sendResult(parcelItem);
+                    }
                 }
 
                 @Override
