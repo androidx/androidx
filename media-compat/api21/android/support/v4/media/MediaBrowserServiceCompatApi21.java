@@ -66,8 +66,9 @@ class MediaBrowserServiceCompatApi21 {
             if (result instanceof List) {
                 mResultObj.sendResult(parcelListToItemList((List<Parcel>)result));
             } else if (result instanceof Parcel) {
-                mResultObj.sendResult(
-                        MediaBrowser.MediaItem.CREATOR.createFromParcel((Parcel) result));
+                Parcel parcel = (Parcel) result;
+                mResultObj.sendResult(MediaBrowser.MediaItem.CREATOR.createFromParcel(parcel));
+                parcel.recycle();
             } else {
                 // The result is null or an invalid instance.
                 mResultObj.sendResult(null);
