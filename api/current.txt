@@ -156,7 +156,7 @@ package android.support.customtabs {
 
   public final class CustomTabsIntent {
     method public static int getMaxToolbarItems();
-    method public void launchUrl(android.app.Activity, android.net.Uri);
+    method public void launchUrl(android.content.Context, android.net.Uri);
     method public static android.content.Intent setAlwaysUseBrowserUI(android.content.Intent);
     method public static boolean shouldAlwaysUseBrowserUI(android.content.Intent);
     field public static final java.lang.String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
@@ -3729,7 +3729,6 @@ package android.support.v4.app {
     method public static void setEnterSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
     method public static void setExitSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
     method public static boolean shouldShowRequestPermissionRationale(android.app.Activity, java.lang.String);
-    method public static void startActivity(android.app.Activity, android.content.Intent, android.os.Bundle);
     method public static void startActivityForResult(android.app.Activity, android.content.Intent, int, android.os.Bundle);
     method public static void startIntentSenderForResult(android.app.Activity, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) throws android.content.IntentSender.SendIntentException;
     method public static void startPostponedEnterTransition(android.app.Activity);
@@ -4683,6 +4682,7 @@ package android.support.v4.content {
     method public static boolean isDeviceProtectedStorage(android.content.Context);
     method public static boolean startActivities(android.content.Context, android.content.Intent[]);
     method public static boolean startActivities(android.content.Context, android.content.Intent[], android.os.Bundle);
+    method public static void startActivity(android.content.Context, android.content.Intent, android.os.Bundle);
   }
 
   public class CursorLoader extends android.support.v4.content.AsyncTaskLoader {

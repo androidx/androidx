@@ -29,6 +29,8 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.os.EnvironmentCompat;
 import android.util.Log;
@@ -125,6 +127,31 @@ public class ContextCompat {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Start an activity with additional launch information, if able.
+     *
+     * <p>In Android 4.1+ additional options were introduced to allow for more
+     * control on activity launch animations. Applications can use this method
+     * along with {@link ActivityOptionsCompat} to use these animations when
+     * available. When run on versions of the platform where this feature does
+     * not exist the activity will be launched normally.</p>
+     *
+     * @param context Context to launch activity from.
+     * @param intent The description of the activity to start.
+     * @param options Additional options for how the Activity should be started.
+     *                May be null if there are no options. See
+     *                {@link ActivityOptionsCompat} for how to build the Bundle
+     *                supplied here; there are no supported definitions for
+     *                building it manually.
+     */
+    public static void startActivity(Context context, Intent intent, @Nullable Bundle options) {
+        if (Build.VERSION.SDK_INT >= 16) {
+            ContextCompatJellybean.startActivity(context, intent, options);
+        } else {
+            context.startActivity(intent);
+        }
     }
 
     /**
