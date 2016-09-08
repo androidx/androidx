@@ -1315,9 +1315,9 @@ public final class MediaBrowserCompat {
 
         public MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
-            // Do not send the client version for API 24 and higher, since we don't need to use
+            // Do not send the client version for API 25 and higher, since we don't need to use
             // EXTRA_MESSENGER_BINDER for API 24 and higher.
-            if (Build.VERSION.SDK_INT < 24 && !BuildCompat.isAtLeastN()) {
+            if (Build.VERSION.SDK_INT < 25) {
                 if (rootHints == null) {
                     rootHints = new Bundle();
                 }
@@ -1481,7 +1481,7 @@ public final class MediaBrowserCompat {
                     @Override
                     public void run() {
                         // Default framework implementation.
-                        cb.onItemLoaded(null);
+                        cb.onError(mediaId);
                     }
                 });
                 return;
@@ -1611,11 +1611,6 @@ public final class MediaBrowserCompat {
                 MediaBrowserCompatApi24.unsubscribe(mBrowserObj, parentId,
                         callback.mSubscriptionCallbackObj);
             }
-        }
-
-        @Override
-        public void getItem(@NonNull final String mediaId, @NonNull final ItemCallback cb) {
-            MediaBrowserCompatApi23.getItem(mBrowserObj, mediaId, cb.mItemCallbackObj);
         }
     }
 
@@ -1794,7 +1789,7 @@ public final class MediaBrowserCompat {
                 return;
             }
             Parcelable item = resultData.getParcelable(MediaBrowserServiceCompat.KEY_MEDIA_ITEM);
-            if (item instanceof MediaItem) {
+            if (item == null || item instanceof MediaItem) {
                 mCallback.onItemLoaded((MediaItem) item);
             } else {
                 mCallback.onError(mMediaId);
