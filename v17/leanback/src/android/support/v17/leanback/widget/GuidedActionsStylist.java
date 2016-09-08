@@ -1121,7 +1121,9 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                             }
                         }
                     });
-            onUpdateSubActionsGridView(action, true);
+            if (action.hasSubActions()) {
+                onUpdateSubActionsGridView(action, true);
+            }
         } else {
             getActionsGridView().setSelectedPosition(actionPosition,
                     new ViewHolderTask() {
