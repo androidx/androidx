@@ -35,7 +35,7 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
         mRecyclerView = recyclerView;
     }
 
-    private boolean shouldIgnore() {
+    boolean shouldIgnore() {
         return mRecyclerView.hasPendingAdapterUpdates();
     }
 
