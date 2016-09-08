@@ -16,31 +16,36 @@
 
 package android.support.v7.widget;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
-import android.test.mock.MockContext;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class ChildHelperTest extends AndroidTestCase {
+public class ChildHelperTest {
     LoggingCallback  mLoggingCallback;
     ChildHelper mChildHelper;
+    Context mContext;
 
     @Before
-    public void prepare() throws Exception {
-        setUp();
-        setContext(InstrumentationRegistry.getContext());
+    public void setup() throws Exception {
+        mContext = InstrumentationRegistry.getContext();
         mLoggingCallback = new LoggingCallback();
         mChildHelper = new ChildHelper(mLoggingCallback);
     }
