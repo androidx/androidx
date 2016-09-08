@@ -72,12 +72,12 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
         final PlaybackControlsRow.OnPlaybackStateChangedListener mListener =
                 new PlaybackControlsRow.OnPlaybackStateChangedListener() {
             @Override
-            public void onCurrentTimeChanged(int ms) {
-                mPlaybackControlsPresenter.setCurrentTime(mControlsVh, ms);
+            public void onCurrentTimeChanged(long ms) {
+                mPlaybackControlsPresenter.setCurrentTimeLong(mControlsVh, ms);
             }
             @Override
-            public void onBufferedProgressChanged(int ms) {
-                mPlaybackControlsPresenter.setSecondaryProgress(mControlsVh, ms);
+            public void onBufferedProgressChanged(long ms) {
+                mPlaybackControlsPresenter.setSecondaryProgressLong(mControlsVh, ms);
             }
         };
 

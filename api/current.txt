@@ -3293,19 +3293,25 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.Action getActionForKeyCode(int);
     method public android.support.v17.leanback.widget.Action getActionForKeyCode(android.support.v17.leanback.widget.ObjectAdapter, int);
     method public int getBufferedProgress();
+    method public long getBufferedProgressLong();
     method public int getCurrentTime();
+    method public long getCurrentTimeLong();
     method public final android.graphics.drawable.Drawable getImageDrawable();
     method public final java.lang.Object getItem();
     method public final android.support.v17.leanback.widget.ObjectAdapter getPrimaryActionsAdapter();
     method public final android.support.v17.leanback.widget.ObjectAdapter getSecondaryActionsAdapter();
     method public int getTotalTime();
+    method public long getTotalTimeLong();
     method public void setBufferedProgress(int);
+    method public void setBufferedProgressLong(long);
     method public void setCurrentTime(int);
+    method public void setCurrentTimeLong(long);
     method public final void setImageBitmap(android.content.Context, android.graphics.Bitmap);
     method public final void setImageDrawable(android.graphics.drawable.Drawable);
     method public final void setPrimaryActionsAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public final void setSecondaryActionsAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setTotalTime(int);
+    method public void setTotalTimeLong(long);
   }
 
   public static class PlaybackControlsRow.ClosedCaptioningAction extends android.support.v17.leanback.widget.PlaybackControlsRow.MultiAction {
