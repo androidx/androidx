@@ -5683,11 +5683,16 @@ package android.support.v4.text {
     method public static android.support.v4.text.BidiFormatter getInstance(java.util.Locale);
     method public boolean getStereoReset();
     method public boolean isRtl(java.lang.String);
+    method public boolean isRtl(java.lang.CharSequence);
     method public boolean isRtlContext();
     method public java.lang.String unicodeWrap(java.lang.String, android.support.v4.text.TextDirectionHeuristicCompat, boolean);
+    method public java.lang.CharSequence unicodeWrap(java.lang.CharSequence, android.support.v4.text.TextDirectionHeuristicCompat, boolean);
     method public java.lang.String unicodeWrap(java.lang.String, android.support.v4.text.TextDirectionHeuristicCompat);
+    method public java.lang.CharSequence unicodeWrap(java.lang.CharSequence, android.support.v4.text.TextDirectionHeuristicCompat);
     method public java.lang.String unicodeWrap(java.lang.String, boolean);
+    method public java.lang.CharSequence unicodeWrap(java.lang.CharSequence, boolean);
     method public java.lang.String unicodeWrap(java.lang.String);
+    method public java.lang.CharSequence unicodeWrap(java.lang.CharSequence);
   }
 
   public static final class BidiFormatter.Builder {
