@@ -16,20 +16,21 @@
 
 package android.support.v7.widget;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import android.test.suitebuilder.annotation.SmallTest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import static org.junit.Assert.*;
 
 @SmallTest
 @RunWith(JUnit4.class)
