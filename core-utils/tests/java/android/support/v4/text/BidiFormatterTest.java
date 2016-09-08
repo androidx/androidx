@@ -18,6 +18,9 @@ package android.support.v4.text;
 
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.RelativeSizeSpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,7 +42,7 @@ public class BidiFormatterTest {
             new BidiFormatter.Builder(true /* RTL context */).stereoReset(false).build();
 
     private static final String EN = "abba";
-    private static final String HE = "\u05e0\u05e1";
+    private static final String HE = "\u05E0\u05E1";
 
     private static final String LRM = "\u200E";
     private static final String RLM = "\u200F";
@@ -190,5 +193,50 @@ public class BidiFormatterTest {
                 LRE + HE + EN + HE + PDF,
                 RTL_FMT_EXIT_RESET.unicodeWrap(HE + EN + HE, TextDirectionHeuristicsCompat.LTR,
                         false));
+    }
+
+    @Test
+    public void testCharSequenceApis() {
+        final CharSequence CS_HE = new SpannableString(HE);
+        assertEquals(true, BidiFormatter.getInstance(true).isRtl(CS_HE));
+
+        final SpannableString CS_EN_HE = new SpannableString(EN + HE);
+        final Object RELATIVE_SIZE_SPAN = new RelativeSizeSpan(1.2f);
+        CS_EN_HE.setSpan(RELATIVE_SIZE_SPAN, 0, EN.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+
+        Spanned wrapped;
+        Object[] spans;
+
+        wrapped = (Spanned) LTR_FMT.unicodeWrap(CS_EN_HE);
+        assertEquals(EN + HE + LRM, wrapped.toString());
+        spans = wrapped.getSpans(0, wrapped.length(), Object.class);
+        assertEquals(1, spans.length);
+        assertEquals(RELATIVE_SIZE_SPAN, spans[0]);
+        assertEquals(0, wrapped.getSpanStart(RELATIVE_SIZE_SPAN));
+        assertEquals(EN.length(), wrapped.getSpanEnd(RELATIVE_SIZE_SPAN));
+
+        wrapped = (Spanned) LTR_FMT.unicodeWrap(CS_EN_HE, TextDirectionHeuristicsCompat.LTR);
+        assertEquals(EN + HE + LRM, wrapped.toString());
+        spans = wrapped.getSpans(0, wrapped.length(), Object.class);
+        assertEquals(1, spans.length);
+        assertEquals(RELATIVE_SIZE_SPAN, spans[0]);
+        assertEquals(0, wrapped.getSpanStart(RELATIVE_SIZE_SPAN));
+        assertEquals(EN.length(), wrapped.getSpanEnd(RELATIVE_SIZE_SPAN));
+
+        wrapped = (Spanned) LTR_FMT.unicodeWrap(CS_EN_HE, false);
+        assertEquals(EN + HE, wrapped.toString());
+        spans = wrapped.getSpans(0, wrapped.length(), Object.class);
+        assertEquals(1, spans.length);
+        assertEquals(RELATIVE_SIZE_SPAN, spans[0]);
+        assertEquals(0, wrapped.getSpanStart(RELATIVE_SIZE_SPAN));
+        assertEquals(EN.length(), wrapped.getSpanEnd(RELATIVE_SIZE_SPAN));
+
+        wrapped = (Spanned) LTR_FMT.unicodeWrap(CS_EN_HE, TextDirectionHeuristicsCompat.LTR, false);
+        assertEquals(EN + HE, wrapped.toString());
+        spans = wrapped.getSpans(0, wrapped.length(), Object.class);
+        assertEquals(1, spans.length);
+        assertEquals(RELATIVE_SIZE_SPAN, spans[0]);
+        assertEquals(0, wrapped.getSpanStart(RELATIVE_SIZE_SPAN));
+        assertEquals(EN.length(), wrapped.getSpanEnd(RELATIVE_SIZE_SPAN));
     }
 }
