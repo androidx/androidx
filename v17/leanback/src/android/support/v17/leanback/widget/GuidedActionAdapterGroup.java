@@ -14,6 +14,7 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.widget.GuidedActionAdapter.ClickListener;
 import android.support.v17.leanback.widget.GuidedActionAdapter.EditListener;
 import android.util.Log;
@@ -28,11 +29,14 @@ import android.widget.TextView.OnEditorActionListener;
 
 import java.util.ArrayList;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Internal implementation manages a group of GuidedActionAdapters, control the next action after
  * editing finished, maintain the Ime open/close status.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class GuidedActionAdapterGroup {
 
     private static final String TAG_EDIT = "EditableAction";

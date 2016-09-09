@@ -30,9 +30,6 @@ import android.support.v17.leanback.widget.VerticalGridView;
 import android.util.Log;
 import android.view.View;
 
-/**
- * @hide from javadoc
- */
 public class BrowseTestSupportFragment extends BrowseSupportFragment {
     private static final String TAG = "BrowseTestSupportFragment";
 

@@ -19,9 +19,12 @@ package android.support.v7.view;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Resources;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
 import android.support.v7.appcompat.R;
 import android.view.LayoutInflater;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A ContextWrapper that allows you to modify the theme from what is in the
@@ -29,6 +32,7 @@ import android.view.LayoutInflater;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class ContextThemeWrapper extends ContextWrapper {
     private int mThemeResource;
     private Resources.Theme mTheme;

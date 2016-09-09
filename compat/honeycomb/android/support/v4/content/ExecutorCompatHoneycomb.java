@@ -22,7 +22,6 @@ import java.util.concurrent.Executor;
 
 /**
  * Implementation of parallel executor compatibility that can call Honeycomb APIs.
- * @hide
  */
 class ExecutorCompatHoneycomb {
     public static Executor getParallelExecutor() {

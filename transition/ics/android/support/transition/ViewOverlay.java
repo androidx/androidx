@@ -21,6 +21,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,6 +31,8 @@ import android.view.ViewParent;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 class ViewOverlay {
 
@@ -323,6 +326,7 @@ class ViewOverlay {
         /**
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         protected ViewParent invalidateChildInParentFast(int left, int top, Rect dirty) {
             if (mHostView instanceof ViewGroup && sInvalidateChildInParentFastMethod != null) {
                 try {

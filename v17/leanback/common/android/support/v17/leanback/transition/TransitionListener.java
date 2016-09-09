@@ -13,10 +13,15 @@
  */
 package android.support.v17.leanback.transition;
 
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Listeners for transition start and stop.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class TransitionListener {
 
     protected Object mImpl;

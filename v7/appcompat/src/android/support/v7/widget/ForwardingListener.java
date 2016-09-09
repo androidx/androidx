@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.os.Build;
 import android.os.SystemClock;
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.view.menu.ShowableListMenu;
 import android.view.MotionEvent;
@@ -27,12 +28,15 @@ import android.view.ViewConfiguration;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 
 /**
  * Abstract class that forwards touch events to a {@link ShowableListMenu}.
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public abstract class ForwardingListener implements View.OnTouchListener {
 
     /** Scaled touch slop, used for detecting movement outside bounds. */

@@ -18,10 +18,6 @@ package android.support.v17.leanback.widget;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
-/**
- * Tests for {@link PagingIndicator}.
- * @hide
- */
 @SmallTest
 public class PagingIndicatorTest extends AndroidTestCase {
     private PagingIndicator mIndicator;

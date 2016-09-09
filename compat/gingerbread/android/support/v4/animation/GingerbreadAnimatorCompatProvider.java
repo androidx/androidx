@@ -25,8 +25,6 @@ import java.util.List;
  * Provides similar functionality to Animators on platforms prior to Honeycomb.
  * <p>
  * This is not a fully implemented API which is why it is not public.
- *
- * @hide
  */
 class GingerbreadAnimatorCompatProvider implements AnimatorProvider {
 

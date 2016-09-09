@@ -27,7 +27,6 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
 
-/** {@hide} */
 class DatagramSocketWrapper extends Socket {
     public DatagramSocketWrapper(DatagramSocket socket, FileDescriptor fd) throws SocketException {
         super(new DatagramSocketImplWrapper(socket, fd));

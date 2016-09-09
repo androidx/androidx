@@ -115,7 +115,6 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      */
     public static final int STATE_SETTLING = ViewDragHelper.STATE_SETTLING;
 
-    /** @hide */
     @IntDef({LOCK_MODE_UNLOCKED, LOCK_MODE_LOCKED_CLOSED, LOCK_MODE_LOCKED_OPEN,
             LOCK_MODE_UNDEFINED})
     @Retention(RetentionPolicy.SOURCE)
@@ -143,7 +142,6 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      */
     public static final int LOCK_MODE_UNDEFINED = 3;
 
-    /** @hide */
     @IntDef({Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END})
     @Retention(RetentionPolicy.SOURCE)
     private @interface EdgeGravity {}

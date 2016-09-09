@@ -18,10 +18,13 @@ package android.support.v4.media;
 
 import android.os.Build;
 import android.support.annotation.IntDef;
+import android.support.annotation.RestrictTo;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Handles requests to adjust or set the volume on a session. This is also used
@@ -34,6 +37,7 @@ public abstract class VolumeProviderCompat {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @IntDef({VOLUME_CONTROL_FIXED, VOLUME_CONTROL_RELATIVE, VOLUME_CONTROL_ABSOLUTE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ControlType {}

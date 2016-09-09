@@ -22,8 +22,11 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.widget.ShadowOverlayContainer;
 import android.util.Log;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Provides various preferences affecting Leanback runtime behavior.
@@ -66,6 +69,7 @@ public class Settings {
      * Returns true if static shadows are recommended.
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public boolean preferStaticShadows() {
         return mPreferStaticShadows;
     }

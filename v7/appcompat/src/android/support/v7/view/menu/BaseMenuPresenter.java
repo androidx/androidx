@@ -17,12 +17,15 @@
 package android.support.v7.view.menu;
 
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Base class for MenuPresenters that have a consistent container view and item views. Behaves
@@ -31,6 +34,7 @@ import java.util.ArrayList;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public abstract class BaseMenuPresenter implements MenuPresenter {
 
     protected Context mSystemContext;

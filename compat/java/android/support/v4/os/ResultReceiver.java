@@ -21,7 +21,10 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.support.annotation.RestrictTo;
 import android.support.v4.os.IResultReceiver;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Generic interface for receiving a callback result from someone.  Use this
@@ -37,6 +40,7 @@ import android.support.v4.os.IResultReceiver;
  * break if your process goes away for any reason, etc.</p>
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class ResultReceiver implements Parcelable {
     final boolean mLocal;
     final Handler mHandler;

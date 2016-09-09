@@ -18,8 +18,12 @@ package android.support.v4.os;
 
 import android.content.Context;
 import android.os.UserManager;
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /** {@hide} */
+@RestrictTo(GROUP_ID)
 public class UserManagerCompatApi24 {
     public static boolean isUserUnlocked(Context context) {
         return context.getSystemService(UserManager.class).isUserUnlocked();

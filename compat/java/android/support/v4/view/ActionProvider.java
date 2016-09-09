@@ -17,10 +17,13 @@
 package android.support.v4.view;
 
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * This class is a mediator for accomplishing a given task, for example sharing a file. It is
@@ -270,6 +273,7 @@ public abstract class ActionProvider {
      *
      * @hide Pending future API approval
      */
+    @RestrictTo(GROUP_ID)
     public void subUiVisibilityChanged(boolean isVisible) {
         if (mSubUiVisibilityListener != null) {
             mSubUiVisibilityListener.onSubUiVisibilityChanged(isVisible);
@@ -279,6 +283,7 @@ public abstract class ActionProvider {
     /**
      * @hide Internal use only
      */
+    @RestrictTo(GROUP_ID)
     public void setSubUiVisibilityListener(SubUiVisibilityListener listener) {
         mSubUiVisibilityListener = listener;
     }
@@ -301,6 +306,7 @@ public abstract class ActionProvider {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public void reset() {
         mVisibilityListener = null;
         mSubUiVisibilityListener = null;
@@ -309,6 +315,7 @@ public abstract class ActionProvider {
     /**
      * @hide Internal use only
      */
+    @RestrictTo(GROUP_ID)
     public interface SubUiVisibilityListener {
 
         public void onSubUiVisibilityChanged(boolean isVisible);

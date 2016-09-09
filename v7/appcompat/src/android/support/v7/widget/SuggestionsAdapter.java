@@ -53,7 +53,6 @@ import java.util.WeakHashMap;
 
 /**
  * Provides the contents for the suggestion drop-down list.in {@link SearchView}.
- * @hide
  */
 class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListener {
 

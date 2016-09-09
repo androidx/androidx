@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.View;
@@ -25,9 +26,12 @@ import android.view.View;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class ViewUtils {
     private static final String TAG = "ViewUtils";
 

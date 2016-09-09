@@ -17,10 +17,13 @@
 package android.support.v7.preference.internal;
 
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.support.v7.preference.DialogPreference;
 import android.util.AttributeSet;
 
 import java.util.Set;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Stub superclass for {@link android.support.v14.preference.MultiSelectListPreference} so that we
@@ -29,6 +32,7 @@ import java.util.Set;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public abstract class AbstractMultiSelectListPreference extends DialogPreference {
     public AbstractMultiSelectListPreference(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {

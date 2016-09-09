@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
+import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -37,6 +38,8 @@ import android.text.style.TextAppearanceSpan;
 import android.widget.RemoteViews;
 
 import java.util.List;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * An extension of {@link android.support.v4.app.NotificationCompat} which supports
@@ -382,6 +385,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
          *
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         @Override
         protected CharSequence resolveText() {
             if (mStyle instanceof MessagingStyle) {
@@ -401,6 +405,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
          *
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         @Override
         protected CharSequence resolveTitle() {
             if (mStyle instanceof MessagingStyle) {
@@ -417,6 +422,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         /**
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         @Override
         protected BuilderExtender getExtender() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

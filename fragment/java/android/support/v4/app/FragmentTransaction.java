@@ -20,6 +20,7 @@ import android.support.annotation.AnimRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StringRes;
 import android.support.annotation.StyleRes;
 import android.support.v4.util.Pair;
@@ -27,6 +28,8 @@ import android.view.View;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Static library support version of the framework's {@link android.app.FragmentTransaction}.
@@ -162,6 +165,7 @@ public abstract class FragmentTransaction {
     public static final int TRANSIT_EXIT_MASK = 0x2000;
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE, TRANSIT_FRAGMENT_FADE})
     @Retention(RetentionPolicy.SOURCE)
     private @interface Transit {}

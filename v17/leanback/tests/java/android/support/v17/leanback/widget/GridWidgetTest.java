@@ -42,9 +42,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 
-/**
- * @hide from javadoc
- */
 @MediumTest
 public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivity> {
 

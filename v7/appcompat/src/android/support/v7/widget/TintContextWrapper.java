@@ -21,11 +21,14 @@ import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.VectorEnabledTintResources;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A {@link android.content.ContextWrapper} which returns a tint-aware
@@ -33,6 +36,7 @@ import java.util.ArrayList;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class TintContextWrapper extends ContextWrapper {
 
     private static final ArrayList<WeakReference<TintContextWrapper>> sCache = new ArrayList<>();

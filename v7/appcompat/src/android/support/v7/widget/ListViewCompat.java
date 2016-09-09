@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.graphics.drawable.DrawableWrapper;
 import android.util.AttributeSet;
@@ -32,12 +33,15 @@ import android.widget.ListView;
 
 import java.lang.reflect.Field;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * This class contains a number of useful things for ListView. Mainly used by
  * {@link android.support.v7.widget.ListPopupWindow}.
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class ListViewCompat extends ListView {
 
     public static final int INVALID_POSITION = -1;

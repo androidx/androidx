@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.InputDeviceCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -54,6 +55,8 @@ import android.widget.FrameLayout;
 import android.widget.ScrollView;
 
 import java.util.List;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * NestedScrollView is just like {@link android.widget.ScrollView}, but it supports acting
@@ -1331,6 +1334,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * children.</p>
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @Override
     public int computeVerticalScrollRange() {
         final int count = getChildCount();
@@ -1352,30 +1356,35 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     public int computeVerticalScrollOffset() {
         return Math.max(0, super.computeVerticalScrollOffset());
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     public int computeVerticalScrollExtent() {
         return super.computeVerticalScrollExtent();
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     public int computeHorizontalScrollRange() {
         return super.computeHorizontalScrollRange();
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     public int computeHorizontalScrollOffset() {
         return super.computeHorizontalScrollOffset();
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     public int computeHorizontalScrollExtent() {
         return super.computeHorizontalScrollExtent();

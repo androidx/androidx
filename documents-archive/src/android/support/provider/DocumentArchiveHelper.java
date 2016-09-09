@@ -28,6 +28,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsProvider;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 import android.util.LruCache;
 
@@ -42,6 +43,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Provides basic implementation for creating, extracting and accessing
  * files within archives exposed by a document provider.
@@ -52,6 +55,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * TODO: Update the documentation. b/26047732
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class DocumentArchiveHelper implements Closeable {
     /**
      * Cursor column to be used for passing the local file path for documents.
