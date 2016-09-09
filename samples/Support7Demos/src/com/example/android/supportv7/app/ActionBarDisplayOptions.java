@@ -15,8 +15,6 @@
  */
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -27,9 +25,8 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
-;
+import com.example.android.supportv7.R;
 
 /**
  * This demo shows how various action bar display option flags can be combined and their effects.
@@ -49,7 +46,6 @@ public class ActionBarDisplayOptions extends AppCompatActivity
         findViewById(R.id.toggle_use_logo).setOnClickListener(this);
         findViewById(R.id.toggle_show_title).setOnClickListener(this);
         findViewById(R.id.toggle_show_custom).setOnClickListener(this);
-        findViewById(R.id.toggle_navigation).setOnClickListener(this);
         findViewById(R.id.cycle_custom_gravity).setOnClickListener(this);
         findViewById(R.id.toggle_visibility).setOnClickListener(this);
 
@@ -60,22 +56,10 @@ public class ActionBarDisplayOptions extends AppCompatActivity
 
         final ActionBar bar = getSupportActionBar();
         bar.setCustomView(mCustomView, mCustomViewLayoutParams);
-        bar.addTab(bar.newTab().setText("Tab 1").setTabListener(this));
-        bar.addTab(bar.newTab().setText("Tab 2").setTabListener(this));
-        bar.addTab(bar.newTab().setText("Tab 3").setTabListener(this));
 
         final ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(bar.getThemedContext(),
                 R.layout.support_simple_spinner_dropdown_item,
                 new String[] { "Item 1", "Item 2", "Item 3" });
-        bar.setListNavigationCallbacks(listAdapter, new ActionBar.OnNavigationListener() {
-            @Override
-            public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-                Toast.makeText(ActionBarDisplayOptions.this,
-                        listAdapter.getItem(itemPosition),
-                        Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
 
         bar.setLogo(R.drawable.ic_media_play);
     }
@@ -112,19 +96,6 @@ public class ActionBarDisplayOptions extends AppCompatActivity
             case R.id.toggle_show_custom:
                 flags = ActionBar.DISPLAY_SHOW_CUSTOM;
                 break;
-            case R.id.toggle_navigation:
-                switch (bar.getNavigationMode()) {
-                    case ActionBar.NAVIGATION_MODE_STANDARD:
-                        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-                        break;
-                    case ActionBar.NAVIGATION_MODE_TABS:
-                        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-                        break;
-                    case ActionBar.NAVIGATION_MODE_LIST:
-                        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                        break;
-                }
-                return;
             case R.id.cycle_custom_gravity: {
                 ActionBar.LayoutParams lp = mCustomViewLayoutParams;
                 int newGravity = 0;

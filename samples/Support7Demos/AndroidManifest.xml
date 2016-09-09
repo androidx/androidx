@@ -173,18 +173,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ActionBarTabs"
-                android:label="@string/action_bar_tabs"
-                android:theme="@style/Theme.Custom">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".app.ActionBarSettingsActionProviderActivity"
-                android:label="@string/action_bar_settings_action_provider"
-                android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+                  android:label="@string/action_bar_settings_action_provider"
+                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
