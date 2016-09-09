@@ -39,10 +39,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/toggle_show_custom" />
-        <Button android:id="@+id/toggle_navigation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/toggle_navigation" />
         <Button android:id="@+id/cycle_custom_gravity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
