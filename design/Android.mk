@@ -43,7 +43,10 @@ LOCAL_SDK_VERSION := 9
 LOCAL_SRC_FILES := $(call all-java-files-under, base)
 LOCAL_JAVA_LIBRARIES := \
     android-support-design-res \
-    android-support-v4 \
+    android-support-compat \
+    android-support-core-utils \
+    android-support-core-ui \
+    android-support-fragment \
     android-support-v7-appcompat \
     android-support-v7-recyclerview
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
@@ -57,7 +60,10 @@ LOCAL_SRC_FILES := $(call all-java-files-under, gingerbread)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-design-base
 LOCAL_JAVA_LIBRARIES := \
     android-support-design-res \
-    android-support-v4 \
+    android-support-compat \
+    android-support-core-utils \
+    android-support-core-ui \
+    android-support-fragment \
     android-support-v7-appcompat \
     android-support-v7-recyclerview
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
@@ -71,7 +77,10 @@ LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-design-gingerbread
 LOCAL_JAVA_LIBRARIES := \
     android-support-design-res \
-    android-support-v4 \
+    android-support-compat \
+    android-support-core-utils \
+    android-support-core-ui \
+    android-support-fragment \
     android-support-v7-appcompat \
     android-support-v7-recyclerview
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
@@ -85,7 +94,10 @@ LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb-mr1)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-design-honeycomb
 LOCAL_JAVA_LIBRARIES := \
     android-support-design-res \
-    android-support-v4 \
+    android-support-compat \
+    android-support-core-utils \
+    android-support-core-ui \
+    android-support-fragment \
     android-support-v7-appcompat \
     android-support-v7-recyclerview
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
@@ -99,7 +111,10 @@ LOCAL_SRC_FILES := $(call all-java-files-under, ics)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-design-honeycomb-mr1
 LOCAL_JAVA_LIBRARIES := \
     android-support-design-res \
-    android-support-v4 \
+    android-support-compat \
+    android-support-core-utils \
+    android-support-core-ui \
+    android-support-fragment \
     android-support-v7-appcompat \
     android-support-v7-recyclerview \
     android-support-transition
@@ -114,7 +129,10 @@ LOCAL_SRC_FILES := $(call all-java-files-under, lollipop)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-design-ics
 LOCAL_JAVA_LIBRARIES := \
     android-support-design-res \
-    android-support-v4 \
+    android-support-compat \
+    android-support-core-utils \
+    android-support-core-ui \
+    android-support-fragment \
     android-support-v7-appcompat \
     android-support-v7-recyclerview \
     android-support-transition
@@ -128,7 +146,10 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 #       android-support-design \
 #       android-support-v7-appcompat \
 #       android-support-v7-recyclerview \
-#       android-support-v4
+#       android-support-compat \
+#       android-support-core-utils \
+#       android-support-core-ui \
+#       android-support-fragment
 #
 # in their makefiles to include the resources and their dependencies in their package.
 include $(CLEAR_VARS)
@@ -138,7 +159,12 @@ LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-design-lollipop
 LOCAL_STATIC_ANDROID_LIBRARIES := android-support-design-res
-LOCAL_SHARED_ANDROID_LIBRARIES := $(resource_libs) android-support-v4
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    $(resource_libs) \
+    android-support-compat \
+    android-support-core-utils \
+    android-support-core-ui \
+    android-support-fragment
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly

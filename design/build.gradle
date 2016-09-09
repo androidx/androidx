@@ -3,7 +3,10 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'design'
 
 dependencies {
-    compile project(':support-v4')
+    compile project(':support-compat')
+    compile project(':support-core-utils')
+    compile project(':support-core-ui')
+    compile project(':support-fragment')
     compile project(':support-appcompat-v7')
     compile project(':support-recyclerview-v7')
     compile project(':support-transition')
