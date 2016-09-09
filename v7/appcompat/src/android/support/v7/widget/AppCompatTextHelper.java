@@ -81,6 +81,7 @@ class AppCompatTextHelper {
         boolean allCaps = false;
         boolean allCapsSet = false;
         ColorStateList textColor = null;
+        ColorStateList textColorHint = null;
 
         // First check TextAppearance's textAllCaps value
         if (ap != -1) {
@@ -89,11 +90,16 @@ class AppCompatTextHelper {
                 allCapsSet = true;
                 allCaps = a.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
             }
-            if (Build.VERSION.SDK_INT < 23
-                    && a.hasValue(R.styleable.TextAppearance_android_textColor)) {
+            if (Build.VERSION.SDK_INT < 23) {
                 // If we're running on < API 23, the text color may contain theme references
                 // so let's re-set using our own inflater
-                textColor = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
+                if (a.hasValue(R.styleable.TextAppearance_android_textColor)) {
+                    textColor = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
+                }
+                if (a.hasValue(R.styleable.TextAppearance_android_textColorHint)) {
+                    textColorHint = a.getColorStateList(
+                            R.styleable.TextAppearance_android_textColorHint);
+                }
             }
             a.recycle();
         }
@@ -105,18 +111,25 @@ class AppCompatTextHelper {
             allCapsSet = true;
             allCaps = a.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
         }
-        if (Build.VERSION.SDK_INT < 23
-                && a.hasValue(R.styleable.TextAppearance_android_textColor)) {
+        if (Build.VERSION.SDK_INT < 23) {
             // If we're running on < API 23, the text color may contain theme references
             // so let's re-set using our own inflater
-            textColor = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
+            if (a.hasValue(R.styleable.TextAppearance_android_textColor)) {
+                textColor = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
+            }
+            if (a.hasValue(R.styleable.TextAppearance_android_textColorHint)) {
+                textColorHint = a.getColorStateList(
+                        R.styleable.TextAppearance_android_textColorHint);
+            }
         }
         a.recycle();
 
         if (textColor != null) {
             mView.setTextColor(textColor);
         }
-
+        if (textColorHint != null) {
+            mView.setHintTextColor(textColorHint);
+        }
         if (!hasPwdTm && allCapsSet) {
             setAllCaps(allCaps);
         }
