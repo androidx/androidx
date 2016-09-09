@@ -31,4 +31,9 @@
 
     <color name="emerald_translucent_default">#8020A060</color>
     <color name="emerald_translucent_disabled">#8070C090</color>
+
+    <color name="color_sky_day">#90F0FF</color>
+    <color name="color_sky_night">#3050CF</color>
+    <color name="color_sky">@color/color_sky_day</color>
+
 </resources>
