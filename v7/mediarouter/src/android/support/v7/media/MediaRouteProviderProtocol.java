@@ -21,7 +21,6 @@ import android.os.Messenger;
 
 /**
  * Defines the communication protocol for media route provider services.
- * @hide
  */
 abstract class MediaRouteProviderProtocol {
     /**

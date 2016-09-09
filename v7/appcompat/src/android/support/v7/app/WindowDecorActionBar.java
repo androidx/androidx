@@ -24,6 +24,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.RestrictTo;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
@@ -65,12 +66,15 @@ import android.widget.SpinnerAdapter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * WindowDecorActionBar is the ActionBar implementation used
  * by devices of all screen sizes as part of the window decor layout.
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class WindowDecorActionBar extends ActionBar implements
         ActionBarOverlayLayout.ActionBarVisibilityCallback {
     private static final String TAG = "WindowDecorActionBar";
@@ -184,6 +188,7 @@ public class WindowDecorActionBar extends ActionBar implements
      * Only for edit mode.
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public WindowDecorActionBar(View layout) {
         assert layout.isInEditMode();
         init(layout);
@@ -956,6 +961,7 @@ public class WindowDecorActionBar extends ActionBar implements
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
         private final Context mActionModeContext;
         private final MenuBuilder mMenu;
@@ -1129,6 +1135,7 @@ public class WindowDecorActionBar extends ActionBar implements
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public class TabImpl extends ActionBar.Tab {
         private ActionBar.TabListener mCallback;
         private Object mTag;

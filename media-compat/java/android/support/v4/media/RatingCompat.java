@@ -20,10 +20,13 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IntDef;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A class to encapsulate rating information used as content metadata.
@@ -39,6 +42,7 @@ public final class RatingCompat implements Parcelable {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @IntDef({RATING_NONE, RATING_HEART, RATING_THUMB_UP_DOWN, RATING_3_STARS, RATING_4_STARS,
             RATING_5_STARS, RATING_PERCENTAGE})
     @Retention(RetentionPolicy.SOURCE)
@@ -47,6 +51,7 @@ public final class RatingCompat implements Parcelable {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @IntDef({RATING_3_STARS, RATING_4_STARS, RATING_5_STARS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface StarStyle {}

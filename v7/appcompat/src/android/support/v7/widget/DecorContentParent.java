@@ -19,10 +19,13 @@ package android.support.v7.widget;
 
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
+import android.support.annotation.RestrictTo;
 import android.support.v7.view.menu.MenuPresenter;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.Window;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Implemented by the top-level decor layout for a window. DecorContentParent offers
@@ -30,6 +33,7 @@ import android.view.Window;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public interface DecorContentParent {
     void setWindowCallback(Window.Callback cb);
     void setWindowTitle(CharSequence title);

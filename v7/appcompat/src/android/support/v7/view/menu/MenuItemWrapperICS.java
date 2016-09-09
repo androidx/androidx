@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.RestrictTo;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.view.MenuItemCompat;
@@ -34,10 +35,13 @@ import android.widget.FrameLayout;
 
 import java.lang.reflect.Method;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Wraps a support {@link SupportMenuItem} as a framework {@link android.view.MenuItem}
  * @hide
  */
+@RestrictTo(GROUP_ID)
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> implements MenuItem {
     static final String LOG_TAG = "MenuItemWrapper";

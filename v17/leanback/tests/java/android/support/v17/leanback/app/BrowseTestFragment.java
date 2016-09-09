@@ -28,9 +28,6 @@ import android.support.v17.leanback.widget.VerticalGridView;
 import android.util.Log;
 import android.view.View;
 
-/**
- * @hide from javadoc
- */
 public class BrowseTestFragment extends BrowseFragment {
     private static final String TAG = "BrowseTestFragment";
 

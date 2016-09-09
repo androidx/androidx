@@ -20,10 +20,14 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class NotificationCompatBase {
 
     public static abstract class Action {

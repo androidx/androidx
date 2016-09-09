@@ -21,6 +21,7 @@ import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
@@ -43,6 +44,8 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Internal class used to interact with the Toolbar widget without
  * exposing interface methods to the public API.
@@ -54,6 +57,7 @@ import android.widget.SpinnerAdapter;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class ToolbarWidgetWrapper implements DecorToolbar {
     private static final String TAG = "ToolbarWidgetWrapper";
 

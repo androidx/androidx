@@ -16,10 +16,13 @@
 
 package android.support.v4.internal.view;
 
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.view.MenuItem;
 import android.view.View;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Interface for direct access to a previously created menu item.
@@ -30,6 +33,7 @@ import android.view.View;
  * @see android.view.MenuItem
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public interface SupportMenuItem extends android.view.MenuItem {
     /*
     * These should be kept in sync with attrs.xml enum constants for showAsAction
@@ -37,30 +41,30 @@ public interface SupportMenuItem extends android.view.MenuItem {
     /**
      * Never show this item as a button in an Action Bar.
      */
-    public static final int SHOW_AS_ACTION_NEVER = 0;
+    int SHOW_AS_ACTION_NEVER = 0;
     /**
      * Show this item as a button in an Action Bar if the system decides there is room for it.
      */
-    public static final int SHOW_AS_ACTION_IF_ROOM = 1;
+    int SHOW_AS_ACTION_IF_ROOM = 1;
     /**
      * Always show this item as a button in an Action Bar.
      * Use sparingly! If too many items are set to always show in the Action Bar it can
      * crowd the Action Bar and degrade the user experience on devices with smaller screens.
      * A good rule of thumb is to have no more than 2 items set to always show at a time.
      */
-    public static final int SHOW_AS_ACTION_ALWAYS = 2;
+    int SHOW_AS_ACTION_ALWAYS = 2;
 
     /**
      * When this item is in the action bar, always show it with a text label even if it also has an
      * icon specified.
      */
-    public static final int SHOW_AS_ACTION_WITH_TEXT = 4;
+    int SHOW_AS_ACTION_WITH_TEXT = 4;
 
     /**
      * This item's action view collapses to a normal menu item. When expanded, the action view
      * temporarily takes over a larger segment of its container.
      */
-    public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8;
+    int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8;
 
     /**
      * Sets how this item should display in the presence of an Action Bar. The parameter actionEnum
@@ -75,7 +79,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @see android.app.ActionBar
      * @see #setActionView(View)
      */
-    public void setShowAsAction(int actionEnum);
+    void setShowAsAction(int actionEnum);
 
     /**
      * Sets how this item should display in the presence of an Action Bar.
@@ -95,7 +99,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @see android.app.ActionBar
      * @see #setActionView(View)
      */
-    public MenuItem setShowAsActionFlags(int actionEnum);
+    MenuItem setShowAsActionFlags(int actionEnum);
 
     /**
      * Set an action view for this menu item. An action view will be displayed in place
@@ -109,7 +113,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @return This Item so additional setters can be called.
      * @see #setShowAsAction(int)
      */
-    public MenuItem setActionView(View view);
+    MenuItem setActionView(View view);
 
     /**
      * Set an action view for this menu item. An action view will be displayed in place
@@ -123,7 +127,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @return This Item so additional setters can be called.
      * @see #setShowAsAction(int)
      */
-    public MenuItem setActionView(int resId);
+    MenuItem setActionView(int resId);
 
     /**
      * Returns the currently set action view for this menu item.
@@ -132,7 +136,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @see #setActionView(View)
      * @see #setShowAsAction(int)
      */
-    public View getActionView();
+    View getActionView();
 
     /**
      * Sets the {@link android.support.v4.view.ActionProvider} responsible for creating an action view if
@@ -147,7 +151,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @return This Item so additional setters can be called.
      * @see android.support.v4.view.ActionProvider
      */
-    public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider);
+    SupportMenuItem setSupportActionProvider(ActionProvider actionProvider);
 
     /**
      * Gets the {@link ActionProvider}.
@@ -156,7 +160,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @see ActionProvider
      * @see #setSupportActionProvider(ActionProvider)
      */
-    public ActionProvider getSupportActionProvider();
+    ActionProvider getSupportActionProvider();
 
     /**
      * Expand the action view associated with this menu item. The menu item must have an action view
@@ -167,7 +171,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      *
      * @return true if the action view was expanded, false otherwise.
      */
-    public boolean expandActionView();
+    boolean expandActionView();
 
     /**
      * Collapse the action view associated with this menu item. The menu item must have an action
@@ -179,7 +183,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      *
      * @return true if the action view was collapsed, false otherwise.
      */
-    public boolean collapseActionView();
+    boolean collapseActionView();
 
     /**
      * Returns true if this menu item's action view has been expanded.
@@ -190,7 +194,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @see #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
      * @see android.support.v4.view.MenuItemCompat.OnActionExpandListener
      */
-    public boolean isActionViewExpanded();
+    boolean isActionViewExpanded();
 
     /**
      * Set an {@link android.support.v4.view.MenuItemCompat.OnActionExpandListener} on this menu item to be notified when the associated
@@ -200,5 +204,5 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @param listener Listener that will respond to expand/collapse events
      * @return This menu item instance for call chaining
      */
-    public SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener);
+    SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener);
 }

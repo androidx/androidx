@@ -20,7 +20,8 @@ resource_libs := \
     android-support-v14-preference \
     android-support-v7-preference \
     android-support-v7-appcompat \
-    android-support-v7-recyclerview
+    android-support-v7-recyclerview \
+    android-support-annotations
 
 # Build the resources using the latest applicable SDK version.
 # We do this here because the final static library must be compiled with an older
@@ -47,6 +48,8 @@ LOCAL_SRC_FILES := $(call all-java-files-under, api21)
 LOCAL_JAVA_LIBRARIES := \
     android-support-v17-preference-leanback-res \
     android-support-v17-leanback
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -61,7 +64,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 #       android-support-v7-appcompat \
 #       android-support-v7-recyclerview \
 #       android-support-v4 \
-#       android-support-annotions
+#       android-support-annotations
 #
 # in their makefiles to include the resources in their package.
 include $(CLEAR_VARS)
@@ -76,8 +79,7 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     android-support-v17-preference-leanback-res
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     $(resource_libs) \
-    android-support-v4 \
-    android-support-annotations
+    android-support-v4
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly

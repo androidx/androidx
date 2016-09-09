@@ -17,6 +17,7 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,10 +25,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.support.v17.leanback.R;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * The view displaying 3 animated peak meters next to each other when a media item is playing.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class MediaNowPlayingView extends LinearLayout{
 
     private final ImageView mImage1;

@@ -16,6 +16,7 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.media.AudioManager;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -36,6 +37,8 @@ import android.widget.TextView.OnEditorActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * GuidedActionAdapter instantiates views for guided actions, and manages their interactions.
  * Presentation (view creation and state animation) is delegated to a {@link
@@ -43,6 +46,7 @@ import java.util.List;
  * {@link GuidedActionAdapter.ClickListener} and {@link GuidedActionAdapter.FocusListener}.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class GuidedActionAdapter extends RecyclerView.Adapter {
     static final String TAG = "GuidedActionAdapter";
     static final boolean DEBUG = false;
@@ -215,6 +219,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
      * Used for serialization only.
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public List<GuidedAction> getActions() {
         return new ArrayList<GuidedAction>(mActions);
     }

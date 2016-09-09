@@ -39,6 +39,7 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.annotation.IntDef;
+import android.support.annotation.RestrictTo;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
@@ -52,6 +53,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Allows interaction with media controllers, volume keys, media buttons, and
@@ -89,6 +92,7 @@ public class MediaSessionCompat {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @IntDef(flag=true, value={FLAG_HANDLES_MEDIA_BUTTONS, FLAG_HANDLES_TRANSPORT_CONTROLS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface SessionFlags {}
@@ -522,6 +526,7 @@ public class MediaSessionCompat {
      *
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public String getCallingPackage() {
         return mImpl.getCallingPackage();
     }

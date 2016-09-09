@@ -25,7 +25,6 @@ import android.widget.LinearLayout;
 
 /**
  * A LinearLayout that preserves the focused child view.
- * @hide
  */
 class PlaybackControlsRowView extends LinearLayout {
     public interface OnUnhandledKeyListener {

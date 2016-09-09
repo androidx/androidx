@@ -16,6 +16,7 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 import static android.support.v7.widget.SuggestionsAdapter.getColumnString;
 
 import android.annotation.TargetApi;
@@ -41,6 +42,7 @@ import android.os.Parcelable;
 import android.os.ResultReceiver;
 import android.speech.RecognizerIntent;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.ConfigurationHelper;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
@@ -459,6 +461,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * @param appSearchData bundle provided by the app when launching the search dialog
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public void setAppSearchData(Bundle appSearchData) {
         mAppSearchData = appSearchData;
     }
@@ -509,6 +512,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
         // Don't accept focus if in the middle of clearing focus
@@ -528,6 +532,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     public void clearFocus() {
         mClearingFocus = true;
@@ -1016,9 +1021,8 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
     /**
      * Called by the SuggestionsAdapter
-     * @hide
      */
-    /* package */void onQueryRefine(CharSequence queryText) {
+    void onQueryRefine(CharSequence queryText) {
         setQuery(queryText);
     }
 
@@ -1865,6 +1869,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * Local subclass for AutoCompleteTextView.
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public static class SearchAutoComplete extends AppCompatAutoCompleteTextView {
 
         private int mThreshold;

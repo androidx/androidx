@@ -14,6 +14,7 @@
 
 package android.support.graphics.drawable;
 
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import org.xmlpull.v1.XmlPullParser;
@@ -52,6 +53,8 @@ import android.util.Xml;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * For API 24 and above, this class is delegating to the framework's {@link VectorDrawable}.
@@ -373,6 +376,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      *
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public float getPixelSize() {
         if (mVectorState == null && mVectorState.mVPathRenderer == null ||
                 mVectorState.mVPathRenderer.mBaseWidth == 0 ||

@@ -26,6 +26,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -41,6 +42,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Base class for activities that use the
@@ -242,6 +245,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public void invalidateOptionsMenu() {
         getDelegate().invalidateOptionsMenu();
     }

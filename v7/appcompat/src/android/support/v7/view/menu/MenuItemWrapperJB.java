@@ -19,15 +19,19 @@ package android.support.v7.view.menu;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RestrictTo;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
 import android.view.MenuItem;
 import android.view.View;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Wraps a support {@link SupportMenuItem} as a framework {@link android.view.MenuItem}
  * @hide
  */
+@RestrictTo(GROUP_ID)
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 class MenuItemWrapperJB extends MenuItemWrapperICS {
 

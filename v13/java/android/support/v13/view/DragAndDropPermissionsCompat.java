@@ -17,8 +17,11 @@
 package android.support.v13.view;
 
 import android.app.Activity;
+import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
 import android.view.DragEvent;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Helper for accessing features in {@link android.view.DragAndDropPermissions}
@@ -72,6 +75,7 @@ public final class DragAndDropPermissionsCompat {
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public static DragAndDropPermissionsCompat request(Activity activity, DragEvent dragEvent) {
         Object dragAndDropPermissions = IMPL.request(activity, dragEvent);
         if (dragAndDropPermissions != null) {

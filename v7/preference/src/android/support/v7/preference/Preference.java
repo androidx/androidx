@@ -26,6 +26,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.content.res.TypedArrayUtils;
@@ -40,6 +41,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Represents the basic Preference UI building
@@ -953,6 +956,7 @@ public class Preference implements Comparable<Preference> {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     protected void performClick(View view) {
         performClick();
     }
@@ -962,6 +966,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public void performClick() {
 
         if (!isEnabled()) {
@@ -1102,6 +1107,7 @@ public class Preference implements Comparable<Preference> {
      * Called from {@link PreferenceGroup} to pass in an ID for reuse
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     protected void onAttachedToHierarchy(PreferenceManager preferenceManager, long id) {
         mId = id;
         mHasId = true;
