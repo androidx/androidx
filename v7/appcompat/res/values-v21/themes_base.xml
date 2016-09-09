@@ -23,23 +23,31 @@
         unbundled Action Bar.
     -->
     <eat-comment/>
-    <style name="Platform.AppCompat" parent="android:Theme.Material">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowActionBar">false</item>
 
+    <style name="Platform.AppCompat" parent="Platform.V21.AppCompat" />
+    <style name="Platform.AppCompat.Light" parent="Platform.V21.AppCompat.Light" />
+
+    <style name="Platform.V21.AppCompat" parent="android:Theme.Material.NoActionBar">
+        <!-- Update link colors pre-v23 -->
         <item name="android:textColorLink">?android:attr/colorAccent</item>
         <item name="android:textColorLinkInverse">?android:attr/colorAccent</item>
+
+        <!-- Update hint colors pre-v25 -->
+        <item name="android:textColorHint">@color/abc_hint_foreground_material_dark</item>
+        <item name="android:textColorHintInverse">@color/abc_hint_foreground_material_light</item>
 
         <item name="android:buttonBarStyle">?attr/buttonBarStyle</item>
         <item name="android:buttonBarButtonStyle">?attr/buttonBarButtonStyle</item>
     </style>
 
-    <style name="Platform.AppCompat.Light" parent="android:Theme.Material.Light">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowActionBar">false</item>
-
+    <style name="Platform.V21.AppCompat.Light" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Update link colors pre-v23 -->
         <item name="android:textColorLink">?android:attr/colorAccent</item>
         <item name="android:textColorLinkInverse">?android:attr/colorAccent</item>
+
+        <!-- Update hint colors pre-v25 -->
+        <item name="android:textColorHint">@color/abc_hint_foreground_material_light</item>
+        <item name="android:textColorHintInverse">@color/abc_hint_foreground_material_dark</item>
 
         <item name="android:buttonBarStyle">?attr/buttonBarStyle</item>
         <item name="android:buttonBarButtonStyle">?attr/buttonBarButtonStyle</item>
