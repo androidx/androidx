@@ -28,6 +28,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StringRes;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.util.DebugUtils;
@@ -58,6 +59,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Static library support version of the framework's {@link android.app.FragmentManager}.
@@ -153,6 +156,7 @@ public abstract class FragmentManager {
      * @hide -- remove once prebuilts are in.
      * @deprecated
      */
+    @RestrictTo(GROUP_ID)
     @Deprecated
     public FragmentTransaction openTransaction() {
         return beginTransaction();
@@ -322,6 +326,7 @@ public abstract class FragmentManager {
      * @return The list of all fragments or null if none.
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public abstract List<Fragment> getFragments();
 
     /**

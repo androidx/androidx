@@ -29,6 +29,7 @@ import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StringRes;
 import android.support.v4.util.DebugUtils;
 import android.support.v4.util.SimpleArrayMap;
@@ -50,6 +51,8 @@ import android.widget.AdapterView;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 final class FragmentState implements Parcelable {
     final String mClassName;
@@ -791,11 +794,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     final public boolean hasOptionsMenu() {
         return mHasMenu;
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     final public boolean isMenuVisible() {
         return mMenuVisible;
     }
@@ -1112,10 +1117,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * @hide Hack so that DialogFragment can make its Dialog before creating
+     * Hack so that DialogFragment can make its Dialog before creating
      * its views, and the view construction can use the dialog's context for
      * inflation.  Maybe this should become a public API. Note sure.
+     * @hide
      */
+    @RestrictTo(GROUP_ID)
     public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
         LayoutInflater result = mHost.onGetLayoutInflater();
         getChildFragmentManager(); // Init if needed; use raw implementation below.

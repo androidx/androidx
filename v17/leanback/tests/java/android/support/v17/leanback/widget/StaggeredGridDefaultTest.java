@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Testing StaggeredGridDefault algorithm
- * @hide
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)

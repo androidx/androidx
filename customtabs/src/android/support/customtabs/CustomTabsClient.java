@@ -26,10 +26,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Class to communicate with a {@link CustomTabsService} and create
@@ -40,6 +43,7 @@ public class CustomTabsClient {
     private final ComponentName mServiceComponentName;
 
     /**@hide*/
+    @RestrictTo(GROUP_ID)
     CustomTabsClient(ICustomTabsService service, ComponentName componentName) {
         mService = service;
         mServiceComponentName = componentName;

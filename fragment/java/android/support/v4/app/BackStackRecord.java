@@ -192,7 +192,7 @@ final class BackStackState implements Parcelable {
 }
 
 /**
- * @hide Entry of an operation on the fragment back stack.
+ * Entry of an operation on the fragment back stack.
  */
 final class BackStackRecord extends FragmentTransaction implements
         FragmentManager.BackStackEntry, Runnable {

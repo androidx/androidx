@@ -37,6 +37,8 @@ LOCAL_MODULE := android-support-v17-leanback-common
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, common)
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-annotations
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -48,6 +50,8 @@ LOCAL_SDK_VERSION := 23
 LOCAL_SRC_FILES := $(call all-java-files-under, api23)
 LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-annotations
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -59,6 +63,8 @@ LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
 LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-annotations
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -70,6 +76,8 @@ LOCAL_SDK_VERSION := 19
 LOCAL_SRC_FILES := $(call all-java-files-under, kitkat)
 LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-annotations
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -81,6 +89,8 @@ LOCAL_SDK_VERSION := 18
 LOCAL_SRC_FILES := $(call all-java-files-under, jbmr2)
 LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-annotations
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -91,7 +101,8 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 #   LOCAL_STATIC_ANDROID_LIBRARIES := \
 #       android-support-v17-leanback \
 #       android-support-v7-recyclerview \
-#       android-support-v4
+#       android-support-v4 \
+#       android-support-annotations
 #
 # in their makefiles to include the resources and their dependencies in their package.
 include $(CLEAR_VARS)
@@ -110,7 +121,8 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     android-support-v17-leanback-res
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-v7-recyclerview \
-    android-support-v4
+    android-support-v4 \
+    android-support-annotations
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
@@ -122,6 +134,7 @@ leanback.docs.src_files := \
     $(call all-java-files-under, src) \
     $(call all-html-files-under, src)
 leanback.docs.java_libraries := \
+    android-support-annotations \
     android-support-v4 \
     android-support-v7-recyclerview \
     android-support-v17-leanback-res \

@@ -23,6 +23,7 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 
@@ -30,6 +31,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Playback state for a {@link MediaSessionCompat}. This includes a state like
@@ -41,6 +44,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @IntDef(flag=true, value={ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND,
             ACTION_SKIP_TO_PREVIOUS, ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_SET_RATING,
             ACTION_SEEK_TO, ACTION_PLAY_PAUSE, ACTION_PLAY_FROM_MEDIA_ID, ACTION_PLAY_FROM_SEARCH,
@@ -52,6 +56,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @IntDef({ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND, ACTION_SKIP_TO_PREVIOUS,
             ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_PLAY_PAUSE})
     @Retention(RetentionPolicy.SOURCE)
@@ -186,6 +191,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @IntDef({STATE_NONE, STATE_STOPPED, STATE_PAUSED, STATE_PLAYING, STATE_FAST_FORWARDING,
             STATE_REWINDING, STATE_BUFFERING, STATE_ERROR, STATE_CONNECTING,
             STATE_SKIPPING_TO_PREVIOUS, STATE_SKIPPING_TO_NEXT, STATE_SKIPPING_TO_QUEUE_ITEM})

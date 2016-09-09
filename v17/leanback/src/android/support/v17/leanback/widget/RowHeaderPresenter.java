@@ -14,11 +14,14 @@
 package android.support.v17.leanback.widget;
 
 import android.graphics.Paint;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * RowHeaderPresenter provides a default presentation for {@link HeaderItem} using a
@@ -39,6 +42,7 @@ public class RowHeaderPresenter extends Presenter {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public RowHeaderPresenter(int layoutResourceId) {
         this(layoutResourceId, true);
     }
@@ -46,6 +50,7 @@ public class RowHeaderPresenter extends Presenter {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public RowHeaderPresenter(int layoutResourceId, boolean animateSelect) {
         mLayoutResourceId = layoutResourceId;
         mAnimateSelect = animateSelect;

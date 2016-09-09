@@ -19,6 +19,7 @@ package android.support.v7.view.menu;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.RestrictTo;
 import android.support.v7.appcompat.R;
 import android.util.SparseArray;
 import android.view.ContextThemeWrapper;
@@ -31,11 +32,14 @@ import android.widget.ListAdapter;
 
 import java.util.ArrayList;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * MenuPresenter for list-style menus.
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class ListMenuPresenter implements MenuPresenter, AdapterView.OnItemClickListener {
     private static final String TAG = "ListMenuPresenter";
 

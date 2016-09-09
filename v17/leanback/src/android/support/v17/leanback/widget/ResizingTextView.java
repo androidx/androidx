@@ -25,7 +25,6 @@ import android.support.v17.leanback.R;
 /**
  * <p>A {@link android.widget.TextView} that adjusts text size automatically in response
  * to certain trigger conditions, such as text that wraps over multiple lines.</p>
- * @hide
  */
 class ResizingTextView extends TextView {
 

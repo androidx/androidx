@@ -33,8 +33,6 @@ import android.widget.ImageView;
  * Private class created to work around issues with AnimationListeners being
  * called before the animation is actually complete and support shadows on older
  * platforms.
- *
- * @hide
  */
 class CircleImageView extends ImageView {
 

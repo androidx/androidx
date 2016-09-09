@@ -30,9 +30,6 @@ import android.view.View;
 
 import static android.support.v17.leanback.app.BrowseFragmentTestActivity.*;
 
-/**
- * @hide from javadoc
- */
 public class BrowseTestFragment extends BrowseFragment {
     private static final String TAG = "BrowseTestFragment";
 

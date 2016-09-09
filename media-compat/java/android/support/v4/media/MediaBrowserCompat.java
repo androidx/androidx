@@ -32,6 +32,7 @@ import android.os.RemoteException;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -49,6 +50,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 import static android.support.v4.media.MediaBrowserProtocol.*;
 
 /**
@@ -307,6 +309,7 @@ public final class MediaBrowserCompat {
         private final MediaDescriptionCompat mDescription;
 
         /** @hide */
+        @RestrictTo(GROUP_ID)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef(flag=true, value = { FLAG_BROWSABLE, FLAG_PLAYABLE })
         public @interface Flags { }
@@ -1176,7 +1179,6 @@ public final class MediaBrowserCompat {
 
         /**
          * Log internal state.
-         * @hide
          */
         void dump() {
             Log.d(TAG, "MediaBrowserCompat...");

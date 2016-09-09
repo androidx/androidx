@@ -18,12 +18,15 @@ package android.support.v7.preference;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.TypedArrayUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A {@link Preference} that provides checkbox widget
@@ -96,6 +99,7 @@ public class CheckBoxPreference extends TwoStatePreference {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @Override
     protected void performClick(View view) {
         super.performClick(view);

@@ -14,9 +14,12 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Customized FrameLayout excludes margin of child from calculating the child size.
@@ -24,6 +27,7 @@ import android.widget.FrameLayout;
  * using hardcoded DIPS.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class BrowseRowsFrameLayout extends FrameLayout {
 
     public BrowseRowsFrameLayout(Context context) {

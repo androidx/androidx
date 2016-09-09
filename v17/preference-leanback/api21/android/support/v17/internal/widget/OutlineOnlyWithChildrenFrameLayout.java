@@ -18,10 +18,13 @@ package android.support.v17.internal.widget;
 
 import android.content.Context;
 import android.graphics.Outline;
+import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * {@link FrameLayout} subclass that provides an outline only when it has children, so that it does
@@ -29,6 +32,7 @@ import android.widget.FrameLayout;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class OutlineOnlyWithChildrenFrameLayout extends FrameLayout {
 
     private ViewOutlineProvider mMagicalOutlineProvider;

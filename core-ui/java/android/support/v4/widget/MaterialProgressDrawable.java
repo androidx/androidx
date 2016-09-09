@@ -45,17 +45,17 @@ import java.util.ArrayList;
 
 /**
  * Fancy progress indicator for Material theme.
- *
- * @hide
  */
 class MaterialProgressDrawable extends Drawable implements Animatable {
     private static final Interpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
     static final Interpolator MATERIAL_INTERPOLATOR = new FastOutSlowInInterpolator();
 
     private static final float FULL_ROTATION = 1080.0f;
+
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({LARGE, DEFAULT})
     public @interface ProgressDrawableSize {}
+
     // Maps to ProgressBar.Large style
     static final int LARGE = 0;
     // Maps to ProgressBar default style

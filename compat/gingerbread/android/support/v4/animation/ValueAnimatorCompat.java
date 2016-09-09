@@ -16,13 +16,17 @@
 
 package android.support.v4.animation;
 
+import android.support.annotation.RestrictTo;
 import android.view.View;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Compatibility implementation for {@code android.animation.ValueAnimator}.
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public interface ValueAnimatorCompat {
 
     public void setTarget(View view);

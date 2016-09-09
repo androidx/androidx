@@ -21,9 +21,12 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v7.app.AppCompatDelegate;
 
 import java.lang.ref.WeakReference;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * This class allows us to intercept calls so that we can tint resources (if applicable), and
@@ -31,6 +34,7 @@ import java.lang.ref.WeakReference;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class VectorEnabledTintResources extends Resources {
 
     public static boolean shouldBeUsed() {

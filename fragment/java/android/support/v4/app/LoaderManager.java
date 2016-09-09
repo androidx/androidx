@@ -184,9 +184,6 @@ public abstract class LoaderManager {
     public boolean hasRunningLoaders() { return false; }
 }
 
-/**
- * @hide
- */
 class LoaderManagerImpl extends LoaderManager {
     static final String TAG = "LoaderManager";
     static boolean DEBUG = false;

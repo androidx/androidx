@@ -16,6 +16,10 @@
 
 package android.support.v4.animation;
 
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * <p>An animation listener that receives notifications from an animation.
  * Notifications indicate animation related events, such as the end or the
@@ -23,6 +27,7 @@ package android.support.v4.animation;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public interface AnimatorListenerCompat {
 
     /**

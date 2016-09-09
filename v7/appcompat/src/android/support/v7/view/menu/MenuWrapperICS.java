@@ -27,7 +27,6 @@ import android.view.SubMenu;
 
 /**
  * Wraps a support {@link SupportMenu} as a framework {@link android.view.Menu}
- * @hide
  */
 class MenuWrapperICS extends BaseMenuWrapper<SupportMenu> implements Menu {
 

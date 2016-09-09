@@ -27,6 +27,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
@@ -46,6 +47,8 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 
 /**
@@ -475,6 +478,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
         if (mBackgroundTintHelper != null) {
@@ -488,6 +492,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @Override
     @Nullable
     public ColorStateList getSupportBackgroundTintList() {
@@ -502,6 +507,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @Override
     public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mBackgroundTintHelper != null) {
@@ -515,6 +521,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @Override
     @Nullable
     public PorterDuff.Mode getSupportBackgroundTintMode() {

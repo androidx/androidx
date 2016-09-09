@@ -19,16 +19,20 @@ package android.support.v4.hardware.fingerprint;
 import android.content.Context;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Handler;
+import android.support.annotation.RestrictTo;
 
 import java.security.Signature;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Actual FingerprintManagerCompat implementation for API level 23 and later.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public final class FingerprintManagerCompatApi23 {
 
     private static FingerprintManager getFingerprintManager(Context ctx) {

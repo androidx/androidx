@@ -32,9 +32,6 @@ import android.view.View;
 
 import static android.support.v17.leanback.app.BrowseSupportFragmentTestActivity.*;
 
-/**
- * @hide from javadoc
- */
 public class BrowseTestSupportFragment extends BrowseSupportFragment {
     private static final String TAG = "BrowseTestSupportFragment";
 

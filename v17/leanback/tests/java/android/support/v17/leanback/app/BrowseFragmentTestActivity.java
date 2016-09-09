@@ -22,9 +22,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.test.R;
 
-/**
- * @hide from javadoc
- */
 public class BrowseFragmentTestActivity extends Activity {
 
     public static final String EXTRA_ADD_TO_BACKSTACK = "addToBackStack";

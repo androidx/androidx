@@ -16,8 +16,6 @@ import android.widget.TextView;
  *
  * Repositioning child views in PreDraw callback in {@link GuidanceStylist} was interfering with
  * fragment transition. To avoid that, we do that in the onLayout pass.
- *
- * @hide
  */
 class GuidanceStylingRelativeLayout extends RelativeLayout {
     private float mTitleKeylinePercent;
