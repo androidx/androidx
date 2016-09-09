@@ -25,10 +25,12 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AttributeSet;
@@ -347,6 +349,7 @@ public class RecyclerViewBasicTest {
                 loggingView.getOnSavedInstanceCnt());
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void prefetchChangesCacheSize() {
         MockLayoutManager mlm = new MockLayoutManager() {
