@@ -9857,6 +9857,13 @@ package android.support.v7.widget {
     field protected final android.support.v7.widget.RecyclerView.LayoutManager mLayoutManager;
   }
 
+  public class PagerSnapHelper extends android.support.v7.widget.SnapHelper {
+    ctor public PagerSnapHelper();
+    method public int[] calculateDistanceToFinalSnap(android.support.v7.widget.RecyclerView.LayoutManager, android.view.View);
+    method public android.view.View findSnapView(android.support.v7.widget.RecyclerView.LayoutManager);
+    method public int findTargetSnapPosition(android.support.v7.widget.RecyclerView.LayoutManager, int, int);
+  }
+
   public class PopupMenu {
     ctor public PopupMenu(android.content.Context, android.view.View);
     ctor public PopupMenu(android.content.Context, android.view.View, int);
