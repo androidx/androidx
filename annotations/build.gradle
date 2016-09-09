@@ -72,9 +72,15 @@ task javadocJar(type: Jar, dependsOn:javadoc) {
     from               javadoc.destinationDir
 }
 
-// add javadoc/source jar tasks as artifacts
+task annotationsZip(type: Zip) {
+    classifier         'annotations'
+    from               'external-annotations'
+}
+
+// add javadoc/source/annotations jar tasks as artifacts
 artifacts {
     archives jar
     archives sourcesJar
     archives javadocJar
+    archives annotationsZip
 }
