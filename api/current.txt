@@ -9187,6 +9187,21 @@ package android.support.v7.preference {
     method public void setDividerAllowedBelow(boolean);
   }
 
+  public class SeekBarPreference extends android.support.v7.preference.Preference {
+    ctor public SeekBarPreference(android.content.Context, android.util.AttributeSet, int, int);
+    ctor public SeekBarPreference(android.content.Context, android.util.AttributeSet, int);
+    ctor public SeekBarPreference(android.content.Context, android.util.AttributeSet);
+    ctor public SeekBarPreference(android.content.Context);
+    method public int getMax();
+    method public int getMin();
+    method public int getValue();
+    method public boolean isAdjustable();
+    method public void setAdjustable(boolean);
+    method public void setMax(int);
+    method public void setMin(int);
+    method public void setValue(int);
+  }
+
   public class SwitchPreferenceCompat extends android.support.v7.preference.TwoStatePreference {
     ctor public SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet, int, int);
     ctor public SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet, int);

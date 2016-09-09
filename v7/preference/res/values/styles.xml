@@ -49,6 +49,12 @@
         <item name="android:switchTextOff">@string/v7_preference_off</item>
     </style>
 
+    <style name="Preference.SeekBarPreference">
+        <item name="android:layout">@layout/preference_widget_seekbar</item>
+        <item name="adjustable">true</item>
+        <item name="showSeekBarValue">true</item>
+    </style>
+
     <style name="Preference.PreferenceScreen">
     </style>
 

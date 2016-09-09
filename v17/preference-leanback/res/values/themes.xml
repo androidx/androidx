@@ -25,6 +25,7 @@
         <item name="preferenceInformationStyle">@style/LeanbackPreference.Information</item>
         <item name="checkBoxPreferenceStyle">@style/LeanbackPreference.CheckBoxPreference</item>
         <item name="switchPreferenceCompatStyle">@style/LeanbackPreference.SwitchPreferenceCompat</item>
+        <item name="seekBarPreferenceStyle">@style/LeanbackPreference.SeekBarPreference</item>
         <item name="switchPreferenceStyle">@style/LeanbackPreference.SwitchPreference</item>
         <item name="dialogPreferenceStyle">@style/LeanbackPreference.DialogPreference</item>
         <item name="editTextPreferenceStyle">@style/LeanbackPreference.DialogPreference.EditTextPreference</item>
