@@ -12,6 +12,14 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 jar {
     from sourceSets.main.output
+    // Strip out typedef classes. For Android libraries, this is done
+    // automatically by the Gradle plugin, but the Annotation library is a
+    // plain jar, built by the regular Gradle java plugin. The typedefs
+    // themselves have been manually extracted into the
+    // external-annotations directory, and those are packaged separately
+    // below by the annotationsZip task.
+    exclude('android/support/annotation/ProductionVisibility.class')
+    exclude('android/support/annotation/DimensionUnit.class')
 }
 
 uploadArchives {

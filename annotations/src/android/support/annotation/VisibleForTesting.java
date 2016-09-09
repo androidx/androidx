@@ -18,7 +18,6 @@ package android.support.annotation;
 import java.lang.annotation.Retention;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
  * Denotes that the class, method or field has its visibility relaxed, so that it is more widely
@@ -66,9 +65,4 @@ public @interface VisibleForTesting {
      * This is equivalent to {@code @RestrictTo.Scope.TESTS}.
      */
     int NONE = 5;
-
-    @IntDef({PRIVATE, PACKAGE_PRIVATE, PROTECTED, NONE})
-    @Retention(SOURCE)
-    @interface ProductionVisibility {
-    }
 }
