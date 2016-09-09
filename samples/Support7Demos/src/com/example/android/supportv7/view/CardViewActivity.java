@@ -17,6 +17,7 @@ package com.example.android.supportv7.view;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -161,7 +162,8 @@ public class CardViewActivity extends AppCompatActivity {
                     @Override
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
                         mCardView.setCardBackgroundColor(
-                                getResources().getColorStateList(getColorId(checkedId)));
+                                ContextCompat.getColorStateList(CardViewActivity.this,
+                                        getColorId(checkedId)));
                     }
                 });
     }

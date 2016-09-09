@@ -20,6 +20,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -146,7 +147,7 @@ public class DrawerLayoutActivity extends AppCompatActivity {
         // Configure the background color fill of the system status bar (on supported platform
         // versions) and the toolbar itself. We're using the same color, and android:statusBar
         // from the theme makes the status bar slightly darker.
-        final int metalBlueColor = getResources().getColor(R.color.drawer_sample_metal_blue);
+        final int metalBlueColor = ContextCompat.getColor(this, R.color.drawer_sample_metal_blue);
         mDrawerLayout.setStatusBarBackgroundColor(metalBlueColor);
         mToolbar.setBackgroundColor(metalBlueColor);
 
