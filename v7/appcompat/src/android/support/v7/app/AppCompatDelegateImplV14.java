@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.view.SupportActionModeWrapper;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Window;
@@ -37,6 +38,8 @@ import android.view.Window;
 class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
 
     private static final String KEY_LOCAL_NIGHT_MODE = "appcompat:local_night_mode";
+
+    private static final boolean FLUSH_RESOURCE_CACHES_ON_NIGHT_CHANGE = true;
 
     @NightMode
     private int mLocalNightMode = MODE_NIGHT_UNSPECIFIED;
@@ -205,10 +208,25 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
                 if (DEBUG) {
                     Log.d(TAG, "applyNightMode() | Night mode changed, updating configuration");
                 }
-                final Configuration newConf = new Configuration(conf);
-                newConf.uiMode = newNightMode
-                        | (newConf.uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
-                res.updateConfiguration(newConf, null);
+                final Configuration config = new Configuration(conf);
+                final DisplayMetrics metrics = res.getDisplayMetrics();
+                final float originalFontScale = config.fontScale;
+
+                // Update the UI Mode to reflect the new night mode
+                config.uiMode = newNightMode | (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
+                if (FLUSH_RESOURCE_CACHES_ON_NIGHT_CHANGE) {
+                    // Set a fake font scale value to flush any resource caches
+                    config.fontScale = originalFontScale * 2;
+                }
+                // Now update the configuration
+                res.updateConfiguration(config, metrics);
+
+                if (FLUSH_RESOURCE_CACHES_ON_NIGHT_CHANGE) {
+                    // If we're flushing the resources cache, revert back to the original
+                    // font scale value
+                    config.fontScale = originalFontScale;
+                    res.updateConfiguration(config, metrics);
+                }
             }
             return true;
         } else {
@@ -233,7 +251,7 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
 
     private boolean shouldRecreateOnNightModeChange() {
         if (mApplyDayNightCalled && mContext instanceof Activity) {
-            // If we've already appliedDayNight() (via setTheme), we need to check if the
+            // If we've already applyDayNight() (via setTheme), we need to check if the
             // Activity has configChanges set to handle uiMode changes
             final PackageManager pm = mContext.getPackageManager();
             try {
