@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -110,5 +111,11 @@ public class TintContextWrapper extends ContextWrapper {
     @Override
     public Resources getResources() {
         return mResources;
+    }
+
+    @Override
+    public AssetManager getAssets() {
+        // Ensure we're returning assets with the correct configuration.
+        return mResources.getAssets();
     }
 }
