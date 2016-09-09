@@ -14,10 +14,14 @@
 package android.support.v17.leanback.app;
 
 import android.os.Build;
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class PermissionHelper {
 
     public static void requestPermissions(android.app.Fragment fragment, String[] permissions,

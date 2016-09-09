@@ -27,8 +27,6 @@ import android.view.View;
  * Uses framework Animators to provide ValueAnimatorCompat interface.
  * <p>
  * This is not a fully implemented API which is why it is not public.
- *
- * @hide
  */
 class HoneycombMr1AnimatorCompatProvider implements AnimatorProvider {
 

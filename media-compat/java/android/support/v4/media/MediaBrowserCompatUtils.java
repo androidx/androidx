@@ -17,10 +17,14 @@
 package android.support.v4.media;
 
 import android.os.Bundle;
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class MediaBrowserCompatUtils {
     public static boolean areSameOptions(Bundle options1, Bundle options2) {
         if (options1 == options2) {

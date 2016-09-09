@@ -46,7 +46,6 @@ public class CustomTabsSessionToken {
         return new CustomTabsSessionToken(ICustomTabsCallback.Stub.asInterface(binder));
     }
 
-    /**@hide*/
     CustomTabsSessionToken(ICustomTabsCallback callbackBinder) {
         mCallbackBinder = callbackBinder;
         mCallback = new CustomTabsCallback() {
@@ -62,7 +61,6 @@ public class CustomTabsSessionToken {
         };
     }
 
-    /**@hide*/
     IBinder getCallbackBinder() {
         return mCallbackBinder.asBinder();
     }

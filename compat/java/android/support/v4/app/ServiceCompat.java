@@ -19,10 +19,13 @@ package android.support.v4.app;
 import android.app.Notification;
 import android.app.Service;
 import android.support.annotation.IntDef;
+import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Helper for accessing features in {@link android.app.Service}
@@ -74,6 +77,7 @@ public final class ServiceCompat {
     public static final int STOP_FOREGROUND_DETACH = 1<<1;
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @IntDef(flag = true,
             value = {
                     STOP_FOREGROUND_REMOVE,

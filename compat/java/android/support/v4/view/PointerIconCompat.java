@@ -19,7 +19,10 @@ package android.support.v4.view;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Helper for accessing features in {@link android.view.PointerIcon} introduced after API
@@ -105,6 +108,7 @@ public final class PointerIconCompat {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public Object getPointerIcon() {
         return mPointerIcon;
     }

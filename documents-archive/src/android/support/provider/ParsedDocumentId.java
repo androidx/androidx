@@ -16,9 +16,14 @@
 
 package android.support.provider;
 
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * @hide
  */
+@RestrictTo(GROUP_ID)
 class ParsedDocumentId {
     public final String mArchiveId;
     public final String mPath;

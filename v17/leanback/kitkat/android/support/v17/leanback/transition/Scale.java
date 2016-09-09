@@ -22,9 +22,6 @@ import android.view.ViewGroup;
 import android.transition.Transition;
 import android.transition.TransitionValues;
 
-/**
- * @hide
- */
 class Scale extends Transition {
     private static final String PROPNAME_SCALE = "android:leanback:scale";
 

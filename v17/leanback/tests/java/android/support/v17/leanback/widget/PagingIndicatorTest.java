@@ -27,7 +27,6 @@ import org.junit.runner.RunWith;
 
 /**
  * Tests for {@link PagingIndicator}.
- * @hide
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)

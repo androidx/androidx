@@ -23,8 +23,11 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.View;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Drawable which delegates all calls to it's wrapped {@link Drawable}.
@@ -34,6 +37,7 @@ import android.view.View;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class DrawableWrapper extends Drawable implements Drawable.Callback {
 
     private Drawable mDrawable;

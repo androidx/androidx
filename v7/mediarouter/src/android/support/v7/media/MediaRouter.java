@@ -33,6 +33,7 @@ import android.os.Message;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.app.ActivityManagerCompat;
 import android.support.v4.hardware.display.DisplayManagerCompat;
 import android.support.v4.media.VolumeProviderCompat;
@@ -56,6 +57,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
@@ -117,7 +120,6 @@ public final class MediaRouter {
     final Context mContext;
     final ArrayList<CallbackRecord> mCallbackRecords = new ArrayList<CallbackRecord>();
 
-    /** @hide */
     @IntDef(flag = true,
             value = {
                     CALLBACK_FLAG_PERFORM_ACTIVE_SCAN,
@@ -805,7 +807,6 @@ public final class MediaRouter {
         private IntentSender mSettingsIntent;
         MediaRouteDescriptor mDescriptor;
 
-        /** @hide */
         @IntDef({CONNECTION_STATE_DISCONNECTED, CONNECTION_STATE_CONNECTING,
                 CONNECTION_STATE_CONNECTED})
         @Retention(RetentionPolicy.SOURCE)
@@ -833,7 +834,6 @@ public final class MediaRouter {
          */
         public static final int CONNECTION_STATE_CONNECTED = 2;
 
-        /** @hide */
         @IntDef({PLAYBACK_TYPE_LOCAL,PLAYBACK_TYPE_REMOTE})
         @Retention(RetentionPolicy.SOURCE)
         private @interface PlaybackType {}
@@ -855,7 +855,6 @@ public final class MediaRouter {
          */
         public static final int PLAYBACK_TYPE_REMOTE = 1;
 
-        /** @hide */
         @IntDef({DEVICE_TYPE_UNKNOWN, DEVICE_TYPE_TV, DEVICE_TYPE_SPEAKER, DEVICE_TYPE_BLUETOOTH})
         @Retention(RetentionPolicy.SOURCE)
         private @interface DeviceType {}
@@ -866,6 +865,7 @@ public final class MediaRouter {
          * @see #getDeviceType
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public static final int DEVICE_TYPE_UNKNOWN = 0;
 
         /**
@@ -891,9 +891,9 @@ public final class MediaRouter {
          * @see #getDeviceType
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public static final int DEVICE_TYPE_BLUETOOTH = 3;
 
-        /** @hide */
         @IntDef({PLAYBACK_VOLUME_FIXED,PLAYBACK_VOLUME_VARIABLE})
         @Retention(RetentionPolicy.SOURCE)
         private @interface PlaybackVolume {}
@@ -921,6 +921,7 @@ public final class MediaRouter {
          * with the route.
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public static final int PRESENTATION_DISPLAY_ID_NONE = -1;
 
         static final int CHANGE_GENERAL = 1 << 0;
@@ -1247,6 +1248,7 @@ public final class MediaRouter {
         /**
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public boolean isDefaultOrBluetooth() {
             if (isDefault() || mDeviceType == DEVICE_TYPE_BLUETOOTH) {
                 return true;
@@ -1377,6 +1379,7 @@ public final class MediaRouter {
          * Gets the route's presentation display id, or -1 if none.
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public int getPresentationDisplayId() {
             return mPresentationDisplayId;
         }
@@ -1521,6 +1524,7 @@ public final class MediaRouter {
         }
 
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public MediaRouteProvider getProviderInstance() {
             return mProvider.getProviderInstance();
         }
@@ -1530,6 +1534,7 @@ public final class MediaRouter {
      * Information about a route that consists of multiple other routes in a group.
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public static class RouteGroup extends RouteInfo {
         private List<RouteInfo> mRoutes = new ArrayList<>();
 

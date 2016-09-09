@@ -19,6 +19,7 @@ package android.support.v4.content;
 import android.content.Context;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.RestrictTo;
 import android.support.v4.os.OperationCanceledException;
 import android.support.v4.util.TimeUtils;
 import android.util.Log;
@@ -27,6 +28,8 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Static library support version of the framework's {@link android.content.AsyncTaskLoader}.
@@ -331,6 +334,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
      *
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public void waitForLoader() {
         LoadTask task = mTask;
         if (task != null) {

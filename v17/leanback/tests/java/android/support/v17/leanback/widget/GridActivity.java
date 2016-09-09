@@ -35,9 +35,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * @hide from javadoc
- */
 public class GridActivity extends Activity {
 
     private static final String TAG = "GridActivity";

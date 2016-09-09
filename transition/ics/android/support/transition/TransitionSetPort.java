@@ -17,11 +17,14 @@
 package android.support.transition;
 
 import android.animation.TimeInterpolator;
+import android.support.annotation.RestrictTo;
 import android.util.AndroidRuntimeException;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 class TransitionSetPort extends TransitionPort {
 
@@ -162,6 +165,7 @@ class TransitionSetPort extends TransitionPort {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @Override
     protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
             TransitionValuesMaps endValues) {
@@ -173,6 +177,7 @@ class TransitionSetPort extends TransitionPort {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     @Override
     protected void runAnimators() {
         if (mTransitions.isEmpty()) {
@@ -231,6 +236,7 @@ class TransitionSetPort extends TransitionPort {
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     public void pause(View sceneRoot) {
         super.pause(sceneRoot);
@@ -241,6 +247,7 @@ class TransitionSetPort extends TransitionPort {
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     public void resume(View sceneRoot) {
         super.resume(sceneRoot);
@@ -251,6 +258,7 @@ class TransitionSetPort extends TransitionPort {
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     protected void cancel() {
         super.cancel();

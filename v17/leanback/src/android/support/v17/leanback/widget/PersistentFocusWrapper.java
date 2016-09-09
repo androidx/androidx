@@ -31,7 +31,6 @@ import java.util.ArrayList;
 /**
  * Saves the focused grandchild position.
  * Helps add persistent focus feature to various ViewGroups.
- * @hide
  */
 class PersistentFocusWrapper extends FrameLayout {
 

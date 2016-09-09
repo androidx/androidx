@@ -34,9 +34,7 @@ import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_APPEAR;
 import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_PRE;
 import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_POST;
 /**
- * This class abstracts all tracking for Views to run animations
- *
- * @hide
+ * This class abstracts all tracking for Views to run animations.
  */
 class ViewInfoStore {
 

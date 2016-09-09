@@ -16,7 +16,11 @@
 
 package android.support.v4.util;
 
+import android.support.annotation.RestrictTo;
+
 import java.io.PrintWriter;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Helper for accessing features in {@link android.util.TimeUtils}
@@ -24,6 +28,7 @@ import java.io.PrintWriter;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public final class TimeUtils {
     /** @hide Field length that can hold 999 days of time */
     public static final int HUNDRED_DAY_FIELD_LEN = 19;

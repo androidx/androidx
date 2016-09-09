@@ -17,7 +17,6 @@ package android.support.v4.media;
 
 /**
  * Defines the communication protocol for media browsers and media browser services.
- * @hide
  */
 class MediaBrowserProtocol {
 

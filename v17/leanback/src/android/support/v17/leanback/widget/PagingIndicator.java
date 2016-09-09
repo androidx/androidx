@@ -31,6 +31,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.ColorInt;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v17.leanback.R;
 import android.util.AttributeSet;
@@ -38,10 +39,13 @@ import android.util.Property;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * A page indicator with dots.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class PagingIndicator extends View {
     private static final long DURATION_ALPHA = 167;
     private static final long DURATION_DIAMETER = 417;

@@ -13,13 +13,17 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.support.annotation.RestrictTo;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class InvisibleRowPresenter extends RowPresenter {
 
     public InvisibleRowPresenter() {

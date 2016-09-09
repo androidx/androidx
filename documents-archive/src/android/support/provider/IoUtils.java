@@ -17,15 +17,19 @@
 package android.support.provider;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 
 import java.io.Closeable;
 import java.io.InputStream;
 import java.util.Collection;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Simple static methods to perform common IO operations.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 final class IoUtils {
     static void closeQuietly(@Nullable Closeable closeable) {
        if (closeable != null) {
