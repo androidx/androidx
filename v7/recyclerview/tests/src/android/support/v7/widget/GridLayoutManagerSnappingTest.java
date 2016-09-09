@@ -168,7 +168,11 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         mGlm.waitForLayout(2);
 
         View view = findCenterView(mGlm);
-        int scrollDistance = (getViewDimension(view) / 2) + 10;
+        int scrollDistance = distFromCenter(view) / 2;
+        if (scrollDistance == 0) {
+            return;
+        }
+
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
 
         mGlm.expectIdleState(2);
@@ -205,6 +209,14 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
                     mRecyclerView.getHeight() / 2,
                     mGlm.getDecoratedTop(view) +
                             mGlm.getDecoratedMeasuredHeight(view) / 2);
+        }
+    }
+
+    private int distFromCenter(View view) {
+        if (mGlm.canScrollHorizontally()) {
+            return Math.abs(mRecyclerView.getWidth() / 2 - mGlm.getViewBounds(view).centerX());
+        } else {
+            return Math.abs(mRecyclerView.getHeight() / 2 - mGlm.getViewBounds(view).centerY());
         }
     }
 
