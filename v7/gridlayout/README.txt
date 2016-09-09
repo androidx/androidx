@@ -13,7 +13,7 @@ USAGE:
 
 Make sure you use <android.support.v7.widget.GridLayout> in your
 layouts instead of <GridLayout>.
-Same for <android.support.v7.widget.Space> instead of <Space>.
+Same for <android.support.v4.widget.Space> instead of <Space>.
 
 Additionally, all of GridLayout's attributes should be put in the
 namespace of the app, as those attributes have been redefined in
@@ -57,7 +57,7 @@ For instance:
         app:layout_row="3"
         android:text="Button" />
 
-    <android.support.v7.widget.Space                    <=== space widgets also need the full support package path
+    <android.support.v4.widget.Space                    <=== space widgets also need the full support package path
         android:layout_width="21dp"                     <=== use the android namespace for width, height etc -- only use app: for the grid layout library's new resources
         android:layout_height="1dp"
         app:layout_column="0"
