@@ -60,8 +60,11 @@
     <color name="dim_foreground_disabled_material_dark">#80bebebe</color>
     <color name="dim_foreground_disabled_material_light">#80323232</color>
 
-    <color name="hint_foreground_material_dark">@color/bright_foreground_disabled_material_dark</color>
-    <color name="hint_foreground_material_light">@color/bright_foreground_disabled_material_light</color>
+    <item name="hint_alpha_material_dark" format="float" type="dimen">0.50</item>
+    <item name="hint_alpha_material_light" format="float" type="dimen">0.38</item>
+
+    <item name="hint_pressed_alpha_material_dark" format="float" type="dimen">0.70</item>
+    <item name="hint_pressed_alpha_material_light" format="float" type="dimen">0.54</item>
 
     <!-- TODO: This is 40% alpha on the default accent color. -->
     <color name="highlighted_text_material_dark">#6680cbc4</color>
