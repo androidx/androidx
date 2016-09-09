@@ -21,6 +21,7 @@ import com.example.android.supportv7.widget.util.ConfigToggle;
 
 import android.annotation.TargetApi;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -89,7 +90,8 @@ public class DragAndDropActivity extends ItemTouchHelperActivity {
     public void clearView(RecyclerView.ViewHolder viewHolder) {
         super.clearView(viewHolder);
         ItemTouchViewHolder touchVH = (ItemTouchViewHolder) viewHolder;
-        touchVH.cardView.setCardBackgroundColor(getResources().getColor(android.R.color.white));
+        touchVH.cardView.setCardBackgroundColor(
+                ContextCompat.getColor(this, android.R.color.white));
         touchVH.overlay.setVisibility(View.GONE);
     }
 
@@ -97,7 +99,8 @@ public class DragAndDropActivity extends ItemTouchHelperActivity {
     public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
         ItemTouchViewHolder touchVH = (ItemTouchViewHolder) viewHolder;
         if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
-            touchVH.cardView.setCardBackgroundColor(getResources().getColor(R.color.card_aquatic));
+            touchVH.cardView.setCardBackgroundColor(
+                    ContextCompat.getColor(this, R.color.card_aquatic));
         }
         super.onSelectedChanged(viewHolder, actionState);
     }

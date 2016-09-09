@@ -16,8 +16,6 @@
 
 package com.example.android.supportv7.graphics;
 
-import com.example.android.supportv7.R;
-
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -39,6 +37,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
+
+import com.example.android.supportv7.R;
 
 /**
  * Activity which displays the images from the device's {@link MediaStore}, alongside the generated
@@ -204,7 +204,7 @@ public class PaletteActivity extends AppCompatActivity {
                 ImageLoader.loadMediaStoreThumbnail(imageView, id, new ImageLoader.Listener() {
                     @Override
                     public void onImageLoaded(Bitmap bitmap) {
-                        Palette.generateAsync(bitmap, mNumColors,
+                        new Palette.Builder(bitmap).maximumColorCount(mNumColors).generate(
                                 new Palette.PaletteAsyncListener() {
                                     @Override
                                     public void onGenerated(Palette palette) {
