@@ -18,9 +18,12 @@ package android.support.v7.preference;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.os.BuildCompat;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Used to help create {@link Preference} hierarchies
@@ -95,6 +98,7 @@ public class PreferenceManager {
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public PreferenceManager(Context context) {
         mContext = context;
 
@@ -113,6 +117,7 @@ public class PreferenceManager {
      *         root).
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public PreferenceScreen inflateFromResource(Context context, int resId,
             PreferenceScreen rootPreferences) {
         // Block commits

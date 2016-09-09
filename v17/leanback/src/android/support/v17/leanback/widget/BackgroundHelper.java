@@ -17,20 +17,24 @@ package android.support.v17.leanback.widget;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.widget.BackgroundHelperKitkat;
 import android.view.View;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 
 /**
  * Helper for view backgrounds.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public final class BackgroundHelper {
 
     final static BackgroundHelperVersionImpl sImpl;
 
-    static interface BackgroundHelperVersionImpl {
-        public void setBackgroundPreservingAlpha(View view, Drawable drawable);
+    interface BackgroundHelperVersionImpl {
+        void setBackgroundPreservingAlpha(View view, Drawable drawable);
     }
 
     private static final class BackgroundHelperStubImpl implements BackgroundHelperVersionImpl {

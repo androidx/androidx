@@ -835,7 +835,6 @@ public final class BackgroundManager {
     /**
      * Release references to Drawables and put the BackgroundManager into the
      * detached state. Called when the associated Activity is destroyed.
-     * @hide
      */
     void detach() {
         if (DEBUG) Log.v(TAG, "detach " + this);

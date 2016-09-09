@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
@@ -45,12 +46,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * This widget implements the dynamic action bar tab behavior that can change across different
  * configurations or circumstances.
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class ScrollingTabContainerView extends HorizontalScrollView
         implements AdapterView.OnItemSelectedListener {
 

@@ -23,6 +23,7 @@ import android.os.Build;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
@@ -33,11 +34,14 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.PopupWindow.OnDismissListener;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Presents a menu as a small, simple popup anchored to another view.
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class MenuPopupHelper implements MenuHelper {
     private static final int TOUCH_EPICENTER_SIZE_DP = 48;
 

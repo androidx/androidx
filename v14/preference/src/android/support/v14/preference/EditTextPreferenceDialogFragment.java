@@ -18,9 +18,12 @@ package android.support.v14.preference;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v7.preference.EditTextPreference;
 import android.view.View;
 import android.widget.EditText;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 public class EditTextPreferenceDialogFragment extends PreferenceDialogFragment {
 
@@ -74,6 +77,7 @@ public class EditTextPreferenceDialogFragment extends PreferenceDialogFragment {
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     protected boolean needInputMethod() {
         // We want the input method to show, if possible, when dialog is displayed

@@ -16,6 +16,10 @@
 
 package android.support.v4.internal.view;
 
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Interface for managing the items in a menu.
  *
@@ -25,39 +29,32 @@ package android.support.v4.internal.view;
  * @see android.view.Menu
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public interface SupportMenu extends android.view.Menu {
 
     /**
      * This is the part of an order integer that the user can provide.
-     *
-     * @hide
      */
-    static final int USER_MASK = 0x0000ffff;
+    int USER_MASK = 0x0000ffff;
+
     /**
      * Bit shift of the user portion of the order integer.
-     *
-     * @hide
      */
-    static final int USER_SHIFT = 0;
+    int USER_SHIFT = 0;
 
     /**
      * This is the part of an order integer that supplies the category of the item.
-     *
-     * @hide
      */
-    static final int CATEGORY_MASK = 0xffff0000;
+    int CATEGORY_MASK = 0xffff0000;
+
     /**
      * Bit shift of the category portion of the order integer.
-     *
-     * @hide
      */
-    static final int CATEGORY_SHIFT = 16;
+    int CATEGORY_SHIFT = 16;
 
     /**
      * Flag which stops the Menu being closed when a sub menu is opened
-     *
-     * @hide
      */
-    static final int FLAG_KEEP_OPEN_ON_SUBMENU_OPENED = 4;
+    int FLAG_KEEP_OPEN_ON_SUBMENU_OPENED = 4;
 }
 

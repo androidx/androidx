@@ -31,6 +31,7 @@ import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsProvider;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -57,6 +58,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Provides basic implementation for creating, extracting and accessing
  * files within archives exposed by a document provider. The id delimiter
@@ -67,6 +70,7 @@ import java.util.zip.ZipInputStream;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class DocumentArchive implements Closeable {
     private static final String TAG = "DocumentArchive";
 

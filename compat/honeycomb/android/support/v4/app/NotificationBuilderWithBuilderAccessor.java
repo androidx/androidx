@@ -17,6 +17,9 @@
 package android.support.v4.app;
 
 import android.app.Notification;
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Interface implemented by notification compat builders that support
@@ -25,6 +28,7 @@ import android.app.Notification;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public interface NotificationBuilderWithBuilderAccessor {
     public Notification.Builder getBuilder();
     public Notification build();

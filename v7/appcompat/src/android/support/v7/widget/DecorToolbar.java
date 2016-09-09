@@ -20,6 +20,7 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPresenter;
@@ -31,6 +32,8 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.SpinnerAdapter;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Common interface for a toolbar that sits as part of the window decor.
  * Layouts that control window decor use this as a point of interaction with different
@@ -38,6 +41,7 @@ import android.widget.SpinnerAdapter;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public interface DecorToolbar {
     ViewGroup getViewGroup();
     Context getContext();

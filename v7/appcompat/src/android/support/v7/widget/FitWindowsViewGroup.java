@@ -17,16 +17,19 @@
 package android.support.v7.widget;
 
 import android.graphics.Rect;
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public interface FitWindowsViewGroup {
 
-    public interface OnFitSystemWindowsListener {
+    interface OnFitSystemWindowsListener {
         void onFitSystemWindows(Rect insets);
     }
 
-    public void setOnFitSystemWindowsListener(OnFitSystemWindowsListener listener);
-
+    void setOnFitSystemWindowsListener(OnFitSystemWindowsListener listener);
 }

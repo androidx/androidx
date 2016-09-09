@@ -24,8 +24,6 @@ import android.view.View;
  * Before Honeycomb, it uses a simple Handler to mimic animation callback.
  * <p>
  * This is only a minimal implementation which is why this class is hidden.
- *
- * @hide
  */
 interface AnimatorProvider {
 

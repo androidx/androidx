@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
+import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.view.GravityCompat;
 import android.view.Gravity;
@@ -36,6 +37,8 @@ import android.widget.RemoteViews;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Helper for accessing features in {@link android.app.Notification}
@@ -510,6 +513,7 @@ public class NotificationCompat {
      *
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     protected static class BuilderExtender {
         public Notification build(Builder b, NotificationBuilderWithBuilderAccessor builder) {
             Notification n = builder.build();
@@ -984,30 +988,40 @@ public class NotificationCompat {
         // extender.
 
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public Context mContext;
 
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public CharSequence mContentTitle;
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public CharSequence mContentText;
         PendingIntent mContentIntent;
         PendingIntent mFullScreenIntent;
         RemoteViews mTickerView;
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public Bitmap mLargeIcon;
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public CharSequence mContentInfo;
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public int mNumber;
         int mPriority;
         boolean mShowWhen = true;
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public boolean mUseChronometer;
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public Style mStyle;
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public CharSequence mSubText;
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public CharSequence[] mRemoteInputHistory;
         int mProgressMax;
         int mProgress;
@@ -1016,6 +1030,7 @@ public class NotificationCompat {
         boolean mGroupSummary;
         String mSortKey;
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public ArrayList<Action> mActions = new ArrayList<Action>();
         boolean mLocalOnly = false;
         String mCategory;
@@ -1028,6 +1043,7 @@ public class NotificationCompat {
         RemoteViews mHeadsUpContentView;
 
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public Notification mNotification = new Notification();
         public ArrayList<String> mPeople;
 
@@ -1730,6 +1746,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         protected BuilderExtender getExtender() {
             return new BuilderExtender();
         }
@@ -1745,6 +1762,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public RemoteViews getContentView() {
             return mContentView;
         }
@@ -1752,6 +1770,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public RemoteViews getBigContentView() {
             return mBigContentView;
         }
@@ -1759,6 +1778,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public RemoteViews getHeadsUpContentView() {
             return mHeadsUpContentView;
         }
@@ -1768,6 +1788,7 @@ public class NotificationCompat {
          *
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public long getWhenIfShowing() {
             return mShowWhen ? mNotification.when : 0;
         }
@@ -1777,6 +1798,7 @@ public class NotificationCompat {
          *
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public int getPriority() {
             return mPriority;
         }
@@ -1786,6 +1808,7 @@ public class NotificationCompat {
          *
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         public int getColor() {
             return mColor;
         }
@@ -1796,6 +1819,7 @@ public class NotificationCompat {
          *
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         protected CharSequence resolveText() {
             return mContentText;
         }
@@ -1805,6 +1829,7 @@ public class NotificationCompat {
          *
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         protected CharSequence resolveTitle() {
             return mContentTitle;
         }
@@ -1843,6 +1868,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         // TODO: implement for all styles
         public void addCompatExtras(Bundle extras) {
         }
@@ -1850,6 +1876,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         // TODO: implement for all styles
         protected void restoreFromCompatExtras(Bundle extras) {
         }
@@ -2140,6 +2167,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
+        @RestrictTo(GROUP_ID)
         @Override
         protected void restoreFromCompatExtras(Bundle extras) {
             mMessages.clear();
@@ -2827,6 +2855,7 @@ public class NotificationCompat {
         }
 
         /** @hide */
+        @RestrictTo(GROUP_ID)
         public static final Factory FACTORY = new Factory() {
             @Override
             public NotificationCompatBase.Action build(int icon, CharSequence title,
@@ -3891,7 +3920,6 @@ public class NotificationCompat {
                 return mLatestTimestamp;
             }
 
-            /** @hide */
             static final Factory FACTORY = new Factory() {
                 @Override
                 public UnreadConversation build(

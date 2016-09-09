@@ -35,6 +35,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Copy of the required parts of {@link android.os.AsyncTask} from Android 3.0 that is
@@ -114,6 +117,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public static void setDefaultExecutor(Executor exec) {
         sDefaultExecutor = exec;
     }

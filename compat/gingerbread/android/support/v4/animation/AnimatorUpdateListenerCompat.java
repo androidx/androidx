@@ -16,6 +16,10 @@
 
 package android.support.v4.animation;
 
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * Implementors of this interface can add themselves as update listeners
  * to a <code>ValueAnimator</code> instance to receive callbacks on every animation
@@ -24,6 +28,7 @@ package android.support.v4.animation;
  *
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public interface AnimatorUpdateListenerCompat {
 
     /**

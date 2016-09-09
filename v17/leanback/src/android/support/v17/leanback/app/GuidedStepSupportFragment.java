@@ -17,6 +17,7 @@ package android.support.v17.leanback.app;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
+import android.support.annotation.RestrictTo;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -49,6 +50,8 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A GuidedStepSupportFragment is used to guide the user through a decision or series of decisions.
@@ -224,12 +227,14 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * Animation to slide the contents from the side (left/right).
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public static final int SLIDE_FROM_SIDE = 0;
 
     /**
      * Animation to slide the contents from the bottom.
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public static final int SLIDE_FROM_BOTTOM = 1;
 
     private static final String TAG = "GuidedStepSupportFragment";
@@ -238,6 +243,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     /**
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public static class DummyFragment extends Fragment {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,

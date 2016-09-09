@@ -16,6 +16,7 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -25,12 +26,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.support.v7.widget.SimpleItemAnimator;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  * An abstract base class for vertically and horizontally scrolling lists. The items come
  * from the {@link RecyclerView.Adapter} associated with this view.
  * Do not directly use this class, use {@link VerticalGridView} and {@link HorizontalGridView}.
  * @hide
  */
+@RestrictTo(GROUP_ID)
 abstract class BaseGridView extends RecyclerView {
 
     /**
@@ -932,6 +936,7 @@ abstract class BaseGridView extends RecyclerView {
      *                          Must be bigger or equals to 0.
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public void setExtraLayoutSpace(int extraLayoutSpace) {
         mLayoutManager.setExtraLayoutSpace(extraLayoutSpace);
     }
@@ -941,6 +946,7 @@ abstract class BaseGridView extends RecyclerView {
      *
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public int getExtraLayoutSpace() {
         return mLayoutManager.getExtraLayoutSpace();
     }

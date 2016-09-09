@@ -20,10 +20,6 @@ import android.test.AndroidTestCase;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-/**
- * Base class for testing Grid algorithm
- * @hide
- */
 public abstract class GridTest {
 
     static class Provider implements Grid.Provider {

@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,8 @@ import android.view.WindowManager;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Static library support version of the framework's {@link android.app.DialogFragment}.
@@ -45,6 +48,7 @@ public class DialogFragment extends Fragment
         implements DialogInterface.OnCancelListener, DialogInterface.OnDismissListener {
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @IntDef({STYLE_NORMAL, STYLE_NO_TITLE, STYLE_NO_FRAME, STYLE_NO_INPUT})
     @Retention(RetentionPolicy.SOURCE)
     private @interface DialogStyle {}
@@ -298,6 +302,7 @@ public class DialogFragment extends Fragment
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Override
     public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
         if (!mShowsDialog) {
@@ -317,6 +322,7 @@ public class DialogFragment extends Fragment
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public void setupDialog(Dialog dialog, int style) {
         switch (style) {
             case STYLE_NO_INPUT:

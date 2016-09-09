@@ -24,6 +24,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -40,6 +41,8 @@ import android.widget.SpinnerAdapter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A primary toolbar within the activity that may display the activity title, application-level
@@ -88,6 +91,7 @@ import java.lang.annotation.RetentionPolicy;
 public abstract class ActionBar {
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({NAVIGATION_MODE_STANDARD, NAVIGATION_MODE_LIST, NAVIGATION_MODE_TABS})
     public @interface NavigationMode {}
@@ -132,6 +136,7 @@ public abstract class ActionBar {
     public static final int NAVIGATION_MODE_TABS = 2;
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     @IntDef(flag=true, value={
             DISPLAY_USE_LOGO,
             DISPLAY_SHOW_HOME,
@@ -860,6 +865,7 @@ public abstract class ActionBar {
      * @return true if the Title field has been truncated
      * @hide pending API approval
      */
+    @RestrictTo(GROUP_ID)
     public boolean isTitleTruncated() { return false; }
 
     /**
@@ -1030,52 +1036,63 @@ public abstract class ActionBar {
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public void setDefaultDisplayHomeAsUpEnabled(boolean enabled) {
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public void setShowHideAnimationEnabled(boolean enabled) {
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public void onConfigurationChanged(Configuration config) {
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public void dispatchMenuVisibilityChanged(boolean visible) {
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public ActionMode startActionMode(ActionMode.Callback callback) {
         return null;
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public boolean openOptionsMenu() {
         return false;
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public boolean invalidateOptionsMenu() {
         return false;
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public boolean onMenuKeyEvent(KeyEvent event) {
         return false;
     }
 
     /** @hide **/
+    @RestrictTo(GROUP_ID)
     public boolean onKeyShortcut(int keyCode, KeyEvent ev) {
         return false;
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public boolean collapseActionView() {
         return false;
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     public void setWindowTitle(CharSequence title) {
     }
 
