@@ -41,6 +41,7 @@ import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.annotation.IntDef;
 import android.support.annotation.RestrictTo;
+import android.support.v4.app.BundleCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
@@ -52,6 +53,7 @@ import android.view.KeyEvent;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -161,6 +163,8 @@ public class MediaSessionCompat {
      */
     static final String ACTION_ARGUMENT_EXTRAS =
             "android.support.v4.media.session.action.ARGUMENT_EXTRAS";
+
+    static final String EXTRA_BINDER = "android.support.v4.media.session.EXTRA_BINDER";
 
     // Maximum size of the bitmap in dp.
     private static final int MAX_BITMAP_SIZE_IN_DP = 320;
@@ -623,6 +627,7 @@ public class MediaSessionCompat {
      */
     public abstract static class Callback {
         final Object mCallbackObj;
+        WeakReference<MediaSessionImpl> mSessionImpl;
 
         public Callback() {
             if (android.os.Build.VERSION.SDK_INT >= 25) {
@@ -838,7 +843,16 @@ public class MediaSessionCompat {
 
             @Override
             public void onCommand(String command, Bundle extras, ResultReceiver cb) {
-                Callback.this.onCommand(command, extras, cb);
+                if (command.equals(MediaControllerCompat.COMMAND_GET_EXTRA_BINDER)) {
+                    MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
+                    if (impl != null) {
+                        Bundle result = new Bundle();
+                        BundleCompat.putBinder(result, EXTRA_BINDER, impl.getExtraSessionBinder());
+                        cb.send(0, result);
+                    }
+                } else {
+                    Callback.this.onCommand(command, extras, cb);
+                }
             }
 
             @Override
@@ -2403,7 +2417,13 @@ public class MediaSessionCompat {
         private final Object mSessionObj;
         private final Token mToken;
 
-        private PendingIntent mMediaButtonIntent;
+        private boolean mDestroyed = false;
+        private ExtraSession mExtraSessionBinder;
+        private final RemoteCallbackList<IMediaControllerCallback> mExtraControllerCallbacks =
+                new RemoteCallbackList<>();
+
+        private PlaybackStateCompat mPlaybackState;
+        @RatingCompat.Style int mRatingType;
 
         public MediaSessionImplApi21(Context context, String tag) {
             mSessionObj = MediaSessionCompatApi21.createSession(context, tag);
@@ -2419,6 +2439,9 @@ public class MediaSessionCompat {
         public void setCallback(Callback callback, Handler handler) {
             MediaSessionCompatApi21.setCallback(mSessionObj,
                     callback == null ? null : callback.mCallbackObj, handler);
+            if (android.os.Build.VERSION.SDK_INT < 23) {
+                callback.mSessionImpl = new WeakReference<MediaSessionImpl>(this);
+            }
         }
 
         @Override
@@ -2449,11 +2472,23 @@ public class MediaSessionCompat {
 
         @Override
         public void sendSessionEvent(String event, Bundle extras) {
+            if (android.os.Build.VERSION.SDK_INT < 23) {
+                int size = mExtraControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onEvent(event, extras);
+                    } catch (RemoteException e) {
+                    }
+                }
+                mExtraControllerCallbacks.finishBroadcast();
+            }
             MediaSessionCompatApi21.sendSessionEvent(mSessionObj, event, extras);
         }
 
         @Override
         public void release() {
+            mDestroyed = true;
             MediaSessionCompatApi21.release(mSessionObj);
         }
 
@@ -2464,6 +2499,18 @@ public class MediaSessionCompat {
 
         @Override
         public void setPlaybackState(PlaybackStateCompat state) {
+            if (android.os.Build.VERSION.SDK_INT < 22) {
+                mPlaybackState = state;
+                int size = mExtraControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onPlaybackStateChanged(state);
+                    } catch (RemoteException e) {
+                    }
+                }
+                mExtraControllerCallbacks.finishBroadcast();
+            }
             MediaSessionCompatApi21.setPlaybackState(mSessionObj,
                     state == null ? null : state.getPlaybackState());
         }
@@ -2481,7 +2528,6 @@ public class MediaSessionCompat {
 
         @Override
         public void setMediaButtonReceiver(PendingIntent mbr) {
-            mMediaButtonIntent = mbr;
             MediaSessionCompatApi21.setMediaButtonReceiver(mSessionObj, mbr);
         }
 
@@ -2505,7 +2551,7 @@ public class MediaSessionCompat {
         @Override
         public void setRatingType(@RatingCompat.Style int type) {
             if (android.os.Build.VERSION.SDK_INT < 22) {
-                // TODO figure out 21 implementation
+                mRatingType = type;
             } else {
                 MediaSessionCompatApi22.setRatingType(mSessionObj, type);
             }
@@ -2550,6 +2596,256 @@ public class MediaSessionCompat {
                 return null;
             } else {
                 return MediaSessionCompatApi24.getCallingPackage(mSessionObj);
+            }
+        }
+
+        ExtraSession getExtraSessionBinder() {
+            if (mExtraSessionBinder == null) {
+                mExtraSessionBinder = new ExtraSession();
+            }
+            return mExtraSessionBinder;
+        }
+
+        class ExtraSession extends IMediaSession.Stub {
+            @Override
+            public void sendCommand(String command, Bundle args, ResultReceiverWrapper cb) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public boolean sendMediaButton(KeyEvent mediaButton) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void registerCallbackListener(IMediaControllerCallback cb) {
+                if (!mDestroyed) {
+                    mExtraControllerCallbacks.register(cb);
+                }
+            }
+
+            @Override
+            public void unregisterCallbackListener(IMediaControllerCallback cb) {
+                mExtraControllerCallbacks.unregister(cb);
+            }
+
+            @Override
+            public String getPackageName() {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public String getTag() {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public PendingIntent getLaunchPendingIntent() {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            @SessionFlags
+            public long getFlags() {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public ParcelableVolumeInfo getVolumeAttributes() {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void adjustVolume(int direction, int flags, String packageName) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void setVolumeTo(int value, int flags, String packageName) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void prepare() throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void prepareFromMediaId(String mediaId, Bundle extras) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void prepareFromSearch(String query, Bundle extras) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void prepareFromUri(Uri uri, Bundle extras) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void play() throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void playFromMediaId(String mediaId, Bundle extras) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void playFromSearch(String query, Bundle extras) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void playFromUri(Uri uri, Bundle extras) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void skipToQueueItem(long id) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void pause() throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void stop() throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void next() throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void previous() throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void fastForward() throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void rewind() throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void seekTo(long pos) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void rate(RatingCompat rating) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void setRepeatMode(int repeatMode) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void setShuffleModeEnabled(boolean enabled) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void sendCustomAction(String action, Bundle args) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public MediaMetadataCompat getMetadata() {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public PlaybackStateCompat getPlaybackState() {
+                return mPlaybackState;
+            }
+
+            @Override
+            public List<QueueItem> getQueue() {
+                // Will not be called.
+                return null;
+            }
+
+            @Override
+            public CharSequence getQueueTitle() {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public Bundle getExtras() {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            @RatingCompat.Style
+            public int getRatingType() {
+                return mRatingType;
+            }
+
+            @Override
+            @PlaybackStateCompat.RepeatMode
+            public int getRepeatMode() {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public boolean isShuffleModeEnabled() {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public boolean isTransportControlEnabled() {
+                // Will not be called.
+                throw new AssertionError();
             }
         }
     }
