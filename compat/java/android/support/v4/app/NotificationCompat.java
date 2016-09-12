@@ -3011,6 +3011,7 @@ public class NotificationCompat {
         private static final String KEY_GRAVITY = "gravity";
         private static final String KEY_HINT_SCREEN_TIMEOUT = "hintScreenTimeout";
         private static final String KEY_DISMISSAL_ID = "dismissalId";
+        private static final String KEY_BRIDGE_TAG = "bridgeTag";
 
         // Flags bitwise-ored to mFlags
         private static final int FLAG_CONTENT_INTENT_AVAILABLE_OFFLINE = 0x1;
@@ -3040,6 +3041,7 @@ public class NotificationCompat {
         private int mGravity = DEFAULT_GRAVITY;
         private int mHintScreenTimeout;
         private String mDismissalId;
+        private String mBridgeTag;
 
         /**
          * Create a {@link NotificationCompat.WearableExtender} with default
@@ -3080,6 +3082,7 @@ public class NotificationCompat {
                 mGravity = wearableBundle.getInt(KEY_GRAVITY, DEFAULT_GRAVITY);
                 mHintScreenTimeout = wearableBundle.getInt(KEY_HINT_SCREEN_TIMEOUT);
                 mDismissalId = wearableBundle.getString(KEY_DISMISSAL_ID);
+                mBridgeTag = wearableBundle.getString(KEY_BRIDGE_TAG);
             }
         }
 
@@ -3135,6 +3138,9 @@ public class NotificationCompat {
             if (mDismissalId != null) {
                 wearableBundle.putString(KEY_DISMISSAL_ID, mDismissalId);
             }
+            if (mBridgeTag != null) {
+                wearableBundle.putString(KEY_BRIDGE_TAG, mBridgeTag);
+            }
 
             builder.getExtras().putBundle(EXTRA_WEARABLE_EXTENSIONS, wearableBundle);
             return builder;
@@ -3156,6 +3162,7 @@ public class NotificationCompat {
             that.mGravity = this.mGravity;
             that.mHintScreenTimeout = this.mHintScreenTimeout;
             that.mDismissalId = this.mDismissalId;
+            that.mBridgeTag = this.mBridgeTag;
             return that;
         }
 
@@ -3644,12 +3651,11 @@ public class NotificationCompat {
         }
 
         /**
-         * When you post a notification, if you set the dismissal id field, then when that
-         * notification is canceled, notifications on other wearables and the paired Android phone
-         * having that same dismissal id will also be canceled.  Note that this only works if you
-         * have notification bridge mode set to NO_BRIDGING in your Wear app manifest.  See
+         * Sets the dismissal id for this notification. If a notification is posted with a
+         * dismissal id, then when that notification is canceled, notifications on other wearables
+         * and the paired Android phone having that same dismissal id will also be canceled. See
          * <a href="{@docRoot}wear/notifications/index.html">Adding Wearable Features to
-         * Notifications</a> for more information on how to use the bridge mode feature.
+         * Notifications</a> for more information.
          * @param dismissalId the dismissal id of the notification.
          * @return this object for method chaining
          */
@@ -3664,6 +3670,27 @@ public class NotificationCompat {
          */
         public String getDismissalId() {
             return mDismissalId;
+        }
+
+        /**
+         * Sets a bridge tag for this notification. A bridge tag can be set for notifications
+         * posted from a phone to provide finer-grained control on what notifications are bridged
+         * to wearables. See <a href="{@docRoot}wear/notifications/index.html">Adding Wearable
+         * Features to Notifications</a> for more information.
+         * @param bridgeTag the bridge tag of the notification.
+         * @return this object for method chaining
+         */
+        public WearableExtender setBridgeTag(String bridgeTag) {
+            mBridgeTag = bridgeTag;
+            return this;
+        }
+
+        /**
+         * Returns the bridge tag of the notification.
+         * @return the bridge tag or null if not present.
+         */
+        public String getBridgeTag() {
+            return mBridgeTag;
         }
 
         private void setFlag(int mask, boolean value) {
