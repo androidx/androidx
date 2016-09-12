@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'transition'
 
 dependencies {
-    compile project(':support-v4')
+    compile project(':support-compat')
 
     androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
         exclude module: 'support-annotations'
