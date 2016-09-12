@@ -48,6 +48,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.SearchOrbView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -385,6 +386,28 @@ public class SearchBar extends RelativeLayout {
     public void setTitle(String title) {
         mTitle = title;
         updateHint();
+    }
+
+    /**
+     * Sets background color of not-listening state search orb.
+     *
+     * @param colors SearchOrbView.Colors.
+     */
+    public void setSearchAffordanceColors(SearchOrbView.Colors colors) {
+        if (mSpeechOrbView != null) {
+            mSpeechOrbView.setNotListeningOrbColors(colors);
+        }
+    }
+
+    /**
+     * Sets background color of listening state search orb.
+     *
+     * @param colors SearchOrbView.Colors.
+     */
+    public void setSearchAffordanceColorsInListening(SearchOrbView.Colors colors) {
+        if (mSpeechOrbView != null) {
+            mSpeechOrbView.setListeningOrbColors(colors);
+        }
     }
 
     /**

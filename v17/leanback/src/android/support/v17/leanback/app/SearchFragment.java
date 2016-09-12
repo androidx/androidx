@@ -30,6 +30,7 @@ import android.support.v17.leanback.widget.Presenter.ViewHolder;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SearchBar;
+import android.support.v17.leanback.widget.SearchOrbView;
 import android.support.v17.leanback.widget.SpeechRecognitionCallback;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.util.Log;
@@ -511,6 +512,28 @@ public class SearchFragment extends Fragment {
             return mSearchBar.getBadgeDrawable();
         }
         return null;
+    }
+
+    /**
+     * Sets background color of not-listening state search orb.
+     *
+     * @param colors SearchOrbView.Colors.
+     */
+    public void setSearchAffordanceColors(SearchOrbView.Colors colors) {
+        if (mSearchBar != null) {
+            mSearchBar.setSearchAffordanceColors(colors);
+        }
+    }
+
+    /**
+     * Sets background color of listening state search orb.
+     *
+     * @param colors SearchOrbView.Colors.
+     */
+    public void setSearchAffordanceColorsInListening(SearchOrbView.Colors colors) {
+        if (mSearchBar != null) {
+            mSearchBar.setSearchAffordanceColorsInListening(colors);
+        }
     }
 
     /**
