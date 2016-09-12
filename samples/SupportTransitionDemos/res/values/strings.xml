@@ -16,7 +16,9 @@
 
 <resources>
     <string name="activity_sample_code">Support Transition Demos</string>
-    <string name="basic">Basic</string>
-    <string name="custom">Custom</string>
+    <string name="scene">Scene</string>
+    <string name="custom">Custom Transition</string>
+    <string name="beginDelayed">Begin Delayed Transition</string>
     <string name="toggle">Toggle</string>
+    <string name="begin">Begin</string>
 </resources>
