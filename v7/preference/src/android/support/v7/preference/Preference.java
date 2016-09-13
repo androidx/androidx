@@ -247,10 +247,10 @@ public class Preference implements Comparable<Preference> {
         mKey = TypedArrayUtils.getString(a, R.styleable.Preference_key,
                 R.styleable.Preference_android_key);
 
-        mTitle = TypedArrayUtils.getString(a, R.styleable.Preference_title,
+        mTitle = TypedArrayUtils.getText(a, R.styleable.Preference_title,
                 R.styleable.Preference_android_title);
 
-        mSummary = TypedArrayUtils.getString(a, R.styleable.Preference_summary,
+        mSummary = TypedArrayUtils.getText(a, R.styleable.Preference_summary,
                 R.styleable.Preference_android_summary);
 
         mOrder = TypedArrayUtils.getInt(a, R.styleable.Preference_order,

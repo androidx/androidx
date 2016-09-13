@@ -21,6 +21,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/root_title">
 
+    <Preference
+        android:key="basic_preference"
+        android:title="@string/title_basic_preference"
+        android:summary="@string/summary_basic_preference" />
+
+    <Preference
+        android:key="stylish_preference"
+        android:title="@string/title_stylish_preference"
+        android:summary="@string/summary_stylish_preference" />
+
     <PreferenceCategory
         android:title="@string/inline_preferences">
 
