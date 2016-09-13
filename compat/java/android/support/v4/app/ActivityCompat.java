@@ -120,31 +120,6 @@ public class ActivityCompat extends ContextCompat {
     }
 
     /**
-     * Start an activity with additional launch information, if able.
-     *
-     * <p>In Android 4.1+ additional options were introduced to allow for more
-     * control on activity launch animations. Applications can use this method
-     * along with {@link ActivityOptionsCompat} to use these animations when
-     * available. When run on versions of the platform where this feature does
-     * not exist the activity will be launched normally.</p>
-     *
-     * @param activity Context to launch activity from.
-     * @param intent The description of the activity to start.
-     * @param options Additional options for how the Activity should be started.
-     *                May be null if there are no options. See
-     *                {@link ActivityOptionsCompat} for how to build the Bundle
-     *                supplied here; there are no supported definitions for
-     *                building it manually.
-     */
-    public static void startActivity(Activity activity, Intent intent, @Nullable Bundle options) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            ActivityCompatJB.startActivity(activity, intent, options);
-        } else {
-            activity.startActivity(intent);
-        }
-    }
-
-    /**
      * Start new activity with options, if able, for which you would like a
      * result when it finished.
      *

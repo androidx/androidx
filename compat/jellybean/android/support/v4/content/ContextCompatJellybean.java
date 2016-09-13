@@ -26,4 +26,8 @@ class ContextCompatJellybean {
         context.startActivities(intents, options);
     }
 
+    public static void startActivity(Context context, Intent intent, Bundle options) {
+        context.startActivity(intent, options);
+    }
+
 }
