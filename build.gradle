@@ -31,7 +31,7 @@ dependencies {
 }
 
 ext.supportVersion = '24.2.1'
-ext.extraVersion = 37
+ext.extraVersion = 38
 ext.supportRepoOut = ''
 ext.buildToolsVersion = '23.0.2'
 ext.buildNumber = Integer.toString(ext.extraVersion)
