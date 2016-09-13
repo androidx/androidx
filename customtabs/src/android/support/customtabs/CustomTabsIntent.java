@@ -28,9 +28,9 @@ import android.support.annotation.AnimRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.BundleCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -254,12 +254,12 @@ public final class CustomTabsIntent {
 
     /**
      * Convenience method to launch a Custom Tabs Activity.
-     * @param context The source Activity.
+     * @param context The source Context.
      * @param url The URL to load in the Custom Tab.
      */
-    public void launchUrl(Activity context, Uri url) {
+    public void launchUrl(Context context, Uri url) {
         intent.setData(url);
-        ActivityCompat.startActivity(context, intent, startAnimationBundle);
+        ContextCompat.startActivity(context, intent, startAnimationBundle);
     }
 
     private CustomTabsIntent(Intent intent, Bundle startAnimationBundle) {
