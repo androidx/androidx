@@ -22,6 +22,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 
 /**
  * Subclass of {@link Drawable} that can be used to draw a bitmap into a region. Bitmap
@@ -30,51 +31,96 @@ import android.graphics.drawable.Drawable;
  * position of the bitmap can be controlled by {@link #setVerticalOffset(int)} call.
  */
 public class FitWidthBitmapDrawable extends Drawable {
-    private final Rect mDest = new Rect();
-    private Paint mPaint = new Paint();
-    private Bitmap mBitmap;
-    private Rect mSource;
-    private final Rect mDefaultSource = new Rect();
-    private int mOffset;
 
-    /**
-     * Constructor.
-     */
+    static class BitmapState extends Drawable.ConstantState {
+        Paint mPaint;
+        Bitmap mBitmap;
+        Rect mSource;
+        final Rect mDefaultSource = new Rect();
+        int mOffset;
+
+        BitmapState() {
+            mPaint = new Paint();
+        }
+
+        BitmapState(BitmapState other) {
+            mBitmap = other.mBitmap;
+            mPaint = new Paint(other.mPaint);
+            mSource = other.mSource != null ? new Rect(other.mSource) : null;
+            mDefaultSource.set(other.mDefaultSource);
+            mOffset = other.mOffset;
+        }
+
+        @NonNull
+        @Override
+        public Drawable newDrawable() {
+            return new FitWidthBitmapDrawable(this);
+        }
+
+        @Override
+        public int getChangingConfigurations() {
+            return 0;
+        }
+    }
+
+    final Rect mDest = new Rect();
+    BitmapState mBitmapState;
+    boolean mMutated = false;
+
     public FitWidthBitmapDrawable() {
+        mBitmapState = new BitmapState();
+    }
+
+    FitWidthBitmapDrawable(BitmapState state) {
+        mBitmapState = state;
+    }
+
+    @Override
+    public ConstantState getConstantState() {
+        return mBitmapState;
+    }
+
+    @Override
+    public Drawable mutate() {
+        if (!mMutated && super.mutate() == this) {
+            mBitmapState = new BitmapState(mBitmapState);
+            mMutated = true;
+        }
+        return this;
     }
 
     /**
      * Sets the bitmap.
      */
     public void setBitmap(Bitmap bitmap) {
-        this.mBitmap = bitmap;
+        mBitmapState.mBitmap = bitmap;
         if (bitmap != null) {
-            this.mDefaultSource.set(0, 0, mBitmap.getWidth(), mBitmap.getHeight());
+            mBitmapState.mDefaultSource.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
         } else {
-            this.mDefaultSource.set(0, 0, 0, 0);
+            mBitmapState.mDefaultSource.set(0, 0, 0, 0);
         }
-        mSource = null;
+        mBitmapState.mSource = null;
     }
 
     /**
      * Returns the bitmap.
      */
     public Bitmap getBitmap() {
-        return mBitmap;
+        return mBitmapState.mBitmap;
     }
 
     /**
      * Sets the {@link Rect} used for extracting the bitmap.
      */
     public void setSource(Rect source) {
-        this.mSource = source;
+        mBitmapState.mSource = source;
     }
 
     /**
      * Returns the {@link Rect} used for extracting the bitmap.
      */
     public Rect getSource() {
-        return mSource;
+        return mBitmapState.mSource;
     }
 
     /**
@@ -82,7 +128,7 @@ public class FitWidthBitmapDrawable extends Drawable {
      * will start the provided vertical offset.
      */
     public void setVerticalOffset(int offset) {
-        this.mOffset = offset;
+        mBitmapState.mOffset = offset;
         invalidateSelf();
     }
 
@@ -90,15 +136,15 @@ public class FitWidthBitmapDrawable extends Drawable {
      * Returns the current vertical offset.
      */
     public int getVerticalOffset() {
-        return this.mOffset;
+        return mBitmapState.mOffset;
     }
 
     @Override
     public void draw(Canvas canvas) {
-        if (mBitmap != null) {
+        if (mBitmapState.mBitmap != null) {
             Rect bounds = getBounds();
             mDest.left = 0;
-            mDest.top = mOffset;
+            mDest.top = mBitmapState.mOffset;
             mDest.right = bounds.width();
 
             Rect source = validateSource();
@@ -106,38 +152,46 @@ public class FitWidthBitmapDrawable extends Drawable {
             mDest.bottom = mDest.top + (int) (source.height() * scale);
             int i = canvas.save();
             canvas.clipRect(bounds);
-            canvas.drawBitmap(mBitmap, source, mDest, mPaint);
+            canvas.drawBitmap(mBitmapState.mBitmap, source, mDest, mBitmapState.mPaint);
             canvas.restoreToCount(i);
         }
     }
 
     @Override
     public void setAlpha(int alpha) {
-        final int oldAlpha = mPaint.getAlpha();
+        final int oldAlpha = mBitmapState.mPaint.getAlpha();
         if (alpha != oldAlpha) {
-            mPaint.setAlpha(alpha);
+            mBitmapState.mPaint.setAlpha(alpha);
             invalidateSelf();
         }
     }
 
+    /**
+     * @return Alpha value between 0(inclusive) and 255(inclusive)
+     */
+    public int getAlpha() {
+        return mBitmapState.mPaint.getAlpha();
+    }
+
     @Override
     public void setColorFilter(ColorFilter colorFilter) {
-        mPaint.setColorFilter(colorFilter);
+        mBitmapState.mPaint.setColorFilter(colorFilter);
         invalidateSelf();
     }
 
     @Override
     public int getOpacity() {
-        return (mBitmap == null || mBitmap.hasAlpha() || mPaint.getAlpha() < 255) ?
-                PixelFormat.TRANSLUCENT : PixelFormat.OPAQUE;
+        final Bitmap bitmap = mBitmapState.mBitmap;
+        return (bitmap == null || bitmap.hasAlpha() || mBitmapState.mPaint.getAlpha() < 255)
+                ? PixelFormat.TRANSLUCENT : PixelFormat.OPAQUE;
     }
 
 
     private Rect validateSource() {
-        if (mSource == null) {
-            return mDefaultSource;
+        if (mBitmapState.mSource == null) {
+            return mBitmapState.mDefaultSource;
         } else {
-            return mSource;
+            return mBitmapState.mSource;
         }
     }
 }

@@ -15,19 +15,21 @@
  */
 package android.support.v17.leanback.graphics;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 
 /**
  * Unit test for {@link FitWidthBitmapDrawable}
@@ -60,5 +62,24 @@ public class FitWidthBitmapDrawableTest {
         int nH = (int) (((float)SCREEN_WIDTH/WIDTH * HEIGHT) + offset);
         Rect expectedDest = new Rect(0, offset, SCREEN_WIDTH, nH);
         verify(canvas).drawBitmap(eq(bitmap), eq(bitmapBounds), eq(expectedDest), any(Paint.class));
+    }
+
+    @Test
+    public void constantState() {
+        FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable();
+        drawable.setBitmap(bitmap);
+        drawable.setVerticalOffset(600);
+
+        // getConstantState().newDrawable() will create a new drawable with shared states:
+        FitWidthBitmapDrawable drawable2 = (FitWidthBitmapDrawable)
+                drawable.getConstantState().newDrawable();
+        drawable.setAlpha(128);
+        assertEquals(128, drawable2.getAlpha());
+
+        // after mutate(), drawable2 will have its own state
+        drawable2.mutate();
+        drawable.setAlpha(64);
+        assertEquals(64, drawable.getAlpha());
+        assertEquals(128, drawable2.getAlpha());
     }
 }

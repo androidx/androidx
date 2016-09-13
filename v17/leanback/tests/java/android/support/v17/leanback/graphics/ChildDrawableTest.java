@@ -15,15 +15,18 @@
  */
 package android.support.v17.leanback.graphics;
 
-import android.graphics.Bitmap;
-import android.graphics.Rect;
-import android.test.suitebuilder.annotation.SmallTest;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import static org.junit.Assert.assertEquals;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.SmallTest;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Unit test for {@link ChildDrawable}
@@ -136,5 +139,33 @@ public class ChildDrawableTest {
         expectedBounds.top = -100;
         expectedBounds.bottom = HEIGHT;
         assertEquals(expectedBounds, adjustedBounds);
+    }
+
+    @Test
+    public void constantState() {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        CompositeDrawable parentDrawable = new CompositeDrawable();
+        BitmapDrawable childDrawable = new BitmapDrawable(context.getResources(), bitmap);
+        parentDrawable.addChildDrawable(childDrawable);
+
+        // getConstantState().newDrawable() will create a new CompositeDrawable with shared states:
+        CompositeDrawable parentDrawble2 = (CompositeDrawable)
+                parentDrawable.getConstantState().newDrawable();
+        BitmapDrawable childDrawable2 = (BitmapDrawable) parentDrawble2.getChildAt(0).getDrawable();
+        parentDrawable.setAlpha(128);
+        assertEquals(128, parentDrawble2.getAlpha());
+        assertEquals(128, childDrawable2.getAlpha());
+
+        // after mutate(), parentDrawble2 will have its own state
+        parentDrawble2.mutate();
+        childDrawable2 = (BitmapDrawable) parentDrawble2.getChildAt(0).getDrawable();
+        parentDrawable.setAlpha(64);
+        assertEquals(64, parentDrawable.getAlpha());
+        assertEquals(64, childDrawable.getAlpha());
+        assertEquals(128, parentDrawble2.getAlpha());
+        assertEquals(128, childDrawable2.getAlpha());
+        childDrawable.setAlpha(100);
+        assertEquals(128, parentDrawble2.getAlpha());
+        assertEquals(128, childDrawable2.getAlpha());
     }
 }
