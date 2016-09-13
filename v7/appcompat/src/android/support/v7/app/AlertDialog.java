@@ -352,7 +352,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setTitle(CharSequence title) {
+        public Builder setTitle(@Nullable CharSequence title) {
             P.mTitle = title;
             return this;
         }
@@ -373,7 +373,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * @return this Builder object to allow for chaining of calls to set
          *         methods
          */
-        public Builder setCustomTitle(View customTitleView) {
+        public Builder setCustomTitle(@Nullable View customTitleView) {
             P.mCustomTitleView = customTitleView;
             return this;
         }
@@ -393,7 +393,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setMessage(CharSequence message) {
+        public Builder setMessage(@Nullable CharSequence message) {
             P.mMessage = message;
             return this;
         }
@@ -420,7 +420,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * @return this Builder object to allow for chaining of calls to set
          *         methods
          */
-        public Builder setIcon(Drawable icon) {
+        public Builder setIcon(@Nullable Drawable icon) {
             P.mIcon = icon;
             return this;
         }
