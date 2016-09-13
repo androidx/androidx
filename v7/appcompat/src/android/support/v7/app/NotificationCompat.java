@@ -16,6 +16,8 @@
 
 package android.support.v7.app;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -38,8 +40,6 @@ import android.text.style.TextAppearanceSpan;
 import android.widget.RemoteViews;
 
 import java.util.List;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * An extension of {@link android.support.v4.app.NotificationCompat} which supports
@@ -172,23 +172,15 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                     ? b.getColor()
                     : color;
         }
-        CharSequence senderText = bidiWrapIfNotSpanned(bidi, replyName);
+        CharSequence senderText = bidi.unicodeWrap(replyName);
         sb.append(senderText);
         sb.setSpan(makeFontColorSpan(color),
                 sb.length() - senderText.length(),
                 sb.length(),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE /* flags */);
         CharSequence text = m.getText() == null ? "" : m.getText();
-        sb.append("  ").append(bidiWrapIfNotSpanned(bidi, text));
+        sb.append("  ").append(bidi.unicodeWrap(text));
         return sb;
-    }
-
-    private static CharSequence bidiWrapIfNotSpanned(BidiFormatter bidi, CharSequence replyName) {
-        // Unfortunately bidiFormatter doesn't support CharSequences in support
-        if (replyName instanceof Spanned) {
-            return replyName;
-        }
-        return bidi.unicodeWrap(replyName.toString());
     }
 
     private static TextAppearanceSpan makeFontColorSpan(int color) {
