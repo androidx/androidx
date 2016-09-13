@@ -22,8 +22,6 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.VectorEnabledTintResources;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -39,25 +37,38 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 @RestrictTo(GROUP_ID)
 public class TintContextWrapper extends ContextWrapper {
 
-    private static final ArrayList<WeakReference<TintContextWrapper>> sCache = new ArrayList<>();
+    private static final Object CACHE_LOCK = new Object();
+    private static ArrayList<WeakReference<TintContextWrapper>> sCache;
 
     public static Context wrap(@NonNull final Context context) {
         if (shouldWrap(context)) {
-            // First check our instance cache
-            for (int i = 0, count = sCache.size(); i < count; i++) {
-                final WeakReference<TintContextWrapper> ref = sCache.get(i);
-                final TintContextWrapper wrapper = ref != null ? ref.get() : null;
-                if (wrapper != null && wrapper.getBaseContext() == context) {
-                    return wrapper;
+            synchronized (CACHE_LOCK) {
+                if (sCache == null) {
+                    sCache = new ArrayList<>();
+                } else {
+                    // This is a convenient place to prune any dead reference entries
+                    for (int i = sCache.size() - 1; i >= 0; i--) {
+                        final WeakReference<TintContextWrapper> ref = sCache.get(i);
+                        if (ref == null || ref.get() == null) {
+                            sCache.remove(i);
+                        }
+                    }
+                    // Now check our instance cache
+                    for (int i = sCache.size() - 1; i >= 0; i--) {
+                        final WeakReference<TintContextWrapper> ref = sCache.get(i);
+                        final TintContextWrapper wrapper = ref != null ? ref.get() : null;
+                        if (wrapper != null && wrapper.getBaseContext() == context) {
+                            return wrapper;
+                        }
+                    }
                 }
+                // If we reach here then the cache didn't have a hit, so create a new instance
+                // and add it to the cache
+                final TintContextWrapper wrapper = new TintContextWrapper(context);
+                sCache.add(new WeakReference<>(wrapper));
+                return wrapper;
             }
-            // If we reach here then the cache didn't have a hit, so create a new instance
-            // and add it to the cache
-            final TintContextWrapper wrapper = new TintContextWrapper(context);
-            sCache.add(new WeakReference<>(wrapper));
-            return wrapper;
         }
-
         return context;
     }
 
@@ -69,14 +80,7 @@ public class TintContextWrapper extends ContextWrapper {
             // If the Context is already a TintContextWrapper, no need to wrap again
             return false;
         }
-        if (AppCompatDelegate.isCompatVectorFromResourcesEnabled()
-                && Build.VERSION.SDK_INT > VectorEnabledTintResources.MAX_SDK_WHERE_REQUIRED) {
-            // If we're running on API 21+ and have the vector resources enabled, there's
-            // no need to wrap
-            return false;
-        }
-        // Else, we should wrap
-        return true;
+        return Build.VERSION.SDK_INT < 21 || VectorEnabledTintResources.shouldBeUsed();
     }
 
     private final Resources mResources;
