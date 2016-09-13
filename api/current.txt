@@ -332,10 +332,10 @@ package android.support.design.widget {
     method public abstract boolean onNavigationItemSelected(android.view.MenuItem);
   }
 
-  public class BottomSheetBehavior extends android.support.design.widget.CoordinatorLayout.Behavior {
+  public class BottomSheetBehavior<V extends android.view.View> extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public BottomSheetBehavior();
     ctor public BottomSheetBehavior(android.content.Context, android.util.AttributeSet);
-    method public static android.support.design.widget.BottomSheetBehavior<V> from(V);
+    method public static <V extends android.view.View> android.support.design.widget.BottomSheetBehavior<V> from(V);
     method public final int getPeekHeight();
     method public boolean getSkipCollapsed();
     method public final int getState();
@@ -460,7 +460,7 @@ package android.support.design.widget {
     method public void setStatusBarBackgroundResource(int);
   }
 
-  public static abstract class CoordinatorLayout.Behavior {
+  public static abstract class CoordinatorLayout.Behavior<V extends android.view.View> {
     ctor public CoordinatorLayout.Behavior();
     ctor public CoordinatorLayout.Behavior(android.content.Context, android.util.AttributeSet);
     method public boolean blocksInteractionBelow(android.support.design.widget.CoordinatorLayout, V);
@@ -556,7 +556,7 @@ package android.support.design.widget {
     method public void onShown(android.support.design.widget.FloatingActionButton);
   }
 
-   abstract class HeaderBehavior extends android.support.design.widget.ViewOffsetBehavior {
+   abstract class HeaderBehavior<V extends android.view.View> extends android.support.design.widget.ViewOffsetBehavior {
     ctor public HeaderBehavior();
     ctor public HeaderBehavior(android.content.Context, android.util.AttributeSet);
   }
@@ -637,7 +637,7 @@ package android.support.design.widget {
     field public static final int DISMISS_EVENT_TIMEOUT = 2; // 0x2
   }
 
-  public class SwipeDismissBehavior extends android.support.design.widget.CoordinatorLayout.Behavior {
+  public class SwipeDismissBehavior<V extends android.view.View> extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public SwipeDismissBehavior();
     method public boolean canSwipeDismissView(android.view.View);
     method public int getDragState();
@@ -785,7 +785,7 @@ package android.support.design.widget {
     method public void setTypeface(android.graphics.Typeface);
   }
 
-   class ViewOffsetBehavior extends android.support.design.widget.CoordinatorLayout.Behavior {
+   class ViewOffsetBehavior<V extends android.view.View> extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public ViewOffsetBehavior();
     ctor public ViewOffsetBehavior(android.content.Context, android.util.AttributeSet);
     method public int getLeftAndRightOffset();
@@ -1342,7 +1342,7 @@ package android.support.v17.leanback.app {
     method public void onHeadersTransitionStop(boolean);
   }
 
-  public static abstract class BrowseFragment.FragmentFactory {
+  public static abstract class BrowseFragment.FragmentFactory<T extends android.app.Fragment> {
     ctor public BrowseFragment.FragmentFactory();
     method public abstract T createFragment(java.lang.Object);
   }
@@ -1358,7 +1358,7 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.app.RowsFragment createFragment(java.lang.Object);
   }
 
-  public static class BrowseFragment.MainFragmentAdapter {
+  public static class BrowseFragment.MainFragmentAdapter<T extends android.app.Fragment> {
     ctor public BrowseFragment.MainFragmentAdapter(T);
     method public final T getFragment();
     method public final android.support.v17.leanback.app.BrowseFragment.FragmentHost getFragmentHost();
@@ -1383,7 +1383,7 @@ package android.support.v17.leanback.app {
     method public void registerFragment(java.lang.Class, android.support.v17.leanback.app.BrowseFragment.FragmentFactory);
   }
 
-  public static class BrowseFragment.MainFragmentRowsAdapter {
+  public static class BrowseFragment.MainFragmentRowsAdapter<T extends android.app.Fragment> {
     ctor public BrowseFragment.MainFragmentRowsAdapter(T);
     method public final T getFragment();
     method public int getSelectedPosition();
@@ -1444,7 +1444,7 @@ package android.support.v17.leanback.app {
     method public void onHeadersTransitionStop(boolean);
   }
 
-  public static abstract class BrowseSupportFragment.FragmentFactory {
+  public static abstract class BrowseSupportFragment.FragmentFactory<T extends android.support.v4.app.Fragment> {
     ctor public BrowseSupportFragment.FragmentFactory();
     method public abstract T createFragment(java.lang.Object);
   }
@@ -1460,7 +1460,7 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.app.RowsSupportFragment createFragment(java.lang.Object);
   }
 
-  public static class BrowseSupportFragment.MainFragmentAdapter {
+  public static class BrowseSupportFragment.MainFragmentAdapter<T extends android.support.v4.app.Fragment> {
     ctor public BrowseSupportFragment.MainFragmentAdapter(T);
     method public final T getFragment();
     method public final android.support.v17.leanback.app.BrowseSupportFragment.FragmentHost getFragmentHost();
@@ -1485,7 +1485,7 @@ package android.support.v17.leanback.app {
     method public void registerFragment(java.lang.Class, android.support.v17.leanback.app.BrowseSupportFragment.FragmentFactory);
   }
 
-  public static class BrowseSupportFragment.MainFragmentRowsAdapter {
+  public static class BrowseSupportFragment.MainFragmentRowsAdapter<T extends android.support.v4.app.Fragment> {
     ctor public BrowseSupportFragment.MainFragmentRowsAdapter(T);
     method public final T getFragment();
     method public int getSelectedPosition();
@@ -2382,7 +2382,7 @@ package android.support.v17.leanback.widget {
     method public int removeItems(int, int);
     method public void replace(int, java.lang.Object);
     method public int size();
-    method public java.util.List<E> unmodifiableList();
+    method public <E> java.util.List<E> unmodifiableList();
   }
 
   public class BaseCardView extends android.widget.FrameLayout {
@@ -2417,11 +2417,11 @@ package android.support.v17.leanback.widget {
     field public int viewType;
   }
 
-  public abstract interface BaseOnItemViewClickedListener {
+  public abstract interface BaseOnItemViewClickedListener<T> {
     method public abstract void onItemClicked(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object, android.support.v17.leanback.widget.RowPresenter.ViewHolder, T);
   }
 
-  public abstract interface BaseOnItemViewSelectedListener {
+  public abstract interface BaseOnItemViewSelectedListener<T> {
     method public abstract void onItemSelected(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object, android.support.v17.leanback.widget.RowPresenter.ViewHolder, T);
   }
 
@@ -2719,7 +2719,7 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedAction build();
   }
 
-  public static abstract class GuidedAction.BuilderBase {
+  public static abstract class GuidedAction.BuilderBase<B extends android.support.v17.leanback.widget.GuidedAction.BuilderBase> {
     ctor public GuidedAction.BuilderBase(android.content.Context);
     method protected final void applyValues(android.support.v17.leanback.widget.GuidedAction);
     method public B autoSaveRestoreEnabled(boolean);
@@ -2844,7 +2844,7 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedDatePickerAction build();
   }
 
-  public static abstract class GuidedDatePickerAction.BuilderBase extends android.support.v17.leanback.widget.GuidedAction.BuilderBase {
+  public static abstract class GuidedDatePickerAction.BuilderBase<B extends android.support.v17.leanback.widget.GuidedDatePickerAction.BuilderBase> extends android.support.v17.leanback.widget.GuidedAction.BuilderBase {
     ctor public GuidedDatePickerAction.BuilderBase(android.content.Context);
     method protected final void applyDatePickerValues(android.support.v17.leanback.widget.GuidedDatePickerAction);
     method public B date(long);
@@ -3172,7 +3172,7 @@ package android.support.v17.leanback.widget {
     method public void setSource(android.support.v17.leanback.widget.ParallaxSource);
   }
 
-  public abstract class ParallaxEffect {
+  public abstract class ParallaxEffect<ParallaxEffectT extends android.support.v17.leanback.widget.ParallaxEffect, PropertyKeyValueT extends android.support.v17.leanback.widget.ParallaxSource.PropertyKeyValue> {
     ctor public ParallaxEffect();
     method public final void addTarget(android.support.v17.leanback.widget.ParallaxTarget);
     method protected abstract float calculateFraction(android.support.v17.leanback.widget.ParallaxSource);
@@ -3213,7 +3213,7 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty viewId(int);
   }
 
-  public abstract class ParallaxSource {
+  public abstract class ParallaxSource<PropertyT extends android.util.Property> {
     ctor public ParallaxSource();
     method public abstract PropertyT addProperty(java.lang.String);
     method public abstract PropertyT createProperty(java.lang.String, int);
@@ -3240,7 +3240,7 @@ package android.support.v17.leanback.widget {
     method public final float getKeyValue(android.support.v17.leanback.widget.ParallaxSource.FloatSource);
   }
 
-  public static abstract class ParallaxSource.FloatSource extends android.support.v17.leanback.widget.ParallaxSource {
+  public static abstract class ParallaxSource.FloatSource<FloatPropertyT extends android.support.v17.leanback.widget.ParallaxSource.FloatProperty> extends android.support.v17.leanback.widget.ParallaxSource {
     ctor public ParallaxSource.FloatSource();
     method public final FloatPropertyT addProperty(java.lang.String);
     method public abstract float getMaxParentVisibleSize();
@@ -3267,7 +3267,7 @@ package android.support.v17.leanback.widget {
     method public final int getKeyValue(android.support.v17.leanback.widget.ParallaxSource.IntSource);
   }
 
-  public static abstract class ParallaxSource.IntSource extends android.support.v17.leanback.widget.ParallaxSource {
+  public static abstract class ParallaxSource.IntSource<IntPropertyT extends android.support.v17.leanback.widget.ParallaxSource.IntProperty> extends android.support.v17.leanback.widget.ParallaxSource {
     ctor public ParallaxSource.IntSource();
     method public final IntPropertyT addProperty(java.lang.String);
     method public abstract int getMaxParentVisibleSize();
@@ -3281,7 +3281,7 @@ package android.support.v17.leanback.widget {
     method public void onPropertiesChanged(android.support.v17.leanback.widget.ParallaxSource);
   }
 
-  public static class ParallaxSource.PropertyKeyValue {
+  public static class ParallaxSource.PropertyKeyValue<PropertyT extends android.util.Property> {
     ctor public ParallaxSource.PropertyKeyValue(PropertyT);
     method public PropertyT getProperty();
   }
@@ -4297,7 +4297,7 @@ package android.support.v4.app {
     method public android.os.Parcelable saveAllState();
   }
 
-  public abstract class FragmentHostCallback extends android.support.v4.app.FragmentContainer {
+  public abstract class FragmentHostCallback<E> extends android.support.v4.app.FragmentContainer {
     ctor public FragmentHostCallback(android.content.Context, android.os.Handler, int);
     method public void onDump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public android.view.View onFindViewById(int);
@@ -4435,13 +4435,13 @@ package android.support.v4.app {
     method public abstract void destroyLoader(int);
     method public abstract void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public static void enableDebugLogging(boolean);
-    method public abstract android.support.v4.content.Loader<D> getLoader(int);
+    method public abstract <D> android.support.v4.content.Loader<D> getLoader(int);
     method public boolean hasRunningLoaders();
-    method public abstract android.support.v4.content.Loader<D> initLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
-    method public abstract android.support.v4.content.Loader<D> restartLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
+    method public abstract <D> android.support.v4.content.Loader<D> initLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
+    method public abstract <D> android.support.v4.content.Loader<D> restartLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
   }
 
-  public static abstract interface LoaderManager.LoaderCallbacks {
+  public static abstract interface LoaderManager.LoaderCallbacks<D> {
     method public abstract android.support.v4.content.Loader<D> onCreateLoader(int, android.os.Bundle);
     method public abstract void onLoadFinished(android.support.v4.content.Loader<D>, D);
     method public abstract void onLoaderReset(android.support.v4.content.Loader<D>);
@@ -4963,7 +4963,7 @@ package android.support.v4.app {
 
 package android.support.v4.content {
 
-  public abstract class AsyncTaskLoader extends android.support.v4.content.Loader {
+  public abstract class AsyncTaskLoader<D> extends android.support.v4.content.Loader {
     ctor public AsyncTaskLoader(android.content.Context);
     method public void cancelLoadInBackground();
     method public boolean isLoadInBackgroundCanceled();
@@ -5039,7 +5039,7 @@ package android.support.v4.content {
     field public static final int FLAG_ACTIVITY_TASK_ON_HOME = 16384; // 0x4000
   }
 
-  public class Loader {
+  public class Loader<D> {
     ctor public Loader(android.content.Context);
     method public void abandon();
     method public boolean cancelLoad();
@@ -5076,11 +5076,11 @@ package android.support.v4.content {
     ctor public Loader.ForceLoadContentObserver();
   }
 
-  public static abstract interface Loader.OnLoadCanceledListener {
+  public static abstract interface Loader.OnLoadCanceledListener<D> {
     method public abstract void onLoadCanceled(android.support.v4.content.Loader<D>);
   }
 
-  public static abstract interface Loader.OnLoadCompleteListener {
+  public static abstract interface Loader.OnLoadCompleteListener<D> {
     method public abstract void onLoadComplete(android.support.v4.content.Loader<D>, D);
   }
 
@@ -5212,7 +5212,7 @@ package android.support.v4.graphics.drawable {
     method public static void setTint(android.graphics.drawable.Drawable, int);
     method public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList);
     method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode);
-    method public static T unwrap(android.graphics.drawable.Drawable);
+    method public static <T extends android.graphics.drawable.Drawable> T unwrap(android.graphics.drawable.Drawable);
     method public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
   }
 
@@ -5374,7 +5374,7 @@ package android.support.v4.media {
     field public static final java.lang.String EXTRA_SUGGESTION_KEYWORDS = "android.service.media.extra.SUGGESTION_KEYWORDS";
   }
 
-  public static class MediaBrowserServiceCompat.Result {
+  public static class MediaBrowserServiceCompat.Result<T> {
     method public void detach();
     method public void sendResult(T);
   }
@@ -5893,7 +5893,7 @@ package android.support.v4.net {
 package android.support.v4.os {
 
   public final class AsyncTaskCompat {
-    method public static android.os.AsyncTask<Params, Progress, Result> executeParallel(android.os.AsyncTask<Params, Progress, Result>, Params...);
+    method public static <Params, Progress, Result> android.os.AsyncTask<Params, Progress, Result> executeParallel(android.os.AsyncTask<Params, Progress, Result>, Params...);
   }
 
   public class BuildCompat {
@@ -5926,10 +5926,10 @@ package android.support.v4.os {
   }
 
   public final class ParcelableCompat {
-    method public static android.os.Parcelable.Creator<T> newCreator(android.support.v4.os.ParcelableCompatCreatorCallbacks<T>);
+    method public static <T> android.os.Parcelable.Creator<T> newCreator(android.support.v4.os.ParcelableCompatCreatorCallbacks<T>);
   }
 
-  public abstract interface ParcelableCompatCreatorCallbacks {
+  public abstract interface ParcelableCompatCreatorCallbacks<T> {
     method public abstract T createFromParcel(android.os.Parcel, java.lang.ClassLoader);
     method public abstract T[] newArray(int);
   }
@@ -6077,7 +6077,7 @@ package android.support.v4.text.util {
 
 package android.support.v4.util {
 
-  public class ArrayMap extends android.support.v4.util.SimpleArrayMap implements java.util.Map {
+  public class ArrayMap<K, V> extends android.support.v4.util.SimpleArrayMap implements java.util.Map {
     ctor public ArrayMap();
     ctor public ArrayMap(int);
     ctor public ArrayMap(android.support.v4.util.SimpleArrayMap);
@@ -6090,7 +6090,7 @@ package android.support.v4.util {
     method public java.util.Collection<V> values();
   }
 
-  public final class ArraySet implements java.util.Collection java.util.Set {
+  public final class ArraySet<E> implements java.util.Collection java.util.Set {
     ctor public ArraySet();
     ctor public ArraySet(int);
     ctor public ArraySet(android.support.v4.util.ArraySet<E>);
@@ -6111,7 +6111,7 @@ package android.support.v4.util {
     method public boolean retainAll(java.util.Collection<?>);
     method public int size();
     method public java.lang.Object[] toArray();
-    method public T[] toArray(T[]);
+    method public <T> T[] toArray(T[]);
     method public E valueAt(int);
   }
 
@@ -6126,7 +6126,7 @@ package android.support.v4.util {
     method public java.io.FileOutputStream startWrite() throws java.io.IOException;
   }
 
-  public final class CircularArray {
+  public final class CircularArray<E> {
     ctor public CircularArray();
     ctor public CircularArray(int);
     method public void addFirst(E);
@@ -6160,7 +6160,7 @@ package android.support.v4.util {
     method public int size();
   }
 
-  public class LongSparseArray {
+  public class LongSparseArray<E> {
     ctor public LongSparseArray();
     ctor public LongSparseArray(int);
     method public void append(long, E);
@@ -6180,7 +6180,7 @@ package android.support.v4.util {
     method public E valueAt(int);
   }
 
-  public class LruCache {
+  public class LruCache<K, V> {
     ctor public LruCache(int);
     method protected V create(K);
     method public final synchronized int createCount();
@@ -6202,9 +6202,9 @@ package android.support.v4.util {
     method public void trimToSize(int);
   }
 
-  public class Pair {
+  public class Pair<F, S> {
     ctor public Pair(F, S);
-    method public static android.support.v4.util.Pair<A, B> create(A, B);
+    method public static <A, B> android.support.v4.util.Pair<A, B> create(A, B);
     field public final F first;
     field public final S second;
   }
@@ -6219,22 +6219,22 @@ package android.support.v4.util {
   public final class Pools {
   }
 
-  public static abstract interface Pools.Pool {
+  public static abstract interface Pools.Pool<T> {
     method public abstract T acquire();
     method public abstract boolean release(T);
   }
 
-  public static class Pools.SimplePool implements android.support.v4.util.Pools.Pool {
+  public static class Pools.SimplePool<T> implements android.support.v4.util.Pools.Pool {
     ctor public Pools.SimplePool(int);
     method public T acquire();
     method public boolean release(T);
   }
 
-  public static class Pools.SynchronizedPool extends android.support.v4.util.Pools.SimplePool {
+  public static class Pools.SynchronizedPool<T> extends android.support.v4.util.Pools.SimplePool {
     ctor public Pools.SynchronizedPool(int);
   }
 
-  public class SimpleArrayMap {
+  public class SimpleArrayMap<K, V> {
     ctor public SimpleArrayMap();
     ctor public SimpleArrayMap(int);
     ctor public SimpleArrayMap(android.support.v4.util.SimpleArrayMap);
@@ -6255,7 +6255,7 @@ package android.support.v4.util {
     method public V valueAt(int);
   }
 
-  public class SparseArrayCompat {
+  public class SparseArrayCompat<E> {
     ctor public SparseArrayCompat();
     ctor public SparseArrayCompat(int);
     method public void append(int, E);
@@ -9223,7 +9223,7 @@ package android.support.v7.preference {
 
 package android.support.v7.util {
 
-  public class AsyncListUtil {
+  public class AsyncListUtil<T> {
     ctor public AsyncListUtil(java.lang.Class<T>, int, android.support.v7.util.AsyncListUtil.DataCallback<T>, android.support.v7.util.AsyncListUtil.ViewCallback);
     method public T getItem(int);
     method public int getItemCount();
@@ -9231,7 +9231,7 @@ package android.support.v7.util {
     method public void refresh();
   }
 
-  public static abstract class AsyncListUtil.DataCallback {
+  public static abstract class AsyncListUtil.DataCallback<T> {
     ctor public AsyncListUtil.DataCallback();
     method public abstract void fillData(T[], int, int);
     method public int getMaxCachedTiles();
@@ -9285,7 +9285,7 @@ package android.support.v7.util {
     method public abstract void onRemoved(int, int);
   }
 
-  public class SortedList {
+  public class SortedList<T> {
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>);
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>, int);
     method public int add(T);
@@ -9305,7 +9305,7 @@ package android.support.v7.util {
     field public static final int INVALID_POSITION = -1; // 0xffffffff
   }
 
-  public static class SortedList.BatchedCallback extends android.support.v7.util.SortedList.Callback {
+  public static class SortedList.BatchedCallback<T2> extends android.support.v7.util.SortedList.Callback {
     ctor public SortedList.BatchedCallback(android.support.v7.util.SortedList.Callback<T2>);
     method public boolean areContentsTheSame(T2, T2);
     method public boolean areItemsTheSame(T2, T2);
@@ -9317,7 +9317,7 @@ package android.support.v7.util {
     method public void onRemoved(int, int);
   }
 
-  public static abstract class SortedList.Callback implements java.util.Comparator android.support.v7.util.ListUpdateCallback {
+  public static abstract class SortedList.Callback<T2> implements java.util.Comparator android.support.v7.util.ListUpdateCallback {
     ctor public SortedList.Callback();
     method public abstract boolean areContentsTheSame(T2, T2);
     method public abstract boolean areItemsTheSame(T2, T2);
@@ -9944,7 +9944,7 @@ package android.support.v7.widget {
     field public static final int VERTICAL = 1; // 0x1
   }
 
-  public static abstract class RecyclerView.Adapter {
+  public static abstract class RecyclerView.Adapter<VH extends android.support.v7.widget.RecyclerView.ViewHolder> {
     ctor public RecyclerView.Adapter();
     method public final void bindViewHolder(VH, int);
     method public final VH createViewHolder(android.view.ViewGroup, int);
@@ -10316,7 +10316,7 @@ package android.support.v7.widget {
   public static class RecyclerView.State {
     ctor public RecyclerView.State();
     method public boolean didStructureChange();
-    method public T get(int);
+    method public <T> T get(int);
     method public int getItemCount();
     method public int getTargetScrollPosition();
     method public boolean hasTargetScrollPosition();
@@ -10707,7 +10707,7 @@ package android.support.v7.widget.helper {
 
 package android.support.v7.widget.util {
 
-  public abstract class SortedListAdapterCallback extends android.support.v7.util.SortedList.Callback {
+  public abstract class SortedListAdapterCallback<T2> extends android.support.v7.util.SortedList.Callback {
     ctor public SortedListAdapterCallback(android.support.v7.widget.RecyclerView.Adapter);
     method public void onChanged(int, int);
     method public void onInserted(int, int);
