@@ -694,7 +694,6 @@ public class GuidedDatePickerTest {
         Thread.sleep(FINAL_WAIT);
     }
 
-    @Test
     public void testDateRangesDMYFormat() throws Throwable {
 
         long startTime = System.currentTimeMillis();
