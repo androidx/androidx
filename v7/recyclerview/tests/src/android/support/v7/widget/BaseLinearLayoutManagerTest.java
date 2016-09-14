@@ -325,11 +325,11 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         public String toString() {
             return "Config{" +
                     "mStackFromEnd=" + mStackFromEnd +
-                    ", mOrientation=" + mOrientation +
-                    ", mReverseLayout=" + mReverseLayout +
-                    ", mRecycleChildrenOnDetach=" + mRecycleChildrenOnDetach +
-                    ", mItemCount=" + mItemCount +
-                    ", wrap=" + mWrap +
+                    ",mOrientation=" + mOrientation +
+                    ",mReverseLayout=" + mReverseLayout +
+                    ",mRecycleChildrenOnDetach=" + mRecycleChildrenOnDetach +
+                    ",mItemCount=" + mItemCount +
+                    ",wrap=" + mWrap +
                     '}';
         }
 

@@ -44,7 +44,7 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
         mSelectTargetChildren = selectTargetChildren;
     }
 
-    @Parameterized.Parameters(name = "{0}_{1}")
+    @Parameterized.Parameters(name = "{0},selectTargetChildren:{1}")
     public static Iterable<Object[]> params() {
         SelectTargetChildren[] selectors
                 = new SelectTargetChildren[]{
@@ -53,11 +53,19 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{1, 0};
                     }
+                    @Override
+                    public String toString() {
+                        return "{1,0}";
+                    }
                 },
                 new SelectTargetChildren() {
                     @Override
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{0, 1};
+                    }
+                    @Override
+                    public String toString() {
+                        return "{0,1}";
                     }
                 },
                 new SelectTargetChildren() {
@@ -65,11 +73,19 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{childCount - 1, childCount - 2};
                     }
+                    @Override
+                    public String toString() {
+                        return "{childCount-1,childCount-2}";
+                    }
                 },
                 new SelectTargetChildren() {
                     @Override
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{childCount - 2, childCount - 1};
+                    }
+                    @Override
+                    public String toString() {
+                        return "{childCount-2,childCount-1}";
                     }
                 },
                 new SelectTargetChildren() {
@@ -77,11 +93,19 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{childCount / 2, childCount / 2 + 1};
                     }
+                    @Override
+                    public String toString() {
+                        return "{childCount/2,childCount/2+1}";
+                    }
                 },
                 new SelectTargetChildren() {
                     @Override
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{childCount / 2 + 1, childCount / 2};
+                    }
+                    @Override
+                    public String toString() {
+                        return "{childCount/2+1,childCount/2}";
                     }
                 }
         };
@@ -166,7 +190,6 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
     }
 
     protected interface SelectTargetChildren {
-
         int[] selectTargetChildren(int childCount);
     }
 }
