@@ -23,9 +23,9 @@ import android.support.transition.TransitionManager;
 import android.view.ViewGroup;
 
 /**
- * This demonstrates basic usage of the Transition API.
+ * This demonstrates basic usage of the Transition Scene.
  */
-public class BasicUsage extends TransitionUsageBase {
+public class SceneUsage extends SceneUsageBase {
 
     @Override
     Scene[] setUpScenes(ViewGroup root) {
