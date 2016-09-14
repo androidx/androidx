@@ -4732,6 +4732,7 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Builder extend(android.support.v4.app.NotificationCompat.Builder);
     method public java.util.List<android.support.v4.app.NotificationCompat.Action> getActions();
     method public android.graphics.Bitmap getBackground();
+    method public java.lang.String getBridgeTag();
     method public int getContentAction();
     method public int getContentIcon();
     method public int getContentIconGravity();
@@ -4750,6 +4751,7 @@ package android.support.v4.app {
     method public java.util.List<android.app.Notification> getPages();
     method public boolean getStartScrollBottom();
     method public android.support.v4.app.NotificationCompat.WearableExtender setBackground(android.graphics.Bitmap);
+    method public android.support.v4.app.NotificationCompat.WearableExtender setBridgeTag(java.lang.String);
     method public android.support.v4.app.NotificationCompat.WearableExtender setContentAction(int);
     method public android.support.v4.app.NotificationCompat.WearableExtender setContentIcon(int);
     method public android.support.v4.app.NotificationCompat.WearableExtender setContentIconGravity(int);
