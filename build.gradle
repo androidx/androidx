@@ -438,9 +438,11 @@ subprojects {
                 def content = "Maven.GroupId=$deployer.pom.groupId\n" +
                         "Maven.ArtifactId=$deployer.pom.artifactId\n" +
                         "Maven.Version=$deployer.pom.version\n" +
+                        "Extra.VendorDisplay=Android\n" +
+                        "Extra.VendorId=android\n" +
                         "Pkg.Desc=$project.name\n" +
                         "Pkg.Revision=1\n" +
-                        "Dependencies=" +
+                        "Maven.Dependencies=" +
                         String.join(",", project.configurations.compile.allDependencies.collect {
                             def p = parent.findProject(it.name)
                             return p ? "$p.group:$p.archivesBaseName:$p.version" : null
