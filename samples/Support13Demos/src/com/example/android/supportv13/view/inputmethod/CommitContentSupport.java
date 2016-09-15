@@ -29,17 +29,12 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.webkit.WebView;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import static android.widget.LinearLayout.VERTICAL;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,7 +115,7 @@ public class CommitContentSupport extends Activity {
                 mCurrentInputContentInfo.releasePermission();
             }
         } catch (Exception e) {
-            Log.e(TAG, "InputContentInfo#releasePermission() failed.", e);
+            Log.e(TAG, "InputContentInfoCompat#releasePermission() failed.", e);
         } finally {
             mCurrentInputContentInfo = null;
         }
@@ -151,7 +146,7 @@ public class CommitContentSupport extends Activity {
             try {
                 inputContentInfo.requestPermission();
             } catch (Exception e) {
-                Log.e(TAG, "InputContentInfo#requestPermission() failed.", e);
+                Log.e(TAG, "InputContentInfoCompat#requestPermission() failed.", e);
                 return false;
             }
         }
