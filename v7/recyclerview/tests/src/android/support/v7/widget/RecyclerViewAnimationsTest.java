@@ -22,7 +22,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -664,6 +666,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingAuto() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO,
@@ -671,6 +674,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingNo() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO,
@@ -678,6 +682,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingNoHideDescandants() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
@@ -685,6 +690,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingYes() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES,
