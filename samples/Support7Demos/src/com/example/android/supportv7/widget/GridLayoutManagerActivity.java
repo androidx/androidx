@@ -49,7 +49,7 @@ public class GridLayoutManagerActivity extends BaseLayoutManagerActivity<GridLay
     };
 
     @Override
-    ConfigToggle[] createConfigToggles() {
+    protected ConfigToggle[] createConfigToggles() {
         return new ConfigToggle[]{
                 new ConfigToggle(this, R.string.checkbox_orientation) {
                     @Override

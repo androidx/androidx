@@ -169,7 +169,9 @@ abstract public class BaseLayoutManagerActivity<T extends RecyclerView.LayoutMan
         scrollToPosition(smooth, position);
     }
 
-    abstract ConfigToggle[] createConfigToggles();
+    protected ConfigToggle[] createConfigToggles() {
+        return new ConfigToggle[] {};
+    }
 
     private RecyclerView.Adapter mConfigAdapter = new RecyclerView.Adapter<ConfigViewHolder>() {
         @Override
