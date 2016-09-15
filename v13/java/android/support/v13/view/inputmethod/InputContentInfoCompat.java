@@ -22,6 +22,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.os.BuildCompat;
 
+/**
+ * Helper for accessing features in InputContentInfo introduced after API level 13 in a backwards
+ * compatible fashion.
+ */
 public final class InputContentInfoCompat {
 
     private interface InputContentInfoCompatImpl {
@@ -144,6 +148,19 @@ public final class InputContentInfoCompat {
 
     private final InputContentInfoCompatImpl mImpl;
 
+    /**
+     * Constructs {@link InputContentInfoCompat}.
+     *
+     * @param contentUri content URI to be exported from the input method. This cannot be
+     *                   {@code null}.
+     * @param description a {@link ClipDescription} object that contains the metadata of
+     *                    {@code contentUri} such as MIME type(s). This object cannot be
+     *                    {@code null}. Also {@link ClipDescription#getLabel()} should be describing
+     *                    the content specified by {@code contentUri} for accessibility reasons.
+     * @param linkUri an optional {@code http} or {@code https} URI. The editor author may provide
+     *                a way to navigate the user to the specified web page if this is not
+     *                {@code null}.
+     */
     public InputContentInfoCompat(@NonNull Uri contentUri,
             @NonNull ClipDescription description, @Nullable Uri linkUri) {
         if (BuildCompat.isAtLeastNMR1()) {
