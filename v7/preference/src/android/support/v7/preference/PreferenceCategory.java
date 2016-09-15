@@ -23,8 +23,8 @@ import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.Collect
 import android.util.AttributeSet;
 
 /**
- * Used to group {@link android.preference.Preference} objects
- * and provide a disabled title above the group.
+ * Used to group {@link Preference} objects and provide a disabled title above
+ * the group.
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
