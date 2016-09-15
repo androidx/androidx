@@ -21,6 +21,7 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.view.View;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
@@ -92,6 +93,7 @@ public class WrappedRecyclerView extends RecyclerView {
                 })) {
             latch.countDown();
         }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         MatcherAssert.assertThat("waiting too long for animations",
                 latch.await(60, TimeUnit.SECONDS), CoreMatchers.is(true));
     }
@@ -102,7 +104,15 @@ public class WrappedRecyclerView extends RecyclerView {
         if (mFakeRTL == null) {
             return super.getLayoutDirection();
         }
+        //noinspection WrongConstant
         return Boolean.TRUE.equals(mFakeRTL) ? ViewCompat.LAYOUT_DIRECTION_RTL
                 : ViewCompat.LAYOUT_DIRECTION_LTR;
+    }
+
+    @Override
+    public boolean setChildImportantForAccessibilityInternal(ViewHolder viewHolder,
+            int importantForAccessibilityBeforeHidden) {
+        return super.setChildImportantForAccessibilityInternal(viewHolder,
+                importantForAccessibilityBeforeHidden);
     }
 }
