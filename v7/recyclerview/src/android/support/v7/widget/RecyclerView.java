@@ -9995,6 +9995,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @param recyclable Whether this item is available to be recycled. Default value
          * is true.
+         *
+         * @see #isRecyclable()
          */
         public final void setIsRecyclable(boolean recyclable) {
             mIsRecyclableCount = recyclable ? mIsRecyclableCount - 1 : mIsRecyclableCount + 1;
@@ -10017,9 +10019,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * @see {@link #setIsRecyclable(boolean)}
-         *
          * @return true if this item is available to be recycled, false otherwise.
+         *
+         * @see #setIsRecyclable(boolean)
          */
         public final boolean isRecyclable() {
             return (mFlags & FLAG_NOT_RECYCLABLE) == 0 &&
