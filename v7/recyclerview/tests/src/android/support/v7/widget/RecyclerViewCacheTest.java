@@ -17,6 +17,7 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -42,6 +43,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SmallTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 @RunWith(AndroidJUnit4.class)
 public class RecyclerViewCacheTest {
     RecyclerView mRecyclerView;
