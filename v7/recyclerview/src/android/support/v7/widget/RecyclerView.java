@@ -3211,7 +3211,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // only recover focus if RV itself has the focus or the focused view is hidden
         if (!isFocused()) {
             final View focusedChild = getFocusedChild();
-            if (focusedChild == null || !mChildHelper.isHidden(focusedChild)) {
+            if (focusedChild == null || (!mChildHelper.isHidden(focusedChild)
+                    // on API 15, this happens :/.
+                    && focusedChild.getParent() == this && focusedChild.hasFocus())) {
                 return;
             }
         }
