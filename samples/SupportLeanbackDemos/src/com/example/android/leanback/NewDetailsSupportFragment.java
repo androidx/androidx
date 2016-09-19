@@ -71,9 +71,11 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
     private FullWidthDetailsOverviewSharedElementHelper mHelper;
     private DetailsBackgroundParallaxHelper mParallaxHelper;
     private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
+    private int mBitmapMinVerticalOffset = -100;
 
     private void initializeTest() {
-        TEST_SHARED_ELEMENT_TRANSITION = null != getActivity().getWindow().getSharedElementEnterTransition();
+        TEST_SHARED_ELEMENT_TRANSITION = null != getActivity().getWindow()
+                .getSharedElementEnterTransition();
         TEST_OVERVIEW_ROW_ON_SECOND = !TEST_SHARED_ELEMENT_TRANSITION;
         TEST_ENTRANCE_TRANSITION = true;
     }
@@ -249,10 +251,10 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
     @Override
     public void onStart() {
         super.onStart();
-        mParallaxHelper = DetailsBackgroundParallaxHelper.ParallaxBuilder
-                .newBuilder()
-                .setRecyclerView(getRowsSupportFragment().getVerticalGridView())
-                .setBitmapMinVerticalOffset(-300)
+        mParallaxHelper = new DetailsBackgroundParallaxHelper.ParallaxBuilder(
+                getActivity(),
+                getParallaxManager())
+                .setBitmapMinVerticalOffset(mBitmapMinVerticalOffset)
                 .build();
         mBackgroundHelper.setDrawable(getActivity(), mParallaxHelper.getDrawable());
     }
@@ -263,5 +265,9 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
         Bitmap bitmap = BitmapFactory.decodeResource(getActivity().getResources(),
                 R.drawable.spiderman);
         mParallaxHelper.setBitmap(bitmap);
+    }
+
+    public void setMinimumVerticalOffset(int minimumVerticalOffset) {
+        this.mBitmapMinVerticalOffset = minimumVerticalOffset;
     }
 }

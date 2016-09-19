@@ -15,23 +15,22 @@
  */
 package android.support.v17.leanback.app;
 
+import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
+import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
+import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
 import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter;
 import android.support.v17.leanback.widget.ItemAlignmentFacet;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
-import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.TitleHelper;
 import android.support.v17.leanback.widget.VerticalGridView;
-import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,7 +90,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     RowsSupportFragment mRowsSupportFragment;
-
+    private DetailsParallaxManager mDetailsParallaxManager;
     private ObjectAdapter mAdapter;
     private int mContainerListAlignTop;
     BaseOnItemViewSelectedListener mExternalOnItemViewSelectedListener;
@@ -427,5 +426,17 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     @Override
     protected void onEntranceTransitionStart() {
         mRowsSupportFragment.onTransitionStart();
+    }
+
+    /**
+     * Returns the {@link DetailsParallaxManager} instance used to configure
+     * {@link android.support.v17.leanback.widget.Parallax} instance.
+     */
+    public DetailsParallaxManager getParallaxManager() {
+        if (mDetailsParallaxManager == null) {
+            mDetailsParallaxManager = new DetailsParallaxManager(
+                    getRowsSupportFragment().getVerticalGridView());
+        }
+        return mDetailsParallaxManager;
     }
 }

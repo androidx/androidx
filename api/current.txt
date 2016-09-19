@@ -1507,11 +1507,10 @@ package android.support.v17.leanback.app {
   }
 
   public static class DetailsBackgroundParallaxHelper.ParallaxBuilder {
+    ctor public DetailsBackgroundParallaxHelper.ParallaxBuilder(android.content.Context, android.support.v17.leanback.app.DetailsParallaxManager);
     method public android.support.v17.leanback.app.DetailsBackgroundParallaxHelper build();
-    method public static android.support.v17.leanback.app.DetailsBackgroundParallaxHelper.ParallaxBuilder newBuilder();
     method public android.support.v17.leanback.app.DetailsBackgroundParallaxHelper.ParallaxBuilder setBitmapMinVerticalOffset(int);
     method public android.support.v17.leanback.app.DetailsBackgroundParallaxHelper.ParallaxBuilder setColor(int);
-    method public android.support.v17.leanback.app.DetailsBackgroundParallaxHelper.ParallaxBuilder setRecyclerView(android.support.v7.widget.RecyclerView);
   }
 
   public class DetailsFragment extends android.support.v17.leanback.app.BrandedFragment {
@@ -1519,6 +1518,7 @@ package android.support.v17.leanback.app {
     method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.app.DetailsParallaxManager getParallaxManager();
     method public android.support.v17.leanback.app.RowsFragment getRowsFragment();
     method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
@@ -1536,11 +1536,19 @@ package android.support.v17.leanback.app {
     method protected void setupPresenter(android.support.v17.leanback.widget.Presenter);
   }
 
+  public class DetailsParallaxManager {
+    ctor public DetailsParallaxManager(android.support.v7.widget.RecyclerView);
+    method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty getFrameBottom();
+    method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty getFrameTop();
+    method public android.support.v17.leanback.widget.Parallax getParallax();
+  }
+
   public class DetailsSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
     ctor public DetailsSupportFragment();
     method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.app.DetailsParallaxManager getParallaxManager();
     method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
     method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
