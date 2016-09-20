@@ -18,6 +18,7 @@ package android.support.v17.leanback.app;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import android.Manifest;
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -33,9 +34,9 @@ import android.support.v17.leanback.widget.Presenter.ViewHolder;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SearchBar;
+import android.support.v17.leanback.widget.SearchOrbView;
 import android.support.v17.leanback.widget.SpeechRecognitionCallback;
 import android.support.v17.leanback.widget.VerticalGridView;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -520,6 +521,28 @@ public class SearchSupportFragment extends Fragment {
     }
 
     /**
+     * Sets background color of not-listening state search orb.
+     *
+     * @param colors SearchOrbView.Colors.
+     */
+    public void setSearchAffordanceColors(SearchOrbView.Colors colors) {
+        if (mSearchBar != null) {
+            mSearchBar.setSearchAffordanceColors(colors);
+        }
+    }
+
+    /**
+     * Sets background color of listening state search orb.
+     *
+     * @param colors SearchOrbView.Colors.
+     */
+    public void setSearchAffordanceColorsInListening(SearchOrbView.Colors colors) {
+        if (mSearchBar != null) {
+            mSearchBar.setSearchAffordanceColorsInListening(colors);
+        }
+    }
+
+    /**
      * Displays the completions shown by the IME. An application may provide
      * a list of query completions that the system will show in the IME.
      *
@@ -657,8 +680,7 @@ public class SearchSupportFragment extends Fragment {
 
     void updateFocus() {
         if (mResultAdapter != null && mResultAdapter.size() > 0
-                && mRowsSupportFragment != null
-                && mRowsSupportFragment.getAdapter() == mResultAdapter) {
+                && mRowsSupportFragment != null && mRowsSupportFragment.getAdapter() == mResultAdapter) {
             focusOnResults();
         } else {
             mSearchBar.requestFocus();
