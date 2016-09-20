@@ -17,7 +17,6 @@
 package android.support.v4.app;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -35,7 +34,7 @@ import android.view.View;
  */
 @RequiresApi(9)
 @TargetApi(9)
-abstract class BaseFragmentActivityGingerbread extends Activity {
+abstract class BaseFragmentActivityGingerbread extends SupportActivity {
 
     // We need to keep track of whether startIntentSenderForResult originated from a Fragment, so we
     // can conditionally check whether the requestCode collides with our reserved ID space for the

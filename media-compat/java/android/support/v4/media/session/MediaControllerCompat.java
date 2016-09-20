@@ -16,6 +16,7 @@
 
 package android.support.v4.media.session;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.media.AudioManager;
@@ -28,6 +29,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.app.BundleCompat;
+import android.support.v4.app.SupportActivity;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
@@ -59,6 +61,78 @@ public final class MediaControllerCompat {
 
     static final String COMMAND_GET_EXTRA_BINDER =
             "android.support.v4.media.session.command.GET_EXTRA_BINDER";
+
+    private static class MediaControllerExtraData extends SupportActivity.ExtraData {
+        private final MediaControllerCompat mMediaController;
+
+        MediaControllerExtraData(MediaControllerCompat mediaController) {
+            mMediaController = mediaController;
+        }
+
+        MediaControllerCompat getMediaController() {
+            return mMediaController;
+        }
+    }
+
+    /**
+     * Sets a {@link MediaControllerCompat} for later retrieval via
+     * {@link #getMediaController()}.
+     *
+     * <p>On API 21 and later, this controller will be tied to the window of the activity and
+     * media key and volume events which are received while the Activity is in the foreground
+     * will be forwarded to the controller and used to invoke transport controls or adjust the
+     * volume. Prior to API 21, the global handling of media key and volume events through an
+     * active {@link android.support.v4.media.session.MediaSessionCompat} and media button receiver
+     * will still be respected.</p>
+     *
+     * @param mediaController The controller for the session which should receive
+     *     media keys and volume changes on API 21 and later.
+     * @see #getMediaController()
+     * @see Activity#setMediaController(android.media.session.MediaController)
+     */
+    public static void setMediaController(Activity activity,
+            MediaControllerCompat mediaController) {
+        if (activity instanceof  SupportActivity) {
+            ((SupportActivity) activity).putExtraData(
+                    new MediaControllerExtraData(mediaController));
+        }
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            Object controllerObj = null;
+            if (mediaController != null) {
+                Object sessionTokenObj = mediaController.getSessionToken().getToken();
+                controllerObj = MediaControllerCompatApi21.fromToken(activity, sessionTokenObj);
+            }
+            MediaControllerCompatApi21.setMediaController(activity, controllerObj);
+        }
+    }
+
+    /**
+     * Retrieves the current {@link MediaControllerCompat} for sending media key and volume events.
+     *
+     * @return The controller which should receive events.
+     * @see #setMediaController(Activity,MediaControllerCompat)
+     * @see #getMediaController()
+     */
+    public static MediaControllerCompat getMediaController(Activity activity) {
+        if (activity instanceof SupportActivity) {
+            MediaControllerExtraData extraData =
+                    ((SupportActivity) activity).getExtraData(MediaControllerExtraData.class);
+            return extraData != null ? extraData.getMediaController() : null;
+        } else if (android.os.Build.VERSION.SDK_INT >= 21) {
+            Object controllerObj = MediaControllerCompatApi21.getMediaController(activity);
+            if (controllerObj == null) {
+                return null;
+            }
+            Object sessionTokenObj = MediaControllerCompatApi21.getSessionToken(controllerObj);
+            try {
+                return new MediaControllerCompat(activity,
+                        MediaSessionCompat.Token.fromToken(sessionTokenObj));
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in getMediaController. " + e);
+            }
+        }
+        return null;
+    }
 
     private final MediaControllerImpl mImpl;
     private final MediaSessionCompat.Token mToken;
