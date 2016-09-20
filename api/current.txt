@@ -9904,6 +9904,7 @@ package android.support.v7.widget {
     method public void setScrollingTouchSlop(int);
     method public void setViewCacheExtension(android.support.v7.widget.RecyclerView.ViewCacheExtension);
     method public void smoothScrollBy(int, int);
+    method public void smoothScrollBy(int, int, android.view.animation.Interpolator);
     method public void smoothScrollToPosition(int);
     method public void stopScroll();
     method public void swapAdapter(android.support.v7.widget.RecyclerView.Adapter, boolean);

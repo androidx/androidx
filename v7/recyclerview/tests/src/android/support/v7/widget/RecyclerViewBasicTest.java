@@ -38,6 +38,8 @@ import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 
 import org.junit.Before;
@@ -347,6 +349,18 @@ public class RecyclerViewBasicTest {
         mRecyclerView.saveHierarchyState(container);
         assertEquals("children's save state method should not be called", 0,
                 loggingView.getOnSavedInstanceCnt());
+    }
+
+    @Test
+    public void smoothScrollWithCustomInterpolator() {
+        mRecyclerView.setLayoutManager(new MockLayoutManager());
+        mRecyclerView.setAdapter(new MockAdapter(20));
+        Interpolator interpolator = new LinearInterpolator();
+        mRecyclerView.smoothScrollBy(0, 100, interpolator);
+        assertSame(interpolator, mRecyclerView.mViewFlinger.mInterpolator);
+
+        mRecyclerView.smoothScrollBy(0, -100);
+        assertSame(RecyclerView.sQuinticInterpolator, mRecyclerView.mViewFlinger.mInterpolator);
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
