@@ -1,10 +1,27 @@
 package android.support.v7.widget;
 
+import static android.support.v7.widget.LayoutState.LAYOUT_END;
+import static android.support.v7.widget.LayoutState.LAYOUT_START;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
+import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE;
+import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -16,22 +33,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static android.support.v7.widget.LayoutState.LAYOUT_END;
-import static android.support.v7.widget.LayoutState.LAYOUT_START;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
-import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE;
-import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 
 public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
@@ -441,13 +442,13 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
 
         @Override
         public String toString() {
-            return "[CONFIG:" +
-                    " span:" + mSpanCount + "," +
-                    " orientation:" + (mOrientation == HORIZONTAL ? "horz," : "vert,") +
-                    " reverse:" + (mReverseLayout ? "T" : "F") +
-                    " itemCount:" + mItemCount +
-                    " wrapContent:" + mWrap +
-                    " gap strategy: " + gapStrategyName(mGapStrategy);
+            return "[CONFIG:"
+                    + "span:" + mSpanCount
+                    + ",orientation:" + (mOrientation == HORIZONTAL ? "horz," : "vert,")
+                    + ",reverse:" + (mReverseLayout ? "T" : "F")
+                    + ",itemCount:" + mItemCount
+                    + ",wrapContent:" + mWrap
+                    + ",gap strategy:" + gapStrategyName(mGapStrategy);
         }
 
         protected static String gapStrategyName(int gapStrategy) {

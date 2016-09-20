@@ -27,7 +27,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -323,14 +322,14 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
         @Override
         public String toString() {
-            return "Config{" +
-                    "mStackFromEnd=" + mStackFromEnd +
-                    ",mOrientation=" + mOrientation +
-                    ",mReverseLayout=" + mReverseLayout +
-                    ",mRecycleChildrenOnDetach=" + mRecycleChildrenOnDetach +
-                    ",mItemCount=" + mItemCount +
-                    ",wrap=" + mWrap +
-                    '}';
+            return "Config{"
+                    + "mStackFromEnd=" + mStackFromEnd
+                    + ",mOrientation=" + mOrientation
+                    + ",mReverseLayout=" + mReverseLayout
+                    + ",mRecycleChildrenOnDetach=" + mRecycleChildrenOnDetach
+                    + ",mItemCount=" + mItemCount
+                    + ",wrap=" + mWrap
+                    + '}';
         }
 
         public Config wrap(boolean wrap) {
