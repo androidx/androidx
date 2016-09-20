@@ -27,6 +27,7 @@ import static android.support.v7.testutils.TestUtilsMatchers.isBackground;
 import static org.junit.Assert.assertFalse;
 
 import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.Suppress;
 import android.support.v7.appcompat.test.R;
 import android.test.suitebuilder.annotation.MediumTest;
 
@@ -63,6 +64,7 @@ public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActi
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
     }
 
+    @Suppress // Disabled b/31515380
     @Test
     public void testColorConvertedDrawableChangesWithNightMode() {
         final NightModeActivity activity = getActivity();
