@@ -4873,6 +4873,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
         }
 
+        public int getRecycledViewCount(int viewType) {
+            final ArrayList<ViewHolder> scrapHeap = mScrap.get(viewType);
+            if (scrapHeap != null) {
+                return scrapHeap.size();
+            }
+            return 0;
+        }
+
         public ViewHolder getRecycledView(int viewType) {
             final ArrayList<ViewHolder> scrapHeap = mScrap.get(viewType);
             if (scrapHeap != null && !scrapHeap.isEmpty()) {

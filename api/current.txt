@@ -10237,6 +10237,7 @@ package android.support.v7.widget {
     ctor public RecyclerView.RecycledViewPool();
     method public void clear();
     method public android.support.v7.widget.RecyclerView.ViewHolder getRecycledView(int);
+    method public int getRecycledViewCount(int);
     method public void putRecycledView(android.support.v7.widget.RecyclerView.ViewHolder);
     method public void setMaxRecycledViews(int, int);
   }
