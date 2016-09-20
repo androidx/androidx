@@ -16,12 +16,15 @@
 package android.support.v17.leanback.graphics;
 
 import android.annotation.TargetApi;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Property;
 
 import java.util.ArrayList;
@@ -32,41 +35,101 @@ import java.util.ArrayList;
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class CompositeDrawable extends Drawable implements Drawable.Callback {
-    protected ArrayList<ChildDrawable> children = new ArrayList();
+
+    static class CompositeState extends Drawable.ConstantState {
+
+        final ArrayList<ChildDrawable> mChildren;
+
+        CompositeState() {
+            mChildren = new ArrayList<ChildDrawable>();
+        }
+
+        CompositeState(CompositeState other, CompositeDrawable parent, Resources res) {
+            final int n = other.mChildren.size();
+            mChildren = new ArrayList<ChildDrawable>(n);
+            for (int k = 0; k < n; k++) {
+                mChildren.add(new ChildDrawable(other.mChildren.get(k), parent, res));
+            }
+        }
+
+        @NonNull
+        @Override
+        public Drawable newDrawable() {
+            return new CompositeDrawable(this);
+        }
+
+        @Override
+        public int getChangingConfigurations() {
+            return 0;
+        }
+
+    }
+
+    CompositeState mState;
+    boolean mMutated = false;
+
+    public CompositeDrawable() {
+        mState = new CompositeState();
+    }
+
+    CompositeDrawable(CompositeState state) {
+        mState = state;
+    }
+
+    @Override
+    public ConstantState getConstantState() {
+        return mState;
+    }
+
+    @Override
+    public Drawable mutate() {
+        if (!mMutated && super.mutate() == this) {
+            mState = new CompositeState(mState, this, null);
+            final ArrayList<ChildDrawable> children = mState.mChildren;
+            for (int i = 0, n = children.size(); i < n; i++) {
+                final Drawable dr = children.get(i).mDrawable;
+                if (dr != null) {
+                    dr.mutate();
+                }
+            }
+            mMutated = true;
+        }
+        return this;
+    }
 
     /**
      * Adds the supplied region.
      */
     public void addChildDrawable(Drawable drawable) {
-        children.add(new ChildDrawable(drawable, this));
-        drawable.setCallback(this);
+        mState.mChildren.add(new ChildDrawable(drawable, this));
     }
 
     /**
      * Returns the {@link Drawable} for the given index.
      */
     public Drawable getDrawable(int index) {
-        return children.get(index).mDrawable;
+        return mState.mChildren.get(index).mDrawable;
     }
 
     /**
      * Returns the {@link ChildDrawable} at the given index.
      */
     public ChildDrawable getChildAt(int index) {
-        return children.get(index);
+        return mState.mChildren.get(index);
     }
 
     /**
      * Removes the child corresponding to the given index.
      */
     public void removeChild(int index) {
-        children.remove(index);
+        mState.mChildren.remove(index);
     }
 
     /**
      * Removes the given region.
      */
     public void removeDrawable(Drawable drawable) {
+        final ArrayList<ChildDrawable> children = mState.mChildren;
         for (int i = 0; i < children.size(); i++) {
             if (drawable == children.get(i).mDrawable) {
                 children.get(i).mDrawable.setCallback(null);
@@ -80,11 +143,12 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
      * Returns the total number of children.
      */
     public int getChildCount() {
-        return children.size();
+        return mState.mChildren.size();
     }
 
     @Override
     public void draw(Canvas canvas) {
+        final ArrayList<ChildDrawable> children = mState.mChildren;
         for (int i = 0; i < children.size(); i++) {
             children.get(i).mDrawable.draw(canvas);
         }
@@ -98,6 +162,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
     @Override
     public void setColorFilter(ColorFilter colorFilter) {
+        final ArrayList<ChildDrawable> children = mState.mChildren;
         for (int i = 0; i < children.size(); i++) {
             children.get(i).mDrawable.setColorFilter(colorFilter);
         }
@@ -110,9 +175,33 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
     @Override
     public void setAlpha(int alpha) {
+        final ArrayList<ChildDrawable> children = mState.mChildren;
         for (int i = 0; i < children.size(); i++) {
             children.get(i).mDrawable.setAlpha(alpha);
         }
+    }
+
+    /**
+     * @return Alpha value between 0(inclusive) and 255(inclusive)
+     */
+    public int getAlpha() {
+        final Drawable dr = getFirstNonNullDrawable();
+        if (dr != null) {
+            return DrawableCompat.getAlpha(dr);
+        } else {
+            return 0xFF;
+        }
+    }
+
+    final Drawable getFirstNonNullDrawable() {
+        final ArrayList<ChildDrawable> children = mState.mChildren;
+        for (int i = 0, n = children.size(); i < n; i++) {
+            final Drawable dr = children.get(i).mDrawable;
+            if (dr != null) {
+                return dr;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -134,6 +223,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
      * Updates the bounds based on the {@link BoundsRule}.
      */
     void updateBounds(Rect bounds) {
+        final ArrayList<ChildDrawable> children = mState.mChildren;
         for (int i = 0; i < children.size(); i++) {
             ChildDrawable childDrawable = children.get(i);
             childDrawable.updateBounds(bounds);
@@ -154,6 +244,28 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
         public ChildDrawable(Drawable drawable, CompositeDrawable parent) {
             this.mDrawable = drawable;
             this.mParent = parent;
+            drawable.setCallback(parent);
+        }
+
+        ChildDrawable(ChildDrawable orig, CompositeDrawable parent, Resources res) {
+            final Drawable dr = orig.mDrawable;
+            final Drawable clone;
+            if (dr != null) {
+                final ConstantState cs = dr.getConstantState();
+                if (res != null) {
+                    clone = cs.newDrawable(res);
+                } else {
+                    clone = cs.newDrawable();
+                }
+                clone.setCallback(parent);
+                DrawableCompat.setLayoutDirection(clone, DrawableCompat.getLayoutDirection(dr));
+                clone.setBounds(dr.getBounds());
+                clone.setLevel(dr.getLevel());
+            } else {
+                clone = null;
+            }
+            mDrawable = clone;
+            mParent = parent;
         }
 
         /**

@@ -2222,7 +2222,6 @@ package android.support.v17.leanback.graphics {
     method public void setAlpha(int);
     method public void setColorFilter(android.graphics.ColorFilter);
     method public void unscheduleDrawable(android.graphics.drawable.Drawable, java.lang.Runnable);
-    field protected java.util.ArrayList<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable> children;
   }
 
   public static final class CompositeDrawable.ChildDrawable {
