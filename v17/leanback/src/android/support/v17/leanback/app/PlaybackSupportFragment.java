@@ -20,7 +20,6 @@ import android.animation.AnimatorInflater;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
-import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -38,6 +37,7 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.InputEvent;
@@ -530,8 +530,8 @@ public class PlaybackSupportFragment extends Fragment {
             return;
         }
 
-        mAnimationTranslateY = getVerticalGridView().getSelectedPosition() == 0 ?
-                mMajorFadeTranslateY : mMinorFadeTranslateY;
+        mAnimationTranslateY = getVerticalGridView().getSelectedPosition() == 0
+                ? mMajorFadeTranslateY : mMinorFadeTranslateY;
 
         if (mFadingStatus == IDLE) {
             if (fadeIn) {

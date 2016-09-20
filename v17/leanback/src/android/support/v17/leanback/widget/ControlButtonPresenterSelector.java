@@ -101,8 +101,8 @@ public class ControlButtonPresenterSelector extends PresenterSelector {
                     vh.mLabel.setText(null);
                 }
             }
-            CharSequence contentDescription = TextUtils.isEmpty(action.getLabel2()) ?
-                action.getLabel1() : action.getLabel2();
+            CharSequence contentDescription = TextUtils.isEmpty(action.getLabel2())
+                    ? action.getLabel1() : action.getLabel2();
             if (!TextUtils.equals(vh.mFocusableView.getContentDescription(), contentDescription)) {
                 vh.mFocusableView.setContentDescription(contentDescription);
                 vh.mFocusableView.sendAccessibilityEvent(

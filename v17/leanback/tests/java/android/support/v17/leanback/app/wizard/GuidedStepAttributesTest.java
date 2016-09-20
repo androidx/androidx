@@ -14,39 +14,30 @@
 
 package android.support.v17.leanback.app.wizard;
 
-import android.app.Instrumentation;
+import static org.junit.Assert.assertTrue;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidedAction;
-import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
 import android.view.KeyEvent;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import android.support.test.runner.AndroidJUnit4;
-import android.support.test.rule.ActivityTestRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-
-import android.support.test.InstrumentationRegistry;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -56,8 +47,8 @@ public class GuidedStepAttributesTest {
     static final String TAG = "GuidedStepAttributesTest";
 
     @Rule
-    public ActivityTestRule<GuidedStepAttributesTestActivity> activityTestRule
-            = new ActivityTestRule<>(GuidedStepAttributesTestActivity.class, false, false);
+    public ActivityTestRule<GuidedStepAttributesTestActivity> activityTestRule =
+            new ActivityTestRule<>(GuidedStepAttributesTestActivity.class, false, false);
 
     GuidedStepAttributesTestActivity mActivity;
 
@@ -374,19 +365,19 @@ public class GuidedStepAttributesTest {
 
             assertTrue(mContext.getResources().getString(
                     R.string.enabled_test_wrong_focus_error_message),
-                    GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                            EXPECTED_FOCUSED_SEQUENCE.get(i)
+                    GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                            == EXPECTED_FOCUSED_SEQUENCE.get(i)
             );
             assertTrue(mContext.getResources().getString(
                     R.string.enabled_test_wrong_click_error_message),
-                    GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID ==
-                            EXPECTED_CLICKED_SEQUENCE.get(i)
+                    GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID
+                            == EXPECTED_CLICKED_SEQUENCE.get(i)
             );
             assertTrue(mContext.getResources().getString(
                     R.string.enabled_test_wrong_flag_error_message),
-                    (GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID == -1) ?
-                            !actionList.get(id).isEnabled() :
-                            actionList.get(id).isEnabled()
+                    (GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID == -1)
+                            ? !actionList.get(id).isEnabled()
+                            : actionList.get(id).isEnabled()
             );
         }
     }
@@ -500,11 +491,9 @@ public class GuidedStepAttributesTest {
         for(GuidedAction checkAction : actionList) {
             if (checkAction.infoOnly())
                 continue;
-            assertTrue("Action " + actionIndex + " is " +
-                            (!checkAction.isChecked() ? "un-" : "") +
-                    "checked while it shouldn't be!",
-                    checkAction.isChecked() ==
-                            EXPECTED_ACTIONS_STATE_AFTER_EACH_CLICK.get(actionIndex));
+            assertTrue("Action " + actionIndex + " is " + (!checkAction.isChecked() ? "un-" : "")
+                    + "checked while it shouldn't be!", checkAction.isChecked()
+                            == EXPECTED_ACTIONS_STATE_AFTER_EACH_CLICK.get(actionIndex));
             actionIndex++;
         }
     }
@@ -622,8 +611,8 @@ public class GuidedStepAttributesTest {
                                                                 List<Integer> expectedClickedSeq)
             throws Throwable{
 
-        final GuidedStepFragment mFragment = (GuidedStepFragment) mActivity.
-                getGuidedStepTestFragment();
+        final GuidedStepFragment mFragment =
+                (GuidedStepFragment) mActivity.getGuidedStepTestFragment();
         int focusStep = 0, clickStep = 0;
         GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID =
                 GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID = -1;
@@ -641,8 +630,8 @@ public class GuidedStepAttributesTest {
         if (mFragment.getSelectedActionPosition() != actionPos) {
             assertTrue(mContext.getResources().getString(
                     R.string.subaction_test_wrong_focus_error_message),
-                    GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                            expectedFocusedSeq.get(focusStep++)
+                    GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                            == expectedFocusedSeq.get(focusStep++)
             );
         } else {
             // If the currently focused position is the same as the position of the action of interest,
@@ -659,13 +648,13 @@ public class GuidedStepAttributesTest {
                 Thread.sleep(TRANSITION_LENGTH);
                 assertTrue(mContext.getResources().getString(
                         R.string.subaction_test_wrong_focus_error_message),
-                        GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                                expectedFocusedSeq.get(focusStep++)
+                        GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                                == expectedFocusedSeq.get(focusStep++)
                 );
                 assertTrue(mContext.getResources().getString(
                         R.string.subaction_test_wrong_click_error_message),
-                        GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID ==
-                                expectedClickedSeq.get(clickStep++)
+                        GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID
+                                == expectedClickedSeq.get(clickStep++)
                 );
 
                 for (int k = 0; k < j; k++) {
@@ -673,8 +662,8 @@ public class GuidedStepAttributesTest {
                     Thread.sleep(TRANSITION_LENGTH);
                     assertTrue(mContext.getResources().getString(
                             R.string.subaction_test_wrong_focus_error_message),
-                            GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                                    expectedFocusedSeq.get(focusStep++)
+                            GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                                    == expectedFocusedSeq.get(focusStep++)
                     );
                 }
                 sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
@@ -682,13 +671,13 @@ public class GuidedStepAttributesTest {
 
                 assertTrue(mContext.getResources().getString(
                         R.string.subaction_test_wrong_focus_error_message),
-                        GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                                expectedFocusedSeq.get(focusStep++)
+                        GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                                == expectedFocusedSeq.get(focusStep++)
                 );
                 assertTrue(mContext.getResources().getString(
                         R.string.subaction_test_wrong_click_error_message),
-                        GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID ==
-                                expectedClickedSeq.get(clickStep++)
+                        GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID
+                                == expectedClickedSeq.get(clickStep++)
                 );
             }
         } else {
@@ -696,13 +685,13 @@ public class GuidedStepAttributesTest {
             Thread.sleep(TRANSITION_LENGTH);
             assertTrue(mContext.getResources().getString(
                     R.string.subaction_test_wrong_focus_error_message),
-                    GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                            expectedFocusedSeq.get(focusStep++)
+                    GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                            == expectedFocusedSeq.get(focusStep++)
             );
             assertTrue(mContext.getResources().getString(
                     R.string.subaction_test_wrong_click_error_message),
-                    GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID ==
-                            expectedClickedSeq.get(clickStep++)
+                    GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID
+                            == expectedClickedSeq.get(clickStep++)
             );
         }
     }
@@ -748,8 +737,8 @@ public class GuidedStepAttributesTest {
             expectedFocusSeqForEachAction.add(REGULAR_ACTIONS_INDEX[i]);
 
             if (NUM_SUBACTIONS_PER_ACTION[i] > 0) {
-                for (int j = BEGIN_SUBACTION_INDEX_PER_ACTION[i]; j <
-                        END_SUBACTION_INDEX_PER_ACTION[i]; j++) {
+                for (int j = BEGIN_SUBACTION_INDEX_PER_ACTION[i];
+                        j < END_SUBACTION_INDEX_PER_ACTION[i]; j++) {
                     expectedClickedSeqForEachAction.add(REGULAR_ACTIONS_INDEX[i]);
                     for (int k = BEGIN_SUBACTION_INDEX_PER_ACTION[i]; k <= j; k++) {
                         expectedFocusSeqForEachAction.add(k);

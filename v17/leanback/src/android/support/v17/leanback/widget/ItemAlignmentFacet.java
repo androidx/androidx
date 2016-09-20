@@ -13,11 +13,8 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.view.View;
-
-import static android.support.v17.leanback.widget.BaseGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED;
-
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 /**
  * Optional facet provided by {@link RecyclerView.Adapter} or {@link RecyclerView.ViewHolder} for
@@ -92,8 +89,8 @@ public final class ItemAlignmentFacet {
          * to disable.
          */
         public final void setItemAlignmentOffsetPercent(float percent) {
-            if ( (percent < 0 || percent > 100) &&
-                    percent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
+            if ((percent < 0 || percent > 100)
+                    && percent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
                 throw new IllegalArgumentException();
             }
             mOffsetPercent = percent;

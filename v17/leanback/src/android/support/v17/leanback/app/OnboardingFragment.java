@@ -160,8 +160,8 @@ abstract public class OnboardingFragment extends Fragment {
     private static int sSlideDistance;
 
     private static final TimeInterpolator HEADER_APPEAR_INTERPOLATOR = new DecelerateInterpolator();
-    private static final TimeInterpolator HEADER_DISAPPEAR_INTERPOLATOR
-            = new AccelerateInterpolator();
+    private static final TimeInterpolator HEADER_DISAPPEAR_INTERPOLATOR =
+            new AccelerateInterpolator();
 
     // Keys used to save and restore the states.
     private static final String KEY_CURRENT_PAGE_INDEX = "leanback.onboarding.current_page_index";

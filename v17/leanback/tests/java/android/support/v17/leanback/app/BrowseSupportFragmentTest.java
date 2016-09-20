@@ -17,30 +17,26 @@
  */
 package android.support.v17.leanback.app;
 
-import android.support.v17.leanback.test.R;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.view.KeyEvent;
-
-import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.ListRowPresenter;
-import android.content.Intent;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.espresso.action.ViewActions;
-import org.mockito.Mockito;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+
+import android.content.Intent;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.Presenter;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.view.KeyEvent;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -50,8 +46,8 @@ public class BrowseSupportFragmentTest {
     static final long HORIZONTAL_SCROLL_WAIT = 2000;
 
     @Rule
-    public ActivityTestRule<BrowseSupportFragmentTestActivity> activityTestRule
-            = new ActivityTestRule<>(BrowseSupportFragmentTestActivity.class, false, false);
+    public ActivityTestRule<BrowseSupportFragmentTestActivity> activityTestRule =
+            new ActivityTestRule<>(BrowseSupportFragmentTestActivity.class, false, false);
     private BrowseSupportFragmentTestActivity mActivity;
 
     @Test

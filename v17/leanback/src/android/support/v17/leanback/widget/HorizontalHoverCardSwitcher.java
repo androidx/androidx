@@ -16,8 +16,8 @@ package android.support.v17.leanback.widget;
 import android.graphics.Rect;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.MeasureSpec;
+import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 
 /**
@@ -41,8 +41,7 @@ public final class HorizontalHoverCardSwitcher extends PresenterSwitcher {
 
     @Override
     protected void onViewSelected(View view) {
-        int rightLimit = getParentViewGroup().getWidth() -
-                getParentViewGroup().getPaddingRight();
+        int rightLimit = getParentViewGroup().getWidth() - getParentViewGroup().getPaddingRight();
         int leftLimit = getParentViewGroup().getPaddingLeft();
         // measure the hover card width; if it's too large, align hover card
         // end edge with row view's end edge, otherwise align start edges.

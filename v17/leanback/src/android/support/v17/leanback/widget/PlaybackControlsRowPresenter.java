@@ -13,13 +13,12 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.graphics.drawable.Drawable;
+import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.ControlBarPresenter.OnControlClickedListener;
 import android.support.v17.leanback.widget.ControlBarPresenter.OnControlSelectedListener;
-import android.content.Context;
-import android.graphics.Color;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -117,17 +116,17 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
         };
 
         Presenter getPresenter(boolean primary) {
-            ObjectAdapter adapter = primary ?
-                    ((PlaybackControlsRow) getRow()).getPrimaryActionsAdapter() :
-                            ((PlaybackControlsRow) getRow()).getSecondaryActionsAdapter();
+            ObjectAdapter adapter = primary
+                    ? ((PlaybackControlsRow) getRow()).getPrimaryActionsAdapter()
+                    : ((PlaybackControlsRow) getRow()).getSecondaryActionsAdapter();
             if (adapter == null) {
                 return null;
             }
             if (adapter.getPresenterSelector() instanceof ControlButtonPresenterSelector) {
                 ControlButtonPresenterSelector selector =
                         (ControlButtonPresenterSelector) adapter.getPresenterSelector();
-                return primary ? selector.getPrimaryPresenter() :
-                    selector.getSecondaryPresenter();
+                return primary ? selector.getPrimaryPresenter()
+                        : selector.getSecondaryPresenter();
             }
             return adapter.getPresenter(adapter.size() > 0 ? adapter.get(0) : null);
         }
@@ -336,10 +335,10 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
 
         vh.mControlsVh = (PlaybackControlsPresenter.ViewHolder)
                 mPlaybackControlsPresenter.onCreateViewHolder(vh.mControlsDock);
-        mPlaybackControlsPresenter.setProgressColor(vh.mControlsVh, mProgressColorSet ?
-                mProgressColor : getDefaultProgressColor(vh.mControlsDock.getContext()));
-        mPlaybackControlsPresenter.setBackgroundColor(vh.mControlsVh, mBackgroundColorSet ?
-                mBackgroundColor : getDefaultBackgroundColor(vh.view.getContext()));
+        mPlaybackControlsPresenter.setProgressColor(vh.mControlsVh, mProgressColorSet
+                ? mProgressColor : getDefaultProgressColor(vh.mControlsDock.getContext()));
+        mPlaybackControlsPresenter.setBackgroundColor(vh.mControlsVh, mBackgroundColorSet
+                ? mBackgroundColor : getDefaultBackgroundColor(vh.view.getContext()));
         vh.mControlsDock.addView(vh.mControlsVh.view);
 
         vh.mSecondaryControlsVh =

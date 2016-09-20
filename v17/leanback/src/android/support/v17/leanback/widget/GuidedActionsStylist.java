@@ -13,12 +13,18 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_ACTIVATOR_VIEW;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_DESCRIPTION;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_NONE;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_TITLE;
+
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
@@ -51,12 +57,6 @@ import android.widget.TextView;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-import static android.support.v17.leanback.widget.GuidedAction.EDITING_ACTIVATOR_VIEW;
-import static android.support.v17.leanback.widget.GuidedAction.EDITING_DESCRIPTION;
-import static android.support.v17.leanback.widget.GuidedAction.EDITING_NONE;
-import static android.support.v17.leanback.widget.GuidedAction.EDITING_TITLE;
 
 /**
  * GuidedActionsStylist is used within a {@link android.support.v17.leanback.app.GuidedStepFragment}
@@ -422,8 +422,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         if (mMainView instanceof VerticalGridView) {
             mActionsGridView = (VerticalGridView) mMainView;
         } else {
-            mActionsGridView = (VerticalGridView) mMainView.findViewById(mButtonActions ?
-                    R.id.guidedactions_list2 : R.id.guidedactions_list);
+            mActionsGridView = (VerticalGridView) mMainView.findViewById(mButtonActions
+                    ? R.id.guidedactions_list2 : R.id.guidedactions_list);
             if (mActionsGridView == null) {
                 throw new IllegalStateException("No ListView exists.");
             }
@@ -470,8 +470,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                                     && event.getAction() == KeyEvent.ACTION_UP
                                     && mExpandedAction != null) {
                                 if ((mExpandedAction.hasSubActions()
-                                        && isBackKeyToCollapseSubActions()) ||
-                                        (mExpandedAction.hasEditableActivatorView()
+                                        && isBackKeyToCollapseSubActions())
+                                        || (mExpandedAction.hasEditableActivatorView()
                                         && isBackKeyToCollapseActivatorView())) {
                                     collapseAction(true);
                                     return true;
@@ -602,8 +602,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         } else if (viewType == VIEW_TYPE_DATE_PICKER) {
             return R.layout.lb_guidedactions_datepicker_item;
         } else {
-            throw new RuntimeException("ViewType " + viewType +
-                    " not supported in GuidedActionsStylist");
+            throw new RuntimeException("ViewType " + viewType
+                    + " not supported in GuidedActionsStylist");
         }
     }
 
@@ -660,8 +660,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         }
         if (vh.mDescriptionView != null) {
             vh.mDescriptionView.setText(action.getDescription());
-            vh.mDescriptionView.setVisibility(TextUtils.isEmpty(action.getDescription()) ?
-                    View.GONE : View.VISIBLE);
+            vh.mDescriptionView.setVisibility(TextUtils.isEmpty(action.getDescription())
+                    ? View.GONE : View.VISIBLE);
             vh.mDescriptionView.setAlpha(action.isEnabled() ? mEnabledDescriptionAlpha :
                 mDisabledDescriptionAlpha);
             vh.mDescriptionView.setFocusable(false);
@@ -797,8 +797,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             }
             if (vh.mEditingMode == EDITING_DESCRIPTION) {
                 if (descriptionView != null) {
-                    descriptionView.setVisibility(TextUtils.isEmpty(action.getDescription()) ?
-                            View.GONE : View.VISIBLE);
+                    descriptionView.setVisibility(TextUtils.isEmpty(action.getDescription())
+                            ? View.GONE : View.VISIBLE);
                     descriptionView.setInputType(action.getDescriptionInputType());
                 }
             } else if (vh.mEditingMode == EDITING_TITLE) {
@@ -880,9 +880,9 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public void onBindCheckMarkView(ViewHolder vh, GuidedAction action) {
         if (action.getCheckSetId() != GuidedAction.NO_CHECK_SET) {
             vh.mCheckmarkView.setVisibility(View.VISIBLE);
-            int attrId = action.getCheckSetId() == GuidedAction.CHECKBOX_CHECK_SET_ID ?
-                    android.R.attr.listChoiceIndicatorMultiple :
-                    android.R.attr.listChoiceIndicatorSingle;
+            int attrId = action.getCheckSetId() == GuidedAction.CHECKBOX_CHECK_SET_ID
+                    ? android.R.attr.listChoiceIndicatorMultiple
+                    : android.R.attr.listChoiceIndicatorSingle;
             final Context context = vh.mCheckmarkView.getContext();
             Drawable drawable = null;
             TypedValue typedValue = new TypedValue();
@@ -1219,8 +1219,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             });
             Object changeFocusItemTransform = TransitionHelper.createChangeTransform();
             Object changeFocusItemBounds = TransitionHelper.createChangeBounds(false);
-            Object fade = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN |
-                    TransitionHelper.FADE_OUT);
+            Object fade = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN
+                    | TransitionHelper.FADE_OUT);
             Object changeGridBounds = TransitionHelper.createChangeBounds(false);
             if (avh == null) {
                 TransitionHelper.setStartDelay(slideAndFade, 150);

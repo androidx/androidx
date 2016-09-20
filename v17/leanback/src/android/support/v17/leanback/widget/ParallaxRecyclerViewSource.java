@@ -13,16 +13,13 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.graphics.Rect;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static android.support.v7.widget.RecyclerView.LayoutManager;
 import static android.support.v7.widget.RecyclerView.OnScrollListener;
 import static android.support.v7.widget.RecyclerView.ViewHolder;
+
+import android.graphics.Rect;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 /**
  * Implementation of {@link ParallaxSource} class for {@link RecyclerView}. This class
@@ -131,8 +128,8 @@ public class ParallaxRecyclerViewSource extends
 
         void updateValue(ParallaxRecyclerViewSource source) {
             RecyclerView recyclerView = source.mRecylerView;
-            ViewHolder viewHolder
-                    = recyclerView.findViewHolderForAdapterPosition(mAdapterPosition);
+            ViewHolder viewHolder =
+                    recyclerView.findViewHolderForAdapterPosition(mAdapterPosition);
             if (viewHolder == null) {
                 View firstChild = recyclerView.getChildAt(0);
                 ViewHolder vh = recyclerView.findContainingViewHolder(
@@ -153,11 +150,11 @@ public class ParallaxRecyclerViewSource extends
                         0, 0, trackingView.getWidth(), trackingView.getHeight());
                 recyclerView.offsetDescendantRectToMyCoords(trackingView, rect);
                 if (source.mIsVertical) {
-                    source.setPropertyValue(getIndex(), rect.top + mOffset +
-                            (int) (mFraction * rect.height()));
+                    source.setPropertyValue(getIndex(), rect.top + mOffset
+                            + (int) (mFraction * rect.height()));
                 } else {
-                    source.setPropertyValue(getIndex(), rect.left + mOffset +
-                            (int) (mFraction * rect.width()));
+                    source.setPropertyValue(getIndex(), rect.left + mOffset
+                            + (int) (mFraction * rect.width()));
                 }
             }
         }

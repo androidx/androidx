@@ -435,16 +435,16 @@ public class ListRowPresenter extends RowPresenter {
         });
         rowViewHolder.mGridView.setOnUnhandledKeyListener(
                 new BaseGridView.OnUnhandledKeyListener() {
-            @Override
-            public boolean onUnhandledKey(KeyEvent event) {
-                if (rowViewHolder.getOnKeyListener() != null &&
-                        rowViewHolder.getOnKeyListener().onKey(
-                                rowViewHolder.view, event.getKeyCode(), event)) {
-                    return true;
-                }
-                return false;
-            }
-        });
+                    @Override
+                    public boolean onUnhandledKey(KeyEvent event) {
+                        if (rowViewHolder.getOnKeyListener() != null
+                                && rowViewHolder.getOnKeyListener().onKey(
+                                        rowViewHolder.view, event.getKeyCode(), event)) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
         rowViewHolder.mGridView.setNumRows(mNumRows);
     }
 
@@ -538,10 +538,10 @@ public class ListRowPresenter extends RowPresenter {
         if (vh.isExpanded()) {
             int headerSpaceUnderBaseline = getSpaceUnderBaseline(vh);
             if (DEBUG) Log.v(TAG, "headerSpaceUnderBaseline " + headerSpaceUnderBaseline);
-            paddingTop = (vh.isSelected() ? sExpandedSelectedRowTopPadding : vh.mPaddingTop) -
-                    headerSpaceUnderBaseline;
-            paddingBottom = mHoverCardPresenterSelector == null ?
-                    sExpandedRowNoHovercardBottomPadding : vh.mPaddingBottom;
+            paddingTop = (vh.isSelected() ? sExpandedSelectedRowTopPadding : vh.mPaddingTop)
+                    - headerSpaceUnderBaseline;
+            paddingBottom = mHoverCardPresenterSelector == null
+                    ? sExpandedRowNoHovercardBottomPadding : vh.mPaddingBottom;
         } else if (vh.isSelected()) {
             paddingTop = sSelectedRowTopPadding - vh.mPaddingBottom;
             paddingBottom = sSelectedRowTopPadding;

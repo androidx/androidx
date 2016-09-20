@@ -13,13 +13,6 @@
  */
 package android.support.v17.leanback.app;
 
-import java.lang.ref.WeakReference;
-
-import android.support.annotation.ColorInt;
-import android.graphics.PixelFormat;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.support.v17.leanback.R;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
@@ -32,11 +25,18 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Handler;
+import android.support.annotation.ColorInt;
+import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.BackgroundHelper;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,10 +44,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Interpolator;
 import android.view.animation.AnimationUtils;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
+import android.view.animation.Interpolator;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Supports background image continuity between multiple Activities.
@@ -392,12 +392,12 @@ public final class BackgroundManager {
             DrawableWrapper imageOutWrapper = findWrapperById(R.id.background_imageout);
 
             mColorFilter = null;
-            if (imageInWrapper != null && imageInWrapper.getAlpha() == FULL_ALPHA &&
-                    dimWrapper.getDrawable() instanceof ColorDrawable) {
+            if (imageInWrapper != null && imageInWrapper.getAlpha() == FULL_ALPHA
+                    && dimWrapper.getDrawable() instanceof ColorDrawable) {
                 int dimColor = ((ColorDrawable) dimWrapper.getDrawable()).getColor();
-                if (Color.red(dimColor) == 0 &&
-                        Color.green(dimColor) == 0 &&
-                        Color.blue(dimColor) == 0) {
+                if (Color.red(dimColor) == 0
+                        && Color.green(dimColor) == 0
+                        && Color.blue(dimColor) == 0) {
                     int dimAlpha = 255 - Color.alpha(dimColor);
                     int color = Color.argb(getAlpha(), dimAlpha, dimAlpha, dimAlpha);
                     mColorFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
@@ -416,8 +416,8 @@ public final class BackgroundManager {
         @Override
         public void draw(Canvas canvas) {
             DrawableWrapper imageInWrapper = findWrapperById(R.id.background_imagein);
-            if (imageInWrapper != null && imageInWrapper.getDrawable() != null &&
-                    imageInWrapper.getColorFilter() != null) {
+            if (imageInWrapper != null && imageInWrapper.getDrawable() != null
+                    && imageInWrapper.getColorFilter() != null) {
                 imageInWrapper.getDrawable().draw(canvas);
             } else {
                 super.draw(canvas);
@@ -664,8 +664,8 @@ public final class BackgroundManager {
             activity.getFragmentManager().beginTransaction().add(fragment, FRAGMENT_TAG).commit();
         } else {
             if (fragment.getBackgroundManager() != null) {
-                throw new IllegalStateException("Created duplicated BackgroundManager for same " +
-                        "activity, please use getInstance() instead");
+                throw new IllegalStateException("Created duplicated BackgroundManager for same "
+                        + "activity, please use getInstance() instead");
             }
         }
         fragment.setBackgroundManager(this);
@@ -682,8 +682,8 @@ public final class BackgroundManager {
                     .commit();
         } else {
             if (fragment.getBackgroundManager() != null) {
-                throw new IllegalStateException("Created duplicated BackgroundManager for same " +
-                    "activity, please use getInstance() instead");
+                throw new IllegalStateException("Created duplicated BackgroundManager for same "
+                        + "activity, please use getInstance() instead");
             }
         }
         fragment.setBackgroundManager(this);
@@ -691,23 +691,23 @@ public final class BackgroundManager {
     }
 
     DrawableWrapper getImageInWrapper() {
-        return mLayerDrawable == null ? null :
-                mLayerDrawable.findWrapperById(R.id.background_imagein);
+        return mLayerDrawable == null
+                ? null : mLayerDrawable.findWrapperById(R.id.background_imagein);
     }
 
     DrawableWrapper getImageOutWrapper() {
-        return mLayerDrawable == null ? null :
-                mLayerDrawable.findWrapperById(R.id.background_imageout);
+        return mLayerDrawable == null
+                ? null : mLayerDrawable.findWrapperById(R.id.background_imageout);
     }
 
     DrawableWrapper getDimWrapper() {
-        return mLayerDrawable == null ? null :
-                mLayerDrawable.findWrapperById(R.id.background_dim);
+        return mLayerDrawable == null
+                ? null : mLayerDrawable.findWrapperById(R.id.background_dim);
     }
 
     private DrawableWrapper getColorWrapper() {
-        return mLayerDrawable == null ? null :
-                mLayerDrawable.findWrapperById(R.id.background_color);
+        return mLayerDrawable == null
+                ? null : mLayerDrawable.findWrapperById(R.id.background_color);
     }
 
     /**
@@ -719,12 +719,15 @@ public final class BackgroundManager {
             return;
         }
         if (mLayerDrawable == null) {
-            if (DEBUG) Log.v(TAG, "onActivityStart " + this +
-                    " released state, syncing with service");
+            if (DEBUG) {
+                Log.v(TAG, "onActivityStart " + this + " released state, syncing with service");
+            }
             syncWithService();
         } else {
-            if (DEBUG) Log.v(TAG, "onActivityStart " + this + " updating service color "
-                    + mBackgroundColor + " drawable " + mBackgroundDrawable);
+            if (DEBUG) {
+                Log.v(TAG, "onActivityStart " + this + " updating service color "
+                        + mBackgroundColor + " drawable " + mBackgroundDrawable);
+            }
             mService.setColor(mBackgroundColor);
             mService.setDrawable(mBackgroundDrawable);
         }
@@ -1066,8 +1069,10 @@ public final class BackgroundManager {
             matrix.setScale(scale, scale);
             matrix.preTranslate(-dx, 0);
 
-            if (DEBUG) Log.v(TAG, "original image size " + bitmap.getWidth() + "x" + bitmap.getHeight() +
-                    " scale " + scale + " dx " + dx);
+            if (DEBUG) {
+                Log.v(TAG, "original image size " + bitmap.getWidth() + "x" + bitmap.getHeight()
+                        + " scale " + scale + " dx " + dx);
+            }
         }
 
         BitmapDrawable bitmapDrawable = new BitmapDrawable(mContext.getResources(), bitmap, matrix);

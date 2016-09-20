@@ -301,9 +301,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
         /**
          * Implementation of {@link Property} for overrideTop attribute.
          */
-        public static final Property<CompositeDrawable.ChildDrawable, Integer> TOP_ABSOLUTE
-                = new Property<CompositeDrawable.ChildDrawable, Integer>(Integer.class, "absoluteTop") {
-
+        public static final Property<CompositeDrawable.ChildDrawable, Integer> TOP_ABSOLUTE =
+                new Property<CompositeDrawable.ChildDrawable, Integer>(
+                        Integer.class, "absoluteTop") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Integer value) {
                 if (obj.getBoundsRule().mTop == null) {
@@ -321,14 +321,12 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
             }
         };
 
-
         /**
          * Implementation of {@link Property} for overrideBottom attribute.
          */
-        public static final Property<CompositeDrawable.ChildDrawable, Integer> BOTTOM_ABSOLUTE
-                = new Property<CompositeDrawable.ChildDrawable, Integer>(
-                Integer.class, "absoluteBottom") {
-
+        public static final Property<CompositeDrawable.ChildDrawable, Integer> BOTTOM_ABSOLUTE =
+                new Property<CompositeDrawable.ChildDrawable, Integer>(
+                        Integer.class, "absoluteBottom") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Integer value) {
                 if (obj.getBoundsRule().mBottom == null) {
@@ -350,10 +348,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
         /**
          * Implementation of {@link Property} for overrideLeft attribute.
          */
-        public static final Property<CompositeDrawable.ChildDrawable, Integer> LEFT_ABSOLUTE
-                = new Property<CompositeDrawable.ChildDrawable, Integer>(
-                Integer.class, "absoluteLeft") {
-
+        public static final Property<CompositeDrawable.ChildDrawable, Integer> LEFT_ABSOLUTE =
+                new Property<CompositeDrawable.ChildDrawable, Integer>(
+                        Integer.class, "absoluteLeft") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Integer value) {
                 if (obj.getBoundsRule().mLeft == null) {
@@ -374,10 +371,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
         /**
          * Implementation of {@link Property} for overrideRight attribute.
          */
-        public static final Property<CompositeDrawable.ChildDrawable, Integer> RIGHT_ABSOLUTE
-                = new Property<CompositeDrawable.ChildDrawable, Integer>(
-                Integer.class, "absoluteRight") {
-
+        public static final Property<CompositeDrawable.ChildDrawable, Integer> RIGHT_ABSOLUTE =
+                new Property<CompositeDrawable.ChildDrawable, Integer>(
+                        Integer.class, "absoluteRight") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Integer value) {
                 if (obj.getBoundsRule().mRight == null) {
@@ -402,9 +398,8 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
          * {@see PROPERTY_TOP_ABSOLUTE} when the exact start/end position of scroll movement
          * isn't available at compile time.
          */
-        public static final Property<CompositeDrawable.ChildDrawable, Float> TOP_FRACTION
-                = new Property<CompositeDrawable.ChildDrawable, Float>(Float.class, "fractionTop") {
-
+        public static final Property<CompositeDrawable.ChildDrawable, Float> TOP_FRACTION =
+                new Property<CompositeDrawable.ChildDrawable, Float>(Float.class, "fractionTop") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Float value) {
                 if (obj.getBoundsRule().mTop == null) {
@@ -429,10 +424,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
          * {@see PROPERTY_BOTTOM_ABSOLUTE} when the exact start/end position of scroll movement
          * isn't available at compile time.
          */
-        public static final Property<CompositeDrawable.ChildDrawable, Float> BOTTOM_FRACTION
-                = new Property<CompositeDrawable.ChildDrawable, Float>(
-                Float.class, "fractionBottom") {
-
+        public static final Property<CompositeDrawable.ChildDrawable, Float> BOTTOM_FRACTION =
+                new Property<CompositeDrawable.ChildDrawable, Float>(
+                        Float.class, "fractionBottom") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Float value) {
                 if (obj.getBoundsRule().mBottom == null) {
@@ -457,9 +451,8 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
          * {@see PROPERTY_LEFT_ABSOLUTE} when the exact start/end position of scroll movement
          * isn't available at compile time.
          */
-        public static final Property<CompositeDrawable.ChildDrawable, Float> LEFT_FRACTION
-                = new Property<CompositeDrawable.ChildDrawable, Float>(Float.class, "fractionLeft") {
-
+        public static final Property<CompositeDrawable.ChildDrawable, Float> LEFT_FRACTION =
+                new Property<CompositeDrawable.ChildDrawable, Float>(Float.class, "fractionLeft") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Float value) {
                 if (obj.getBoundsRule().mLeft == null) {
@@ -484,10 +477,8 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
          * {@see PROPERTY_RIGHT_ABSOLUTE} when the exact start/end position of scroll movement
          * isn't available at compile time.
          */
-        public static final Property<CompositeDrawable.ChildDrawable, Float> RIGHT_FRACTION
-                = new Property<CompositeDrawable.ChildDrawable, Float>(
-                Float.class, "fractoinRight") {
-
+        public static final Property<CompositeDrawable.ChildDrawable, Float> RIGHT_FRACTION =
+                new Property<CompositeDrawable.ChildDrawable, Float>(Float.class, "fractoinRight") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Float value) {
                 if (obj.getBoundsRule().mRight == null) {

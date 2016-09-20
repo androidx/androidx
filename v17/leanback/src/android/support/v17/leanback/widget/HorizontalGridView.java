@@ -255,8 +255,7 @@ public class HorizontalGridView extends BaseGridView {
         final int c = getChildCount();
         for (int i = 0; i < c; i++) {
             View view = getChildAt(i);
-            if (mLayoutManager.getOpticalLeft(view) <
-                    getPaddingLeft() - mLowFadeShaderOffset) {
+            if (mLayoutManager.getOpticalLeft(view) < getPaddingLeft() - mLowFadeShaderOffset) {
                 return true;
             }
         }

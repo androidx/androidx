@@ -15,23 +15,26 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.app.Instrumentation;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Parcelable;
-
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.test.InstrumentationRegistry;
-
 import android.support.v17.leanback.test.R;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerViewAccessibilityDelegate;
-
 import android.text.Selection;
 import android.text.Spannable;
 import android.util.SparseArray;
@@ -41,18 +44,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.rules.TestName;
-
-import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class GridWidgetTest {
@@ -148,8 +148,8 @@ public class GridWidgetTest {
     protected void waitForScrollIdle(Runnable verify) throws Throwable {
         Thread.sleep(100);
         int total = 0;
-        while (mGridView.getLayoutManager().isSmoothScrolling() ||
-                mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE) {
+        while (mGridView.getLayoutManager().isSmoothScrolling()
+                || mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE) {
             if ((total += 100) >= WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS) {
                 throw new RuntimeException("waitForScrollIdle Timeout");
             }
@@ -201,8 +201,8 @@ public class GridWidgetTest {
             } catch (InterruptedException ex) {
                 break;
             }
-        } while (mGridView.getLayoutManager().isSmoothScrolling() ||
-                mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE);
+        } while (mGridView.getLayoutManager().isSmoothScrolling()
+                || mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE);
     }
 
     protected void scrollToBegin(Runnable verify) throws Throwable {
@@ -245,8 +245,8 @@ public class GridWidgetTest {
             if (mOrientation == BaseGridView.HORIZONTAL) {
                 rowLocation = v.getTop();
             } else {
-                rowLocation = mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL ?
-                    v.getRight() : v.getLeft();
+                rowLocation = mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL
+                        ? v.getRight() : v.getLeft();
             }
             ArrayList<View> views = rows.get(rowLocation);
             if (views == null) {
@@ -370,8 +370,8 @@ public class GridWidgetTest {
     }
 
     private void initActivity(Intent intent) {
-        ActivityTestRule<GridActivity> activityTestRule
-                = new ActivityTestRule<GridActivity>(GridActivity.class, false, false);
+        ActivityTestRule<GridActivity> activityTestRule =
+                new ActivityTestRule<GridActivity>(GridActivity.class, false, false);
         mActivity = activityTestRule.launchActivity(intent);
         try {
             InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
@@ -1908,8 +1908,8 @@ public class GridWidgetTest {
         }
         Thread.sleep(100);
         int total = 0;
-        while (mGridView.getLayoutManager().isSmoothScrolling() ||
-                mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE) {
+        while (mGridView.getLayoutManager().isSmoothScrolling()
+                || mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE) {
             if ((total += 10) >= WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS) {
                 throw new RuntimeException("waitForScrollIdle Timeout");
             }
@@ -2597,8 +2597,7 @@ public class GridWidgetTest {
         View v;
         v = mGridView.getChildAt(mGridView.getChildCount() - 1);
         assertTrue(v.getTop() < windowSize + extraLayoutSize);
-        assertTrue(v.getBottom() >= windowSize + extraLayoutSize -
-                mGridView.getVerticalMargin());
+        assertTrue(v.getBottom() >= windowSize + extraLayoutSize - mGridView.getVerticalMargin());
 
         mGridView.setSelectedPositionSmooth(150);
         waitForScrollIdle(mVerifyLayout);

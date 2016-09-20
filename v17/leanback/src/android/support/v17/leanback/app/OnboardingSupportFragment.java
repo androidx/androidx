@@ -24,12 +24,12 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.PagingIndicator;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
@@ -162,8 +162,8 @@ abstract public class OnboardingSupportFragment extends Fragment {
     private static int sSlideDistance;
 
     private static final TimeInterpolator HEADER_APPEAR_INTERPOLATOR = new DecelerateInterpolator();
-    private static final TimeInterpolator HEADER_DISAPPEAR_INTERPOLATOR
-            = new AccelerateInterpolator();
+    private static final TimeInterpolator HEADER_DISAPPEAR_INTERPOLATOR =
+            new AccelerateInterpolator();
 
     // Keys used to save and restore the states.
     private static final String KEY_CURRENT_PAGE_INDEX = "leanback.onboarding.current_page_index";

@@ -14,9 +14,14 @@
 
 package android.support.v17.leanback.app.wizard;
 
+import static org.junit.Assert.assertTrue;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.widget.GuidanceStylist;
@@ -24,11 +29,11 @@ import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidedDatePickerAction;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.picker.DatePicker;
-import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.LinearLayout;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,18 +44,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import android.support.test.runner.AndroidJUnit4;
-import android.support.test.rule.ActivityTestRule;
-import org.mockito.Mockito;
-
-import android.support.test.InstrumentationRegistry;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -68,8 +61,8 @@ public class GuidedDatePickerTest {
     private static final int YEAR_INDEX = 2;
 
     @Rule
-    public ActivityTestRule<GuidedStepAttributesTestActivity> activityTestRule
-            = new ActivityTestRule<>(GuidedStepAttributesTestActivity.class, false, false);
+    public ActivityTestRule<GuidedStepAttributesTestActivity> activityTestRule =
+            new ActivityTestRule<>(GuidedStepAttributesTestActivity.class, false, false);
 
     GuidedStepAttributesTestActivity mActivity;
 
@@ -189,16 +182,16 @@ public class GuidedDatePickerTest {
         int currentColumnVal = pickerView.getColumnAt(columnIndex).getCurrentValue();
         while( currentColumnVal != prevColumnVal && currentColumnVal != fieldValue){
             assertTrue(mContext.getString(R.string.datepicker_test_wrong_day_value),
-                    pickerView.getColumnAt(colDayIndex).getCurrentValue() ==
-                            currentActionCal.get(Calendar.DAY_OF_MONTH)
+                    pickerView.getColumnAt(colDayIndex).getCurrentValue()
+                            == currentActionCal.get(Calendar.DAY_OF_MONTH)
             );
             assertTrue(mContext.getString(R.string.datepicker_test_wrong_month_value),
-                    pickerView.getColumnAt(colMonthIndex).getCurrentValue() ==
-                            currentActionCal.get(Calendar.MONTH)
+                    pickerView.getColumnAt(colMonthIndex).getCurrentValue()
+                            == currentActionCal.get(Calendar.MONTH)
             );
             assertTrue(mContext.getString(R.string.datepicker_test_wrong_year_value),
-                    pickerView.getColumnAt(colYearIndex).getCurrentValue() ==
-                            currentActionCal.get(Calendar.YEAR)
+                    pickerView.getColumnAt(colYearIndex).getCurrentValue()
+                            == currentActionCal.get(Calendar.YEAR)
             );
 
             int offset = scrollDir == KeyEvent.KEYCODE_DPAD_DOWN ? 1 : -1;
@@ -668,8 +661,8 @@ public class GuidedDatePickerTest {
         int expectedOldDayValue = currentCal.getActualMaximum(Calendar.DAY_OF_MONTH);
         currentCal.set(Calendar.MONTH, newMonthValue);
         int numDaysInNewMonth = currentCal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        int expectedNewDayValue = (expectedOldDayValue <= numDaysInNewMonth) ?
-                expectedOldDayValue : numDaysInNewMonth;
+        int expectedNewDayValue = (expectedOldDayValue <= numDaysInNewMonth)
+                ? expectedOldDayValue : numDaysInNewMonth;
 
         assertTrue(mContext.getString(
                 R.string.datepicker_test_transition_error1, oldMonthValue),
@@ -897,8 +890,8 @@ public class GuidedDatePickerTest {
             Thread.sleep(TRANSITION_LENGTH);
         }
 
-        assertTrue("The wrong action was selected!", mFragment.getSelectedActionPosition() ==
-                dateAction.getId());
+        assertTrue("The wrong action was selected!", mFragment.getSelectedActionPosition()
+                == dateAction.getId());
         DatePicker mPickerView = (DatePicker) mFragment.getActionItemView((int) dateAction.getId())
                 .findViewById(R.id.guidedactions_activator_item);
 

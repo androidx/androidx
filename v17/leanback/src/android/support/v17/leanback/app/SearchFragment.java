@@ -13,6 +13,8 @@
  */
 package android.support.v17.leanback.app;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 import android.Manifest;
 import android.app.Fragment;
 import android.content.Intent;
@@ -42,8 +44,6 @@ import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 /**
  * A fragment to handle searches. An application will supply an implementation
@@ -172,8 +172,10 @@ public class SearchFragment extends Fragment {
                 if (mResultAdapter != null) {
                     mResultAdapter.registerObserver(mAdapterObserver);
                 }
-                if (DEBUG) Log.v(TAG, "mResultAdapter " + mResultAdapter + " size " +
-                        (mResultAdapter == null ? 0 : mResultAdapter.size()));
+                if (DEBUG) {
+                    Log.v(TAG, "mResultAdapter " + mResultAdapter + " size "
+                            + (mResultAdapter == null ? 0 : mResultAdapter.size()));
+                }
                 // delay the first time to avoid setting a empty result adapter
                 // until we got first onChange() from the provider
                 if (!(firstTime && (mResultAdapter == null || mResultAdapter.size() == 0))) {
@@ -183,9 +185,11 @@ public class SearchFragment extends Fragment {
             }
             updateSearchBarNextFocusId();
 
-            if (DEBUG) Log.v(TAG, "mAutoStartRecognition " + mAutoStartRecognition +
-                    " mResultAdapter " + mResultAdapter +
-                    " adapter " + mRowsFragment.getAdapter());
+            if (DEBUG) {
+                Log.v(TAG, "mAutoStartRecognition " + mAutoStartRecognition
+                        + " mResultAdapter " + mResultAdapter
+                        + " adapter " + mRowsFragment.getAdapter());
+            }
             if (mAutoStartRecognition) {
                 mHandler.removeCallbacks(mStartRecognitionRunnable);
                 mHandler.postDelayed(mStartRecognitionRunnable, SPEECH_RECOGNITION_DELAY_MS);
@@ -224,8 +228,8 @@ public class SearchFragment extends Fragment {
 
     private boolean mIsPaused;
     private boolean mPendingStartRecognitionWhenPaused;
-    private SearchBar.SearchBarPermissionListener mPermissionListener
-            = new SearchBar.SearchBarPermissionListener() {
+    private SearchBar.SearchBarPermissionListener mPermissionListener =
+            new SearchBar.SearchBarPermissionListener() {
         @Override
         public void requestAudioPermission() {
             PermissionHelper.requestPermissions(SearchFragment.this,
@@ -666,15 +670,15 @@ public class SearchFragment extends Fragment {
         if (mSearchBar == null || mResultAdapter == null) {
             return;
         }
-        final int viewId = (mResultAdapter.size() == 0 || mRowsFragment == null ||
-                mRowsFragment.getVerticalGridView() == null) ? 0 :
-                mRowsFragment.getVerticalGridView().getId();
+        final int viewId = (mResultAdapter.size() == 0 || mRowsFragment == null
+                || mRowsFragment.getVerticalGridView() == null)
+                        ? 0 : mRowsFragment.getVerticalGridView().getId();
         mSearchBar.setNextFocusDownId(viewId);
     }
 
     void updateFocus() {
-        if (mResultAdapter != null && mResultAdapter.size() > 0 &&
-                mRowsFragment != null && mRowsFragment.getAdapter() == mResultAdapter) {
+        if (mResultAdapter != null && mResultAdapter.size() > 0
+                && mRowsFragment != null && mRowsFragment.getAdapter() == mResultAdapter) {
             focusOnResults();
         } else {
             mSearchBar.requestFocus();
@@ -682,9 +686,8 @@ public class SearchFragment extends Fragment {
     }
 
     private void focusOnResults() {
-        if (mRowsFragment == null ||
-                mRowsFragment.getVerticalGridView() == null ||
-                mResultAdapter.size() == 0) {
+        if (mRowsFragment == null || mRowsFragment.getVerticalGridView() == null
+                || mResultAdapter.size() == 0) {
             return;
         }
         if (mRowsFragment.getVerticalGridView().requestFocus()) {

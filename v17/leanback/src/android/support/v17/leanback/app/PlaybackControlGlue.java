@@ -173,8 +173,8 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
     static final int MSG_UPDATE_PLAYBACK_STATE = 100;
     private static final int UPDATE_PLAYBACK_STATE_DELAY_MS = 2000;
-    private static final int NUMBER_OF_SEEK_SPEEDS = PLAYBACK_SPEED_FAST_L4 -
-            PLAYBACK_SPEED_FAST_L0 + 1;
+    private static final int NUMBER_OF_SEEK_SPEEDS = PLAYBACK_SPEED_FAST_L4
+            - PLAYBACK_SPEED_FAST_L0 + 1;
 
     private final int[] mFastForwardSpeeds;
     private final int[] mRewindSpeeds;
@@ -476,8 +476,8 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
             case KeyEvent.KEYCODE_DPAD_LEFT:
             case KeyEvent.KEYCODE_BACK:
             case KeyEvent.KEYCODE_ESCAPE:
-                boolean abortSeek = mPlaybackSpeed >= PLAYBACK_SPEED_FAST_L0 ||
-                        mPlaybackSpeed <= -PLAYBACK_SPEED_FAST_L0;
+                boolean abortSeek = mPlaybackSpeed >= PLAYBACK_SPEED_FAST_L0
+                        || mPlaybackSpeed <= -PLAYBACK_SPEED_FAST_L0;
                 if (abortSeek) {
                     mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
                     startPlayback(mPlaybackSpeed);
@@ -489,11 +489,11 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
         Action action = mControlsRow.getActionForKeyCode(mPrimaryActionsAdapter, keyCode);
 
         if (action != null) {
-            if (action == mPrimaryActionsAdapter.lookup(ACTION_PLAY_PAUSE) ||
-                    action == mPrimaryActionsAdapter.lookup(ACTION_REWIND) ||
-                    action == mPrimaryActionsAdapter.lookup(ACTION_FAST_FORWARD) ||
-                    action == mPrimaryActionsAdapter.lookup(ACTION_SKIP_TO_PREVIOUS) ||
-                    action == mPrimaryActionsAdapter.lookup(ACTION_SKIP_TO_NEXT)) {
+            if (action == mPrimaryActionsAdapter.lookup(ACTION_PLAY_PAUSE)
+                    || action == mPrimaryActionsAdapter.lookup(ACTION_REWIND)
+                    || action == mPrimaryActionsAdapter.lookup(ACTION_FAST_FORWARD)
+                    || action == mPrimaryActionsAdapter.lookup(ACTION_SKIP_TO_PREVIOUS)
+                    || action == mPrimaryActionsAdapter.lookup(ACTION_SKIP_TO_NEXT)) {
                 if (event.getAction() == KeyEvent.ACTION_DOWN) {
                     dispatchAction(action, event);
                 }
@@ -509,12 +509,12 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
     boolean dispatchAction(Action action, KeyEvent keyEvent) {
         boolean handled = false;
         if (action == mPlayPauseAction) {
-            boolean canPlay = keyEvent == null ||
-                    keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ||
-                    keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY;
-            boolean canPause = keyEvent == null ||
-                    keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ||
-                    keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PAUSE;
+            boolean canPlay = keyEvent == null
+                    || keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+                    || keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY;
+            boolean canPause = keyEvent == null
+                    || keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+                    || keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PAUSE;
             //            PLAY_PAUSE    PLAY      PAUSE
             // playing    paused                  paused
             // paused     playing       playing
@@ -712,9 +712,9 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
         }
 
         if (mPlayPauseAction != null) {
-            int index = playbackSpeed == PLAYBACK_SPEED_PAUSED ?
-                    PlaybackControlsRow.PlayPauseAction.PLAY :
-                    PlaybackControlsRow.PlayPauseAction.PAUSE;
+            int index = playbackSpeed == PLAYBACK_SPEED_PAUSED
+                    ? PlaybackControlsRow.PlayPauseAction.PLAY
+                    : PlaybackControlsRow.PlayPauseAction.PAUSE;
             if (mPlayPauseAction.getIndex() != index) {
                 mPlayPauseAction.setIndex(index);
                 notifyItemChanged(mPrimaryActionsAdapter, mPlayPauseAction);
