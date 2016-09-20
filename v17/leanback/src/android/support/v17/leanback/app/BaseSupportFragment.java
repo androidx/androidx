@@ -15,17 +15,15 @@
  */
 package android.support.v17.leanback.app;
 
+import static android.support.v17.leanback.util.StateMachine.STATUS_EXECUTED;
+
 import android.os.Bundle;
-import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
-import android.view.View;
-import android.view.ViewTreeObserver;
-
 import android.support.v17.leanback.util.StateMachine;
 import android.support.v17.leanback.util.StateMachine.State;
-
-import static android.support.v17.leanback.util.StateMachine.*;
+import android.view.View;
+import android.view.ViewTreeObserver;
 
 /**
  * @hide

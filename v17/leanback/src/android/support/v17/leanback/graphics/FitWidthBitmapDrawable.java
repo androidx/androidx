@@ -186,7 +186,6 @@ public class FitWidthBitmapDrawable extends Drawable {
                 ? PixelFormat.TRANSLUCENT : PixelFormat.OPAQUE;
     }
 
-
     private Rect validateSource() {
         if (mBitmapState.mSource == null) {
             return mBitmapState.mDefaultSource;

@@ -15,11 +15,9 @@ package android.support.v17.leanback.widget;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
@@ -32,8 +30,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-
-import java.util.Collection;
 
 /**
  * Renders a {@link DetailsOverviewRow} to display an overview of an item.
@@ -80,8 +76,8 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
         @Override
         public void onBind(final ItemBridgeAdapter.ViewHolder ibvh) {
-            if (mViewHolder.getOnItemViewClickedListener() != null ||
-                    mActionClickedListener != null) {
+            if (mViewHolder.getOnItemViewClickedListener() != null
+                    || mActionClickedListener != null) {
                 ibvh.getPresenter().setOnClickListener(
                         ibvh.getViewHolder(), new View.OnClickListener() {
                             @Override
@@ -100,8 +96,8 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         }
         @Override
         public void onUnbind(final ItemBridgeAdapter.ViewHolder ibvh) {
-            if (mViewHolder.getOnItemViewClickedListener() != null ||
-                    mActionClickedListener != null) {
+            if (mViewHolder.getOnItemViewClickedListener() != null
+                    || mActionClickedListener != null) {
                 ibvh.getPresenter().setOnClickListener(ibvh.getViewHolder(), null);
             }
         }
@@ -195,9 +191,9 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             if (!isSelected()) {
                 return;
             }
-            ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) (view != null ?
-                    mActionsRow.getChildViewHolder(view) :
-                    mActionsRow.findViewHolderForPosition(mActionsRow.getSelectedPosition()));
+            ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) (view != null
+                    ? mActionsRow.getChildViewHolder(view)
+                    : mActionsRow.findViewHolderForPosition(mActionsRow.getSelectedPosition()));
             if (ibvh == null) {
                 if (getOnItemViewSelectedListener() != null) {
                     getOnItemViewSelectedListener().onItemSelected(null, null,
@@ -231,14 +227,16 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             RecyclerView.ViewHolder viewHolder;
 
             viewHolder = mActionsRow.findViewHolderForPosition(mNumItems - 1);
-            boolean showRight = (viewHolder == null ||
-                    viewHolder.itemView.getRight() > mActionsRow.getWidth());
+            boolean showRight = (viewHolder == null
+                    || viewHolder.itemView.getRight() > mActionsRow.getWidth());
 
             viewHolder = mActionsRow.findViewHolderForPosition(0);
             boolean showLeft = (viewHolder == null || viewHolder.itemView.getLeft() < 0);
 
-            if (DEBUG) Log.v(TAG, "checkFirstAndLast fromScroll " + fromScroll +
-                    " showRight " + showRight + " showLeft " + showLeft);
+            if (DEBUG) {
+                Log.v(TAG, "checkFirstAndLast fromScroll " + fromScroll
+                        + " showRight " + showRight + " showLeft " + showLeft);
+            }
 
             showMoreRight(showRight);
             showMoreLeft(showLeft);
@@ -487,8 +485,8 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
                 }
             }
             // If long dimension bigger than the card height we scale down.
-            if ((landscape && drawableWidth > cardHeight) ||
-                    (!landscape && drawableHeight > cardHeight)) {
+            if ((landscape && drawableWidth > cardHeight)
+                    || (!landscape && drawableHeight > cardHeight)) {
                 scaleImage = true;
             }
             // If we're not scaling to fit the card height then we always use margin.

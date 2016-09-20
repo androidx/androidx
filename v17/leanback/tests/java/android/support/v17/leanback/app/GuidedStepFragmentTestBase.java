@@ -15,39 +15,20 @@
  */
 package android.support.v17.leanback.app;
 
-import android.app.Activity;
-import android.app.Fragment;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.v17.leanback.testutils.PollingCheck;
-import android.view.ViewGroup;
-import android.view.View;
-import android.view.LayoutInflater;
-import android.view.KeyEvent;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
-
-import android.support.v17.leanback.R;
-import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
-import android.support.v17.leanback.widget.GuidedAction;
-
-import android.support.test.espresso.Espresso;
-import android.support.test.espresso.matcher.RootMatchers;
-import android.support.test.espresso.action.ViewActions;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
+import android.support.v17.leanback.R;
+import android.support.v17.leanback.testutils.PollingCheck;
+import android.view.View;
 
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import org.mockito.stubbing.Answer;
-import org.mockito.invocation.InvocationOnMock;
-
-import java.util.List;
-
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 /**
  * @hide from javadoc
@@ -57,8 +38,8 @@ public class GuidedStepFragmentTestBase {
     private static final long TIMEOUT = 5000;
 
     @Rule
-    public ActivityTestRule<GuidedStepFragmentTestActivity> activityTestRule
-            = new ActivityTestRule<>(GuidedStepFragmentTestActivity.class, false, false);
+    public ActivityTestRule<GuidedStepFragmentTestActivity> activityTestRule =
+            new ActivityTestRule<>(GuidedStepFragmentTestActivity.class, false, false);
 
     @Before
     public void clearTests() {

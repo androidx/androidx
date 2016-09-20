@@ -19,12 +19,12 @@ import android.animation.TimeAnimator;
 import android.animation.TimeAnimator.TimeListener;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
+import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
-import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
@@ -203,8 +203,8 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
             if (DEBUG) Log.v(TAG, "setExpand " + expand + " count " + count);
             for (int i = 0; i < count; i++) {
                 View view = listView.getChildAt(i);
-                ItemBridgeAdapter.ViewHolder vh
-                        = (ItemBridgeAdapter.ViewHolder) listView.getChildViewHolder(view);
+                ItemBridgeAdapter.ViewHolder vh =
+                        (ItemBridgeAdapter.ViewHolder) listView.getChildViewHolder(view);
                 setRowViewExpanded(vh, mExpand);
             }
         }

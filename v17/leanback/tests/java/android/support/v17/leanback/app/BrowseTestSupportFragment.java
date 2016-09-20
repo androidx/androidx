@@ -15,6 +15,12 @@
  */
 package android.support.v17.leanback.app;
 
+import static android.support.v17.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY;
+import static android.support.v17.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_NUM_ROWS;
+import static android.support.v17.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_REPEAT_PER_ROW;
+import static android.support.v17.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_SET_ADAPTER_AFTER_DATA_LOAD;
+import static android.support.v17.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_TEST_ENTRANCE_TRANSITION;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -29,8 +35,6 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.util.Log;
 import android.view.View;
-
-import static android.support.v17.leanback.app.BrowseSupportFragmentTestActivity.*;
 
 public class BrowseTestSupportFragment extends BrowseSupportFragment {
     private static final String TAG = "BrowseTestSupportFragment";

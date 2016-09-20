@@ -13,17 +13,15 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.animation.PropertyValuesHolder;
 import android.support.v17.leanback.widget.ParallaxSource.FloatProperty;
 import android.support.v17.leanback.widget.ParallaxSource.FloatPropertyKeyValue;
 import android.support.v17.leanback.widget.ParallaxSource.IntProperty;
 import android.support.v17.leanback.widget.ParallaxSource.IntPropertyKeyValue;
 import android.support.v17.leanback.widget.ParallaxSource.PropertyKeyValue;
 
-import android.animation.PropertyValuesHolder;
-import android.util.Property;
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ParallaxEffect class drives changes in {@link ParallaxTarget} in response to changes in
@@ -255,8 +253,8 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
                         // Implies lastValue is less than lastKeyValue and lastValue is not
                         // UNKNWON_AFTER.  Estimates based on distance of two variables is screen
                         // size.
-                        fraction = (float)(lastKeyValue - lastValue) /
-                                source.getMaxParentVisibleSize();
+                        fraction = (float) (lastKeyValue - lastValue)
+                                / source.getMaxParentVisibleSize();
                         return getFractionWithWeightAdjusted(fraction, i);
                     } else if (currentValue >= keyValue) {
                         if (lastIndex == index) {
@@ -321,10 +319,10 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
                     }
                     if (currentValue == FloatProperty.UNKNOWN_AFTER) {
                         // Implies lastValue is less than lastKeyValue and lastValue is not
-                        // UNKNWON_AFTER.  Estimates based on distance of two variables is screen
+                        // UNKNOWN_AFTER.  Estimates based on distance of two variables is screen
                         // size.
-                        fraction = (float)(lastKeyValue - lastValue) /
-                                source.getMaxParentVisibleSize();
+                        fraction = (float) (lastKeyValue - lastValue)
+                                / source.getMaxParentVisibleSize();
                         return getFractionWithWeightAdjusted(fraction, i);
                     } else if (currentValue >= keyValue) {
                         if (lastIndex == index) {

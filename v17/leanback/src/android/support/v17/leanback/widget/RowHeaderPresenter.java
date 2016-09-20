@@ -13,6 +13,8 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.graphics.Paint;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
@@ -20,8 +22,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * RowHeaderPresenter provides a default presentation for {@link HeaderItem} using a
@@ -159,8 +159,8 @@ public class RowHeaderPresenter extends Presenter {
      */
     protected void onSelectLevelChanged(ViewHolder holder) {
         if (mAnimateSelect) {
-            holder.view.setAlpha(holder.mUnselectAlpha + holder.mSelectLevel *
-                    (1f - holder.mUnselectAlpha));
+            holder.view.setAlpha(holder.mUnselectAlpha + holder.mSelectLevel
+                    * (1f - holder.mUnselectAlpha));
         }
     }
 

@@ -528,8 +528,8 @@ public class PlaybackFragment extends Fragment {
             return;
         }
 
-        mAnimationTranslateY = getVerticalGridView().getSelectedPosition() == 0 ?
-                mMajorFadeTranslateY : mMinorFadeTranslateY;
+        mAnimationTranslateY = getVerticalGridView().getSelectedPosition() == 0
+                ? mMajorFadeTranslateY : mMinorFadeTranslateY;
 
         if (mFadingStatus == IDLE) {
             if (fadeIn) {

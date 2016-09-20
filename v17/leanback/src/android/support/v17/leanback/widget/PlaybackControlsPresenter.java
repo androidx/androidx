@@ -13,9 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -28,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
-import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -113,8 +110,8 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
                 if (mMoreActionsViewHolder.view.getParent() == null) {
                     mMoreActionsDock.addView(mMoreActionsViewHolder.view);
                 }
-            } else if (mMoreActionsViewHolder != null &&
-                    mMoreActionsViewHolder.view.getParent() != null) {
+            } else if (mMoreActionsViewHolder != null
+                    && mMoreActionsViewHolder.view.getParent() != null) {
                 mMoreActionsDock.removeView(mMoreActionsViewHolder.view);
             }
         }

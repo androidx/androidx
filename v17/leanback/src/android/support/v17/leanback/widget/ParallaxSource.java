@@ -13,11 +13,11 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.util.Property;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import android.util.Property;
 
 
 /**
@@ -230,13 +230,13 @@ public abstract class ParallaxSource<PropertyT extends Property> {
             for (int i = 1; i < mProperties.size(); i++) {
                 int v = mProperties.get(i).getIntValue(this);
                 if (v < last) {
-                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is" +
-                                    " smaller than Property[%d]\"%s\"",
+                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
+                                    + " smaller than Property[%d]\"%s\"",
                             i, mProperties.get(i).getName(),
                             i - 1, mProperties.get(i - 1).getName()));
                 } else if (last == IntProperty.UNKNOWN_BEFORE && v == IntProperty.UNKNOWN_AFTER) {
-                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is" +
-                                    " UNKNOW_BEFORE and Property[%d]\"%s\" is UNKNOWN_AFTER",
+                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
+                                    + " UNKNOW_BEFORE and Property[%d]\"%s\" is UNKNOWN_AFTER",
                             i - 1, mProperties.get(i - 1).getName(),
                             i, mProperties.get(i).getName()));
                 }
@@ -432,14 +432,14 @@ public abstract class ParallaxSource<PropertyT extends Property> {
             for (int i = 1; i < mProperties.size(); i++) {
                 float v = mProperties.get(i).getFloatValue(this);
                 if (v < last) {
-                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is" +
-                                    " smaller than Property[%d]\"%s\"",
+                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
+                                    + " smaller than Property[%d]\"%s\"",
                             i, mProperties.get(i).getName(),
                             i - 1, mProperties.get(i - 1).getName()));
-                } else if (last == FloatProperty.UNKNOWN_BEFORE && v ==
-                        FloatProperty.UNKNOWN_AFTER) {
-                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is" +
-                                    " UNKNOW_BEFORE and Property[%d]\"%s\" is UNKNOWN_AFTER",
+                } else if (last == FloatProperty.UNKNOWN_BEFORE && v
+                        == FloatProperty.UNKNOWN_AFTER) {
+                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
+                                    + " UNKNOW_BEFORE and Property[%d]\"%s\" is UNKNOWN_AFTER",
                             i - 1, mProperties.get(i - 1).getName(),
                             i, mProperties.get(i).getName()));
                 }

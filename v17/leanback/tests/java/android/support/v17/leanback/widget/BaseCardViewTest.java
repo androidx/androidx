@@ -16,29 +16,26 @@
 
 package android.support.v17.leanback.widget;
 
-import org.junit.Before;
+import static android.support.v17.leanback.widget.BaseCardView.LayoutParams.MATCH_PARENT;
+import static android.support.v17.leanback.widget.BaseCardView.LayoutParams.VIEW_TYPE_INFO;
+import static android.support.v17.leanback.widget.BaseCardView.LayoutParams.VIEW_TYPE_MAIN;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import android.support.test.InstrumentationRegistry;
+import android.test.suitebuilder.annotation.SmallTest;
+import android.view.View;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
 import org.mockito.Mockito;
-
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.test.runner.AndroidJUnit4;
-import android.support.test.InstrumentationRegistry;
-
-import android.test.suitebuilder.annotation.SmallTest;
-
-
-import android.view.View;
-import android.view.ViewGroup;
-
-import static org.junit.Assert.*;
-import static android.support.v17.leanback.widget.BaseCardView.LayoutParams.*;
-
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
 
 @SmallTest
 @RunWith(JUnit4.class)

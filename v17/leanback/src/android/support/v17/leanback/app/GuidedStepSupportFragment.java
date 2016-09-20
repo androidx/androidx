@@ -15,18 +15,15 @@
  */
 package android.support.v17.leanback.app;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.animation.Animator;
 import android.animation.AnimatorSet;
-import android.support.annotation.RestrictTo;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentManager.BackStackEntry;
-import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.GuidanceStylist;
@@ -35,8 +32,12 @@ import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidedActionAdapter;
 import android.support.v17.leanback.widget.GuidedActionAdapterGroup;
 import android.support.v17.leanback.widget.GuidedActionsStylist;
-import android.support.v17.leanback.widget.ViewHolderTask;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.BackStackEntry;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
@@ -50,8 +51,6 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A GuidedStepSupportFragment is used to guide the user through a decision or series of decisions.
@@ -638,8 +637,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         activity.getWindow().getDecorView();
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         if (fragmentManager.findFragmentByTag(TAG_LEAN_BACK_ACTIONS_FRAGMENT) != null) {
-            Log.w(TAG, "Fragment is already exists, likely calling " +
-                    "addAsRoot() when savedInstanceState is not null in Activity.onCreate().");
+            Log.w(TAG, "Fragment is already exists, likely calling "
+                    + "addAsRoot() when savedInstanceState is not null in Activity.onCreate().");
             return -1;
         }
         FragmentTransaction ft = fragmentManager.beginTransaction();
@@ -885,8 +884,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                         true);
                 TransitionHelper.setEnterTransition(this, enterTransition);
 
-                Object fade = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN |
-                        TransitionHelper.FADE_OUT);
+                Object fade = TransitionHelper.createFadeTransition(
+                        TransitionHelper.FADE_IN | TransitionHelper.FADE_OUT);
                 TransitionHelper.include(fade, R.id.guidedactions_sub_list_background);
                 Object changeBounds = TransitionHelper.createChangeBounds(false);
                 Object sharedElementTransition = TransitionHelper.createTransitionSet(false);
@@ -895,11 +894,11 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                 TransitionHelper.setSharedElementEnterTransition(this, sharedElementTransition);
             } else if (uiStyle == UI_STYLE_ENTRANCE) {
                 if (entranceTransitionType == SLIDE_FROM_SIDE) {
-                    Object fade = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN |
-                            TransitionHelper.FADE_OUT);
+                    Object fade = TransitionHelper.createFadeTransition(
+                            TransitionHelper.FADE_IN | TransitionHelper.FADE_OUT);
                     TransitionHelper.include(fade, R.id.guidedstep_background);
-                    Object slideFromSide = TransitionHelper.createFadeAndShortSlide(Gravity.END |
-                            Gravity.START);
+                    Object slideFromSide = TransitionHelper.createFadeAndShortSlide(
+                            Gravity.END | Gravity.START);
                     TransitionHelper.include(slideFromSide, R.id.content_fragment);
                     TransitionHelper.include(slideFromSide, R.id.action_fragment_root);
                     Object enterTransition = TransitionHelper.createTransitionSet(false);

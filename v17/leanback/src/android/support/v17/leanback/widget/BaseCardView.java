@@ -247,8 +247,8 @@ public class BaseCardView extends FrameLayout {
                 // Valid card type
                 mCardType = type;
             } else {
-                Log.e(TAG, "Invalid card type specified: " + type +
-                        ". Defaulting to type CARD_TYPE_MAIN_ONLY.");
+                Log.e(TAG, "Invalid card type specified: " + type
+                        + ". Defaulting to type CARD_TYPE_MAIN_ONLY.");
                 mCardType = CARD_TYPE_MAIN_ONLY;
             }
             requestLayout();
@@ -422,13 +422,13 @@ public class BaseCardView extends FrameLayout {
         }
 
         boolean infoAnimating = hasInfoRegion() && mInfoVisibility == CARD_REGION_VISIBLE_SELECTED;
-        mMeasuredHeight = (int) (mainHeight +
-                (infoAnimating ? (infoHeight * mInfoVisFraction) : infoHeight)
+        mMeasuredHeight = (int) (mainHeight
+                + (infoAnimating ? (infoHeight * mInfoVisFraction) : infoHeight)
                 + extraHeight - (infoAnimating ? 0 : mInfoOffset));
 
         // Report our final dimensions.
-        setMeasuredDimension(View.resolveSizeAndState(mMeasuredWidth + getPaddingLeft() +
-                getPaddingRight(), widthMeasureSpec, state),
+        setMeasuredDimension(View.resolveSizeAndState(mMeasuredWidth + getPaddingLeft()
+                + getPaddingRight(), widthMeasureSpec, state),
                 View.resolveSizeAndState(mMeasuredHeight + getPaddingTop() + getPaddingBottom(),
                         heightMeasureSpec, state << View.MEASURED_HEIGHT_STATE_SHIFT));
     }

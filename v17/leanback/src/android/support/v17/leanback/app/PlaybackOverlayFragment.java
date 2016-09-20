@@ -13,22 +13,17 @@
  */
 package android.support.v17.leanback.app;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
-import android.support.v17.leanback.widget.Action;
-import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.view.InputEvent;
-import android.view.animation.AccelerateInterpolator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.widget.RecyclerView;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.animation.LogAccelerateInterpolator;
 import android.support.v17.leanback.animation.LogDecelerateInterpolator;
@@ -40,12 +35,15 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.InputEvent;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 
 import java.util.ArrayList;
 
@@ -548,8 +546,8 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             return;
         }
 
-        mAnimationTranslateY = getVerticalGridView().getSelectedPosition() == 0 ?
-                mMajorFadeTranslateY : mMinorFadeTranslateY;
+        mAnimationTranslateY = getVerticalGridView().getSelectedPosition() == 0
+                ? mMajorFadeTranslateY : mMinorFadeTranslateY;
 
         if (mFadingStatus == IDLE) {
             if (fadeIn) {

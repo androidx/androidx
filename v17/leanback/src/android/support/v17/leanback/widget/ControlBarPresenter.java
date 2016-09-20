@@ -19,7 +19,6 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 /**
  * A presenter that assumes a LinearLayout container for a series
@@ -127,8 +126,8 @@ class ControlBarPresenter extends Presenter {
             int adapterSize = adapter == null ? 0 : adapter.size();
             // Shrink the number of attached views
             View focusedView = mControlBar.getFocusedChild();
-            if (focusedView != null && adapterSize > 0 &&
-                    mControlBar.indexOfChild(focusedView) >= adapterSize) {
+            if (focusedView != null && adapterSize > 0
+                    && mControlBar.indexOfChild(focusedView) >= adapterSize) {
                 mControlBar.getChildAt(adapter.size() - 1).requestFocus();
             }
             for (int i = mControlBar.getChildCount() - 1; i >= adapterSize; i--) {
