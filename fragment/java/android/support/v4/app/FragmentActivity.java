@@ -136,8 +136,6 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
         SimpleArrayMap<String, LoaderManager> loaders;
     }
 
-    MediaControllerCompat mMediaController;
-
     // ------------------------------------------------------------------------
     // HOOKS INTO ACTIVITY
     // ------------------------------------------------------------------------
@@ -196,12 +194,12 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      *     media keys and volume changes on API 21 and later.
      * @see #getSupportMediaController()
      * @see #setMediaController(android.media.session.MediaController)
+     * @deprecated Use {@link MediaControllerCompat#setMediaController} instead. This API will be
+     * removed in a future release.
      */
+    @Deprecated
     final public void setSupportMediaController(MediaControllerCompat mediaController) {
-        mMediaController = mediaController;
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            ActivityCompatApi21.setMediaController(this, mediaController.getMediaController());
-        }
+        MediaControllerCompat.setMediaController(this, mediaController);
     }
 
     /**
@@ -210,9 +208,12 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      * @return The controller which should receive events.
      * @see #setSupportMediaController(MediaControllerCompat)
      * @see #getMediaController()
+     * @deprecated Use {@link MediaControllerCompat#getMediaController} instead. This API will be
+     * removed in a future release.
      */
+    @Deprecated
     final public MediaControllerCompat getSupportMediaController() {
-        return mMediaController;
+        return MediaControllerCompat.getMediaController(this);
     }
 
     /**

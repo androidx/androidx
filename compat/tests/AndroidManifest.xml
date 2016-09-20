@@ -39,6 +39,8 @@
             android:theme="@style/YellowTheme" />
 
         <activity android:name="android.support.v4.view.ViewCompatActivity"/>
+
+        <activity android:name="android.support.v4.app.TestSupportActivity" />
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
