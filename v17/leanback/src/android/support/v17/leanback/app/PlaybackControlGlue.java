@@ -492,14 +492,18 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
             boolean canPause = keyEvent == null ||
                     keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ||
                     keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PAUSE;
-            if (mPlaybackSpeed != PLAYBACK_SPEED_NORMAL) {
-                if (canPlay) {
-                    mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
-                    startPlayback(mPlaybackSpeed);
-                }
-            } else if (canPause) {
+            //            PLAY_PAUSE    PLAY      PAUSE
+            // playing    paused                  paused
+            // paused     playing       playing
+            // ff/rw      playing       playing   paused
+            if (canPause &&
+                (canPlay ? mPlaybackSpeed == PLAYBACK_SPEED_NORMAL :
+                        mPlaybackSpeed != PLAYBACK_SPEED_PAUSED)) {
                 mPlaybackSpeed = PLAYBACK_SPEED_PAUSED;
                 pausePlayback();
+            } else if (canPlay && mPlaybackSpeed != PLAYBACK_SPEED_NORMAL) {
+                mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
+                startPlayback(mPlaybackSpeed);
             }
             updatePlaybackStatusAfterUserAction();
             handled = true;

@@ -348,4 +348,161 @@ public class PlaybackControlGlueTest {
             assertEquals(0, rewind.getIndex());
         }
     }
+
+    @Test
+    public void testMediaPauseButtonOnFF() {
+        PlaybackControlsRow row = new PlaybackControlsRow();
+        glue.setControlsRow(row);
+        SparseArrayObjectAdapter adapter = (SparseArrayObjectAdapter)
+                row.getPrimaryActionsAdapter();
+        PlaybackControlsRow.MultiAction playPause = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_PLAY_PAUSE);
+        PlaybackControlsRow.MultiAction fastForward = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_FAST_FORWARD);
+
+        glue.onActionClicked(playPause);
+        glue.onActionClicked(fastForward);
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0, glue.getCurrentSpeedId());
+        glue.onKey(null, KeyEvent.KEYCODE_MEDIA_PAUSE, new KeyEvent(KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_MEDIA_PAUSE));
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_PAUSED, glue.getCurrentSpeedId());
+    }
+
+    @Test
+    public void testMediaPauseButtonOnPlay() {
+        PlaybackControlsRow row = new PlaybackControlsRow();
+        glue.setControlsRow(row);
+        SparseArrayObjectAdapter adapter = (SparseArrayObjectAdapter)
+                row.getPrimaryActionsAdapter();
+        PlaybackControlsRow.MultiAction playPause = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_PLAY_PAUSE);
+
+        glue.onActionClicked(playPause);
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
+        glue.onKey(null, KeyEvent.KEYCODE_MEDIA_PAUSE, new KeyEvent(KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_MEDIA_PAUSE));
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_PAUSED, glue.getCurrentSpeedId());
+    }
+
+    @Test
+    public void testMediaPauseButtonOnPause() {
+        PlaybackControlsRow row = new PlaybackControlsRow();
+        glue.setControlsRow(row);
+        SparseArrayObjectAdapter adapter = (SparseArrayObjectAdapter)
+                row.getPrimaryActionsAdapter();
+        PlaybackControlsRow.MultiAction playPause = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_PLAY_PAUSE);
+
+        glue.onActionClicked(playPause);
+        glue.onActionClicked(playPause);
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_PAUSED, glue.getCurrentSpeedId());
+        glue.onKey(null, KeyEvent.KEYCODE_MEDIA_PAUSE, new KeyEvent(KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_MEDIA_PAUSE));
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_PAUSED, glue.getCurrentSpeedId());
+    }
+
+    @Test
+    public void testMediaPlayButtonOnFF() {
+        PlaybackControlsRow row = new PlaybackControlsRow();
+        glue.setControlsRow(row);
+        SparseArrayObjectAdapter adapter = (SparseArrayObjectAdapter)
+                row.getPrimaryActionsAdapter();
+        PlaybackControlsRow.MultiAction playPause = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_PLAY_PAUSE);
+        PlaybackControlsRow.MultiAction fastForward = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_FAST_FORWARD);
+
+        glue.onActionClicked(playPause);
+        glue.onActionClicked(fastForward);
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0, glue.getCurrentSpeedId());
+        glue.onKey(null, KeyEvent.KEYCODE_MEDIA_PLAY, new KeyEvent(KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_MEDIA_PLAY));
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
+    }
+
+    @Test
+    public void testMediaPlayButtonOnPlay() {
+        PlaybackControlsRow row = new PlaybackControlsRow();
+        glue.setControlsRow(row);
+        SparseArrayObjectAdapter adapter = (SparseArrayObjectAdapter)
+                row.getPrimaryActionsAdapter();
+        PlaybackControlsRow.MultiAction playPause = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_PLAY_PAUSE);
+
+        glue.onActionClicked(playPause);
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
+        glue.onKey(null, KeyEvent.KEYCODE_MEDIA_PLAY, new KeyEvent(KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_MEDIA_PLAY));
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
+    }
+
+    @Test
+    public void testMediaPlayButtonOnPause() {
+        PlaybackControlsRow row = new PlaybackControlsRow();
+        glue.setControlsRow(row);
+        SparseArrayObjectAdapter adapter = (SparseArrayObjectAdapter)
+                row.getPrimaryActionsAdapter();
+        PlaybackControlsRow.MultiAction playPause = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_PLAY_PAUSE);
+
+        glue.onActionClicked(playPause);
+        glue.onActionClicked(playPause);
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_PAUSED, glue.getCurrentSpeedId());
+        glue.onKey(null, KeyEvent.KEYCODE_MEDIA_PLAY, new KeyEvent(KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_MEDIA_PLAY));
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
+    }
+
+    @Test
+    public void testMediaPlayPauseButtonOnFF() {
+        PlaybackControlsRow row = new PlaybackControlsRow();
+        glue.setControlsRow(row);
+        SparseArrayObjectAdapter adapter = (SparseArrayObjectAdapter)
+                row.getPrimaryActionsAdapter();
+        PlaybackControlsRow.MultiAction playPause = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_PLAY_PAUSE);
+        PlaybackControlsRow.MultiAction fastForward = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_FAST_FORWARD);
+
+        glue.onActionClicked(playPause);
+        glue.onActionClicked(fastForward);
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0, glue.getCurrentSpeedId());
+        glue.onKey(null, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, new KeyEvent(KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
+    }
+
+    @Test
+    public void testMediaPlayPauseButtonOnPlay() {
+        PlaybackControlsRow row = new PlaybackControlsRow();
+        glue.setControlsRow(row);
+        SparseArrayObjectAdapter adapter = (SparseArrayObjectAdapter)
+                row.getPrimaryActionsAdapter();
+        PlaybackControlsRow.MultiAction playPause = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_PLAY_PAUSE);
+
+        glue.onActionClicked(playPause);
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
+        glue.onKey(null, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, new KeyEvent(KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_PAUSED, glue.getCurrentSpeedId());
+    }
+
+    @Test
+    public void testMediaPlayPauseButtonOnPause() {
+        PlaybackControlsRow row = new PlaybackControlsRow();
+        glue.setControlsRow(row);
+        SparseArrayObjectAdapter adapter = (SparseArrayObjectAdapter)
+                row.getPrimaryActionsAdapter();
+        PlaybackControlsRow.MultiAction playPause = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_PLAY_PAUSE);
+
+        glue.onActionClicked(playPause);
+        glue.onActionClicked(playPause);
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_PAUSED, glue.getCurrentSpeedId());
+        glue.onKey(null, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, new KeyEvent(KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
+    }
+
 }
