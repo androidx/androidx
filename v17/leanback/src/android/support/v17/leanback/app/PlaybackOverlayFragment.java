@@ -744,6 +744,13 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         super.onDestroyView();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Workaround problem VideoView forcing itself to focused, let controls take focus.
+        getRowsFragment().getView().requestFocus();
+    }
+
     private final DataObserver mObserver = new DataObserver() {
         @Override
         public void onChanged() {
