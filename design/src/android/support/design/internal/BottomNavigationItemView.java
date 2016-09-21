@@ -25,6 +25,7 @@ import android.support.annotation.NonNull;
 import android.support.design.R;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.view.PointerIconCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.view.menu.MenuItemImpl;
@@ -84,6 +85,8 @@ public class BottomNavigationItemView extends FrameLayout implements MenuView.It
         mSmallLabel = (TextView) findViewById(R.id.smallLabel);
         mLargeLabel = (TextView) findViewById(R.id.largeLabel);
 
+        ViewCompat.setPointerIcon(this,
+                PointerIconCompat.getSystemIcon(getContext(), PointerIconCompat.TYPE_HAND));
     }
 
     @Override
