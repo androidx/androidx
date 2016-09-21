@@ -85,9 +85,20 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # A helper sub-library that makes direct use of V24 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-media-compat-api24
-LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
+LOCAL_SDK_VERSION := 24
 LOCAL_SRC_FILES := $(call all-java-files-under, api24)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-media-compat-api23
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
+# A helper sub-library that makes direct use of V25 APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-media-compat-api25
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
+LOCAL_SRC_FILES := $(call all-java-files-under, api25)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-media-compat-api24
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -102,7 +113,7 @@ LOCAL_AIDL_INCLUDES := frameworks/support/media-compat/java
 LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-media-compat-api24
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-media-compat-api25
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-compat \
     android-support-annotations
