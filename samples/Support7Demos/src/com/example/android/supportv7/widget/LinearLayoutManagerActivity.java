@@ -42,7 +42,7 @@ public class LinearLayoutManagerActivity extends BaseLayoutManagerActivity<Linea
     }
 
     @Override
-    ConfigToggle[] createConfigToggles() {
+    protected ConfigToggle[] createConfigToggles() {
         return new ConfigToggle[]{
                 new ConfigToggle(this, R.string.checkbox_orientation) {
                     @Override
