@@ -448,7 +448,7 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
                     + ",reverse:" + (mReverseLayout ? "T" : "F")
                     + ",itemCount:" + mItemCount
                     + ",wrapContent:" + mWrap
-                    + ",gap strategy:" + gapStrategyName(mGapStrategy);
+                    + ",gap_strategy:" + gapStrategyName(mGapStrategy);
         }
 
         protected static String gapStrategyName(int gapStrategy) {
@@ -456,9 +456,9 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
                 case GAP_HANDLING_NONE:
                     return "none";
                 case GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS:
-                    return "move spans";
+                    return "move_spans";
             }
-            return "gap strategy: unknown";
+            return "gap_strategy:unknown";
         }
 
         @Override
