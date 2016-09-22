@@ -35,6 +35,7 @@ import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SectionRow;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,7 +67,8 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
+        setBadgeDrawable(ResourcesCompat.getDrawable(getActivity().getResources(),
+                R.drawable.ic_title, getActivity().getTheme()));
         setTitle("Leanback Sample App");
         setHeadersState(HEADERS_ENABLED);
         setOnSearchClickedListener(new View.OnClickListener() {

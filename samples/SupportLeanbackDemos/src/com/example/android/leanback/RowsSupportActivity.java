@@ -26,7 +26,6 @@ import android.view.View;
 public class RowsSupportActivity extends FragmentActivity
 {
     private RowsSupportFragment mRowsSupportFragment;
-    private TitleHelper mTitleHelper;
 
     /** Called when the activity is first created. */
     @Override
@@ -52,8 +51,8 @@ public class RowsSupportActivity extends FragmentActivity
         });
 
         BrowseFrameLayout frameLayout = (BrowseFrameLayout) findViewById(R.id.rows_frame);
-        mTitleHelper = new TitleHelper(frameLayout, titleView);
-        frameLayout.setOnFocusSearchListener(mTitleHelper.getOnFocusSearchListener());
-        mRowsSupportFragment.setTitleHelper(mTitleHelper);
+        TitleHelper titleHelper = new TitleHelper(frameLayout, titleView);
+        frameLayout.setOnFocusSearchListener(titleHelper.getOnFocusSearchListener());
+        mRowsSupportFragment.setTitleHelper(titleHelper);
     }
 }

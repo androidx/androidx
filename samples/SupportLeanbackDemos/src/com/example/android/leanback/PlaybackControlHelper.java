@@ -280,4 +280,4 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
             mUpdateProgressRunnable.run();
         }
     }
-};
+}

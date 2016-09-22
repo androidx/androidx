@@ -17,6 +17,7 @@
 package com.example.android.leanback;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -24,11 +25,8 @@ import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.v4.content.res.ResourcesCompat;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,14 +34,11 @@ import java.util.List;
  */
 public class MainActivity extends Activity {
 
-    private GuidedStepFragment mGuidedStepFragment;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mGuidedStepFragment = new StepFragment();
-        GuidedStepFragment.addAsRoot(this, mGuidedStepFragment, android.R.id.content);
+        GuidedStepFragment.addAsRoot(this, new StepFragment(), android.R.id.content);
     }
 
     public static class StepFragment extends GuidedStepFragment {
@@ -53,7 +48,9 @@ public class MainActivity extends Activity {
             String title = getString(R.string.main_title);
             String breadcrumb = getString(R.string.main_breadcrumb);
             String description = "";
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -113,7 +110,7 @@ public class MainActivity extends Activity {
         }
 
         private void addAction(List<GuidedAction> actions, Class cls, int titleRes, int descRes) {
-            actions.add(new GuidedAction.Builder()
+            actions.add(new GuidedAction.Builder(getActivity())
                     .intent(new Intent(getActivity(), cls))
                     .title(getString(titleRes))
                     .description(getString(descRes))

@@ -26,9 +26,6 @@ import android.widget.ProgressBar;
 
 public class BrowseErrorActivity extends Activity
 {
-    private ErrorFragment mErrorFragment;
-    private SpinnerFragment mSpinnerFragment;
-
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -52,12 +49,6 @@ public class BrowseErrorActivity extends Activity
     }
 
     private void testError() {
-        mErrorFragment = new ErrorFragment();
-        getFragmentManager().beginTransaction().add(R.id.main_frame, mErrorFragment).commit();
-
-        mSpinnerFragment = new SpinnerFragment();
-        getFragmentManager().beginTransaction().add(R.id.main_frame, mSpinnerFragment).commit();
-
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -65,8 +56,8 @@ public class BrowseErrorActivity extends Activity
                 if (getFragmentManager().isDestroyed()) {
                     return;
                 }
-                getFragmentManager().beginTransaction().remove(mSpinnerFragment).commit();
-                mErrorFragment.setErrorContent(getResources());
+                getFragmentManager().beginTransaction().add(R.id.main_frame,
+                        new ErrorFragment()).commit();
             }
         }, 3000);
     }
@@ -77,7 +68,8 @@ public class BrowseErrorActivity extends Activity
                     Bundle savedInstanceState) {
             ProgressBar progressBar = new ProgressBar(container.getContext());
             if (container instanceof FrameLayout) {
-                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100, Gravity.CENTER);
+                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100,
+                        Gravity.CENTER);
                 progressBar.setLayoutParams(layoutParams);
             }
             return progressBar;
