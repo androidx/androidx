@@ -22,7 +22,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -31,8 +30,8 @@ import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidedActionsStylist;
-import android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder;
 import android.support.v17.leanback.widget.GuidedDatePickerAction;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -101,7 +100,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
     private static GuidedAction addAction(List<GuidedAction> actions, long id, String title,
             String desc) {
         GuidedAction action;
-        actions.add(action = new GuidedAction.Builder()
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .description(desc)
@@ -112,7 +111,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
     private static GuidedAction addAction(List<GuidedAction> actions, long id, String title,
             String desc, List<GuidedAction> subActions) {
         GuidedAction action;
-        actions.add(action = new GuidedAction.Builder()
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .description(desc)
@@ -137,7 +136,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
     private static GuidedAction addEditableAction(List<GuidedAction> actions, long id, String title,
             String editTitle, String desc) {
         GuidedAction action;
-        actions.add(action = new GuidedAction.Builder()
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .editTitle(editTitle)
@@ -150,7 +149,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
     private static GuidedAction addEditableAction(List<GuidedAction> actions, long id, String title,
             String editTitle, int editInputType, String desc, String editDesc) {
         GuidedAction action;
-        actions.add(action = new GuidedAction.Builder()
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .editTitle(editTitle)
@@ -176,7 +175,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
     private static GuidedAction addEditableDescriptionAction(List<GuidedAction> actions, long id,
             String title, String desc, String editDescription, int descriptionEditInputType) {
         GuidedAction action;
-        actions.add(action = new GuidedAction.Builder()
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .description(desc)
@@ -190,7 +189,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
     private static GuidedAction addCheckedAction(List<GuidedAction> actions, long id,
             String title, String desc, int checkSetId) {
         GuidedAction action;
-        actions.add(action = new GuidedAction.Builder()
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .description(desc)
@@ -211,7 +210,9 @@ public class GuidedStepSupportActivity extends FragmentActivity {
             String title = getString(R.string.guidedstep_first_title);
             String breadcrumb = getString(R.string.guidedstep_first_breadcrumb);
             String description = getString(R.string.guidedstep_first_description);
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -270,7 +271,9 @@ public class GuidedStepSupportActivity extends FragmentActivity {
             String title = getString(R.string.guidedstep_newpayment_title);
             String breadcrumb = getString(R.string.guidedstep_newpayment_breadcrumb);
             String description = getString(R.string.guidedstep_newpayment_description);
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -394,7 +397,9 @@ public class GuidedStepSupportActivity extends FragmentActivity {
             String title = getString(R.string.guidedstep_second_title);
             String breadcrumb = getString(R.string.guidedstep_second_breadcrumb);
             String description = getString(R.string.guidedstep_second_description);
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -520,7 +525,9 @@ public class GuidedStepSupportActivity extends FragmentActivity {
             String title = getString(R.string.guidedstep_third_title);
             String breadcrumb = getString(R.string.guidedstep_third_breadcrumb);
             String description = getString(R.string.guidedstep_third_description);
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -538,7 +545,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
             String desc = "The description can be quite long as well.  " +
                     "Just be sure to set multilineDescription to true in the GuidedAction.";
-            actions.add(new GuidedAction.Builder()
+            actions.add(new GuidedAction.Builder(getActivity())
                     .title("Note that Guided Actions can have titles that are quite long.")
                     .description(desc)
                     .multilineDescription(true)
@@ -599,7 +606,9 @@ public class GuidedStepSupportActivity extends FragmentActivity {
             String title = getString(R.string.guidedstep_fourth_title);
             String breadcrumb = getString(R.string.guidedstep_fourth_breadcrumb);
             String description = "You chose: " + OPTION_NAMES[(int) getOption()];
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 

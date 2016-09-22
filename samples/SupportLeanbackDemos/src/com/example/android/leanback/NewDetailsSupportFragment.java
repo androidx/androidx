@@ -15,8 +15,8 @@
  */
 package com.example.android.leanback;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -40,6 +40,7 @@ import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -84,7 +85,9 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
         super.onCreate(savedInstanceState);
         initializeTest();
 
-        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
+        final Context context = getActivity();
+        setBadgeDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_title,
+                context.getTheme()));
         setTitle("Leanback Sample App");
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
@@ -95,8 +98,8 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
         });
 
         mActionPlay = new Action(ACTION_PLAY, "Play");
-        mActionRent = new Action(ACTION_RENT, "Rent", "$3.99",
-                getResources().getDrawable(R.drawable.ic_action_a));
+        mActionRent = new Action(ACTION_RENT, "Rent", "$3.99", ResourcesCompat.getDrawable(
+                context.getResources(), R.drawable.ic_action_a, context.getTheme()));
         mActionBuy = new Action(ACTION_BUY, "Buy $9.99");
 
         ClassPresenterSelector ps = new ClassPresenterSelector();
@@ -105,7 +108,8 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
         dorPresenter.setOnActionClickedListener(new OnActionClickedListener() {
             @Override
             public void onActionClicked(Action action) {
-                Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
+                final Context context = getActivity();
+                Toast.makeText(context, action.toString(), Toast.LENGTH_SHORT).show();
                 int indexOfOverviewRow = TEST_OVERVIEW_ROW_ON_SECOND ? 1 : 0;
                 DetailsOverviewRow dor = (DetailsOverviewRow) mRowsAdapter.get(indexOfOverviewRow);
                 if (action.getId() == ACTION_BUY) {
@@ -116,7 +120,8 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
                     actions.clear(ACTION_RENT);
                     actions.clear(ACTION_BUY);
                     dor.setItem(mPhotoItem.getTitle() + "(Owned)");
-                    dor.setImageDrawable(getResources().getDrawable(R.drawable.details_img_16x9));
+                    dor.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                            R.drawable.details_img_16x9, context.getTheme()));
                 } else if (action.getId() == ACTION_RENT) {
                     // on the UI thread, we can modify actions adapter directly
                     SparseArrayObjectAdapter actions = (SparseArrayObjectAdapter)
@@ -125,7 +130,7 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
                     actions.clear(ACTION_RENT);
                     dor.setItem(mPhotoItem.getTitle() + "(Rented)");
                 } else if (action.getId() == ACTION_PLAY) {
-                    Intent intent = new Intent(getActivity(), PlaybackOverlaySupportActivity.class);
+                    Intent intent = new Intent(context, PlaybackOverlaySupportActivity.class);
                     getActivity().startActivity(intent);
                 }
             }
@@ -209,9 +214,10 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
                     mRowsAdapter.add(0, new ListRow(header, listRowAdapter));
                 }
 
-                Resources res = getActivity().getResources();
+                final Context context = getActivity();
                 DetailsOverviewRow dor = new DetailsOverviewRow(mPhotoItem.getTitle());
-                dor.setImageDrawable(res.getDrawable(mPhotoItem.getImageResourceId()));
+                dor.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                        mPhotoItem.getImageResourceId(), context.getTheme()));
                 SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter();
                 adapter.set(ACTION_RENT, mActionRent);
                 adapter.set(ACTION_BUY, mActionBuy);

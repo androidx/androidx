@@ -28,9 +28,6 @@ import android.widget.ProgressBar;
 
 public class BrowseErrorSupportActivity extends FragmentActivity
 {
-    private ErrorSupportFragment mErrorSupportFragment;
-    private SpinnerSupportFragment mSpinnerSupportFragment;
-
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -54,12 +51,6 @@ public class BrowseErrorSupportActivity extends FragmentActivity
     }
 
     private void testError() {
-        mErrorSupportFragment = new ErrorSupportFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.main_frame, mErrorSupportFragment).commit();
-
-        mSpinnerSupportFragment = new SpinnerSupportFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.main_frame, mSpinnerSupportFragment).commit();
-
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -67,8 +58,8 @@ public class BrowseErrorSupportActivity extends FragmentActivity
                 if (getSupportFragmentManager().isDestroyed()) {
                     return;
                 }
-                getSupportFragmentManager().beginTransaction().remove(mSpinnerSupportFragment).commit();
-                mErrorSupportFragment.setErrorContent(getResources());
+                getSupportFragmentManager().beginTransaction().add(R.id.main_frame,
+                        new ErrorSupportFragment()).commit();
             }
         }, 3000);
     }
@@ -79,7 +70,8 @@ public class BrowseErrorSupportActivity extends FragmentActivity
                     Bundle savedInstanceState) {
             ProgressBar progressBar = new ProgressBar(container.getContext());
             if (container instanceof FrameLayout) {
-                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100, Gravity.CENTER);
+                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100,
+                        Gravity.CENTER);
                 progressBar.setLayoutParams(layoutParams);
             }
             return progressBar;

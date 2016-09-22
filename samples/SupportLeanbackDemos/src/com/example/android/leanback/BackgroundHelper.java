@@ -69,7 +69,7 @@ public class BackgroundHelper {
             mTask.execute(mRequest);
             mRunnable = null;
         }
-    };
+    }
 
     class LoadBitmapTask extends AsyncTask<Request, Object, Request> {
         @Override

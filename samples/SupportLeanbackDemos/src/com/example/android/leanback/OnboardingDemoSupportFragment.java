@@ -53,6 +53,7 @@ public class OnboardingDemoSupportFragment extends OnboardingSupportFragment {
 
     private Animator mContentAnimator;
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onAttach(android.app.Activity activity) {
         super.onAttach(activity);

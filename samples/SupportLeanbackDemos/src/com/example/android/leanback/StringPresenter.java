@@ -13,7 +13,9 @@
  */
 package com.example.android.leanback;
 
+import android.content.Context;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -23,11 +25,12 @@ public class StringPresenter extends Presenter {
 
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         Log.d(TAG, "onCreateViewHolder");
-        TextView tv = new TextView(parent.getContext());
+        final Context context = parent.getContext();
+        TextView tv = new TextView(context);
         tv.setFocusable(true);
         tv.setFocusableInTouchMode(true);
-        tv.setBackground(
-                parent.getContext().getResources().getDrawable(R.drawable.text_bg));
+        tv.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.text_bg,
+                context.getTheme()));
         return new ViewHolder(tv);
     }
 
