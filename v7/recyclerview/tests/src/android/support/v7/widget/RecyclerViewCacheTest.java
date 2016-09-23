@@ -49,13 +49,11 @@ import java.util.List;
 public class RecyclerViewCacheTest {
     RecyclerView mRecyclerView;
     RecyclerView.Recycler mRecycler;
-    RecyclerView.ViewPrefetcher mViewPrefetcher;
 
     @Before
     public void setUp() throws Exception {
         mRecyclerView = new RecyclerView(getContext());
         mRecycler = mRecyclerView.mRecycler;
-        mViewPrefetcher = mRecyclerView.mViewPrefetcher;
     }
 
     private Context getContext() {
@@ -160,8 +158,8 @@ public class RecyclerViewCacheTest {
         mRecyclerView.measure(View.MeasureSpec.AT_MOST | 320, View.MeasureSpec.AT_MOST | 320);
         mRecyclerView.layout(0, 0, 320, 320);
 
-        mViewPrefetcher.mItemPrefetchArray = new int[] { 0, 1, 2 };
-        mRecycler.prefetch(mViewPrefetcher.mItemPrefetchArray, 3);
+        mRecyclerView.mPrefetchArray = new int[] { 0, 1, 2 };
+        mRecycler.prefetch(mRecyclerView.mPrefetchArray, 3);
         verifyCacheContainsPositions(0, 1, 2);
 
         // further views recycled, as though from scrolling, shouldn't evict prefetched views:
@@ -218,10 +216,10 @@ public class RecyclerViewCacheTest {
         assertTrue(mRecycler.mCachedViews.isEmpty());
 
         // rows 0, 1, and 2 are all attached and visible. Prefetch row 3:
-        mViewPrefetcher.mItemPrefetchArray = new int[] {-1, -1, -1};
+        mRecyclerView.mPrefetchArray = new int[] {-1, -1, -1};
         int viewCount = mRecyclerView.getLayoutManager().gatherPrefetchIndices(0, 1,
-                mRecyclerView.mState, mViewPrefetcher.mItemPrefetchArray);
-        mRecycler.prefetch(mViewPrefetcher.mItemPrefetchArray, viewCount);
+                mRecyclerView.mState, mRecyclerView.mPrefetchArray);
+        mRecycler.prefetch(mRecyclerView.mPrefetchArray, viewCount);
 
         // row 3 is cached:
         verifyCacheContainsPositions(9, 10, 11);
