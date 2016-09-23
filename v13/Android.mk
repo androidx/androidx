@@ -46,7 +46,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # A helper sub-library that makes direct use of NYC APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v13-nyc
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 24
 LOCAL_SRC_FILES := $(call all-java-files-under, api24)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-mnc
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7

@@ -96,7 +96,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # A helper sub-library that makes direct use of V24 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-core-utils-api24
-LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
+LOCAL_SDK_VERSION := 24
 LOCAL_SRC_FILES := $(call all-java-files-under, api24)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-core-utils-api23
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
