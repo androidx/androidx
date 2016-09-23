@@ -170,7 +170,11 @@ public class LinearSnapHelper extends SnapHelper {
         }
         int distance =
                 Math.abs(distances[0]) > Math.abs(distances[1]) ? distances[0] : distances[1];
-        return (int) Math.floor(distance / distancePerChild);
+        if (distance > 0) {
+            return (int) Math.floor(distance / distancePerChild);
+        } else {
+            return (int) Math.ceil(distance / distancePerChild);
+        }
     }
 
     /**
