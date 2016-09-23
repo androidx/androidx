@@ -132,8 +132,10 @@
     <string name="sample_media_route_activity_presentation">Local Playback on Presentation Display</string>
 
     <string name="recycler_view">RecyclerView/RecyclerViewActivity</string>
-    <string name="animated_recycler_view">RecyclerView/AnimatedRecyclerView</string>
+    <string name="animated_recycler_view">RecyclerView/Animated RecyclerView</string>
+    <string name="nested_recycler_view">RecyclerView/Nested RecyclerView</string>
     <string name="linear_layout_manager">RecyclerView/Linear Layout Manager</string>
+    <string name="linear_layout_manager_jank">RecyclerView/Janky Linear Layout Manager</string>
     <string name="grid_layout_manager">RecyclerView/Grid Layout Manager</string>
     <string name="staggered_grid_layout_manager">RecyclerView/Staggered Grid Layout Manager</string>
     <string name="async_list_util">RecyclerView/AsyncListUtil</string>
