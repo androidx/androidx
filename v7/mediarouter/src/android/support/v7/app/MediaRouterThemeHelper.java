@@ -55,6 +55,8 @@ final class MediaRouterThemeHelper {
      * @return The themed context.
      */
     public static Context createThemedContext(Context context, int style) {
+        // First, apply dialog property overlay.
+
         int theme;
         if (isLightTheme(context)) {
             if (getControllerColor(context, style) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
