@@ -21,6 +21,11 @@ import static android.support.v7.widget.RecyclerView.HORIZONTAL;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.VERTICAL;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import android.app.Activity;
 import android.content.Context;
 import android.os.Looper;
@@ -34,11 +39,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.LinearLayout;
-
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.CoreMatchers;
@@ -70,7 +70,7 @@ public class FocusSearchNavigationTest {
         mLayoutDir = layoutDir;
     }
 
-    @Parameterized.Parameters(name = "orientation:{0} layoutDir:{1}")
+    @Parameterized.Parameters(name = "orientation:{0},layoutDir:{1}")
     public static List<Object[]> params() {
         return Arrays.asList(
                 new Object[]{VERTICAL, ViewCompat.LAYOUT_DIRECTION_LTR},

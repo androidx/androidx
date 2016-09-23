@@ -36,7 +36,7 @@ import java.util.Map;
  */
 @RunWith(Parameterized.class)
 public class GridLayoutManagerNoOpUpdateTest extends BaseGridLayoutManagerTest {
-    @Parameterized.Parameters(name = "conf:{0} rtl={1}")
+    @Parameterized.Parameters(name = "conf:{0},rtl={1}")
     public static List<Object[]> getParams() {
         List<Object[]> result = new ArrayList<>();
         for (BaseGridLayoutManagerTest.Config config : createBaseVariations()) {

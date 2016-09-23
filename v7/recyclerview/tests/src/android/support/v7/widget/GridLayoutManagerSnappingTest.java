@@ -16,6 +16,11 @@
 
 package android.support.v7.widget;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertSame;
+import static junit.framework.Assert.assertTrue;
+
 import android.support.annotation.Nullable;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
@@ -28,11 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotSame;
-import static junit.framework.Assert.assertSame;
-import static junit.framework.Assert.assertTrue;
-
 @RunWith(Parameterized.class)
 public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
 
@@ -44,7 +44,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         mReverseScroll = reverseScroll;
     }
 
-    @Parameterized.Parameters(name = "config:{0}, reverseScroll:{1}")
+    @Parameterized.Parameters(name = "config:{0},reverseScroll:{1}")
     public static List<Object[]> getParams() {
         List<Object[]> result = new ArrayList<>();
         List<Config> configs = createBaseVariations();
