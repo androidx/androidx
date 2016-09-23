@@ -422,6 +422,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     final ViewFlinger mViewFlinger = new ViewFlinger();
 
     private static final long MIN_PREFETCH_TIME_NANOS = TimeUnit.MILLISECONDS.toNanos(4);
+    static long sFrameIntervalNanos = 0;
     ViewPrefetcher mViewPrefetcher = ALLOW_PREFETCHING ? new ViewPrefetcher() : null;
 
     final State mState = new State();
@@ -2389,12 +2390,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mLayout.dispatchAttachedToWindow(this);
         }
         mPostedAnimatorRunner = false;
-        Display display = ViewCompat.getDisplay(this);
-        if (ALLOW_PREFETCHING
-                && display != null
-                && display.getRefreshRate() >= 30.0f) {
-            // break 60 fps assumption if data appears good
-            mViewPrefetcher.mFrameIntervalNanos = (long) (1000000000 / display.getRefreshRate());
+        if (ALLOW_PREFETCHING && sFrameIntervalNanos == 0) {
+            // We only query the display/refresh rate once, since it's an expensive binder call
+            float refreshRate = 60.0f;
+            Display display = ViewCompat.getDisplay(this);
+            if (display != null && display.getRefreshRate() >= 30.0f) {
+                // break 60 fps assumption if data appears good
+                refreshRate  = display.getRefreshRate();
+            }
+            sFrameIntervalNanos = (long) (1000000000 / refreshRate);
         }
     }
 
@@ -4447,7 +4451,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * waiting for VSYNC.
      */
     class ViewPrefetcher implements Runnable {
-        long mFrameIntervalNanos = TimeUnit.MILLISECONDS.toNanos(16);
 
         long mPostTimeNanos;
         private int mDx;
@@ -4505,14 +4508,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 // Query last vsync so we can predict next one. Note that drawing time not yet
                 // valid in animation/input callbacks, so query it here to be safe.
                 long lastFrameVsyncNanos = TimeUnit.MILLISECONDS.toNanos(getDrawingTime());
-                if (lastFrameVsyncNanos == 0) {
-                    // abort - couldn't get last vsync for estimating next
+                if (lastFrameVsyncNanos == 0 || sFrameIntervalNanos == 0) {
+                    // abort - couldn't get info for estimating next vsync
                     return;
                 }
 
                 long nowNanos = System.nanoTime();
-                long nextFrameNanos = lastFrameVsyncNanos + mFrameIntervalNanos;
-                if (nowNanos - mPostTimeNanos > mFrameIntervalNanos
+                long nextFrameNanos = lastFrameVsyncNanos + sFrameIntervalNanos;
+                if (nowNanos - mPostTimeNanos > sFrameIntervalNanos
                         || nextFrameNanos - nowNanos < MIN_PREFETCH_TIME_NANOS) {
                     // abort - Executing either too far after post, or too near next scheduled vsync
                     return;
