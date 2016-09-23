@@ -73,6 +73,7 @@ public class VectorDrawableTest {
             R.drawable.vector_icon_group_clip,
             R.drawable.vector_icon_share,
             R.drawable.vector_icon_wishlist,
+            R.drawable.vector_icon_five_bars,
     };
 
     private static final int[] GOLDEN_IMAGES = new int[]{
@@ -101,6 +102,7 @@ public class VectorDrawableTest {
             R.drawable.vector_icon_group_clip_golden,
             R.drawable.vector_icon_share_golden,
             R.drawable.vector_icon_wishlist_golden,
+            R.drawable.vector_icon_five_bars_golden,
     };
 
     private static final int TEST_ICON = R.drawable.vector_icon_create;
