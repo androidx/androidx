@@ -60,7 +60,7 @@ public class LinearLayoutManagerJankActivity extends LinearLayoutManagerActivity
     }
 
     @Override
-    ConfigToggle[] createConfigToggles() {
+    protected ConfigToggle[] createConfigToggles() {
         return new ConfigToggle[]{
                 new ConfigToggle(this, R.string.enable_bind_slowdown) {
                     @Override

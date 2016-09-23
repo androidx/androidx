@@ -379,9 +379,18 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.NestedRecyclerViewActivity"
+                  android:label="@string/nested_recycler_view"
+                  android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".widget.LinearLayoutManagerActivity"
-            android:label="@string/linear_layout_manager"
-            android:theme="@style/Theme.AppCompat">
+                  android:label="@string/linear_layout_manager"
+                  android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
@@ -389,8 +398,8 @@
         </activity>
 
         <activity android:name=".widget.LinearLayoutManagerJankActivity"
-            android:label="@string/linear_layout_manager"
-            android:theme="@style/Theme.AppCompat">
+                  android:label="@string/linear_layout_manager_jank"
+                  android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />

@@ -36,7 +36,7 @@ public class StaggeredGridLayoutManagerActivity
     }
 
     @Override
-    ConfigToggle[] createConfigToggles() {
+    protected ConfigToggle[] createConfigToggles() {
         return new ConfigToggle[] {
                 new ConfigToggle(this, R.string.vertical) {
                     @Override
