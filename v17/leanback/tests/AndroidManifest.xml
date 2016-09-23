@@ -61,6 +61,15 @@
         <activity android:name="android.support.v17.leanback.app.PlaybackOverlayTestActivity"
                   android:theme="@style/Theme.Leanback"
                   android:exported="true" />
+        <activity
+            android:name="android.support.v17.leanback.app.VerticalGridFragmentTest$ImmediateRemoveFragmentActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Leanback.VerticalGrid" />
+
+        <activity
+            android:name="android.support.v17.leanback.app.VerticalGridSupportFragmentTest$ImmediateRemoveFragmentActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Leanback.VerticalGrid" />
 
     </application>
 

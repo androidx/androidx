@@ -60,13 +60,13 @@ for w in testcls:
             line = line.replace('{}FragmentTestBase'.format(w), '{}SupportFragmentTestBase'.format(w))
             line = line.replace('{}FragmentTestActivity'.format(w), '{}SupportFragmentTestActivity'.format(w))
             line = line.replace('{}TestFragment'.format(w), '{}TestSupportFragment'.format(w))
-        outfile.write(line)
         line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
         line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
+        outfile.write(line)
     file.close()
     outfile.close()
 
-testcls = ['Browse', 'GuidedStep']
+testcls = ['Browse', 'GuidedStep', 'VerticalGrid']
 
 for w in testcls:
     print "copy {}FrgamentTest to {}SupportFragmentTest".format(w, w)
@@ -84,9 +84,11 @@ for w in testcls:
             line = line.replace('{}FragmentTest'.format(w), '{}SupportFragmentTest'.format(w))
             line = line.replace('{}FragmentTestActivity'.format(w), '{}SupportFragmentTestActivity'.format(w))
             line = line.replace('{}TestFragment'.format(w), '{}TestSupportFragment'.format(w))
-        outfile.write(line)
         line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
         line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
+	line = line.replace('extends Activity', 'extends FragmentActivity')
+	line = line.replace('Activity.this.getFragmentManager', 'Activity.this.getSupportFragmentManager')
+        outfile.write(line)
     file.close()
     outfile.close()
 
