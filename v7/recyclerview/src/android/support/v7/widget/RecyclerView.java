@@ -448,6 +448,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private final int[] mScrollConsumed = new int[2];
     private final int[] mNestedOffsets = new int[2];
 
+    /**
+     * These are views that had their a11y importance changed during a layout. We defer these events
+     * until the end of the layout because a11y service may make sync calls back to the RV while
+     * the View's state is undefined.
+     */
+    private final List<ViewHolder> mPendingAccessibilityImportanceChange = new ArrayList();
+
     private Runnable mItemAnimatorRunner = new Runnable() {
         @Override
         public void run() {
@@ -743,7 +750,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             public void onEnteredHiddenState(View child) {
                 final ViewHolder vh = getChildViewHolderInt(child);
                 if (vh != null) {
-                    vh.onEnteredHiddenState();
+                    vh.onEnteredHiddenState(RecyclerView.this);
                 }
             }
 
@@ -751,7 +758,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             public void onLeftHiddenState(View child) {
                 final ViewHolder vh = getChildViewHolderInt(child);
                 if (vh != null) {
-                    vh.onLeftHiddenState();
+                    vh.onLeftHiddenState(RecyclerView.this);
                 }
             }
         });
@@ -2401,6 +2408,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mLayout != null) {
             mLayout.dispatchDetachedFromWindow(this, mRecycler);
         }
+        mPendingAccessibilityImportanceChange.clear();
         removeCallbacks(mItemAnimatorRunner);
         mViewInfoStore.onDetach();
     }
@@ -2999,6 +3007,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             mLayoutOrScrollCounter = 0;
             dispatchContentChangedIfNecessary();
+            dispatchPendingImportantForAccessibilityChanges();
         }
     }
 
@@ -9642,6 +9651,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         static final int FLAG_APPEARED_IN_PRE_LAYOUT = 1 << 12;
 
+        static final int PENDING_ACCESSIBILITY_STATE_NOT_SET = -1;
+
         /**
          * Used when a ViewHolder starts the layout pass as a hidden ViewHolder but is re-used from
          * hidden list (as if it was scrap) without being recycled in between.
@@ -9676,6 +9687,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // marked as unimportant for accessibility.
         private int mWasImportantForAccessibilityBeforeHidden =
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+        // set if we defer the accessibility state change of the view holder
+        private  int mPendingAccessibilityState = PENDING_ACCESSIBILITY_STATE_NOT_SET;
 
         /**
          * Is set when VH is bound from the adapter and cleaned right before it is sent to
@@ -9940,25 +9953,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mShadowingHolder = null;
             clearPayload();
             mWasImportantForAccessibilityBeforeHidden = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+            mPendingAccessibilityState = PENDING_ACCESSIBILITY_STATE_NOT_SET;
         }
 
         /**
          * Called when the child view enters the hidden state
          */
-        private void onEnteredHiddenState() {
+        private void onEnteredHiddenState(RecyclerView parent) {
             // While the view item is in hidden state, make it invisible for the accessibility.
             mWasImportantForAccessibilityBeforeHidden =
                     ViewCompat.getImportantForAccessibility(itemView);
-            ViewCompat.setImportantForAccessibility(itemView,
+            parent.setChildImportantForAccessibilityInternal(this,
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
         }
 
         /**
          * Called when the child view leaves the hidden state
          */
-        private void onLeftHiddenState() {
-            ViewCompat.setImportantForAccessibility(
-                    itemView, mWasImportantForAccessibilityBeforeHidden);
+        private void onLeftHiddenState(RecyclerView parent) {
+            parent.setChildImportantForAccessibilityInternal(this,
+                    mWasImportantForAccessibilityBeforeHidden);
             mWasImportantForAccessibilityBeforeHidden = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
         }
 
@@ -10045,6 +10059,38 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         boolean isUpdated() {
             return (mFlags & FLAG_UPDATE) != 0;
         }
+    }
+
+    /**
+     * This method is here so that we can control the important for a11y changes and test it.
+     */
+    @VisibleForTesting
+    boolean setChildImportantForAccessibilityInternal(ViewHolder viewHolder,
+            int importantForAccessibility) {
+        if (isComputingLayout()) {
+            viewHolder.mPendingAccessibilityState = importantForAccessibility;
+            mPendingAccessibilityImportanceChange.add(viewHolder);
+            return false;
+        }
+        ViewCompat.setImportantForAccessibility(viewHolder.itemView, importantForAccessibility);
+        return true;
+    }
+
+    void dispatchPendingImportantForAccessibilityChanges() {
+        for (int i = mPendingAccessibilityImportanceChange.size() - 1; i >= 0; i --) {
+            ViewHolder viewHolder = mPendingAccessibilityImportanceChange.get(i);
+            if (viewHolder.itemView.getParent() != this || viewHolder.shouldIgnore()) {
+                return;
+            }
+            int state = viewHolder.mPendingAccessibilityState;
+            if (state != ViewHolder.PENDING_ACCESSIBILITY_STATE_NOT_SET) {
+                //noinspection WrongConstant
+                ViewCompat.setImportantForAccessibility(viewHolder.itemView, state);
+                viewHolder.mPendingAccessibilityState =
+                        ViewHolder.PENDING_ACCESSIBILITY_STATE_NOT_SET;
+            }
+        }
+        mPendingAccessibilityImportanceChange.clear();
     }
 
     int getAdapterPositionFor(ViewHolder viewHolder) {
