@@ -206,7 +206,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      * Retrieves the current {@link MediaControllerCompat} for sending media key and volume events.
      *
      * @return The controller which should receive events.
-     * @see #setSupportMediaController(android.support.v4.media.session.MediaController)
+     * @see #setSupportMediaController(android.support.v4.media.session.MediaControllerCompat)
      * @see #getMediaController()
      */
     final public MediaControllerCompat getSupportMediaController() {
