@@ -523,13 +523,21 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mRouteNameTextView.setText(mRoute.getName());
         mDisconnectButton.setVisibility(mRoute.canDisconnect() ? View.VISIBLE : View.GONE);
         if (mCustomControlView == null && mArtIconIsLoaded) {
-            mArtView.setImageBitmap(mArtIconLoadedBitmap);
-            mArtView.setBackgroundColor(mArtIconBackgroundColor);
+            if (isBitmapRecycled(mArtIconLoadedBitmap)) {
+                Log.w(TAG, "Can't set artwork image with recycled bitmap: " + mArtIconLoadedBitmap);
+            } else {
+                mArtView.setImageBitmap(mArtIconLoadedBitmap);
+                mArtView.setBackgroundColor(mArtIconBackgroundColor);
+            }
             clearLoadedBitmap();
         }
         updateVolumeControlLayout();
         updatePlaybackControlLayout();
         updateLayoutHeight(animate);
+    }
+
+    private boolean isBitmapRecycled(Bitmap bitmap) {
+        return bitmap != null && bitmap.isRecycled();
     }
 
     private boolean canShowPlaybackControlLayout() {
@@ -1313,7 +1321,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
         private long mStartTimeMillis;
 
         FetchArtTask() {
-            mIconBitmap = mDescription == null ? null : mDescription.getIconBitmap();
+            Bitmap bitmap = mDescription == null ? null : mDescription.getIconBitmap();
+            if (isBitmapRecycled(bitmap)) {
+                Log.w(TAG, "Can't fetch the given art bitmap because it's already recycled.");
+                bitmap = null;
+            }
+            mIconBitmap = bitmap;
             mIconUri = mDescription == null ? null : mDescription.getIconUri();
         }
 
@@ -1380,6 +1393,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         }
                     }
                 }
+            }
+            if (isBitmapRecycled(art)) {
+                Log.w(TAG, "Can't use recycled bitmap: " + art);
+                return null;
             }
             if (art != null && art.getWidth() < art.getHeight()) {
                 // Portrait art requires dominant color as background color.
