@@ -53,7 +53,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
     private final boolean mFocusOnChild;
     private final boolean mDisableRecovery;
 
-    @Parameterized.Parameters(name = "focusSubChild:{0}, disable:{1}")
+    @Parameterized.Parameters(name = "focusSubChild:{0},disable:{1}")
     public static List<Object[]> getParams() {
         return Arrays.asList(
                 new Object[]{false, false},

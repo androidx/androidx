@@ -34,7 +34,7 @@ import java.util.List;
 
 @RunWith(Parameterized.class)
 public class GridLayoutManagerCustomSizeInScrollDirectionTest extends BaseGridLayoutManagerTest {
-    @Parameterized.Parameters(name = "addDecorOffsets:{1} addMargins:{2} config:{0}")
+    @Parameterized.Parameters(name = "addDecorOffsets:{1},addMargins:{2},config:{0}")
     public static List<Object[]> getParams() {
         List<Object[]> params = new ArrayList<>();
         Boolean[] options = new Boolean[]{true, false};

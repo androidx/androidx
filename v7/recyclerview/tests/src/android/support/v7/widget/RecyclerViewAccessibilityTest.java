@@ -16,9 +16,10 @@
 
 package android.support.v7.widget;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
 import android.support.v4.view.AccessibilityDelegateCompat;
@@ -29,14 +30,13 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 @MediumTest
 @RunWith(Parameterized.class)
@@ -57,7 +57,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         mHorizontalScrollAfter = horizontalScrollAfter;
     }
 
-    @Parameterized.Parameters(name = "vBefore={0} vAfter={1} hBefore={2} hAfter={3}")
+    @Parameterized.Parameters(name = "vBefore={0},vAfter={1},hBefore={2},hAfter={3}")
     public static List<Object[]> getParams() {
         List<Object[]> params = new ArrayList<>();
         for (boolean vBefore : new boolean[]{true, false}) {

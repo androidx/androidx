@@ -16,6 +16,12 @@
 
 package android.support.v7.widget;
 
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.os.Build;
 import android.support.test.filters.SdkSuppress;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -27,11 +33,6 @@ import org.junit.runners.Parameterized;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
@@ -47,7 +48,7 @@ public class GridLayoutManagerCacheTest extends BaseGridLayoutManagerTest {
         mDy = dy;
     }
 
-    @Parameterized.Parameters(name = "config:{0}, dx:{1}, dy:{2}")
+    @Parameterized.Parameters(name = "config:{0},dx:{1},dy:{2}")
     public static List<Object[]> getParams() {
         List<Object[]> result = new ArrayList<>();
         List<Config> configs = createBaseVariations();
