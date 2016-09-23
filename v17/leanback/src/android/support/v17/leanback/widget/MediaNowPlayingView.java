@@ -13,19 +13,20 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.animation.Animator;
-import android.animation.AnimatorInflater;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
+import android.support.v17.leanback.R;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.support.v17.leanback.R;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * The view displaying 3 animated peak meters next to each other when a media item is playing.
@@ -40,6 +41,7 @@ public class MediaNowPlayingView extends LinearLayout{
     private final ObjectAnimator mObjectAnimator1;
     private final ObjectAnimator mObjectAnimator2;
     private final ObjectAnimator mObjectAnimator3;
+    protected final LinearInterpolator mLinearInterpolator = new LinearInterpolator();
 
     public MediaNowPlayingView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -57,17 +59,31 @@ public class MediaNowPlayingView extends LinearLayout{
         setDropScale(mImage2);
         setDropScale(mImage3);
 
-        mObjectAnimator1 = (ObjectAnimator) AnimatorInflater.loadAnimator(context,
-                R.animator.lb_playback_now_bar1_animator);
-        mObjectAnimator1.setTarget(mImage1);
+        mObjectAnimator1 = ObjectAnimator.ofFloat(mImage1, "scaleY", 5f / 12f, 3f / 12f, 5f / 12f,
+                7f / 12f, 9f / 12f, 10f / 12f, 11f / 12f, 12f / 12f, 11f / 12f, 12f / 12f,
+                10f / 12f, 8f / 12f, 6f / 12f, 4f / 12f, 2f / 12f, 4f / 12f, 6f / 12f, 7f / 12f,
+                9f / 12f, 11f / 12f, 9f / 12f, 7f / 12f, 5f / 12f, 3f / 12f, 5f / 12f, 8f / 12f,
+                5f / 12f, 3f / 12f, 4f / 12f, 5f / 12f);
+        mObjectAnimator1.setRepeatCount(ValueAnimator.INFINITE);
+        mObjectAnimator1.setDuration(2320);
+        mObjectAnimator1.setInterpolator(mLinearInterpolator);
 
-        mObjectAnimator2 = (ObjectAnimator) AnimatorInflater.loadAnimator(context,
-                R.animator.lb_playback_now_bar2_animator);
-        mObjectAnimator2.setTarget(mImage2);
+        mObjectAnimator2 = ObjectAnimator.ofFloat(mImage2, "scaleY", 12f / 12f, 11f / 12f,
+                10f / 12f, 11f / 12f, 12f / 12f, 11f / 12f, 9f / 12f, 7f / 12f, 9f / 12f, 11f / 12f,
+                12f / 12f, 10f / 12f, 8f / 12f, 10f / 12f, 12f / 12f, 11f / 12f, 9f / 12f, 5f / 12f,
+                3f / 12f, 5f / 12f, 8f / 12f, 10f / 12f, 12f / 12f, 10f / 12f, 9f / 12f, 8f / 12f,
+                12f / 12f);
+        mObjectAnimator2.setRepeatCount(ValueAnimator.INFINITE);
+        mObjectAnimator2.setDuration(2080);
+        mObjectAnimator2.setInterpolator(mLinearInterpolator);
 
-        mObjectAnimator3 = (ObjectAnimator) AnimatorInflater.loadAnimator(context,
-                R.animator.lb_playback_now_bar3_animator);
-        mObjectAnimator3.setTarget(mImage3);
+        mObjectAnimator3 = ObjectAnimator.ofFloat(mImage3, "scaleY", 8f / 12f, 9f / 12f, 10f / 12f,
+                12f / 12f, 11f / 12f, 9f / 12f, 7f / 12f, 5f / 12f, 7f / 12f, 8f / 12f, 9f / 12f,
+                12f / 12f, 11f / 12f, 12f / 12f, 9f / 12f, 7f / 12f, 9f / 12f, 11f / 12f, 12f / 12f,
+                10f / 12f, 8f / 12f, 9f / 12f, 7f / 12f, 5f / 12f, 3f / 12f, 8f / 12f);
+        mObjectAnimator3.setRepeatCount(ValueAnimator.INFINITE);
+        mObjectAnimator3.setDuration(2000);
+        mObjectAnimator3.setInterpolator(mLinearInterpolator);
     }
 
     static void setDropScale(View view) {
