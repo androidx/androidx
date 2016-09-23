@@ -1810,7 +1810,8 @@ public class ViewCompat {
     static class Api24ViewCompatImpl extends MarshmallowViewCompatImpl {
         @Override
         public void setPointerIcon(View view, PointerIconCompat pointerIconCompat) {
-            ViewCompatApi24.setPointerIcon(view, pointerIconCompat.getPointerIcon());
+            ViewCompatApi24.setPointerIcon(view,
+                    pointerIconCompat != null ? pointerIconCompat.getPointerIcon() : null);
         }
     }
 
