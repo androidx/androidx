@@ -90,7 +90,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     RowsSupportFragment mRowsSupportFragment;
-
+    private DetailsParallaxManager mDetailsParallaxManager;
     private ObjectAdapter mAdapter;
     private int mContainerListAlignTop;
     BaseOnItemViewSelectedListener mExternalOnItemViewSelectedListener;
@@ -426,5 +426,17 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     @Override
     protected void onEntranceTransitionStart() {
         mRowsSupportFragment.onTransitionStart();
+    }
+
+    /**
+     * Returns the {@link DetailsParallaxManager} instance used to configure
+     * {@link android.support.v17.leanback.widget.Parallax} instance.
+     */
+    public DetailsParallaxManager getParallaxManager() {
+        if (mDetailsParallaxManager == null) {
+            mDetailsParallaxManager = new DetailsParallaxManager(
+                    getRowsSupportFragment().getVerticalGridView());
+        }
+        return mDetailsParallaxManager;
     }
 }

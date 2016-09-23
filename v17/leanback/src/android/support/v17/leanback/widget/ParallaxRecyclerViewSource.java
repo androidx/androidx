@@ -131,9 +131,12 @@ public class ParallaxRecyclerViewSource extends
             ViewHolder viewHolder =
                     recyclerView.findViewHolderForAdapterPosition(mAdapterPosition);
             if (viewHolder == null) {
-                View firstChild = recyclerView.getChildAt(0);
-                ViewHolder vh = recyclerView.findContainingViewHolder(
-                        firstChild);
+                if (recyclerView.getLayoutManager().getChildCount() == 0) {
+                    source.setPropertyValue(getIndex(), IntProperty.UNKNOWN_AFTER);
+                    return;
+                }
+                View firstChild = recyclerView.getLayoutManager().getChildAt(0);
+                ViewHolder vh = recyclerView.findContainingViewHolder(firstChild);
                 int firstPosition = vh.getAdapterPosition();
                 if (firstPosition < mAdapterPosition) {
                     source.setPropertyValue(getIndex(), IntProperty.UNKNOWN_AFTER);
