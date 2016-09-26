@@ -2821,6 +2821,11 @@ public final class MediaRouter {
                 final Object obj = msg.obj;
                 final int arg = msg.arg1;
 
+                if (what == MSG_ROUTE_CHANGED
+                        && getSelectedRoute().getId().equals(((RouteInfo) obj).getId())) {
+                    updateSelectedRouteIfNeeded(true);
+                }
+
                 // Synchronize state with the system media router.
                 syncWithSystemProvider(what, obj);
 
