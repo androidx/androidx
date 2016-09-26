@@ -13,13 +13,16 @@
  */
 package android.support.v17.leanback.widget;
 
-import static android.support.v7.widget.RecyclerView.LayoutManager;
-import static android.support.v7.widget.RecyclerView.OnScrollListener;
-import static android.support.v7.widget.RecyclerView.ViewHolder;
-
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.support.v7.widget.RecyclerView.LayoutManager;
+import static android.support.v7.widget.RecyclerView.OnScrollListener;
+import static android.support.v7.widget.RecyclerView.ViewHolder;
 
 /**
  * Implementation of {@link ParallaxSource} class for {@link RecyclerView}. This class
@@ -131,12 +134,9 @@ public class ParallaxRecyclerViewSource extends
             ViewHolder viewHolder =
                     recyclerView.findViewHolderForAdapterPosition(mAdapterPosition);
             if (viewHolder == null) {
-                if (recyclerView.getLayoutManager().getChildCount() == 0) {
-                    source.setPropertyValue(getIndex(), IntProperty.UNKNOWN_AFTER);
-                    return;
-                }
-                View firstChild = recyclerView.getLayoutManager().getChildAt(0);
-                ViewHolder vh = recyclerView.findContainingViewHolder(firstChild);
+                View firstChild = recyclerView.getChildAt(0);
+                ViewHolder vh = recyclerView.findContainingViewHolder(
+                        firstChild);
                 int firstPosition = vh.getAdapterPosition();
                 if (firstPosition < mAdapterPosition) {
                     source.setPropertyValue(getIndex(), IntProperty.UNKNOWN_AFTER);
