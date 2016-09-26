@@ -68,10 +68,10 @@ package android.support.design.widget {
     method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, android.view.View, android.view.View);
   }
 
-  public class BottomSheetBehavior extends android.support.design.widget.CoordinatorLayout.Behavior {
+  public class BottomSheetBehavior<V extends android.view.View> extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public BottomSheetBehavior();
     ctor public BottomSheetBehavior(android.content.Context, android.util.AttributeSet);
-    method public static android.support.design.widget.BottomSheetBehavior<V> from(V);
+    method public static <V extends android.view.View> android.support.design.widget.BottomSheetBehavior<V> from(V);
     method public final int getPeekHeight();
     method public boolean getSkipCollapsed();
     method public final int getState();
@@ -192,7 +192,7 @@ package android.support.design.widget {
     method public void setStatusBarBackgroundResource(int);
   }
 
-  public static abstract class CoordinatorLayout.Behavior {
+  public static abstract class CoordinatorLayout.Behavior<V extends android.view.View> {
     ctor public CoordinatorLayout.Behavior();
     ctor public CoordinatorLayout.Behavior(android.content.Context, android.util.AttributeSet);
     method public boolean blocksInteractionBelow(android.support.design.widget.CoordinatorLayout, V);
@@ -280,7 +280,7 @@ package android.support.design.widget {
     method public void onShown(android.support.design.widget.FloatingActionButton);
   }
 
-   abstract class HeaderBehavior extends android.support.design.widget.ViewOffsetBehavior {
+   abstract class HeaderBehavior<V extends android.view.View> extends android.support.design.widget.ViewOffsetBehavior {
     ctor public HeaderBehavior();
     ctor public HeaderBehavior(android.content.Context, android.util.AttributeSet);
   }
@@ -361,7 +361,7 @@ package android.support.design.widget {
     field public static final int DISMISS_EVENT_TIMEOUT = 2; // 0x2
   }
 
-  public class SwipeDismissBehavior extends android.support.design.widget.CoordinatorLayout.Behavior {
+  public class SwipeDismissBehavior<V extends android.view.View> extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public SwipeDismissBehavior();
     method public boolean canSwipeDismissView(android.view.View);
     method public int getDragState();
@@ -498,7 +498,7 @@ package android.support.design.widget {
     method public void setTypeface(android.graphics.Typeface);
   }
 
-   class ViewOffsetBehavior extends android.support.design.widget.CoordinatorLayout.Behavior {
+   class ViewOffsetBehavior<V extends android.view.View> extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public ViewOffsetBehavior();
     ctor public ViewOffsetBehavior(android.content.Context, android.util.AttributeSet);
     method public int getLeftAndRightOffset();
