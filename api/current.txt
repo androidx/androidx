@@ -312,6 +312,38 @@ package android.support.design.widget {
     method public boolean onRequestChildRectangleOnScreen(android.support.design.widget.CoordinatorLayout, android.view.View, android.graphics.Rect, boolean);
   }
 
+  public abstract class BaseTransientBottomBar<B extends android.support.design.widget.BaseTransientBottomBar<B>> {
+    ctor protected BaseTransientBottomBar(android.view.ViewGroup, android.view.View, android.support.design.widget.BaseTransientBottomBar.ContentViewCallback);
+    method public void dismiss();
+    method public android.content.Context getContext();
+    method public int getDuration();
+    method public android.view.View getView();
+    method public boolean isShown();
+    method public boolean isShownOrQueued();
+    method public B setCallback(android.support.design.widget.BaseTransientBottomBar.BaseCallback);
+    method public B setDuration(int);
+    method public void show();
+    field public static final int LENGTH_INDEFINITE = -2; // 0xfffffffe
+    field public static final int LENGTH_LONG = 0; // 0x0
+    field public static final int LENGTH_SHORT = -1; // 0xffffffff
+  }
+
+  public static abstract class BaseTransientBottomBar.BaseCallback<B> {
+    ctor public BaseTransientBottomBar.BaseCallback();
+    method public void onDismissed(B, int);
+    method public void onShown(B);
+    field public static final int DISMISS_EVENT_ACTION = 1; // 0x1
+    field public static final int DISMISS_EVENT_CONSECUTIVE = 4; // 0x4
+    field public static final int DISMISS_EVENT_MANUAL = 3; // 0x3
+    field public static final int DISMISS_EVENT_SWIPE = 0; // 0x0
+    field public static final int DISMISS_EVENT_TIMEOUT = 2; // 0x2
+  }
+
+  public static abstract interface BaseTransientBottomBar.ContentViewCallback {
+    method public abstract void animateContentIn(int, int);
+    method public abstract void animateContentOut(int, int);
+  }
+
   public class BottomNavigationView extends android.widget.FrameLayout {
     ctor public BottomNavigationView(android.content.Context);
     ctor public BottomNavigationView(android.content.Context, android.util.AttributeSet);
@@ -604,37 +636,19 @@ package android.support.design.widget {
     field public android.os.Bundle menuState;
   }
 
-  public final class Snackbar {
-    method public void dismiss();
-    method public int getDuration();
-    method public android.view.View getView();
-    method public boolean isShown();
-    method public boolean isShownOrQueued();
+  public final class Snackbar extends android.support.design.widget.BaseTransientBottomBar {
     method public static android.support.design.widget.Snackbar make(android.view.View, java.lang.CharSequence, int);
     method public static android.support.design.widget.Snackbar make(android.view.View, int, int);
     method public android.support.design.widget.Snackbar setAction(int, android.view.View.OnClickListener);
     method public android.support.design.widget.Snackbar setAction(java.lang.CharSequence, android.view.View.OnClickListener);
     method public android.support.design.widget.Snackbar setActionTextColor(android.content.res.ColorStateList);
     method public android.support.design.widget.Snackbar setActionTextColor(int);
-    method public android.support.design.widget.Snackbar setCallback(android.support.design.widget.Snackbar.Callback);
-    method public android.support.design.widget.Snackbar setDuration(int);
     method public android.support.design.widget.Snackbar setText(java.lang.CharSequence);
     method public android.support.design.widget.Snackbar setText(int);
-    method public void show();
-    field public static final int LENGTH_INDEFINITE = -2; // 0xfffffffe
-    field public static final int LENGTH_LONG = 0; // 0x0
-    field public static final int LENGTH_SHORT = -1; // 0xffffffff
   }
 
-  public static abstract class Snackbar.Callback {
+  public static class Snackbar.Callback extends android.support.design.widget.BaseTransientBottomBar.BaseCallback {
     ctor public Snackbar.Callback();
-    method public void onDismissed(android.support.design.widget.Snackbar, int);
-    method public void onShown(android.support.design.widget.Snackbar);
-    field public static final int DISMISS_EVENT_ACTION = 1; // 0x1
-    field public static final int DISMISS_EVENT_CONSECUTIVE = 4; // 0x4
-    field public static final int DISMISS_EVENT_MANUAL = 3; // 0x3
-    field public static final int DISMISS_EVENT_SWIPE = 0; // 0x0
-    field public static final int DISMISS_EVENT_TIMEOUT = 2; // 0x2
   }
 
   public class SwipeDismissBehavior<V extends android.view.View> extends android.support.design.widget.CoordinatorLayout.Behavior {
