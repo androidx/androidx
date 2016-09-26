@@ -19,13 +19,15 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.BoundsRule;
 import android.support.v17.leanback.graphics.CompositeDrawable;
 import android.support.v17.leanback.graphics.FitWidthBitmapDrawable;
 import android.support.v17.leanback.widget.Parallax;
+import android.support.v17.leanback.widget.Parallax;
 import android.support.v17.leanback.widget.ParallaxRecyclerViewSource;
+import android.support.v17.leanback.widget.ParallaxSource;
+import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 
 /**
@@ -49,17 +51,18 @@ import android.util.TypedValue;
  * parallax -
  *
  * <ul>
- * <li>First users should use {@link ParallaxBuilder} class to set the appropriate attributes
- * and call build() to create an instance of {@link DetailsBackgroundParallaxHelper}.
- * Users must set {@link DetailsParallaxManager} on {@link ParallaxBuilder} for it to obtain the
- * {@link Parallax} instance. Finally they should set the drawable obtained by calling
- * {@link #getDrawable} as the background of their current activity.
+ * <li>First users should use
+ * {@link ParallaxBuilder} class to set the appropriate attributes and call build() to
+ * create an instance of {@link DetailsBackgroundParallaxHelper}. Users must set the RecyclerView
+ * instance on {@link ParallaxBuilder}. Then they should set the drawable obtained by
+ * calling {@link #getDrawable} as the background of their current activity.
  * <pre>
  * {@code
  *     public void onStart() {
  *         super.onStart();
  *         mParallaxHelper = DetailsBackgroundParallaxHelper.ParallaxBuilder
- *             .newBuilder(parallaxManager, context)
+ *             .newBuilder()
+ *             .setRecyclerView(getRowsFragment().getVerticalGridView())
  *             .setBitmapMinVerticalOffset(-300)
  *             .build();
  *          mBackgroundManager.setDrawable(mParallaxHelper.getDrawable());
@@ -82,16 +85,18 @@ import android.util.TypedValue;
  * In case the color is not set, it will use defaultBrandColorDark from LeanbackTheme.
  */
 public final class DetailsBackgroundParallaxHelper {
-    private DetailsParallaxManager mDetailsParallaxManager;
+    private final RecyclerView mRecyclerView;
+    private Parallax mParallax;
     private CompositeDrawable mCompositeDrawable;
     private FitWidthBitmapDrawable mFitWidthBitmapDrawable;
     private ColorDrawable mSolidColorDrawable;
     private int mBitmapMinVerticalOffset;
 
     private DetailsBackgroundParallaxHelper(
-            DetailsParallaxManager detailsParallaxManager,
+            RecyclerView recyclerView,
             int bitmapMinVerticalOffset,
             int color) {
+        this.mRecyclerView = recyclerView;
         this.mBitmapMinVerticalOffset = bitmapMinVerticalOffset;
         mCompositeDrawable = new CompositeDrawable();
         mFitWidthBitmapDrawable = new FitWidthBitmapDrawable();
@@ -99,7 +104,6 @@ public final class DetailsBackgroundParallaxHelper {
         mCompositeDrawable.addChildDrawable(mFitWidthBitmapDrawable);
         mCompositeDrawable.addChildDrawable(mSolidColorDrawable);
         mCompositeDrawable.getChildAt(1).getBoundsRule().mTop = BoundsRule.inheritFromParent(1f);
-        mDetailsParallaxManager = detailsParallaxManager;
         setupParallaxEffect();
     }
 
@@ -111,22 +115,15 @@ public final class DetailsBackgroundParallaxHelper {
         private int mBitmapMinVerticalOffset = -100;
         private int mColor;
         private boolean mIsColorSet;
-        private final DetailsParallaxManager mDetailsParallaxManager;
-        private final Context mContext;
+        private RecyclerView mRecyclerView;
+
+        private ParallaxBuilder() {}
 
         /**
          * Returns an instance of itself.
-         *
-         * @param detailsParallaxManager class responsible for creating {@link Parallax} instance.
-         * @param context Context used for loading resources.
          */
-        public ParallaxBuilder(@NonNull Context context,
-                               @NonNull DetailsParallaxManager detailsParallaxManager) {
-            if (detailsParallaxManager == null || context == null) {
-                throw new IllegalArgumentException("Must set DetailsParallaxManager and Context.");
-            }
-            this.mDetailsParallaxManager = detailsParallaxManager;
-            this.mContext = context;
+        public static ParallaxBuilder newBuilder() {
+            return new ParallaxBuilder();
         }
 
         /**
@@ -149,15 +146,28 @@ public final class DetailsBackgroundParallaxHelper {
         }
 
         /**
+         * Sets the RecyclerView used in the
+         * {@link android.support.v17.leanback.app.DetailsFragment}.
+         */
+        public ParallaxBuilder setRecyclerView(RecyclerView recyclerView) {
+            this.mRecyclerView = recyclerView;
+            return this;
+        }
+
+        /**
          * Builds and returns an instance of {@link DetailsBackgroundParallaxHelper}.
          */
         public DetailsBackgroundParallaxHelper build() {
+            if (mRecyclerView == null) {
+                throw new IllegalArgumentException("Must set RecyclerView!!!");
+            }
+
             if (!mIsColorSet) {
-                mColor = getDefaultBackgroundColor(mContext);
+                mColor = getDefaultBackgroundColor(mRecyclerView.getContext());
             }
 
             return new DetailsBackgroundParallaxHelper(
-                    mDetailsParallaxManager, mBitmapMinVerticalOffset, mColor);
+                    mRecyclerView, mBitmapMinVerticalOffset, mColor);
         }
 
         private int getDefaultBackgroundColor(Context context) {
@@ -194,20 +204,29 @@ public final class DetailsBackgroundParallaxHelper {
         mSolidColorDrawable.setColor(color);
     }
 
-    /**
-     * Sets up the cover image parallax effect in {@link DetailsFragment}.
-     */
     private void setupParallaxEffect() {
+        ParallaxRecyclerViewSource parallaxSource = new ParallaxRecyclerViewSource(
+                mRecyclerView);
+        // track the top edge of details_frame of first item of adapter
+        ParallaxRecyclerViewSource.ChildPositionProperty frameTop = parallaxSource
+                .addProperty("frameTop")
+                .adapterPosition(0)
+                .viewId(R.id.details_frame);
+
+        // track the bottom edge of details_frame of first item of adapter
+        ParallaxRecyclerViewSource.ChildPositionProperty frameBottom = parallaxSource
+                .addProperty("frameBottom")
+                .adapterPosition(0)
+                .viewId(R.id.details_frame)
+                .fraction(1.0f);
+
+        mParallax = new Parallax();
+        mParallax.setSource(parallaxSource);
+
         // Add bitmap parallax effect:
         // When frameTop moves from half of the screen to top of the screen,
         // change vertical offset of Bitmap from 0 to -100
-
-        Parallax parallax = mDetailsParallaxManager.getParallax();
-        ParallaxRecyclerViewSource.ChildPositionProperty frameTop =
-                mDetailsParallaxManager.getFrameTop();
-        ParallaxRecyclerViewSource.ChildPositionProperty frameBottom =
-                mDetailsParallaxManager.getFrameBottom();
-        parallax.addEffect(frameTop.atFraction(0.5f), frameTop.atFraction(0f))
+        mParallax.addEffect(frameTop.atFraction(0.5f), frameTop.atFraction(0f))
                 .target(mFitWidthBitmapDrawable,
                     PropertyValuesHolder.ofInt("verticalOffset", 0, mBitmapMinVerticalOffset))
                 .target(mCompositeDrawable.getChildAt(0),
@@ -217,9 +236,10 @@ public final class DetailsBackgroundParallaxHelper {
         // Add solid color parallax effect:
         // When frameBottom moves from bottom of the screen to top of the screen,
         // change solid ColorDrawable's top from bottom of screen to top of the screen.
-        parallax.addEffect(frameBottom.atFraction(1f), frameBottom.atFraction(0f))
+        mParallax.addEffect(frameBottom.atFraction(1f), frameBottom.atFraction(0f))
                 .target(mCompositeDrawable.getChildAt(1),
                         PropertyValuesHolder.ofFloat(
                                 CompositeDrawable.ChildDrawable.TOP_FRACTION, 1f, 0f));
     }
 }
+
