@@ -42,17 +42,35 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @SmallTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 @RunWith(AndroidJUnit4.class)
 public class RecyclerViewCacheTest {
-    RecyclerView mRecyclerView;
+    TimeMockingRecyclerView mRecyclerView;
     RecyclerView.Recycler mRecycler;
+
+    private class TimeMockingRecyclerView extends RecyclerView {
+        private long mMockNanoTime = 0;
+
+        TimeMockingRecyclerView(Context context) {
+            super(context);
+        }
+
+        public void registerTimePassingMs(long ms) {
+            mMockNanoTime += TimeUnit.MILLISECONDS.toNanos(ms);
+        }
+
+        @Override
+        long getNanoTime() {
+            return mMockNanoTime;
+        }
+    };
 
     @Before
     public void setUp() throws Exception {
-        mRecyclerView = new RecyclerView(getContext());
+        mRecyclerView = new TimeMockingRecyclerView(getContext());
         mRecycler = mRecyclerView.mRecycler;
     }
 
@@ -110,10 +128,7 @@ public class RecyclerViewCacheTest {
 
         // Prefetch multiple times...
         for (int i = 0; i < 4; i++) {
-            int[] itemPrefetchArray = new int[] {-1, -1, -1};
-            int viewCount = prefetchingLayoutManager.gatherPrefetchIndices(1, 1,
-                    mRecyclerView.mState, itemPrefetchArray);
-            mRecycler.prefetch(itemPrefetchArray, viewCount);
+            GapWorker.layoutPrefetch(RecyclerView.FOREVER_NS, mRecyclerView);
 
             // ...but should only see the same three items fetched/bound once each
             verify(mockAdapter, times(3)).onCreateViewHolder(any(ViewGroup.class), anyInt());
@@ -159,7 +174,7 @@ public class RecyclerViewCacheTest {
         mRecyclerView.layout(0, 0, 320, 320);
 
         mRecyclerView.mPrefetchArray = new int[] { 0, 1, 2 };
-        mRecycler.prefetch(mRecyclerView.mPrefetchArray, 3);
+        GapWorker.layoutPrefetchImpl(Long.MAX_VALUE, mRecycler, mRecyclerView.mPrefetchArray, 3);
         verifyCacheContainsPositions(0, 1, 2);
 
         // further views recycled, as though from scrolling, shouldn't evict prefetched views:
@@ -216,10 +231,9 @@ public class RecyclerViewCacheTest {
         assertTrue(mRecycler.mCachedViews.isEmpty());
 
         // rows 0, 1, and 2 are all attached and visible. Prefetch row 3:
-        mRecyclerView.mPrefetchArray = new int[] {-1, -1, -1};
-        int viewCount = mRecyclerView.getLayoutManager().gatherPrefetchIndices(0, 1,
-                mRecyclerView.mState, mRecyclerView.mPrefetchArray);
-        mRecycler.prefetch(mRecyclerView.mPrefetchArray, viewCount);
+        mRecyclerView.mPrefetchDx = 0;
+        mRecyclerView.mPrefetchDy = 1;
+        GapWorker.layoutPrefetch(RecyclerView.FOREVER_NS, mRecyclerView);
 
         // row 3 is cached:
         verifyCacheContainsPositions(9, 10, 11);
@@ -231,5 +245,62 @@ public class RecyclerViewCacheTest {
         // row 3 is still cached, with a couple other recycled views:
         verifyCacheContainsPositions(9, 10, 11);
         assertTrue(mRecycler.mCachedViews.size() == 5);
+    }
+
+    @Test
+    public void prefetchItemsRespectDeadline() {
+        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+
+        // 100x100 pixel views
+        RecyclerView.Adapter adapter = new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                mRecyclerView.registerTimePassingMs(5);
+                View view = new View(getContext());
+                view.setMinimumWidth(100);
+                view.setMinimumHeight(100);
+                RecyclerView.ViewHolder holder = new RecyclerView.ViewHolder(view) {};
+                return holder;
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                mRecyclerView.registerTimePassingMs(5);
+            }
+
+            @Override
+            public int getItemCount() {
+                return 100;
+            }
+        };
+        mRecyclerView.setAdapter(adapter);
+
+        mRecyclerView.measure(View.MeasureSpec.AT_MOST | 300, View.MeasureSpec.AT_MOST | 300);
+        mRecyclerView.layout(0, 0, 300, 300);
+
+        assertTrue(mRecycler.mCachedViews.size() == 0);
+        assertTrue(mRecyclerView.getRecycledViewPool().getRecycledViewCount(0) == 0);
+
+        // Should take 15 ms to inflate, bind, inflate, so give 19 to be safe
+        final long deadlineNs = mRecyclerView.getNanoTime() + TimeUnit.MILLISECONDS.toNanos(19);
+
+        // Timed prefetch
+        mRecyclerView.mPrefetchDx = 0;
+        mRecyclerView.mPrefetchDy = 1;
+        GapWorker.layoutPrefetch(deadlineNs, mRecyclerView);
+
+        // will have enough time to inflate/bind one view, and inflate another
+        assertTrue(mRecycler.mCachedViews.size() == 1);
+        assertTrue(mRecyclerView.getRecycledViewPool().getRecycledViewCount(0) == 1);
+        verifyCacheContainsPositions(11); // Note: order/view here is an implementation detail
+
+
+        // Unbounded prefetch this time
+        GapWorker.layoutPrefetch(RecyclerView.FOREVER_NS, mRecyclerView);
+
+        // Should finish all work
+        assertTrue(mRecycler.mCachedViews.size() == 3);
+        assertTrue(mRecyclerView.getRecycledViewPool().getRecycledViewCount(0) == 0);
+        verifyCacheContainsPositions(9, 10, 11);
     }
 }
