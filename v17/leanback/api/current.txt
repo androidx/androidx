@@ -131,7 +131,7 @@ package android.support.v17.leanback.app {
     method public void onHeadersTransitionStop(boolean);
   }
 
-  public static abstract class BrowseFragment.FragmentFactory {
+  public static abstract class BrowseFragment.FragmentFactory<T extends android.app.Fragment> {
     ctor public BrowseFragment.FragmentFactory();
     method public abstract T createFragment(java.lang.Object);
   }
@@ -147,7 +147,7 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.app.RowsFragment createFragment(java.lang.Object);
   }
 
-  public static class BrowseFragment.MainFragmentAdapter {
+  public static class BrowseFragment.MainFragmentAdapter<T extends android.app.Fragment> {
     ctor public BrowseFragment.MainFragmentAdapter(T);
     method public final T getFragment();
     method public final android.support.v17.leanback.app.BrowseFragment.FragmentHost getFragmentHost();
@@ -172,7 +172,7 @@ package android.support.v17.leanback.app {
     method public void registerFragment(java.lang.Class, android.support.v17.leanback.app.BrowseFragment.FragmentFactory);
   }
 
-  public static class BrowseFragment.MainFragmentRowsAdapter {
+  public static class BrowseFragment.MainFragmentRowsAdapter<T extends android.app.Fragment> {
     ctor public BrowseFragment.MainFragmentRowsAdapter(T);
     method public final T getFragment();
     method public int getSelectedPosition();
@@ -232,7 +232,7 @@ package android.support.v17.leanback.app {
     method public void onHeadersTransitionStop(boolean);
   }
 
-  public static abstract class BrowseSupportFragment.FragmentFactory {
+  public static abstract class BrowseSupportFragment.FragmentFactory<T extends android.support.v4.app.Fragment> {
     ctor public BrowseSupportFragment.FragmentFactory();
     method public abstract T createFragment(java.lang.Object);
   }
@@ -248,7 +248,7 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.app.RowsSupportFragment createFragment(java.lang.Object);
   }
 
-  public static class BrowseSupportFragment.MainFragmentAdapter {
+  public static class BrowseSupportFragment.MainFragmentAdapter<T extends android.support.v4.app.Fragment> {
     ctor public BrowseSupportFragment.MainFragmentAdapter(T);
     method public final T getFragment();
     method public final android.support.v17.leanback.app.BrowseSupportFragment.FragmentHost getFragmentHost();
@@ -273,7 +273,7 @@ package android.support.v17.leanback.app {
     method public void registerFragment(java.lang.Class, android.support.v17.leanback.app.BrowseSupportFragment.FragmentFactory);
   }
 
-  public static class BrowseSupportFragment.MainFragmentRowsAdapter {
+  public static class BrowseSupportFragment.MainFragmentRowsAdapter<T extends android.support.v4.app.Fragment> {
     ctor public BrowseSupportFragment.MainFragmentRowsAdapter(T);
     method public final T getFragment();
     method public int getSelectedPosition();
@@ -1022,7 +1022,7 @@ package android.support.v17.leanback.widget {
     method public int removeItems(int, int);
     method public void replace(int, java.lang.Object);
     method public int size();
-    method public java.util.List<E> unmodifiableList();
+    method public <E> java.util.List<E> unmodifiableList();
   }
 
   public class BaseCardView extends android.widget.FrameLayout {
@@ -1057,11 +1057,11 @@ package android.support.v17.leanback.widget {
     field public int viewType;
   }
 
-  public abstract interface BaseOnItemViewClickedListener {
+  public abstract interface BaseOnItemViewClickedListener<T> {
     method public abstract void onItemClicked(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object, android.support.v17.leanback.widget.RowPresenter.ViewHolder, T);
   }
 
-  public abstract interface BaseOnItemViewSelectedListener {
+  public abstract interface BaseOnItemViewSelectedListener<T> {
     method public abstract void onItemSelected(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object, android.support.v17.leanback.widget.RowPresenter.ViewHolder, T);
   }
 
@@ -1359,7 +1359,7 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedAction build();
   }
 
-  public static abstract class GuidedAction.BuilderBase {
+  public static abstract class GuidedAction.BuilderBase<B extends android.support.v17.leanback.widget.GuidedAction.BuilderBase> {
     ctor public GuidedAction.BuilderBase(android.content.Context);
     method protected final void applyValues(android.support.v17.leanback.widget.GuidedAction);
     method public B autoSaveRestoreEnabled(boolean);
@@ -1477,7 +1477,7 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedDatePickerAction build();
   }
 
-  public static abstract class GuidedDatePickerAction.BuilderBase extends android.support.v17.leanback.widget.GuidedAction.BuilderBase {
+  public static abstract class GuidedDatePickerAction.BuilderBase<B extends android.support.v17.leanback.widget.GuidedDatePickerAction.BuilderBase> extends android.support.v17.leanback.widget.GuidedAction.BuilderBase {
     ctor public GuidedDatePickerAction.BuilderBase(android.content.Context);
     method protected final void applyDatePickerValues(android.support.v17.leanback.widget.GuidedDatePickerAction);
     method public B date(long);
