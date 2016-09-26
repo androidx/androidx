@@ -8237,7 +8237,7 @@ package android.support.v7.app {
     method public boolean showDialog();
   }
 
-  public class MediaRouteChooserDialog extends android.app.Dialog {
+  public class MediaRouteChooserDialog extends android.support.v7.app.AppCompatDialog {
     ctor public MediaRouteChooserDialog(android.content.Context);
     ctor public MediaRouteChooserDialog(android.content.Context, int);
     method public android.support.v7.media.MediaRouteSelector getRouteSelector();
