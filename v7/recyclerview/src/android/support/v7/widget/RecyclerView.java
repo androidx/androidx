@@ -17,6 +17,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Observable;
@@ -80,10 +82,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-import static android.support.v7.widget.AdapterHelper.Callback;
-import static android.support.v7.widget.AdapterHelper.UpdateOp;
 
 /**
  * A flexible view for providing a limited window into a large data set.
@@ -765,7 +763,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     void initAdapterManager() {
-        mAdapterHelper = new AdapterHelper(new Callback() {
+        mAdapterHelper = new AdapterHelper(new AdapterHelper.Callback() {
             @Override
             public ViewHolder findViewHolder(int position) {
                 final ViewHolder vh = findViewHolderForPosition(position, true);
@@ -803,30 +801,30 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
 
             @Override
-            public void onDispatchFirstPass(UpdateOp op) {
+            public void onDispatchFirstPass(AdapterHelper.UpdateOp op) {
                 dispatchUpdate(op);
             }
 
-            void dispatchUpdate(UpdateOp op) {
+            void dispatchUpdate(AdapterHelper.UpdateOp op) {
                 switch (op.cmd) {
-                    case UpdateOp.ADD:
+                    case AdapterHelper.UpdateOp.ADD:
                         mLayout.onItemsAdded(RecyclerView.this, op.positionStart, op.itemCount);
                         break;
-                    case UpdateOp.REMOVE:
+                    case AdapterHelper.UpdateOp.REMOVE:
                         mLayout.onItemsRemoved(RecyclerView.this, op.positionStart, op.itemCount);
                         break;
-                    case UpdateOp.UPDATE:
+                    case AdapterHelper.UpdateOp.UPDATE:
                         mLayout.onItemsUpdated(RecyclerView.this, op.positionStart, op.itemCount,
                                 op.payload);
                         break;
-                    case UpdateOp.MOVE:
+                    case AdapterHelper.UpdateOp.MOVE:
                         mLayout.onItemsMoved(RecyclerView.this, op.positionStart, op.itemCount, 1);
                         break;
                 }
             }
 
             @Override
-            public void onDispatchSecondPass(UpdateOp op) {
+            public void onDispatchSecondPass(AdapterHelper.UpdateOp op) {
                 dispatchUpdate(op);
             }
 
@@ -1573,8 +1571,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         // if it is only an item change (no add-remove-notifyDataSetChanged) we can check if any
         // of the visible items is affected and if not, just ignore the change.
-        if (mAdapterHelper.hasAnyUpdateTypes(UpdateOp.UPDATE) && !mAdapterHelper
-                .hasAnyUpdateTypes(UpdateOp.ADD | UpdateOp.REMOVE | UpdateOp.MOVE)) {
+        if (mAdapterHelper.hasAnyUpdateTypes(AdapterHelper.UpdateOp.UPDATE) && !mAdapterHelper
+                .hasAnyUpdateTypes(AdapterHelper.UpdateOp.ADD | AdapterHelper.UpdateOp.REMOVE
+                        | AdapterHelper.UpdateOp.MOVE)) {
             TraceCompat.beginSection(TRACE_HANDLE_ADAPTER_UPDATES_TAG);
             eatRequestLayout();
             mAdapterHelper.preProcess();
