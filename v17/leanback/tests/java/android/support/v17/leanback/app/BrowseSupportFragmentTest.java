@@ -64,7 +64,6 @@ public class BrowseSupportFragmentTest {
 
         Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
 
-        assertNotNull(mActivity.getBrowseTestSupportFragment().getMainFragment());
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
         Thread.sleep(TRANSITION_LENGTH);
         sendKeys(KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_BACK);
@@ -80,7 +79,6 @@ public class BrowseSupportFragmentTest {
 
         Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
 
-        assertNotNull(mActivity.getBrowseTestSupportFragment().getMainFragment());
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
         Thread.sleep(TRANSITION_LENGTH);
         sendKeys(KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_BACK);
@@ -94,7 +92,6 @@ public class BrowseSupportFragmentTest {
         intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
         mActivity = activityTestRule.launchActivity(intent);
 
-        assertNull(mActivity.getBrowseTestSupportFragment().getMainFragment());
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
     }
 
