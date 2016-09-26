@@ -19,7 +19,6 @@ package android.support.v7.app;
 import static android.support.v7.media.MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED;
 import static android.support.v7.media.MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTING;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -60,7 +59,7 @@ import java.util.List;
  * @see MediaRouteButton
  * @see MediaRouteActionProvider
  */
-public class MediaRouteChooserDialog extends Dialog {
+public class MediaRouteChooserDialog extends AppCompatDialog {
     static final String TAG = "MediaRouteChooserDialog";
 
     // Do not update the route list immediately to avoid unnatural dialog change.
@@ -70,6 +69,7 @@ public class MediaRouteChooserDialog extends Dialog {
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
 
+    private TextView mTitleView;
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
     private ArrayList<MediaRouter.RouteInfo> mRoutes;
     private RouteAdapter mAdapter;
@@ -166,11 +166,20 @@ public class MediaRouteChooserDialog extends Dialog {
     }
 
     @Override
+    public void setTitle(CharSequence title) {
+        mTitleView.setText(title);
+    }
+
+    @Override
+    public void setTitle(int titleId) {
+        mTitleView.setText(titleId);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.mr_chooser_dialog);
-        setTitle(R.string.mr_chooser_title);
 
         mRoutes = new ArrayList<>();
         mAdapter = new RouteAdapter(getContext(), mRoutes);
@@ -178,6 +187,7 @@ public class MediaRouteChooserDialog extends Dialog {
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(mAdapter);
         mListView.setEmptyView(findViewById(android.R.id.empty));
+        mTitleView = (TextView) findViewById(R.id.mr_chooser_title);
 
         updateLayout();
     }
