@@ -555,7 +555,7 @@
 
     <declare-styleable name="PagingIndicator">
         <!-- Attributes for the radius of the dot. -->
-        <attr name="dotRadius" format="reference" />
+        <attr name="lbDotRadius" format="reference" />
         <!-- Attributes for the radius of the arrow. -->
         <attr name="arrowRadius" format="reference" />
         <!-- Attributes for the distance between the centers of the adjacent dots. -->
