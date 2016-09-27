@@ -100,10 +100,10 @@ public class GridLayoutManagerCacheTest extends BaseGridLayoutManagerTest {
                 @Override
                 public void run() {
                     mRecyclerView.mRecycler.recycleAndClearCachedViews();
-                    mRecyclerView.mViewPrefetcher.postFromTraversal(mDx, mDy);
+                    mRecyclerView.mGapWorker.postFromTraversal(mRecyclerView, mDx, mDy);
 
                     // Lie about post time, so prefetch executes even if it is delayed
-                    mRecyclerView.mViewPrefetcher.mPostTimeNanos += TimeUnit.SECONDS.toNanos(5);
+                    mRecyclerView.mGapWorker.mPostTimeNs += TimeUnit.SECONDS.toNanos(5);
                 }
             });
             mGlm.waitForPrefetch(1);
