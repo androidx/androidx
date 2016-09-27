@@ -89,11 +89,10 @@ public final class AppCompatDrawableManager {
     private static void installDefaultInflateDelegates(@NonNull AppCompatDrawableManager manager) {
         final int sdk = Build.VERSION.SDK_INT;
         // This sdk version check will affect src:appCompat code path.
+        // Although VectorDrawable exists in Android framework from Lollipop, AppCompat will use the
+        // VectorDrawableCompat before Nougat to utilize the bug fixes in VectorDrawableCompat.
         if (sdk < 24) {
-            // We only want to use the automatic VectorDrawableCompat handling where it's
-            // needed: on devices running before Lollipop
             manager.addDelegate("vector", new VdcInflateDelegate());
-
             if (sdk >= 11) {
                 // AnimatedVectorDrawableCompat only works on API v11+
                 manager.addDelegate("animated-vector", new AvdcInflateDelegate());
