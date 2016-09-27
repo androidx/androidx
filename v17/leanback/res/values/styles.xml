@@ -731,7 +731,7 @@
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:focusable">true</item>
         <item name="android:contentDescription">@string/lb_onboarding_accessibility_next</item>
-        <item name="dotRadius">@dimen/lb_page_indicator_dot_radius</item>
+        <item name="lbDotRadius">@dimen/lb_page_indicator_dot_radius</item>
         <item name="arrowRadius">@dimen/lb_page_indicator_arrow_radius</item>
         <item name="dotToDotGap">@dimen/lb_page_indicator_dot_gap</item>
         <item name="dotToArrowGap">@dimen/lb_page_indicator_arrow_gap</item>
