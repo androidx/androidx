@@ -88,9 +88,6 @@ public class BottomNavigationItemView extends FrameLayout implements MenuView.It
         mIcon = (ImageView) findViewById(R.id.icon);
         mSmallLabel = (TextView) findViewById(R.id.smallLabel);
         mLargeLabel = (TextView) findViewById(R.id.largeLabel);
-
-        ViewCompat.setPointerIcon(this,
-                PointerIconCompat.getSystemIcon(getContext(), PointerIconCompat.TYPE_HAND));
     }
 
     @Override
@@ -196,6 +193,14 @@ public class BottomNavigationItemView extends FrameLayout implements MenuView.It
         mSmallLabel.setEnabled(enabled);
         mLargeLabel.setEnabled(enabled);
         mIcon.setEnabled(enabled);
+
+        if (enabled) {
+            ViewCompat.setPointerIcon(this,
+                    PointerIconCompat.getSystemIcon(getContext(), PointerIconCompat.TYPE_HAND));
+        } else {
+            ViewCompat.setPointerIcon(this, null);
+        }
+
     }
 
     @Override
