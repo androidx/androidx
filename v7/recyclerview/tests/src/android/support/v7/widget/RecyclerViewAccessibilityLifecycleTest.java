@@ -16,21 +16,23 @@
 
 package android.support.v7.widget;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.view.ViewGroup;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInstrumentationTest {
     @Test

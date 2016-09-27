@@ -17,26 +17,6 @@
 package android.support.v7.widget;
 
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import android.graphics.Rect;
-import android.os.Looper;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.support.v4.view.ViewCompat;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewParent;
-
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import static android.support.v7.widget.LayoutState.LAYOUT_START;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
@@ -49,6 +29,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
+import android.graphics.Rect;
+import android.os.Looper;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.test.filters.MediumTest;
+import android.support.v4.view.ViewCompat;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewParent;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @RunWith(Parameterized.class)
 @MediumTest

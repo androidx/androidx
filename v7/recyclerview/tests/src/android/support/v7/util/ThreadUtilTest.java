@@ -16,15 +16,18 @@
 
 package android.support.v7.util;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.os.Looper;
 import android.support.annotation.UiThread;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;

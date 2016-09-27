@@ -21,12 +21,12 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.CompositeDrawable;
 import android.support.v17.leanback.graphics.FitWidthBitmapDrawable;
 import android.support.v17.leanback.testutils.PollingCheck;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 
 import org.junit.Rule;

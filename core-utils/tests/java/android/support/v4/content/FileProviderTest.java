@@ -28,10 +28,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.content.FileProvider.SimplePathStrategy;
 import android.test.MoreAsserts;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;

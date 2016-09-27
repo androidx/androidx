@@ -16,19 +16,21 @@
 
 package android.support.v7.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import android.support.annotation.UiThread;
+import android.support.test.filters.MediumTest;
+import android.util.SparseBooleanArray;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import android.support.annotation.UiThread;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.util.SparseBooleanArray;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import static org.junit.Assert.*;
 
 @MediumTest
 @RunWith(JUnit4.class)

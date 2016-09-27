@@ -33,8 +33,8 @@ import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.assertion.ViewAssertions;
 import android.support.test.espresso.matcher.ViewMatchers;
+import android.support.test.filters.MediumTest;
 import android.support.v7.widget.AppCompatTextView;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 import android.widget.FrameLayout;
 

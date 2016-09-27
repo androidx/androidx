@@ -26,10 +26,10 @@ import static android.support.v7.testutils.TestUtilsMatchers.isBackground;
 
 import static org.junit.Assert.assertFalse;
 
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.Suppress;
 import android.support.v7.appcompat.test.R;
-import android.test.suitebuilder.annotation.MediumTest;
 
 import org.junit.Before;
 import org.junit.Test;

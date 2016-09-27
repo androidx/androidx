@@ -16,6 +16,10 @@
 
 package android.support.graphics.drawable.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -25,15 +29,16 @@ import android.support.annotation.DrawableRes;
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.graphics.drawable.animated.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 import android.view.View;
 import android.widget.ImageButton;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,8 +51,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.*;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)

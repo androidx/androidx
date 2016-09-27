@@ -29,8 +29,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import android.graphics.Rect;
+import android.support.test.filters.MediumTest;
 import android.support.v4.view.ViewCompat;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;

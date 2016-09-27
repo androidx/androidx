@@ -16,19 +16,21 @@
 
 package android.support.design.widget;
 
+import static android.support.design.testutils.TestUtilsActions.addTabs;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
+import static org.junit.Assert.assertEquals;
+
 import android.os.SystemClock;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.design.test.R;
 import android.support.design.testutils.Cheeses;
-import android.test.suitebuilder.annotation.LargeTest;
-import android.test.suitebuilder.annotation.MediumTest;
-import org.junit.Test;
+import android.support.test.filters.LargeTest;
+import android.support.test.filters.MediumTest;
 
-import static android.support.design.testutils.TestUtilsActions.addTabs;
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 @MediumTest
 public class AppBarWithToolbarAndTabsTest extends AppBarLayoutBaseTest {

@@ -20,13 +20,12 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
+import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.LargeTest;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.FragmentTestActivity.ChildFragment;
 import android.support.v4.app.test.FragmentTestActivity.ParentFragment;
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.LargeTest;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

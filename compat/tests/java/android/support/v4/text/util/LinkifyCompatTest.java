@@ -22,9 +22,9 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.util.PatternsCompat;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.URLSpan;

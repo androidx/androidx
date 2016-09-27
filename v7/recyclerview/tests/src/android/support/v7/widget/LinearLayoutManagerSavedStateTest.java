@@ -22,7 +22,7 @@ import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.test.InstrumentationRegistry;
-import android.test.suitebuilder.annotation.LargeTest;
+import android.support.test.filters.LargeTest;
 import android.util.Log;
 
 import org.junit.Test;

@@ -18,11 +18,11 @@ package android.support.v4.app;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.support.fragment.test.R;
+import android.support.test.filters.MediumTest;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.FragmentTestActivity.TestFragment;
 import android.support.v4.view.ViewCompat;
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 
 @MediumTest

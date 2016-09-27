@@ -16,20 +16,20 @@
 
 package android.support.v4.view;
 
+import static org.junit.Assert.assertTrue;
+
 import android.app.Activity;
 import android.support.compat.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.v4.BaseInstrumentationTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @MediumTest
 public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<VpaActivity> {

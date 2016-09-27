@@ -23,8 +23,8 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 import android.os.Build;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
-import android.test.suitebuilder.annotation.MediumTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -15,6 +15,11 @@
  */
 package android.support.v7.widget;
 
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
+import static org.junit.Assert.assertNull;
+
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
@@ -22,6 +27,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.test.filters.SmallTest;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.BaseInstrumentationTestCase;
@@ -30,15 +36,11 @@ import android.support.v7.testutils.AppCompatTintableViewActions;
 import android.support.v7.testutils.BaseTestActivity;
 import android.support.v7.testutils.TestUtils;
 import android.support.v7.testutils.TestUtilsActions;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.view.ViewGroup;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static org.junit.Assert.assertNull;
 
 /**
  * Base class for testing custom view extensions in appcompat-v7 that implement the

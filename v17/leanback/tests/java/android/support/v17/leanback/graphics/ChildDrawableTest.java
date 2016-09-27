@@ -22,8 +22,8 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

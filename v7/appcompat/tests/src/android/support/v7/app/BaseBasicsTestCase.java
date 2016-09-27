@@ -35,15 +35,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import android.os.Build;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.SmallTest;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.custom.FitWindowsContentLayout;
 import android.support.v7.testutils.BaseTestActivity;
 import android.support.v7.testutils.TestUtils;
 import android.support.v7.view.ActionMode;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.Menu;
 import android.view.View;
 import android.view.WindowInsets;

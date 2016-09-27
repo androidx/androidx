@@ -17,6 +17,16 @@
 
 package android.support.v4.app;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertSame;
+import static junit.framework.Assert.assertTrue;
+
+import static org.junit.Assert.assertNotEquals;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,17 +35,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.fragment.test.R;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.EmptyFragmentTestActivity;
 import android.support.v4.view.ViewCompat;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-
 import android.widget.TextView;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,15 +53,6 @@ import org.junit.runner.RunWith;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNotSame;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertSame;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNotEquals;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest

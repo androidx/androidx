@@ -21,8 +21,7 @@ import static android.support.design.testutils.TestUtilsActions.setEnabled;
 import static android.support.design.testutils.TestUtilsMatchers.withCompoundDrawable;
 import static android.support.design.testutils.TextInputLayoutActions.setError;
 import static android.support.design.testutils.TextInputLayoutActions.setErrorEnabled;
-import static android.support.design.testutils.TextInputLayoutActions
-        .setPasswordVisibilityToggleEnabled;
+import static android.support.design.testutils.TextInputLayoutActions.setPasswordVisibilityToggleEnabled;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.typeText;
@@ -46,7 +45,7 @@ import android.support.design.test.R;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.ViewAssertion;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.support.test.filters.SmallTest;
 import android.view.View;
 import android.widget.EditText;
 

@@ -17,11 +17,11 @@ package android.support.v4.app;
 
 import android.os.Bundle;
 import android.support.fragment.test.R;
+import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.filters.SmallTest;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

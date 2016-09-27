@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 import android.app.Activity;
 import android.support.design.test.R;
 import android.support.test.InstrumentationRegistry;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.support.test.filters.SmallTest;
 
 import org.junit.Test;
 

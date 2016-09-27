@@ -21,7 +21,7 @@ import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_
 import static org.junit.Assert.assertNull;
 
 import android.graphics.Rect;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

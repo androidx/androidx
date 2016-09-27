@@ -20,13 +20,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidedAction;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.KeyEvent;
 
 import org.junit.Before;

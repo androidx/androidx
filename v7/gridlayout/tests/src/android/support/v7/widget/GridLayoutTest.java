@@ -16,24 +16,25 @@
 
 package android.support.v7.widget;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.gridlayout.test.R;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

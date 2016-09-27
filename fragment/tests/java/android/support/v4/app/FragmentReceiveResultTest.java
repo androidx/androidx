@@ -15,22 +15,21 @@
  */
 package android.support.v4.app;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
+
 import android.app.Activity;
-import android.app.Instrumentation;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.app.test.FragmentResultActivity;
 import android.support.v4.app.test.FragmentTestActivity;
-import android.support.fragment.test.R;
-import android.test.suitebuilder.annotation.SmallTest;
-
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-import static junit.framework.TestCase.fail;
 
 import org.junit.Before;
 import org.junit.Test;

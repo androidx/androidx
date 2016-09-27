@@ -18,9 +18,9 @@ package android.support.v17.leanback.app;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v17.leanback.widget.ParallaxRecyclerViewSource;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Before;
 import org.junit.Rule;

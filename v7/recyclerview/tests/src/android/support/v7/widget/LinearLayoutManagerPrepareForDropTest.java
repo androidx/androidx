@@ -16,21 +16,20 @@
 
 package android.support.v7.widget;
 
-import org.junit.After;
-import org.junit.Before;
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
+import android.support.test.filters.MediumTest;
+import android.view.View;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import android.support.test.InstrumentationRegistry;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.view.View;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManagerTest {
