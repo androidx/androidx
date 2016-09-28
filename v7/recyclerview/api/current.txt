@@ -39,7 +39,7 @@ package android.support.v7.recyclerview {
 
 package android.support.v7.util {
 
-  public class AsyncListUtil {
+  public class AsyncListUtil<T> {
     ctor public AsyncListUtil(java.lang.Class<T>, int, android.support.v7.util.AsyncListUtil.DataCallback<T>, android.support.v7.util.AsyncListUtil.ViewCallback);
     method public T getItem(int);
     method public int getItemCount();
@@ -47,7 +47,7 @@ package android.support.v7.util {
     method public void refresh();
   }
 
-  public static abstract class AsyncListUtil.DataCallback {
+  public static abstract class AsyncListUtil.DataCallback<T> {
     ctor public AsyncListUtil.DataCallback();
     method public abstract void fillData(T[], int, int);
     method public int getMaxCachedTiles();
@@ -66,7 +66,7 @@ package android.support.v7.util {
     field public static final int HINT_SCROLL_NONE = 0; // 0x0
   }
 
-  public class SortedList {
+  public class SortedList<T> {
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>);
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>, int);
     method public int add(T);
@@ -86,7 +86,7 @@ package android.support.v7.util {
     field public static final int INVALID_POSITION = -1; // 0xffffffff
   }
 
-  public static class SortedList.BatchedCallback extends android.support.v7.util.SortedList.Callback {
+  public static class SortedList.BatchedCallback<T2> extends android.support.v7.util.SortedList.Callback {
     ctor public SortedList.BatchedCallback(android.support.v7.util.SortedList.Callback<T2>);
     method public boolean areContentsTheSame(T2, T2);
     method public boolean areItemsTheSame(T2, T2);
@@ -98,7 +98,7 @@ package android.support.v7.util {
     method public void onRemoved(int, int);
   }
 
-  public static abstract class SortedList.Callback implements java.util.Comparator {
+  public static abstract class SortedList.Callback<T2> implements java.util.Comparator {
     ctor public SortedList.Callback();
     method public abstract boolean areContentsTheSame(T2, T2);
     method public abstract boolean areItemsTheSame(T2, T2);
@@ -340,7 +340,7 @@ package android.support.v7.widget {
     field public static final int VERTICAL = 1; // 0x1
   }
 
-  public static abstract class RecyclerView.Adapter {
+  public static abstract class RecyclerView.Adapter<VH extends android.support.v7.widget.RecyclerView.ViewHolder> {
     ctor public RecyclerView.Adapter();
     method public final void bindViewHolder(VH, int);
     method public final VH createViewHolder(android.view.ViewGroup, int);
@@ -700,7 +700,7 @@ package android.support.v7.widget {
   public static class RecyclerView.State {
     ctor public RecyclerView.State();
     method public boolean didStructureChange();
-    method public T get(int);
+    method public <T> T get(int);
     method public int getItemCount();
     method public int getTargetScrollPosition();
     method public boolean hasTargetScrollPosition();
@@ -882,7 +882,7 @@ package android.support.v7.widget.helper {
 
 package android.support.v7.widget.util {
 
-  public abstract class SortedListAdapterCallback extends android.support.v7.util.SortedList.Callback {
+  public abstract class SortedListAdapterCallback<T2> extends android.support.v7.util.SortedList.Callback {
     ctor public SortedListAdapterCallback(android.support.v7.widget.RecyclerView.Adapter);
     method public void onChanged(int, int);
     method public void onInserted(int, int);

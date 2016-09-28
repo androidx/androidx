@@ -316,7 +316,7 @@ package android.support.v4.app {
     method public android.os.Parcelable saveAllState();
   }
 
-  public abstract class FragmentHostCallback extends android.support.v4.app.FragmentContainer {
+  public abstract class FragmentHostCallback<E> extends android.support.v4.app.FragmentContainer {
     ctor public FragmentHostCallback(android.content.Context, android.os.Handler, int);
     method public void onDump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public android.view.View onFindViewById(int);
@@ -454,13 +454,13 @@ package android.support.v4.app {
     method public abstract void destroyLoader(int);
     method public abstract void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public static void enableDebugLogging(boolean);
-    method public abstract android.support.v4.content.Loader<D> getLoader(int);
+    method public abstract <D> android.support.v4.content.Loader<D> getLoader(int);
     method public boolean hasRunningLoaders();
-    method public abstract android.support.v4.content.Loader<D> initLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
-    method public abstract android.support.v4.content.Loader<D> restartLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
+    method public abstract <D> android.support.v4.content.Loader<D> initLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
+    method public abstract <D> android.support.v4.content.Loader<D> restartLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
   }
 
-  public static abstract interface LoaderManager.LoaderCallbacks {
+  public static abstract interface LoaderManager.LoaderCallbacks<D> {
     method public abstract android.support.v4.content.Loader<D> onCreateLoader(int, android.os.Bundle);
     method public abstract void onLoadFinished(android.support.v4.content.Loader<D>, D);
     method public abstract void onLoaderReset(android.support.v4.content.Loader<D>);
@@ -972,7 +972,7 @@ package android.support.v4.app {
 
 package android.support.v4.content {
 
-  public abstract class AsyncTaskLoader extends android.support.v4.content.Loader {
+  public abstract class AsyncTaskLoader<D> extends android.support.v4.content.Loader {
     ctor public AsyncTaskLoader(android.content.Context);
     method public void cancelLoadInBackground();
     method public boolean isLoadInBackgroundCanceled();
@@ -1047,7 +1047,7 @@ package android.support.v4.content {
     field public static final int FLAG_ACTIVITY_TASK_ON_HOME = 16384; // 0x4000
   }
 
-  public class Loader {
+  public class Loader<D> {
     ctor public Loader(android.content.Context);
     method public void abandon();
     method public boolean cancelLoad();
@@ -1084,11 +1084,11 @@ package android.support.v4.content {
     ctor public Loader.ForceLoadContentObserver();
   }
 
-  public static abstract interface Loader.OnLoadCanceledListener {
+  public static abstract interface Loader.OnLoadCanceledListener<D> {
     method public abstract void onLoadCanceled(android.support.v4.content.Loader<D>);
   }
 
-  public static abstract interface Loader.OnLoadCompleteListener {
+  public static abstract interface Loader.OnLoadCompleteListener<D> {
     method public abstract void onLoadComplete(android.support.v4.content.Loader<D>, D);
   }
 
@@ -1219,7 +1219,7 @@ package android.support.v4.graphics.drawable {
     method public static void setTint(android.graphics.drawable.Drawable, int);
     method public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList);
     method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode);
-    method public static T unwrap(android.graphics.drawable.Drawable);
+    method public static <T extends android.graphics.drawable.Drawable> T unwrap(android.graphics.drawable.Drawable);
     method public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
   }
 
@@ -1378,7 +1378,7 @@ package android.support.v4.media {
     field public static final java.lang.String EXTRA_SUGGESTED = "android.service.media.extra.SUGGESTED";
   }
 
-  public static class MediaBrowserServiceCompat.Result {
+  public static class MediaBrowserServiceCompat.Result<T> {
     method public void detach();
     method public void sendResult(T);
   }
@@ -1862,7 +1862,7 @@ package android.support.v4.net {
 package android.support.v4.os {
 
   public final class AsyncTaskCompat {
-    method public static android.os.AsyncTask<Params, Progress, Result> executeParallel(android.os.AsyncTask<Params, Progress, Result>, Params...);
+    method public static <Params, Progress, Result> android.os.AsyncTask<Params, Progress, Result> executeParallel(android.os.AsyncTask<Params, Progress, Result>, Params...);
   }
 
   public class BuildCompat {
@@ -1893,10 +1893,10 @@ package android.support.v4.os {
   }
 
   public final class ParcelableCompat {
-    method public static android.os.Parcelable.Creator<T> newCreator(android.support.v4.os.ParcelableCompatCreatorCallbacks<T>);
+    method public static <T> android.os.Parcelable.Creator<T> newCreator(android.support.v4.os.ParcelableCompatCreatorCallbacks<T>);
   }
 
-  public abstract interface ParcelableCompatCreatorCallbacks {
+  public abstract interface ParcelableCompatCreatorCallbacks<T> {
     method public abstract T createFromParcel(android.os.Parcel, java.lang.ClassLoader);
     method public abstract T[] newArray(int);
   }
@@ -2021,7 +2021,7 @@ package android.support.v4.text {
 
 package android.support.v4.util {
 
-  public class ArrayMap extends android.support.v4.util.SimpleArrayMap implements java.util.Map {
+  public class ArrayMap<K, V> extends android.support.v4.util.SimpleArrayMap implements java.util.Map {
     ctor public ArrayMap();
     ctor public ArrayMap(int);
     ctor public ArrayMap(android.support.v4.util.SimpleArrayMap);
@@ -2045,7 +2045,7 @@ package android.support.v4.util {
     method public java.io.FileOutputStream startWrite() throws java.io.IOException;
   }
 
-  public final class CircularArray {
+  public final class CircularArray<E> {
     ctor public CircularArray();
     ctor public CircularArray(int);
     method public void addFirst(E);
@@ -2079,7 +2079,7 @@ package android.support.v4.util {
     method public int size();
   }
 
-  public class LongSparseArray {
+  public class LongSparseArray<E> {
     ctor public LongSparseArray();
     ctor public LongSparseArray(int);
     method public void append(long, E);
@@ -2099,7 +2099,7 @@ package android.support.v4.util {
     method public E valueAt(int);
   }
 
-  public class LruCache {
+  public class LruCache<K, V> {
     ctor public LruCache(int);
     method protected V create(K);
     method public final synchronized int createCount();
@@ -2121,9 +2121,9 @@ package android.support.v4.util {
     method public void trimToSize(int);
   }
 
-  public class Pair {
+  public class Pair<F, S> {
     ctor public Pair(F, S);
-    method public static android.support.v4.util.Pair<A, B> create(A, B);
+    method public static <A, B> android.support.v4.util.Pair<A, B> create(A, B);
     field public final F first;
     field public final S second;
   }
@@ -2131,22 +2131,22 @@ package android.support.v4.util {
   public final class Pools {
   }
 
-  public static abstract interface Pools.Pool {
+  public static abstract interface Pools.Pool<T> {
     method public abstract T acquire();
     method public abstract boolean release(T);
   }
 
-  public static class Pools.SimplePool implements android.support.v4.util.Pools.Pool {
+  public static class Pools.SimplePool<T> implements android.support.v4.util.Pools.Pool {
     ctor public Pools.SimplePool(int);
     method public T acquire();
     method public boolean release(T);
   }
 
-  public static class Pools.SynchronizedPool extends android.support.v4.util.Pools.SimplePool {
+  public static class Pools.SynchronizedPool<T> extends android.support.v4.util.Pools.SimplePool {
     ctor public Pools.SynchronizedPool(int);
   }
 
-  public class SimpleArrayMap {
+  public class SimpleArrayMap<K, V> {
     ctor public SimpleArrayMap();
     ctor public SimpleArrayMap(int);
     ctor public SimpleArrayMap(android.support.v4.util.SimpleArrayMap);
@@ -2167,7 +2167,7 @@ package android.support.v4.util {
     method public V valueAt(int);
   }
 
-  public class SparseArrayCompat {
+  public class SparseArrayCompat<E> {
     ctor public SparseArrayCompat();
     ctor public SparseArrayCompat(int);
     method public void append(int, E);
