@@ -15,17 +15,13 @@
  */
 package android.support.v17.leanback.widget;
 
-import org.junit.Assert;
-import org.junit.runner.RunWith;
-import org.junit.Test;
-
-import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Testing StaggeredGridDefault algorithm

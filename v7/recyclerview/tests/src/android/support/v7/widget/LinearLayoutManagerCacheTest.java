@@ -22,8 +22,8 @@ import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static org.junit.Assert.assertEquals;
 
 import android.os.Build;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
-import android.test.suitebuilder.annotation.MediumTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

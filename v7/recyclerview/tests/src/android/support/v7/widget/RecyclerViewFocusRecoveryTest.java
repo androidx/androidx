@@ -24,8 +24,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.test.filters.MediumTest;
 import android.support.v7.recyclerview.test.R;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

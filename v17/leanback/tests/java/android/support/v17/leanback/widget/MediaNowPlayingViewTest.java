@@ -15,15 +15,15 @@
  */
 package android.support.v17.leanback.widget;
 
-
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 /**
  * Testing MediaNowPlayingView widget
  */

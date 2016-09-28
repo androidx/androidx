@@ -16,25 +16,27 @@
 
 package android.support.v7.widget;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import android.content.Context;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.util.AsyncListUtil;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.Context;
-import android.support.test.runner.AndroidJUnit4;
-import android.support.v7.util.AsyncListUtil;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
 import java.util.BitSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import static org.junit.Assert.*;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)

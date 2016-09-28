@@ -33,10 +33,10 @@ import static org.mockito.Mockito.verify;
 import android.app.Instrumentation;
 import android.support.design.testutils.CoordinatorLayoutUtils;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Gravity;
 import android.view.View;
 

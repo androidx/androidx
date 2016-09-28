@@ -17,7 +17,7 @@
 package android.support.v7.app;
 
 import android.support.test.annotation.UiThreadTest;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.support.test.filters.SmallTest;
 
 import org.junit.Test;
 

@@ -17,11 +17,11 @@
 
 package android.support.v4.app;
 
+import android.support.test.filters.SmallTest;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.FragmentTestActivity.ParentFragment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.SmallTest;
 
 @SmallTest
 public class ChildFragmentStateTest extends ActivityInstrumentationTestCase2<FragmentTestActivity> {

@@ -16,21 +16,23 @@
 
 package android.support.v7.widget;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
+import android.support.test.filters.MediumTest;
+import android.util.Log;
+import android.view.View;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import android.util.Log;
-import android.view.View;
 
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
+@MediumTest
 @RunWith(Parameterized.class)
 public class GridLayoutManagerBaseConfigSetTest extends BaseGridLayoutManagerTest {
     @Parameterized.Parameters(name = "{0}")

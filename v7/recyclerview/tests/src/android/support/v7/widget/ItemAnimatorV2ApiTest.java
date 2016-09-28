@@ -31,9 +31,8 @@ import static org.junit.Assert.fail;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.view.View;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;

@@ -15,19 +15,21 @@
  */
 package android.support.percent;
 
-import android.os.Build;
-import android.support.percent.test.R;
-import android.support.v4.view.ViewCompat;
-import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.view.View;
-import org.junit.Before;
-import org.junit.Test;
-
 import static android.support.percent.LayoutDirectionActions.setLayoutDirection;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static org.junit.Assume.*;
+
+import static org.junit.Assume.assumeTrue;
+
+import android.os.Build;
+import android.support.percent.test.R;
+import android.support.test.filters.SmallTest;
+import android.support.v4.view.ViewCompat;
+import android.view.View;
+
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * The arrangement of child views in the layout class in the default LTR (left-to-right) direction
  * is as follows:

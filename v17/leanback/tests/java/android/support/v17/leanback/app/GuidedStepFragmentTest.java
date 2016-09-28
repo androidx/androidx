@@ -15,42 +15,38 @@
  */
 package android.support.v17.leanback.app;
 
-import android.content.Intent;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import android.os.Bundle;
-import android.support.v17.leanback.testutils.PollingCheck;
-import android.view.ViewGroup;
-import android.view.View;
-import android.view.LayoutInflater;
-import android.view.KeyEvent;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
-
-import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
-import android.support.v17.leanback.widget.GuidedAction;
-
-import android.support.test.espresso.Espresso;
-import android.support.test.espresso.matcher.RootMatchers;
-import android.support.test.espresso.action.ViewActions;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.v17.leanback.testutils.PollingCheck;
+import android.support.v17.leanback.widget.GuidedAction;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.mockito.ArgumentCaptor;
-import org.mockito.stubbing.Answer;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
-
 /**
  * @hide from javadoc
  */
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
 

@@ -16,7 +16,6 @@
 
 package android.support.v7.widget;
 
-
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 
@@ -24,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.support.test.filters.MediumTest;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -34,6 +34,7 @@ import org.junit.runners.Parameterized;
 import java.util.ArrayList;
 import java.util.List;
 
+@MediumTest
 @RunWith(Parameterized.class)
 public class GridLayoutManagerRtlTest extends BaseGridLayoutManagerTest {
 

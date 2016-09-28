@@ -16,19 +16,22 @@
 package android.support.v7.widget;
 
 
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+
+import static org.junit.Assert.assertEquals;
+
+import android.support.test.filters.MediumTest;
+import android.view.View;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import android.view.View;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static org.junit.Assert.assertEquals;
-
+@MediumTest
 @RunWith(Parameterized.class)
 public class GridLayoutManagerCachedBordersTest extends BaseGridLayoutManagerTest {
 

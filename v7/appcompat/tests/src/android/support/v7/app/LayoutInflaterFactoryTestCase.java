@@ -16,12 +16,14 @@
 
 package android.support.v7.app;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
+import android.support.test.filters.SmallTest;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.custom.ContextWrapperFrameLayout;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
@@ -33,15 +35,13 @@ import android.support.v7.widget.AppCompatMultiAutoCompleteTextView;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.AppCompatSpinner;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 public class LayoutInflaterFactoryTestCase
         extends BaseInstrumentationTestCase<LayoutInflaterFactoryTestActivity> {

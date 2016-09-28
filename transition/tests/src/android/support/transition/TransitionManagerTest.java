@@ -23,8 +23,8 @@ import static org.hamcrest.Matchers.sameInstance;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.MediumTest;
 import android.support.transition.test.R;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.ViewGroup;
 
 import org.junit.Before;

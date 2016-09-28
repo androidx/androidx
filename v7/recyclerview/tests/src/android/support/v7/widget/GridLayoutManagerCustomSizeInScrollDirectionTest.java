@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
+import android.support.test.filters.MediumTest;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -32,6 +33,7 @@ import org.junit.runners.Parameterized;
 import java.util.ArrayList;
 import java.util.List;
 
+@MediumTest
 @RunWith(Parameterized.class)
 public class GridLayoutManagerCustomSizeInScrollDirectionTest extends BaseGridLayoutManagerTest {
     @Parameterized.Parameters(name = "addDecorOffsets:{1},addMargins:{2},config:{0}")

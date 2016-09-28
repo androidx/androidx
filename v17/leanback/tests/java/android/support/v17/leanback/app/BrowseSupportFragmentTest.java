@@ -26,11 +26,11 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.KeyEvent;
 
 import org.junit.Rule;

@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import android.app.Instrumentation;
 import android.support.design.testutils.CoordinatorLayoutUtils;
 import android.support.test.InstrumentationRegistry;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
 import android.view.View;
 
 import org.junit.Test;

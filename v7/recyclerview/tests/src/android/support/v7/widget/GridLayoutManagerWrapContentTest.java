@@ -15,7 +15,8 @@
  */
 package android.support.v7.widget;
 
-import static android.support.v7.widget.BaseWrapContentWithAspectRatioTest.AspectRatioMeasureBehavior;
+import static android.support.v7.widget.BaseWrapContentWithAspectRatioTest
+        .AspectRatioMeasureBehavior;
 import static android.support.v7.widget.BaseWrapContentWithAspectRatioTest.MeasureBehavior;
 import static android.support.v7.widget.BaseWrapContentWithAspectRatioTest.WrapContentAdapter;
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
@@ -26,8 +27,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import android.app.Activity;
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Gravity;
 import android.view.View;
 

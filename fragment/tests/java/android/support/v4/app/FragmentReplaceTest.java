@@ -15,28 +15,28 @@
  */
 package android.support.v4.app;
 
+import static junit.framework.Assert.assertEquals;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.Instrumentation;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.FragmentTestActivity.TestFragment;
-import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.KeyEvent;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * Test to prevent regressions in SupportFragmentManager fragment replace method. See b/24693644

@@ -20,6 +20,7 @@ import static junit.framework.TestCase.assertTrue;
 
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
@@ -32,6 +33,7 @@ import org.junit.runner.RunWith;
 /**
  * Tests usage of the {@link FragmentTransaction} class.
  */
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class FragmentTransactionTest {
 

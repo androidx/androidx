@@ -16,6 +16,19 @@
 
 package android.support.v7.widget;
 
+import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_APPEAR;
+import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_DISAPPEARED;
+import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_POST;
+import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_PRE;
+
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.test.filters.SmallTest;
+import android.support.v4.util.Pair;
+import android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
+import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.view.View;
+
 import junit.framework.TestCase;
 
 import org.junit.Before;
@@ -23,23 +36,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.util.Pair;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.view.View;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_PRE;
-import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_POST;
-import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_APPEAR;
-import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_DISAPPEARED;
-import android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 
 @SuppressWarnings("ConstantConditions")
 @RunWith(JUnit4.class)

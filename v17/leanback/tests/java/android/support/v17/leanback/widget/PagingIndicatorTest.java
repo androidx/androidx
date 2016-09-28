@@ -18,8 +18,8 @@ package android.support.v17.leanback.widget;
 import static org.junit.Assert.assertEquals;
 
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -22,8 +22,8 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.support.design.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.ImageView;
 
 import org.junit.Test;
