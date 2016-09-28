@@ -15,43 +15,54 @@
  */
 package android.support.v4.app;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import android.app.Instrumentation;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.support.fragment.test.R;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.FragmentTestActivity.TestFragment;
 import android.support.v4.view.ViewCompat;
-import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 @MediumTest
-public class FragmentTransitionTest extends
-        ActivityInstrumentationTestCase2<FragmentTestActivity> {
+public class FragmentTransitionTest {
+    @Rule
+    public ActivityTestRule<FragmentTestActivity> mActivityRule =
+            new ActivityTestRule<FragmentTestActivity>(FragmentTestActivity.class);
+
     private TestFragment mStartFragment;
     private TestFragment mMidFragment;
     private TestFragment mEndFragment;
     private FragmentTestActivity mActivity;
+    private Instrumentation mInstrumentation;
 
-    public FragmentTransitionTest() {
-        super(FragmentTestActivity.class);
+    @Before
+    public void setup() {
+        mActivity = mActivityRule.getActivity();
+        mInstrumentation = InstrumentationRegistry.getInstrumentation();
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        mStartFragment = null;
-        mMidFragment = null;
-        mEndFragment = null;
-        mActivity = getActivity();
-    }
-
+    @Test
     public void testFragmentTransition() throws Throwable {
         if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
             return;
         }
         launchStartFragment();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final View sharedElement = mActivity.findViewById(R.id.hello);
@@ -70,7 +81,7 @@ public class FragmentTransitionTest extends
         assertTrue(mEndFragment.wasEndCalled(TestFragment.ENTER));
         assertTrue(mStartFragment.wasEndCalled(TestFragment.EXIT));
         assertTrue(mEndFragment.wasEndCalled(TestFragment.SHARED_ELEMENT_ENTER));
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final View textView = mActivity.findViewById(R.id.hello);
@@ -84,12 +95,13 @@ public class FragmentTransitionTest extends
         assertTrue(mEndFragment.wasEndCalled(TestFragment.RETURN));
     }
 
+    @Test
     public void testFirstOutLastInTransition() throws Throwable {
         if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
             return;
         }
         launchStartFragment();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mMidFragment = TestFragment.create(R.layout.fragment_middle);
@@ -121,7 +133,7 @@ public class FragmentTransitionTest extends
         mStartFragment.clearNotifications();
         mEndFragment.clearNotifications();
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mActivity.getSupportFragmentManager().popBackStack();
@@ -141,12 +153,13 @@ public class FragmentTransitionTest extends
         assertFalse(mStartFragment.wasStartCalled(TestFragment.RETURN));
     }
 
+    @Test
     public void testPopTwo() throws Throwable {
         if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
             return;
         }
         launchStartFragment();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mMidFragment = TestFragment.create(R.layout.fragment_middle);
@@ -158,7 +171,7 @@ public class FragmentTransitionTest extends
             }
         });
         waitForEnd(mMidFragment, TestFragment.ENTER);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mEndFragment = TestFragment.create(R.layout.fragment_end);
@@ -189,7 +202,7 @@ public class FragmentTransitionTest extends
         mMidFragment.clearNotifications();
         mEndFragment.clearNotifications();
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 FragmentManager fm = mActivity.getSupportFragmentManager();
@@ -212,12 +225,13 @@ public class FragmentTransitionTest extends
         assertFalse(mStartFragment.wasStartCalled(TestFragment.RETURN));
     }
 
+    @Test
     public void testNullTransition() throws Throwable {
         if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
             return;
         }
-        getInstrumentation().waitForIdleSync();
-        runTestOnUiThread(new Runnable() {
+        mInstrumentation.waitForIdleSync();
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mStartFragment = TestFragment.create(R.layout.fragment_start);
@@ -232,7 +246,7 @@ public class FragmentTransitionTest extends
         // No transitions
         assertFalse(mStartFragment.wasStartCalled(TestFragment.ENTER));
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mMidFragment = TestFragment.create(R.layout.fragment_middle);
@@ -262,7 +276,7 @@ public class FragmentTransitionTest extends
         assertFalse(mMidFragment.wasStartCalled(TestFragment.REENTER));
         assertFalse(mMidFragment.wasStartCalled(TestFragment.RETURN));
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mActivity.getSupportFragmentManager().popBackStack();
@@ -282,12 +296,13 @@ public class FragmentTransitionTest extends
         assertFalse(mStartFragment.wasStartCalled(TestFragment.RETURN));
     }
 
+    @Test
     public void testRemoveAdded() throws Throwable {
         if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
             return;
         }
         launchStartFragment();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mEndFragment = TestFragment.create(R.layout.fragment_end);
@@ -301,7 +316,7 @@ public class FragmentTransitionTest extends
             }
         });
         assertTrue(waitForEnd(mEndFragment, TestFragment.ENTER));
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mActivity.getSupportFragmentManager().popBackStack();
@@ -311,12 +326,13 @@ public class FragmentTransitionTest extends
         assertTrue(waitForEnd(mStartFragment, TestFragment.REENTER));
     }
 
+    @Test
     public void testAddRemoved() throws Throwable {
         if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
             return;
         }
         launchStartFragment();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mEndFragment = TestFragment.create(R.layout.fragment_end);
@@ -333,7 +349,7 @@ public class FragmentTransitionTest extends
         assertFalse(mStartFragment.wasStartCalled(TestFragment.EXIT));
         assertFalse(mEndFragment.wasStartCalled(TestFragment.ENTER));
         assertFalse(mEndFragment.wasStartCalled(TestFragment.EXIT));
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mActivity.getSupportFragmentManager().popBackStack();
@@ -348,8 +364,8 @@ public class FragmentTransitionTest extends
     }
 
     private void launchStartFragment() throws Throwable {
-        getInstrumentation().waitForIdleSync();
-        runTestOnUiThread(new Runnable() {
+        mInstrumentation.waitForIdleSync();
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mStartFragment = TestFragment.create(R.layout.fragment_start);
@@ -365,7 +381,7 @@ public class FragmentTransitionTest extends
 
     private boolean waitForStart(TestFragment fragment, int key) throws InterruptedException {
         boolean started = fragment.waitForStart(key);
-        getInstrumentation().waitForIdleSync();
+        mInstrumentation.waitForIdleSync();
         return started;
     }
 
@@ -374,7 +390,7 @@ public class FragmentTransitionTest extends
             return false;
         }
         final boolean ended = fragment.waitForEnd(key);
-        getInstrumentation().waitForIdleSync();
+        mInstrumentation.waitForIdleSync();
         return ended;
     }
 }

@@ -89,8 +89,8 @@ public class FragmentReplaceTest {
         assertNotNull(activity.findViewById(R.id.textC));
     }
 
-    private void executePendingTransactions(final FragmentManager fm) {
-        mInstrumentation.runOnMainSync(new Runnable() {
+    private void executePendingTransactions(final FragmentManager fm) throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 fm.executePendingTransactions();
@@ -107,7 +107,7 @@ public class FragmentReplaceTest {
                 .add(R.id.content, new Fragment())
                 .addToBackStack(null)
                 .commit();
-        mInstrumentation.runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 activity.getFragmentManager().executePendingTransactions();

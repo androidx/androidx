@@ -26,12 +26,13 @@ import android.content.IntentSender;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.app.test.FragmentResultActivity;
 import android.support.v4.app.test.FragmentTestActivity;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,23 +40,24 @@ import org.junit.runner.RunWith;
  * Tests for Fragment startActivityForResult and startIntentSenderForResult.
  */
 @RunWith(AndroidJUnit4.class)
-public class FragmentReceiveResultTest extends BaseInstrumentationTestCase<FragmentTestActivity> {
+public class FragmentReceiveResultTest {
+    @Rule
+    public ActivityTestRule<FragmentTestActivity> mActivityRule =
+            new ActivityTestRule<FragmentTestActivity>(FragmentTestActivity.class);
+
     private FragmentTestActivity mActivity;
     private TestFragment mFragment;
 
-    public FragmentReceiveResultTest() {
-        super(FragmentTestActivity.class);
-    }
 
     @Before
-    public void setUp() {
-        mActivity = mActivityTestRule.getActivity();
+    public void setup() throws Throwable {
+        mActivity = mActivityRule.getActivity();
         mFragment = attachTestFragment();
     }
 
     @Test
     @SmallTest
-    public void testStartActivityForResultOk() {
+    public void testStartActivityForResultOk() throws Throwable {
         startActivityForResult(10, Activity.RESULT_OK, "content 10");
 
         assertTrue("Fragment should receive result", mFragment.mHasResult);
@@ -66,7 +68,7 @@ public class FragmentReceiveResultTest extends BaseInstrumentationTestCase<Fragm
 
     @Test
     @SmallTest
-    public void testStartActivityForResultCanceled() {
+    public void testStartActivityForResultCanceled() throws Throwable {
         startActivityForResult(20, Activity.RESULT_CANCELED, "content 20");
 
         assertTrue("Fragment should receive result", mFragment.mHasResult);
@@ -77,7 +79,7 @@ public class FragmentReceiveResultTest extends BaseInstrumentationTestCase<Fragm
 
     @Test
     @SmallTest
-    public void testStartIntentSenderForResultOk() {
+    public void testStartIntentSenderForResultOk() throws Throwable {
         startIntentSenderForResult(30, Activity.RESULT_OK, "content 30");
 
         assertTrue("Fragment should receive result", mFragment.mHasResult);
@@ -88,7 +90,7 @@ public class FragmentReceiveResultTest extends BaseInstrumentationTestCase<Fragm
 
     @Test
     @SmallTest
-    public void testStartIntentSenderForResultCanceled() {
+    public void testStartIntentSenderForResultCanceled() throws Throwable {
         startIntentSenderForResult(40, Activity.RESULT_CANCELED, "content 40");
 
         assertTrue("Fragment should receive result", mFragment.mHasResult);
@@ -97,9 +99,9 @@ public class FragmentReceiveResultTest extends BaseInstrumentationTestCase<Fragm
         assertEquals("content 40", mFragment.mResultContent);
     }
 
-    private TestFragment attachTestFragment() {
+    private TestFragment attachTestFragment() throws Throwable {
         final TestFragment fragment = new TestFragment();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mActivity.getSupportFragmentManager().beginTransaction()
@@ -114,8 +116,8 @@ public class FragmentReceiveResultTest extends BaseInstrumentationTestCase<Fragm
     }
 
     private void startActivityForResult(final int requestCode, final int resultCode,
-            final String content) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            final String content) throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Intent intent = new Intent(mActivity, FragmentResultActivity.class);
@@ -129,8 +131,8 @@ public class FragmentReceiveResultTest extends BaseInstrumentationTestCase<Fragm
     }
 
     private void startIntentSenderForResult(final int requestCode, final int resultCode,
-            final String content) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            final String content) throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Intent intent = new Intent(mActivity, FragmentResultActivity.class);
