@@ -27,6 +27,7 @@ import org.junit.Rule;
 import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.view.ViewCompat;
@@ -791,10 +792,16 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
         ViewAttachDetachCounter mAttachmentCounter = new ViewAttachDetachCounter();
         List<Item> mItems;
+        final @Nullable RecyclerView.LayoutParams mLayoutParams;
 
         public TestAdapter(int count) {
+            this(count, null);
+        }
+
+        public TestAdapter(int count, @Nullable RecyclerView.LayoutParams layoutParams) {
             mItems = new ArrayList<Item>(count);
             addItems(0, count, DEFAULT_ITEM_PREFIX);
+            mLayoutParams = layoutParams;
         }
 
         private void addItems(int pos, int count, String prefix) {
@@ -848,6 +855,9 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             final Item item = mItems.get(position);
             ((TextView) (holder.itemView)).setText(item.mText + "(" + item.mId + ")");
             holder.mBoundItem = item;
+            if (mLayoutParams != null) {
+                holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(mLayoutParams));
+            }
         }
 
         public Item getItemAt(int position) {

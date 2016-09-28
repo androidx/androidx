@@ -59,6 +59,32 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
 
     @MediumTest
     @Test
+    public void snapOnScrollSameViewEdge() throws Throwable {
+        final Config config = (Config) mConfig.clone();
+        // Ensure that the views are big enough to reach the pathological case when the view closest
+        // to the center is an edge view, but it cannot scroll further in order to snap.
+        setupByConfig(config, true, new RecyclerView.LayoutParams(1000, 1000),
+            new RecyclerView.LayoutParams(1500, 1500));
+        SnapHelper snapHelper = new LinearSnapHelper();
+        mLayoutManager.expectIdleState(1);
+        snapHelper.attachToRecyclerView(mRecyclerView);
+        mLayoutManager.waitForSnap(10);
+
+        // Record the current center view.
+        View view = findCenterView(mLayoutManager);
+
+        int scrollDistance = (getViewDimension(view) / 2) - 1;
+        int scrollDist = config.mStackFromEnd == config.mReverseLayout
+            ? -scrollDistance : scrollDistance;
+        mLayoutManager.expectIdleState(1);
+        smoothScrollBy(scrollDist);
+        mLayoutManager.waitForSnap(10);
+        mLayoutManager.expectCallbacks(5);
+        mLayoutManager.assertNoCallbacks("There should be no callbacks after some time", 3);
+    }
+
+    @MediumTest
+    @Test
     public void snapOnScrollSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
         setupByConfig(config, true);
@@ -76,7 +102,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
 
         // Views have not changed
         View viewAfterFling = findCenterView(mLayoutManager);
-        assertSame("The view should have scrolled", view, viewAfterFling);
+        assertSame("The view should NOT have scrolled", view, viewAfterFling);
         assertCenterAligned(viewAfterFling);
     }
 
@@ -165,7 +191,11 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         mLayoutManager.waitForLayout(2);
 
         View view = findCenterView(mLayoutManager);
-        int scrollDistance = (getViewDimension(view) / 2) + 10;
+        int scrollDistance = distFromCenter(view) / 2;
+        if (scrollDistance == 0) {
+            return;
+        }
+
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
 
         mLayoutManager.expectIdleState(2);
@@ -198,6 +228,16 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         } else {
             assertEquals(mRecyclerView.getHeight() / 2,
                     mLayoutManager.getViewBounds(view).centerY());
+        }
+    }
+
+    private int distFromCenter(View view) {
+        if (mLayoutManager.canScrollHorizontally()) {
+            return Math.abs(mRecyclerView.getWidth() / 2 -
+                mLayoutManager.getViewBounds(view).centerX());
+        } else {
+            return Math.abs(mRecyclerView.getHeight() / 2 -
+                mLayoutManager.getViewBounds(view).centerY());
         }
     }
 
