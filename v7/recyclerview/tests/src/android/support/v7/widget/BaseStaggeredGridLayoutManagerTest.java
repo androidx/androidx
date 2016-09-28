@@ -34,11 +34,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
+abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     protected static final boolean DEBUG = false;
     protected static final int AVG_ITEM_PER_VIEW = 3;
-    protected static final String TAG = "StaggeredGridLayoutManagerTest";
+    protected static final String TAG = "SGLM_TEST";
     volatile WrappedLayoutManager mLayoutManager;
     GridTestAdapter mAdapter;
 
@@ -724,18 +724,17 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    final int start = mPrimaryOrientation.getStartAfterPadding();
+                    final int end = mPrimaryOrientation.getEndAfterPadding();
                     final int childCount = getChildCount();
                     for (int i = 0; i < childCount; i++) {
                         View child = getChildAt(i);
-                        // do it if and only if child is visible
-                        if (child.getRight() < 0 || child.getBottom() < 0 ||
-                                child.getLeft() >= getWidth() || child.getTop() >= getHeight()) {
-                            // invisible children may be drawn in cases like scrolling so we should
-                            // ignore them
+                        // ignore child if it fits the recycling constraints
+                        if (mPrimaryOrientation.getDecoratedStart(child) >= end
+                                || mPrimaryOrientation.getDecoratedEnd(child) < start) {
                             continue;
                         }
-                        LayoutParams lp = (LayoutParams) child
-                                .getLayoutParams();
+                        LayoutParams lp = (LayoutParams) child.getLayoutParams();
                         TestViewHolder vh = (TestViewHolder) lp.mViewHolder;
                         items.put(vh.mBoundItem, getViewBounds(child));
                     }
