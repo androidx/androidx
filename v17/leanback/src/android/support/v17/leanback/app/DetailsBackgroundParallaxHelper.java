@@ -88,7 +88,8 @@ public final class DetailsBackgroundParallaxHelper {
     private ColorDrawable mSolidColorDrawable;
     private int mBitmapMinVerticalOffset;
 
-    private DetailsBackgroundParallaxHelper(
+    DetailsBackgroundParallaxHelper(
+            Context context,
             DetailsParallaxManager detailsParallaxManager,
             int bitmapMinVerticalOffset,
             int color) {
@@ -100,7 +101,7 @@ public final class DetailsBackgroundParallaxHelper {
         mCompositeDrawable.addChildDrawable(mSolidColorDrawable);
         mCompositeDrawable.getChildAt(1).getBoundsRule().mTop = BoundsRule.inheritFromParent(1f);
         mDetailsParallaxManager = detailsParallaxManager;
-        setupParallaxEffect();
+        setupParallaxEffect(context);
     }
 
     /**
@@ -156,7 +157,7 @@ public final class DetailsBackgroundParallaxHelper {
                 mColor = getDefaultBackgroundColor(mContext);
             }
 
-            return new DetailsBackgroundParallaxHelper(
+            return new DetailsBackgroundParallaxHelper(mContext,
                     mDetailsParallaxManager, mBitmapMinVerticalOffset, mColor);
         }
 
@@ -197,7 +198,7 @@ public final class DetailsBackgroundParallaxHelper {
     /**
      * Sets up the cover image parallax effect in {@link DetailsFragment}.
      */
-    private void setupParallaxEffect() {
+    private void setupParallaxEffect(Context context) {
         // Add bitmap parallax effect:
         // When frameTop moves from half of the screen to top of the screen,
         // change vertical offset of Bitmap from 0 to -100
@@ -207,12 +208,17 @@ public final class DetailsBackgroundParallaxHelper {
                 mDetailsParallaxManager.getFrameTop();
         ParallaxRecyclerViewSource.ChildPositionProperty frameBottom =
                 mDetailsParallaxManager.getFrameBottom();
-        parallax.addEffect(frameTop.atFraction(0.5f), frameTop.atFraction(0f))
+        // The values are from DetailsFragment.setupDetailsOverviewRowPresenter()
+        final int fromValue = context.getResources()
+                .getDimensionPixelSize(R.dimen.lb_details_v2_align_pos_for_actions);
+        final int toValue = context.getResources()
+                .getDimensionPixelSize(R.dimen.lb_details_v2_align_pos_for_description);
+        parallax.addEffect(frameTop.atAbsolute(fromValue), frameTop.atFraction(toValue))
                 .target(mFitWidthBitmapDrawable,
                     PropertyValuesHolder.ofInt("verticalOffset", 0, mBitmapMinVerticalOffset))
                 .target(mCompositeDrawable.getChildAt(0),
-                    PropertyValuesHolder.ofFloat(
-                        CompositeDrawable.ChildDrawable.BOTTOM_FRACTION, 0.5f, 0f));
+                    PropertyValuesHolder.ofInt(
+                        CompositeDrawable.ChildDrawable.BOTTOM_ABSOLUTE, fromValue, toValue));
 
         // Add solid color parallax effect:
         // When frameBottom moves from bottom of the screen to top of the screen,
