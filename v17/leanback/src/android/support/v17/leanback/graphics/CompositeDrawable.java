@@ -239,7 +239,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
         private final BoundsRule boundsRule = new BoundsRule();
         private final Drawable mDrawable;
         private final Rect adjustedBounds = new Rect();
-        private final CompositeDrawable mParent;
+        final CompositeDrawable mParent;
 
         public ChildDrawable(Drawable drawable, CompositeDrawable parent) {
             this.mDrawable = drawable;
@@ -317,6 +317,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Integer get(CompositeDrawable.ChildDrawable obj) {
+                if (obj.getBoundsRule().mTop == null) {
+                    return obj.mParent.getBounds().top;
+                }
                 return obj.getBoundsRule().mTop.getAbsoluteValue();
             }
         };
@@ -340,6 +343,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Integer get(CompositeDrawable.ChildDrawable obj) {
+                if (obj.getBoundsRule().mBottom == null) {
+                    return obj.mParent.getBounds().bottom;
+                }
                 return obj.getBoundsRule().mBottom.getAbsoluteValue();
             }
         };
@@ -364,6 +370,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Integer get(CompositeDrawable.ChildDrawable obj) {
+                if (obj.getBoundsRule().mLeft == null) {
+                    return obj.mParent.getBounds().left;
+                }
                 return obj.getBoundsRule().mLeft.getAbsoluteValue();
             }
         };
@@ -387,6 +396,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Integer get(CompositeDrawable.ChildDrawable obj) {
+                if (obj.getBoundsRule().mRight == null) {
+                    return obj.mParent.getBounds().right;
+                }
                 return obj.getBoundsRule().mRight.getAbsoluteValue();
             }
         };
@@ -413,6 +425,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Float get(CompositeDrawable.ChildDrawable obj) {
+                if (obj.getBoundsRule().mTop == null) {
+                    return 0f;
+                }
                 return obj.getBoundsRule().mTop.getFraction();
             }
         };
@@ -440,6 +455,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Float get(CompositeDrawable.ChildDrawable obj) {
+                if (obj.getBoundsRule().mBottom == null) {
+                    return 1f;
+                }
                 return obj.getBoundsRule().mBottom.getFraction();
             }
         };
@@ -466,6 +484,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Float get(CompositeDrawable.ChildDrawable obj) {
+                if (obj.getBoundsRule().mLeft == null) {
+                    return 0f;
+                }
                 return obj.getBoundsRule().mLeft.getFraction();
             }
         };
@@ -492,6 +513,9 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Float get(CompositeDrawable.ChildDrawable obj) {
+                if (obj.getBoundsRule().mRight == null) {
+                    return 1f;
+                }
                 return obj.getBoundsRule().mRight.getFraction();
             }
         };

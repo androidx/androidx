@@ -71,7 +71,8 @@ public class DetailsFragmentTest {
 
         Rect bounds = drawable.getChildAt(0).getDrawable().getBounds();
         assertEquals(windowWidth, bounds.width());
-        assertEquals(windowHeight / 2, bounds.height());
+        assertEquals(mActivity.getResources().getDimensionPixelSize(
+                R.dimen.lb_details_v2_align_pos_for_actions), bounds.height());
         assertEquals(0, bitmapDrawable.getVerticalOffset());
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
@@ -89,7 +90,8 @@ public class DetailsFragmentTest {
         });
 
         bounds = drawable.getChildAt(0).getDrawable().getBounds();
-        assertEquals(0, bounds.height());
+        assertEquals(mActivity.getResources().getDimensionPixelSize(
+                R.dimen.lb_details_v2_align_pos_for_description), bounds.height());
         assertEquals(windowWidth, bounds.width());
 
         View detailsFrame = mActivity.findViewById(R.id.details_frame);
@@ -98,7 +100,8 @@ public class DetailsFragmentTest {
         ColorDrawable colorDrawable = (ColorDrawable) (drawable.getChildAt(1).getDrawable());
 
         assertEquals(windowWidth, colorDrawable.getBounds().width());
+        // Since bottom is using float mapping, using float compare with delta
         assertEquals(windowHeight - (loc[1] + detailsFrame.getHeight()),
-                colorDrawable.getBounds().height());
+                (float) colorDrawable.getBounds().height(), 2 /*delta*/);
     }
 }

@@ -121,6 +121,9 @@ public class DetailsTestFragment extends android.support.v17.leanback.app.Detail
         mRowsAdapter.clear();
         new Handler().postDelayed(new Runnable() {
             public void run() {
+                if (getActivity() == null) {
+                    return;
+                }
                 Resources res = getActivity().getResources();
                 DetailsOverviewRow dor = new DetailsOverviewRow(mPhotoItem.getTitle());
                 dor.setImageDrawable(res.getDrawable(mPhotoItem.getImageResourceId()));
@@ -136,6 +139,9 @@ public class DetailsTestFragment extends android.support.v17.leanback.app.Detail
 
         new Handler().postDelayed(new Runnable() {
             public void run() {
+                if (getActivity() == null) {
+                    return;
+                }
                 for (int i = 0; i < NUM_ROWS; ++i) {
                     ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mCardPresenter);
                     listRowAdapter.add(new PhotoItem("Hello world", R.drawable.spiderman));
