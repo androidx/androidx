@@ -53,6 +53,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
                     }
                 }
 
+                @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     if (dx != 0 || dy != 0) {
                         mScrolled = true;
