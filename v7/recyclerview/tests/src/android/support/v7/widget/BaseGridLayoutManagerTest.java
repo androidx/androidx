@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.view.View;
 
 import org.hamcrest.CoreMatchers;
@@ -153,6 +154,8 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
 
         CountDownLatch prefetchLatch;
 
+        OrientationHelper mSecondaryOrientation;
+
         List<GridLayoutManagerTest.Callback>
                 mCallbacks = new ArrayList<GridLayoutManagerTest.Callback>();
 
@@ -179,6 +182,26 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
                 requestLayoutOnUIThread(mRecyclerView);
             } catch (Throwable throwable) {
                 postExceptionToInstrumentation(throwable);
+            }
+        }
+
+        @Override
+        public void setOrientation(int orientation) {
+            super.setOrientation(orientation);
+            mSecondaryOrientation = null;
+        }
+
+        @Override
+        void ensureLayoutState() {
+            super.ensureLayoutState();
+            if (mSecondaryOrientation == null) {
+                if (getOrientation() == RecyclerView.HORIZONTAL) {
+                    mSecondaryOrientation = OrientationHelper.createOrientationHelper(this,
+                        RecyclerView.VERTICAL);
+                } else {
+                    mSecondaryOrientation = OrientationHelper.createOrientationHelper(this,
+                        RecyclerView.HORIZONTAL);
+                }
             }
         }
 
@@ -212,6 +235,23 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
                     return next;
                 }
             };
+        }
+
+        Rect getViewBounds(View view) {
+            if (getOrientation() == HORIZONTAL) {
+                return new Rect(
+                    mOrientationHelper.getDecoratedStart(view),
+                    mSecondaryOrientation.getDecoratedStart(view),
+                    mOrientationHelper.getDecoratedEnd(view),
+                    mSecondaryOrientation.getDecoratedEnd(view));
+            } else {
+                return new Rect(
+                    mSecondaryOrientation.getDecoratedStart(view),
+                    mOrientationHelper.getDecoratedStart(view),
+                    mSecondaryOrientation.getDecoratedEnd(view),
+                    mOrientationHelper.getDecoratedEnd(view));
+            }
+
         }
 
         public void expectLayout(int layoutCount) {
