@@ -18,6 +18,7 @@ package android.support.v4.content;
 
 import static org.junit.Assert.fail;
 
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
@@ -26,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
@@ -74,6 +76,55 @@ public class ModernAsyncTaskTest {
         readyToThrow.countDown();
         if (!calledOnCancelled.await(5, TimeUnit.SECONDS)) {
             fail("onCancelled not called!");
+        }
+    }
+
+    /**
+     * Test to ensure that onCancelled is always called instead of onPostExecute when the exception
+     * is not suppressed by cancelling the task.
+     *
+     * @throws Throwable
+     */
+    @LargeTest
+    @Test
+    public void testException() throws Throwable {
+        final CountDownLatch calledOnCancelled = new CountDownLatch(1);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mModernAsyncTask = new ModernAsyncTask() {
+                    @Override
+                    protected Object doInBackground(Object[] params) {
+                        throw new RuntimeException();
+                    }
+
+                    @Override
+                    protected void onPostExecute(Object o) {
+                        fail("onPostExecute should not be called");
+                    }
+
+                    @Override
+                    protected void onCancelled(Object o) {
+                        calledOnCancelled.countDown();
+                    }
+                };
+            }
+        });
+
+        mModernAsyncTask.executeOnExecutor(new Executor() {
+            @Override
+            public void execute(@NonNull Runnable command) {
+                try {
+                    command.run();
+                    fail("Exception not thrown");
+                } catch (Throwable tr) {
+                    // expected
+                }
+            }
+        });
+
+        if (!calledOnCancelled.await(5, TimeUnit.SECONDS)) {
+            fail("onCancelled not called");
         }
     }
 }

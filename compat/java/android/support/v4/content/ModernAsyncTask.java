@@ -16,6 +16,15 @@
 
 package android.support.v4.content;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
+import android.os.Binder;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Process;
+import android.support.annotation.RestrictTo;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -29,15 +38,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import android.os.Binder;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.os.Process;
-import android.support.annotation.RestrictTo;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Copy of the required parts of {@link android.os.AsyncTask} from Android 3.0 that is
@@ -86,7 +86,8 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
 
     private volatile Status mStatus = Status.PENDING;
 
-    final AtomicBoolean mTaskInvoked = new AtomicBoolean();
+    private final AtomicBoolean mCancelled = new AtomicBoolean();
+    private final AtomicBoolean mTaskInvoked = new AtomicBoolean();
 
     /**
      * Indicates the current status of the task. Each status will be set only once
@@ -136,6 +137,9 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
                     //noinspection unchecked
                     result = doInBackground(mParams);
                     Binder.flushPendingCommands();
+                } catch (Throwable tr) {
+                    mCancelled.set(true);
+                    throw tr;
                 } finally {
                     postResult(result);
                 }
@@ -289,7 +293,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
      * @see #cancel(boolean)
      */
     public final boolean isCancelled() {
-        return mFuture.isCancelled();
+        return mCancelled.get();
     }
 
     /**
@@ -322,6 +326,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
      * @see #onCancelled(Object)
      */
     public final boolean cancel(boolean mayInterruptIfRunning) {
+        mCancelled.set(true);
         return mFuture.cancel(mayInterruptIfRunning);
     }
 
