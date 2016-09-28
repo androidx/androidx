@@ -235,6 +235,14 @@ public abstract class DocumentFile {
     public abstract boolean isFile();
 
     /**
+     * Indicates if this file represents a <em>virtual</em> document.
+     *
+     * @return {@code true} if this file is a virtual document.
+     * @see android.provider.DocumentsContract.Document#FLAG_VIRTUAL_DOCUMENT
+     */
+    public abstract boolean isVirtual();
+
+    /**
      * Returns the time when this file was last modified, measured in
      * milliseconds since January 1st, 1970, midnight. Returns 0 if the file
      * does not exist, or if the modified time is unknown.
