@@ -22,7 +22,6 @@ import static junit.framework.TestCase.assertNotSame;
 import static junit.framework.TestCase.assertTrue;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -52,7 +51,7 @@ public class NestedFragmentRestoreTest {
     @SmallTest
     public void recreateActivity() throws Throwable {
         final FragmentTestActivity activity = mActivityRule.getActivity();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 FragmentTestActivity.ParentFragment parent = new ParentFragment();
@@ -78,7 +77,7 @@ public class NestedFragmentRestoreTest {
             }
         });
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 activity.recreate();

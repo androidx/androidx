@@ -49,9 +49,9 @@ public class FragmentTransactionTest {
     }
 
     @Test
-    public void testAddTransactionWithValidFragment() {
+    public void testAddTransactionWithValidFragment() throws Throwable {
         final Fragment fragment = new CorrectFragment();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mActivity.getSupportFragmentManager().beginTransaction()
@@ -66,9 +66,9 @@ public class FragmentTransactionTest {
     }
 
     @Test
-    public void testAddTransactionWithPrivateFragment() {
+    public void testAddTransactionWithPrivateFragment() throws Throwable {
         final Fragment fragment = new PrivateFragment();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 boolean exceptionThrown = false;
@@ -90,9 +90,9 @@ public class FragmentTransactionTest {
     }
 
     @Test
-    public void testAddTransactionWithPackagePrivateFragment() {
+    public void testAddTransactionWithPackagePrivateFragment() throws Throwable {
         final Fragment fragment = new PackagePrivateFragment();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 boolean exceptionThrown = false;
@@ -114,9 +114,9 @@ public class FragmentTransactionTest {
     }
 
     @Test
-    public void testAddTransactionWithAnonymousFragment() {
+    public void testAddTransactionWithAnonymousFragment() throws Throwable {
         final Fragment fragment = new Fragment() {};
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 boolean exceptionThrown = false;
@@ -138,9 +138,9 @@ public class FragmentTransactionTest {
     }
 
     @Test
-    public void testAddTransactionWithNonStaticFragment() {
+    public void testAddTransactionWithNonStaticFragment() throws Throwable {
         final Fragment fragment = new NonStaticFragment();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 boolean exceptionThrown = false;
