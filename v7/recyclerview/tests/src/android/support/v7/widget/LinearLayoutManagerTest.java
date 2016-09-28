@@ -301,7 +301,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         }
 
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final ViewGroup.LayoutParams layoutParams = mRecyclerView.getLayoutParams();
@@ -428,7 +428,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
     @Test
     public void dontRecycleChildrenOnDetach() throws Throwable {
         setupByConfig(new Config().recycleChildrenOnDetach(false), true);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 int recyclerSize = mRecyclerView.mRecycler.getRecycledViewPool().size();
@@ -443,7 +443,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
     public void recycleChildrenOnDetach() throws Throwable {
         setupByConfig(new Config().recycleChildrenOnDetach(true), true);
         final int childCount = mLayoutManager.getChildCount();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 int recyclerSize = mRecyclerView.mRecycler.getRecycledViewPool().size();
@@ -463,7 +463,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         assertTrue("Children not laid out", mLayoutManager.collectChildCoordinates().size() > 0);
 
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mLayoutManager.scrollToPositionWithOffset(1, 0);
@@ -482,7 +482,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         final AccessibilityDelegateCompat delegateCompat = mRecyclerView
                 .getCompatAccessibilityDelegate();
         final AccessibilityEvent event = AccessibilityEvent.obtain();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 delegateCompat.onInitializeAccessibilityEvent(mRecyclerView, event);

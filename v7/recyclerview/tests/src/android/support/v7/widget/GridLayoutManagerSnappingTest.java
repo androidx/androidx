@@ -224,7 +224,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
     private boolean fling(final int velocityX, final int velocityY)
             throws Throwable {
         final AtomicBoolean didStart = new AtomicBoolean(false);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 boolean result = mRecyclerView.fling(velocityX, velocityY);

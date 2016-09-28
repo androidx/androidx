@@ -38,7 +38,7 @@ public class AppBarWithToolbarTest extends AppBarLayoutBaseTest {
      * Tests a Toolbar with fitSystemWindows = undefined, with a fitSystemWindows = true parent
      */
     @Test
-    public void testScrollToolbarWithFitSystemWindowsParent() {
+    public void testScrollToolbarWithFitSystemWindowsParent() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_scroll_fitsystemwindows_parent,
                 R.string.design_appbar_toolbar_scroll_tabs_pin);
 
@@ -83,7 +83,7 @@ public class AppBarWithToolbarTest extends AppBarLayoutBaseTest {
      * with a fitSystemWindows = true parent
      */
     @Test
-    public void testScrollingContentPositionWithFitSystemWindowsParent() {
+    public void testScrollingContentPositionWithFitSystemWindowsParent() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_scroll_fitsystemwindows_parent,
                 R.string.design_appbar_toolbar_scroll_tabs_pin);
 
@@ -107,7 +107,7 @@ public class AppBarWithToolbarTest extends AppBarLayoutBaseTest {
      * with a fitSystemWindows = true parent, in RTL
      */
     @Test
-    public void testScrollingContentPositionWithFitSystemWindowsParentInRtl() {
+    public void testScrollingContentPositionWithFitSystemWindowsParentInRtl() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_scroll_fitsystemwindows_parent,
                 R.string.design_appbar_toolbar_scroll_tabs_pin);
 
@@ -130,7 +130,7 @@ public class AppBarWithToolbarTest extends AppBarLayoutBaseTest {
     }
 
     @Test
-    public void testRequestRectangleWithChildThatDoesNotRequireScroll() {
+    public void testRequestRectangleWithChildThatDoesNotRequireScroll() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_scroll_fitsystemwindows_parent,
                 R.string.design_appbar_toolbar_scroll_tabs_pin);
 
@@ -141,7 +141,7 @@ public class AppBarWithToolbarTest extends AppBarLayoutBaseTest {
         scrollingContent.getLocationInWindow(originalScrollingXY);
 
         // Now request that the first child has its full rectangle displayed
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final ViewGroup scrollingContentInner = (ViewGroup) scrollingContent
@@ -162,7 +162,7 @@ public class AppBarWithToolbarTest extends AppBarLayoutBaseTest {
     }
 
     @Test
-    public void testRequestRectangleWithChildThatDoesRequireScroll() {
+    public void testRequestRectangleWithChildThatDoesRequireScroll() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_scroll_fitsystemwindows_parent,
                 R.string.design_appbar_toolbar_scroll_tabs_pin);
 
@@ -173,7 +173,7 @@ public class AppBarWithToolbarTest extends AppBarLayoutBaseTest {
         scrollingContent.getLocationInWindow(originalScrollingXY);
 
         // Now request that the first child has its full rectangle displayed
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final ViewGroup scrollingContentInner = (ViewGroup) scrollingContent

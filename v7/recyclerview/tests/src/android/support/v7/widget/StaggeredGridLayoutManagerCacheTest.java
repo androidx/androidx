@@ -96,7 +96,7 @@ public class StaggeredGridLayoutManagerCacheTest extends BaseStaggeredGridLayout
         setupByConfig(config);
         waitFirstLayout();
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // pretend to have an extra 5s before next frame so prefetch won't abort early
@@ -110,7 +110,7 @@ public class StaggeredGridLayoutManagerCacheTest extends BaseStaggeredGridLayout
         mRecyclerView.setItemViewCacheSize(0);
         {
             mLayoutManager.expectPrefetch(1);
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     mRecyclerView.mRecycler.recycleAndClearCachedViews();
@@ -123,7 +123,7 @@ public class StaggeredGridLayoutManagerCacheTest extends BaseStaggeredGridLayout
             mLayoutManager.waitForPrefetch(1);
         }
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // validate cache state on UI thread

@@ -141,7 +141,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         final RecyclerViewAccessibilityDelegate delegateCompat = recyclerView
                 .getCompatAccessibilityDelegate();
         final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 delegateCompat.onInitializeAccessibilityNodeInfo(recyclerView, info);
@@ -166,7 +166,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         }
 
         final AccessibilityEvent event = AccessibilityEvent.obtain();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 delegateCompat.onInitializeAccessibilityEvent(recyclerView, event);
@@ -183,7 +183,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
             for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
                 final View view = mRecyclerView.getChildAt(i);
                 final AccessibilityNodeInfoCompat childInfo = AccessibilityNodeInfoCompat.obtain();
-                runTestOnUiThread(new Runnable() {
+                mActivityRule.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         delegateCompat.getItemDelegate().
@@ -207,7 +207,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
             }
         }
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
@@ -260,7 +260,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         final RecyclerViewAccessibilityDelegate delegateCompat = recyclerView
                 .getCompatAccessibilityDelegate();
         final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 delegateCompat.onInitializeAccessibilityNodeInfo(recyclerView, info);
@@ -268,7 +268,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         });
         assertTrue("test sanity", info.isScrollable());
         final AccessibilityNodeInfoCompat info2 = AccessibilityNodeInfoCompat.obtain();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -287,7 +287,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
     boolean performAccessibilityAction(final AccessibilityDelegateCompat delegate,
             final RecyclerView recyclerView, final int action) throws Throwable {
         final boolean[] result = new boolean[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 result[0] = delegate.performAccessibilityAction(recyclerView, action, null);

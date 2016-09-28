@@ -125,7 +125,7 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
     protected void waitForMainThread(int count) throws Throwable {
         final AtomicInteger i = new AtomicInteger(count);
         while (i.get() > 0) {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     i.decrementAndGet();
@@ -246,7 +246,7 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
 
     protected void scrollToPositionWithOffset(final int position, final int offset)
             throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mLayoutManager.scrollToPositionWithOffset(position, offset);
@@ -721,7 +721,7 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
 
         Map<Item, Rect> collectChildCoordinates() throws Throwable {
             final Map<Item, Rect> items = new LinkedHashMap<Item, Rect>();
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     final int start = mPrimaryOrientation.getStartAfterPadding();

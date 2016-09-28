@@ -23,32 +23,37 @@ import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.os.Looper;
-import android.support.annotation.UiThread;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.widget.TestActivity;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
-public class ThreadUtilTest extends BaseThreadedTest {
+public class ThreadUtilTest {
+    @Rule
+    public ActivityTestRule<TestActivity> mActivityRule =
+            new ActivityTestRule<>(TestActivity.class);
+
     Map<String, LockedObject> results = new HashMap<>();
 
     ThreadUtil.MainThreadCallback<Integer> mMainThreadProxy;
     ThreadUtil.BackgroundCallback<Integer> mBackgroundProxy;
 
     @Before
-    public void init() throws Exception {
-        super.setUp();
-    }
-
-    @Override
-    @UiThread
-    public void setUpUi() {
+    @UiThreadTest
+    public void setup() {
         ThreadUtil<Integer> threadUtil = new MessageThreadUtil<>();
 
         mMainThreadProxy = threadUtil.getMainThreadProxy(

@@ -148,7 +148,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
             }
         };
         mLayoutManager.expectLayouts(2);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -177,7 +177,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
     }
 
     void scrollToPositionWithOffset(final int position, final int offset) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mLayoutManager.scrollToPositionWithOffset(position, offset);
@@ -597,7 +597,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
         Map<Item, Rect> collectChildCoordinates() throws Throwable {
             final Map<Item, Rect> items = new LinkedHashMap<Item, Rect>();
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     final int childCount = getChildCount();

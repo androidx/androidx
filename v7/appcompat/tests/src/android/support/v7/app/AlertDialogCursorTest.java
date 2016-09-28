@@ -43,7 +43,6 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.DataInteraction;
 import android.support.test.filters.SmallTest;
 import android.support.v7.appcompat.test.R;
@@ -125,11 +124,11 @@ public class AlertDialogCursorTest
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Throwable {
         if (mCursor != null) {
             // Close the cursor on the UI thread as the list view in the alert dialog
             // will get notified of any change to the underlying cursor.
-            InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            mActivityTestRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     mCursor.close();

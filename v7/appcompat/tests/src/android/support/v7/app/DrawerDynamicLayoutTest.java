@@ -20,11 +20,11 @@ import static android.support.test.espresso.assertion.ViewAssertions.doesNotExis
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
-import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.mockito.Mockito.mock;
 
 import android.support.annotation.LayoutRes;
-import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.test.filters.SmallTest;
@@ -50,17 +50,13 @@ public class DrawerDynamicLayoutTest
         super(DrawerDynamicLayoutActivity.class);
     }
 
+    @UiThreadTest
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         // Now that the test is done, replace the activity content view with ViewStub so
         // that it's ready to be replaced for the next test.
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                final DrawerDynamicLayoutActivity activity = mActivityTestRule.getActivity();
-                activity.setContentView(R.layout.drawer_dynamic_layout);
-            }
-        });
+        final DrawerDynamicLayoutActivity activity = mActivityTestRule.getActivity();
+        activity.setContentView(R.layout.drawer_dynamic_layout);
     }
 
     /**

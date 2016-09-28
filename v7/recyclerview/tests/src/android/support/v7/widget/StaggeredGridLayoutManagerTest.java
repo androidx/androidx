@@ -65,7 +65,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS));
         waitFirstLayout();
         assertFalse("test sanity", mRecyclerView.isLayoutRequested());
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mLayoutManager.onDetachedFromWindow(mRecyclerView, mRecyclerView.mRecycler);
@@ -435,7 +435,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
             }
         };
         mLayoutManager.expectLayouts(2);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -775,7 +775,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         assertTrue("Children not laid out", mLayoutManager.collectChildCoordinates().size() > 0);
 
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mLayoutManager.scrollToPositionWithOffset(1, 0);
@@ -794,7 +794,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         final AccessibilityDelegateCompat delegateCompat = mRecyclerView
                 .getCompatAccessibilityDelegate();
         final AccessibilityEvent event = AccessibilityEvent.obtain();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 delegateCompat.onInitializeAccessibilityEvent(mRecyclerView, event);

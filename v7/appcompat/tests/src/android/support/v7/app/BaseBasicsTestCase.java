@@ -67,17 +67,13 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
         assertEquals(getActivity().getTitle(), getActivity().getSupportActionBar().getTitle());
     }
 
+    @UiThreadTest
     @Test
-    public void testSetActionBarTitle() throws Throwable {
+    public void testSetActionBarTitle() {
         final String newTitle = "hello";
-        runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                getActivity().setTitle(newTitle);
-                assertEquals("New title is set to ActionBar",
-                        newTitle, getActivity().getSupportActionBar().getTitle());
-            }
-        });
+        mActivityTestRule.getActivity().setTitle(newTitle);
+        assertEquals("New title is set to ActionBar",
+                newTitle, mActivityTestRule.getActivity().getSupportActionBar().getTitle());
     }
 
     @Test

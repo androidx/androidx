@@ -73,7 +73,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
         final RecyclerView.ViewHolder oldVh = mRecyclerView.findViewHolderForAdapterPosition(3);
         assertNotNull("test sanity", oldVh);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 oldVh.itemView.requestFocus();
@@ -128,7 +128,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mRecyclerView.setItemAnimator(animator);
         mLayoutManager.expectLayouts(2);
         final RecyclerView.ViewHolder[] updatedVH = new RecyclerView.ViewHolder[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 adapter.notifyItemChanged(0);
@@ -550,7 +550,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         waitForAnimations(2);
         final View[] targetChild = new View[1];
         final LoggingItemAnimator animator = new LoggingItemAnimator();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.setItemAnimator(animator);
@@ -560,7 +560,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
         assertNotNull("test sanity", targetChild);
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
@@ -611,7 +611,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         final View[] targetChild = new View[1];
         final LoggingItemAnimator animator = new LoggingItemAnimator();
         animator.setRemoveDuration(500);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.setItemAnimator(animator);
@@ -630,7 +630,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
         mLayoutManager.waitForLayout(2);
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // The view is still a child of mRecyclerView, and is invisible for accessibility.
@@ -644,7 +644,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         waitForAnimations(2);
 
         // Delete animation is now complete.
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // The view is in recycled state, and back to the expected accessibility.
@@ -660,7 +660,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mTestAdapter.addAndNotify(1);
         mLayoutManager.waitForLayout(2);
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // The view should be reused, and have the expected accessibility.
@@ -913,7 +913,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             changedIndexNewType.set(defaultType + 1);
         }
         if (deleteSomeItems) {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -983,7 +983,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 expectedPayloads.add(expectedPayloadsInOnBind[i][j]);
             }
             final Object[] payloadsToSend = notifyPayloads[i];
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     for (int j = 0; j < payloadsToSend.length; j++) {
@@ -1105,7 +1105,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         setupBasic(10, 3, 4);
         int layoutCount = mLayoutManager.mTotalLayoutCount;
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -1315,7 +1315,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 super.onScroll(dx, recycler, state);
             }
         });
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mTestAdapter.mItems.remove(5);
@@ -1350,7 +1350,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 super.onScroll(dx, recycler, state);
             }
         });
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mTestAdapter.mItems.remove(5);
@@ -1418,7 +1418,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         int limit = 200;
         while (addedView[0] == null || addedView[1] == null) {
             Thread.sleep(100);
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if (mRecyclerView.getChildCount() == 3) {
@@ -1477,7 +1477,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         TestRecyclerView testRecyclerView = getTestRecyclerView();
         mLayoutManager.expectLayouts(1);
         testRecyclerView.expectDraw(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mTestAdapter.mItems.clear();
@@ -1512,7 +1512,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 assertEquals("offset check", 2, mAdapterHelper.findPositionOffset(4));
             }
         };
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {

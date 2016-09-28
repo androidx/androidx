@@ -20,11 +20,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.support.annotation.UiThread;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.v7.widget.TestActivity;
 import android.util.SparseBooleanArray;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -34,7 +38,10 @@ import java.util.concurrent.TimeUnit;
 
 @MediumTest
 @RunWith(JUnit4.class)
-public class AsyncListUtilTest extends BaseThreadedTest {
+public class AsyncListUtilTest {
+    @Rule
+    public ActivityTestRule<TestActivity> mActivityRule =
+            new ActivityTestRule<>(TestActivity.class);
 
     private static final int TILE_SIZE = 10;
 
@@ -43,20 +50,15 @@ public class AsyncListUtilTest extends BaseThreadedTest {
 
     AsyncListUtil<String> mAsyncListUtil;
 
+    @UiThreadTest
     @Before
-    public final void setupCallbacks() throws Exception {
+    public final void setup() throws Throwable {
         mDataCallback = new TestDataCallback();
         mViewCallback = new TestViewCallback();
         mDataCallback.expectTiles(0, 10, 20);
-        super.setUp();
-        mDataCallback.waitForTiles("initial load");
-    }
-
-    @Override
-    @UiThread
-    protected void setUpUi() {
         mAsyncListUtil = new AsyncListUtil<String>(
                 String.class, TILE_SIZE, mDataCallback, mViewCallback);
+        mDataCallback.waitForTiles("initial load");
     }
 
     @After
@@ -150,7 +152,7 @@ public class AsyncListUtilTest extends BaseThreadedTest {
     }
 
     private void refreshOnUiThread() throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAsyncListUtil.refresh();
@@ -162,7 +164,7 @@ public class AsyncListUtilTest extends BaseThreadedTest {
                                              final int expectedCount,
                                              final int position,
                                              final int count) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 assertEquals(message, expectedCount, getLoadedItemCount(position, count));
@@ -171,7 +173,7 @@ public class AsyncListUtilTest extends BaseThreadedTest {
     }
 
     private void scrollOnUiThread(final int position) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mViewCallback.scrollTo(position);

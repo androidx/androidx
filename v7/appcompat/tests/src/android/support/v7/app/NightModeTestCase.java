@@ -21,11 +21,12 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.v7.app.NightModeActivity.TOP_ACTIVITY;
-import static android.support.v7.testutils.TestUtils.setLocalNightModeAndWaitForRecreate;
 import static android.support.v7.testutils.TestUtilsMatchers.isBackground;
 
 import static org.junit.Assert.assertFalse;
 
+import android.app.Instrumentation;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.Suppress;
@@ -53,12 +54,13 @@ public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActi
     }
 
     @Test
-    public void testLocalDayNightModeRecreatesActivity() {
+    public void testLocalDayNightModeRecreatesActivity() throws Throwable {
         // Verify first that we're in day mode
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)));
 
         // Now force the local night mode to be yes (aka night mode)
-        setLocalNightModeAndWaitForRecreate(getActivity(), AppCompatDelegate.MODE_NIGHT_YES);
+        setLocalNightModeAndWaitForRecreate(
+                mActivityTestRule.getActivity(), AppCompatDelegate.MODE_NIGHT_YES);
 
         // Now check the text has changed, signifying that night resources are being used
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
@@ -66,8 +68,8 @@ public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActi
 
     @Suppress // Disabled b/31515380
     @Test
-    public void testColorConvertedDrawableChangesWithNightMode() {
-        final NightModeActivity activity = getActivity();
+    public void testColorConvertedDrawableChangesWithNightMode() throws Throwable {
+        final NightModeActivity activity = mActivityTestRule.getActivity();
         final int dayColor = activity.getResources().getColor(R.color.color_sky_day);
         final int nightColor = activity.getResources().getColor(R.color.color_sky_night);
 
@@ -88,12 +90,12 @@ public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActi
     }
 
     @Test
-    public void testNightModeAutoRecreatesOnTimeChange() {
+    public void testNightModeAutoRecreatesOnTimeChange() throws Throwable {
         // Create a fake TwilightManager and set it as the app instance
         final FakeTwilightManager twilightManager = new FakeTwilightManager();
         TwilightManager.setInstance(twilightManager);
 
-        final NightModeActivity activity = getActivity();
+        final NightModeActivity activity = mActivityTestRule.getActivity();
         final AppCompatDelegateImplV14 delegate = (AppCompatDelegateImplV14) activity.getDelegate();
 
         // Verify that we're currently in day mode
@@ -106,7 +108,7 @@ public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActi
         assertFalse(activity.isDestroyed());
 
         // Now update the fake twilight manager to be in night and trigger a fake 'time' change
-        getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 twilightManager.setIsNight(true);
@@ -136,5 +138,17 @@ public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActi
         void setIsNight(boolean night) {
             mIsNight = night;
         }
+    }
+
+    private void setLocalNightModeAndWaitForRecreate(final AppCompatActivity activity,
+            @AppCompatDelegate.NightMode final int nightMode) throws Throwable {
+        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.getDelegate().setLocalNightMode(nightMode);
+            }
+        });
+        instrumentation.waitForIdleSync();
     }
 }

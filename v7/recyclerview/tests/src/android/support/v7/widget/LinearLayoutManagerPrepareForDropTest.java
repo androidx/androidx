@@ -169,7 +169,7 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
             y = dragCoordinate;
             x = fromChild.getLeft();
         }
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mTestAdapter.moveInUIThread(fromPos, toPos);

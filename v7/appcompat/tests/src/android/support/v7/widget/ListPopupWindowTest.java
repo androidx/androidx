@@ -152,14 +152,14 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
 
     @Test
     @SmallTest
-    public void testDismissalViaAPI() {
+    public void testDismissalViaAPI() throws Throwable {
         Builder popupBuilder = new Builder().withDismissListener();
         popupBuilder.wireToActionButton();
 
         onView(withId(R.id.test_button)).perform(click());
         assertTrue("Popup window showing", mListPopupWindow.isShowing());
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mListPopupWindow.dismiss();
@@ -278,7 +278,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
 
     @Test
     @SmallTest
-    public void testItemClickViaAPI() {
+    public void testItemClickViaAPI() throws Throwable {
         Builder popupBuilder = new Builder().withItemClickListener();
         popupBuilder.wireToActionButton();
 
@@ -289,7 +289,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         verify(popupBuilder.mOnItemClickListener, never()).onItemClick(
                 any(AdapterView.class), any(View.class), any(int.class), any(int.class));
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mListPopupWindow.performItemClick(1);

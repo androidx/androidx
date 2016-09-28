@@ -429,9 +429,9 @@ public class BottomSheetBehaviorTest extends
 
     @Test
     @MediumTest
-    public void testInvisible() {
+    public void testInvisible() throws Throwable {
         // Make the bottomsheet invisible
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 getBottomSheet().setVisibility(View.INVISIBLE);
@@ -450,7 +450,7 @@ public class BottomSheetBehaviorTest extends
                         }, Press.FINGER),
                         not(ViewMatchers.isDisplayed())));
         // Check that the bottom sheet stays the same collapsed state
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 assertThat(getBehavior().getState(), is(BottomSheetBehavior.STATE_COLLAPSED));
@@ -460,8 +460,8 @@ public class BottomSheetBehaviorTest extends
 
     @Test
     @MediumTest
-    public void testInvisibleThenVisible() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+    public void testInvisibleThenVisible() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // The bottom sheet is initially invisible
@@ -500,12 +500,12 @@ public class BottomSheetBehaviorTest extends
 
     @Test
     @MediumTest
-    public void testNestedScroll() {
+    public void testNestedScroll() throws Throwable {
         final ViewGroup bottomSheet = getBottomSheet();
         final BottomSheetBehavior behavior = getBehavior();
         final NestedScrollView scroll = new NestedScrollView(mActivityTestRule.getActivity());
         // Set up nested scrolling area
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 bottomSheet.addView(scroll, new ViewGroup.LayoutParams(
@@ -647,14 +647,14 @@ public class BottomSheetBehaviorTest extends
     }
 
     @Test
-    public void testAutoPeekHeight() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+    public void testAutoPeekHeight() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 getBehavior().setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
             }
         });
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CoordinatorLayout col = getCoordinatorLayout();
@@ -667,8 +667,8 @@ public class BottomSheetBehaviorTest extends
 
     @Test
     @MediumTest
-    public void testAutoPeekHeightHide() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+    public void testAutoPeekHeightHide() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 getBehavior().setHideable(true);

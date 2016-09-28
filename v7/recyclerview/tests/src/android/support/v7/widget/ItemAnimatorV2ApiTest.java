@@ -480,12 +480,12 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         notifyDataSetChangedWithAppearing(true);
     }
 
-    public void notifyDataSetChangedWithAppearing(final boolean notifyBoth) throws Throwable {
+    private void notifyDataSetChangedWithAppearing(final boolean notifyBoth) throws Throwable {
         final TestAdapter adapter = new TestAdapter(10);
         adapter.setHasStableIds(true);
         setupBasic(10, 0, 10, adapter);
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -519,12 +519,12 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         notifyDataSetChangedWithDispappearing(true);
     }
 
-    public void notifyDataSetChangedWithDispappearing(final boolean notifyBoth) throws Throwable {
+    private void notifyDataSetChangedWithDispappearing(final boolean notifyBoth) throws Throwable {
         final TestAdapter adapter = new TestAdapter(10);
         adapter.setHasStableIds(true);
         setupBasic(10, 0, 10, adapter);
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {

@@ -91,7 +91,7 @@ public class AsyncListUtilLayoutTest extends BaseRecyclerViewInstrumentationTest
         mDataCallback.expectTilesInRange(rangeStart, rangeSize);
         mAdapter.expectItemsInRange(rangeStart, rangeSize);
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAsyncListUtil = new AsyncListUtil<>(
@@ -151,7 +151,7 @@ public class AsyncListUtilLayoutTest extends BaseRecyclerViewInstrumentationTest
     }
 
     void scrollToPositionWithOffset(final int position, final int offset) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mLayoutManager.scrollToPositionWithOffset(position, offset);

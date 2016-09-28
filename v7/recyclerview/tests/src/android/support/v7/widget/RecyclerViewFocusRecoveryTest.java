@@ -118,7 +118,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         mAdapter.changeAndNotify(3, 1);
         mLayoutManager.waitForLayout(2);
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 RecyclerView.ViewHolder newVh = mRecyclerView.findViewHolderForAdapterPosition(3);
@@ -157,7 +157,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         mLayoutManager.setSupportsPredictive(withAnimation);
         final RecyclerView.ViewHolder oldVh = focusVh(3);
         mLayoutManager.expectLayouts(withAnimation ? 2 : 1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Item item = mAdapter.mItems.get(3);
@@ -200,7 +200,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         long itemId = oldVh.getItemId();
 
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Item item = mAdapter.mItems.get(4);
@@ -267,7 +267,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         assertThat("test sanity", mAdapter.hasStableIds(), is(false));
         focusVh(4);
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -304,7 +304,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         RecyclerView.ViewHolder oldVh = focusVh(3);
         final long itemId = oldVh.getItemId();
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAdapter.mItems.get(3).mType = TYPE_NO_FOCUS;
@@ -352,7 +352,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         assertFocus(oldVh, true);
         toFocusId.set(mAdapter.mItems.get(5).mId);
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAdapter.mItems.get(3).mType += 2;

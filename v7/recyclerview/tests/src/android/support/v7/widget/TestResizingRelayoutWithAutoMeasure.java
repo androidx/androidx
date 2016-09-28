@@ -110,7 +110,7 @@ public class TestResizingRelayoutWithAutoMeasure extends BaseRecyclerViewInstrum
         recyclerView.waitUntilLayout();
         recyclerView.waitUntilAnimations();
         final Map<Integer, Rect> startPositions = capturePositions(recyclerView);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 recyclerView.measure(

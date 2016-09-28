@@ -28,7 +28,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
@@ -88,7 +87,7 @@ public class FocusSearchNavigationTest {
 
     private void setup(final int itemCount) throws Throwable {
         mActivity = mActivityRule.getActivity();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mActivity.setContentView(R.layout.focus_search_activity);
@@ -178,7 +177,7 @@ public class FocusSearchNavigationTest {
 
     private View focusSearch(final View view, final int focusDir) throws Throwable {
         final View[] result = new View[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 result[0] = view.focusSearch(focusDir);
@@ -194,7 +193,7 @@ public class FocusSearchNavigationTest {
     }
 
     private void requestFocus(final View view) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 view.requestFocus();
@@ -205,7 +204,7 @@ public class FocusSearchNavigationTest {
 
     public void waitForIdleScroll(final RecyclerView recyclerView) throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 RecyclerView.OnScrollListener listener = new RecyclerView.OnScrollListener() {
@@ -225,14 +224,6 @@ public class FocusSearchNavigationTest {
             }
         });
         assertTrue("should go idle in 10 seconds", latch.await(10, TimeUnit.SECONDS));
-    }
-
-    private void runTestOnUiThread(Runnable r) throws Throwable {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            r.run();
-        } else {
-            InstrumentationRegistry.getInstrumentation().runOnMainSync(r);
-        }
     }
 
     static class FocusSearchAdapter extends RecyclerView.Adapter {

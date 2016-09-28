@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v17.leanback.R;
@@ -47,7 +46,7 @@ public class DetailsFragmentTest {
     private DetailsFragmentTestActivity mActivity;
 
     @Test
-    public void parallaxTest() throws InterruptedException {
+    public void parallaxTest() throws Throwable {
         final int mDefaultVerticalOffset = -300;
         Intent intent = new Intent();
         intent.putExtra(DetailsTestFragment.VERTICAL_OFFSET, mDefaultVerticalOffset);
@@ -75,7 +74,7 @@ public class DetailsFragmentTest {
                 R.dimen.lb_details_v2_align_pos_for_actions), bounds.height());
         assertEquals(0, bitmapDrawable.getVerticalOffset());
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        activityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 detailsFragment.getRowsFragment().getVerticalGridView().scrollToPosition(1);

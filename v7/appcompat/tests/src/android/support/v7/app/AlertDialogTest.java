@@ -54,7 +54,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.ColorInt;
 import android.support.annotation.StringRes;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.ViewInteraction;
@@ -179,7 +178,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
 
     @Test
     @SmallTest
-    public void testMessageStringPostCreation() {
+    public void testMessageStringPostCreation() throws Throwable {
         final String dialogInitialMessage = "Initial message";
         final String dialogUpdatedMessage = "Updated message";
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
@@ -192,7 +191,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         onView(withText(dialogInitialMessage)).inRoot(isDialog()).check(matches(isDisplayed()));
 
         // Update the dialog message
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAlertDialog.setMessage(dialogUpdatedMessage);
@@ -750,7 +749,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         Thread.sleep(1000);
 
         // Change the icon
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAlertDialog.setIcon(R.drawable.test_drawable_green);
@@ -781,7 +780,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         Thread.sleep(1000);
 
         // Change the icon
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAlertDialog.setIcon(R.drawable.test_drawable_green);
@@ -813,7 +812,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         Thread.sleep(1000);
 
         // Change the icon
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAlertDialog.setIcon(0);
@@ -866,7 +865,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         Thread.sleep(1000);
 
         // Change the icon
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAlertDialog.setIcon(new TestDrawable(0xFF503090, 40, 40));
@@ -897,7 +896,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         Thread.sleep(1000);
 
         // Change the icon
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAlertDialog.setIcon(new TestDrawable(0xFF503090, 40, 40));
@@ -929,7 +928,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         Thread.sleep(1000);
 
         // Change the icon
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAlertDialog.setIcon(null);

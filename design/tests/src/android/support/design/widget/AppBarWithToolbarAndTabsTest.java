@@ -37,7 +37,8 @@ public class AppBarWithToolbarAndTabsTest extends AppBarLayoutBaseTest {
     private TabLayout mTabLayout;
 
     @Override
-    protected void configureContent(@LayoutRes int layoutResId, @StringRes int titleResId) {
+    protected void configureContent(@LayoutRes int layoutResId, @StringRes int titleResId)
+            throws Throwable {
         super.configureContent(layoutResId, titleResId);
 
         mTabLayout = (TabLayout) mAppBar.findViewById(R.id.tabs);
@@ -47,7 +48,7 @@ public class AppBarWithToolbarAndTabsTest extends AppBarLayoutBaseTest {
     }
 
     @Test
-    public void testScrollingToolbarAndScrollingTabs() {
+    public void testScrollingToolbarAndScrollingTabs() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_scroll_tabs_scroll,
                 R.string.design_appbar_toolbar_scroll_tabs_scroll);
 
@@ -140,7 +141,7 @@ public class AppBarWithToolbarAndTabsTest extends AppBarLayoutBaseTest {
     }
 
     @Test
-    public void testScrollingToolbarAndPinnedTabs() {
+    public void testScrollingToolbarAndPinnedTabs() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_scroll_tabs_pinned,
                 R.string.design_appbar_toolbar_scroll_tabs_pin);
 
@@ -234,7 +235,7 @@ public class AppBarWithToolbarAndTabsTest extends AppBarLayoutBaseTest {
 
     @LargeTest
     @Test
-    public void testSnappingToolbarAndSnappingTabs() {
+    public void testSnappingToolbarAndSnappingTabs() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_scroll_tabs_scroll_snap,
                 R.string.design_appbar_toolbar_scroll_tabs_scroll_snap);
 

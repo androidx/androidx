@@ -54,7 +54,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
-    public void testSetFitSystemWindows() {
+    public void testSetFitSystemWindows() throws Throwable {
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
         final View view = new View(col.getContext());
@@ -70,7 +70,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
 
         // Now add a view with our mocked behavior to the CoordinatorLayout
         view.setFitsSystemWindows(true);
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final CoordinatorLayout.LayoutParams lp = col.generateDefaultLayoutParams();
@@ -81,7 +81,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
         instrumentation.waitForIdleSync();
 
         // Now request some insets and wait for the pass to happen
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 col.requestApplyInsets();
@@ -94,7 +94,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
                 .onApplyWindowInsets(same(col), same(view), any(WindowInsetsCompat.class));
 
         // Now enable fits system windows and wait for a pass to happen
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 col.setFitsSystemWindows(true);
@@ -162,7 +162,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
     }
 
     @Test
-    public void testInsetEdge() {
+    public void testInsetEdge() throws Throwable {
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
 
@@ -170,7 +170,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
         final View dodgeInsetView = new View(col.getContext());
         final AtomicInteger originalTop = new AtomicInteger();
 
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CoordinatorLayout.LayoutParams lpInsetView = col.generateDefaultLayoutParams();
@@ -191,7 +191,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
             }
         });
         instrumentation.waitForIdleSync();
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 List<View> dependencies = col.getDependencies(dodgeInsetView);
@@ -205,7 +205,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
             }
         });
         instrumentation.waitForIdleSync();
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // Confirm that the dodging view was moved by the same size
@@ -215,7 +215,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
     }
 
     @Test
-    public void testDependentViewChanged() {
+    public void testDependentViewChanged() throws Throwable {
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
 
@@ -233,7 +233,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
                 spy(new CoordinatorLayoutUtils.DependentBehavior(viewA));
         lpB.setBehavior(behavior);
 
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 col.addView(viewA, lpA);
@@ -247,7 +247,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
         reset(behavior);
 
         // Now offset view A
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 ViewCompat.offsetLeftAndRight(viewA, 20);
@@ -261,7 +261,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
     }
 
     @Test
-    public void testDependentViewRemoved() {
+    public void testDependentViewRemoved() throws Throwable {
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
 
@@ -273,7 +273,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
                 spy(new CoordinatorLayoutUtils.DependentBehavior(viewA));
         lpB.setBehavior(behavior);
 
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 col.addView(viewA);
@@ -283,7 +283,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
         instrumentation.waitForIdleSync();
 
         // Now remove view A
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 col.removeView(viewA);
@@ -295,7 +295,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
     }
 
     @Test
-    public void testGetDependenciesAfterDependentViewRemoved() {
+    public void testGetDependenciesAfterDependentViewRemoved() throws Throwable {
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
 
@@ -314,7 +314,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
         lpB.setBehavior(behavior);
 
         // Now add views
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 col.addView(viewA);
@@ -326,7 +326,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
         instrumentation.waitForIdleSync();
 
         // Now remove view A, which will trigger onDependentViewRemoved() on view B's behavior
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 col.removeView(viewA);

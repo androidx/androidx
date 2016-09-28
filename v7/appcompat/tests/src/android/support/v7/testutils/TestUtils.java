@@ -16,7 +16,6 @@
 
 package android.support.v7.testutils;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -25,10 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
-import android.support.test.InstrumentationRegistry;
 import android.support.v4.util.Pair;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.TintTypedArray;
 import android.view.View;
 import android.view.ViewParent;
@@ -253,17 +249,5 @@ public class TestUtils {
         } finally {
             a.recycle();
         }
-    }
-
-    public static void setLocalNightModeAndWaitForRecreate(final AppCompatActivity activity,
-            @AppCompatDelegate.NightMode final int nightMode) {
-        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        instrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                activity.getDelegate().setLocalNightMode(nightMode);
-            }
-        });
-        instrumentation.waitForIdleSync();
     }
 }

@@ -49,9 +49,9 @@ public class GridLayoutTest {
         mActivityTestRule = new ActivityTestRule<>(GridLayoutTestActivity.class);
     }
 
-    private void setContentView(final int layoutId) {
+    private void setContentView(final int layoutId) throws Throwable {
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final Activity activity = mActivityTestRule.getActivity();
@@ -66,7 +66,7 @@ public class GridLayoutTest {
     }
 
     @Test
-    public void testUseDefaultMargin() {
+    public void testUseDefaultMargin() throws Throwable {
         setContentView(R.layout.use_default_margin_test);
         int left = mLeftView.getWidth();
         int right = mRightView.getWidth();
@@ -79,7 +79,7 @@ public class GridLayoutTest {
     }
 
     @Test
-    public void testImplicitFillHorizontal() {
+    public void testImplicitFillHorizontal() throws Throwable {
         setContentView(R.layout.fill_horizontal_test);
         int left = mLeftView.getWidth();
         int right = mRightView.getWidth();
@@ -92,7 +92,7 @@ public class GridLayoutTest {
     }
 
     @Test
-    public void testMakeViewGone() {
+    public void testMakeViewGone() throws Throwable {
         setContentView(R.layout.make_view_gone_test);
         int left = mLeftView.getWidth();
         int right = mRightView.getWidth();
@@ -102,7 +102,7 @@ public class GridLayoutTest {
         assertTrue("test sanity", total > 0);
         // set second view to gone
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final View rightView = mActivityTestRule.getActivity().findViewById(R.id.rightView);
@@ -117,7 +117,7 @@ public class GridLayoutTest {
     }
 
     @Test
-    public void testWrapContentInOtherDirection() {
+    public void testWrapContentInOtherDirection() throws Throwable {
         setContentView(R.layout.height_wrap_content_test);
         int left = mLeftView.getHeight();
         int right = mRightView.getHeight();

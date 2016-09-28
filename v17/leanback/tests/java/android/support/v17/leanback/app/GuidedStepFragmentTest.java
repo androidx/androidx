@@ -24,7 +24,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.os.Bundle;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.testutils.PollingCheck;
@@ -158,7 +157,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
         sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
         PollingCheck.waitFor(new EnterTransitionFinish(second));
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        activityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 activity.recreate();

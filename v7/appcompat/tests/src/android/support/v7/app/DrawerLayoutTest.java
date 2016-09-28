@@ -40,7 +40,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.os.Build;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.action.GeneralLocation;
 import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Press;
@@ -112,10 +111,10 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
 
     @Test
     @MediumTest
-    public void testDrawerOpenCloseFocus() {
+    public void testDrawerOpenCloseFocus() throws Throwable {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mContentView.setFocusableInTouchMode(true);

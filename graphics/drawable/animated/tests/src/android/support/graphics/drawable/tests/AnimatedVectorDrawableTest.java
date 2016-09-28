@@ -28,7 +28,6 @@ import android.graphics.drawable.Drawable.ConstantState;
 import android.support.annotation.DrawableRes;
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.graphics.drawable.animated.test.R;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -200,7 +199,7 @@ public class AnimatedVectorDrawableTest {
         final Canvas c = new Canvas(bitmap);
         CountDownLatch latch = new CountDownLatch(numTests);
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
@@ -226,7 +225,7 @@ public class AnimatedVectorDrawableTest {
      */
     private void verifyRedOnly(final int pixelX, final int pixelY, final View button,
             final Bitmap bitmap, final Canvas canvas, final CountDownLatch latch) throws Throwable {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 button.draw(canvas);

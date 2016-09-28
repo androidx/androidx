@@ -285,7 +285,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
     @Test
     @SmallTest
-    public void testDismissalViaAPI() {
+    public void testDismissalViaAPI() throws Throwable {
         Builder menuBuilder = new Builder().withDismissListener();
         menuBuilder.wireToActionButton();
 
@@ -293,7 +293,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
         // Since PopupMenu is not a View, we can't use Espresso's view actions to invoke
         // the dismiss() API
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mPopupMenu.dismiss();
@@ -388,7 +388,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
     @Test
     @SmallTest
-    public void testSimpleMenuItemClickViaAPI() {
+    public void testSimpleMenuItemClickViaAPI() throws Throwable {
         Builder menuBuilder = new Builder().withMenuItemClickListener();
         menuBuilder.wireToActionButton();
 
@@ -397,7 +397,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         // Verify that our menu item click listener hasn't been called yet
         verify(menuBuilder.mOnMenuItemClickListener, never()).onMenuItemClick(any(MenuItem.class));
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mPopupMenu.getMenu().performIdentifierAction(R.id.action_highlight, 0);
@@ -485,7 +485,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         // Verify that our menu item click listener hasn't been called yet
         verify(menuBuilder.mOnMenuItemClickListener, never()).onMenuItemClick(any(MenuItem.class));
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mPopupMenu.getMenu().performIdentifierAction(R.id.action_share, 0);
@@ -527,7 +527,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
                 .check(matches(isDisplayed()));
 
         // Now ask the share submenu to perform an action on its specific menu item
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mPopupMenu.getMenu().findItem(R.id.action_share).getSubMenu().

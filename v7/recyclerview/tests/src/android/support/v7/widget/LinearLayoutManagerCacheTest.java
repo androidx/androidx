@@ -72,7 +72,7 @@ public class LinearLayoutManagerCacheTest extends BaseLinearLayoutManagerTest {
 
         setupByConfig(config, true);
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // pretend to have an extra 5s before next frame so prefetch won't abort early
@@ -85,7 +85,7 @@ public class LinearLayoutManagerCacheTest extends BaseLinearLayoutManagerTest {
         mRecyclerView.setItemViewCacheSize(0);
         {
             mLayoutManager.expectPrefetch(1);
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     mRecyclerView.mRecycler.recycleAndClearCachedViews();
@@ -99,7 +99,7 @@ public class LinearLayoutManagerCacheTest extends BaseLinearLayoutManagerTest {
         }
 
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // validate cache state on UI thread

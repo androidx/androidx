@@ -65,7 +65,7 @@ public class GridLayoutManagerBaseConfigSetTest extends BaseGridLayoutManagerTes
                 * (config.mReverseLayout ? -1 : 1);
         final String logPrefix = config.toString();
         final int[] globalPos = new int[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 assertSame("test sanity", mRecyclerView, rv);
@@ -109,7 +109,7 @@ public class GridLayoutManagerBaseConfigSetTest extends BaseGridLayoutManagerTes
         });
         checkForMainThreadException();
         // test sanity, ensure scroll happened
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final int childCount = mGlm.getChildCount();
@@ -125,7 +125,7 @@ public class GridLayoutManagerBaseConfigSetTest extends BaseGridLayoutManagerTes
             }
         });
         getInstrumentation().waitForIdleSync();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 int globalScrollPosition = globalPos[0];

@@ -46,12 +46,12 @@ import org.junit.runner.RunWith;
 public class RecyclerViewTest {
 
     @Rule
-    public ActivityTestRule<RecyclerViewTestActivity> mActivityRule
-            = new ActivityTestRule<>(RecyclerViewTestActivity.class);
+    public ActivityTestRule<RecyclerViewTestActivity> mActivityRule =
+            new ActivityTestRule<>(RecyclerViewTestActivity.class);
 
     private void setContentView(final int layoutId) throws Throwable {
         final Activity activity = mActivityRule.getActivity();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 activity.setContentView(layoutId);

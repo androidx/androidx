@@ -35,11 +35,11 @@ public class FragmentContentIdTest extends BaseInstrumentationTestCase<FragmentC
 
     @SmallTest
     @Test
-    public void testFragmentAddedToAndroidContentIdCanBeRemoved() {
-        getInstrumentation().runOnMainSync(new Runnable() {
+    public void testFragmentAddedToAndroidContentIdCanBeRemoved() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                getActivity().replaceWithFragmentB();
+                mActivityTestRule.getActivity().replaceWithFragmentB();
             }
         });
 

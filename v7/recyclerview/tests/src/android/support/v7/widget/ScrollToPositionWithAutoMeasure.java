@@ -68,7 +68,7 @@ public class ScrollToPositionWithAutoMeasure extends BaseRecyclerViewInstrumenta
         setRecyclerView(recyclerView);
         getInstrumentation().waitForIdleSync();
         assertThat("Test sanity", recyclerView.getChildCount() > 0, is(true));
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 View lastChild = llm.getChildAt(llm.getChildCount() - 1);

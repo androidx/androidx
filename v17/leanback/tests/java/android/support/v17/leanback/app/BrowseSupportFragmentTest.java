@@ -128,7 +128,7 @@ public class BrowseSupportFragmentTest {
     }
 
     @Test
-    public void activityRecreate_notCrash() throws InterruptedException {
+    public void activityRecreate_notCrash() throws Throwable {
         final long dataLoadingDelay = 1000;
         Intent intent = new Intent();
         intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
@@ -139,7 +139,7 @@ public class BrowseSupportFragmentTest {
         Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
 
         InstrumentationRegistry.getInstrumentation().callActivityOnRestart(mActivity);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        activityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mActivity.recreate();

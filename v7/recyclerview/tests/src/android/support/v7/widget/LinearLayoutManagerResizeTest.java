@@ -54,7 +54,7 @@ public class LinearLayoutManagerResizeTest extends BaseLinearLayoutManagerTest {
     public void resize() throws Throwable {
         final Config config = (Config) mConfig.clone();
         final FrameLayout container = getRecyclerViewContainer();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 container.setPadding(0, 0, 0, 0);
@@ -70,7 +70,7 @@ public class LinearLayoutManagerResizeTest extends BaseLinearLayoutManagerTest {
                 .findFirstCompletelyVisibleItemPosition();
         mLayoutManager.expectLayouts(1);
         // resize the recycler view to half
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (config.mOrientation == HORIZONTAL) {

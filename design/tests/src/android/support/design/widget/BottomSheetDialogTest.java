@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.SystemClock;
 import android.support.design.test.R;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
@@ -56,8 +55,8 @@ public class BottomSheetDialogTest extends
 
     @Test
     @MediumTest
-    public void testBasicDialogSetup() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+    public void testBasicDialogSetup() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 showDialog();
@@ -76,7 +75,7 @@ public class BottomSheetDialogTest extends
         // Click outside the bottom sheet
         Espresso.onView(ViewMatchers.withId(R.id.touch_outside))
                 .perform(ViewActions.click());
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // Confirm that the dialog is no longer shown
@@ -87,8 +86,8 @@ public class BottomSheetDialogTest extends
 
     @Test
     @MediumTest
-    public void testShortDialog() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+    public void testShortDialog() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 showDialog();
@@ -98,7 +97,7 @@ public class BottomSheetDialogTest extends
         Espresso.onView(ViewMatchers.withId(R.id.design_bottom_sheet))
                 .perform(setTallPeekHeight())
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 FrameLayout bottomSheet = (FrameLayout) mDialog
@@ -119,8 +118,8 @@ public class BottomSheetDialogTest extends
 
     @Test
     @MediumTest
-    public void testNonCancelableDialog() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+    public void testNonCancelableDialog() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 showDialog();
@@ -130,7 +129,7 @@ public class BottomSheetDialogTest extends
         // Click outside the bottom sheet
         Espresso.onView(ViewMatchers.withId(R.id.touch_outside))
                 .perform(ViewActions.click());
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 FrameLayout bottomSheet = (FrameLayout) mDialog
@@ -146,9 +145,9 @@ public class BottomSheetDialogTest extends
 
     @Test
     @MediumTest
-    public void testHideBottomSheet() {
+    public void testHideBottomSheet() throws Throwable {
         final AtomicBoolean canceled = new AtomicBoolean(false);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 showDialog();
