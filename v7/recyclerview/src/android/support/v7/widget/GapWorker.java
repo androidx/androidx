@@ -24,8 +24,6 @@ import java.util.concurrent.TimeUnit;
 class GapWorker implements Runnable {
     static final ThreadLocal<GapWorker> sGapWorker = new ThreadLocal<>();
 
-    private static final long MIN_PREFETCH_TIME_NANOS = TimeUnit.MILLISECONDS.toNanos(4);
-
     ArrayList<RecyclerView> mRecyclerViews = new ArrayList<>();
     long mPostTimeNs;
     long mFrameIntervalNs;
@@ -53,17 +51,34 @@ class GapWorker implements Runnable {
                 throw new IllegalStateException("attempting to post unregistered view!");
             }
             if (mPostTimeNs == 0) {
-                mPostTimeNs = System.nanoTime();
+                mPostTimeNs = recyclerView.getNanoTime();
                 recyclerView.post(this);
             }
         }
 
         recyclerView.mPrefetchDx = prefetchDx;
         recyclerView.mPrefetchDy = prefetchDy;
-
     }
 
-    void layoutPrefetch(long deadlineNs, RecyclerView view) {
+    static boolean lastPrefetchIncludedPosition(RecyclerView recyclerView, int position) {
+        if (recyclerView.mPrefetchArray != null) {
+            for (int i = 0; i < recyclerView.mPrefetchArray.length; i++) {
+                if (recyclerView.mPrefetchArray[i] == position) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Called when prefetch indices are no longer valid for cache prioritization.
+     */
+    static void clearPrefetchPositions(RecyclerView recyclerView) {
+        if (recyclerView.mPrefetchArray != null) {
+            Arrays.fill(recyclerView.mPrefetchArray, -1);
+        }
+    }
+
+    static void layoutPrefetch(long deadlineNs, RecyclerView view) {
         final int prefetchCount = view.mLayout.getItemPrefetchCount();
         if (view.mAdapter == null
                 || view.mLayout == null
@@ -71,14 +86,6 @@ class GapWorker implements Runnable {
                 || prefetchCount < 1
                 || view.hasPendingAdapterUpdates()) {
             // abort - no work
-            return;
-        }
-
-        long nowNanos = System.nanoTime();
-        if (nowNanos - mPostTimeNs > mFrameIntervalNs
-                || deadlineNs - nowNanos < MIN_PREFETCH_TIME_NANOS) {
-            // abort - Executing either too far after post,
-            // or too near next scheduled vsync
             return;
         }
 
@@ -90,7 +97,35 @@ class GapWorker implements Runnable {
         int viewCount = view.mLayout.gatherPrefetchIndices(
                 view.mPrefetchDx, view.mPrefetchDy,
                 view.mState, view.mPrefetchArray);
-        view.mRecycler.prefetch(view.mPrefetchArray, viewCount);
+        layoutPrefetchImpl(deadlineNs, view.mRecycler, view.mPrefetchArray, viewCount);
+    }
+
+    static void layoutPrefetchImpl(long deadlineNs, RecyclerView.Recycler recycler,
+            int[] prefetchArray, int viewCount) {
+        if (viewCount == 0) return;
+
+        int childPosition = prefetchArray[viewCount - 1];
+        if (childPosition < 0) {
+            throw new IllegalArgumentException("Invalid prefetch position requested: "
+                    + childPosition);
+        }
+        RecyclerView.ViewHolder holder = recycler.tryGetViewHolderForPositionByDeadline(
+                childPosition, false, deadlineNs);
+        if (viewCount > 1) {
+            layoutPrefetchImpl(deadlineNs, recycler, prefetchArray, viewCount - 1);
+        }
+        if (holder != null) {
+            if (holder.isBound()) {
+                // Only give the view a chance to go into the cache if binding succeeded
+                recycler.recycleViewHolderInternal(holder);
+            } else {
+                // Didn't bind, so we can't cache the view, but it will stay in the pool until next
+                // prefetch/traversal. If a View fails to bind, it means we didn't have enough time
+                // prior to the deadline (and won't for other instances of this type, during this
+                // GapWorker pass).
+                recycler.addViewHolderToRecycledViewPool(holder);
+            }
+        }
     }
 
     @Override
@@ -112,6 +147,8 @@ class GapWorker implements Runnable {
                 return;
             }
 
+            // TODO: consider rebasing deadline if frame was already dropped due to long UI work.
+            // Next frame will still wait for VSYNC, so we can still use the gap if it exists.
             long nextFrameNanos = lastFrameVsyncNanos + mFrameIntervalNs;
 
             // NOTE: it's safe to iterate over mRecyclerViews since we know that (currently),

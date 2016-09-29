@@ -77,7 +77,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -397,6 +396,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @see #getScrollState()
      */
     public static final int SCROLL_STATE_SETTLING = 2;
+
+    static final long FOREVER_NS = Long.MAX_VALUE;
 
     // Touch/scrolling handling
 
@@ -4471,24 +4472,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 || mAdapterHelper.hasPendingUpdates();
     }
 
-    boolean lastPrefetchIncludedPosition(int position) {
-        if (mPrefetchArray != null) {
-            for (int i = 0; i < mPrefetchArray.length; i++) {
-                if (mPrefetchArray[i] == position) return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Called when prefetch indices are no longer valid for cache prioritization.
-     */
-    void clearPrefetchPositions() {
-        if (mPrefetchArray != null) {
-            Arrays.fill(mPrefetchArray, -1);
-        }
-    }
-
     class ViewFlinger implements Runnable {
         private int mLastFlingX;
         private int mLastFlingY;
@@ -4604,7 +4587,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (scroller.isFinished() || !fullyConsumedAny) {
                     setScrollState(SCROLL_STATE_IDLE); // setting state to idle will stop this.
                     if (ALLOW_THREAD_GAP_WORK) {
-                        clearPrefetchPositions();
+                        GapWorker.clearPrefetchPositions(RecyclerView.this);
                     }
                 } else {
                     postOnAnimation();
@@ -4813,6 +4796,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     public static class RecycledViewPool {
         private static final int DEFAULT_MAX_SCRAP = 5;
 
+        /**
+         * Tracks both pooled holders, as well as create/bind timing metadata for the given type.
+         *
+         * Note that this tracks running averages of create/bind time across all RecyclerViews
+         * (and, indirectly, Adapters) that use this pool.
+         *
+         * 1) This enables us to track average create and bind times across multiple adapters. Even
+         * though create (and especially bind) may behave differently for different Adapter
+         * subclasses, sharing the pool is a strong signal that they'll perform similarly, per type.
+         *
+         * 2) If {@link #willBindInTime(int, long, long)} returns false for one view, it will return
+         * false for all other views of its type for the same deadline. This prevents items
+         * constructed by {@link GapWorker} prefetch from being bound to a lower priority prefetch.
+         */
         static class ScrapData {
             ArrayList<ViewHolder> mScrapHeap = new ArrayList<>();
             int mMaxScrap = DEFAULT_MAX_SCRAP;
@@ -4900,6 +4897,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     scrapData.mBindRunningAverageNs, bindTimeNs);
         }
 
+        boolean willCreateInTime(int viewType, long approxCurrentNs, long deadlineNs) {
+            long expectedDurationNs = getScrapDataForType(viewType).mCreateRunningAverageNs;
+            return expectedDurationNs == 0 || (approxCurrentNs + expectedDurationNs < deadlineNs);
+        }
+
+        boolean willBindInTime(int viewType, long approxCurrentNs, long deadlineNs) {
+            long expectedDurationNs = getScrapDataForType(viewType).mBindRunningAverageNs;
+            return expectedDurationNs == 0 || (approxCurrentNs + expectedDurationNs < deadlineNs);
+        }
+
         void attach(Adapter adapter) {
             mAttachCount++;
         }
@@ -4941,6 +4948,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             return scrapData;
         }
+    }
+
+
+    /**
+     * Time base for deadline-aware work scheduling. Overridable for testing.
+     */
+    long getNanoTime() {
+        return System.nanoTime();
     }
 
     /**
@@ -5050,16 +5065,36 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return true;
         }
 
-        private void bindViewImpl(ViewHolder holder, int offsetPosition, int position) {
+        /**
+         * Attempts to bind view, and account for relevant timing information. If
+         * deadlineNs != FOREVER_NS, this method may fail to bind, and return false.
+         *
+         * @param holder Holder to be bound.
+         * @param offsetPosition Position of item to be bound.
+         * @param position Pre-layout position of item to be bound.
+         * @param deadlineNs Time, relative to getNanoTime(), by which bind/create work should
+         *                   complete. If FOREVER_NS is passed, this method will not fail to
+         *                   bind the holder.
+         * @return
+         */
+        private boolean tryBindViewHolderByDeadline(ViewHolder holder, int offsetPosition,
+                int position, long deadlineNs) {
             holder.mOwnerRecyclerView = RecyclerView.this;
-            long startBindNs = System.nanoTime();
+            final int viewType = holder.getItemViewType();
+            long startBindNs = getNanoTime();
+            if (deadlineNs != FOREVER_NS
+                    && !mRecyclerPool.willBindInTime(viewType, startBindNs, deadlineNs)) {
+                // abort - we have a deadline we can't meet
+                return false;
+            }
             mAdapter.bindViewHolder(holder, offsetPosition);
-            long endBindNs = System.nanoTime();
+            long endBindNs = getNanoTime();
             mRecyclerPool.factorInBindTime(holder.getItemViewType(), endBindNs - startBindNs);
             attachAccessibilityDelegate(holder.itemView);
             if (mState.isPreLayout()) {
                 holder.mPreLayoutPosition = position;
             }
+            return true;
         }
 
         /**
@@ -5090,7 +5125,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         + "position " + position + "(offset:" + offsetPosition + ")."
                         + "state:" + mState.getItemCount());
             }
-            bindViewImpl(holder, offsetPosition, position);
+            tryBindViewHolderByDeadline(holder, offsetPosition, position, FOREVER_NS);
 
             final ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
             final LayoutParams rvLayoutParams;
@@ -5157,6 +5192,30 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         View getViewForPosition(int position, boolean dryRun) {
+            return tryGetViewHolderForPositionByDeadline(position, dryRun, FOREVER_NS).itemView;
+        }
+
+        /**
+         * Attempts to get the ViewHolder for the given position, either from the Recycler scrap,
+         * cache, the RecycledViewPool, or creating it directly.
+         * <p>
+         * If a deadlineNs other than {@link #FOREVER_NS} is passed, this method early return
+         * rather than constructing or binding a ViewHolder if it doesn't think it has time.
+         * If a ViewHolder must be constructed and not enough time remains, null is returned. If a
+         * ViewHolder is aquired and must be bound but not enough time remains, an unbound holder is
+         * returned. Use {@link ViewHolder#isBound()} on the returned object to check for this.
+         *
+         * @param position Position of ViewHolder to be returned.
+         * @param dryRun True if the ViewHolder should not be removed from scrap/cache/
+         * @param deadlineNs Time, relative to getNanoTime(), by which bind/create work should
+         *                   complete. If FOREVER_NS is passed, this method will not fail to
+         *                   create/bind the holder if needed.
+         *
+         * @return ViewHolder for requested position
+         */
+        @Nullable
+        ViewHolder tryGetViewHolderForPositionByDeadline(int position,
+                boolean dryRun, long deadlineNs) {
             if (position < 0 || position >= mState.getItemCount()) {
                 throw new IndexOutOfBoundsException("Invalid item position " + position
                         + "(" + position + "). Item count:" + mState.getItemCount());
@@ -5243,9 +5302,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     }
                 }
                 if (holder == null) {
-                    long start = System.nanoTime();
+                    long start = getNanoTime();
+                    if (deadlineNs != FOREVER_NS
+                            && !mRecyclerPool.willCreateInTime(type, start, deadlineNs)) {
+                        // abort - we have a deadline we can't meet
+                        return null;
+                    }
                     holder = mAdapter.createViewHolder(RecyclerView.this, type);
-                    long end = System.nanoTime();
+                    long end = getNanoTime();
                     mRecyclerPool.factorInCreateTime(type, end - start);
                     if (DEBUG) {
                         Log.d(TAG, "getViewForPosition created new ViewHolder");
@@ -5279,8 +5343,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                             + " come here only in pre-layout. Holder: " + holder);
                 }
                 final int offsetPosition = mAdapterHelper.findPositionOffset(position);
-                bindViewImpl(holder, offsetPosition, position);
-                bound = true;
+                bound = tryBindViewHolderByDeadline(holder, offsetPosition, position, deadlineNs);
             }
 
             final ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
@@ -5296,7 +5359,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             rvLayoutParams.mViewHolder = holder;
             rvLayoutParams.mPendingInvalidate = fromScrap && bound;
-            return holder.itemView;
+            return holder;
         }
 
         private void attachAccessibilityDelegate(View itemView) {
@@ -5381,7 +5444,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             mCachedViews.clear();
             if (ALLOW_THREAD_GAP_WORK) {
-                clearPrefetchPositions();
+                GapWorker.clearPrefetchPositions(RecyclerView.this);
             }
         }
 
@@ -5456,12 +5519,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     int targetCacheIndex = cachedViewSize;
                     if (ALLOW_THREAD_GAP_WORK
                             && cachedViewSize > 0
-                            && !lastPrefetchIncludedPosition(holder.mPosition)) {
+                            && !GapWorker.lastPrefetchIncludedPosition(
+                                    RecyclerView.this, holder.mPosition)) {
                         // when adding the view, skip past most recently prefetched views
                         int cacheIndex = cachedViewSize - 1;
                         while (cacheIndex >= 0) {
                             int cachedPos = mCachedViews.get(cacheIndex).mPosition;
-                            if (!lastPrefetchIncludedPosition(cachedPos)) {
+                            if (!GapWorker.lastPrefetchIncludedPosition(
+                                    RecyclerView.this, cachedPos)) {
                                 break;
                             }
                             cacheIndex--;
@@ -5713,6 +5778,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         return holder;
                     } else if (!dryRun) {
                         recycleCachedViewAt(i);
+                        return null;
                     }
                 }
             }
@@ -5902,21 +5968,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     layoutParams.mInsetsDirty = true;
                 }
             }
-        }
-
-        void prefetch(int[] itemPrefetchArray, int viewCount) {
-            if (viewCount == 0) return;
-
-            int childPosition = itemPrefetchArray[viewCount - 1];
-            if (childPosition < 0) {
-                throw new IllegalArgumentException("Recycler requested to prefetch invalid view "
-                        + childPosition);
-            }
-            View prefetchView = getViewForPosition(childPosition);
-            if (viewCount > 1) {
-                prefetch(itemPrefetchArray, viewCount - 1);
-            }
-            recycleView(prefetchView);
         }
     }
 
