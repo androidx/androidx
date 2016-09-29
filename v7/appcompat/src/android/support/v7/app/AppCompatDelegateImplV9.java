@@ -304,6 +304,10 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
 
     @Override
     public void onDestroy() {
+        if (mInvalidatePanelMenuPosted) {
+            mWindow.getDecorView().removeCallbacks(mInvalidatePanelMenuRunnable);
+        }
+
         super.onDestroy();
 
         if (mActionBar != null) {
