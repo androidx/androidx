@@ -27,9 +27,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Parcelable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.test.R;
@@ -210,6 +212,17 @@ public class GridWidgetTest {
 
     protected void scrollToBegin(Runnable verify) throws Throwable {
         int key;
+        // first move to first column/row
+        if (mOrientation == BaseGridView.HORIZONTAL) {
+            key = KeyEvent.KEYCODE_DPAD_UP;
+        } else {
+            if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+                key = KeyEvent.KEYCODE_DPAD_RIGHT;
+            } else {
+                key = KeyEvent.KEYCODE_DPAD_LEFT;
+            }
+        }
+        scroll(key, null);
         if (mOrientation == BaseGridView.HORIZONTAL) {
             if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
                 key = KeyEvent.KEYCODE_DPAD_RIGHT;
@@ -224,6 +237,17 @@ public class GridWidgetTest {
 
     protected void scrollToEnd(Runnable verify) throws Throwable {
         int key;
+        // first move to first column/row
+        if (mOrientation == BaseGridView.HORIZONTAL) {
+            key = KeyEvent.KEYCODE_DPAD_UP;
+        } else {
+            if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+                key = KeyEvent.KEYCODE_DPAD_RIGHT;
+            } else {
+                key = KeyEvent.KEYCODE_DPAD_LEFT;
+            }
+        }
+        scroll(key, null);
         if (mOrientation == BaseGridView.HORIZONTAL) {
             if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
                 key = KeyEvent.KEYCODE_DPAD_LEFT;
@@ -500,6 +524,7 @@ public class GridWidgetTest {
 
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void testItemDecorationAndMarginsAndOpticalBounds() throws Throwable {
         final int leftMargin = 3;
@@ -529,7 +554,8 @@ public class GridWidgetTest {
         final int decorationBottom = 2;
 
         final Rect opticalPaddings = new Rect();
-        mGridView.getContext().getDrawable(ninePatchDrawableResourceId).getPadding(opticalPaddings);
+        mGridView.getResources().getDrawable(ninePatchDrawableResourceId)
+                .getPadding(opticalPaddings);
         final int opticalInsetsLeft = opticalPaddings.left;
         final int opticalInsetsTop = opticalPaddings.top;
         final int opticalInsetsRight = opticalPaddings.right;
@@ -1031,7 +1057,8 @@ public class GridWidgetTest {
             }
         });
 
-        final int removeIndex = mGridView.getChildCount() - 1;
+        final int removeIndex = mGridView.getChildViewHolder(
+                mGridView.getChildAt(mGridView.getChildCount() - 1)).getAdapterPosition();
         mActivityTestRule.runOnUiThread(new Runnable() {
             public void run() {
                 mActivity.removeItems(removeIndex, 1);
@@ -1081,10 +1108,10 @@ public class GridWidgetTest {
         for (int i = 0; i < 20; i++) {
             sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
         }
-        Thread.sleep(100);
 
         assertTrue(mGridView.getLayoutManager().isSmoothScrolling());
-        final int removeIndex = mGridView.getChildCount() - 1;
+        final int removeIndex = mGridView.getChildViewHolder(
+                mGridView.getChildAt(mGridView.getChildCount() - 1)).getAdapterPosition();
         mActivityTestRule.runOnUiThread(new Runnable() {
             public void run() {
                 mActivity.removeItems(removeIndex, 1);
@@ -1098,7 +1125,7 @@ public class GridWidgetTest {
         waitForTransientStateGone(null);
         waitForScrollIdle();
         int focusIndex = mGridView.getSelectedPosition();
-        int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusIndex).getLeft();
+        int topEdge = mGridView.getLayoutManager().findViewByPosition(focusIndex).getTop();
 
         mActivityTestRule.runOnUiThread(new Runnable() {
             public void run() {
@@ -1107,8 +1134,8 @@ public class GridWidgetTest {
         });
         waitForTransientStateGone(null);
         waitForScrollIdle();
-        assertEquals(leftEdge,
-                mGridView.getLayoutManager().findViewByPosition(focusIndex).getLeft());
+        assertEquals(topEdge,
+                mGridView.getLayoutManager().findViewByPosition(focusIndex).getTop());
     }
 
     @Test
@@ -1428,7 +1455,7 @@ public class GridWidgetTest {
     public void testTransferFocusable2() throws Throwable {
         final int numItems = 200;
         final int numColumns = 3;
-        final int startPos = 10;
+        final int startPos = 3; // make sure view at startPos is in visible area.
 
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
@@ -1446,6 +1473,8 @@ public class GridWidgetTest {
         }
         intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
         initActivity(intent);
+
+        assertTrue(mGridView.getLayoutManager().findViewByPosition(startPos).hasFocus());
 
         changeArraySize(0);
         assertTrue(mGridView.isFocused());
@@ -1904,24 +1933,11 @@ public class GridWidgetTest {
         for (int i = 0; i < 20; i++) {
             sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
         }
-        Thread.sleep(100);
-        int total = 0;
         while (mGridView.getLayoutManager().isSmoothScrolling()
                 || mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE) {
-            if ((total += 10) >= WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS) {
-                throw new RuntimeException("waitForScrollIdle Timeout");
-            }
-            try {
-                // Repeatedly pressing to make sure pending keys does not drop to zero.
-                Thread.sleep(10);
-                sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
-            } catch (InterruptedException ex) {
-                break;
-            }
+            // Repeatedly pressing to make sure pending keys does not drop to zero.
+            sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
         }
-
-        assertTrue("LinearSmoothScroller would not use many RV.smoothScrollBy() calls",
-                ((VerticalGridViewEx) mGridView).mSmoothScrollByCalled < 10);
     }
 
     @Test
