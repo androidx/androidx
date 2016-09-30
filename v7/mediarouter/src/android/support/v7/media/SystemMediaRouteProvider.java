@@ -296,7 +296,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             if (mRouteTypes != newRouteTypes || mActiveScan != newActiveScan) {
                 mRouteTypes = newRouteTypes;
                 mActiveScan = newActiveScan;
-                updateCallback();
                 updateSystemRoutes();
             }
         }
@@ -309,6 +308,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         private void updateSystemRoutes() {
+            updateCallback();
             boolean changed = false;
             for (Object routeObj : MediaRouterJellybean.getRoutes(mRouterObj)) {
                 changed |= addSystemRouteNoPublish(routeObj);
