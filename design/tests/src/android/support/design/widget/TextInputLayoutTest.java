@@ -21,7 +21,8 @@ import static android.support.design.testutils.TestUtilsActions.setEnabled;
 import static android.support.design.testutils.TestUtilsMatchers.withCompoundDrawable;
 import static android.support.design.testutils.TextInputLayoutActions.setError;
 import static android.support.design.testutils.TextInputLayoutActions.setErrorEnabled;
-import static android.support.design.testutils.TextInputLayoutActions.setPasswordVisibilityToggleEnabled;
+import static android.support.design.testutils.TextInputLayoutActions
+        .setPasswordVisibilityToggleEnabled;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.typeText;
@@ -38,14 +39,18 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Parcelable;
 import android.support.design.test.R;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.ViewAssertion;
 import android.support.test.filters.SmallTest;
+import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.EditText;
 
@@ -58,6 +63,30 @@ public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLa
     private static final String ERROR_MESSAGE_2 = "Some other error has occured";
 
     private static final String INPUT_TEXT = "Random input text";
+
+    public class TestTextInputLayout extends TextInputLayout {
+        public int animateToExpansionFractionCount = 0;
+        public float animateToExpansionFractionRecentValue = -1;
+
+        public TestTextInputLayout(Context context) {
+            super(context);
+        }
+
+        public TestTextInputLayout(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public TestTextInputLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+            super(context, attrs, defStyleAttr);
+        }
+
+        @Override
+        protected void animateToExpansionFraction(float target) {
+            super.animateToExpansionFraction(target);
+            animateToExpansionFractionRecentValue = target;
+            animateToExpansionFractionCount++;
+        }
+    }
 
     public TextInputLayoutTest() {
         super(TextInputLayoutActivity.class);
@@ -227,6 +256,35 @@ public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLa
 
         // Force a drawable state change.
         layout.drawableStateChanged();
+    }
+
+    @UiThreadTest
+    @Test
+    public void testSaveRestoreStateAnimation() {
+        final Activity activity = mActivityTestRule.getActivity();
+        final TestTextInputLayout layout = new TestTextInputLayout(activity);
+        layout.setId(R.id.textinputlayout);
+        final TextInputEditText editText = new TextInputEditText(activity);
+        editText.setText(INPUT_TEXT);
+        editText.setId(R.id.textinputedittext);
+        layout.addView(editText);
+
+        SparseArray<Parcelable> container = new SparseArray<>();
+        layout.saveHierarchyState(container);
+        layout.restoreHierarchyState(container);
+        assertEquals("Expected no animations since we simply saved/restored state",
+                0, layout.animateToExpansionFractionCount);
+
+        editText.setText("");
+        assertEquals("Expected one call to animate because we cleared text in editText",
+                1, layout.animateToExpansionFractionCount);
+        assertEquals(0f, layout.animateToExpansionFractionRecentValue, 0f);
+
+        container = new SparseArray<>();
+        layout.saveHierarchyState(container);
+        layout.restoreHierarchyState(container);
+        assertEquals("Expected no additional animations since we simply saved/restored state",
+                1, layout.animateToExpansionFractionCount);
     }
 
     static ViewAssertion isHintExpanded(final boolean expanded) {

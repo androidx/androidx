@@ -58,6 +58,7 @@ import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -152,6 +153,8 @@ public class TextInputLayout extends LinearLayout {
 
     private boolean mHasReconstructedEditTextBackground;
     private boolean mInDrawableStateChanged;
+
+    private boolean mRestoringSavedState;
 
     public TextInputLayout(Context context) {
         this(context, null);
@@ -310,7 +313,7 @@ public class TextInputLayout extends LinearLayout {
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
-                updateLabelState(true);
+                updateLabelState(!mRestoringSavedState);
                 if (mCounterEnabled) {
                     updateCounter(s.length());
                 }
@@ -392,10 +395,14 @@ public class TextInputLayout extends LinearLayout {
 
         if (hasText || (isEnabled() && (isFocused || isErrorShowing))) {
             // We should be showing the label so do so if it isn't already
-            collapseHint(animate);
+            if (mHintExpanded) {
+                collapseHint(animate);
+            }
         } else {
             // We should not be showing the label so hide it
-            expandHint(animate);
+            if (!mHintExpanded) {
+                expandHint(animate);
+            }
         }
     }
 
@@ -791,8 +798,8 @@ public class TextInputLayout extends LinearLayout {
         } else {
             mCounterOverflowed = length > mCounterMaxLength;
             if (wasCounterOverflowed != mCounterOverflowed) {
-                TextViewCompat.setTextAppearance(mCounterView, mCounterOverflowed ?
-                        mCounterOverflowTextAppearance : mCounterTextAppearance);
+                TextViewCompat.setTextAppearance(mCounterView, mCounterOverflowed
+                        ? mCounterOverflowTextAppearance : mCounterTextAppearance);
             }
             mCounterView.setText(getContext().getString(R.string.character_counter_pattern,
                     length, mCounterMaxLength));
@@ -881,7 +888,7 @@ public class TextInputLayout extends LinearLayout {
             super(superState);
         }
 
-        public SavedState(Parcel source, ClassLoader loader) {
+        SavedState(Parcel source, ClassLoader loader) {
             super(source, loader);
             error = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(source);
 
@@ -934,6 +941,13 @@ public class TextInputLayout extends LinearLayout {
         super.onRestoreInstanceState(ss.getSuperState());
         setError(ss.error);
         requestLayout();
+    }
+
+    @Override
+    protected void dispatchRestoreInstanceState(SparseArray<Parcelable> container) {
+        mRestoringSavedState = true;
+        super.dispatchRestoreInstanceState(container);
+        mRestoringSavedState = false;
     }
 
     /**
@@ -1205,24 +1219,24 @@ public class TextInputLayout extends LinearLayout {
         applyPasswordToggleTint();
     }
 
-   void passwordVisibilityToggleRequested() {
-       if (mPasswordToggleEnabled) {
-           // Store the current cursor position
-           final int selection = mEditText.getSelectionEnd();
+    void passwordVisibilityToggleRequested() {
+        if (mPasswordToggleEnabled) {
+            // Store the current cursor position
+            final int selection = mEditText.getSelectionEnd();
 
-           if (hasPasswordTransformation()) {
-               mEditText.setTransformationMethod(null);
-               mPasswordToggledVisible = true;
-           } else {
-               mEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-               mPasswordToggledVisible = false;
-           }
+            if (hasPasswordTransformation()) {
+                mEditText.setTransformationMethod(null);
+                mPasswordToggledVisible = true;
+            } else {
+                mEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                mPasswordToggledVisible = false;
+            }
 
-           mPasswordToggleView.setChecked(mPasswordToggledVisible);
+            mPasswordToggleView.setChecked(mPasswordToggledVisible);
 
-           // And restore the cursor position
-           mEditText.setSelection(selection);
-       }
+            // And restore the cursor position
+            mEditText.setSelection(selection);
+        }
     }
 
     private boolean hasPasswordTransformation() {
@@ -1333,7 +1347,8 @@ public class TextInputLayout extends LinearLayout {
         mHintExpanded = true;
     }
 
-    private void animateToExpansionFraction(final float target) {
+    @VisibleForTesting
+    void animateToExpansionFraction(final float target) {
         if (mCollapsingTextHelper.getExpansionFraction() == target) {
             return;
         }
