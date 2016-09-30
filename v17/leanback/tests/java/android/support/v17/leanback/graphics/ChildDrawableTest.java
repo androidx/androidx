@@ -21,7 +21,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -141,6 +143,7 @@ public class ChildDrawableTest {
         assertEquals(expectedBounds, adjustedBounds);
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     public void constantState() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();

@@ -24,6 +24,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Build;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -64,6 +66,7 @@ public class FitWidthBitmapDrawableTest {
         verify(canvas).drawBitmap(eq(bitmap), eq(bitmapBounds), eq(expectedDest), any(Paint.class));
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     public void constantState() {
         FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable();
