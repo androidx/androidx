@@ -16,6 +16,7 @@
 
 package android.support.v7.widget;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -88,16 +89,11 @@ public class RecyclerViewCacheTest {
             }
 
             @Override
-            int getItemPrefetchCount() {
-                return 3;
-            }
-
-            @Override
-            int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
-                outIndices[0] = 0;
-                outIndices[1] = 1;
-                outIndices[2] = 2;
-                return 3;
+            public void collectPrefetchPositions(int dx, int dy, RecyclerView.State state,
+                    RecyclerView.PrefetchRegistry prefetchManager) {
+                prefetchManager.addPosition(0, 0);
+                prefetchManager.addPosition(1, 0);
+                prefetchManager.addPosition(2, 0);
             }
 
             @Override
@@ -155,7 +151,15 @@ public class RecyclerViewCacheTest {
 
     @Test
     public void prefetchItemsNotEvictedWithInserts() {
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3) {
+            @Override
+            public void collectPrefetchPositions(int dx, int dy, RecyclerView.State state,
+                    RecyclerView.PrefetchRegistry prefetchRegistry) {
+                prefetchRegistry.addPosition(0, 0);
+                prefetchRegistry.addPosition(1, 0);
+                prefetchRegistry.addPosition(2, 0);
+            }
+        });
 
         RecyclerView.Adapter mockAdapter = mock(RecyclerView.Adapter.class);
         when(mockAdapter.onCreateViewHolder(any(ViewGroup.class), anyInt()))
@@ -173,8 +177,10 @@ public class RecyclerViewCacheTest {
         mRecyclerView.measure(View.MeasureSpec.AT_MOST | 320, View.MeasureSpec.AT_MOST | 320);
         mRecyclerView.layout(0, 0, 320, 320);
 
-        mRecyclerView.mPrefetchArray = new int[] { 0, 1, 2 };
-        GapWorker.layoutPrefetchImpl(Long.MAX_VALUE, mRecycler, mRecyclerView.mPrefetchArray, 3);
+        assertEquals(2, mRecyclerView.mRecycler.mViewCacheMax);
+        GapWorker.layoutPrefetch(RecyclerView.FOREVER_NS, mRecyclerView);
+        assertEquals(5, mRecyclerView.mRecycler.mViewCacheMax);
+
         verifyCacheContainsPositions(0, 1, 2);
 
         // further views recycled, as though from scrolling, shouldn't evict prefetched views:
@@ -231,8 +237,7 @@ public class RecyclerViewCacheTest {
         assertTrue(mRecycler.mCachedViews.isEmpty());
 
         // rows 0, 1, and 2 are all attached and visible. Prefetch row 3:
-        mRecyclerView.mPrefetchDx = 0;
-        mRecyclerView.mPrefetchDy = 1;
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
         GapWorker.layoutPrefetch(RecyclerView.FOREVER_NS, mRecyclerView);
 
         // row 3 is cached:
@@ -259,8 +264,7 @@ public class RecyclerViewCacheTest {
                 View view = new View(getContext());
                 view.setMinimumWidth(100);
                 view.setMinimumHeight(100);
-                RecyclerView.ViewHolder holder = new RecyclerView.ViewHolder(view) {};
-                return holder;
+                return new RecyclerView.ViewHolder(view) {};
             }
 
             @Override
@@ -285,14 +289,13 @@ public class RecyclerViewCacheTest {
         final long deadlineNs = mRecyclerView.getNanoTime() + TimeUnit.MILLISECONDS.toNanos(19);
 
         // Timed prefetch
-        mRecyclerView.mPrefetchDx = 0;
-        mRecyclerView.mPrefetchDy = 1;
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
         GapWorker.layoutPrefetch(deadlineNs, mRecyclerView);
 
         // will have enough time to inflate/bind one view, and inflate another
         assertTrue(mRecycler.mCachedViews.size() == 1);
         assertTrue(mRecyclerView.getRecycledViewPool().getRecycledViewCount(0) == 1);
-        verifyCacheContainsPositions(11); // Note: order/view here is an implementation detail
+        verifyCacheContainsPositions(9); // Note: order/view here is an implementation detail
 
 
         // Unbounded prefetch this time
@@ -302,5 +305,93 @@ public class RecyclerViewCacheTest {
         assertTrue(mRecycler.mCachedViews.size() == 3);
         assertTrue(mRecyclerView.getRecycledViewPool().getRecycledViewCount(0) == 0);
         verifyCacheContainsPositions(9, 10, 11);
+    }
+
+    private void verifyPositionsPrefetched(RecyclerView.LayoutManager lm, int dx, int dy,
+            Integer[] ... positionData) {
+        RecyclerView.PrefetchRegistry prefetchRegistry = mock(RecyclerView.PrefetchRegistry.class);
+        lm.collectPrefetchPositions(dx, dy, mRecyclerView.mState, prefetchRegistry);
+
+        verify(prefetchRegistry, times(positionData.length)).addPosition(anyInt(), anyInt());
+        for (Integer[] aPositionData : positionData) {
+            verify(prefetchRegistry).addPosition(aPositionData[0], aPositionData[1]);
+        }
+    }
+
+    @Test
+    public void prefetchStaggeredItemsPriority() {
+        StaggeredGridLayoutManager sglm =
+                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(sglm);
+
+        // first view 50x100 pixels, rest are 100x100 so second column is offset
+        mRecyclerView.setAdapter(new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                return new RecyclerView.ViewHolder(new View(getContext())) {};
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                holder.itemView.setMinimumWidth(100);
+                holder.itemView.setMinimumHeight(position == 0 ? 50 : 100);
+            }
+
+            @Override
+            public int getItemCount() {
+                return 100;
+            }
+        });
+
+        mRecyclerView.measure(View.MeasureSpec.AT_MOST | 200, View.MeasureSpec.AT_MOST | 200);
+        mRecyclerView.layout(0, 0, 200, 200);
+
+        /* Each row is 50 pixels:
+         * ------------- *
+         *   0   |   1   *
+         *   2   |   1   *
+         *   2   |   3   *
+         *___4___|___3___*
+         *   4   |   5   *
+         *   6   |   5   *
+         *      ...      *
+         */
+        assertEquals(5, mRecyclerView.getChildCount());
+        assertEquals(0, sglm.getFirstChildPosition());
+        assertEquals(4, sglm.getLastChildPosition());
+
+        // prefetching down shows 5 at 0 pixels away, 6 at 50 pixels away
+        verifyPositionsPrefetched(sglm, 0, 10,
+                new Integer[] {5, 0}, new Integer[] {6, 50});
+
+        // Prefetch upward shows nothing
+        verifyPositionsPrefetched(sglm, 0, -10);
+
+        mRecyclerView.scrollBy(0, 100);
+
+        /* Each row is 50 pixels:
+         * ------------- *
+         *   0   |   1   *
+         *___2___|___1___*
+         *   2   |   3   *
+         *   4   |   3   *
+         *   4   |   5   *
+         *___6___|___5___*
+         *   6   |   7   *
+         *   8   |   7   *
+         *      ...      *
+         */
+
+        assertEquals(5, mRecyclerView.getChildCount());
+        assertEquals(2, sglm.getFirstChildPosition());
+        assertEquals(6, sglm.getLastChildPosition());
+
+        // prefetching down shows 7 at 0 pixels away, 8 at 50 pixels away
+        verifyPositionsPrefetched(sglm, 0, 10,
+                new Integer[] {7, 0}, new Integer[] {8, 50});
+
+        // prefetching up shows 1 is 0 pixels away, 0 at 50 pixels away
+        verifyPositionsPrefetched(sglm, 0, -10,
+                new Integer[] {1, 0}, new Integer[] {0, 50});
     }
 }

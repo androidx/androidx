@@ -57,15 +57,10 @@ public class RecyclerViewPrefetchTest extends BaseRecyclerViewInstrumentationTes
         }
 
         @Override
-        int getItemPrefetchCount() {
-            return 1;
-        }
-
-        @Override
-        int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+        public void collectPrefetchPositions(int dx, int dy, RecyclerView.State state,
+                RecyclerView.PrefetchRegistry prefetchRegistry) {
             prefetchLatch.countDown();
-            outIndices[0] = 6;
-            return 1;
+            prefetchRegistry.addPosition(6, 0);
         }
 
         void waitForPrefetch(int time) throws InterruptedException {

@@ -1182,34 +1182,28 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                 && mOrientationHelper.getEnd() == 0;
     }
 
-    @Override
-    int getItemPrefetchCount() {
-        return 1;
-    }
-
-    int gatherPrefetchIndicesForLayoutState(RecyclerView.State state, LayoutState layoutState,
-            int[] outIndices) {
+    void collectPrefetchPositionsForLayoutState(RecyclerView.State state, LayoutState layoutState,
+            RecyclerView.PrefetchRegistry prefetchRegistry) {
         final int pos = layoutState.mCurrentPosition;
         if (pos >= 0 && pos < state.getItemCount()) {
-            outIndices[0] = pos;
-            return 1;
+            prefetchRegistry.addPosition(pos, layoutState.mScrollingOffset);
         }
-        return 0;
     }
 
+    /** @hide */
     @Override
-    int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+    public void collectPrefetchPositions(int dx, int dy, RecyclerView.State state,
+            RecyclerView.PrefetchRegistry prefetchRegistry) {
         int delta = (mOrientation == HORIZONTAL) ? dx : dy;
         if (getChildCount() == 0 || delta == 0) {
             // can't support this scroll, so don't bother prefetching
-            return 0;
+            return;
         }
-
 
         final int layoutDirection = delta > 0 ? LayoutState.LAYOUT_END : LayoutState.LAYOUT_START;
         final int absDy = Math.abs(delta);
         updateLayoutState(layoutDirection, absDy, true, state);
-        return gatherPrefetchIndicesForLayoutState(state, mLayoutState, outIndices);
+        collectPrefetchPositionsForLayoutState(state, mLayoutState, prefetchRegistry);
     }
 
     int scrollBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {

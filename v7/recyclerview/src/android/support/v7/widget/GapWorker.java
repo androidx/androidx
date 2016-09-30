@@ -24,9 +24,87 @@ import java.util.concurrent.TimeUnit;
 class GapWorker implements Runnable {
     static final ThreadLocal<GapWorker> sGapWorker = new ThreadLocal<>();
 
-    ArrayList<RecyclerView> mRecyclerViews = new ArrayList<>();
+    private ArrayList<RecyclerView> mRecyclerViews = new ArrayList<>();
     long mPostTimeNs;
     long mFrameIntervalNs;
+
+    /**
+     * Prefetch information associated with a specfic RecyclerView.
+     */
+    static class PrefetchRegistryImpl implements RecyclerView.PrefetchRegistry {
+        private int mPrefetchDx;
+        private int mPrefetchDy;
+        int[] mPrefetchArray;
+
+        int mCount;
+
+        void setPrefetchVector(int dx, int dy) {
+            mPrefetchDx = dx;
+            mPrefetchDy = dy;
+        }
+
+        void collectPrefetchPositionsFromView(RecyclerView view) {
+            mCount = 0;
+            if (mPrefetchArray != null) {
+                Arrays.fill(mPrefetchArray, -1);
+            }
+
+            final RecyclerView.LayoutManager layout = view.mLayout;
+            if (view.mAdapter != null
+                    && layout != null
+                    && layout.isItemPrefetchEnabled()
+                    && !view.hasPendingAdapterUpdates()) {
+                layout.collectPrefetchPositions(mPrefetchDx, mPrefetchDy, view.mState, this);
+                if (mCount > layout.mPrefetchMaxCountObserved) {
+                    layout.mPrefetchMaxCountObserved = mCount;
+                    view.mRecycler.updateViewCacheSize();
+                }
+            }
+        }
+
+        @Override
+        public void addPosition(int layoutPosition, int pixelDistance) {
+            if (pixelDistance < 0) {
+                throw new IllegalArgumentException("Pixel distance must be non-negative");
+            }
+
+            // allocate or expand array as needed, doubling when needed
+            final int storagePosition = mCount * 2;
+            if (mPrefetchArray == null) {
+                mPrefetchArray = new int[4];
+                Arrays.fill(mPrefetchArray, -1);
+            } else if (storagePosition >= mPrefetchArray.length) {
+                final int[] oldArray = mPrefetchArray;
+                mPrefetchArray = new int[storagePosition * 2];
+                System.arraycopy(oldArray, 0, mPrefetchArray, 0, oldArray.length);
+            }
+
+            // add position
+            mPrefetchArray[storagePosition] = layoutPosition;
+            mPrefetchArray[storagePosition + 1] = pixelDistance;
+
+            mCount++;
+        }
+
+        boolean lastPrefetchIncludedPosition(int position) {
+            if (mPrefetchArray != null) {
+                final int count = mCount * 2;
+                for (int i = 0; i < count; i += 2) {
+                    if (mPrefetchArray[i] == position) return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Called when prefetch indices are no longer valid for cache prioritization.
+         */
+        void clearPrefetchPositions() {
+            if (mPrefetchArray != null) {
+                Arrays.fill(mPrefetchArray, -1);
+            }
+        }
+    }
 
     public void add(RecyclerView recyclerView) {
         if (RecyclerView.DEBUG && mRecyclerViews.contains(recyclerView)) {
@@ -56,74 +134,35 @@ class GapWorker implements Runnable {
             }
         }
 
-        recyclerView.mPrefetchDx = prefetchDx;
-        recyclerView.mPrefetchDy = prefetchDy;
-    }
-
-    static boolean lastPrefetchIncludedPosition(RecyclerView recyclerView, int position) {
-        if (recyclerView.mPrefetchArray != null) {
-            for (int i = 0; i < recyclerView.mPrefetchArray.length; i++) {
-                if (recyclerView.mPrefetchArray[i] == position) return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Called when prefetch indices are no longer valid for cache prioritization.
-     */
-    static void clearPrefetchPositions(RecyclerView recyclerView) {
-        if (recyclerView.mPrefetchArray != null) {
-            Arrays.fill(recyclerView.mPrefetchArray, -1);
-        }
+        recyclerView.mPrefetchRegistry.setPrefetchVector(prefetchDx, prefetchDy);
     }
 
     static void layoutPrefetch(long deadlineNs, RecyclerView view) {
-        final int prefetchCount = view.mLayout.getItemPrefetchCount();
-        if (view.mAdapter == null
-                || view.mLayout == null
-                || !view.mLayout.isItemPrefetchEnabled()
-                || prefetchCount < 1
-                || view.hasPendingAdapterUpdates()) {
-            // abort - no work
-            return;
-        }
+        final RecyclerView.Recycler recycler = view.mRecycler;
+        final PrefetchRegistryImpl prefetchRegistry = view.mPrefetchRegistry;
 
-        if (view.mPrefetchArray == null
-                || view.mPrefetchArray.length < prefetchCount) {
-            view.mPrefetchArray = new int[prefetchCount];
-        }
-        Arrays.fill(view.mPrefetchArray, -1);
-        int viewCount = view.mLayout.gatherPrefetchIndices(
-                view.mPrefetchDx, view.mPrefetchDy,
-                view.mState, view.mPrefetchArray);
-        layoutPrefetchImpl(deadlineNs, view.mRecycler, view.mPrefetchArray, viewCount);
-    }
+        prefetchRegistry.collectPrefetchPositionsFromView(view);
 
-    static void layoutPrefetchImpl(long deadlineNs, RecyclerView.Recycler recycler,
-            int[] prefetchArray, int viewCount) {
-        if (viewCount == 0) return;
+        final int count = prefetchRegistry.mCount;
+        for (int i = 0; i < count; i++) {
+            int pos = prefetchRegistry.mPrefetchArray[i * 2];
+            if (pos < 0) {
+                throw new IllegalArgumentException("Invalid prefetch position requested: " + pos);
+            }
 
-        int childPosition = prefetchArray[viewCount - 1];
-        if (childPosition < 0) {
-            throw new IllegalArgumentException("Invalid prefetch position requested: "
-                    + childPosition);
-        }
-        RecyclerView.ViewHolder holder = recycler.tryGetViewHolderForPositionByDeadline(
-                childPosition, false, deadlineNs);
-        if (viewCount > 1) {
-            layoutPrefetchImpl(deadlineNs, recycler, prefetchArray, viewCount - 1);
-        }
-        if (holder != null) {
-            if (holder.isBound()) {
-                // Only give the view a chance to go into the cache if binding succeeded
-                recycler.recycleViewHolderInternal(holder);
-            } else {
-                // Didn't bind, so we can't cache the view, but it will stay in the pool until next
-                // prefetch/traversal. If a View fails to bind, it means we didn't have enough time
-                // prior to the deadline (and won't for other instances of this type, during this
-                // GapWorker pass).
-                recycler.addViewHolderToRecycledViewPool(holder);
+            RecyclerView.ViewHolder holder = recycler.tryGetViewHolderForPositionByDeadline(
+                    pos, false, deadlineNs);
+            if (holder != null) {
+                if (holder.isBound()) {
+                    // Only give the view a chance to go into the cache if binding succeeded
+                    recycler.recycleViewHolderInternal(holder);
+                } else {
+                    // Didn't bind, so we can't cache the view, but it will stay in the pool until
+                    // next prefetch/traversal. If a View fails to bind, it means we didn't have
+                    // enough time prior to the deadline (and won't for other instances of this
+                    // type, during this GapWorker prefetch pass).
+                    recycler.addViewHolderToRecycledViewPool(holder);
+                }
             }
         }
     }
