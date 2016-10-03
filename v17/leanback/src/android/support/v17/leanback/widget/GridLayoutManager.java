@@ -1147,9 +1147,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mGrid.setSpacing(mSpacingPrimary);
             detachAndScrapAttachedViews(mRecycler);
             mGrid.resetVisibleIndex();
-            if (mFocusPosition == NO_POSITION) {
-                mBaseGridView.clearFocus();
-            }
             mWindowAlignment.mainAxis().invalidateScrollMin();
             mWindowAlignment.mainAxis().invalidateScrollMax();
             if (focusViewWasInTree && firstVisibleIndex <= mFocusPosition) {

@@ -1332,6 +1332,88 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void removeFocusableItemAndFocusableRecyclerViewGetsFocus() throws Throwable {
+        final int numItems = 100;
+        final int numColumns = 3;
+        final int focusableIndex = 2;
+
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = numColumns;
+        boolean[] focusable = new boolean[numItems];
+        for (int i = 0; i < focusable.length; i++) {
+            focusable[i] = false;
+        }
+        focusable[focusableIndex] = true;
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
+        initActivity(intent);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionSmooth(focusableIndex);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        assertEquals(focusableIndex, mGridView.getSelectedPosition());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.removeItems(focusableIndex, 1);
+            }
+        });
+        waitForTransientStateGone(null);
+        assertTrue(mGridView.isFocused());
+    }
+
+    @Test
+    public void removeFocusableItemAndUnFocusableRecyclerViewLosesFocus() throws Throwable {
+        final int numItems = 100;
+        final int numColumns = 3;
+        final int focusableIndex = 2;
+
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = numColumns;
+        boolean[] focusable = new boolean[numItems];
+        for (int i = 0; i < focusable.length; i++) {
+            focusable[i] = false;
+        }
+        focusable[focusableIndex] = true;
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
+        initActivity(intent);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setFocusableInTouchMode(false);
+                mGridView.setFocusable(false);
+                mGridView.setSelectedPositionSmooth(focusableIndex);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        assertEquals(focusableIndex, mGridView.getSelectedPosition());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.removeItems(focusableIndex, 1);
+            }
+        });
+        waitForTransientStateGone(null);
+        assertFalse(mGridView.hasFocus());
+    }
+
+    @Test
     public void testNonFocusableVertical() throws Throwable {
         final int numItems = 200;
         final int startPos = 44;
