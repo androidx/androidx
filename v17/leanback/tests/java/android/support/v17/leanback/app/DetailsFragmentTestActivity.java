@@ -20,8 +20,7 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.test.R;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.View;
 
 /**
  * Activity containing {@link DetailsFragmentTest} used for testing.
@@ -35,9 +34,8 @@ public class DetailsFragmentTestActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        final int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        getWindow().getDecorView().setSystemUiVisibility(uiOptions);
         setContentView(R.layout.details);
         mFragment = new DetailsTestFragment();
 
