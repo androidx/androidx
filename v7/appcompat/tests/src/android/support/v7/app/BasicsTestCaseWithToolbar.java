@@ -21,13 +21,13 @@ import android.support.test.filters.SmallTest;
 
 import org.junit.Test;
 
+@SmallTest
 public class BasicsTestCaseWithToolbar extends BaseBasicsTestCase<ToolbarAppCompatActivity> {
     public BasicsTestCaseWithToolbar() {
         super(ToolbarAppCompatActivity.class);
     }
 
     @Test
-    @SmallTest
     @UiThreadTest
     public void testSupportActionModeAppCompatCallbacks() {
         // Since we're using Toolbar, any action modes will be created from the window
