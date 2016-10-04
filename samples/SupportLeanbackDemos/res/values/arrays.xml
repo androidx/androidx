@@ -30,4 +30,31 @@
         <item>Just override OnboardingFragment and provide the messages and images.</item>
         <item>Customize your own logo image, splash animation and the contents animations.</item>
     </string-array>
+
+    <array name="pref_parent_control_entries">
+        <item>Everyone</item>
+        <item>Low maturity</item>
+        <item>Medium maturity</item>
+        <item>High maturity</item>
+    </array>
+    <array name="pref_parent_control_entries_values">
+        <item>everyone</item>
+        <item>low</item>
+        <item>medium</item>
+        <item>high</item>
+    </array>
+    <array name="pref_parent_control_entries_summaries">
+        <item>This description becomes visible only on focus.</item>
+        <item>This description becomes visible only on focus.</item>
+        <item>This description becomes visible only on focus.</item>
+        <item>This description becomes visible only on focus.</item>
+    </array>
+    <array name="pref_wifi_networks">
+        <item>Wi-Fi network 1</item>
+        <item>Wi-Fi network 2</item>
+        <item>Wi-Fi network 3</item>
+        <item>Wi-Fi network 4</item>
+        <item>Wi-Fi network 5</item>
+        <item>Wi-Fi network 6</item>
+    </array>
 </resources>
