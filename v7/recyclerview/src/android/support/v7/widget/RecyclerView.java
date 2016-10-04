@@ -2791,7 +2791,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                             vtev)) {
                         getParent().requestDisallowInterceptTouchEvent(true);
                     }
-                    if (ALLOW_THREAD_GAP_WORK) {
+                    if (mGapWorker != null) {
                         mGapWorker.postFromTraversal(this, dx, dy);
                     }
                 }
@@ -4591,7 +4591,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     }
                 } else {
                     postOnAnimation();
-                    if (ALLOW_THREAD_GAP_WORK) {
+                    if (mGapWorker != null) {
                         mGapWorker.postFromTraversal(RecyclerView.this, dx, dy);
                     }
                 }
