@@ -14,11 +14,7 @@
 
 package android.support.graphics.drawable;
 
-import android.support.annotation.RestrictTo;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 import android.annotation.TargetApi;
 import android.content.res.ColorStateList;
@@ -38,23 +34,26 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
-import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * For API 24 and above, this class is delegating to the framework's {@link VectorDrawable}.
@@ -738,7 +737,11 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         groupStack.push(pathRenderer.mRootGroup);
 
         int eventType = parser.getEventType();
-        while (eventType != XmlPullParser.END_DOCUMENT) {
+        final int innerDepth = parser.getDepth() + 1;
+
+        // Parse everything until the end of the vector element.
+        while (eventType != XmlPullParser.END_DOCUMENT
+                && (parser.getDepth() >= innerDepth || eventType != XmlPullParser.END_TAG)) {
             if (eventType == XmlPullParser.START_TAG) {
                 final String tagName = parser.getName();
                 final VGroup currentGroup = groupStack.peek();
