@@ -30,7 +30,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.AttributeSet;
@@ -363,19 +362,36 @@ public class RecyclerViewBasicTest {
         assertSame(RecyclerView.sQuinticInterpolator, mRecyclerView.mViewFlinger.mInterpolator);
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void prefetchChangesCacheSize() {
+        mRecyclerView.setAdapter(new MockAdapter(20));
         MockLayoutManager mlm = new MockLayoutManager() {
             @Override
-            int getItemPrefetchCount() {
-                return 3;
+            public void collectPrefetchPositions(int dx, int dy, RecyclerView.State state,
+                    RecyclerView.PrefetchRegistry prefetchManager) {
+                prefetchManager.addPosition(0, 0);
+                prefetchManager.addPosition(1, 0);
+                prefetchManager.addPosition(2, 0);
             }
         };
+
         RecyclerView.Recycler recycler = mRecyclerView.mRecycler;
         assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE, recycler.mViewCacheMax);
         mRecyclerView.setLayoutManager(mlm);
-        assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE + 3, recycler.mViewCacheMax);
+        assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE, recycler.mViewCacheMax);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mRecyclerView.mPrefetchRegistry.collectPrefetchPositionsFromView(mRecyclerView);
+            assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE + 3, recycler.mViewCacheMax);
+
+            // Reset to default by removing layout
+            mRecyclerView.setLayoutManager(null);
+            assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE, recycler.mViewCacheMax);
+
+            // And restore by restoring layout
+            mRecyclerView.setLayoutManager(mlm);
+            assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE + 3, recycler.mViewCacheMax);
+        }
     }
 
     static class MockLayoutManager extends RecyclerView.LayoutManager {

@@ -419,11 +419,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     final ViewFlinger mViewFlinger = new ViewFlinger();
 
     GapWorker mGapWorker;
-
-    // Following mPrefetchXXX fields are all owned by mGapWorker
-    int mPrefetchDx;
-    int mPrefetchDy;
-    int[] mPrefetchArray;
+    GapWorker.PrefetchRegistryImpl mPrefetchRegistry =
+            ALLOW_THREAD_GAP_WORK ? new GapWorker.PrefetchRegistryImpl() : null;
 
     final State mState = new State();
 
@@ -4587,7 +4584,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (scroller.isFinished() || !fullyConsumedAny) {
                     setScrollState(SCROLL_STATE_IDLE); // setting state to idle will stop this.
                     if (ALLOW_THREAD_GAP_WORK) {
-                        GapWorker.clearPrefetchPositions(RecyclerView.this);
+                        mPrefetchRegistry.clearPrefetchPositions();
                     }
                 } else {
                     postOnAnimation();
@@ -5009,11 +5006,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         void updateViewCacheSize() {
-            int extraCache = 0;
-            if (mLayout != null && ALLOW_THREAD_GAP_WORK) {
-                extraCache = mLayout.isItemPrefetchEnabled() ? mLayout.getItemPrefetchCount() : 0;
-            }
+            int extraCache = mLayout != null ? mLayout.mPrefetchMaxCountObserved : 0;
             mViewCacheMax = mRequestedCacheMax + extraCache;
+
             // first, try the views that can be recycled
             for (int i = mCachedViews.size() - 1;
                     i >= 0 && mCachedViews.size() > mViewCacheMax; i--) {
@@ -5444,7 +5439,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             mCachedViews.clear();
             if (ALLOW_THREAD_GAP_WORK) {
-                GapWorker.clearPrefetchPositions(RecyclerView.this);
+                mPrefetchRegistry.clearPrefetchPositions();
             }
         }
 
@@ -5519,14 +5514,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     int targetCacheIndex = cachedViewSize;
                     if (ALLOW_THREAD_GAP_WORK
                             && cachedViewSize > 0
-                            && !GapWorker.lastPrefetchIncludedPosition(
-                                    RecyclerView.this, holder.mPosition)) {
+                            && !mPrefetchRegistry.lastPrefetchIncludedPosition(holder.mPosition)) {
                         // when adding the view, skip past most recently prefetched views
                         int cacheIndex = cachedViewSize - 1;
                         while (cacheIndex >= 0) {
                             int cachedPos = mCachedViews.get(cacheIndex).mPosition;
-                            if (!GapWorker.lastPrefetchIncludedPosition(
-                                    RecyclerView.this, cachedPos)) {
+                            if (!mPrefetchRegistry.lastPrefetchIncludedPosition(cachedPos)) {
                                 break;
                             }
                             cacheIndex--;
@@ -6617,6 +6610,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         private boolean mItemPrefetchEnabled = true;
 
         /**
+         * Written by {@link GapWorker} when prefetches occur to track largest number of view ever
+         * requested by a {@link #collectPrefetchPositions(int, int, State, PrefetchRegistry)} call.
+         */
+        int mPrefetchMaxCountObserved;
+
+        /**
          * These measure specs might be the measure specs that were passed into RecyclerView's
          * onMeasure method OR fake measure specs created by the RecyclerView.
          * For example, when a layout is run, RecyclerView always sets these specs to be
@@ -6918,6 +6917,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         public final void setItemPrefetchEnabled(boolean enabled) {
             if (enabled != mItemPrefetchEnabled) {
                 mItemPrefetchEnabled = enabled;
+                mPrefetchMaxCountObserved = 0;
                 if (mRecyclerView != null) {
                     mRecyclerView.mRecycler.updateViewCacheSize();
                 }
@@ -6936,11 +6936,28 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return mItemPrefetchEnabled;
         }
 
-        int getItemPrefetchCount() { return 0; }
-
-        int gatherPrefetchIndices(int dx, int dy, State state, int[] outIndices) {
-            return 0;
-        }
+        /**
+         * Gather all positions from the LayoutManager to be prefetched.
+         *
+         * <p>If item prefetch is enabled, this method is called in between traversals to gather
+         * which positions the LayoutManager will soon need, given upcoming movement in subsequent
+         * traversals.</p>
+         *
+         * <p>The LayoutManager should call {@link PrefetchRegistry#addPosition(int, int)} for each
+         * item to be prepared, and these positions will have their ViewHolders created and bound
+         * in advance of being needed by a scroll or layout.</p>
+         *
+         * @param dx X movement component.
+         * @param dy Y movement component.
+         * @param state State of RecyclerView
+         * @param prefetchRegistry PrefetchRegistry to add prefetch entries into.
+         *
+         * @see #isItemPrefetchEnabled()
+         *
+         * @hide
+         */
+        public void collectPrefetchPositions(int dx, int dy, State state,
+                PrefetchRegistry prefetchRegistry) {}
 
         void dispatchAttachedToWindow(RecyclerView view) {
             mIsAttachedToWindow = true;
@@ -9364,6 +9381,24 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             /** @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_stackFromEnd */
             public boolean stackFromEnd;
         }
+    }
+
+    /**
+     * Interface for LayoutManagers to request items to be prefetched, based on position, with
+     * specified distance from viewport, which indicates priority.
+     *
+     * @hide
+     */
+    public interface PrefetchRegistry {
+        /**
+         * Requests an an item to be prefetched, based on position, with a specified distance,
+         * indicating priority.
+         *
+         * @param layoutPosition Position of the item to prefetch.
+         * @param pixelDistance Distance from the current viewport to the bounds of the item,
+         *                      must be non-negative.
+         */
+        void addPosition(int layoutPosition, int pixelDistance);
     }
 
     /**

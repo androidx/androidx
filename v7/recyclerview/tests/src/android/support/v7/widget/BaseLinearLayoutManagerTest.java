@@ -635,9 +635,10 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         }
 
         @Override
-        int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+        public void collectPrefetchPositions(int dx, int dy, RecyclerView.State state,
+                RecyclerView.PrefetchRegistry prefetchRegistry) {
             if (prefetchLatch != null) prefetchLatch.countDown();
-            return super.gatherPrefetchIndices(dx, dy, state, outIndices);
+            super.collectPrefetchPositions(dx, dy, state, prefetchRegistry);
         }
     }
 }
