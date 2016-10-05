@@ -381,7 +381,13 @@ public class RecyclerViewBasicTest {
         assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE, recycler.mViewCacheMax);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // layout, so prefetches can occur
+            mRecyclerView.measure(View.MeasureSpec.EXACTLY | 100, View.MeasureSpec.EXACTLY | 100);
+            mRecyclerView.layout(0, 0, 100, 100);
+
+            // prefetch gets 3 items, so expands cache by 3
             mRecyclerView.mPrefetchRegistry.collectPrefetchPositionsFromView(mRecyclerView);
+            assertEquals(3, mRecyclerView.mPrefetchRegistry.mCount);
             assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE + 3, recycler.mViewCacheMax);
 
             // Reset to default by removing layout
