@@ -50,6 +50,12 @@
         <item name="android:switchTextOff">@string/v7_preference_off</item>
     </style>
 
+    <style name="LeanbackPreference.SeekBarPreference">
+        <item name="android:layout">@layout/leanback_preference_widget_seekbar</item>
+        <item name="adjustable">true</item>
+        <item name="showSeekBarValue">true</item>
+    </style>
+
     <style name="LeanbackPreference.PreferenceScreen">
     </style>
 
