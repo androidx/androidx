@@ -24,7 +24,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v17.leanback.os.TraceHelper;
+import android.support.v4.os.TraceCompat;
 import android.support.v4.util.CircularIntArray;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
@@ -903,7 +903,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
 
-        if (TRACE) TraceHelper.beginSection("onChildSelected");
+        if (TRACE) TraceCompat.beginSection("onChildSelected");
         View view = mFocusPosition == NO_POSITION ? null : findViewByPosition(mFocusPosition);
         if (view != null) {
             RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(view);
@@ -918,7 +918,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
             fireOnChildViewHolderSelected(mBaseGridView, null, NO_POSITION, 0);
         }
-        if (TRACE) TraceHelper.endSection();
+        if (TRACE) TraceCompat.endSection();
 
         // Children may request layout when a child selection event occurs (such as a change of
         // padding on the current and previously selected rows).
@@ -945,7 +945,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
 
-        if (TRACE) TraceHelper.beginSection("onChildSelectedAndPositioned");
+        if (TRACE) TraceCompat.beginSection("onChildSelectedAndPositioned");
         View view = mFocusPosition == NO_POSITION ? null : findViewByPosition(mFocusPosition);
         if (view != null) {
             RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(view);
@@ -957,7 +957,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
             fireOnChildViewHolderSelectedAndPositioned(mBaseGridView, null, NO_POSITION, 0);
         }
-        if (TRACE) TraceHelper.endSection();
+        if (TRACE) TraceCompat.endSection();
 
     }
 
@@ -1228,7 +1228,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return false;
         }
 
-        if (TRACE) TraceHelper.beginSection("processRowSizeSecondary");
+        if (TRACE) TraceCompat.beginSection("processRowSizeSecondary");
         CircularIntArray[] rows = mGrid == null ? null : mGrid.getItemPositionsInRows();
         boolean changed = false;
         int scrapChildWidth = -1;
@@ -1296,7 +1296,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        if (TRACE) TraceHelper.endSection();
+        if (TRACE) TraceCompat.endSection();
         return changed;
     }
 
@@ -1438,7 +1438,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     void measureChild(View child) {
-        if (TRACE) TraceHelper.beginSection("measureChild");
+        if (TRACE) TraceCompat.beginSection("measureChild");
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         calculateItemDecorationsForChild(child, sTempRect);
         int widthUsed = lp.leftMargin + lp.rightMargin + sTempRect.left + sTempRect.right;
@@ -1468,7 +1468,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     + " measuredHeight " + child.getMeasuredHeight());
         }
         if (DEBUG) Log.v(getTag(), "child lp width " + lp.width + " height " + lp.height);
-        if (TRACE) TraceHelper.endSection();
+        if (TRACE) TraceCompat.endSection();
     }
 
     /**
@@ -1497,22 +1497,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         @Override
         public int createItem(int index, boolean append, Object[] item) {
-            if (TRACE) TraceHelper.beginSection("createItem");
-            if (TRACE) TraceHelper.beginSection("getview");
+            if (TRACE) TraceCompat.beginSection("createItem");
+            if (TRACE) TraceCompat.beginSection("getview");
             View v = getViewForPosition(index);
-            if (TRACE) TraceHelper.endSection();
+            if (TRACE) TraceCompat.endSection();
             LayoutParams lp = (LayoutParams) v.getLayoutParams();
             RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(v);
             lp.setItemAlignmentFacet((ItemAlignmentFacet)getFacet(vh, ItemAlignmentFacet.class));
             // See recyclerView docs:  we don't need re-add scraped view if it was removed.
             if (!lp.isItemRemoved()) {
-                if (TRACE) TraceHelper.beginSection("addView");
+                if (TRACE) TraceCompat.beginSection("addView");
                 if (append) {
                     addView(v);
                 } else {
                     addView(v, 0);
                 }
-                if (TRACE) TraceHelper.endSection();
+                if (TRACE) TraceCompat.endSection();
                 if (mChildVisibility != -1) {
                     v.setVisibility(mChildVisibility);
                 }
@@ -1579,7 +1579,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (DEBUG) {
                 Log.d(getTag(), "addView " + index + " " + v);
             }
-            if (TRACE) TraceHelper.endSection();
+            if (TRACE) TraceCompat.endSection();
 
             if (index == mGrid.getFirstVisibleIndex()) {
                 if (!mGrid.isReversedFlow()) {
@@ -1607,14 +1607,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         @Override
         public void removeItem(int index) {
-            if (TRACE) TraceHelper.beginSection("removeItem");
+            if (TRACE) TraceCompat.beginSection("removeItem");
             View v = findViewByPosition(index);
             if (mInLayout) {
                 detachAndScrapView(v, mRecycler);
             } else {
                 removeAndRecycleView(v, mRecycler);
             }
-            if (TRACE) TraceHelper.endSection();
+            if (TRACE) TraceCompat.endSection();
         }
 
         @Override
@@ -1633,7 +1633,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     };
 
     void layoutChild(int rowIndex, View v, int start, int end, int startSecondary) {
-        if (TRACE) TraceHelper.beginSection("layoutChild");
+        if (TRACE) TraceCompat.beginSection("layoutChild");
         int sizeSecondary = mOrientation == HORIZONTAL ? getDecoratedMeasuredHeightWithMargin(v)
                 : getDecoratedMeasuredWidthWithMargin(v);
         if (mFixedRowSizeSecondary > 0) {
@@ -1675,7 +1675,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         params.setOpticalInsets(left - sTempRect.left, top - sTempRect.top,
                 sTempRect.right - right, sTempRect.bottom - bottom);
         updateChildAlignments(v);
-        if (TRACE) TraceHelper.endSection();
+        if (TRACE) TraceCompat.endSection();
     }
 
     private void updateChildAlignments(View v) {
@@ -1821,12 +1821,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void removeAndRecycleAllViews(RecyclerView.Recycler recycler) {
-        if (TRACE) TraceHelper.beginSection("removeAndRecycleAllViews");
+        if (TRACE) TraceCompat.beginSection("removeAndRecycleAllViews");
         if (DEBUG) Log.v(TAG, "removeAndRecycleAllViews " + getChildCount());
         for (int i = getChildCount() - 1; i >= 0; i--) {
             removeAndRecycleViewAt(i, recycler);
         }
-        if (TRACE) TraceHelper.endSection();
+        if (TRACE) TraceCompat.endSection();
     }
 
     // called by onLayoutChildren, either focus to FocusPosition or declare focusViewAvailable
@@ -2058,7 +2058,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // scroll in main direction may add/prune views
     private int scrollDirectionPrimary(int da) {
-        if (TRACE) TraceHelper.beginSection("scrollPrimary");
+        if (TRACE) TraceCompat.beginSection("scrollPrimary");
         boolean isMaxUnknown = false, isMinUnknown = false;
         int minScroll = 0, maxScroll = 0;
         if (da > 0) {
@@ -2079,13 +2079,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
         if (da == 0) {
-            if (TRACE) TraceHelper.endSection();
+            if (TRACE) TraceCompat.endSection();
             return 0;
         }
         offsetChildrenPrimary(-da);
         mScrollOffsetPrimary += da;
         if (mInLayout) {
-            if (TRACE) TraceHelper.endSection();
+            if (TRACE) TraceCompat.endSection();
             return da;
         }
 
@@ -2100,20 +2100,20 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         updated = getChildCount() > childCount;
         childCount = getChildCount();
 
-        if (TRACE) TraceHelper.beginSection("remove");
+        if (TRACE) TraceCompat.beginSection("remove");
         if (mReverseFlowPrimary ? da > 0 : da < 0) {
             removeInvisibleViewsAtEnd();
         } else {
             removeInvisibleViewsAtFront();
         }
-        if (TRACE) TraceHelper.endSection();
+        if (TRACE) TraceCompat.endSection();
         updated |= getChildCount() < childCount;
         if (updated) {
             updateRowSecondarySizeRefresh();
         }
 
         mBaseGridView.invalidate();
-        if (TRACE) TraceHelper.endSection();
+        if (TRACE) TraceCompat.endSection();
         return da;
     }
 
@@ -2293,7 +2293,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     void scrollToSelection(int position, int subposition,
             boolean smooth, int primaryScrollExtra) {
-        if (TRACE) TraceHelper.beginSection("scrollToSelection");
+        if (TRACE) TraceCompat.beginSection("scrollToSelection");
         mPrimaryScrollExtra = primaryScrollExtra;
         View view = findViewByPosition(position);
         if (view != null) {
@@ -2319,7 +2319,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 requestLayout();
             }
         }
-        if (TRACE) TraceHelper.endSection();
+        if (TRACE) TraceCompat.endSection();
     }
 
     void startPositionSmoothScroller(int position) {
