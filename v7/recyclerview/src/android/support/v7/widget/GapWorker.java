@@ -155,7 +155,8 @@ class GapWorker implements Runnable {
             if (holder != null) {
                 if (holder.isBound()) {
                     // Only give the view a chance to go into the cache if binding succeeded
-                    recycler.recycleViewHolderInternal(holder);
+                    // Note that we must use public method, since item may need cleanup
+                    recycler.recycleView(holder.itemView);
                 } else {
                     // Didn't bind, so we can't cache the view, but it will stay in the pool until
                     // next prefetch/traversal. If a View fails to bind, it means we didn't have
