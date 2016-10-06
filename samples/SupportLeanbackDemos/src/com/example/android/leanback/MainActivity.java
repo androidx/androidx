@@ -26,7 +26,6 @@ import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.res.ResourcesCompat;
-
 import java.util.List;
 
 /**
@@ -101,6 +100,9 @@ public class MainActivity extends Activity {
             addAction(actions, DetailsPresenterSelectionActivity.class,
                     R.string.detail_presenter_options,
                     R.string.detail_presenter_options_description);
+            addAction(actions, SettingsActivity.class,
+                    R.string.settings,
+                    R.string.settings_description);
             addAction(actions, OnboardingActivity.class,
                     R.string.onboarding,
                     R.string.onboarding_description);

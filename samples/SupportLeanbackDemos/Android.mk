@@ -28,5 +28,9 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_STATIC_ANDROID_LIBRARIES := \
         android-support-v4 \
         android-support-v7-recyclerview \
-        android-support-v17-leanback
+        android-support-v17-leanback \
+        android-support-v17-preference-leanback \
+        android-support-v7-preference \
+        android-support-v14-preference
+
 include $(BUILD_PACKAGE)

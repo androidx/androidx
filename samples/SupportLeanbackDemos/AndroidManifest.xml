@@ -123,6 +123,10 @@
             android:theme="@style/Theme.Example.Leanback.GuidedStep"
             android:exported="true" />
 
+        <activity android:name=".SettingsActivity"
+                  android:theme="@style/Theme.Example.Leanback.Preferences"
+                  android:exported="true" />
+
         <activity android:name=".OnboardingActivity"
                   android:theme="@style/Theme.Example.Leanback.Onboarding"
                   android:exported="true" />
