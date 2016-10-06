@@ -26,7 +26,10 @@ LOCAL_MIN_SDK_VERSION := 17
 LOCAL_DEX_PREOPT := false
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_STATIC_ANDROID_LIBRARIES := \
-        android-support-v4 \
+        android-support-compat \
+        android-support-core-ui \
+        android-support-media-compat \
+        android-support-fragment \
         android-support-v7-recyclerview \
         android-support-v17-leanback \
         android-support-v17-preference-leanback \
