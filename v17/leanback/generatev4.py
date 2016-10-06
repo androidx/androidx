@@ -19,7 +19,7 @@ import sys
 
 print "Generate v4 fragment related code for leanback"
 
-cls = ['Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Error', 'Headers',
+cls = ['Base', 'BaseRow', 'Browse', 'Details', 'Error', 'Headers',
       'PlaybackOverlay', 'Playback', 'Rows', 'Search', 'VerticalGrid', 'Branded', 'GuidedStep', 'Onboarding']
 
 for w in cls:
