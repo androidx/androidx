@@ -20,6 +20,7 @@ import android.app.Fragment;
 import android.content.ComponentName;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -236,10 +237,10 @@ public class QueueFragment extends Fragment {
 
         if (enablePlay) {
             mPlayPause.setImageDrawable(
-                    getActivity().getResources().getDrawable(R.drawable.ic_play_arrow_white_24dp));
+                    ContextCompat.getDrawable(getActivity(), R.drawable.ic_play_arrow_white_24dp));
         } else {
             mPlayPause.setImageDrawable(
-                    getActivity().getResources().getDrawable(R.drawable.ic_pause_white_24dp));
+                    ContextCompat.getDrawable(getActivity(), R.drawable.ic_pause_white_24dp));
         }
 
         mSkipPrevious.setEnabled((state.getActions() & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)

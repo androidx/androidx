@@ -15,10 +15,6 @@
  */
 package com.example.android.supportv13.app;
 
-import java.util.ArrayList;
-
-import com.example.android.supportv13.R;
-
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Activity;
@@ -28,6 +24,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+
+import com.example.android.supportv13.R;
+
+import java.util.ArrayList;
 
 //BEGIN_INCLUDE(complete)
 public class FragmentNestingStatePagerSupport extends Activity {
@@ -101,7 +101,7 @@ public class FragmentNestingStatePagerSupport extends Activity {
             mActionBar = activity.getActionBar();
             mViewPager = pager;
             mViewPager.setAdapter(this);
-            mViewPager.setOnPageChangeListener(this);
+            mViewPager.addOnPageChangeListener(this);
         }
 
         public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
