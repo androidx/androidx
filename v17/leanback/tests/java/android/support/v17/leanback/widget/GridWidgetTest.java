@@ -118,6 +118,15 @@ public class GridWidgetTest {
         Thread.sleep(500);
     }
 
+    static String dumpGridView(BaseGridView gridView) {
+        return "findFocus:" + gridView.getRootView().findFocus()
+                + " isLayoutRequested:" + gridView.isLayoutRequested()
+                + " selectedPosition:" + gridView.getSelectedPosition()
+                + " adapter.itemCount:" + gridView.getAdapter().getItemCount()
+                + " itemAnimator.isRunning:" + gridView.getItemAnimator().isRunning()
+                + " scrollState:" + gridView.getScrollState();
+    }
+
     /**
      * Change selected position.
      */
@@ -1368,7 +1377,7 @@ public class GridWidgetTest {
             }
         });
         waitForTransientStateGone(null);
-        assertTrue(mGridView.isFocused());
+        assertTrue(dumpGridView(mGridView), mGridView.isFocused());
     }
 
     @Test
@@ -1410,7 +1419,7 @@ public class GridWidgetTest {
             }
         });
         waitForTransientStateGone(null);
-        assertFalse(mGridView.hasFocus());
+        assertFalse(dumpGridView(mGridView), mGridView.hasFocus());
     }
 
     @Test
