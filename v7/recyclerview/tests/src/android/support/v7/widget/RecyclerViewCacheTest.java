@@ -136,7 +136,7 @@ public class RecyclerViewCacheTest {
 
         // Prefetch multiple times...
         for (int i = 0; i < 4; i++) {
-            GapWorker.sGapWorker.get().prefetch(RecyclerView.FOREVER_NS);
+            mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
 
             // ...but should only see the same three items fetched/bound once each
             verify(mockAdapter, times(3)).onCreateViewHolder(any(ViewGroup.class), anyInt());
@@ -177,7 +177,7 @@ public class RecyclerViewCacheTest {
         mRecyclerView.layout(0, 0, 320, 320);
 
         assertEquals(2, mRecyclerView.mRecycler.mViewCacheMax);
-        GapWorker.sGapWorker.get().prefetch(RecyclerView.FOREVER_NS);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
         assertEquals(5, mRecyclerView.mRecycler.mViewCacheMax);
 
         CacheUtils.verifyCacheContainsPositions(mRecyclerView, 0, 1, 2);
@@ -237,7 +237,7 @@ public class RecyclerViewCacheTest {
 
         // rows 0, 1, and 2 are all attached and visible. Prefetch row 3:
         mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
-        GapWorker.sGapWorker.get().prefetch(RecyclerView.FOREVER_NS);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
 
         // row 3 is cached:
         CacheUtils.verifyCacheContainsPositions(mRecyclerView, 9, 10, 11);
@@ -292,7 +292,7 @@ public class RecyclerViewCacheTest {
 
         // Timed prefetch
         mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
-        GapWorker.sGapWorker.get().prefetch(deadlineNs);
+        mRecyclerView.mGapWorker.prefetch(deadlineNs);
 
         // will have enough time to inflate/bind one view, and inflate another
         assertTrue(mRecycler.mCachedViews.size() == 1);
@@ -302,7 +302,7 @@ public class RecyclerViewCacheTest {
 
 
         // Unbounded prefetch this time
-        GapWorker.sGapWorker.get().prefetch(RecyclerView.FOREVER_NS);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
 
         // Should finish all work
         assertTrue(mRecycler.mCachedViews.size() == 3);
