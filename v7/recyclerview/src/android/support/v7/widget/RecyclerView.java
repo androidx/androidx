@@ -5224,7 +5224,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             // 1) Find from scrap by position
             if (holder == null) {
-                holder = getScrapViewForPosition(position, INVALID_TYPE, dryRun);
+                holder = getScrapViewForPosition(position, dryRun);
                 if (holder != null) {
                     if (!validateViewHolderForOffsetPosition(holder)) {
                         // recycle this scrap
@@ -5658,15 +5658,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * Returns a scrap view for the position. If type is not INVALID_TYPE, it also checks if
-         * ViewHolder's type matches the provided type.
+         * Returns a scrap view for the position.
          *
          * @param position Item position
-         * @param type View type
          * @param dryRun  Does a dry run, finds the ViewHolder but does not remove
          * @return a ViewHolder that can be re-used for this position.
          */
-        ViewHolder getScrapViewForPosition(int position, int type, boolean dryRun) {
+        ViewHolder getScrapViewForPosition(int position, boolean dryRun) {
             final int scrapCount = mAttachedScrap.size();
 
             // Try first for an exact, non-invalid match from scrap.
@@ -5674,19 +5672,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 final ViewHolder holder = mAttachedScrap.get(i);
                 if (!holder.wasReturnedFromScrap() && holder.getLayoutPosition() == position
                         && !holder.isInvalid() && (mState.mInPreLayout || !holder.isRemoved())) {
-                    if (type != INVALID_TYPE && holder.getItemViewType() != type) {
-                        Log.e(TAG, "Scrap view for position " + position + " isn't dirty but has" +
-                                " wrong view type! (found " + holder.getItemViewType() +
-                                " but expected " + type + ")");
-                        break;
-                    }
                     holder.addFlags(ViewHolder.FLAG_RETURNED_FROM_SCRAP);
                     return holder;
                 }
             }
 
             if (!dryRun) {
-                View view = mChildHelper.findHiddenNonRemovedView(position, type);
+                View view = mChildHelper.findHiddenNonRemovedView(position);
                 if (view != null) {
                     // This View is good to be used. We just need to unhide, detach and move to the
                     // scrap list.
@@ -5716,8 +5708,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         mCachedViews.remove(i);
                     }
                     if (DEBUG) {
-                        Log.d(TAG, "getScrapViewForPosition(" + position + ", " + type +
-                                ") found match in cache: " + holder);
+                        Log.d(TAG, "getScrapViewForPosition(" + position
+                                + ") found match in cache: " + holder);
                     }
                     return holder;
                 }
