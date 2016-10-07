@@ -43,6 +43,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-transition-ics
 LOCAL_SDK_VERSION := 14
 LOCAL_SRC_FILES := $(call all-java-files-under, ics)
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-base
 LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
@@ -53,6 +54,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-transition-kitkat
 LOCAL_SDK_VERSION := 19
 LOCAL_SRC_FILES := $(call all-java-files-under, kitkat)
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-ics
 LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
@@ -63,6 +65,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-transition-api21
 LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-kitkat
 LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
@@ -73,6 +76,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-transition-api23
 LOCAL_SDK_VERSION := 23
 LOCAL_SRC_FILES := $(call all-java-files-under, api23)
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-api21
 LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
@@ -86,6 +90,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-transition
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-transition-api23
 LOCAL_JAVA_LIBRARIES := android-support-transition-res \
     android-support-v4
