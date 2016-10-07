@@ -322,6 +322,23 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         return mAnimatedVectorState.mVectorDrawable.getIntrinsicHeight();
     }
 
+    @Override
+    public boolean isAutoMirrored() {
+        if (mDelegateDrawable != null) {
+            return DrawableCompat.isAutoMirrored(mDelegateDrawable);
+        }
+        return mAnimatedVectorState.mVectorDrawable.isAutoMirrored();
+    }
+
+    @Override
+    public void setAutoMirrored(boolean mirrored) {
+        if (mDelegateDrawable != null) {
+            mDelegateDrawable.setAutoMirrored(mirrored);
+            return;
+        }
+        mAnimatedVectorState.mVectorDrawable.setAutoMirrored(mirrored);
+    }
+
     /**
      * Obtains styled attributes from the theme, if available, or unstyled
      * resources if the theme is null.
