@@ -16,6 +16,8 @@
 
 package android.support.v7.media;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -57,8 +59,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
@@ -2049,6 +2049,11 @@ public final class MediaRouter {
                 throw new IllegalStateException("There is no currently selected route.  "
                         + "The media router has not yet been fully initialized.");
             }
+            // A workaround for making this method work properly.
+            if (android.os.Build.VERSION.SDK_INT >= 16 && android.os.Build.VERSION.SDK_INT < 25
+                    && RouteInfo.isSystemMediaRouteProvider(mSelectedRoute)) {
+                syncSystemRoutes();
+            }
             return mSelectedRoute;
         }
 
@@ -2066,6 +2071,11 @@ public final class MediaRouter {
                 return;
             }
 
+            // A workaround for making this method work properly.
+            if (android.os.Build.VERSION.SDK_INT >= 16 && android.os.Build.VERSION.SDK_INT < 25
+                    && RouteInfo.isSystemMediaRouteProvider(route)) {
+                syncSystemRoutes();
+            }
             setSelectedRouteInternal(route, unselectReason);
         }
 
@@ -2197,6 +2207,35 @@ public final class MediaRouter {
                 }
                 mCallbackHandler.post(CallbackHandler.MSG_PROVIDER_REMOVED, provider);
                 mProviders.remove(index);
+            }
+        }
+
+        void syncSystemRoutes() {
+            Object routerObj = MediaRouterJellybean.getMediaRouter(mApplicationContext);
+            // If a2dp is enabled, this means a BT route is the selected route, otherwise
+            // the default route is the selected one.
+            boolean a2dpEnabled = MediaRouterJellybean.isBluetoothA2dpOn(routerObj);
+            Object selectedRouteObj = MediaRouterJellybean.getSelectedRoute(
+                    routerObj, MediaRouterJellybean.ALL_ROUTE_TYPES);
+            Object defaultRouteObj = mSystemProvider.getDefaultRoute();
+
+            if (a2dpEnabled && selectedRouteObj == defaultRouteObj) {
+                // A BT route is the currently selected route, but MediaRouter think the default
+                // route is the selected one. By selecting the BT route via framework MediaRouter,
+                // MediaRouter could correct its selected route information.
+                for (Object routeObj : MediaRouterJellybean.getRoutes(routerObj)) {
+                    if (routeObj != defaultRouteObj) {
+                        MediaRouterJellybean.selectRoute(routerObj,
+                                MediaRouterJellybean.ALL_ROUTE_TYPES, routeObj);
+                        break;
+                    }
+                }
+            } else if (!a2dpEnabled && selectedRouteObj != defaultRouteObj) {
+                // The default route is the currently selected route, but MediaRouter think a BT
+                // route is the selected one. By selecting the default route via framework
+                // MediaRouter, MediaRouter could correct its selected route information.
+                MediaRouterJellybean.selectRoute(routerObj,
+                        MediaRouterJellybean.ALL_ROUTE_TYPES, defaultRouteObj);
             }
         }
 
@@ -2740,7 +2779,6 @@ public final class MediaRouter {
             public MediaSessionCompat.Token getToken() {
                 return mMsCompat.getSessionToken();
             }
-
         }
 
         private final class RemoteControlClientRecord
