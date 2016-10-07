@@ -236,7 +236,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
      */
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     public static final class ChildDrawable {
-        private final BoundsRule boundsRule = new BoundsRule();
+        private final BoundsRule mBoundsRule;
         private final Drawable mDrawable;
         private final Rect adjustedBounds = new Rect();
         final CompositeDrawable mParent;
@@ -244,6 +244,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
         public ChildDrawable(Drawable drawable, CompositeDrawable parent) {
             this.mDrawable = drawable;
             this.mParent = parent;
+            this.mBoundsRule = new BoundsRule();
             drawable.setCallback(parent);
         }
 
@@ -264,6 +265,11 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
             } else {
                 clone = null;
             }
+            if (orig.mBoundsRule != null) {
+                this.mBoundsRule = new BoundsRule(orig.mBoundsRule);
+            } else {
+                this.mBoundsRule = new BoundsRule();
+            }
             mDrawable = clone;
             mParent = parent;
         }
@@ -272,7 +278,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
          * Returns the instance of {@link BoundsRule}.
          */
         public BoundsRule getBoundsRule() {
-            return this.boundsRule;
+            return this.mBoundsRule;
         }
 
         /**
@@ -286,7 +292,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
          * Updates the bounds based on the {@link BoundsRule}.
          */
         void updateBounds(Rect bounds) {
-            boundsRule.calculateBounds(bounds, adjustedBounds);
+            mBoundsRule.calculateBounds(bounds, adjustedBounds);
             mDrawable.setBounds(adjustedBounds);
         }
 

@@ -51,6 +51,12 @@ public class BoundsRule {
             this.fraction = fraction;
         }
 
+        ValueRule(ValueRule rule) {
+            this.type = rule.type;
+            this.fraction = rule.fraction;
+            this.absoluteValue = rule.absoluteValue;
+        }
+
         /**
          * Sets the fractional value (percentage of parent) for this rule.
          */
@@ -132,6 +138,15 @@ public class BoundsRule {
         } else {
             result.bottom = doCalculate(rect.top, mBottom, rect.height());
         }
+    }
+
+    public BoundsRule() {}
+
+    public BoundsRule(BoundsRule boundsRule) {
+        this.mLeft = boundsRule.mLeft != null ? new ValueRule(boundsRule.mLeft) : null;
+        this.mRight = boundsRule.mRight != null ? new ValueRule(boundsRule.mRight) : null;
+        this.mTop = boundsRule.mTop != null ? new ValueRule(boundsRule.mTop) : null;
+        this.mBottom = boundsRule.mBottom != null ? new ValueRule(boundsRule.mBottom) : null;
     }
 
     private int doCalculate(int value, ValueRule rule, int size) {

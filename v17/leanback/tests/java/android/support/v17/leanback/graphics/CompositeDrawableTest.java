@@ -16,6 +16,8 @@
 package android.support.v17.leanback.graphics;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -31,21 +33,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Unit test for {@link ChildDrawable}
+ * Unit test for {@link CompositeDrawableTest}
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class ChildDrawableTest {
+public class CompositeDrawableTest {
 
     private static final int HEIGHT = 800;
     private static final int WIDTH = 600;
-    Bitmap bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
+    Bitmap mBitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
 
     @Test
     public void updateBounds_noBoundsRule() {
         CompositeDrawable parentDrawable = new CompositeDrawable();
         FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable();
-        drawable.setBitmap(bitmap);
+        drawable.setBitmap(mBitmap);
         Rect bounds = new Rect(0, 0, WIDTH, HEIGHT);
         parentDrawable.addChildDrawable(drawable);
         parentDrawable.updateBounds(bounds);
@@ -59,14 +61,15 @@ public class ChildDrawableTest {
         CompositeDrawable parentDrawable = new CompositeDrawable();
         float fraction = 0.5f;
         FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable();
-        drawable.setBitmap(bitmap);
+        drawable.setBitmap(mBitmap);
         Rect bounds = new Rect(0, 0, WIDTH, HEIGHT);
         assertEquals(HEIGHT, bounds.height());
         assertEquals(WIDTH, bounds.width());
 
         // inherit from parent
         parentDrawable.addChildDrawable(drawable);
-        parentDrawable.getChildAt(0).getBoundsRule().mBottom = BoundsRule.inheritFromParent(fraction);
+        parentDrawable.getChildAt(0).getBoundsRule().mBottom = BoundsRule.inheritFromParent(
+                fraction);
         parentDrawable.updateBounds(bounds);
 
         Rect adjustedBounds = drawable.getBounds();
@@ -85,7 +88,8 @@ public class ChildDrawableTest {
         assertEquals(expectedBounds, adjustedBounds);
 
         // inherit with offset
-        parentDrawable.getChildAt(0).getBoundsRule().mBottom = BoundsRule.inheritFromParentWithOffset(fraction, 100);
+        parentDrawable.getChildAt(0).getBoundsRule().mBottom =
+                BoundsRule.inheritFromParentWithOffset(fraction, 100);
         parentDrawable.updateBounds(bounds);
 
         adjustedBounds = drawable.getBounds();
@@ -95,12 +99,13 @@ public class ChildDrawableTest {
 
         // inherit from parent 2
         bounds = new Rect(100, 200, WIDTH, HEIGHT);
-        parentDrawable.getChildAt(0).getBoundsRule().mBottom = BoundsRule.inheritFromParent(fraction);
+        parentDrawable.getChildAt(0).getBoundsRule().mBottom =
+                BoundsRule.inheritFromParent(fraction);
         parentDrawable.updateBounds(bounds);
 
         adjustedBounds = drawable.getBounds();
         expectedBounds = new Rect(bounds);
-        expectedBounds.bottom = bounds.top + (int) ((HEIGHT-200) * fraction);
+        expectedBounds.bottom = bounds.top + (int) ((HEIGHT - 200) * fraction);
         assertEquals(expectedBounds, adjustedBounds);
     }
 
@@ -109,7 +114,7 @@ public class ChildDrawableTest {
         CompositeDrawable parentDrawable = new CompositeDrawable();
         float fraction = 0.5f;
         FitWidthBitmapDrawable drawable = new FitWidthBitmapDrawable();
-        drawable.setBitmap(bitmap);
+        drawable.setBitmap(mBitmap);
         Rect bounds = new Rect(0, 0, WIDTH, HEIGHT);
         drawable.setBounds(bounds);
         assertEquals(HEIGHT, drawable.getBounds().height());
@@ -148,7 +153,7 @@ public class ChildDrawableTest {
     public void constantState() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         CompositeDrawable parentDrawable = new CompositeDrawable();
-        BitmapDrawable childDrawable = new BitmapDrawable(context.getResources(), bitmap);
+        BitmapDrawable childDrawable = new BitmapDrawable(context.getResources(), mBitmap);
         parentDrawable.addChildDrawable(childDrawable);
 
         // getConstantState().newDrawable() will create a new CompositeDrawable with shared states:
@@ -170,5 +175,44 @@ public class ChildDrawableTest {
         childDrawable.setAlpha(100);
         assertEquals(128, parentDrawble2.getAlpha());
         assertEquals(128, childDrawable2.getAlpha());
+    }
+
+    @Test
+    public void copyChildDrawableTest() {
+        double delta = .005f;
+        CompositeDrawable parent = new CompositeDrawable();
+        FitWidthBitmapDrawable child = new FitWidthBitmapDrawable();
+        parent.addChildDrawable(child);
+        parent.getChildAt(0).getBoundsRule().mBottom =
+                BoundsRule.inheritFromParentWithOffset(.5f, 100);
+
+        CompositeDrawable.ChildDrawable newChild = new CompositeDrawable.ChildDrawable(
+                parent.getChildAt(0),
+                parent,
+                null);
+        assertEquals(100, newChild.getBoundsRule().mBottom.getAbsoluteValue());
+        assertEquals(.5f, newChild.getBoundsRule().mBottom.getFraction(), delta);
+    }
+
+    @Test
+    public void mutateTest() {
+        double delta = .005f;
+        CompositeDrawable parent = new CompositeDrawable();
+        FitWidthBitmapDrawable child = new FitWidthBitmapDrawable();
+        parent.addChildDrawable(child);
+        parent.getChildAt(0).getBoundsRule().mBottom =
+                BoundsRule.inheritFromParentWithOffset(.5f, 100);
+
+        CompositeDrawable newDrawable = (CompositeDrawable) parent.getConstantState().newDrawable();
+
+        parent.mutate();
+        assertTrue(parent.mMutated);
+
+        CompositeDrawable.ChildDrawable newChild = newDrawable.getChildAt(0);
+        assertNotSame(parent.getChildAt(0), newChild);
+        assertEquals(parent.getChildAt(0).getBoundsRule().mBottom.getAbsoluteValue(),
+                newChild.getBoundsRule().mBottom.getAbsoluteValue());
+        assertEquals(parent.getChildAt(0).getBoundsRule().mBottom.getFraction(),
+                newChild.getBoundsRule().mBottom.getFraction(), delta);
     }
 }
