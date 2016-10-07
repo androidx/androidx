@@ -121,7 +121,10 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     android-support-v17-leanback-res
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-v7-recyclerview \
-    android-support-v4 \
+    android-support-compat \
+    android-support-core-ui \
+    android-support-media-compat \
+    android-support-fragment \
     android-support-annotations
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7

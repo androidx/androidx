@@ -3,7 +3,10 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'leanback-v17'
 
 dependencies {
-    compile project(':support-v4')
+    compile project(':support-compat')
+    compile project(':support-core-ui')
+    compile project(':support-media-compat')
+    compile project(':support-fragment')
     compile project(':support-recyclerview-v7')
     androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
         exclude module: 'support-annotations'
