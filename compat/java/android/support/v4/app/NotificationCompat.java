@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.view.GravityCompat;
@@ -2049,12 +2050,12 @@ public class NotificationCompat {
         }
 
         /**
-         * @param userDisplayName the name to be displayed for any replies sent by the user before the
-         * posting app reposts the notification with those messages after they've been actually
-         * sent and in previous messages sent by the user added in
+         * @param userDisplayName Required - the name to be displayed for any replies sent by the
+         * user before the posting app reposts the notification with those messages after they've
+         * been actually sent and in previous messages sent by the user added in
          * {@link #addMessage(Message)}
          */
-        public MessagingStyle(CharSequence userDisplayName) {
+        public MessagingStyle(@NonNull CharSequence userDisplayName) {
             mUserDisplayName = userDisplayName;
         }
 
