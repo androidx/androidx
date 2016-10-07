@@ -23,7 +23,6 @@ import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.os.Looper;
-import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -52,59 +51,63 @@ public class ThreadUtilTest {
     ThreadUtil.BackgroundCallback<Integer> mBackgroundProxy;
 
     @Before
-    @UiThreadTest
-    public void setup() {
-        ThreadUtil<Integer> threadUtil = new MessageThreadUtil<>();
+    public void setup() throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ThreadUtil<Integer> threadUtil = new MessageThreadUtil<>();
 
-        mMainThreadProxy = threadUtil.getMainThreadProxy(
-                new ThreadUtil.MainThreadCallback<Integer>() {
-                    @Override
-                    public void updateItemCount(int generation, int itemCount) {
-                        assertMainThread();
-                        setResultData("updateItemCount", generation, itemCount);
-                    }
+                mMainThreadProxy = threadUtil.getMainThreadProxy(
+                        new ThreadUtil.MainThreadCallback<Integer>() {
+                            @Override
+                            public void updateItemCount(int generation, int itemCount) {
+                                assertMainThread();
+                                setResultData("updateItemCount", generation, itemCount);
+                            }
 
-                    @Override
-                    public void addTile(int generation, TileList.Tile<Integer> data) {
-                        assertMainThread();
-                        setResultData("addTile", generation, data);
-                    }
+                            @Override
+                            public void addTile(int generation, TileList.Tile<Integer> data) {
+                                assertMainThread();
+                                setResultData("addTile", generation, data);
+                            }
 
-                    @Override
-                    public void removeTile(int generation, int position) {
-                        assertMainThread();
-                        setResultData("removeTile", generation, position);
-                    }
-                });
+                            @Override
+                            public void removeTile(int generation, int position) {
+                                assertMainThread();
+                                setResultData("removeTile", generation, position);
+                            }
+                        });
 
-        mBackgroundProxy = threadUtil.getBackgroundProxy(
-                new ThreadUtil.BackgroundCallback<Integer>() {
-                    @Override
-                    public void refresh(int generation) {
-                        assertBackgroundThread();
-                        setResultData("refresh", generation);
-                    }
+                mBackgroundProxy = threadUtil.getBackgroundProxy(
+                        new ThreadUtil.BackgroundCallback<Integer>() {
+                            @Override
+                            public void refresh(int generation) {
+                                assertBackgroundThread();
+                                setResultData("refresh", generation);
+                            }
 
-                    @Override
-                    public void updateRange(int rangeStart, int rangeEnd, int extRangeStart,
-                                            int extRangeEnd, int scrollHint) {
-                        assertBackgroundThread();
-                        setResultData("updateRange", rangeStart, rangeEnd,
-                                extRangeStart, extRangeEnd, scrollHint);
-                    }
+                            @Override
+                            public void updateRange(int rangeStart, int rangeEnd, int extRangeStart,
+                                    int extRangeEnd, int scrollHint) {
+                                assertBackgroundThread();
+                                setResultData("updateRange", rangeStart, rangeEnd,
+                                        extRangeStart, extRangeEnd, scrollHint);
+                            }
 
-                    @Override
-                    public void loadTile(int position, int scrollHint) {
-                        assertBackgroundThread();
-                        setResultData("loadTile", position, scrollHint);
-                    }
+                            @Override
+                            public void loadTile(int position, int scrollHint) {
+                                assertBackgroundThread();
+                                setResultData("loadTile", position, scrollHint);
+                            }
 
-                    @Override
-                    public void recycleTile(TileList.Tile<Integer> data) {
-                        assertBackgroundThread();
-                        setResultData("recycleTile", data);
-                    }
-                });
+                            @Override
+                            public void recycleTile(TileList.Tile<Integer> data) {
+                                assertBackgroundThread();
+                                setResultData("recycleTile", data);
+                            }
+                        });
+            }
+        });
     }
 
     @Test
