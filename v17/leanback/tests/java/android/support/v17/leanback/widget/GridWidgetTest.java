@@ -22,6 +22,11 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -47,6 +52,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -63,13 +69,17 @@ public class GridWidgetTest {
 
     private static final boolean HUMAN_DELAY = false;
     private static final long WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS = 60000;
+    private static final int WAIT_FOR_LAYOUT_PASS_TIMEOUT_MS = 2000;
+    private static final int WAIT_FOR_ITEM_ANIMATION_FINISH_TIMEOUT_MS = 2000;
 
     protected ActivityTestRule<GridActivity> mActivityTestRule;
     protected GridActivity mActivity;
     protected BaseGridView mGridView;
     protected GridLayoutManager mLayoutManager;
+    private GridLayoutManager.OnLayoutCompleteListener mWaitLayoutListener;
     protected int mOrientation;
     protected int mNumRows;
+    protected int[] mRemovedItems;
 
     private final Comparator<View> mRowSortComparator = new Comparator<View>() {
         public int compare(View lhs, View rhs) {
@@ -110,12 +120,11 @@ public class GridWidgetTest {
      * Change size of the Adapter and notifyDataSetChanged.
      */
     private void changeArraySize(final int size) throws Throwable {
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             public void run() {
                 mActivity.changeArraySize(size);
             }
         });
-        Thread.sleep(500);
     }
 
     static String dumpGridView(BaseGridView gridView) {
@@ -137,68 +146,6 @@ public class GridWidgetTest {
             }
         });
         Thread.sleep(500);
-    }
-
-    protected void waitForScrollIdleAndItemAnimation(Runnable verify) throws Throwable {
-        waitForScrollIdle();
-        waitForItemAnimation();
-        verify.run();
-    }
-
-    protected void waitForItemAnimation() throws Throwable {
-        Thread.sleep(100);
-        while (mGridView.getItemAnimator() != null && mGridView.getItemAnimator().isRunning()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                break;
-            }
-        }
-    }
-
-    /**
-     * Wait for grid view stop scroll and optionally verify state of grid view.
-     */
-    protected void waitForScrollIdle(Runnable verify) throws Throwable {
-        Thread.sleep(100);
-        int total = 0;
-        while (mGridView.getLayoutManager().isSmoothScrolling()
-                || mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE) {
-            if ((total += 100) >= WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS) {
-                throw new RuntimeException("waitForScrollIdle Timeout");
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                break;
-            }
-            if (verify != null) {
-                mActivityTestRule.runOnUiThread(verify);
-            }
-        }
-    }
-
-    /**
-     * Wait for grid view stop animation and optionally verify state of grid view.
-     */
-    protected void waitForTransientStateGone(Runnable verify) throws Throwable {
-        do {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                break;
-            }
-            if (verify != null) {
-                mActivityTestRule.runOnUiThread(verify);
-            }
-        } while (mGridView.hasTransientState());
-    }
-
-    /**
-     * Wait for grid view stop scroll.
-     */
-    protected void waitForScrollIdle() throws Throwable {
-        waitForScrollIdle(null);
     }
 
     /**
@@ -415,6 +362,99 @@ public class GridWidgetTest {
             });
         Thread.sleep(1000);
         mGridView = mActivity.mGridView;
+        mLayoutManager = (GridLayoutManager) mGridView.getLayoutManager();
+    }
+
+    @After
+    public void clearTest() {
+        mWaitLayoutListener = null;
+        mLayoutManager = null;
+        mGridView = null;
+        mActivity = null;
+        mActivityTestRule = null;
+    }
+
+    /**
+     * Must be called before waitForLayout() to prepare layout listener.
+     */
+    protected void startWaitLayout() {
+        if (mWaitLayoutListener != null) {
+            throw new IllegalStateException("startWaitLayout() already called");
+        }
+        if (mLayoutManager.mLayoutCompleteListener != null) {
+            throw new IllegalStateException("Cannot startWaitLayout()");
+        }
+        mWaitLayoutListener = mLayoutManager.mLayoutCompleteListener =
+                mock(GridLayoutManager.OnLayoutCompleteListener.class);
+    }
+
+    /**
+     * wait layout to be called and remove the listener.
+     */
+    protected void waitForLayout() {
+        if (mWaitLayoutListener == null) {
+            throw new IllegalStateException("startWaitLayout() not called");
+        }
+        if (mWaitLayoutListener != mLayoutManager.mLayoutCompleteListener) {
+            throw new IllegalStateException("layout listener inconistent");
+        }
+        try {
+            verify(mWaitLayoutListener, timeout(WAIT_FOR_LAYOUT_PASS_TIMEOUT_MS).atLeastOnce())
+                    .onLayoutCompleted(any(RecyclerView.State.class));
+        } finally {
+            mWaitLayoutListener = null;
+            mLayoutManager.mLayoutCompleteListener = null;
+        }
+    }
+
+    /**
+     * If currently running animator, wait for it to finish, otherwise return immediately.
+     * To wait the ItemAnimator start, you can use waitForLayout() to make sure layout pass has
+     * processed adapter change.
+     */
+    protected void waitForItemAnimation() {
+        RecyclerView.ItemAnimator.ItemAnimatorFinishedListener listener = mock(
+                RecyclerView.ItemAnimator.ItemAnimatorFinishedListener.class);
+        if (mGridView.getItemAnimator().isRunning(listener)) {
+            verify(listener, timeout(WAIT_FOR_ITEM_ANIMATION_FINISH_TIMEOUT_MS).atLeastOnce())
+                    .onAnimationsFinished();
+        }
+    }
+
+    /**
+     * Run task in UI thread and wait for layout and ItemAnimator finishes.
+     */
+    protected void performAndWaitForAnimation(Runnable task) throws Throwable {
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(task);
+        waitForLayout();
+        waitForItemAnimation();
+    }
+
+    protected void waitForScrollIdle() throws Throwable {
+        waitForScrollIdle(null);
+    }
+
+    /**
+     * Wait for grid view stop scroll and optionally verify state of grid view.
+     */
+    protected void waitForScrollIdle(Runnable verify) throws Throwable {
+        Thread.sleep(100);
+        int total = 0;
+        while (mGridView.getLayoutManager().isSmoothScrolling()
+                || mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE) {
+            if ((total += 100) >= WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS) {
+                throw new RuntimeException("waitForScrollIdle Timeout");
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                break;
+            }
+            if (verify != null) {
+                mActivityTestRule.runOnUiThread(verify);
+            }
+        }
     }
 
     @Test
@@ -506,13 +546,12 @@ public class GridWidgetTest {
         final int decorationRight = 19;
         final int decorationBottom = 2;
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             public void run() {
                 mGridView.addItemDecoration(new DividerDecoration(decorationLeft, decorationTop,
                         decorationRight, decorationBottom));
             }
         });
-        waitForScrollIdle();
 
         View child0 = mGridView.getChildAt(0);
         View child1 = mGridView.getChildAt(1);
@@ -574,13 +613,12 @@ public class GridWidgetTest {
         assertTrue(opticalInsetsRight > 0);
         assertTrue(opticalInsetsBottom > 0);
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             public void run() {
                 mGridView.addItemDecoration(new DividerDecoration(decorationLeft, decorationTop,
                         decorationRight, decorationBottom));
             }
         });
-        waitForScrollIdle();
 
         View child0 = mGridView.getChildAt(0);
         View child1 = mGridView.getChildAt(1);
@@ -706,9 +744,12 @@ public class GridWidgetTest {
 
         mGridView.setSelectedPositionSmooth(150);
         waitForScrollIdle(mVerifyLayout);
-        mActivity.swap(150, 152);
-        waitForTransientStateGone(null);
-
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.swap(150, 152);
+            }
+        });
         mActivityTestRule.runOnUiThread(mVerifyLayout);
 
         scrollToBegin(mVerifyLayout);
@@ -729,9 +770,12 @@ public class GridWidgetTest {
 
         mGridView.setSelectedPositionSmooth(150);
         waitForScrollIdle(mVerifyLayout);
-        mActivity.swap(150, 152);
-        waitForTransientStateGone(null);
-
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.swap(150, 152);
+            }
+        });
         mActivityTestRule.runOnUiThread(mVerifyLayout);
 
         scrollToEnd(mVerifyLayout);
@@ -756,15 +800,23 @@ public class GridWidgetTest {
 
         mGridView.setSelectedPositionSmooth(150);
         waitForScrollIdle(mVerifyLayout);
-        int[] removedItems = mActivity.removeItems(151, 4);
-        waitForTransientStateGone(null);
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mRemovedItems = mActivity.removeItems(151, 4);
+            }
+        });
 
         scrollToEnd(mVerifyLayout);
         mGridView.setSelectedPositionSmooth(150);
         waitForScrollIdle(mVerifyLayout);
 
-        mActivity.addItems(151, removedItems);
-        waitForTransientStateGone(null);
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(151, mRemovedItems);
+            }
+        });
         scrollToEnd(mVerifyLayout);
 
         // we should get same aligned end edges
@@ -804,7 +856,6 @@ public class GridWidgetTest {
                 mGridView.requestFocus();
             }
         });
-        waitForTransientStateGone(null);
         waitForScrollIdle();
         assertEquals(mGridView.getSelectedPosition(), focusToIndex);
         assertTrue(mGridView.getLayoutManager().findViewByPosition(focusToIndex).hasFocus());
@@ -827,7 +878,6 @@ public class GridWidgetTest {
             }
         });
         assertEquals(mGridView.getSelectedPosition(), focusToIndex2);
-        waitForTransientStateGone(null);
         waitForScrollIdle();
         assertTrue(mGridView.getLayoutManager().findViewByPosition(focusToIndex2).hasFocus());
     }
@@ -850,7 +900,6 @@ public class GridWidgetTest {
             }
         });
 
-        waitForTransientStateGone(null);
         waitForScrollIdle();
         mActivityTestRule.runOnUiThread(new Runnable() {
             public void run() {
@@ -865,7 +914,6 @@ public class GridWidgetTest {
                 mGridView.requestLayout();
             }
         });
-        waitForTransientStateGone(null);
         waitForScrollIdle();
 
         int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
@@ -875,7 +923,6 @@ public class GridWidgetTest {
                 mGridView.requestLayout();
             }
         });
-        waitForTransientStateGone(null);
         waitForScrollIdle();
         assertEquals(leftEdge,
                 mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft());
@@ -899,13 +946,13 @@ public class GridWidgetTest {
             }
         });
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 mActivity.removeItems(focusToIndex, 1);
             }
         });
 
-        waitForTransientStateGone(null);
         waitForScrollIdle();
         int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
 
@@ -914,7 +961,6 @@ public class GridWidgetTest {
                 mGridView.requestLayout();
             }
         });
-        waitForTransientStateGone(null);
         waitForScrollIdle();
         assertEquals(leftEdge,
                 mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft());
@@ -952,15 +998,13 @@ public class GridWidgetTest {
             }
         });
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 int[] newItems = new int[]{300, 300, 300};
                 mActivity.addItems(0, newItems);
             }
         });
-
-        waitForTransientStateGone(null);
-        waitForScrollIdle();
     }
 
     @Test
@@ -995,15 +1039,13 @@ public class GridWidgetTest {
             }
         });
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 int[] newItems = new int[]{300, 300, 300};
                 mActivity.addItems(focusToIndex, newItems);
             }
         });
-
-        waitForTransientStateGone(null);
-        waitForScrollIdle();
     }
 
     @Test
@@ -1030,10 +1072,8 @@ public class GridWidgetTest {
             }
         });
 
-        Thread.sleep(20); // wait for layout
         assertTrue("removing the index of not attached child should not affect smooth scroller",
                 mGridView.getLayoutManager().isSmoothScrolling());
-        waitForTransientStateGone(null);
         waitForScrollIdle();
         int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
 
@@ -1042,7 +1082,6 @@ public class GridWidgetTest {
                 mGridView.requestLayout();
             }
         });
-        waitForTransientStateGone(null);
         waitForScrollIdle();
         assertEquals(leftEdge,
                 mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft());
@@ -1066,19 +1105,19 @@ public class GridWidgetTest {
             }
         });
 
-        final int removeIndex = mGridView.getChildViewHolder(
-                mGridView.getChildAt(mGridView.getChildCount() - 1)).getAdapterPosition();
+        startWaitLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
             public void run() {
+                final int removeIndex = mGridView.getChildViewHolder(
+                        mGridView.getChildAt(mGridView.getChildCount() - 1)).getAdapterPosition();
                 mActivity.removeItems(removeIndex, 1);
             }
         });
+        waitForLayout();
 
-        Thread.sleep(20); // wait for layout
         assertFalse("removing the index of attached child should kill smooth scroller",
                 mGridView.getLayoutManager().isSmoothScrolling());
-        waitForTransientStateGone(null);
-        waitForScrollIdle();
+        waitForItemAnimation();
         int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
 
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -1086,7 +1125,6 @@ public class GridWidgetTest {
                 mGridView.requestLayout();
             }
         });
-        waitForTransientStateGone(null);
         waitForScrollIdle();
         assertEquals(leftEdge,
                 mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft());
@@ -1119,20 +1157,20 @@ public class GridWidgetTest {
         }
 
         assertTrue(mGridView.getLayoutManager().isSmoothScrolling());
-        final int removeIndex = mGridView.getChildViewHolder(
-                mGridView.getChildAt(mGridView.getChildCount() - 1)).getAdapterPosition();
+        startWaitLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
             public void run() {
+                final int removeIndex = mGridView.getChildViewHolder(
+                        mGridView.getChildAt(mGridView.getChildCount() - 1)).getAdapterPosition();
                 mActivity.removeItems(removeIndex, 1);
             }
         });
+        waitForLayout();
 
-        Thread.sleep(20); // wait for layout
         assertFalse("removing the index of attached child should kill smooth scroller",
                 mGridView.getLayoutManager().isSmoothScrolling());
 
-        waitForTransientStateGone(null);
-        waitForScrollIdle();
+        waitForItemAnimation();
         int focusIndex = mGridView.getSelectedPosition();
         int topEdge = mGridView.getLayoutManager().findViewByPosition(focusIndex).getTop();
 
@@ -1141,7 +1179,6 @@ public class GridWidgetTest {
                 mGridView.requestLayout();
             }
         });
-        waitForTransientStateGone(null);
         waitForScrollIdle();
         assertEquals(topEdge,
                 mGridView.getLayoutManager().findViewByPosition(focusIndex).getTop());
@@ -1158,13 +1195,19 @@ public class GridWidgetTest {
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 3;
 
-        int[] removedItems = mActivity.removeItems(0, 200);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mRemovedItems = mActivity.removeItems(0, 200);
+            }
+        });
 
-        waitForTransientStateGone(null);
         humanDelay(500);
-        mActivity.addItems(0, removedItems);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.addItems(0, mRemovedItems);
+            }
+        });
 
-        waitForTransientStateGone(null);
         humanDelay(500);
         assertTrue(mGridView.getLayoutManager().findViewByPosition(0).hasFocus());
 
@@ -1370,13 +1413,12 @@ public class GridWidgetTest {
         waitForScrollIdle(mVerifyLayout);
         assertEquals(focusableIndex, mGridView.getSelectedPosition());
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             @Override
             public void run() {
                 mActivity.removeItems(focusableIndex, 1);
             }
         });
-        waitForTransientStateGone(null);
         assertTrue(dumpGridView(mGridView), mGridView.isFocused());
     }
 
@@ -1412,13 +1454,12 @@ public class GridWidgetTest {
         waitForScrollIdle(mVerifyLayout);
         assertEquals(focusableIndex, mGridView.getSelectedPosition());
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             @Override
             public void run() {
                 mActivity.removeItems(focusableIndex, 1);
             }
         });
-        waitForTransientStateGone(null);
         assertFalse(dumpGridView(mGridView), mGridView.hasFocus());
     }
 
@@ -1593,12 +1634,12 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mGridView.setSelectedPositionSmooth(0);
-        waitForScrollIdleAndItemAnimation(mVerifyLayout);
+        waitForScrollIdle(mVerifyLayout);
 
         for (int i = 0; i < pressDown; i++) {
             sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
         }
-        waitForScrollIdleAndItemAnimation(mVerifyLayout);
+        waitForScrollIdle(mVerifyLayout);
         assertFalse(mGridView.isFocused());
 
     }
@@ -1637,8 +1678,13 @@ public class GridWidgetTest {
                 }
             }
         });
-        mActivity.addItems(0, new int[]{200, 300, 500, 500, 200});
-        waitForScrollIdleAndItemAnimation(mVerifyLayout);
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(0, new int[]{200, 300, 500, 500, 200});
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
 
         assertFalse("GridView should not be scrolled", scrolled[0]);
         assertTrue(mGridView.getLayoutManager().findViewByPosition(2).hasFocus());
@@ -2151,7 +2197,7 @@ public class GridWidgetTest {
                 mGridView.setSelectedPositionSmooth(0);
             }
         });
-        waitForScrollIdleAndItemAnimation(mVerifyLayout);
+        waitForScrollIdle(mVerifyLayout);
         verifyMargin();
 
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -2159,7 +2205,7 @@ public class GridWidgetTest {
                 mGridView.setSelectedPositionSmooth(1);
             }
         });
-        waitForScrollIdleAndItemAnimation(mVerifyLayout);
+        waitForScrollIdle(mVerifyLayout);
         verifyMargin();
     }
 
@@ -2253,7 +2299,7 @@ public class GridWidgetTest {
                 mGridView.setSelectedPositionSmooth(1);
             }
         });
-        waitForScrollIdleAndItemAnimation(mVerifyLayout);
+        waitForScrollIdle(mVerifyLayout);
         assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionStart(), 1);
         assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionEnd(), 2);
         assertEquals(((TextView) mGridView.getChildAt(1)).getSelectionStart(), 1);
@@ -2271,7 +2317,7 @@ public class GridWidgetTest {
                 mGridView.setSelectedPositionSmooth(0);
             }
         });
-        waitForScrollIdleAndItemAnimation(mVerifyLayout);
+        waitForScrollIdle(mVerifyLayout);
         assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionStart(), 1);
         assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionEnd(), 2);
         assertEquals(((TextView) mGridView.getChildAt(1)).getSelectionStart(), 1);
@@ -2572,13 +2618,12 @@ public class GridWidgetTest {
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 1;
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             public void run() {
                 mActivity.addItems(0, new int[]{300, 300});
                 mGridView.setSelectedPosition(0);
             }
         });
-        waitForTransientStateGone(null);
         assertEquals(0, mGridView.getSelectedPosition());
     }
 
@@ -2608,7 +2653,7 @@ public class GridWidgetTest {
                 selectedViewByTask[0] = viewHolder.itemView;
             }
         };
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             public void run() {
                 mActivity.removeItems(0, 1);
                 if (smooth) {
@@ -2618,7 +2663,6 @@ public class GridWidgetTest {
                 }
             }
         });
-        waitForTransientStateGone(null);
         assertEquals(0, mGridView.getSelectedPosition());
         assertNotNull(selectedViewByTask[0]);
         assertNotSame(firstView, selectedViewByTask[0]);
@@ -2645,13 +2689,12 @@ public class GridWidgetTest {
             }
         });
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             public void run() {
                 ChangeableViewTypesProvider.setViewType(0, 1);
                 mGridView.getAdapter().notifyItemChanged(0, 1);
             }
         });
-        waitForTransientStateGone(null);
         assertEquals(0, mGridView.getSelectedPosition());
         assertEquals(selectedLog.size(), 1);
         assertEquals((int) selectedLog.get(0), 0);
@@ -2667,13 +2710,12 @@ public class GridWidgetTest {
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 1;
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             public void run() {
                 mActivity.addItems(0, new int[]{300, 300});
                 mGridView.setSelectedPositionSmooth(0);
             }
         });
-        waitForTransientStateGone(null);
         assertEquals(0, mGridView.getSelectedPosition());
     }
 
@@ -2688,17 +2730,17 @@ public class GridWidgetTest {
 
         final int windowSize = mGridView.getHeight();
         final int extraLayoutSize = windowSize;
-        int itemLength = mActivity.mItemLengths[0];
         mOrientation = BaseGridView.VERTICAL;
         mNumRows = 1;
 
         // add extra layout space
+        startWaitLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
             public void run() {
                 mGridView.setExtraLayoutSpace(extraLayoutSize);
             }
         });
-        Thread.sleep(50);
+        waitForLayout();
         View v;
         v = mGridView.getChildAt(mGridView.getChildCount() - 1);
         assertTrue(v.getTop() < windowSize + extraLayoutSize);
@@ -2790,7 +2832,7 @@ public class GridWidgetTest {
             }
 
         });
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             @Override
             public void run() {
                 mGridView.restoreHierarchyState(states);
@@ -2799,7 +2841,6 @@ public class GridWidgetTest {
             }
 
         });
-        waitForTransientStateGone(null);
         assertEquals(mGridView.getSelectedPosition(), 0);
     }
 
