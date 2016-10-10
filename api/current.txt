@@ -2188,6 +2188,7 @@ package android.support.v17.leanback.graphics {
 
   public class BoundsRule {
     ctor public BoundsRule();
+    ctor public BoundsRule(android.support.v17.leanback.graphics.BoundsRule);
     method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule absoluteValue(int);
     method public void calculateBounds(android.graphics.Rect, android.graphics.Rect);
     method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParent(float);
