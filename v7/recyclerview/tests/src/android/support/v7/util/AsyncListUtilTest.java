@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.support.annotation.UiThread;
-import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v7.widget.TestActivity;
@@ -50,14 +49,18 @@ public class AsyncListUtilTest {
 
     AsyncListUtil<String> mAsyncListUtil;
 
-    @UiThreadTest
     @Before
     public final void setup() throws Throwable {
         mDataCallback = new TestDataCallback();
         mViewCallback = new TestViewCallback();
         mDataCallback.expectTiles(0, 10, 20);
-        mAsyncListUtil = new AsyncListUtil<String>(
-                String.class, TILE_SIZE, mDataCallback, mViewCallback);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mAsyncListUtil = new AsyncListUtil<>(
+                        String.class, TILE_SIZE, mDataCallback, mViewCallback);
+            }
+        });
         mDataCallback.waitForTiles("initial load");
     }
 
