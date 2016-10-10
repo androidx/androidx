@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.os.TraceCompat;
 import android.support.v4.util.CircularIntArray;
 import android.support.v4.view.ViewCompat;
@@ -1854,6 +1855,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     scrollToView(focusView, false);
                 }
             }
+        }
+    }
+
+    @VisibleForTesting
+    public static class OnLayoutCompleteListener {
+        public void onLayoutCompleted(RecyclerView.State state) {
+        }
+    }
+
+    @VisibleForTesting
+    OnLayoutCompleteListener mLayoutCompleteListener;
+
+    @Override
+    public void onLayoutCompleted(State state) {
+        if (mLayoutCompleteListener != null) {
+            mLayoutCompleteListener.onLayoutCompleted(state);
         }
     }
 
