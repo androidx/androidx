@@ -16,6 +16,7 @@
 package android.support.v7.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyInt;
@@ -36,7 +37,6 @@ class CacheUtils {
         }
     }
 
-
     private static void verifyCacheContainsPosition(RecyclerView view, int position) {
         for (int i = 0; i < view.mRecycler.mCachedViews.size(); i++) {
             if (view.mRecycler.mCachedViews.get(i).mPosition == position) return;
@@ -45,17 +45,12 @@ class CacheUtils {
     }
 
     /**
-     * Asserts that the position passed is resident in the view's cache.
+     * Asserts that the positions passed are all resident in the view's cache.
      */
     static void verifyCacheContainsPositions(RecyclerView view, Integer... positions) {
         for (Integer position : positions) {
             verifyCacheContainsPosition(view, position);
         }
-    }
-
-    private static void verifyCacheContainsPrefetchedPosition(RecyclerView view, int position) {
-        verifyCacheContainsPosition(view, position);
-        assertTrue(view.mPrefetchRegistry.lastPrefetchIncludedPosition(position));
     }
 
     /**
@@ -64,11 +59,23 @@ class CacheUtils {
      * PrefetchRegistry.
      */
     static void verifyCacheContainsPrefetchedPositions(RecyclerView view, Integer... positions) {
+        verifyCacheContainsPositions(view, positions);
+
         for (Integer position : positions) {
-            verifyCacheContainsPrefetchedPosition(view, position);
+            assertTrue(view.mPrefetchRegistry.lastPrefetchIncludedPosition(position));
         }
         assertEquals(positions.length, view.mRecycler.mCachedViews.size());
     }
 
-
+    /**
+     * Asserts that none of the positions passed are resident in the view's cache.
+     */
+    static void verifyCacheDoesNotContainPositions(RecyclerView view, Integer... positions) {
+        for (Integer position : positions) {
+            for (int i = 0; i < view.mRecycler.mCachedViews.size(); i++) {
+                assertNotEquals("Cache must not contain position " + position,
+                        (int) position, view.mRecycler.mCachedViews.get(i).mPosition);
+            }
+        }
+    }
 }
