@@ -45,8 +45,12 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.AttributeSet;
+import android.util.LayoutDirection;
 import android.util.Log;
 import android.util.Xml;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -522,6 +526,22 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         return false;
     }
 
+    @Override
+    public boolean isAutoMirrored() {
+        if (mDelegateDrawable != null) {
+            return DrawableCompat.isAutoMirrored(mDelegateDrawable);
+        }
+        return mVectorState.mAutoMirrored;
+    }
+
+    @Override
+    public void setAutoMirrored(boolean mirrored) {
+        if (mDelegateDrawable != null) {
+            DrawableCompat.setAutoMirrored(mDelegateDrawable, mirrored);
+            return;
+        }
+        mVectorState.mAutoMirrored = mirrored;
+    }
     /**
      * The size of a pixel when scaled from the intrinsic dimension to the viewport dimension. This
      * is used to calculate the path animation accuracy.
@@ -825,7 +845,11 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
     // We don't support RTL auto mirroring since the getLayoutDirection() is for API 17+.
     private boolean needMirroring() {
-        return false;
+        if (Build.VERSION.SDK_INT < 17) {
+            return false;
+        } else {
+            return isAutoMirrored() && getLayoutDirection() == LayoutDirection.RTL;
+        }
     }
 
     // Extra override functions for delegation for SDK >= 7.
