@@ -94,6 +94,9 @@
                 android:name="android.support.v7.app.NightModeActivity"
                 android:theme="@style/Theme.AppCompat.DayNight"/>
 
+        <activity
+            android:name="android.support.v7.app.AppCompatVectorDrawableIntegrationActivity"/>
+
     </application>
 
     <instrumentation

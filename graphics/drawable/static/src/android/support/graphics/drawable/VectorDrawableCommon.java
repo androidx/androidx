@@ -18,7 +18,6 @@ import android.annotation.TargetApi;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.ColorFilter;
-import android.graphics.Outline;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Region;
@@ -27,7 +26,6 @@ import android.os.Build;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.graphics.drawable.TintAwareDrawable;
 import android.util.AttributeSet;
-import android.view.View;
 
 /**
  * Internal common delegation shared by VectorDrawableCompat and AnimatedVectorDrawableCompat
@@ -117,39 +115,12 @@ abstract class VectorDrawableCommon extends Drawable implements TintAwareDrawabl
     }
 
     @Override
-    public void setAutoMirrored(boolean mirrored) {
-        // API >= 21 only.
-        if (mDelegateDrawable != null) {
-            DrawableCompat.setAutoMirrored(mDelegateDrawable, mirrored);
-
-            return;
-        }
-    }
-
-    @Override
-    public boolean isAutoMirrored() {
-        // API >= 21 only.
-        if (mDelegateDrawable != null) {
-            DrawableCompat.isAutoMirrored(mDelegateDrawable);
-        }
-        return false;
-    }
-
-    @Override
     public void applyTheme(Resources.Theme t) {
         // API >= 21 only.
         if (mDelegateDrawable != null) {
             DrawableCompat.applyTheme(mDelegateDrawable, t);
             return;
         }
-    }
-
-    @Override
-    public int getLayoutDirection() {
-        if (mDelegateDrawable != null) {
-            DrawableCompat.getLayoutDirection(mDelegateDrawable);
-        }
-        return View.LAYOUT_DIRECTION_LTR;
     }
 
     @Override
