@@ -5903,6 +5903,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
         }
 
+        boolean isPrefetchPositionAttached(int position) {
+            final int childCount = mChildHelper.getUnfilteredChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View attachedView = mChildHelper.getUnfilteredChildAt(i);
+                ViewHolder holder = getChildViewHolderInt(attachedView);
+                // TODO: consider ignoring if holder isInvalid
+                // Note: can use mPosition here because adapter doesn't have pending updates
+                if (holder.mPosition == position) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         void prefetch(int[] itemPrefetchArray, int viewCount) {
             if (viewCount == 0) return;
 
@@ -5911,11 +5925,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 throw new IllegalArgumentException("Recycler requested to prefetch invalid view "
                         + childPosition);
             }
-            View prefetchView = getViewForPosition(childPosition);
+
+            View prefetchView = null;
+            if (!isPrefetchPositionAttached(childPosition)) {
+                // only prefetch if child not already attached
+                prefetchView = getViewForPosition(childPosition);
+            }
             if (viewCount > 1) {
                 prefetch(itemPrefetchArray, viewCount - 1);
             }
-            recycleView(prefetchView);
+            if (prefetchView != null) {
+                recycleView(prefetchView);
+            }
         }
     }
 
