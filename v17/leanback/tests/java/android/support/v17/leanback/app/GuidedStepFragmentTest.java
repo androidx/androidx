@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -48,6 +49,8 @@ import java.util.List;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
+
+    private static final int ON_DESTROY_TIMEOUT = 5000;
 
     @Test
     public void nextAndBack() throws Throwable {
@@ -118,7 +121,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
 
         sendKey(KeyEvent.KEYCODE_BACK);
         PollingCheck.waitFor(new PollingCheck.ActivityDestroy(activity));
-        verify(first, times(1)).onDestroy();
+        verify(first, timeout(ON_DESTROY_TIMEOUT).times(1)).onDestroy();
         assertTrue(activity.isDestroyed());
     }
 
@@ -215,7 +218,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
         assertTrue(viewFinish.hasFocus());
         sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
         PollingCheck.waitFor(new PollingCheck.ActivityDestroy(activity));
-        verify(first, times(1)).onDestroy();
+        verify(first, timeout(ON_DESTROY_TIMEOUT).times(1)).onDestroy();
     }
 
     @Test
@@ -341,6 +344,6 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
 
         sendKey(KeyEvent.KEYCODE_BACK);
         PollingCheck.waitFor(new PollingCheck.ActivityDestroy(activity));
-        verify(first, times(1)).onDestroy();
+        verify(first, timeout(ON_DESTROY_TIMEOUT).times(1)).onDestroy();
     }
 }
