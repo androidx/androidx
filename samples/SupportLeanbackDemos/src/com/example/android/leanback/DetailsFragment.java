@@ -167,6 +167,7 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
         }
     }
 
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -219,5 +220,4 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
                     getActivity(), mPhotoItem.getImageResourceId());
         }
     }
-
 }

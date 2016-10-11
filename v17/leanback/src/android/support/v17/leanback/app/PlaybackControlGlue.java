@@ -39,10 +39,10 @@ import android.view.View;
  * and {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost} that implements a
  * recommended approach to handling standard playback control actions such as play/pause,
  * fast forward/rewind at progressive speed levels, and skip to next/previous. This helper class
- * is a glue layer in that it manages the configuration of and interaction between the
+ * is a glue layer in that manages the configuration of and interaction between the
  * leanback UI components by defining a functional interface to the media player.
  *
- * <p>You can instantiate a concrete subclass such as {@link MediaControllerGlue} or you must
+ * <p>You can instantiate a concrete subclass such as MediaPlayerGlue or you must
  * subclass this abstract helper.  To create a subclass you must implement all of the
  * abstract methods and the subclass must invoke {@link #onMetadataChanged()} and
  * {@link #onStateChanged()} appropriately.
@@ -61,14 +61,13 @@ import android.view.View;
  *
  * <p>The helper sets a {@link android.support.v17.leanback.widget.SparseArrayObjectAdapter}
  * on the controls row as the primary actions adapter, and adds actions to it. You can provide
- * additional actions by overriding {@link #createPrimaryActionsAdapter}.  This helper does not
+ * additional actions by overriding {@link #createPrimaryActionsAdapter}. This helper does not
  * deal in secondary actions so those you may add separately.
  * </p>
  *
  * <p>Provide a click listener on your fragment and if an action is clicked, call
- * {@link #onActionClicked}.  There is no need to call {@link #setOnItemViewClickedListener}
- * but if you do a click listener will be installed on the fragment and recognized action clicks
- * will be handled.  Your listener will be called only for unhandled actions.
+ * {@link #onActionClicked}. If you set a listener by calling {@link #setOnItemViewClickedListener},
+ * your listener will be called for all unhandled actions.
  * </p>
  *
  * <p>This helper implements a key event handler. If you pass a
@@ -285,7 +284,6 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
                                int[] fastForwardSpeeds,
                                int[] rewindSpeeds) {
         super(context);
-        setHost(host);
         if (fastForwardSpeeds.length == 0 || fastForwardSpeeds.length > NUMBER_OF_SEEK_SPEEDS) {
             throw new IllegalStateException("invalid fastForwardSpeeds array size");
         }
@@ -294,20 +292,33 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
             throw new IllegalStateException("invalid rewindSpeeds array size");
         }
         mRewindSpeeds = rewindSpeeds;
+        setHost(host);
     }
 
     @Override
     public void setHost(PlaybackGlueHost host) {
         super.setHost(host);
-        if (mPlaybackGlueHost != null) {
-            if (mPlaybackGlueHost instanceof PlaybackGlueHostOld) {
-                ((PlaybackGlueHostOld) mPlaybackGlueHost).mGlue = this;
+        if (getHost() != null) {
+            if (getHost() instanceof PlaybackGlueHostOld) {
+                ((PlaybackGlueHostOld) getHost()).mGlue = this;
             }
-            mPlaybackGlueHost.setOnKeyInterceptListener(this);
-            mPlaybackGlueHost.setOnActionClickedListener(this);
+            getHost().setOnKeyInterceptListener(this);
+            getHost().setOnActionClickedListener(this);
+            getHost().setPlaybackRowPresenter(createControlsRowAndPresenter());
+            getHost().setPlaybackRow(getControlsRow());
+            getHost().setHostLifeCycleCallback(new HostLifecycleCallback() {
+                @Override
+                public void onHostStart() {
+                    enableProgressUpdating(true);
+                }
+
+                @Override
+                public void onHostStop() {
+                    enableProgressUpdating(false);
+                }
+            });
         }
     }
-
 
     /**
      * Helper method for instantiating a {@link PlaybackControlsRow} and corresponding
@@ -353,8 +364,8 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
      */
     @Deprecated
     public PlaybackOverlayFragment getFragment() {
-        if (mPlaybackGlueHost instanceof PlaybackGlueHostOld) {
-            return ((PlaybackGlueHostOld)mPlaybackGlueHost).mFragment;
+        if (getHost() instanceof PlaybackGlueHostOld) {
+            return ((PlaybackGlueHostOld)getHost()).mFragment;
         }
         return null;
     }
@@ -378,8 +389,8 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
      */
     public void setFadingEnabled(boolean enable) {
         mFadeWhenPlaying = enable;
-        if (!mFadeWhenPlaying && mPlaybackGlueHost != null) {
-            mPlaybackGlueHost.setFadingEnabled(false);
+        if (!mFadeWhenPlaying && getHost() != null) {
+            getHost().setFadingEnabled(false);
         }
     }
 
@@ -601,7 +612,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
             return;
         }
 
-        if (DEBUG) Log.v(TAG, "updateRowMetadata hasValidMedia " + hasValidMedia());
+        if (DEBUG) Log.v(TAG, "updateRowMetadata");
 
         if (!hasValidMedia()) {
             mControlsRow.setImageDrawable(null);
@@ -613,7 +624,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
             mControlsRow.setCurrentTime(getCurrentPosition());
         }
 
-        onRowChanged(mControlsRow);
+        getHost().notifyPlaybackRowChanged();
     }
 
     void updatePlaybackState() {
@@ -707,8 +718,8 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
             enableProgressUpdating(true);
         }
 
-        if (mFadeWhenPlaying && mPlaybackGlueHost != null) {
-            mPlaybackGlueHost.setFadingEnabled(playbackSpeed == PLAYBACK_SPEED_NORMAL);
+        if (mFadeWhenPlaying && getHost() != null) {
+            getHost().setFadingEnabled(playbackSpeed == PLAYBACK_SPEED_NORMAL);
         }
 
         if (mPlayPauseAction != null) {
@@ -809,32 +820,46 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
     /**
      * Start playback at the given speed.
+     * @deprecated use {@link #play()} instead.
+     *
      * @param speed The desired playback speed.  For normal playback this will be
      *              {@link #PLAYBACK_SPEED_NORMAL}; higher positive values for fast forward,
      *              and negative values for rewind.
      */
-    protected abstract void startPlayback(int speed);
+    @Deprecated
+    protected void startPlayback(int speed) {}
 
     /**
      * Pause playback.
+     * @deprecated use {@link #pause()} instead.
      */
-    protected abstract void pausePlayback();
+    @Deprecated
+    protected void pausePlayback() {}
 
     /**
      * Skip to the next track.
+     * @deprecated use {@link #next()} instead.
      */
-    protected abstract void skipToNext();
+    @Deprecated
+    protected void skipToNext() {}
 
     /**
      * Skip to the previous track.
+     * @deprecated use {@link #previous()} instead.
      */
-    protected abstract void skipToPrevious();
+    @Deprecated
+    protected void skipToPrevious() {}
 
     /**
-     * Invoked when the playback controls row has changed.  The adapter containing this row
-     * should be notified.
+     * This method invoked when the playback controls row has changed. The adapter
+     * containing this row should be notified. This method would be delegated to
+     * {@see android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost#notifyPlaybackRowChanged}.
+     * @deprecated see {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost}.
      */
-    protected abstract void onRowChanged(PlaybackControlsRow row);
+    @Deprecated
+    protected void onRowChanged(PlaybackControlsRow row) {
+        getHost().notifyPlaybackRowChanged();
+    }
 
     /**
      * Creates the primary action adapter.  May be overridden to add additional primary

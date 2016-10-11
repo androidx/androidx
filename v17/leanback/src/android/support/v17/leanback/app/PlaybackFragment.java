@@ -28,12 +28,15 @@ import android.os.Message;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.animation.LogAccelerateInterpolator;
 import android.support.v17.leanback.animation.LogDecelerateInterpolator;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
+import android.support.v17.leanback.widget.ClassPresenterSelector;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.PlaybackRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
+import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v7.widget.RecyclerView;
@@ -50,6 +53,7 @@ import java.util.ArrayList;
 
 /**
  * A fragment for displaying playback controls and related content.
+ *
  * <p>
  * A PlaybackFragment renders the elements of its {@link ObjectAdapter} as a set
  * of rows in a vertical list.  The Adapter's {@link PresenterSelector} must maintain subclasses
@@ -70,6 +74,19 @@ public class PlaybackFragment extends Fragment {
      * A dark translucent background.
      */
     public static final int BG_DARK = 1;
+    private PlaybackGlue.HostLifecycleCallback mHostLifecycleCallbackCallback;
+
+    /**
+     * Resets the focus on the button in the middle of control row.
+     */
+    public void resetFocus() {
+        ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder) getVerticalGridView()
+                .findViewHolderForAdapterPosition(0);
+        if (vh != null && vh.getPresenter() instanceof PlaybackRowPresenter) {
+            ((PlaybackRowPresenter) vh.getPresenter()).onReappear(
+                    (RowPresenter.ViewHolder) vh.getViewHolder());
+        }
+    }
 
     private class SetSelectionRunnable implements Runnable {
         int mPosition;
@@ -90,6 +107,8 @@ public class PlaybackFragment extends Fragment {
     public static final int BG_LIGHT = 2;
     private RowsFragment mRowsFragment;
     private ObjectAdapter mAdapter;
+    private PlaybackRowPresenter mPresenter;
+    private Row mRow;
     private BaseOnItemViewClickedListener mExternalItemClickedListener;
     private BaseOnItemViewClickedListener mPlaybackItemClickedListener;
     private BaseOnItemViewClickedListener mOnItemViewClickedListener = new BaseOnItemViewClickedListener() {
@@ -199,7 +218,7 @@ public class PlaybackFragment extends Fragment {
                 }
             };
 
-    private VerticalGridView getVerticalGridView() {
+    VerticalGridView getVerticalGridView() {
         if (mRowsFragment == null) {
             return null;
         }
@@ -328,6 +347,9 @@ public class PlaybackFragment extends Fragment {
         fade(false);
     }
 
+    /**
+     * Returns true/false indicating whether playback controls are visible or not.
+     */
     private boolean areControlsHidden() {
         return mFadingStatus == IDLE && mBgAlpha == 0;
     }
@@ -341,7 +363,7 @@ public class PlaybackFragment extends Fragment {
         if (event instanceof KeyEvent) {
             keyCode = ((KeyEvent) event).getKeyCode();
             if (mInputEventHandler != null) {
-                consumeEvent = mInputEventHandler.onKey(getView(), keyCode, (KeyEvent)event);
+                consumeEvent = mInputEventHandler.onKey(getView(), keyCode, (KeyEvent) event);
             }
         }
 
@@ -583,16 +605,6 @@ public class PlaybackFragment extends Fragment {
         }
     }
 
-    /**
-     * Sets the list of rows for the fragment.
-     */
-    public void setAdapter(ObjectAdapter adapter) {
-        mAdapter = adapter;
-        if (mRowsFragment != null) {
-            mRowsFragment.setAdapter(adapter);
-        }
-    }
-
     private void setupChildFragmentLayout() {
         setVerticalGridViewLayout(mRowsFragment.getVerticalGridView());
     }
@@ -725,7 +737,11 @@ public class PlaybackFragment extends Fragment {
                     .replace(R.id.playback_controls_dock, mRowsFragment)
                     .commit();
         }
-        mRowsFragment.setAdapter(mAdapter);
+        if (mAdapter == null) {
+            setAdapter(new ArrayObjectAdapter(new ClassPresenterSelector()));
+        } else {
+            mRowsFragment.setAdapter(mAdapter);
+        }
         mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
 
         mBgAlpha = 255;
@@ -734,10 +750,30 @@ public class PlaybackFragment extends Fragment {
         return mRootView;
     }
 
+    /**
+     * Sets the {@link PlaybackGlue.HostLifecycleCallback}. Implementor of this interface will
+     * take appropriate actions to take action when the hosting fragment starts/stops processing.
+     */
+    public void setHostLifecycleCallback(PlaybackGlue.HostLifecycleCallback hostLifecycleCallback) {
+        this.mHostLifecycleCallbackCallback = hostLifecycleCallback;
+    }
+
     @Override
     public void onStart() {
         super.onStart();
         setupChildFragmentLayout();
+        mRowsFragment.setAdapter(mAdapter);
+        if (mHostLifecycleCallbackCallback != null) {
+            mHostLifecycleCallbackCallback.onHostStart();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mHostLifecycleCallbackCallback != null) {
+            mHostLifecycleCallbackCallback.onHostStop();
+        }
     }
 
     /**
@@ -760,6 +796,70 @@ public class PlaybackFragment extends Fragment {
     public void onDestroyView() {
         mRootView = null;
         super.onDestroyView();
+    }
+
+    /**
+     * Sets the playback row for the playback controls.
+     */
+    public void setPlaybackRow(Row row) {
+        this.mRow = row;
+        setupRow();
+        setupPresenter();
+    }
+
+    /**
+     * Sets the presenter for rendering the playback controls.
+     */
+    public void setPlaybackRowPresenter(PlaybackRowPresenter presenter) {
+        this.mPresenter = presenter;
+        setupPresenter();
+    }
+
+    /**
+     * Updates the ui when the row data changes.
+     */
+    public void notifyPlaybackRowChanged() {
+        if (mAdapter == null) {
+            return;
+        }
+        mAdapter.notifyItemRangeChanged(0, 1);
+    }
+
+    /**
+     * Sets the list of rows for the fragment.
+     */
+    public void setAdapter(ObjectAdapter adapter) {
+        mAdapter = adapter;
+        setupRow();
+        setupPresenter();
+        if (mRowsFragment != null) {
+            mRowsFragment.setAdapter(adapter);
+        }
+    }
+
+    private void setupRow() {
+        if (mAdapter instanceof ArrayObjectAdapter && mRow != null) {
+            ArrayObjectAdapter adapter = ((ArrayObjectAdapter) mAdapter);
+            if (adapter.size() == 0) {
+                adapter.add(mRow);
+            } else {
+                adapter.replace(0, mRow);
+            }
+        }
+    }
+
+    private void setupPresenter() {
+        if (mAdapter != null && mRow != null && mPresenter != null) {
+            PresenterSelector selector = mAdapter.getPresenterSelector();
+            if (selector == null) {
+                selector = new ClassPresenterSelector();
+                mAdapter.setPresenterSelector(selector);
+            }
+
+            if (selector instanceof ClassPresenterSelector) {
+                ((ClassPresenterSelector) selector).addClassPresenter(mRow.getClass(), mPresenter);
+            }
+        }
     }
 
     static abstract class AnimatorListener implements Animator.AnimatorListener {

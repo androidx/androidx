@@ -84,7 +84,7 @@ import java.lang.ref.WeakReference;
 public final class BackgroundManager {
 
     interface FragmentStateQueriable {
-        public boolean isResumed();
+        boolean isResumed();
     }
 
     static final String TAG = "BackgroundManager";
@@ -740,7 +740,7 @@ public final class BackgroundManager {
     }
 
     /**
-     * Makes the background visible on the given Window.  The background manager must be attached
+     * Makes the background visible on the given Window. The background manager must be attached
      * when the background is set.
      */
     public void attach(Window window) {
@@ -782,7 +782,10 @@ public final class BackgroundManager {
         attachToView(backgroundView);
     }
 
-    private void attachToView(View sceneRoot) {
+    /**
+     * Adds the composite drawable to the given view.
+     */
+    public void attachToView(View sceneRoot) {
         mBgView = sceneRoot;
         mAttached = true;
         syncWithService();
@@ -986,14 +989,14 @@ public final class BackgroundManager {
     }
 
     /**
-     * Sets the given bitmap into the background. When using setBitmap to set the
+     * Sets the given bitmap into the background. When using setCoverImageBitmap to set the
      * background, the provided bitmap will be scaled and cropped to correctly
      * fit within the dimensions of the view. The timing for when this becomes
      * visible in the app is undefined and may take place after a small delay.
      */
     public void setBitmap(Bitmap bitmap) {
         if (DEBUG) {
-            Log.v(TAG, "setBitmap " + bitmap);
+            Log.v(TAG, "setCoverImageBitmap " + bitmap);
         }
 
         if (bitmap == null) {
@@ -1158,6 +1161,7 @@ public final class BackgroundManager {
     }
 
     private void showWallpaper(boolean show) {
+        if (DEBUG) Log.v(TAG, "showWallpaper called with " + show);
         if (mWindow == null) {
             return;
         }

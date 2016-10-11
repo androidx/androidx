@@ -13,20 +13,21 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.support.v7.widget.SimpleItemAnimator;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 /**
  * An abstract base class for vertically and horizontally scrolling lists. The items come
@@ -998,4 +999,21 @@ abstract class BaseGridView extends RecyclerView {
         return mLayoutManager.getExtraLayoutSpace();
     }
 
+
+    public void animateOut() {
+        ((GridLayoutManager) getLayoutManager()).setIsSlidingChildViews(true);
+        smoothScrollBy(0, -600, new AccelerateDecelerateInterpolator());
+    }
+
+    public void animateIn() {
+        addOnScrollListener(new OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    ((GridLayoutManager) getLayoutManager()).setIsSlidingChildViews(false);
+                }
+            }
+        });
+        smoothScrollBy(0, 600, new AccelerateDecelerateInterpolator());
+    }
 }

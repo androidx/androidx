@@ -19,7 +19,9 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.v17.leanback.app.MediaPlayerGlue;
 import android.support.v17.leanback.app.PlaybackControlGlue;
+import android.support.v17.leanback.app.PlaybackGlue;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
@@ -31,7 +33,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
-abstract class PlaybackControlHelper extends PlaybackControlGlue {
+abstract class PlaybackControlHelper extends MediaPlayerGlue {
     /**
      * Change the location of the thumbs up/down controls
      */
@@ -63,7 +65,7 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
         }
     };
 
-    public PlaybackControlHelper(Context context, PlaybackGlueHost host) {
+    public PlaybackControlHelper(Context context, PlaybackGlue.PlaybackGlueHost host) {
         super(context, host, sFastForwardSpeeds, sFastForwardSpeeds);
         mThumbsUpAction = new PlaybackControlsRow.ThumbsUpAction(context);
         mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsUpAction.OUTLINE);

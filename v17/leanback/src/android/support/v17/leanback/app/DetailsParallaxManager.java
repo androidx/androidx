@@ -60,6 +60,10 @@ public class DetailsParallaxManager {
         return mParallax;
     }
 
+    public RecyclerView getRecyclerView() {
+        return mRecyclerView;
+    }
+
     /**
      * Returns the top of the details overview row. This is tracked for implementing the
      * parallax effect.

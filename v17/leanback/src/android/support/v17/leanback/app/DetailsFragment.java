@@ -13,6 +13,8 @@
  */
 package android.support.v17.leanback.app;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
@@ -26,9 +28,9 @@ import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.RowPresenter;
-import android.support.v17.leanback.widget.TitleHelper;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,18 +89,20 @@ public class DetailsFragment extends BaseFragment {
         }
     }
 
+    BrowseFrameLayout mRootView;
+    Fragment mVideoFragment;
+    DetailsParallaxManager mDetailsParallaxManager;
     RowsFragment mRowsFragment;
-    private DetailsParallaxManager mDetailsParallaxManager;
-    private ObjectAdapter mAdapter;
-    private int mContainerListAlignTop;
+    ObjectAdapter mAdapter;
+    int mContainerListAlignTop;
     BaseOnItemViewSelectedListener mExternalOnItemViewSelectedListener;
-    private BaseOnItemViewClickedListener mOnItemViewClickedListener;
+    BaseOnItemViewClickedListener mOnItemViewClickedListener;
 
-    private Object mSceneAfterEntranceTransition;
+    Object mSceneAfterEntranceTransition;
 
-    private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
+    final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
 
-    private final BaseOnItemViewSelectedListener<Object> mOnItemViewSelectedListener =
+    final BaseOnItemViewSelectedListener<Object> mOnItemViewSelectedListener =
             new BaseOnItemViewSelectedListener<Object>() {
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
@@ -169,7 +173,6 @@ public class DetailsFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mContainerListAlignTop =
             getResources().getDimensionPixelSize(R.dimen.lb_details_rows_align_top);
     }
@@ -177,9 +180,8 @@ public class DetailsFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.lb_details_fragment, container, false);
-        ViewGroup fragment_root = (ViewGroup) view.findViewById(R.id.details_fragment_root);
-        installTitleView(inflater, fragment_root, savedInstanceState);
+        mRootView = (BrowseFrameLayout) inflater.inflate(
+                R.layout.lb_details_fragment, container, false);
         mRowsFragment = (RowsFragment) getChildFragmentManager().findFragmentById(
                 R.id.details_rows_dock);
         if (mRowsFragment == null) {
@@ -191,15 +193,16 @@ public class DetailsFragment extends BaseFragment {
         mRowsFragment.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
         mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
 
-        mSceneAfterEntranceTransition = TransitionHelper.createScene(
-                (ViewGroup) view, new Runnable() {
+        mSceneAfterEntranceTransition = TransitionHelper.createScene(mRootView, new Runnable() {
             @Override
             public void run() {
                 mRowsFragment.setEntranceTransitionState(true);
             }
         });
-        return view;
+
+        return mRootView;
     }
+
 
     /**
      * @deprecated override {@link #onInflateTitleView(LayoutInflater,ViewGroup,Bundle)} instead.
@@ -226,9 +229,9 @@ public class DetailsFragment extends BaseFragment {
     }
 
     /**
-     * Called to setup each Presenter of Adapter passed in {@link #setAdapter(ObjectAdapter)}.  Note
-     * that setup should only change the Presenter behavior that is meaningful in DetailsFragment.  For
-     * example how a row is aligned in details Fragment.   The default implementation invokes
+     * Called to setup each Presenter of Adapter passed in {@link #setAdapter(ObjectAdapter)}.Note
+     * that setup should only change the Presenter behavior that is meaningful in DetailsFragment.
+     * For example how a row is aligned in details Fragment.   The default implementation invokes
      * {@link #setupDetailsOverviewRowPresenter(FullWidthDetailsOverviewRowPresenter)}
      *
      */
@@ -285,15 +288,6 @@ public class DetailsFragment extends BaseFragment {
         setVerticalGridViewLayout(mRowsFragment.getVerticalGridView());
     }
 
-    private void setupFocusSearchListener() {
-        TitleHelper titleHelper = getTitleHelper();
-        if (titleHelper != null) {
-            BrowseFrameLayout browseFrameLayout = (BrowseFrameLayout) getView().findViewById(
-                    R.id.details_fragment_root);
-            browseFrameLayout.setOnFocusSearchListener(titleHelper.getOnFocusSearchListener());
-        }
-    }
-
     /**
      * Sets the selected row position with smooth animation.
      */
@@ -310,6 +304,54 @@ public class DetailsFragment extends BaseFragment {
         if (getView() != null && getView().getHandler() != null) {
             getView().getHandler().post(mSetSelectionRunnable);
         }
+    }
+
+    /**
+     * Creates an instance of {@link VideoFragment}. Subclasses can override this method
+     * and provide their own instance of a {@link Fragment}. When you provide your own instance of
+     * video fragment, you MUST also provide a custom
+     * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost}.
+     */
+    public Fragment onCreateVideoFragment() {
+        return new VideoFragment();
+    }
+
+    /**
+     * Creates an instance of
+     * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost}. The implementation
+     * of this host depends on the instance of video fragment {@link #onCreateVideoFragment()}.
+     */
+    public PlaybackGlue.PlaybackGlueHost onCreateVideoFragmentHost(Fragment fragment) {
+        return new VideoFragmentGlueHost((VideoFragment) fragment);
+    }
+
+    /**
+     * This method adds a fragment for rendering video to the layout. In case the
+     * fragment is being restored, it will return the video fragment in there.
+     *
+     * @return Fragment the added or restored fragment responsible for rendering video.
+     */
+    public final Fragment findOrCreateVideoFragment() {
+        Fragment fragment = getFragmentManager().findFragmentById(R.id.video_surface_container);
+        if (fragment == null) {
+            FragmentTransaction ft2 = getFragmentManager().beginTransaction();
+            ft2.add(android.support.v17.leanback.R.id.video_surface_container,
+                    fragment = onCreateVideoFragment());
+            ft2.commit();
+            setupVideoPlayback();
+        }
+        mVideoFragment = fragment;
+        return mVideoFragment;
+    }
+
+    /**
+     * This method initializes a video fragment, create an instance of
+     * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost} using that fragment
+     * and return it.
+     */
+    public final PlaybackGlue.PlaybackGlueHost createPlaybackGlueHost() {
+        Fragment fragment = findOrCreateVideoFragment();
+        return onCreateVideoFragmentHost(fragment);
     }
 
     void onRowSelected(int selectedPosition, int selectedSubPosition) {
@@ -394,10 +436,10 @@ public class DetailsFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         setupChildFragmentLayout();
-        setupFocusSearchListener();
         if (isEntranceTransitionEnabled()) {
             mRowsFragment.setEntranceTransitionState(false);
         }
+        mRowsFragment.getVerticalGridView().requestFocus();
     }
 
     @Override
@@ -436,5 +478,74 @@ public class DetailsFragment extends BaseFragment {
                     getRowsFragment().getVerticalGridView());
         }
         return mDetailsParallaxManager;
+    }
+
+    /**
+     * This method does the following
+     * <ul>
+     * <li>sets up focus search handling logic in the root view to enable transitioning between
+     * half screen/full screen/no video mode.</li>
+     *
+     * <li>Sets up the key listener in the root view to intercept events like UP/DOWN and
+     * transition to appropriate mode like half/full screen video.</li>
+     * </ul>
+     */
+    void setupVideoPlayback() {
+        mRootView.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
+            @Override
+            public View onFocusSearch(View focused, int direction) {
+                if (mVideoFragment == null) {
+                    return null;
+                }
+                if (mRowsFragment.getVerticalGridView() != null
+                        && mRowsFragment.getVerticalGridView().hasFocus()) {
+                    if (direction == View.FOCUS_UP) {
+                        slideOutGridView();
+                        return mVideoFragment.getView();
+                    }
+                } else if (mVideoFragment.getView() != null
+                        && mVideoFragment.getView().hasFocus()) {
+                    if (direction == View.FOCUS_DOWN) {
+                        slideInGridView();
+                        return mRowsFragment.getVerticalGridView();
+                    }
+                }
+                return focused;
+            }
+        });
+
+        // If we press BACK or DOWN on remote while in full screen video mode, we should
+        // transition back to half screen video playback mode.
+        mRootView.setOnDispatchKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // This is used to check if we are in full screen video mode. This is somewhat
+                // hacky and relies on the behavior of the video helper class to update the
+                // focusability of the video surface view.
+                if (mVideoFragment.getView() != null && mVideoFragment.getView().hasFocus()) {
+                    if (keyCode == KeyEvent.KEYCODE_BACK) {
+                        slideInGridView();
+                        getVerticalGridView().requestFocus();
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        });
+    }
+
+    /**
+     * Slides vertical grid view (displaying media item details) out of the screen from below.
+     */
+    void slideOutGridView() {
+        getVerticalGridView().animateOut();
+    }
+
+    /**
+     * Slides in vertical grid view (displaying media item details) from below.
+     */
+    void slideInGridView() {
+        getVerticalGridView().animateIn();
     }
 }

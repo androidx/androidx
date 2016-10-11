@@ -48,12 +48,12 @@ import java.util.ArrayList;
 
 final class GridLayoutManager extends RecyclerView.LayoutManager {
 
-     /*
-      * LayoutParams for {@link HorizontalGridView} and {@link VerticalGridView}.
-      * The class currently does two internal jobs:
-      * - Saves optical bounds insets.
-      * - Caches focus align view center.
-      */
+    /*
+     * LayoutParams for {@link HorizontalGridView} and {@link VerticalGridView}.
+     * The class currently does two internal jobs:
+     * - Saves optical bounds insets.
+     * - Caches focus align view center.
+     */
     final static class LayoutParams extends RecyclerView.LayoutParams {
 
         // For placement
@@ -374,6 +374,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     // minimal milliseconds to scroll window size in major direction,  we put a cap to prevent the
     // effect smooth scrolling too over to bind an item view then drag the item view back.
     final static int MIN_MS_SMOOTH_SCROLL_MAIN_SCREEN = 30;
+
+    // Represents whether child views are sliding in or out.
+    private boolean mIsSlidingChildViews;
 
     String getTag() {
         return TAG + ":" + mBaseGridView.getId();
@@ -1716,14 +1719,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void removeInvisibleViewsAtEnd() {
-        if (mPruneChild) {
+        if (mPruneChild && !mIsSlidingChildViews) {
             mGrid.removeInvisibleItemsAtEnd(mFocusPosition,
                     mReverseFlowPrimary ? -mExtraLayoutSpace : mSizePrimary + mExtraLayoutSpace);
         }
     }
 
     private void removeInvisibleViewsAtFront() {
-        if (mPruneChild) {
+        if (mPruneChild && !mIsSlidingChildViews) {
             mGrid.removeInvisibleItemsAtFront(mFocusPosition,
                     mReverseFlowPrimary ? mSizePrimary + mExtraLayoutSpace: -mExtraLayoutSpace);
         }
@@ -1731,6 +1734,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     private boolean appendOneColumnVisibleItems() {
         return mGrid.appendOneColumnVisibleItems();
+    }
+
+    public void setIsSlidingChildViews(boolean animatingChildViews) {
+        this.mIsSlidingChildViews = animatingChildViews;
     }
 
     private boolean prependOneColumnVisibleItems() {
@@ -2061,20 +2068,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (TRACE) TraceCompat.beginSection("scrollPrimary");
         boolean isMaxUnknown = false, isMinUnknown = false;
         int minScroll = 0, maxScroll = 0;
-        if (da > 0) {
-            isMaxUnknown = mWindowAlignment.mainAxis().isMaxUnknown();
-            if (!isMaxUnknown) {
-                maxScroll = mWindowAlignment.mainAxis().getMaxScroll();
-                if (mScrollOffsetPrimary + da > maxScroll) {
-                    da = maxScroll - mScrollOffsetPrimary;
+        if (!mIsSlidingChildViews) {
+            if (da > 0) {
+                isMaxUnknown = mWindowAlignment.mainAxis().isMaxUnknown();
+                if (!isMaxUnknown) {
+                    maxScroll = mWindowAlignment.mainAxis().getMaxScroll();
+                    if (mScrollOffsetPrimary + da > maxScroll) {
+                        da = maxScroll - mScrollOffsetPrimary;
+                    }
                 }
-            }
-        } else if (da < 0) {
-            isMinUnknown = mWindowAlignment.mainAxis().isMinUnknown();
-            if (!isMinUnknown) {
-                minScroll = mWindowAlignment.mainAxis().getMinScroll();
-                if (mScrollOffsetPrimary + da < minScroll) {
-                    da = minScroll - mScrollOffsetPrimary;
+            } else if (da < 0) {
+                isMinUnknown = mWindowAlignment.mainAxis().isMinUnknown();
+                if (!isMinUnknown) {
+                    minScroll = mWindowAlignment.mainAxis().getMinScroll();
+                    if (mScrollOffsetPrimary + da < minScroll) {
+                        da = minScroll - mScrollOffsetPrimary;
+                    }
                 }
             }
         }

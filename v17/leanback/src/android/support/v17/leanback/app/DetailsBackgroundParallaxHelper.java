@@ -34,7 +34,7 @@ import android.util.TypedValue;
  * a drawable like the following -
  * <pre>
  *        ***************************
- *        *          Bitmap         *
+ *        *        Cover Image      *
  *        ***************************
  *        *    DetailsOverviewRow   *
  *        *                         *
@@ -60,7 +60,7 @@ import android.util.TypedValue;
  *         super.onStart();
  *         mParallaxHelper = DetailsBackgroundParallaxHelper.ParallaxBuilder
  *             .newBuilder(parallaxManager, context)
- *             .setBitmapMinVerticalOffset(-300)
+ *             .setCoverImageMinVerticalOffset(-300)
  *             .build();
  *          mBackgroundManager.setDrawable(mParallaxHelper.getDrawable());
  *      }
@@ -68,11 +68,11 @@ import android.util.TypedValue;
  * </pre>
  * </li>
  * </li>
- * <li>Finally, users can set the bitmap through {@link #setBitmap(Bitmap)} call.
+ * <li>Finally, users can set the bitmap through {@link #setCoverImageBitmap(Bitmap)} call.
  * <pre>
  * {@code
  *     public void onBitmapLoaded(Bitmap bitmap) {
- *         mParallaxHelper.setBitmap(bitmap);
+ *         mParallaxHelper.setCoverImageBitmap(bitmap);
  *     }
  * }
  * </pre>
@@ -84,24 +84,32 @@ import android.util.TypedValue;
 public final class DetailsBackgroundParallaxHelper {
     private DetailsParallaxManager mDetailsParallaxManager;
     private CompositeDrawable mCompositeDrawable;
-    private FitWidthBitmapDrawable mFitWidthBitmapDrawable;
+    private FitWidthBitmapDrawable mCoverImageDrawable;
     private ColorDrawable mSolidColorDrawable;
-    private int mBitmapMinVerticalOffset;
+    private int mCoverImageMinVerticalOffset;
 
     DetailsBackgroundParallaxHelper(
             Context context,
             DetailsParallaxManager detailsParallaxManager,
-            int bitmapMinVerticalOffset,
+            int coverImageMinVerticalOffset,
             int color) {
-        this.mBitmapMinVerticalOffset = bitmapMinVerticalOffset;
+        this.mCoverImageMinVerticalOffset = coverImageMinVerticalOffset;
         mCompositeDrawable = new CompositeDrawable();
-        mFitWidthBitmapDrawable = new FitWidthBitmapDrawable();
+        mCoverImageDrawable = new FitWidthBitmapDrawable();
         mSolidColorDrawable = new ColorDrawable(color);
-        mCompositeDrawable.addChildDrawable(mFitWidthBitmapDrawable);
+        mCompositeDrawable.addChildDrawable(mCoverImageDrawable);
         mCompositeDrawable.addChildDrawable(mSolidColorDrawable);
+        mCompositeDrawable.getChildAt(0).getBoundsRule().mBottom = BoundsRule.inheritFromParent(1f);
         mCompositeDrawable.getChildAt(1).getBoundsRule().mTop = BoundsRule.inheritFromParent(1f);
         mDetailsParallaxManager = detailsParallaxManager;
         setupParallaxEffect(context);
+    }
+
+    /**
+     * Returns the first child of {@link CompositeDrawable} which is the cover image.
+     */
+    public Drawable getCoverImageDrawable() {
+        return mCompositeDrawable.getChildAt(0).getDrawable();
     }
 
     /**
@@ -109,7 +117,7 @@ public final class DetailsBackgroundParallaxHelper {
      */
     public static class ParallaxBuilder {
         // Default value for image translation is -100px.
-        private int mBitmapMinVerticalOffset = -100;
+        private int mCoverImageMinVerticalOffset = -100;
         private int mColor;
         private boolean mIsColorSet;
         private final DetailsParallaxManager mDetailsParallaxManager;
@@ -134,8 +142,8 @@ public final class DetailsBackgroundParallaxHelper {
          * Sets the minimum top position the image is going to translate to during the
          * parallax motion.
          */
-        public ParallaxBuilder setBitmapMinVerticalOffset(int minTop) {
-            this.mBitmapMinVerticalOffset = minTop;
+        public ParallaxBuilder setCoverImageMinVerticalOffset(int minTop) {
+            this.mCoverImageMinVerticalOffset = minTop;
             return this;
         }
 
@@ -158,7 +166,7 @@ public final class DetailsBackgroundParallaxHelper {
             }
 
             return new DetailsBackgroundParallaxHelper(mContext,
-                    mDetailsParallaxManager, mBitmapMinVerticalOffset, mColor);
+                    mDetailsParallaxManager, mCoverImageMinVerticalOffset, mColor);
         }
 
         private int getDefaultBackgroundColor(Context context) {
@@ -181,11 +189,11 @@ public final class DetailsBackgroundParallaxHelper {
     /**
      * Sets the bitmap in drawable instance returned during {@link #getDrawable()} call.
      */
-    public void setBitmap(Bitmap bitmap) {
+    public void setCoverImageBitmap(Bitmap bitmap) {
         if (bitmap == null) {
             throw new IllegalArgumentException("Invalid bitmap");
         }
-        mFitWidthBitmapDrawable.setBitmap(bitmap);
+        mCoverImageDrawable.setBitmap(bitmap);
     }
 
     /**
@@ -199,7 +207,7 @@ public final class DetailsBackgroundParallaxHelper {
      * Sets up the cover image parallax effect in {@link DetailsFragment}.
      */
     private void setupParallaxEffect(Context context) {
-        // Add bitmap parallax effect:
+        // Add cover image parallax effect:
         // When frameTop moves from half of the screen to top of the screen,
         // change vertical offset of Bitmap from 0 to -100
 
@@ -214,18 +222,19 @@ public final class DetailsBackgroundParallaxHelper {
         final int toValue = context.getResources()
                 .getDimensionPixelSize(R.dimen.lb_details_v2_align_pos_for_description);
         parallax.addEffect(frameTop.atAbsolute(fromValue), frameTop.atFraction(toValue))
-                .target(mFitWidthBitmapDrawable,
-                    PropertyValuesHolder.ofInt("verticalOffset", 0, mBitmapMinVerticalOffset))
-                .target(mCompositeDrawable.getChildAt(0),
-                    PropertyValuesHolder.ofInt(
-                        CompositeDrawable.ChildDrawable.BOTTOM_ABSOLUTE, fromValue, toValue));
+                .target(mCoverImageDrawable,
+                    PropertyValuesHolder.ofInt("verticalOffset", 0, mCoverImageMinVerticalOffset));
 
         // Add solid color parallax effect:
         // When frameBottom moves from bottom of the screen to top of the screen,
         // change solid ColorDrawable's top from bottom of screen to top of the screen.
+        // Also we are changing the drawing the bitmap from bottom to top of the screen.
         parallax.addEffect(frameBottom.atFraction(1f), frameBottom.atFraction(0f))
                 .target(mCompositeDrawable.getChildAt(1),
                         PropertyValuesHolder.ofFloat(
-                                CompositeDrawable.ChildDrawable.TOP_FRACTION, 1f, 0f));
+                                CompositeDrawable.ChildDrawable.TOP_FRACTION, 1f, 0f))
+                .target(mCompositeDrawable.getChildAt(0),
+                        PropertyValuesHolder.ofFloat(
+                                CompositeDrawable.ChildDrawable.BOTTOM_FRACTION, 1f, 0f));
     }
 }

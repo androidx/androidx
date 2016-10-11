@@ -23,6 +23,7 @@
           <target android:excludeId="@id/title_badge" />
           <target android:excludeId="@id/title_text" />
           <target android:excludeId="@id/title_orb" />
+          <target android:excludeId="@id/details_background_view" />
       </targets>
   </transition>
   <fade
