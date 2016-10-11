@@ -46,6 +46,7 @@ public class SeekBarPreference extends Preference {
     private int mSeekBarValue;
     private int mMin;
     private int mMax;
+    private int mSeekBarIncrement;
     private boolean mTrackingTouch;
     private SeekBar mSeekBar;
     private TextView mSeekBarValueTextView;
@@ -90,14 +91,15 @@ public class SeekBarPreference extends Preference {
             if (event.getAction() != KeyEvent.ACTION_DOWN) {
                 return false;
             }
-            if (!mAdjustable && (keyCode == KeyEvent.KEYCODE_DPAD_LEFT ||
-                    keyCode == KeyEvent.KEYCODE_DPAD_RIGHT)) {
+
+            if (!mAdjustable && (keyCode == KeyEvent.KEYCODE_DPAD_LEFT
+                    || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT)) {
                 // Right or left keys are pressed when in non-adjustable mode; Skip the keys.
                 return false;
             }
 
-            // We don't want to propagate the click keys down to the seekbar view since it will create
-            // the ripple effect for the thumb.
+            // We don't want to propagate the click keys down to the seekbar view since it will
+            // create the ripple effect for the thumb.
             if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER) {
                 return false;
             }
@@ -124,6 +126,7 @@ public class SeekBarPreference extends Preference {
          */
         mMin = a.getInt(R.styleable.SeekBarPreference_min, 0);
         setMax(a.getInt(R.styleable.SeekBarPreference_android_max, 100));
+        setSeekBarIncrement(a.getInt(R.styleable.SeekBarPreference_seekBarIncrement, 0));
         mAdjustable = a.getBoolean(R.styleable.SeekBarPreference_adjustable, true);
         mShowSeekBarValue = a.getBoolean(R.styleable.SeekBarPreference_showSeekBarValue, true);
         a.recycle();
@@ -160,6 +163,16 @@ public class SeekBarPreference extends Preference {
         }
         mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
         mSeekBar.setMax(mMax - mMin);
+        // If the increment is not zero, use that. Otherwise, use the default mKeyProgressIncrement
+        // in AbsSeekBar when it's zero. This default increment value is set by AbsSeekBar
+        // after calling setMax. That's why it's important to call setKeyProgressIncrement after
+        // calling setMax() since setMax() can change the increment value.
+        if (mSeekBarIncrement != 0) {
+            mSeekBar.setKeyProgressIncrement(mSeekBarIncrement);
+        } else {
+            mSeekBarIncrement = mSeekBar.getKeyProgressIncrement();
+        }
+
         mSeekBar.setProgress(mSeekBarValue - mMin);
         if (mSeekBarValueTextView != null) {
             mSeekBarValueTextView.setText(String.valueOf(mSeekBarValue));
@@ -192,12 +205,34 @@ public class SeekBarPreference extends Preference {
         return mMin;
     }
 
-    public void setMax(int max) {
+    public final void setMax(int max) {
         if (max < mMin) {
             max = mMin;
         }
         if (max != mMax) {
             mMax = max;
+            notifyChanged();
+        }
+    }
+
+    /**
+     * Returns the amount of increment change via each arrow key click. This value is derived from
+     * user's specified increment value if it's not zero. Otherwise, the default value is picked
+     * from the default mKeyProgressIncrement value in {@link android.widget.AbsSeekBar}.
+     * @return The amount of increment on the SeekBar performed after each user's arrow key press.
+     */
+    public final int getSeekBarIncrement() {
+        return mSeekBarIncrement;
+    }
+
+    /**
+     * Sets the increment amount on the SeekBar for each arrow key press.
+     * @param seekBarIncrement The amount to increment or decrement when the user presses an
+     *                         arrow key.
+     */
+    public final void setSeekBarIncrement(int seekBarIncrement) {
+        if (seekBarIncrement != mSeekBarIncrement) {
+            mSeekBarIncrement =  Math.min(mMax - mMin, Math.abs(seekBarIncrement));
             notifyChanged();
         }
     }

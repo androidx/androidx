@@ -9272,11 +9272,13 @@ package android.support.v7.preference {
     ctor public SeekBarPreference(android.content.Context);
     method public int getMax();
     method public int getMin();
+    method public final int getSeekBarIncrement();
     method public int getValue();
     method public boolean isAdjustable();
     method public void setAdjustable(boolean);
-    method public void setMax(int);
+    method public final void setMax(int);
     method public void setMin(int);
+    method public final void setSeekBarIncrement(int);
     method public void setValue(int);
   }
 
