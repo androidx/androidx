@@ -832,7 +832,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
                                 mActionModeView.setVisibility(View.VISIBLE);
                                 mActionModeView.sendAccessibilityEvent(
                                         AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-                                if (mActionModeView.getParent() != null) {
+                                if (mActionModeView.getParent() instanceof View) {
                                     ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
                                 }
                             }
@@ -849,7 +849,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
                         mActionModeView.setVisibility(View.VISIBLE);
                         mActionModeView.sendAccessibilityEvent(
                                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-                        if (mActionModeView.getParent() != null) {
+                        if (mActionModeView.getParent() instanceof View) {
                             ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
                         }
                     }
