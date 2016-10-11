@@ -314,13 +314,15 @@ package android.support.design.widget {
 
   public abstract class BaseTransientBottomBar<B extends android.support.design.widget.BaseTransientBottomBar<B>> {
     ctor protected BaseTransientBottomBar(android.view.ViewGroup, android.view.View, android.support.design.widget.BaseTransientBottomBar.ContentViewCallback);
+    method public B addCallback(android.support.design.widget.BaseTransientBottomBar.BaseCallback);
     method public void dismiss();
     method public android.content.Context getContext();
     method public int getDuration();
     method public android.view.View getView();
     method public boolean isShown();
     method public boolean isShownOrQueued();
-    method public B setCallback(android.support.design.widget.BaseTransientBottomBar.BaseCallback);
+    method public B removeCallback(android.support.design.widget.BaseTransientBottomBar.BaseCallback);
+    method public deprecated B setCallback(android.support.design.widget.BaseTransientBottomBar.BaseCallback);
     method public B setDuration(int);
     method public void show();
     field public static final int LENGTH_INDEFINITE = -2; // 0xfffffffe
