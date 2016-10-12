@@ -15,7 +15,7 @@ buildscript {
     }
     dependencies {
         // Keep gradle plugin version in sync with ub_supportlib-master manifest.
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:2.2.1'
     }
 }
 
