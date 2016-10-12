@@ -19,7 +19,6 @@ package android.support.v7.app;
 import static android.support.v7.media.MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED;
 import static android.support.v7.media.MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTING;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -60,7 +59,7 @@ import java.util.List;
  * @see MediaRouteButton
  * @see MediaRouteActionProvider
  */
-public class MediaRouteChooserDialog extends Dialog {
+public class MediaRouteChooserDialog extends AppCompatDialog {
     static final String TAG = "MediaRouteChooserDialog";
 
     // Do not update the route list immediately to avoid unnatural dialog change.
