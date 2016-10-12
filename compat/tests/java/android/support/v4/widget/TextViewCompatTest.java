@@ -387,4 +387,29 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
                 drawablesAbsolute[3].getBounds().height(),
                 res.getDimensionPixelSize(R.dimen.drawable_small_size));
     }
+
+    @Test
+    @SmallTest
+    public void testCompoundDrawablesRelativeGetterAndSetter() {
+        final Drawable drawableStart = new TestDrawable(0xFFFF0000, 20, 20);
+        final Drawable drawableTop = new TestDrawable(0xFFFFFF00, 20, 20);
+        final Drawable drawableEnd = new TestDrawable(0xFF0000FF, 20, 20);
+        final Drawable drawableBottom = new TestDrawable(0xFF00FF00, 20, 20);
+
+        onView(withId(R.id.text_view)).perform(setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
+        onView(withId(R.id.text_view)).perform(setCompoundDrawablesRelative(drawableStart,
+                drawableTop, drawableEnd, drawableBottom));
+
+        // Check to see whether our text view is under RTL mode
+        if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
+            // This will happen on v17- devices
+            return;
+        }
+
+        final Drawable[] drawablesRelative = TextViewCompat.getCompoundDrawablesRelative(mTextView);
+        assertEquals(drawableStart, drawablesRelative[0]);
+        assertEquals(drawableTop, drawablesRelative[1]);
+        assertEquals(drawableEnd, drawablesRelative[2]);
+        assertEquals(drawableBottom, drawablesRelative[3]);
+    }
 }
