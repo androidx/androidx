@@ -18,7 +18,7 @@ package android.support.v4.media.session;
 
 import android.media.session.MediaSession;
 
-class MediaSessionCompatApi25 {
+class MediaSessionCompatApi26 {
 
     public static Object createCallback(Callback callback) {
         return new CallbackProxy<Callback>(callback);
