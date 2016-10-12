@@ -1195,14 +1195,14 @@ public class GridWidgetTest {
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 3;
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             public void run() {
                 mRemovedItems = mActivity.removeItems(0, 200);
             }
         });
 
         humanDelay(500);
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             public void run() {
                 mActivity.addItems(0, mRemovedItems);
             }
@@ -1373,7 +1373,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         // switching Adapter to cause a full rebind,  test if it will focus to second item.
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        performAndWaitForAnimation(new Runnable() {
             @Override
             public void run() {
                 mActivity.mNumItems = numItems;
@@ -1381,6 +1381,7 @@ public class GridWidgetTest {
                 mActivity.rebindToNewAdapter();
             }
         });
+        assertTrue(mGridView.findViewHolderForAdapterPosition(1).itemView.hasFocus());
     }
 
     @Test
