@@ -17,7 +17,7 @@
 <resources>
 
     <style name="Theme.MediaRouter" parent="">
-        <item name="android:windowNoTitle">false</item>
+        <item name="windowNoTitle">false</item>
         <item name="mediaRouteButtonStyle">@style/Widget.MediaRouter.MediaRouteButton</item>
 
         <item name="MediaRouteControllerWindowBackground">@drawable/mr_dialog_material_background_dark</item>
