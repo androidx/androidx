@@ -282,6 +282,6 @@ public final class TextViewCompat {
      * Returns drawables for the start, top, end, and bottom borders from the given text view.
      */
     public static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
-        return textView.getCompoundDrawables();
+        return IMPL.getCompoundDrawablesRelative(textView);
     }
 }
