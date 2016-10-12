@@ -54,7 +54,9 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
 
     @Test
     public void nextAndBack() throws Throwable {
-        GuidedStepTestFragment.Provider first = mockProvider("first");
+        final String firstFragmentName = generateMethodTestName("first");
+        final String secondFragmentName = generateMethodTestName("second");
+        GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
         doAnswer(new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) {
                 List actions = (List) invocation.getArguments()[0];
@@ -69,15 +71,15 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
                         invocation.getMock();
                 if (action.getId() == 1000) {
                     GuidedStepFragment.add(obj.getFragmentManager(),
-                            new GuidedStepTestFragment("second"));
+                            new GuidedStepTestFragment(secondFragmentName));
                 }
                 return null;
             }
         }).when(first).onGuidedActionClicked(any(GuidedAction.class));
 
-        GuidedStepTestFragment.Provider second = mockProvider("second");
+        GuidedStepTestFragment.Provider second = mockProvider(secondFragmentName);
 
-        GuidedStepFragmentTestActivity activity = launchTestActivity("first");
+        GuidedStepFragmentTestActivity activity = launchTestActivity(firstFragmentName);
         verify(first, times(1)).onCreate(any(Bundle.class));
         verify(first, times(1)).onCreateGuidance(any(Bundle.class));
         verify(first, times(1)).onCreateActions(any(List.class), any(Bundle.class));
@@ -127,7 +129,9 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
 
     @Test
     public void restoreFragments() throws Throwable {
-        GuidedStepTestFragment.Provider first = mockProvider("first");
+        final String firstFragmentName = generateMethodTestName("first");
+        final String secondFragmentName = generateMethodTestName("second");
+        GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
         doAnswer(new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) {
                 List actions = (List) invocation.getArguments()[0];
@@ -146,15 +150,15 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
                         invocation.getMock();
                 if (action.getId() == 1000) {
                     GuidedStepFragment.add(obj.getFragmentManager(),
-                            new GuidedStepTestFragment("second"));
+                            new GuidedStepTestFragment(secondFragmentName));
                 }
                 return null;
             }
         }).when(first).onGuidedActionClicked(any(GuidedAction.class));
 
-        GuidedStepTestFragment.Provider second = mockProvider("second");
+        GuidedStepTestFragment.Provider second = mockProvider(secondFragmentName);
 
-        final GuidedStepFragmentTestActivity activity = launchTestActivity("first");
+        final GuidedStepFragmentTestActivity activity = launchTestActivity(firstFragmentName);
         first.getFragment().findActionById(1001).setTitle("modified text");
         first.getFragment().findActionById(1002).setTitle("modified text");
         sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
@@ -192,7 +196,8 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
 
     @Test
     public void finishGuidedStepFragment_finishes_activity() throws Throwable {
-        GuidedStepTestFragment.Provider first = mockProvider("first");
+        final String firstFragmentName = generateMethodTestName("first");
+        GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
         doAnswer(new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) {
                 List actions = (List) invocation.getArguments()[0];
@@ -212,7 +217,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
             }
         }).when(first).onGuidedActionClicked(any(GuidedAction.class));
 
-        final GuidedStepFragmentTestActivity activity = launchTestActivity("first");
+        final GuidedStepFragmentTestActivity activity = launchTestActivity(firstFragmentName);
 
         View viewFinish = first.getFragment().getActionItemView(0);
         assertTrue(viewFinish.hasFocus());
@@ -223,7 +228,8 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
 
     @Test
     public void finishGuidedStepFragment_finishes_fragments() throws Throwable {
-        GuidedStepTestFragment.Provider first = mockProvider("first");
+        final String firstFragmentName = generateMethodTestName("first");
+        GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
         doAnswer(new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) {
                 List actions = (List) invocation.getArguments()[0];
@@ -243,7 +249,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
             }
         }).when(first).onGuidedActionClicked(any(GuidedAction.class));
 
-        final GuidedStepFragmentTestActivity activity = launchTestActivity("first",
+        final GuidedStepFragmentTestActivity activity = launchTestActivity(firstFragmentName,
                 false /*asRoot*/);
 
         View viewFinish = first.getFragment().getActionItemView(0);
@@ -257,8 +263,10 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
 
     @Test
     public void subActions() throws Throwable {
+        final String firstFragmentName = generateMethodTestName("first");
+        final String secondFragmentName = generateMethodTestName("second");
         final boolean[] expandSubActionInOnCreateView = new boolean[] {false};
-        GuidedStepTestFragment.Provider first = mockProvider("first");
+        GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
         doAnswer(new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) {
                 GuidedStepTestFragment.Provider obj = (GuidedStepTestFragment.Provider)
@@ -290,16 +298,16 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
                     return true;
                 } else if (action.getId() == 2001) {
                     GuidedStepFragment.add(obj.getFragmentManager(),
-                            new GuidedStepTestFragment("second"));
+                            new GuidedStepTestFragment(secondFragmentName));
                     return false;
                 }
                 return false;
             }
         }).when(first).onSubGuidedActionClicked(any(GuidedAction.class));
 
-        GuidedStepTestFragment.Provider second = mockProvider("second");
+        GuidedStepTestFragment.Provider second = mockProvider(secondFragmentName);
 
-        final GuidedStepFragmentTestActivity activity = launchTestActivity("first");
+        final GuidedStepFragmentTestActivity activity = launchTestActivity(firstFragmentName);
 
         // after clicked, it sub actions list should expand
         View viewForList = first.getFragment().getActionItemView(0);

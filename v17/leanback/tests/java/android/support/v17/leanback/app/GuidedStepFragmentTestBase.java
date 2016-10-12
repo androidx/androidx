@@ -29,6 +29,7 @@ import android.view.View;
 
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
  * @hide from javadoc
@@ -36,6 +37,8 @@ import org.junit.Rule;
 public class GuidedStepFragmentTestBase {
 
     private static final long TIMEOUT = 5000;
+
+    @Rule public TestName mUnitTestName = new TestName();
 
     @Rule
     public ActivityTestRule<GuidedStepFragmentTestActivity> activityTestRule =
@@ -104,6 +107,10 @@ public class GuidedStepFragmentTestBase {
         InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keyCode);
     }
 
+    public String generateMethodTestName(String testName) {
+        return mUnitTestName.getMethodName() + "_" + testName;
+    }
+
     public GuidedStepFragmentTestActivity launchTestActivity(String firstTestName) {
         Intent intent = new Intent();
         intent.putExtra(GuidedStepFragmentTestActivity.EXTRA_TEST_NAME, firstTestName);
@@ -118,7 +125,7 @@ public class GuidedStepFragmentTestBase {
         return activityTestRule.launchActivity(intent);
     }
 
-    public static GuidedStepTestFragment.Provider mockProvider(String testName) {
+    public GuidedStepTestFragment.Provider mockProvider(String testName) {
         GuidedStepTestFragment.Provider test = mock(GuidedStepTestFragment.Provider.class);
         when(test.getActivity()).thenCallRealMethod();
         when(test.getFragmentManager()).thenCallRealMethod();
