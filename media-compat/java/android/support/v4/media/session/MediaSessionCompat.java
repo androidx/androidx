@@ -224,6 +224,10 @@ public class MediaSessionCompat {
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaSessionImplApi21(context, tag);
+            if (android.os.Build.VERSION.SDK_INT < 23) {
+                // Set default callback to respond to controllers' extra binder requests.
+                setCallback(new Callback() {});
+            }
         } else {
             mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent);
         }
@@ -237,6 +241,10 @@ public class MediaSessionCompat {
 
     private MediaSessionCompat(Context context, MediaSessionImpl impl) {
         mImpl = impl;
+        if (android.os.Build.VERSION.SDK_INT >= 21 && android.os.Build.VERSION.SDK_INT < 23) {
+            // Set default callback to respond to controllers' extra binder requests.
+            setCallback(new Callback() {});
+        }
         mController = new MediaControllerCompat(context, this);
     }
 
