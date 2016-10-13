@@ -33,6 +33,7 @@ import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.view.KeyEvent;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +50,18 @@ public class BrowseSupportFragmentTest {
     public ActivityTestRule<BrowseSupportFragmentTestActivity> activityTestRule =
             new ActivityTestRule<>(BrowseSupportFragmentTestActivity.class, false, false);
     private BrowseSupportFragmentTestActivity mActivity;
+
+    @After
+    public void afterTest() throws Throwable {
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                if (mActivity != null) {
+                    mActivity.finish();
+                    mActivity = null;
+                }
+            }
+        });
+    }
 
     @Test
     public void testTwoBackKeysWithBackStack() throws Throwable {
