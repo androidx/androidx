@@ -34,6 +34,7 @@ import android.view.Gravity;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -2407,7 +2408,7 @@ public class NotificationCompat {
              * @param intent the {@link PendingIntent} to fire when users trigger this action
              */
             public Builder(int icon, CharSequence title, PendingIntent intent) {
-                this(icon, title, intent, new Bundle());
+                this(icon, title, intent, new Bundle(), null, false);
             }
 
             /**
@@ -2416,14 +2417,19 @@ public class NotificationCompat {
              * @param action the action to read fields from.
              */
             public Builder(Action action) {
-                this(action.icon, action.title, action.actionIntent, new Bundle(action.mExtras));
+                this(action.icon, action.title, action.actionIntent, new Bundle(action.mExtras),
+                        action.getRemoteInputs(), action.getAllowGeneratedReplies());
             }
 
-            private Builder(int icon, CharSequence title, PendingIntent intent, Bundle extras) {
+            private Builder(int icon, CharSequence title, PendingIntent intent, Bundle extras,
+                    RemoteInput[] remoteInputs, boolean allowGeneratedReplies) {
                 mIcon = icon;
                 mTitle = NotificationCompat.Builder.limitCharSequenceLength(title);
                 mIntent = intent;
                 mExtras = extras;
+                mRemoteInputs = remoteInputs == null ? null : new ArrayList<>(
+                        Arrays.asList(remoteInputs));
+                mAllowGeneratedReplies = allowGeneratedReplies;
             }
 
             /**
