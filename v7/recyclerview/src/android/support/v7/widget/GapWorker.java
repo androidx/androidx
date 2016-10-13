@@ -16,6 +16,7 @@
 package android.support.v7.widget;
 
 import android.support.v4.os.TraceCompat;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +25,7 @@ import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
 class GapWorker implements Runnable {
+
     static final ThreadLocal<GapWorker> sGapWorker = new ThreadLocal<>();
 
     ArrayList<RecyclerView> mRecyclerViews = new ArrayList<>();
@@ -229,12 +231,30 @@ class GapWorker implements Runnable {
         Collections.sort(mTasks, sTaskComparator);
     }
 
+    static boolean isPrefetchPositionAttached(RecyclerView view, int position) {
+        final int childCount = view.mChildHelper.getUnfilteredChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View attachedView = view.mChildHelper.getUnfilteredChildAt(i);
+            RecyclerView.ViewHolder holder = RecyclerView.getChildViewHolderInt(attachedView);
+            // Note: can use mPosition here because adapter doesn't have pending updates
+            if (holder.mPosition == position && !holder.isInvalid()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void flushTasksWithDeadline(long deadlineNs) {
         for (int i = 0; i < mTasks.size(); i++) {
             final Task task = mTasks.get(i);
             if (task.view == null) {
                 // abort, only empty Tasks left
                 return;
+            }
+
+            if (isPrefetchPositionAttached(task.view, task.position)) {
+                // don't attempt to prefetch attached views
+                continue;
             }
 
             RecyclerView.Recycler recycler = task.view.mRecycler;
@@ -257,7 +277,6 @@ class GapWorker implements Runnable {
             task.clear();
         }
     }
-
 
     void prefetch(long deadlineNs) {
         buildTaskList();
