@@ -20,6 +20,9 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.DetailsBackgroundParallaxHelper;
+import android.support.v17.leanback.app.DetailsFragmentVideoHelper;
+import android.support.v17.leanback.app.MediaPlayerGlue;
+import android.support.v17.leanback.app.VideoFragment;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
@@ -69,8 +72,12 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
 
     private FullWidthDetailsOverviewSharedElementHelper mHelper;
     private DetailsBackgroundParallaxHelper mParallaxHelper;
+    private DetailsFragmentVideoHelper mVideoHelper;
     private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
     private int mBitmapMinVerticalOffset = -100;
+    private MediaPlayerGlue mMediaPlayerGlue;
+    private VideoFragment mVideoFragment;
+    private boolean mSetupDone;
 
     private void initializeTest() {
         TEST_SHARED_ELEMENT_TRANSITION = null != getActivity().getWindow()
@@ -153,15 +160,15 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
             public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                                      RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemClicked: " + item + " row " + row);
-                if (item instanceof PhotoItem){
+                if (item instanceof PhotoItem) {
                     Intent intent = new Intent(getActivity(), DetailsActivity.class);
                     intent.putExtra(DetailsActivity.EXTRA_ITEM, (PhotoItem) item);
 
                     Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                             getActivity(),
-                            ((ImageCardView)itemViewHolder.view).getMainImageView(),
+                            ((ImageCardView) itemViewHolder.view).getMainImageView(),
                             DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
                     getActivity().startActivity(intent, bundle);
                 }
@@ -170,7 +177,7 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
             @Override
             public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                                       RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemSelected: " + item + " row " + row);
             }
         });
@@ -190,12 +197,7 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
                 prepareEntranceTransition();
             }
         }
-    }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(ITEM, mPhotoItem);
     }
 
     public void setItem(PhotoItem photoItem) {
@@ -252,26 +254,40 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         setAdapter(mRowsAdapter);
     }
 
+    void setupHelpers() {
+        if (!mSetupDone) {
+            mParallaxHelper = new DetailsBackgroundParallaxHelper.ParallaxBuilder(
+                    getActivity(), getParallaxManager())
+                    .setCoverImageMinVerticalOffset(mBitmapMinVerticalOffset)
+                    .build();
+            mMediaPlayerGlue = new MediaPlayerGlue(getActivity(), null);
+
+            mMediaPlayerGlue.setHost(createPlaybackGlueHost());
+            mVideoHelper = new DetailsFragmentVideoHelper(mMediaPlayerGlue, getParallaxManager());
+            mVideoHelper.setBackgroundDrawable(mParallaxHelper.getCoverImageDrawable());
+            mSetupDone = true;
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
-        mParallaxHelper = new DetailsBackgroundParallaxHelper.ParallaxBuilder(
-                getActivity(),
-                getParallaxManager())
-                .setBitmapMinVerticalOffset(mBitmapMinVerticalOffset)
-                .build();
+        Bitmap bitmap = BitmapFactory.decodeResource(getActivity().getResources(),
+                R.drawable.spiderman);
+
+        setupHelpers();
+        mMediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
+        mMediaPlayerGlue.setArtist("A Googleer");
+        mMediaPlayerGlue.setTitle("Diving with Sharks");
+        mMediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
+
         mBackgroundHelper.setDrawable(getActivity(), mParallaxHelper.getDrawable());
+        mParallaxHelper.setCoverImageBitmap(bitmap);
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        Bitmap bitmap = BitmapFactory.decodeResource(getActivity().getResources(),
-                R.drawable.spiderman);
-        mParallaxHelper.setBitmap(bitmap);
-    }
-
-    public void setMinimumVerticalOffset(int minimumVerticalOffset) {
-        this.mBitmapMinVerticalOffset = minimumVerticalOffset;
+    public void onStop() {
+        super.onStop();
+        mMediaPlayerGlue.pause();
     }
 }

@@ -22,19 +22,15 @@ import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.OnItemViewClickedListener;
-import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
-import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.util.Log;
 
 public class PlaybackOverlayFragment
-        extends android.support.v17.leanback.app.PlaybackFragment
+        extends android.support.v17.leanback.app.VideoFragment
         implements PlaybackOverlayActivity.PictureInPictureListener {
     private static final String TAG = "leanback.PlaybackControlsFragment";
 

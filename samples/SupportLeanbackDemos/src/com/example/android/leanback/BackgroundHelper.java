@@ -139,7 +139,7 @@ public class BackgroundHelper {
     public void setDrawable(Activity activity, Drawable drawable) {
         BackgroundManager backgroundManager = BackgroundManager.getInstance(activity);
         if (!backgroundManager.isAttached()) {
-            backgroundManager.attach(activity.getWindow());
+            backgroundManager.attachToView(activity.findViewById(R.id.details_background_view));
         }
         backgroundManager.setDrawable(drawable);
     }

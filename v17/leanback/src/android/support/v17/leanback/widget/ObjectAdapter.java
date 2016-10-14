@@ -179,18 +179,39 @@ public abstract class ObjectAdapter {
         mObservable.unregisterAll();
     }
 
-    final protected void notifyItemRangeChanged(int positionStart, int itemCount) {
+    /**
+     * Notifies UI that some items has changed.
+     *
+     * @param positionStart Starting position of the changed items.
+     * @param itemCount Total number of items that changed.
+     */
+    public final void notifyItemRangeChanged(int positionStart, int itemCount) {
         mObservable.notifyItemRangeChanged(positionStart, itemCount);
     }
 
+    /**
+     * Notifies UI that new items has been inserted.
+     *
+     * @param positionStart Position where new items has been inserted.
+     * @param itemCount Count of the new items has been inserted.
+     */
     final protected void notifyItemRangeInserted(int positionStart, int itemCount) {
         mObservable.notifyItemRangeInserted(positionStart, itemCount);
     }
 
+    /**
+     * Notifies UI that some items that has been removed.
+     *
+     * @param positionStart Starting position of the removed items.
+     * @param itemCount Total number of items that has been removed.
+     */
     final protected void notifyItemRangeRemoved(int positionStart, int itemCount) {
         mObservable.notifyItemRangeRemoved(positionStart, itemCount);
     }
 
+    /**
+     * Notifies UI that the underlying data has changed.
+     */
     final protected void notifyChanged() {
         mObservable.notifyChanged();
     }

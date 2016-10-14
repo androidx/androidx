@@ -213,8 +213,8 @@ public class PlaybackOverlayTestFragment
         private PlaybackControlsRow.ThumbsUpAction mThumbsUpAction;
         private PlaybackControlsRow.ThumbsDownAction mThumbsDownAction;
         private PlaybackControlsRow.PictureInPictureAction mPipAction;
+        private static Handler mHandler = new Handler();
 
-        private Handler mHandler = new Handler();
         private final Runnable mUpdateProgressRunnable = new Runnable() {
             @Override
             public void run() {

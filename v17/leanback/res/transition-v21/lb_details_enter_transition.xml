@@ -24,7 +24,8 @@
           <target android:excludeId="@id/title_badge" />
           <target android:excludeId="@id/title_text" />
           <target android:excludeId="@id/title_orb" />
-      </targets>
+          <target android:excludeId="@id/details_background_view" />
+      </targets>4
   </transition>
   <fade
       android:interpolator="@android:interpolator/linear_out_slow_in"

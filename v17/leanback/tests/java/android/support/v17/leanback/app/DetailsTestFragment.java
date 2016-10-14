@@ -163,7 +163,7 @@ public class DetailsTestFragment extends android.support.v17.leanback.app.Detail
         mParallaxHelper = new DetailsBackgroundParallaxHelper.ParallaxBuilder(
                 getActivity(),
                 getParallaxManager())
-                .setBitmapMinVerticalOffset(mMinVerticalOffset)
+                .setCoverImageMinVerticalOffset(mMinVerticalOffset)
                 .build();
         BackgroundManager backgroundManager = BackgroundManager.getInstance(getActivity());
         backgroundManager.attach(getActivity().getWindow());
@@ -175,7 +175,7 @@ public class DetailsTestFragment extends android.support.v17.leanback.app.Detail
         super.onResume();
         Bitmap bitmap = BitmapFactory.decodeResource(getActivity().getResources(),
                 R.drawable.spiderman);
-        mParallaxHelper.setBitmap(bitmap);
+        mParallaxHelper.setCoverImageBitmap(bitmap);
     }
 
     DetailsBackgroundParallaxHelper getParallaxHelper() {

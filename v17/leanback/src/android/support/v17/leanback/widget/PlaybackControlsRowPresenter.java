@@ -294,7 +294,9 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
      */
     public void showPrimaryActions(ViewHolder vh) {
         mPlaybackControlsPresenter.showPrimaryActions(vh.mControlsVh);
-        mPlaybackControlsPresenter.resetFocus(vh.mControlsVh);
+        if (vh.view.hasFocus()) {
+            mPlaybackControlsPresenter.resetFocus(vh.mControlsVh);
+        }
     }
 
     @Override
