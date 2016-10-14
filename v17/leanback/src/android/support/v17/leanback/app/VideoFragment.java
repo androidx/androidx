@@ -35,7 +35,9 @@ public class VideoFragment extends PlaybackFragment {
         View root = super.onCreateView(inflater, container, savedInstanceState);
         mVideoSurface = (SurfaceView) inflater.inflate(R.layout.lb_video_surface, container, false);
         ((ViewGroup) root.findViewById(R.id.playback_fragment_root)).addView(mVideoSurface, 0);
-        mVideoSurface.getHolder().addCallback(mMediaPlaybackCallback);
+        if (mMediaPlaybackCallback != null) {
+            mVideoSurface.getHolder().addCallback(mMediaPlaybackCallback);
+        }
         setBackgroundType(PlaybackFragment.BG_LIGHT);
         return root;
     }

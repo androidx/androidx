@@ -56,12 +56,12 @@ abstract class PlaybackControlHelper extends MediaPlayerGlue {
     private PlaybackControlsRow.ThumbsDownAction mThumbsDownAction;
     private PlaybackControlsRow.PictureInPictureAction mPipAction;
 
-    private Handler mHandler = new Handler();
+    private static Handler sHandler = new Handler();
     private final Runnable mUpdateProgressRunnable = new Runnable() {
         @Override
         public void run() {
             updateProgress();
-            mHandler.postDelayed(this, getUpdatePeriod());
+            sHandler.postDelayed(this, getUpdatePeriod());
         }
     };
 
@@ -230,7 +230,7 @@ abstract class PlaybackControlHelper extends MediaPlayerGlue {
     }
 
     void onPlaybackComplete(final boolean ended) {
-        mHandler.post(new Runnable() {
+        sHandler.post(new Runnable() {
             @Override
             public void run() {
                 if (mRepeatAction.getIndex() == PlaybackControlsRow.RepeatAction.NONE) {
@@ -277,7 +277,7 @@ abstract class PlaybackControlHelper extends MediaPlayerGlue {
 
     @Override
     public void enableProgressUpdating(boolean enable) {
-        mHandler.removeCallbacks(mUpdateProgressRunnable);
+        sHandler.removeCallbacks(mUpdateProgressRunnable);
         if (enable) {
             mUpdateProgressRunnable.run();
         }
