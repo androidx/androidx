@@ -16,6 +16,8 @@
 
 package android.support.v4.app;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -44,8 +46,6 @@ import android.view.Window;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Base class for activities that want to use the support-based

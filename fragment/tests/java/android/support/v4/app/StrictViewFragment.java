@@ -17,21 +17,26 @@
 
 package android.support.v4.app;
 
-import android.support.fragment.test.R;
 import android.os.Bundle;
+import android.support.fragment.test.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 public class StrictViewFragment extends StrictFragment {
     boolean mOnCreateViewCalled, mOnViewCreatedCalled, mOnDestroyViewCalled;
+    int mLayoutId = R.layout.strict_view_fragment;
+
+    public void setLayoutId(int layoutId) {
+        mLayoutId = layoutId;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         checkGetActivity();
         checkState("onCreateView", CREATED);
-        final View result = inflater.inflate(R.layout.strict_view_fragment, container, false);
+        final View result = inflater.inflate(mLayoutId, container, false);
         mOnCreateViewCalled = true;
         return result;
     }
