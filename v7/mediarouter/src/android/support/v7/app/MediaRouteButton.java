@@ -513,6 +513,9 @@ public class MediaRouteButton extends View {
                     }
                 }
             }
+
+            setEnabled(mRouter.isRouteAvailable(mSelector,
+                    MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE));
         }
     }
 
