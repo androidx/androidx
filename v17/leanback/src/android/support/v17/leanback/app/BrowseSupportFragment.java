@@ -504,7 +504,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             item = adapter.get(position);
         }
 
-        mSelectedPosition = position;
         boolean oldIsPageRow = mIsPageRow;
         mIsPageRow = item instanceof PageRow;
         boolean swap;
@@ -1420,13 +1419,17 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             return;
         }
 
+        mSelectedPosition = position;
+        if (mHeadersSupportFragment == null || mMainFragmentAdapter == null) {
+            // onDestroyView() called
+            return;
+        }
         mHeadersSupportFragment.setSelectedPosition(position, smooth);
         replaceMainFragment(position);
 
         if (mMainFragmentRowsAdapter != null) {
             mMainFragmentRowsAdapter.setSelectedPosition(position, smooth);
         }
-        mSelectedPosition = position;
 
         updateTitleViewVisibility();
     }
