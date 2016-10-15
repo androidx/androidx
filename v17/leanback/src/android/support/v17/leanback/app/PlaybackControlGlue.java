@@ -624,7 +624,9 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
             mControlsRow.setCurrentTime(getCurrentPosition());
         }
 
-        getHost().notifyPlaybackRowChanged();
+        if (getHost() != null) {
+            getHost().notifyPlaybackRowChanged();
+        }
     }
 
     void updatePlaybackState() {
@@ -858,7 +860,9 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
      */
     @Deprecated
     protected void onRowChanged(PlaybackControlsRow row) {
-        getHost().notifyPlaybackRowChanged();
+        if (getHost() != null) {
+            getHost().notifyPlaybackRowChanged();
+        }
     }
 
     /**
