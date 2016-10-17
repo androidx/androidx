@@ -26,6 +26,7 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.CompositeDrawable;
 import android.support.v17.leanback.graphics.FitWidthBitmapDrawable;
 import android.support.v17.leanback.testutils.PollingCheck;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.view.View;
 
 import org.junit.Rule;
@@ -65,19 +66,31 @@ public class DetailsFragmentTest {
             }
         });
 
-        int windowHeight = mActivity.getWindow().getDecorView().getHeight();
-        int windowWidth = mActivity.getWindow().getDecorView().getWidth();
+        final VerticalGridView verticalGridView = mActivity.getDetailsFragment()
+                .getRowsFragment().getVerticalGridView();
+        final int windowHeight = verticalGridView.getHeight();
+        final int windowWidth = verticalGridView.getWidth();
+        // make sure background manager attached to window is same size as VerticalGridView
+        // i.e. no status bar.
+        assertEquals(windowHeight, mActivity.getWindow().getDecorView().getHeight());
+        assertEquals(windowWidth, mActivity.getWindow().getDecorView().getWidth());
 
-        Rect bounds = drawable.getChildAt(0).getDrawable().getBounds();
-        assertEquals(windowWidth, bounds.width());
-        assertEquals(mActivity.getResources().getDimensionPixelSize(
-                R.dimen.lb_details_v2_align_pos_for_actions), bounds.height());
+        final View detailsFrame = verticalGridView.findViewById(R.id.details_frame);
+
+        assertEquals(windowWidth, bitmapDrawable.getBounds().width());
+
+        final Rect detailsFrameRect = new Rect();
+        detailsFrameRect.set(0, 0, detailsFrame.getWidth(), detailsFrame.getHeight());
+        verticalGridView.offsetDescendantRectToMyCoords(detailsFrame, detailsFrameRect);
+
+        assertEquals(Math.min(windowHeight, detailsFrameRect.bottom),
+                bitmapDrawable.getBounds().height());
         assertEquals(0, bitmapDrawable.getVerticalOffset());
 
         activityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                detailsFragment.getRowsFragment().getVerticalGridView().scrollToPosition(1);
+                verticalGridView.scrollToPosition(1);
             }
         });
 
@@ -88,19 +101,15 @@ public class DetailsFragmentTest {
             }
         });
 
-        bounds = drawable.getChildAt(0).getDrawable().getBounds();
-        assertEquals(mActivity.getResources().getDimensionPixelSize(
-                R.dimen.lb_details_v2_align_pos_for_description), bounds.height());
-        assertEquals(windowWidth, bounds.width());
+        detailsFrameRect.set(0, 0, detailsFrame.getWidth(), detailsFrame.getHeight());
+        verticalGridView.offsetDescendantRectToMyCoords(detailsFrame, detailsFrameRect);
+        assertEquals(detailsFrameRect.bottom, bitmapDrawable.getBounds().height());
+        assertEquals(windowWidth, bitmapDrawable.getBounds().width());
 
-        View detailsFrame = mActivity.findViewById(R.id.details_frame);
-        int [] loc = new int[2];
-        detailsFrame.getLocationOnScreen(loc);
         ColorDrawable colorDrawable = (ColorDrawable) (drawable.getChildAt(1).getDrawable());
-
         assertEquals(windowWidth, colorDrawable.getBounds().width());
         // Since bottom is using float mapping, using float compare with delta
-        assertEquals(windowHeight - (loc[1] + detailsFrame.getHeight()),
+        assertEquals(windowHeight - detailsFrameRect.bottom,
                 (float) colorDrawable.getBounds().height(), 2 /*delta*/);
     }
 }
