@@ -74,7 +74,7 @@ public class PlaybackFragment extends Fragment {
      * A dark translucent background.
      */
     public static final int BG_DARK = 1;
-    private PlaybackGlue.HostLifecycleCallback mHostLifecycleCallbackCallback;
+    private PlaybackGlue.HostLifecycleCallback mHostLifecycleCallback;
 
     /**
      * Resets the focus on the button in the middle of control row.
@@ -755,7 +755,7 @@ public class PlaybackFragment extends Fragment {
      * take appropriate actions to take action when the hosting fragment starts/stops processing.
      */
     public void setHostLifecycleCallback(PlaybackGlue.HostLifecycleCallback hostLifecycleCallback) {
-        this.mHostLifecycleCallbackCallback = hostLifecycleCallback;
+        this.mHostLifecycleCallback = hostLifecycleCallback;
     }
 
     @Override
@@ -763,16 +763,16 @@ public class PlaybackFragment extends Fragment {
         super.onStart();
         setupChildFragmentLayout();
         mRowsFragment.setAdapter(mAdapter);
-        if (mHostLifecycleCallbackCallback != null) {
-            mHostLifecycleCallbackCallback.onHostStart();
+        if (mHostLifecycleCallback != null) {
+            mHostLifecycleCallback.onHostStart();
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mHostLifecycleCallbackCallback != null) {
-            mHostLifecycleCallbackCallback.onHostStop();
+        if (mHostLifecycleCallback != null) {
+            mHostLifecycleCallback.onHostStop();
         }
     }
 
