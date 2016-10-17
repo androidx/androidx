@@ -71,6 +71,10 @@
             android:exported="true"
             android:theme="@style/Theme.Leanback.VerticalGrid" />
 
+        <activity android:name="android.support.v17.leanback.app.VideoFragmentTestActivity"
+            android:theme="@style/Theme.Leanback"
+            android:exported="true" />
+
     </application>
 
 </manifest>
