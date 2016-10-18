@@ -31,6 +31,7 @@ for w in files:
     file = open('java/android/support/v17/leanback/app/{}Fragment.java'.format(w), 'r')
     outfile = open('java/android/support/v17/leanback/app/{}SupportFragment.java'.format(w), 'w')
 
+    outfile.write("// CHECKSTYLE:OFF Generated code\n")
     outfile.write("/* This file is auto-generated from {}Fragment.java.  DO NOT MODIFY. */\n\n".format(w))
 
     for line in file:
@@ -51,6 +52,7 @@ for w in testcls:
     file = open('java/android/support/v17/leanback/app/{}FragmentTestBase.java'.format(w), 'r')
     outfile = open('java/android/support/v17/leanback/app/{}SupportFragmentTestBase.java'.format(w), 'w')
 
+    outfile.write("// CHECKSTYLE:OFF Generated code\n")
     outfile.write("/* This file is auto-generated from {}FrgamentTestBase.java.  DO NOT MODIFY. */\n\n".format(w))
 
     for line in file:
@@ -74,6 +76,7 @@ for w in testcls:
     file = open('java/android/support/v17/leanback/app/{}FragmentTest.java'.format(w), 'r')
     outfile = open('java/android/support/v17/leanback/app/{}SupportFragmentTest.java'.format(w), 'w')
 
+    outfile.write("// CHECKSTYLE:OFF Generated code\n")
     outfile.write("/* This file is auto-generated from {}FragmentTest.java.  DO NOT MODIFY. */\n\n".format(w))
 
     for line in file:
@@ -98,6 +101,7 @@ for w in testcls:
     print "copy {}FragmentTestActivity to {}SupportFragmentTestActivity".format(w, w)
     file = open('java/android/support/v17/leanback/app/{}FragmentTestActivity.java'.format(w), 'r')
     outfile = open('java/android/support/v17/leanback/app/{}SupportFragmentTestActivity.java'.format(w), 'w')
+    outfile.write("// CHECKSTYLE:OFF Generated code\n")
     outfile.write("/* This file is auto-generated from {}FragmentTestActivity.java.  DO NOT MODIFY. */\n\n".format(w))
     for line in file:
         line = line.replace('{}TestFragment'.format(w), '{}TestSupportFragment'.format(w))
@@ -113,6 +117,7 @@ for w in testcls:
 print "copy ParallaxIntEffectTest to ParallaxFloatEffectTest"
 file = open('java/android/support/v17/leanback/widget/ParallaxIntEffectTest.java', 'r')
 outfile = open('java/android/support/v17/leanback/widget/ParallaxFloatEffectTest.java', 'w')
+outfile.write("// CHECKSTYLE:OFF Generated code\n")
 outfile.write("/* This file is auto-generated from ParallaxIntEffectTest.java.  DO NOT MODIFY. */\n\n")
 for line in file:
     line = line.replace('IntEffect', 'FloatEffect')
@@ -132,6 +137,7 @@ outfile.close()
 print "copy ParallaxIntSourceTest to ParallaxFloatSourceTest"
 file = open('java/android/support/v17/leanback/widget/ParallaxIntSourceTest.java', 'r')
 outfile = open('java/android/support/v17/leanback/widget/ParallaxFloatSourceTest.java', 'w')
+outfile.write("// CHECKSTYLE:OFF Generated code\n")
 outfile.write("/* This file is auto-generated from ParallaxIntSourceTest.java.  DO NOT MODIFY. */\n\n")
 for line in file:
     line = line.replace('IntSource', 'FloatSource')
@@ -150,6 +156,7 @@ outfile.close()
 print "copy PlaybackControlGlueTest to PlaybackControlSupportGlueTest"
 file = open('java/android/support/v17/leanback/app/PlaybackControlGlueTest.java', 'r')
 outfile = open('java/android/support/v17/leanback/app/PlaybackControlSupportGlueTest.java', 'w')
+outfile.write("// CHECKSTYLE:OFF Generated code\n")
 outfile.write("/* This file is auto-generated from PlaybackControlGlueTest.java.  DO NOT MODIFY. */\n\n")
 for line in file:
     line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue')

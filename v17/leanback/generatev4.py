@@ -29,6 +29,7 @@ for w in cls:
     file = open('src/android/support/v17/leanback/app/{}Fragment.java'.format(w), 'r')
     outfile = open('src/android/support/v17/leanback/app/{}SupportFragment.java'.format(w), 'w')
 
+    outfile.write("// CHECKSTYLE:OFF Generated code\n")
     outfile.write("/* This file is auto-generated from {}Fragment.java.  DO NOT MODIFY. */\n\n".format(w))
 
     for line in file:
@@ -48,6 +49,7 @@ print "copy VideoFragmentGlueHost to VideoSupportFragmentGlueHost".format(w, w)
 file = open('src/android/support/v17/leanback/app/VideoFragmentGlueHost.java'.format(w), 'r')
 outfile = open('src/android/support/v17/leanback/app/VideoSupportFragmentGlueHost.java'.format(w), 'w')
 
+outfile.write("// CHECKSTYLE:OFF Generated code\n")
 outfile.write("/* This file is auto-generated from {}VideoFragmentGlueHost.java.  DO NOT MODIFY. */\n\n".format(w))
 
 for line in file:
@@ -68,6 +70,7 @@ print "copy PlaybackFragmentGlueHost to PlaybackSupportFragmentGlueHost".format(
 file = open('src/android/support/v17/leanback/app/PlaybackFragmentGlueHost.java'.format(w), 'r')
 outfile = open('src/android/support/v17/leanback/app/PlaybackSupportFragmentGlueHost.java'.format(w), 'w')
 
+outfile.write("// CHECKSTYLE:OFF Generated code\n")
 outfile.write("/* This file is auto-generated from {}PlaybackFragmentGlueHost.java.  DO NOT MODIFY. */\n\n".format(w))
 
 for line in file:
