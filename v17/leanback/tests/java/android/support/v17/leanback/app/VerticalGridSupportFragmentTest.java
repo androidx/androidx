@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from VerticalGridFragmentTest.java.  DO NOT MODIFY. */
 
 /*
@@ -18,6 +19,8 @@
 
 package android.support.v17.leanback.app;
 
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,8 +29,6 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.VerticalGridPresenter;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

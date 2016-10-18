@@ -19,6 +19,7 @@ import sys
 import getopt
 
 def write_java_head(tofile, name):
+    tofile.write("// CHECKSTYLE:OFF Generated code\n")
     tofile.write("/* This file is auto-generated from {}.java.  DO NOT MODIFY. */\n\n".format(name))
 
 def replace_xml_head(line, name):
@@ -206,7 +207,7 @@ outfile.close()
 
 file = open('src/com/example/android/leanback/VerticalGridFragment.java', 'r')
 outfile = open('src/com/example/android/leanback/VerticalGridSupportFragment.java', 'w')
-outfile.write("/* This file is auto-generated from VerticalGridFragment.  DO NOT MODIFY. */\n\n")
+write_java_head(outfile, "VerticalGridFragment")
 for line in file:
     line = line.replace('VerticalGridFragment', 'VerticalGridSupportFragment')
     line = line.replace('DetailsActivity', 'DetailsSupportActivity')

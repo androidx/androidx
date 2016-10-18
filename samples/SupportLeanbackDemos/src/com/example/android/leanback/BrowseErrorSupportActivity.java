@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from BrowseErrorActivity.java.  DO NOT MODIFY. */
 
 /*
