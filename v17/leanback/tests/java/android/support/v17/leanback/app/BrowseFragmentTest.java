@@ -135,6 +135,8 @@ public class BrowseFragmentTest {
 
         ListRowPresenter.ViewHolder row = (ListRowPresenter.ViewHolder) mActivity
                 .getBrowseTestFragment().getRowsFragment().getRowViewHolder(selectRow);
+        assertNotNull(row);
+        assertNotNull(row.getGridView());
         assertEquals(selectItem, row.getGridView().getSelectedPosition());
     }
 
@@ -169,7 +171,7 @@ public class BrowseFragmentTest {
         private final BrowseFragmentTestActivity activity;
         private final int expectedRow;
 
-        ItemSelectionTask(BrowseFragmentTestActivity activity, int expectedRow) {
+        public ItemSelectionTask(BrowseFragmentTestActivity activity, int expectedRow) {
             this.activity = activity;
             this.expectedRow = expectedRow;
         }
