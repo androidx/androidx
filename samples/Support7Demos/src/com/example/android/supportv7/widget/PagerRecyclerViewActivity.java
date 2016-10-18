@@ -36,7 +36,7 @@ public class PagerRecyclerViewActivity extends AppCompatActivity {
 
         final RecyclerView rv = new RecyclerView(this);
         final LinearLayoutManager manager =
-                new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rv.setLayoutManager(manager);
         rv.setHasFixedSize(true);
         rv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,

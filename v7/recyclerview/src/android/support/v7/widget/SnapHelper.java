@@ -206,7 +206,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      * @return a {@link LinearSmoothScroller} which will handle the scrolling.
      */
     @Nullable
-    private LinearSmoothScroller createSnapScroller(LayoutManager layoutManager) {
+    protected LinearSmoothScroller createSnapScroller(LayoutManager layoutManager) {
         if (!(layoutManager instanceof ScrollVectorProvider)) {
             return null;
         }
