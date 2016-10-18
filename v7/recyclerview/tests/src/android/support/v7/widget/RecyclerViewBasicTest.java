@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -397,6 +398,19 @@ public class RecyclerViewBasicTest {
             // And restore by restoring layout
             mRecyclerView.setLayoutManager(mlm);
             assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE + 3, recycler.mViewCacheMax);
+        }
+    }
+
+    @Test
+    public void getNanoTime() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // check that it looks vaguely time-ish
+            long time = mRecyclerView.getNanoTime();
+            assertNotEquals(0, time);
+            assertNotEquals(time, mRecyclerView.getNanoTime());
+        } else {
+            // expect to avoid cost of system.nanoTime on older platforms that don't do prefetch
+            assertEquals(0, mRecyclerView.getNanoTime());
         }
     }
 
