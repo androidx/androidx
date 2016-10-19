@@ -6072,6 +6072,7 @@ package android.support.v4.provider {
     method public abstract boolean isDirectory();
     method public static boolean isDocumentUri(android.content.Context, android.net.Uri);
     method public abstract boolean isFile();
+    method public abstract boolean isVirtual();
     method public abstract long lastModified();
     method public abstract long length();
     method public abstract android.support.v4.provider.DocumentFile[] listFiles();

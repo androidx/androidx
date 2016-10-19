@@ -122,6 +122,7 @@ public class DocumentFileTest extends AndroidTestCase {
                 resetRoot();
                 assertTrue("isDirectory", doc.isDirectory());
                 assertFalse("isFile", doc.isFile());
+                assertFalse("isVirtual", doc.isVirtual());
                 assertTrue("canRead", doc.canRead());
                 assertTrue("canWrite", doc.canWrite());
                 assertTrue("exists", doc.exists());
