@@ -35,9 +35,9 @@ public class VideoSupportFragment extends PlaybackSupportFragment {
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = super.onCreateView(inflater, container, savedInstanceState);
+        ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         mVideoSurface = (SurfaceView) inflater.inflate(R.layout.lb_video_surface, container, false);
-        ((ViewGroup) root.findViewById(R.id.playback_fragment_root)).addView(mVideoSurface, 0);
+        root.addView(mVideoSurface, 0);
         if (mMediaPlaybackCallback != null) {
             mVideoSurface.getHolder().addCallback(mMediaPlaybackCallback);
         }
