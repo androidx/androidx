@@ -30,9 +30,12 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
+import android.view.View;
 
 import org.junit.After;
 import org.junit.Rule;
@@ -44,6 +47,7 @@ import org.mockito.Mockito;
 @RunWith(AndroidJUnit4.class)
 public class BrowseSupportFragmentTest {
 
+    static final String TAG = "BrowseSupportFragmentTest";
     static final long TRANSITION_LENGTH = 1000;
     static final long HORIZONTAL_SCROLL_WAIT = 2000;
 
@@ -138,7 +142,7 @@ public class BrowseSupportFragmentTest {
 
         ListRowPresenter.ViewHolder row = (ListRowPresenter.ViewHolder) mActivity
                 .getBrowseTestSupportFragment().getRowsSupportFragment().getRowViewHolder(selectRow);
-        assertNotNull(row);
+        assertNotNull(dumpRecyclerView(mActivity.getBrowseTestSupportFragment().getGridView()), row);
         assertNotNull(row.getGridView());
         assertEquals(selectItem, row.getGridView().getSelectedPosition());
     }
@@ -180,7 +184,25 @@ public class BrowseSupportFragmentTest {
         }
 
         public void run(Presenter.ViewHolder holder) {
-            assertEquals(expectedRow, activity.getBrowseTestSupportFragment().getSelectedPosition());
+            android.util.Log.d(TAG, dumpRecyclerView(activity.getBrowseTestSupportFragment()
+                    .getGridView()));
+            android.util.Log.d(TAG, "Row " + expectedRow + " " + activity.getBrowseTestSupportFragment()
+                    .getRowsSupportFragment().getRowViewHolder(expectedRow), new Exception());
         }
+    }
+
+    static String dumpRecyclerView(RecyclerView recyclerView) {
+        StringBuffer b = new StringBuffer();
+        for (int i = 0; i < recyclerView.getChildCount(); i++) {
+            View child = recyclerView.getChildAt(i);
+            ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder)
+                    recyclerView.getChildViewHolder(child);
+            b.append("child").append(i).append(":").append(vh);
+            if (vh != null) {
+                b.append(",").append(vh.getViewHolder());
+            }
+            b.append(";");
+        }
+        return b.toString();
     }
 }
