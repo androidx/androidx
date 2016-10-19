@@ -87,12 +87,12 @@ public class SwipeRefreshLayoutTest
                 }
             });
 
-            new PollingCheck(TIMEOUT) {
+            PollingCheck.waitFor(TIMEOUT, new PollingCheck.PollingCheckCondition() {
                 @Override
-                protected boolean check() {
-                    return mSwipeRefresh.isRefreshing();
+                public boolean canProceed() {
+                    return !mSwipeRefresh.isRefreshing();
                 }
-            }.run();
+            });
         }
         verify(mockListener, times(0)).onRefresh();
     }
