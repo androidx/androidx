@@ -30,6 +30,7 @@ import android.os.Build;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.util.PollingCheck;
 import android.support.v7.util.TouchUtils;
 import android.support.v7.widget.BaseRecyclerViewInstrumentationTest;
 import android.support.v7.widget.RecyclerView;
@@ -141,7 +142,13 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
         final RecyclerView.ViewHolder target = mRecyclerView
                 .findViewHolderForAdapterPosition(1);
         TouchUtils.dragViewToX(getInstrumentation(), target.itemView, Gravity.CENTER, targetX);
-        Thread.sleep(100); //wait for animation end
+
+        PollingCheck.waitFor(1000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mCalback.getSwipe(target) != null;
+            }
+        });
         final SwipeRecord swipe = mCalback.getSwipe(target);
         assertNotNull(swipe);
         assertEquals(dir, swipe.dir);
