@@ -21,6 +21,8 @@
              and non-checked / non-checkable indicates
              that media is playing to the local device only. -->
         <attr name="externalRouteEnabledDrawable" format="reference" />
+        <!-- Tint to apply to the media route button -->
+        <attr name="buttonTint" format="color" />
 
         <attr name="android:minWidth" />
         <attr name="android:minHeight" />
@@ -36,4 +38,6 @@
     <attr name="mediaRouteSpeakerIconDrawable" format="reference" />
     <attr name="mediaRouteSpeakerGroupIconDrawable" format="reference" />
     <attr name="mediaRouteControlPanelThemeOverlay" format="reference" />
+
+    <attr name="mediaRouteTheme" format="reference" />
 </resources>
