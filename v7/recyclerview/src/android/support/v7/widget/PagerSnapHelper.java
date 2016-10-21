@@ -19,13 +19,23 @@ package android.support.v7.widget;
 import android.graphics.PointF;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.DisplayMetrics;
 import android.view.View;
 
 /**
  * Implementation of the {@link SnapHelper} supporting pager style snapping in either vertical or
  * horizontal orientation.
+ *
+ * <p>
+ *
+ * PagerSnapHelper can help achieve a similar behavior to {@link android.support.v4.view.ViewPager}.
+ * Set both {@link RecyclerView} and {@link android.support.v7.widget.RecyclerView.Adapter} to have
+ * MATCH_PARENT height and width and then attach PagerSnapHelper to the {@link RecyclerView} using
+ * {@link #attachToRecyclerView(RecyclerView)}.
  */
 public class PagerSnapHelper extends SnapHelper {
+    private static final int MAX_SCROLL_ON_FLING_DURATION = 100; // ms
+
     // Orientation helpers are lazily created per LayoutManager.
     @Nullable
     private OrientationHelper mVerticalHelper;
@@ -105,6 +115,36 @@ public class PagerSnapHelper extends SnapHelper {
         return reverseLayout
                 ? (forwardDirection ? centerPosition - 1 : centerPosition)
                 : (forwardDirection ? centerPosition + 1 : centerPosition);
+    }
+
+    @Override
+    protected LinearSmoothScroller createSnapScroller(RecyclerView.LayoutManager layoutManager) {
+        if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
+            return null;
+        }
+        return new LinearSmoothScroller(mRecyclerView.getContext()) {
+            @Override
+            protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
+                int[] snapDistances = calculateDistanceToFinalSnap(mRecyclerView.getLayoutManager(),
+                        targetView);
+                final int dx = snapDistances[0];
+                final int dy = snapDistances[1];
+                final int time = calculateTimeForDeceleration(Math.max(Math.abs(dx), Math.abs(dy)));
+                if (time > 0) {
+                    action.update(dx, dy, time, mDecelerateInterpolator);
+                }
+            }
+
+            @Override
+            protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+                return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
+            }
+
+            @Override
+            protected int calculateTimeForScrolling(int dx) {
+                return Math.min(MAX_SCROLL_ON_FLING_DURATION, super.calculateTimeForScrolling(dx));
+            }
+        };
     }
 
     private int distanceToCenter(@NonNull RecyclerView.LayoutManager layoutManager,
