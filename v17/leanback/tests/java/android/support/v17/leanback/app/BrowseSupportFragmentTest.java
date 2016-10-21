@@ -140,11 +140,16 @@ public class BrowseSupportFragmentTest {
 
         verify(itemTask, timeout(5000).times(1)).run(any(Presenter.ViewHolder.class));
 
-        ListRowPresenter.ViewHolder row = (ListRowPresenter.ViewHolder) mActivity
-                .getBrowseTestSupportFragment().getRowsSupportFragment().getRowViewHolder(selectRow);
-        assertNotNull(dumpRecyclerView(mActivity.getBrowseTestSupportFragment().getGridView()), row);
-        assertNotNull(row.getGridView());
-        assertEquals(selectItem, row.getGridView().getSelectedPosition());
+        activityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ListRowPresenter.ViewHolder row = (ListRowPresenter.ViewHolder) mActivity
+                        .getBrowseTestSupportFragment().getRowsSupportFragment().getRowViewHolder(selectRow);
+                assertNotNull(dumpRecyclerView(mActivity.getBrowseTestSupportFragment().getGridView()), row);
+                assertNotNull(row.getGridView());
+                assertEquals(selectItem, row.getGridView().getSelectedPosition());
+            }
+        });
     }
 
     @Test
