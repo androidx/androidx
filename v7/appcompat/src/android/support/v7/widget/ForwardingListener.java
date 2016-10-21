@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.view.menu.ShowableListMenu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -99,12 +100,12 @@ public abstract class ForwardingListener implements View.OnTouchListener {
 
     private void addDetachListenerBase(View src) {
         src.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-            boolean mIsAttached = mSrc.isAttachedToWindow();
+            boolean mIsAttached = ViewCompat.isAttachedToWindow(mSrc);
 
             @Override
             public void onGlobalLayout() {
                 final boolean wasAttached = mIsAttached;
-                mIsAttached = mSrc.isAttachedToWindow();
+                mIsAttached = ViewCompat.isAttachedToWindow(mSrc);
                 if (wasAttached && !mIsAttached) {
                     onDetachedFromWindow();
                 }
