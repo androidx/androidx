@@ -28,7 +28,7 @@ class CacheUtils {
     static void verifyPositionsPrefetched(RecyclerView view, int dx, int dy,
             Integer[]... positionData) {
         RecyclerView.PrefetchRegistry prefetchRegistry = mock(RecyclerView.PrefetchRegistry.class);
-        view.mLayout.collectPrefetchPositions(
+        view.mLayout.collectAdjacentPrefetchPositions(
                 dx, dy, view.mState, prefetchRegistry);
 
         verify(prefetchRegistry, times(positionData.length)).addPosition(anyInt(), anyInt());
@@ -77,5 +77,16 @@ class CacheUtils {
                         (int) position, view.mRecycler.mCachedViews.get(i).mPosition);
             }
         }
+    }
+
+    static RecyclerView.ViewHolder peekAtCachedViewForPosition(RecyclerView view, int position) {
+        for (int i = 0; i < view.mRecycler.mCachedViews.size(); i++) {
+            RecyclerView.ViewHolder holder = view.mRecycler.mCachedViews.get(i);
+            if (holder.mPosition == position) {
+                return holder;
+            }
+        }
+        fail("Unable to find view with position " + position);
+        return null;
     }
 }

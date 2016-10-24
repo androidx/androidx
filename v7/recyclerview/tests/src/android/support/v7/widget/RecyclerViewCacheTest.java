@@ -17,10 +17,12 @@
 package android.support.v7.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -36,6 +38,8 @@ import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +47,7 @@ import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -109,7 +114,7 @@ public class RecyclerViewCacheTest {
             }
 
             @Override
-            public void collectPrefetchPositions(int dx, int dy, RecyclerView.State state,
+            public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
                     RecyclerView.PrefetchRegistry prefetchManager) {
                 prefetchManager.addPosition(0, 0);
                 prefetchManager.addPosition(1, 0);
@@ -151,7 +156,7 @@ public class RecyclerViewCacheTest {
                     any(RecyclerView.ViewHolder.class), anyInt(), any(List.class));
 
             assertTrue(mRecycler.mCachedViews.size() == 3);
-            CacheUtils.verifyCacheContainsPositions(mRecyclerView, 0, 1, 2);
+            CacheUtils.verifyCacheContainsPrefetchedPositions(mRecyclerView, 0, 1, 2);
         }
     }
 
@@ -181,7 +186,7 @@ public class RecyclerViewCacheTest {
         mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
         assertEquals(5, mRecyclerView.mRecycler.mViewCacheMax);
 
-        CacheUtils.verifyCacheContainsPositions(mRecyclerView, 3, 4, 5);
+        CacheUtils.verifyCacheContainsPrefetchedPositions(mRecyclerView, 3, 4, 5);
 
         // further views recycled, as though from scrolling, shouldn't evict prefetched views:
         mRecycler.recycleView(mRecycler.getViewForPosition(10));
@@ -308,6 +313,62 @@ public class RecyclerViewCacheTest {
     }
 
     @Test
+    public void partialPrefetchAvoidsViewRecycledCallback() {
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // 100x100 pixel views
+        RecyclerView.Adapter adapter = new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                mRecyclerView.registerTimePassingMs(5);
+                View view = new View(getContext());
+                view.setMinimumWidth(100);
+                view.setMinimumHeight(100);
+                return new RecyclerView.ViewHolder(view) {};
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                mRecyclerView.registerTimePassingMs(5);
+            }
+
+            @Override
+            public int getItemCount() {
+                return 100;
+            }
+
+            @Override
+            public void onViewRecycled(RecyclerView.ViewHolder holder) {
+                // verify unbound view doesn't get
+                assertNotEquals(RecyclerView.NO_POSITION, holder.getAdapterPosition());
+            }
+        };
+        mRecyclerView.setAdapter(adapter);
+
+        layout(100, 300);
+
+        // offset scroll so that no prefetch-able views are directly adjacent to viewport
+        mRecyclerView.scrollBy(0, 50);
+
+        assertTrue(mRecycler.mCachedViews.size() == 0);
+        assertTrue(mRecyclerView.getRecycledViewPool().getRecycledViewCount(0) == 0);
+
+        // Should take 10 ms to inflate + bind, so just give it 9 so it doesn't have time to bind
+        final long deadlineNs = mRecyclerView.getNanoTime() + TimeUnit.MILLISECONDS.toNanos(9);
+
+        // Timed prefetch
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
+        mRecyclerView.mGapWorker.prefetch(deadlineNs);
+
+        // will have enough time to inflate but not bind one view
+        assertTrue(mRecycler.mCachedViews.size() == 0);
+        assertTrue(mRecyclerView.getRecycledViewPool().getRecycledViewCount(0) == 1);
+        RecyclerView.ViewHolder pooledHolder = mRecyclerView.getRecycledViewPool()
+                .mScrap.get(0).mScrapHeap.get(0);
+        assertEquals(RecyclerView.NO_POSITION, pooledHolder.getAdapterPosition());
+    }
+
+    @Test
     public void prefetchStaggeredItemsPriority() {
         StaggeredGridLayoutManager sglm =
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -392,8 +453,7 @@ public class RecyclerViewCacheTest {
         final RecyclerView.Adapter adapter = new RecyclerView.Adapter() {
             @Override
             public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                return new RecyclerView.ViewHolder(new View(parent.getContext())) {
-                };
+                return new RecyclerView.ViewHolder(new View(parent.getContext())) {};
             }
 
             @Override
@@ -449,5 +509,135 @@ public class RecyclerViewCacheTest {
         assertTrue(itemAnimator.isRunning());
         assertEquals(2, llm.getChildCount());
         assertEquals(4, mRecyclerView.getChildCount());
+    }
+
+    @Test
+    public void viewHolderFindsNestedRecyclerViews() {
+        LinearLayoutManager llm = new LinearLayoutManager(getContext());
+        mRecyclerView.setLayoutManager(llm);
+
+        RecyclerView.Adapter mockAdapter = mock(RecyclerView.Adapter.class);
+        when(mockAdapter.onCreateViewHolder(any(ViewGroup.class), anyInt()))
+                .thenAnswer(new Answer<RecyclerView.ViewHolder>() {
+                    @Override
+                    public RecyclerView.ViewHolder answer(InvocationOnMock invocation)
+                            throws Throwable {
+                        View view = new RecyclerView(getContext());
+                        view.setLayoutParams(new RecyclerView.LayoutParams(100, 100));
+                        return new RecyclerView.ViewHolder(view) {};
+                    }
+                });
+        when(mockAdapter.getItemCount()).thenReturn(100);
+        mRecyclerView.setAdapter(mockAdapter);
+
+        layout(100, 200);
+
+        verify(mockAdapter, times(2)).onCreateViewHolder(any(ViewGroup.class), anyInt());
+        verify(mockAdapter, times(2)).onBindViewHolder(
+                argThat(new BaseMatcher<RecyclerView.ViewHolder>() {
+                    @Override
+                    public boolean matches(Object item) {
+                        RecyclerView.ViewHolder holder = (RecyclerView.ViewHolder) item;
+                        return holder.itemView == holder.mNestedRecyclerView;
+                    }
+
+                    @Override
+                    public void describeTo(Description description) { }
+                }),
+                anyInt(),
+                any(List.class));
+    }
+
+    static class InnerAdapter extends RecyclerView.Adapter<InnerAdapter.ViewHolder> {
+        private static final int INNER_ITEM_COUNT = 10;
+        static class ViewHolder extends RecyclerView.ViewHolder {
+            ViewHolder(View itemView) {
+                super(itemView);
+            }
+        }
+
+        InnerAdapter() {}
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = new View(parent.getContext());
+            view.setLayoutParams(new RecyclerView.LayoutParams(100, 100));
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {}
+
+        @Override
+        public int getItemCount() {
+            return INNER_ITEM_COUNT;
+        }
+    }
+
+    static class OuterAdapter extends RecyclerView.Adapter<OuterAdapter.ViewHolder> {
+        private static final int OUTER_ITEM_COUNT = 10;
+
+        static class ViewHolder extends RecyclerView.ViewHolder {
+            private final RecyclerView mRecyclerView;
+            ViewHolder(RecyclerView itemView) {
+                super(itemView);
+                mRecyclerView = itemView;
+            }
+        }
+
+        ArrayList<InnerAdapter> mAdapters = new ArrayList<>();
+        RecyclerView.RecycledViewPool mSharedPool = new RecyclerView.RecycledViewPool();
+
+        OuterAdapter() {
+            for (int i = 0; i <= OUTER_ITEM_COUNT; i++) {
+                mAdapters.add(new InnerAdapter());
+            }
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            RecyclerView rv = new RecyclerView(parent.getContext());
+            rv.setLayoutManager(new LinearLayoutManager(parent.getContext(),
+                    LinearLayoutManager.HORIZONTAL, false));
+            rv.setRecycledViewPool(mSharedPool);
+            rv.setLayoutParams(new RecyclerView.LayoutParams(200, 100));
+            return new ViewHolder(rv);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            // Note: would be equally valid to replace adapter content instead of swapping adapter
+            holder.mRecyclerView.setAdapter(mAdapters.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return OUTER_ITEM_COUNT;
+        }
+    }
+
+    @Test
+    public void simpleNestedPrefetch() {
+        LinearLayoutManager llm = new LinearLayoutManager(getContext());
+        assertEquals(2, llm.getInitialItemPrefetchCount());
+
+        mRecyclerView.setLayoutManager(llm);
+        mRecyclerView.setAdapter(new OuterAdapter());
+
+        layout(200, 200);
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
+
+        // prefetch 2 (default)
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+        RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 2);
+        assertNotNull(holder);
+        assertNotNull(holder.mNestedRecyclerView);
+        CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView, 0, 1);
+
+        // prefetch 4
+        ((LinearLayoutManager) holder.mNestedRecyclerView.getLayoutManager())
+                .setInitialPrefetchItemCount(4);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+        CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView, 0, 1, 2, 3);
     }
 }
