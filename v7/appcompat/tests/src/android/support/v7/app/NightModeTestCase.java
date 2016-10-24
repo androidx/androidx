@@ -17,6 +17,7 @@
 package android.support.v7.app;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
@@ -26,11 +27,14 @@ import static android.support.v7.testutils.TestUtilsMatchers.isBackground;
 import static org.junit.Assert.assertFalse;
 
 import android.app.Instrumentation;
+import android.content.Intent;
+import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.Suppress;
 import android.support.v7.appcompat.test.R;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.view.KeyEvent;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -118,6 +122,36 @@ public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActi
 
         // Now wait for the recreate
         getInstrumentation().waitForIdleSync();
+
+        // Now check that the text has changed, signifying that night resources are being used
+        onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
+    }
+
+    @Test
+    public void testNightModeAutoRecreatesOnResume() throws Throwable {
+        // Create a fake TwilightManager and set it as the app instance
+        final FakeTwilightManager twilightManager = new FakeTwilightManager();
+        TwilightManager.setInstance(twilightManager);
+
+        final NightModeActivity activity = getActivity();
+
+        // Set MODE_NIGHT_AUTO so that we will change to night mode automatically
+        setLocalNightModeAndWaitForRecreate(activity, AppCompatDelegate.MODE_NIGHT_AUTO);
+        // Verify that we're currently in day mode
+        onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)));
+
+        // Now start another Activity so that the original one goes into the background, then
+        // wait a short time for everything to settle down
+        final Intent intent = new Intent(activity, AppCompatActivity.class);
+        activity.startActivity(intent);
+        onView(withId(R.id.text_night_mode)).check(doesNotExist());
+        SystemClock.sleep(400);
+
+        // Now update the fake twilight manager to be in night
+        twilightManager.setIsNight(true);
+
+        // Now press back, so that the original Activity is brought back into the foreground
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
 
         // Now check that the text has changed, signifying that night resources are being used
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
