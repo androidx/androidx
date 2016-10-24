@@ -1392,6 +1392,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.waitForLayout(2);
     }
 
+    // Run this test on Jelly Bean and newer because hasTransientState was introduced in API 16.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void appCancelAnimationInDetach() throws Throwable {
         final View[] addedView = new View[2];
