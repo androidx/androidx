@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
@@ -60,8 +61,8 @@ import java.util.concurrent.TimeUnit;
 @RunWith(Parameterized.class)
 public class FocusSearchNavigationTest {
     @Rule
-    public ActivityTestRule<RecyclerViewTestActivity> mActivityRule
-            = new ActivityTestRule<>(RecyclerViewTestActivity.class);
+    public ActivityTestRule<RecyclerViewTestActivity> mActivityRule =
+            new ActivityTestRule<>(RecyclerViewTestActivity.class);
 
     private final int mOrientation;
     private final int mLayoutDir;
@@ -73,11 +74,19 @@ public class FocusSearchNavigationTest {
 
     @Parameterized.Parameters(name = "orientation:{0},layoutDir:{1}")
     public static List<Object[]> params() {
-        return Arrays.asList(
-                new Object[]{VERTICAL, ViewCompat.LAYOUT_DIRECTION_LTR},
-                new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_LTR},
-                new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_RTL}
-        );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return Arrays.asList(
+                    new Object[]{VERTICAL, ViewCompat.LAYOUT_DIRECTION_LTR},
+                    new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_LTR},
+                    new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_RTL}
+            );
+        } else {
+            // Do not test RTL before API 17
+            return Arrays.asList(
+                    new Object[]{VERTICAL, ViewCompat.LAYOUT_DIRECTION_LTR},
+                    new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_LTR}
+            );
+        }
     }
 
     private Activity mActivity;
@@ -91,11 +100,11 @@ public class FocusSearchNavigationTest {
             @Override
             public void run() {
                 mActivity.setContentView(R.layout.focus_search_activity);
-                mActivity.getWindow().getDecorView().setLayoutDirection(mLayoutDir);
+                ViewCompat.setLayoutDirection(mActivity.getWindow().getDecorView(), mLayoutDir);
                 LinearLayout linearLayout = (LinearLayout) mActivity.findViewById(R.id.root);
                 linearLayout.setOrientation(mOrientation);
                 mRecyclerView = (RecyclerView) mActivity.findViewById(R.id.recycler_view);
-                mRecyclerView.setLayoutDirection(mLayoutDir);
+                ViewCompat.setLayoutDirection(mRecyclerView, mLayoutDir);
                 LinearLayoutManager layout = new LinearLayoutManager(mActivity.getBaseContext());
                 layout.setOrientation(mOrientation);
                 mRecyclerView.setLayoutManager(layout);
@@ -115,7 +124,7 @@ public class FocusSearchNavigationTest {
         waitForIdleSync();
         assertThat("test sanity", mRecyclerView.getLayoutManager().getLayoutDirection(),
                 is(mLayoutDir));
-        assertThat("test sanity", mRecyclerView.getLayoutDirection(), is(mLayoutDir));
+        assertThat("test sanity", ViewCompat.getLayoutDirection(mRecyclerView), is(mLayoutDir));
     }
 
     @Test

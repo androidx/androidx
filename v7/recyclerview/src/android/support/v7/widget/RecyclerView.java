@@ -182,6 +182,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     private static final boolean ALLOW_THREAD_GAP_WORK = Build.VERSION.SDK_INT >= 21;
 
+    /**
+     * FocusFinder#findNextFocus is broken on ICS MR1 and older for View.FOCUS_BACKWARD direction.
+     * We convert it to an absolute direction such as FOCUS_DOWN or FOCUS_LEFT.
+     */
+    private static final boolean FORCE_ABS_FOCUS_SEARCH_DIRECTION = Build.VERSION.SDK_INT <= 15;
+
     static final boolean DISPATCH_TEMP_DETACH = false;
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -2234,6 +2240,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         direction == View.FOCUS_FORWARD ? View.FOCUS_DOWN : View.FOCUS_UP;
                 final View found = ff.findNextFocus(this, focused, absDir);
                 needsFocusFailureLayout = found == null;
+                if (FORCE_ABS_FOCUS_SEARCH_DIRECTION) {
+                    // Workaround for broken FOCUS_BACKWARD in API 15 and older devices.
+                    direction = absDir;
+                }
             }
             if (!needsFocusFailureLayout && mLayout.canScrollHorizontally()) {
                 boolean rtl = mLayout.getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
@@ -2241,6 +2251,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
                 final View found = ff.findNextFocus(this, focused, absDir);
                 needsFocusFailureLayout = found == null;
+                if (FORCE_ABS_FOCUS_SEARCH_DIRECTION) {
+                    // Workaround for broken FOCUS_BACKWARD in API 15 and older devices.
+                    direction = absDir;
+                }
             }
             if (needsFocusFailureLayout) {
                 consumePendingUpdateOperations();
