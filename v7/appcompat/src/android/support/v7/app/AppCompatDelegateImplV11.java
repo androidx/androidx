@@ -32,8 +32,13 @@ class AppCompatDelegateImplV11 extends AppCompatDelegateImplV9 {
     }
 
     @Override
+    public boolean hasWindowFeature(int featureId) {
+        return super.hasWindowFeature(featureId) || mWindow.hasFeature(featureId);
+    }
+
+    @Override
     View callActivityOnCreateView(View parent, String name, Context context, AttributeSet attrs) {
-        // On Honeycomb+, Activity's private inflater factory will handle calling it's
+        // On Honeycomb+, Activity's private inflater factory will handle calling its
         // onCreateView(...)
         return null;
     }

@@ -623,7 +623,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
             case Window.FEATURE_NO_TITLE:
                 return mWindowNoTitle;
         }
-        return mWindow.hasFeature(featureId);
+        return false;
     }
 
     @Override
