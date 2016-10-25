@@ -90,7 +90,8 @@ public class AsyncListUtilTest {
         scrollAndExpectTiles(40, "scroll up a little, no new tiles loaded");
     }
 
-    @Test
+    // This test is disabled as it is flaky.
+    // @Test
     public void tileCaching() throws Throwable {
         scrollAndExpectTiles(25, "next screen", 30, 40);
 
