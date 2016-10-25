@@ -71,7 +71,12 @@ final class MediaRouterThemeHelper {
                 theme = R.style.Theme_MediaRouter;
             }
         }
-        return new ContextThemeWrapper(context, theme);
+        int mediaRouteThemeResId = getThemeResource(context, R.attr.mediaRouteTheme);
+        Context themedContext = new ContextThemeWrapper(context, theme);
+        if (mediaRouteThemeResId != 0) {
+            themedContext = new ContextThemeWrapper(themedContext, mediaRouteThemeResId);
+        }
+        return themedContext;
     }
 
     public static int getThemeResource(Context context, int attr) {
