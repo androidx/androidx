@@ -16,6 +16,8 @@
 
 package android.support.v7.media;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -57,8 +59,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
@@ -293,6 +293,16 @@ public final class MediaRouter {
     public RouteInfo getDefaultRoute() {
         checkCallingThread();
         return sGlobal.getDefaultRoute();
+    }
+
+    /**
+     * Gets a bluetooth route for playing media content on the system.
+     *
+     * @return A bluetooth route, if exist, otherwise null.
+     */
+    public RouteInfo getBluetoothRoute() {
+        checkCallingThread();
+        return sGlobal.getBluetoothRoute();
     }
 
     /**
@@ -1051,6 +1061,30 @@ public final class MediaRouter {
         public boolean isDefault() {
             checkCallingThread();
             return sGlobal.getDefaultRoute() == this;
+        }
+
+        /**
+         * Returns true if this route is a bluetooth route.
+         *
+         * @return True if this route is a bluetooth route.
+         *
+         * @see MediaRouter#getBluetoothRoute
+         */
+        public boolean isBluetooth() {
+            checkCallingThread();
+            return sGlobal.getBluetoothRoute() == this;
+        }
+
+        /**
+         * Returns true if this route is the default route and the device speaker.
+         *
+         * @return True if this route is the default route and the device speaker.
+         */
+        public boolean isDeviceSpeaker() {
+            int defaultAudioRouteNameResourceId = Resources.getSystem().getIdentifier(
+                    "default_audio_route_name", "string", "android");
+            return isDefault()
+                    && Resources.getSystem().getText(defaultAudioRouteNameResourceId).equals(mName);
         }
 
         /**
@@ -1904,6 +1938,7 @@ public final class MediaRouter {
 
         private RegisteredMediaRouteProviderWatcher mRegisteredProviderWatcher;
         private RouteInfo mDefaultRoute;
+        private RouteInfo mBluetoothRoute;
         RouteInfo mSelectedRoute;
         private RouteController mSelectedRouteController;
         // A map from route descriptor ID to RouteController for the member routes in the currently
@@ -2039,6 +2074,10 @@ public final class MediaRouter {
                         + "The media router has not yet been fully initialized.");
             }
             return mDefaultRoute;
+        }
+
+        public RouteInfo getBluetoothRoute() {
+            return mBluetoothRoute;
         }
 
         public RouteInfo getSelectedRoute() {
@@ -2421,6 +2460,22 @@ public final class MediaRouter {
                 }
             }
 
+            // Update bluetooth route.
+            if (mBluetoothRoute != null && !isRouteSelectable(mBluetoothRoute)) {
+                Log.i(TAG, "Clearing the bluetooth route because it "
+                        + "is no longer selectable: " + mBluetoothRoute);
+                mBluetoothRoute = null;
+            }
+            if (mBluetoothRoute == null && !mRoutes.isEmpty()) {
+                for (RouteInfo route : mRoutes) {
+                    if (isSystemBluetoothRoute(route) && isRouteSelectable(route)) {
+                        mBluetoothRoute = route;
+                        Log.i(TAG, "Found bluetooth route: " + mBluetoothRoute);
+                        break;
+                    }
+                }
+            }
+
             // Update selected route.
             if (mSelectedRoute != null && !isRouteSelectable(mSelectedRoute)) {
                 Log.i(TAG, "Unselecting the current route because it "
@@ -2502,6 +2557,12 @@ public final class MediaRouter {
         private boolean isSystemDefaultRoute(RouteInfo route) {
             return route.getProviderInstance() == mSystemProvider
                     && route.mDescriptorId.equals(
+                            SystemMediaRouteProvider.DEFAULT_ROUTE_ID);
+        }
+
+        private boolean isSystemBluetoothRoute(RouteInfo route) {
+            return route.getProviderInstance() == mSystemProvider
+                    && !route.mDescriptorId.equals(
                             SystemMediaRouteProvider.DEFAULT_ROUTE_ID);
         }
 

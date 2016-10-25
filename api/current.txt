@@ -8762,6 +8762,7 @@ package android.support.v7.media {
     method public void addCallback(android.support.v7.media.MediaRouteSelector, android.support.v7.media.MediaRouter.Callback, int);
     method public void addProvider(android.support.v7.media.MediaRouteProvider);
     method public void addRemoteControlClient(java.lang.Object);
+    method public android.support.v7.media.MediaRouter.RouteInfo getBluetoothRoute();
     method public android.support.v7.media.MediaRouter.RouteInfo getDefaultRoute();
     method public static android.support.v7.media.MediaRouter getInstance(android.content.Context);
     method public android.support.v4.media.session.MediaSessionCompat.Token getMediaSessionToken();
@@ -8835,8 +8836,10 @@ package android.support.v7.media {
     method public int getVolume();
     method public int getVolumeHandling();
     method public int getVolumeMax();
+    method public boolean isBluetooth();
     method public boolean isConnecting();
     method public boolean isDefault();
+    method public boolean isDeviceSpeaker();
     method public boolean isEnabled();
     method public boolean isSelected();
     method public boolean matchesSelector(android.support.v7.media.MediaRouteSelector);
