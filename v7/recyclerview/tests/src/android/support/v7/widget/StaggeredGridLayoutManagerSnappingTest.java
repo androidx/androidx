@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@MediumTest
 @RunWith(Parameterized.class)
 public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLayoutManagerTest {
 
@@ -56,7 +57,6 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         return result;
     }
 
-    @MediumTest
     @Test
     public void snapOnScrollSameViewFixedSize() throws Throwable {
         // This test is a special case for fixed sized children.
@@ -96,7 +96,6 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         assertCenterAligned(viewAfterScroll);
     }
 
-    @MediumTest
     @Test
     public void snapOnScrollSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -144,7 +143,6 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         assertCenterAligned(viewAfterScroll);
     }
 
-    @MediumTest
     @Test
     public void snapOnFlingSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -171,8 +169,6 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         assertCenterAligned(viewAfterFling);
     }
 
-
-    @MediumTest
     @Test
     public void snapOnFlingNextView() throws Throwable {
         final Config config = (Config) mConfig.clone();

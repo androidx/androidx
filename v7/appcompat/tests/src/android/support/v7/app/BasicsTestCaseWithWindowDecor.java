@@ -21,13 +21,13 @@ import android.support.test.filters.SmallTest;
 
 import org.junit.Test;
 
+@SmallTest
 public class BasicsTestCaseWithWindowDecor extends BaseBasicsTestCase<WindowDecorAppCompatActivity> {
     public BasicsTestCaseWithWindowDecor() {
         super(WindowDecorAppCompatActivity.class);
     }
 
     @Test
-    @SmallTest
     @UiThreadTest
     public void testSupportActionModeAppCompatCallbacks() {
         // Since we're using the decor action bar, any action modes not will be created
