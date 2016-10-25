@@ -17,7 +17,11 @@
 package android.support.v4.content;
 
 import android.content.Intent;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(15)
+@TargetApi(15)
 class IntentCompatIcsMr1 {
 
     public static Intent makeMainSelectorActivity(String selectorAction, String selectorCategory) {

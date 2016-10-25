@@ -18,11 +18,15 @@ package android.support.v4.app;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+@RequiresApi(19)
+@TargetApi(19)
 class NotificationManagerCompatKitKat {
     private static final String CHECK_OP_NO_THROW = "checkOpNoThrow";
     private static final String OP_POST_NOTIFICATION = "OP_POST_NOTIFICATION";

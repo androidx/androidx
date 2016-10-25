@@ -16,6 +16,8 @@
 
 package android.support.v17.preference;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.transition.FadeAndShortSlide;
 import android.app.Fragment;
@@ -27,6 +29,8 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 /**
  * @hide
  */
+@RequiresApi(21)
+@TargetApi(21)
 @RestrictTo(GROUP_ID)
 public class LeanbackPreferenceFragmentTransitionHelperApi21 {
 

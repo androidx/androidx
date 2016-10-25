@@ -18,11 +18,15 @@ package android.support.v4.app;
 
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+@RequiresApi(9)
+@TargetApi(9)
 class BundleCompatGingerbread {
     private static final String TAG = "BundleCompatGingerbread";
 

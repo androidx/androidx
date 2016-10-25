@@ -1,5 +1,7 @@
 package android.support.v17.leanback.transition;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 
@@ -21,6 +23,8 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * will not blink out or shift suddenly when the transition is interrupted.
  * @hide
  */
+@RequiresApi(21)
+@TargetApi(21)
 @RestrictTo(GROUP_ID)
 class TranslationAnimationCreator {
 

@@ -19,8 +19,12 @@ package android.support.v4.view;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.PointerIcon;
 
+@RequiresApi(24)
+@TargetApi(24)
 class PointerIconCompatApi24 {
     public static Object getSystemIcon(Context context, int style) {
         return PointerIcon.getSystemIcon(context, style);

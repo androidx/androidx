@@ -16,13 +16,17 @@
 
 package android.support.v4.graphics.drawable;
 
+import android.annotation.TargetApi;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Outline;
 import android.graphics.Rect;
+import android.support.annotation.RequiresApi;
 import android.view.Gravity;
 import android.view.View;
 
+@RequiresApi(21)
+@TargetApi(21)
 class RoundedBitmapDrawable21 extends RoundedBitmapDrawable {
     protected RoundedBitmapDrawable21(Resources res, Bitmap bitmap) {
         super(res, bitmap);

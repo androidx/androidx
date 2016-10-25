@@ -16,10 +16,13 @@
 
 package android.support.v4.content.res;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(13)
+@TargetApi(13)
 class ConfigurationHelperHoneycombMr2 {
 
     static int getScreenHeightDp(@NonNull Resources resources) {

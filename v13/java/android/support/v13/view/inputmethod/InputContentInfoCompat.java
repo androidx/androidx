@@ -16,16 +16,20 @@
 
 package android.support.v13.view.inputmethod;
 
+import android.annotation.TargetApi;
 import android.content.ClipDescription;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.os.BuildCompat;
 
 /**
  * Helper for accessing features in InputContentInfo introduced after API level 13 in a backwards
  * compatible fashion.
  */
+@RequiresApi(13)
+@TargetApi(13)
 public final class InputContentInfoCompat {
 
     private interface InputContentInfoCompatImpl {

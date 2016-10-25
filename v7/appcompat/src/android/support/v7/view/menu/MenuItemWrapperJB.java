@@ -19,6 +19,7 @@ package android.support.v7.view.menu;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
@@ -32,7 +33,8 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * @hide
  */
 @RestrictTo(GROUP_ID)
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+@TargetApi(16)
+@RequiresApi(16)
 class MenuItemWrapperJB extends MenuItemWrapperICS {
 
     MenuItemWrapperJB(Context context, SupportMenuItem object) {

@@ -16,6 +16,7 @@
 
 package android.support.v13.app;
 
+import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -23,6 +24,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.os.BuildCompat;
 
 import java.util.Arrays;
@@ -31,6 +33,8 @@ import java.util.Arrays;
  * Helper for accessing features in {@link Fragment} introduced after
  * API level 13 in a backwards compatible fashion.
  */
+@RequiresApi(13)
+@TargetApi(13)
 public class FragmentCompat {
     interface FragmentCompatImpl {
         void setMenuVisibility(Fragment f, boolean visible);

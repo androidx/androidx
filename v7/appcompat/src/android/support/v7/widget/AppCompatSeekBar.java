@@ -16,8 +16,10 @@
 
 package android.support.v7.widget;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.support.annotation.RequiresApi;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
@@ -59,6 +61,8 @@ public class AppCompatSeekBar extends SeekBar {
         mAppCompatSeekBarHelper.drawableStateChanged();
     }
 
+    @RequiresApi(11)
+    @TargetApi(11)
     @Override
     public void jumpDrawablesToCurrentState() {
         super.jumpDrawablesToCurrentState();

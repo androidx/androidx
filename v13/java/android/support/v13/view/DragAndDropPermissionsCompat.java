@@ -16,7 +16,9 @@
 
 package android.support.v13.view;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
 import android.view.DragEvent;
@@ -27,6 +29,8 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * Helper for accessing features in {@link android.view.DragAndDropPermissions}
  * introduced after API level 13 in a backwards compatible fashion.
  */
+@RequiresApi(13)
+@TargetApi(13)
 public final class DragAndDropPermissionsCompat {
 
     interface DragAndDropPermissionsCompatImpl {

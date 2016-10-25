@@ -16,10 +16,15 @@
 package android.support.v4.graphics;
 
 import android.graphics.Bitmap;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 /**
  * Implementation of BitmapCompat that can use Honeycomb MR1 APIs.
  */
+
+@RequiresApi(12)
+@TargetApi(12)
 class BitmapCompatHoneycombMr1 {
 
     static int getAllocationByteCount(Bitmap bitmap) {

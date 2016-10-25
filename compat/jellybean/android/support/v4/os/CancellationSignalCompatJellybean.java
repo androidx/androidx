@@ -16,6 +16,11 @@
 
 package android.support.v4.os;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
+
+@RequiresApi(16)
+@TargetApi(16)
 class CancellationSignalCompatJellybean {
     public static Object create() {
         return new android.os.CancellationSignal();

@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -84,9 +85,6 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
     static final String ALLOCATED_REQUEST_INDICIES_TAG = "android:support:request_indicies";
     static final String REQUEST_FRAGMENT_WHO_TAG = "android:support:request_fragment_who";
     static final int MAX_NUM_PENDING_FRAGMENT_ACTIVITY_RESULTS = 0xffff - 1;
-
-    // This is the SDK API version of Honeycomb (3.0).
-    private static final int HONEYCOMB = 11;
 
     static final int MSG_REALLY_STOPPED = 1;
     static final int MSG_RESUME_PENDING = 2;
@@ -361,7 +359,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
             boolean show = super.onCreatePanelMenu(featureId, menu);
             show |= mFragments.dispatchCreateOptionsMenu(menu, getMenuInflater());
-            if (android.os.Build.VERSION.SDK_INT >= HONEYCOMB) {
+            if (android.os.Build.VERSION.SDK_INT >= 11) {
                 return show;
             }
             // Prior to Honeycomb, the framework can't invalidate the options
@@ -658,7 +656,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      * onPrepareOptionsMenu the next time the menu is requested.
      */
     public void supportInvalidateOptionsMenu() {
-        if (android.os.Build.VERSION.SDK_INT >= HONEYCOMB) {
+        if (android.os.Build.VERSION.SDK_INT >= 11) {
             // If we are running on HC or greater, we can use the framework
             // API to invalidate the options menu.
             ActivityCompatHoneycomb.invalidateOptionsMenu(this);
@@ -681,7 +679,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      * @param args additional arguments to the dump request.
      */
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
-        if (android.os.Build.VERSION.SDK_INT >= HONEYCOMB) {
+        if (Build.VERSION.SDK_INT >= 11) {
             // XXX This can only work if we can call the super-class impl. :/
             //ActivityCompatHoneycomb.dump(this, prefix, fd, writer, args);
         }

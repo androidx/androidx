@@ -23,6 +23,7 @@ import static android.support.v7.widget.ThemeUtils.getDisabledThemeAttrColor;
 import static android.support.v7.widget.ThemeUtils.getThemeAttrColor;
 import static android.support.v7.widget.ThemeUtils.getThemeAttrColorStateList;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -37,6 +38,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.graphics.drawable.VectorDrawableCompat;
@@ -87,13 +89,12 @@ public final class AppCompatDrawableManager {
     }
 
     private static void installDefaultInflateDelegates(@NonNull AppCompatDrawableManager manager) {
-        final int sdk = Build.VERSION.SDK_INT;
         // This sdk version check will affect src:appCompat code path.
         // Although VectorDrawable exists in Android framework from Lollipop, AppCompat will use the
         // VectorDrawableCompat before Nougat to utilize the bug fixes in VectorDrawableCompat.
-        if (sdk < 24) {
+        if (Build.VERSION.SDK_INT < 24) {
             manager.addDelegate("vector", new VdcInflateDelegate());
-            if (sdk >= 11) {
+            if (Build.VERSION.SDK_INT >= 11) {
                 // AnimatedVectorDrawableCompat only works on API v11+
                 manager.addDelegate("animated-vector", new AvdcInflateDelegate());
             }
@@ -750,6 +751,8 @@ public final class AppCompatDrawableManager {
         }
     }
 
+    @RequiresApi(11)
+    @TargetApi(11)
     private static class AvdcInflateDelegate implements InflateDelegate {
         AvdcInflateDelegate() {
         }

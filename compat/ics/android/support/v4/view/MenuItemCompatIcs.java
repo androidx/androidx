@@ -17,8 +17,12 @@
 
 package android.support.v4.view;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.MenuItem;
 
+@RequiresApi(14)
+@TargetApi(14)
 class MenuItemCompatIcs {
     public static boolean expandActionView(MenuItem item) {
         return item.expandActionView();

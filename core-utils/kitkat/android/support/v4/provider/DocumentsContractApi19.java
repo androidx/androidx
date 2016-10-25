@@ -16,6 +16,7 @@
 
 package android.support.v4.provider;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,9 +24,12 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.DocumentsContract;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.Log;
 
+@RequiresApi(19)
+@TargetApi(19)
 class DocumentsContractApi19 {
     private static final String TAG = "DocumentFile";
 

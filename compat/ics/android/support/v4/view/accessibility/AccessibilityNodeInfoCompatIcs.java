@@ -16,7 +16,9 @@
 
 package android.support.v4.view.accessibility;
 
+import android.annotation.TargetApi;
 import android.graphics.Rect;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -25,6 +27,9 @@ import java.util.List;
 /**
  * ICS specific AccessibilityNodeInfo API implementation.
  */
+
+@RequiresApi(14)
+@TargetApi(14)
 class AccessibilityNodeInfoCompatIcs {
     public static Object obtain() {
         return AccessibilityNodeInfo.obtain();

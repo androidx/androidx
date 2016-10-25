@@ -16,7 +16,9 @@
 
 package android.support.v4.app;
 
+import android.annotation.TargetApi;
 import android.graphics.Rect;
+import android.support.annotation.RequiresApi;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
@@ -28,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@RequiresApi(21)
+@TargetApi(21)
 class FragmentTransitionCompat21 {
     public static String getTransitionName(View view) {
         return view.getTransitionName();

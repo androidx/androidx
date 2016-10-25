@@ -20,7 +20,10 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.util.AttributeSet;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -29,6 +32,9 @@ import java.io.IOException;
 /**
  * Base implementation of drawable compatibility.
  */
+
+@RequiresApi(9)
+@TargetApi(9)
 class DrawableCompatBase {
 
     public static void setTint(Drawable drawable, int tint) {

@@ -16,16 +16,20 @@
 
 package android.support.v4.app;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 
 /**
  * Base class for {@code FragmentActivity} to be able to use v16 APIs.
  *
  * @hide
  */
+@RequiresApi(16)
+@TargetApi(16)
 abstract class BaseFragmentActivityJB extends BaseFragmentActivityHoneycomb {
 
     // We need to keep track of whether startActivityForResult originated from a Fragment, so we

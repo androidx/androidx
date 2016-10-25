@@ -16,10 +16,14 @@
 
 package android.support.v13.view;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.support.annotation.RequiresApi;
 import android.view.DragAndDropPermissions;
 import android.view.DragEvent;
 
+@RequiresApi(24)
+@TargetApi(24)
 class DragAndDropPermissionsCompatApi24 {
     public static Object request(Activity activity, DragEvent dragEvent) {
         return activity.requestDragAndDropPermissions(dragEvent);

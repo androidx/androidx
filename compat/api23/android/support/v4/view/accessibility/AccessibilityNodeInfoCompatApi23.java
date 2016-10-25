@@ -16,8 +16,12 @@
 
 package android.support.v4.view.accessibility;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+@RequiresApi(23)
+@TargetApi(23)
 class AccessibilityNodeInfoCompatApi23 {
     public static Object getActionScrollToPosition() {
         return AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION;

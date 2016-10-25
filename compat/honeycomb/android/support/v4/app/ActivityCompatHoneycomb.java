@@ -17,6 +17,8 @@
 package android.support.v4.app;
 
 import android.app.Activity;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -24,6 +26,9 @@ import java.io.PrintWriter;
 /**
  * Implementation of activity compatibility that can call Honeycomb APIs.
  */
+
+@RequiresApi(11)
+@TargetApi(11)
 class ActivityCompatHoneycomb {
     static void invalidateOptionsMenu(Activity activity) {
         activity.invalidateOptionsMenu();

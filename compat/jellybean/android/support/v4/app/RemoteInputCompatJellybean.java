@@ -20,7 +20,11 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(16)
+@TargetApi(16)
 class RemoteInputCompatJellybean {
     /** Label used to denote the clip data type used for remote input transport */
     public static final String RESULTS_CLIP_LABEL = "android.remoteinput.results";

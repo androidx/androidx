@@ -16,9 +16,11 @@
 
 package android.support.v4.hardware.fingerprint;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
 import java.security.Signature;
@@ -32,6 +34,8 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * Actual FingerprintManagerCompat implementation for API level 23 and later.
  * @hide
  */
+@RequiresApi(23)
+@TargetApi(23)
 @RestrictTo(GROUP_ID)
 public final class FingerprintManagerCompatApi23 {
 
