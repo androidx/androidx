@@ -2389,9 +2389,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // We only query the display/refresh rate once, since it's an expensive binder call
             float refreshRate = 60.0f;
             Display display = ViewCompat.getDisplay(this);
-            if (display != null && display.getRefreshRate() >= 30.0f) {
-                // break 60 fps assumption if data appears good
-                refreshRate  = display.getRefreshRate();
+            if (!isInEditMode() && display != null) {
+                float displayRefreshRate = display.getRefreshRate();
+                if (displayRefreshRate >= 30.0f) {
+                    // break 60 fps assumption if data appears good
+                    refreshRate = displayRefreshRate;
+                }
             }
             sFrameIntervalNanos = (long) (1000000000 / refreshRate);
         }
