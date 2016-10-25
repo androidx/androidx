@@ -16,8 +16,9 @@
 -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="match_parent"
@@ -76,6 +77,19 @@
                 android:layout_height="wrap_content"
                 android:text="Button (borderless + colored)"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Button (colored)"
+                style="@style/Widget.AppCompat.Button.Colored"/>
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Button (colored + tinted)"
+                app:backgroundTint="#00FF00"
+                style="@style/Widget.AppCompat.Button.Colored"/>
 
         <RatingBar
                 android:layout_width="wrap_content"
