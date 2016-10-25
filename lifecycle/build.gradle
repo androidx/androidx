@@ -1,0 +1,21 @@
+subprojects { project ->
+    project.repositories {
+        maven {
+            println "file://${rootProject.rootDir.absolutePath}/../../../prebuilts/maven_repo"
+            url "file://"
+        }
+        maven { url "file://${rootProject.rootDir.absolutePath}/../../../prebuilts/gradle-plugin" }
+        maven { url "file://${rootProject.rootDir.absolutePath}/../../../prebuilts/tools/common/m2/repository" }
+        maven { url "file://${rootProject.rootDir.absolutePath}/../../../prebuilts/tools/common/m2/internal" }
+        maven { url "file://${rootProject.rootDir.absolutePath}/../../../prebuilts/maven_repo/android" }
+    }
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.0'
+    }
+}
