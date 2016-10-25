@@ -3,7 +3,8 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'transition'
 
 dependencies {
-    compile project(':support-compat')
+    compile project(':support-annotations')
+    compile project(':support-v4')
 
     androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
         exclude module: 'support-annotations'
@@ -27,10 +28,18 @@ android {
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['base', 'ics', 'kitkat', 'api21', 'api23', 'src']
-        main.res.srcDirs 'res', 'res-public'
-        main.assets.srcDir 'assets'
-        main.resources.srcDir 'src'
+        main.java.srcDirs = [
+                'base',
+                'ics',
+                'kitkat',
+                'api21',
+                'api23',
+                'src'
+        ]
+        main.res.srcDirs = [
+                'res',
+                'res-public'
+        ]
 
         androidTest.setRoot('tests')
         androidTest.java.srcDir 'tests/src'

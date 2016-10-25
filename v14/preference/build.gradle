@@ -30,6 +30,10 @@ dependencies {
 android {
     compileSdkVersion project.ext.currentSdk
 
+    defaultConfig {
+        minSdkVersion 14
+    }
+
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDir 'src'

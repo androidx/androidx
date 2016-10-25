@@ -1,33 +1,28 @@
 apply plugin: 'com.android.library'
-
 archivesBaseName = 'support-v13'
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+dependencies {
+    compile project(':support-annotations')
+    compile project(':support-v4')
+}
 
-createApiSourceSets(project, gradle.ext.studioCompat.modules.v13.apiTargets)
-setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.v13.dependencies)
 android {
-    compileSdkVersion 13
+    compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
         minSdkVersion 13
-        // TODO: get target from branch
-        //targetSdkVersion 19
     }
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['java']
-        main.aidl.srcDirs = ['java']
-
-        androidTest.setRoot('tests')
-        androidTest.java.srcDir 'tests/java'
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        main.java.srcDirs = [
+                'ics',
+                'ics-mr1',
+                'api23',
+                'api24',
+                'api25',
+                'java'
+        ]
     }
 
     lintOptions {
@@ -68,11 +63,6 @@ android.libraryVariants.all { variant ->
     def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
         classifier = 'sources'
         from android.sourceSets.main.java.srcDirs
-    }
-
-    project.ext.allSS.each { ss ->
-        javadocTask.source ss.java
-        sourcesJarTask.from ss.java.srcDirs
     }
 
     artifacts.add('archives', javadocJarTask);

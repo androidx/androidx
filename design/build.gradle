@@ -3,10 +3,7 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'design'
 
 dependencies {
-    compile project(':support-compat')
-    compile project(':support-core-utils')
-    compile project(':support-core-ui')
-    compile project(':support-fragment')
+    compile project(':support-v4')
     compile project(':support-appcompat-v7')
     compile project(':support-recyclerview-v7')
     compile project(':support-transition')
@@ -38,9 +35,19 @@ android {
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['base', 'gingerbread', 'honeycomb', 'honeycomb-mr1', 'ics', 'lollipop', 'src']
-        main.res.srcDirs 'res', 'res-public'
-        main.assets.srcDir 'assets'
+        main.java.srcDirs = [
+                'base',
+                'gingerbread',
+                'honeycomb',
+                'honeycomb-mr1',
+                'ics',
+                'lollipop',
+                'src'
+        ]
+        main.res.srcDirs = [
+                'res',
+                'res-public'
+        ]
         main.resources.srcDir 'src'
 
         androidTest.setRoot('tests')

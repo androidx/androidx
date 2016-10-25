@@ -35,8 +35,10 @@ abstract class VectorDrawableCommon extends Drawable implements TintAwareDrawabl
     /**
      * Obtains styled attributes from the theme, if available, or unstyled
      * resources if the theme is null.
+     *
+     * @hide
      */
-    static TypedArray obtainAttributes(
+    protected static TypedArray obtainAttributes(
             Resources res, Resources.Theme theme, AttributeSet set, int[] attrs) {
         if (theme == null) {
             return res.obtainAttributes(set, attrs);

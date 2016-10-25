@@ -182,95 +182,6 @@ FileCollection getAndroidPrebuilt(apiLevel) {
     files("${project.rootDir}/../../prebuilts/sdk/$apiLevel/android.jar")
 }
 
-/**
- * Populates the sub-project's set of source sets with the specified modules.
- *
- * @param subProject the sub-project to which the modules belong
- * @param apiModules the modules from which to populate
- */
-void createApiSourceSets(Project subProject, List<ApiModule> apiModules) {
-    subProject.ext._apiModules = apiModules
-    subProject.ext.allSS = []
-    if (gradle.ext.studioCompat.enableApiModules) {
-        // nothing to do, they are all modules
-        return
-    }
-    // create a jar task for the api specific internal implementations
-    def internalJar = subProject.tasks.create(name: "internalJar", type: Jar) {
-        baseName "internal_impl"
-    }
-    apiModules.each { ApiModule apiModule ->
-        apiModule.sourceSet = createApiSourceset(subProject, apiModule.folderName, apiModule.folderName,
-                apiModule.apiForSourceSet.toString(), apiModule.prev == null ? null : apiModule.prev.sourceSet)
-        subProject.ext.allSS.add(apiModule.sourceSet)
-    }
-    subProject.android.libraryVariants.all { variant ->
-        variant.javaCompile.dependsOn internalJar
-    }
-}
-
-/**
- * Adds the specified module to the sub-project's set of source sets and
- * internal JAR. Also sets up dependencies, if supplied.
- *
- * @param subProject the sub-project to which the module belongs
- * @param name the name of the module
- * @param folder the module's source folder
- * @param apiLevel the module's compile API level
- * @param previousSource source set dependency (optional)
- * @return a source set for the module
- */
-SourceSet createApiSourceset(Project subProject, String name, String folder, String apiLevel,
-                       SourceSet previousSource) {
-    def sourceSet = subProject.sourceSets.create(name)
-    sourceSet.java.srcDirs = [folder]
-
-    // The Android gradle plugin doesn't touch Java sub-tasks, so we need to
-    // manually set the Java task's boot classpath to the correct Android SDK.
-    def compileJavaTaskName = sourceSet.getCompileJavaTaskName();
-    def compileJavaOptions = subProject.tasks."${compileJavaTaskName}".options
-    compileJavaOptions.bootClasspath = getAndroidPrebuilt(apiLevel)
-
-    // Useful for cleaning up compiler warnings...
-    //compileJavaOptions.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-
-    def configName = sourceSet.getCompileConfigurationName()
-    subProject.getDependencies().add(configName, getAndroidPrebuilt(apiLevel))
-    if (previousSource != null) {
-        setupDependencies(subProject, configName, previousSource)
-    }
-    subProject.ext.allSS.add(sourceSet)
-    subProject.tasks.internalJar.from sourceSet.output
-    return sourceSet
-}
-
-/**
- * Adds the specified source set as a dependency for the sub-project.
- *
- * @param subProject the sub-project to modify
- * @param configName
- * @param previousSourceSet the source set to add as a dependency
- */
-void setupDependencies(Project subProject, String configName, SourceSet previousSourceSet) {
-    subProject.getDependencies().add(configName, previousSourceSet.output)
-    subProject.getDependencies().add(configName, previousSourceSet.compileClasspath)
-}
-
-void setApiModuleDependencies(Project subProject, DependencyHandler handler, List extraDeps) {
-    if (gradle.ext.studioCompat.enableApiModules) {
-        subProject.android.enforceUniquePackageName=false
-        // add dependency on the latest module
-        handler.compile(project(subProject.ext._apiModules.last().moduleName))
-    } else {
-        handler.compile(files(subProject.tasks.internalJar.archivePath))
-        def firstModule = subProject.ext._apiModules[0]
-        extraDeps.each { dep ->
-            handler."${firstModule.folderName}Compile"(project(dep))
-            handler.compile(project(dep))
-        }
-    }
-}
-
 void registerForDocsTask(Task task, Project subProject, releaseVariant) {
     task.dependsOn releaseVariant.javaCompile
     task.source {
@@ -281,12 +192,6 @@ void registerForDocsTask(Task task, Project subProject, releaseVariant) {
     }
     task.classpath += files(releaseVariant.javaCompile.classpath) +
             files(releaseVariant.javaCompile.destinationDir)
-
-    if (subProject.hasProperty('allSS')) {
-        subProject.allSS.each { ss ->
-            task.source ss.java
-        }
-    }
 }
 
 // Generates online docs.
@@ -369,8 +274,6 @@ subprojects {
     // current SDK is set in studioCompat.gradle
     project.ext.currentSdk = gradle.ext.currentSdk
     apply plugin: 'maven'
-    project.ext.createApiSourceSets = this.&createApiSourceset
-    project.ext.setApiModuleDependencies = this.&setApiModuleDependencies
 
     version = rootProject.ext.supportVersion
     group = 'com.android.support'
