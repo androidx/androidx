@@ -73,8 +73,9 @@ public class AppCompatVectorDrawableIntegrationTest
         assertEquals("Left side should be white", Color.red(leftColor), 255);
         assertEquals("Right side should be black", Color.red(rightColor), 0);
 
-        if (Build.VERSION.SDK_INT >= 17) {
-            // setLayoutDirection is only available after API 17.
+        if (Build.VERSION.SDK_INT >= 19) {
+            // setLayoutDirection is only available after API 17. However, it correctly set its
+            // drawable's layout direction until API 19.
             view1.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
             vectorDrawable.draw(mCanvas);
 
