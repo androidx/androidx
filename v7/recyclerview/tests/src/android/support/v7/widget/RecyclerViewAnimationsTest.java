@@ -432,6 +432,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         });
     }
 
+    // Disable this test on ICS because it causes testing devices to freeze.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void dontReuseHiddenViewOnInvalidate() throws Throwable {
         reuseHiddenViewTest(new ReuseTestCallback() {
