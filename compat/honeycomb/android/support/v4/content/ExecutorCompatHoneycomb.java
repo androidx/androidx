@@ -17,12 +17,17 @@
 package android.support.v4.content;
 
 import android.os.AsyncTask;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 import java.util.concurrent.Executor;
 
 /**
  * Implementation of parallel executor compatibility that can call Honeycomb APIs.
  */
+
+@RequiresApi(11)
+@TargetApi(11)
 class ExecutorCompatHoneycomb {
     public static Executor getParallelExecutor() {
         return AsyncTask.THREAD_POOL_EXECUTOR;

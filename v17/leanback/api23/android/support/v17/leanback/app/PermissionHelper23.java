@@ -13,6 +13,11 @@
  */
 package android.support.v17.leanback.app;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
+
+@RequiresApi(23)
+@TargetApi(23)
 class PermissionHelper23 {
 
     public static void requestPermissions(android.app.Fragment fragment, String[] permissions,

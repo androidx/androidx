@@ -16,8 +16,12 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.SystemClock;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
@@ -28,9 +32,6 @@ import android.view.View.OnAttachStateChangeListener;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 
 /**
  * Abstract class that forwards touch events to a {@link ShowableListMenu}.
@@ -86,6 +87,8 @@ public abstract class ForwardingListener implements View.OnTouchListener {
         mLongPressTimeout = (mTapTimeout + ViewConfiguration.getLongPressTimeout()) / 2;
     }
 
+    @RequiresApi(12)
+    @TargetApi(12)
     private void addDetachListenerApi12(View src) {
         src.addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
             @Override

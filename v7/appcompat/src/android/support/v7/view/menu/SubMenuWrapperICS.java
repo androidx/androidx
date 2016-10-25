@@ -16,8 +16,10 @@
 
 package android.support.v7.view.menu;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.internal.view.SupportSubMenu;
 import android.view.MenuItem;
@@ -31,6 +33,8 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * @hide
  */
 @RestrictTo(GROUP_ID)
+@RequiresApi(14)
+@TargetApi(14)
 class SubMenuWrapperICS extends MenuWrapperICS implements SubMenu {
 
     SubMenuWrapperICS(Context context, SupportSubMenu subMenu) {

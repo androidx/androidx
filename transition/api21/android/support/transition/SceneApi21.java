@@ -16,9 +16,13 @@
 
 package android.support.transition;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.ViewGroup;
 
+@RequiresApi(21)
+@TargetApi(21)
 class SceneApi21 extends SceneWrapper {
 
     @Override

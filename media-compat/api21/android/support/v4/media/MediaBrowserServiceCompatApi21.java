@@ -16,6 +16,7 @@
 
 package android.support.v4.media;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.media.browse.MediaBrowser;
@@ -24,10 +25,13 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.service.media.MediaBrowserService;
+import android.support.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiresApi(21)
+@TargetApi(21)
 class MediaBrowserServiceCompatApi21 {
 
     public static Object createService(Context context, ServiceCompatProxy serviceProxy) {

@@ -16,7 +16,6 @@ package android.support.graphics.drawable;
 
 import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
-import android.annotation.TargetApi;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -48,9 +47,6 @@ import android.util.AttributeSet;
 import android.util.LayoutDirection;
 import android.util.Log;
 import android.util.Xml;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -221,8 +217,6 @@ import java.util.Stack;
  * </dl></dd>
  * </dl>
  */
-
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class VectorDrawableCompat extends VectorDrawableCommon {
     static final String LOGTAG = "VectorDrawableCompat";
 

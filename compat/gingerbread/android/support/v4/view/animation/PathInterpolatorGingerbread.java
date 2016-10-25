@@ -18,11 +18,16 @@ package android.support.v4.view.animation;
 
 import android.graphics.Path;
 import android.graphics.PathMeasure;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.animation.Interpolator;
 
 /**
  * A path interpolator implementation compatible with API 9+.
  */
+
+@RequiresApi(9)
+@TargetApi(9)
 class PathInterpolatorGingerbread implements Interpolator {
 
     /**

@@ -16,6 +16,8 @@
 
 package android.support.transition;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.view.ViewCompat;
@@ -29,6 +31,8 @@ import java.util.ArrayList;
 
 import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
+@RequiresApi(14)
+@TargetApi(14)
 class TransitionManagerPort {
     // TODO: how to handle enter/exit?
 

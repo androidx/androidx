@@ -16,9 +16,11 @@
 
 package android.support.v4.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.support.annotation.RequiresApi;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewParent;
@@ -26,6 +28,8 @@ import android.view.WindowManager;
 
 import java.lang.reflect.Field;
 
+@RequiresApi(9)
+@TargetApi(9)
 class ViewCompatBase {
 
     private static final String TAG = "ViewCompatBase";

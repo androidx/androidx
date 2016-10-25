@@ -17,6 +17,8 @@
 package android.support.transition;
 
 import android.animation.Animator;
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -31,6 +33,8 @@ import android.view.ViewGroup;
  * {@link #onAppear(ViewGroup, TransitionValues, int, TransitionValues, int)},
  * {@link #onDisappear(ViewGroup, TransitionValues, int, TransitionValues, int)},
  */
+@RequiresApi(14)
+@TargetApi(14)
 abstract class VisibilityPort extends TransitionPort {
 
     private static final String PROPNAME_VISIBILITY = "android:visibility:visibility";

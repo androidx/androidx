@@ -16,12 +16,14 @@
 
 package android.support.v7.widget;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v7.appcompat.R;
@@ -168,6 +170,8 @@ public class AppCompatButton extends Button implements TintableBackgroundView {
         event.setClassName(Button.class.getName());
     }
 
+    @RequiresApi(14)
+    @TargetApi(14)
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(info);

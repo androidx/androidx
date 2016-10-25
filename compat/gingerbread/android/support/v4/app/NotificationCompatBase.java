@@ -18,10 +18,12 @@ package android.support.v4.app;
 
 import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
 import java.lang.reflect.InvocationTargetException;
@@ -31,6 +33,8 @@ import java.lang.reflect.Method;
  * @hide
  */
 @RestrictTo(GROUP_ID)
+@RequiresApi(9)
+@TargetApi(9)
 public class NotificationCompatBase {
     private static Method sSetLatestEventInfo;
 

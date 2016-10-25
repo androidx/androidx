@@ -16,11 +16,13 @@
 
 package android.support.v13.app;
 
+import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
@@ -65,6 +67,8 @@ import java.util.ArrayList;
  * {@sample frameworks/support/samples/Support4Demos/res/layout/fragment_pager_list.xml
  *      complete}
  */
+@RequiresApi(13)
+@TargetApi(13)
 public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     private static final String TAG = "FragmentStatePagerAdapter";
     private static final boolean DEBUG = false;

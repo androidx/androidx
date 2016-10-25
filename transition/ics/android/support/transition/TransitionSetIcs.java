@@ -16,6 +16,11 @@
 
 package android.support.transition;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
+
+@RequiresApi(14)
+@TargetApi(14)
 class TransitionSetIcs extends TransitionIcs implements TransitionSetImpl {
 
     private TransitionSetPort mTransitionSet;

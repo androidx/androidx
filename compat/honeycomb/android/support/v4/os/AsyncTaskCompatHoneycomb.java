@@ -17,10 +17,15 @@
 package android.support.v4.os;
 
 import android.os.AsyncTask;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 /**
  * Implementation of AsyncTask compatibility that can call Honeycomb APIs.
  */
+
+@RequiresApi(11)
+@TargetApi(11)
 class AsyncTaskCompatHoneycomb {
 
     static <Params, Progress, Result> void executeParallel(

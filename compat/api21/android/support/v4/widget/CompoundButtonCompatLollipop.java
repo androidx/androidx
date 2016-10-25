@@ -18,8 +18,12 @@ package android.support.v4.widget;
 
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.widget.CompoundButton;
 
+@RequiresApi(21)
+@TargetApi(21)
 class CompoundButtonCompatLollipop {
 
     static void setButtonTintList(CompoundButton button, ColorStateList tint) {

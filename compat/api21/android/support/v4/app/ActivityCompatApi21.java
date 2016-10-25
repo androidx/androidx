@@ -23,13 +23,15 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.media.session.MediaController;
 import android.os.Parcelable;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.View;
 
-import java.lang.Override;
-import java.lang.String;
 import java.util.List;
 import java.util.Map;
 
+@RequiresApi(21)
+@TargetApi(21)
 class ActivityCompatApi21 {
 
     public static void setMediaController(Activity activity, Object mediaControllerObj) {

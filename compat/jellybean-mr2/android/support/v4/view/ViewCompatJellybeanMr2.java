@@ -16,12 +16,17 @@
 
 package android.support.v4.view;
 
-import android.view.View;
 import android.graphics.Rect;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
+import android.view.View;
 
 /**
  * Jellybean MR2 - specific View API access.
  */
+
+@RequiresApi(18)
+@TargetApi(18)
 class ViewCompatJellybeanMr2 {
 
     public static Rect getClipBounds(View view) {

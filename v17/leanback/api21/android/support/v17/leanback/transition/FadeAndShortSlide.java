@@ -18,9 +18,11 @@ package android.support.v17.leanback.transition;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.TimeInterpolator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.transition.Fade;
@@ -39,6 +41,8 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * Execute horizontal slide of 1/4 width and fade (to workaround bug 23718734)
  * @hide
  */
+@RequiresApi(21)
+@TargetApi(21)
 @RestrictTo(GROUP_ID)
 public class FadeAndShortSlide extends Visibility {
 

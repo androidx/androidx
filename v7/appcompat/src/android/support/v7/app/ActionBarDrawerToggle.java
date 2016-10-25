@@ -15,6 +15,7 @@
  */
 package android.support.v7.app;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
@@ -24,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.StringRes;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -494,6 +496,8 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     /**
      * Delegate if SDK version is between honeycomb and JBMR2
      */
+    @RequiresApi(11)
+    @TargetApi(11)
     private static class HoneycombDelegate implements Delegate {
 
         final Activity mActivity;

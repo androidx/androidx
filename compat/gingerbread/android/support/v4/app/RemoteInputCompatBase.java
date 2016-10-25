@@ -17,7 +17,11 @@
 package android.support.v4.app;
 
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(9)
+@TargetApi(9)
 class RemoteInputCompatBase {
 
     public static abstract class RemoteInput {

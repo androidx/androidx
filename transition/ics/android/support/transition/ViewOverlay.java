@@ -17,10 +17,12 @@
 package android.support.transition;
 
 import android.R;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
 import android.view.MotionEvent;
@@ -34,6 +36,8 @@ import java.util.ArrayList;
 
 import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
+@RequiresApi(14)
+@TargetApi(14)
 class ViewOverlay {
 
     /**

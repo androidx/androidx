@@ -17,6 +17,8 @@
 package android.support.transition;
 
 import android.animation.TimeInterpolator;
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.util.AndroidRuntimeException;
 import android.view.View;
@@ -26,6 +28,8 @@ import java.util.ArrayList;
 
 import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
+@RequiresApi(14)
+@TargetApi(14)
 class TransitionSetPort extends TransitionPort {
 
     /**

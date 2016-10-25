@@ -16,11 +16,16 @@
 
 package android.support.v4.view;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.MotionEvent;
 
 /**
  * Motion event compatibility class for API 12+.
  */
+
+@RequiresApi(12)
+@TargetApi(12)
 class MotionEventCompatHoneycombMr1 {
     static float getAxisValue(MotionEvent event, int axis) {
         return event.getAxisValue(axis);

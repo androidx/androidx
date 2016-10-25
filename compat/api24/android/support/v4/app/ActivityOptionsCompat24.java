@@ -16,6 +16,7 @@
 
 package android.support.v4.app;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.PendingIntent;
@@ -24,9 +25,12 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.util.Pair;
 import android.view.View;
 
+@RequiresApi(24)
+@TargetApi(24)
 class ActivityOptionsCompat24 {
 
     public static ActivityOptionsCompat24 makeCustomAnimation(Context context,

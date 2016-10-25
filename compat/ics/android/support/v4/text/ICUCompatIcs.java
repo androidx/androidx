@@ -16,12 +16,16 @@
 
 package android.support.v4.text;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Locale;
 
+@RequiresApi(14)
+@TargetApi(14)
 class ICUCompatIcs {
 
     private static final String TAG = "ICUCompatIcs";
