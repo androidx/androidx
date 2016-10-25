@@ -19,7 +19,9 @@ package android.support.v7.widget;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.os.Build;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.view.ViewGroup;
@@ -35,6 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInstrumentationTest {
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void dontDispatchChangeDuringLayout() throws Throwable {
         LayoutAllLayoutManager lm = new LayoutAllLayoutManager();
