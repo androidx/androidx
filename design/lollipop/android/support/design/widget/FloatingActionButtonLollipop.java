@@ -16,7 +16,6 @@
 
 package android.support.design.widget;
 
-import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
@@ -31,8 +30,6 @@ import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.View;
-import android.view.animation.AnimationUtils;
-import android.view.animation.Interpolator;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class FloatingActionButtonLollipop extends FloatingActionButtonIcs {
@@ -102,14 +99,17 @@ class FloatingActionButtonLollipop extends FloatingActionButtonIcs {
 
         // Animate translationZ to 0 if not pressed
         set = new AnimatorSet();
-        // Use an AnimatorSet to set a start delay since there is a bug with ValueAnimator that
-        // prevents it from being cancelled properly when used with a StateListAnimator.
-        AnimatorSet anim = new AnimatorSet();
-        anim.play(ObjectAnimator.ofFloat(mView, View.TRANSLATION_Z, 0f)
-                        .setDuration(PRESSED_ANIM_DURATION))
-                .after(PRESSED_ANIM_DURATION);
-        set.play(ObjectAnimator.ofFloat(mView, "elevation", elevation).setDuration(0))
-                .with(anim);
+        set.playSequentially(
+                ObjectAnimator.ofFloat(mView, "elevation", elevation).setDuration(0),
+                // This is a no-op animation which exists here only for introducing the duration
+                // because setting the delay (on the next animation) via "setDelay" or "after" can
+                // trigger a NPE between android versions 21 and 24 (due to a framework bug). The
+                // issue has been fixed in version 25.
+                ObjectAnimator.ofFloat(mView, View.TRANSLATION_Z, mView.getTranslationZ())
+                        .setDuration(PRESSED_ANIM_DELAY),
+                ObjectAnimator.ofFloat(mView, View.TRANSLATION_Z, 0f)
+                        .setDuration(PRESSED_ANIM_DURATION));
+
         set.setInterpolator(ANIM_INTERPOLATOR);
         stateListAnimator.addState(ENABLED_STATE_SET, set);
 
