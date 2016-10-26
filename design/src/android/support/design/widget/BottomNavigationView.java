@@ -210,7 +210,7 @@ public class BottomNavigationView extends FrameLayout {
     }
 
     /**
-     * Returns the tint which is applied to menu items' icons.
+     * Returns the text color used on menu items.
      *
      * @see #setItemTextColor(ColorStateList)
      *
