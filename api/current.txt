@@ -4266,6 +4266,7 @@ package android.support.v4.app {
     method public void onStop();
     method public void onViewCreated(android.view.View, android.os.Bundle);
     method public void onViewStateRestored(android.os.Bundle);
+    method public void postponeEnterTransition();
     method public void registerForContextMenu(android.view.View);
     method public final void requestPermissions(java.lang.String[], int);
     method public void setAllowEnterTransitionOverlap(boolean);
@@ -4291,6 +4292,7 @@ package android.support.v4.app {
     method public void startActivityForResult(android.content.Intent, int);
     method public void startActivityForResult(android.content.Intent, int, android.os.Bundle);
     method public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) throws android.content.IntentSender.SendIntentException;
+    method public void startPostponedEnterTransition();
     method public void unregisterForContextMenu(android.view.View);
   }
 
@@ -4478,6 +4480,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentTransaction remove(android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment, java.lang.String);
+    method public abstract android.support.v4.app.FragmentTransaction setAllowOptimization(boolean);
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(int);
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(java.lang.CharSequence);
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbTitle(int);
