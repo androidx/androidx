@@ -94,7 +94,7 @@ public class BottomNavigationViewUsage extends AppCompatActivity {
                             default:
                                 selectedItem.setText("Selected " + item.getTitle());
                         }
-                        return false;
+                        return true;
                     }
                 });
     }
