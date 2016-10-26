@@ -34,6 +34,8 @@ import android.widget.ImageView.ScaleType;
 
 import java.util.List;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Helper class to assist delayed shared element activity transition for view created by
  * {@link FullWidthDetailsOverviewRowPresenter}. User must call
@@ -46,10 +48,30 @@ import java.util.List;
 public class FullWidthDetailsOverviewSharedElementHelper extends
         FullWidthDetailsOverviewRowPresenter.Listener {
 
-    static final String TAG = "FullWidthDetailsOverviewSharedElementHelper";
+    static final String TAG = "DetailsTransitionHelper";
     static final boolean DEBUG = false;
 
     private static final long DEFAULT_TIMEOUT = 5000;
+
+    static class TransitionTimeOutRunnable implements Runnable {
+        WeakReference<FullWidthDetailsOverviewSharedElementHelper> mHelperRef;
+
+        TransitionTimeOutRunnable(FullWidthDetailsOverviewSharedElementHelper helper) {
+            mHelperRef = new WeakReference<FullWidthDetailsOverviewSharedElementHelper>(helper);
+        }
+
+        @Override
+        public void run() {
+            FullWidthDetailsOverviewSharedElementHelper helper = mHelperRef.get();
+            if (helper == null) {
+                return;
+            }
+            if (DEBUG) {
+                Log.d(TAG, "timeout " + helper.mActivityToRunTransition);
+            }
+            helper.startPostponedEnterTransition();
+        }
+    }
 
     ViewHolder mViewHolder;
     Activity mActivityToRunTransition;
@@ -80,15 +102,7 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
         setAutoStartSharedElementTransition(transition != null);
         ActivityCompat.postponeEnterTransition(mActivityToRunTransition);
         if (timeoutMs > 0) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (DEBUG) {
-                        Log.d(TAG, "timeout " + mActivityToRunTransition);
-                    }
-                    startPostponedEnterTransitionInternal();
-                }
-            }, timeoutMs);
+            new Handler().postDelayed(new TransitionTimeOutRunnable(this), timeoutMs);
         }
     }
 
