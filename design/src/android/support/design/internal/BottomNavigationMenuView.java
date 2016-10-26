@@ -181,9 +181,9 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
     }
 
     /**
-     * Set the tint which is applied to the menu items' icons.
+     * Sets the tint which is applied to the menu items' icons.
      *
-     * @param tint the tint to apply.
+     * @param tint the tint to apply
      */
     public void setIconTintList(ColorStateList tint) {
         mItemIconTint = tint;
@@ -196,7 +196,7 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
     /**
      * Returns the tint which is applied to menu items' icons.
      *
-     * @return The ColorStateList that is used to tint menu items' icons.
+     * @return the ColorStateList that is used to tint menu items' icons
      */
     @Nullable
     public ColorStateList getIconTintList() {
@@ -204,7 +204,7 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
     }
 
     /**
-     * Set the text color to be used on menu items.
+     * Sets the text color to be used on menu items.
      *
      * @param color the ColorStateList used for menu items' text.
      */
@@ -219,15 +219,16 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
     /**
      * Returns the text color used on menu items.
      *
-     * @return the ColorStateList used for menu items' text.
+     * @return the ColorStateList used for menu items' text
      */
     public ColorStateList getItemTextColor() {
         return mItemTextColor;
     }
 
     /**
-     * Sets the resource id to be used for item background.
-     * @param background the resource id of the background.
+     * Sets the resource ID to be used for item background.
+     *
+     * @param background the resource ID of the background
      */
     public void setItemBackgroundRes(int background) {
         mItemBackgroundRes = background;
@@ -238,9 +239,9 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
     }
 
     /**
-     * Returns the background resource of the menu items.
+     * Returns the resource ID for the background of the menu items.
      *
-     * @return the resource id of the background.
+     * @return the resource ID for the background
      */
     public int getItemBackgroundRes() {
         return mItemBackgroundRes;
