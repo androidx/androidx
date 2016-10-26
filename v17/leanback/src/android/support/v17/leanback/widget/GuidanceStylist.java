@@ -184,11 +184,17 @@ public class GuidanceStylist implements FragmentAnimationProvider {
         if (mGuidanceContainer != null) {
             CharSequence contentDescription = mGuidanceContainer.getContentDescription();
             if (TextUtils.isEmpty(contentDescription)) {
-                mGuidanceContainer.setContentDescription(new StringBuilder()
-                        .append(guidance.getBreadcrumb()).append('\n')
-                        .append(guidance.getTitle()).append('\n')
-                        .append(guidance.getDescription())
-                        .toString());
+                StringBuilder builder = new StringBuilder();
+                if (!TextUtils.isEmpty(guidance.getBreadcrumb())) {
+                    builder.append(guidance.getBreadcrumb()).append('\n');
+                }
+                if (!TextUtils.isEmpty(guidance.getTitle())) {
+                    builder.append(guidance.getTitle()).append('\n');
+                }
+                if (!TextUtils.isEmpty(guidance.getDescription())) {
+                    builder.append(guidance.getDescription()).append('\n');
+                }
+                mGuidanceContainer.setContentDescription(builder);
             }
         }
 
