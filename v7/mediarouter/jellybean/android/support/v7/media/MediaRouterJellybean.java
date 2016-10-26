@@ -23,6 +23,7 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -113,6 +114,21 @@ final class MediaRouterJellybean {
 
     public static Object createVolumeCallback(VolumeCallback callback) {
         return new VolumeCallbackProxy<VolumeCallback>(callback);
+    }
+
+    static boolean isBluetoothA2dpOn(Object routerObj) {
+        try {
+            Field globalRouterField = routerObj.getClass().getDeclaredField("sStatic");
+            globalRouterField.setAccessible(true);
+            Object globalRouterObj = globalRouterField.get(null);
+            Method method = globalRouterObj.getClass().getDeclaredMethod("isBluetoothA2dpOn", null);
+            method.setAccessible(true);
+            Object result = method.invoke(globalRouterObj, null);
+            return (Boolean) result;
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException
+                | NoSuchMethodException | InvocationTargetException e) {
+            return false;
+        }
     }
 
     public static final class RouteInfo {
