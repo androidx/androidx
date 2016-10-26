@@ -2548,6 +2548,17 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mEnterTransitionPostponed;
     }
 
+    boolean isHideReplaced() {
+        if (mAnimationInfo == null) {
+            return false;
+        }
+        return mAnimationInfo.mIsHideReplaced;
+    }
+
+    void setHideReplaced(boolean replaced) {
+        ensureAnimationInfo().mIsHideReplaced = replaced;
+    }
+
     /**
      * Used internally to be notified when {@link #startPostponedEnterTransition()} has
      * been called. This listener will only be called once and then be removed from the
@@ -2601,7 +2612,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // be set to null
         OnStartEnterTransitionListener mStartEnterTransitionListener;
 
-        // True if the View was added, and its animation has yet to be run.
-        boolean mIsNewlyAdded;
+        // True if the View was hidden, but the transition is handling the hide
+        boolean mIsHideReplaced;
     }
 }

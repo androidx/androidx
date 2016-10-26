@@ -214,6 +214,42 @@ class FragmentTransitionCompat21 {
     }
 
     /**
+     * After the transition completes, the fragment's view is set to GONE and the exiting
+     * views are set to VISIBLE.
+     */
+    public static void scheduleHideFragmentView(Object exitTransitionObj, final View fragmentView,
+            final ArrayList<View> exitingViews) {
+        Transition exitTransition = (Transition) exitTransitionObj;
+        exitTransition.addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionEnd(Transition transition) {
+                transition.removeListener(this);
+                fragmentView.setVisibility(View.GONE);
+                final int numViews = exitingViews.size();
+                for (int i = 0; i < numViews; i++) {
+                    exitingViews.get(i).setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onTransitionCancel(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionPause(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionResume(Transition transition) {
+            }
+        });
+    }
+
+    /**
      * Combines enter, exit, and shared element transition so that they play in the proper
      * sequence. First the exit transition plays along with the shared element transition.
      * When the exit transition completes, the enter transition starts. The shared element
