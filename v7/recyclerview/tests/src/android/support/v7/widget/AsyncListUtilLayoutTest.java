@@ -23,6 +23,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.util.AsyncListUtil;
 import android.view.View;
@@ -60,6 +61,8 @@ public class AsyncListUtilLayoutTest extends BaseRecyclerViewInstrumentationTest
     public int mStartPrefetch = 0;
     public int mEndPrefetch = 0;
 
+    // Test is disabled as it is flaky.
+    @Suppress
     @Test
     public void asyncListUtil() throws Throwable {
         mRecyclerView = inflateWrappedRV();
