@@ -22,7 +22,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -128,5 +130,18 @@ public class GapWorkerTest {
         assertEquals(100, list.get(1).distanceToItem);
         assertEquals(200, list.get(2).distanceToItem);
         assertEquals(900, list.get(3).distanceToItem);
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void gapWorkerWithoutLayout() {
+        RecyclerView recyclerView = new RecyclerView(getContext());
+        try {
+            assertFalse(recyclerView.mIsAttached);
+            recyclerView.onAttachedToWindow();
+            recyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+        } finally {
+            recyclerView.onDetachedFromWindow();
+        }
     }
 }
