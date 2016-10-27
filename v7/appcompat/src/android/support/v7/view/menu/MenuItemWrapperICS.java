@@ -129,8 +129,21 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> impleme
     }
 
     @Override
+    public MenuItem setShortcut(char numericChar, char alphaChar, int numericModifiers,
+            int alphaModifiers) {
+        mWrappedObject.setShortcut(numericChar, alphaChar, numericModifiers, alphaModifiers);
+        return this;
+    }
+
+    @Override
     public MenuItem setNumericShortcut(char numericChar) {
         mWrappedObject.setNumericShortcut(numericChar);
+        return this;
+    }
+
+    @Override
+    public MenuItem setNumericShortcut(char numericChar, int numericModifiers) {
+        mWrappedObject.setNumericShortcut(numericChar, numericModifiers);
         return this;
     }
 
@@ -140,14 +153,30 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> impleme
     }
 
     @Override
+    public int getNumericModifiers() {
+        return mWrappedObject.getNumericModifiers();
+    }
+
+    @Override
     public MenuItem setAlphabeticShortcut(char alphaChar) {
         mWrappedObject.setAlphabeticShortcut(alphaChar);
         return this;
     }
 
     @Override
+    public MenuItem setAlphabeticShortcut(char alphaChar, int alphaModifiers) {
+        mWrappedObject.setAlphabeticShortcut(alphaChar, alphaModifiers);
+        return this;
+    }
+
+    @Override
     public char getAlphabeticShortcut() {
         return mWrappedObject.getAlphabeticShortcut();
+    }
+
+    @Override
+    public int getAlphabeticModifiers() {
+        return mWrappedObject.getAlphabeticModifiers();
     }
 
     @Override

@@ -20,6 +20,8 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.os.BuildCompat;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -90,6 +92,12 @@ public final class MenuItemCompat {
         CharSequence getContentDescription(MenuItem item);
         void setTooltipText(MenuItem item, CharSequence tooltipText);
         CharSequence getTooltipText(MenuItem item);
+        void setShortcut(MenuItem item, char numericChar, char alphaChar, int numericModifiers,
+                int alphaModifiers);
+        void setAlphabeticShortcut(MenuItem item, char alphaChar, int alphaModifiers);
+        int getAlphabeticModifiers(MenuItem item);
+        void setNumericShortcut(MenuItem item, char numericChar, int numericModifiers);
+        int getNumericModifiers(MenuItem item);
     }
 
     /**
@@ -142,6 +150,29 @@ public final class MenuItemCompat {
         public CharSequence getTooltipText(MenuItem item) {
             return null;
         }
+
+        @Override
+        public void setShortcut(MenuItem item, char numericChar, char alphaChar,
+                int numericModifiers, int alphaModifiers) {
+        }
+
+        @Override
+        public void setAlphabeticShortcut(MenuItem item, char alphaChar, int alphaModifiers) {
+        }
+
+        @Override
+        public int getAlphabeticModifiers(MenuItem item) {
+            return 0;
+        }
+
+        @Override
+        public void setNumericShortcut(MenuItem item, char numericChar, int numericModifiers) {
+        }
+
+        @Override
+        public int getNumericModifiers(MenuItem item) {
+            return 0;
+        }
     }
 
     @RequiresApi(26)
@@ -164,6 +195,32 @@ public final class MenuItemCompat {
         @Override
         public CharSequence getTooltipText(MenuItem item) {
             return item.getTooltipText();
+        }
+
+        @Override
+        public void setShortcut(MenuItem item, char numericChar, char alphaChar,
+                int numericModifiers, int alphaModifiers) {
+            item.setShortcut(numericChar, alphaChar, numericModifiers, alphaModifiers);
+        }
+
+        @Override
+        public void setAlphabeticShortcut(MenuItem item, char alphaChar, int alphaModifiers) {
+            item.setAlphabeticShortcut(alphaChar, alphaModifiers);
+        }
+
+        @Override
+        public int getAlphabeticModifiers(MenuItem item) {
+            return item.getAlphabeticModifiers();
+        }
+
+        @Override
+        public void setNumericShortcut(MenuItem item, char numericChar, int numericModifiers) {
+            item.setNumericShortcut(numericChar, numericModifiers);
+        }
+
+        @Override
+        public int getNumericModifiers(MenuItem item) {
+            return item.getNumericModifiers();
         }
     }
 
@@ -424,6 +481,117 @@ public final class MenuItemCompat {
             return ((SupportMenuItem) item).getTooltipText();
         }
         return IMPL.getTooltipText(item);
+    }
+
+    /**
+     * Change both the numeric and alphabetic shortcut associated with this
+     * item. Note that the shortcut will be triggered when the key that
+     * generates the given character is pressed along with the corresponding
+     * modifier key. Also note that case is not significant and that alphabetic
+     * shortcut characters will be handled in lower case.
+     * <p>
+     * See {@link Menu} for the menu types that support shortcuts.
+     *
+     * @param numericChar The numeric shortcut key. This is the shortcut when
+     *        using a numeric (e.g., 12-key) keyboard.
+     * @param numericModifiers The numeric modifier associated with the shortcut. It should
+     *        be a combination of {@link KeyEvent#META_META_ON}, {@link KeyEvent#META_CTRL_ON},
+     *        {@link KeyEvent#META_ALT_ON}, {@link KeyEvent#META_SHIFT_ON},
+     *        {@link KeyEvent#META_SYM_ON}, {@link KeyEvent#META_FUNCTION_ON}.
+     * @param alphaChar The alphabetic shortcut key. This is the shortcut when
+     *        using a keyboard with alphabetic keys.
+     * @param alphaModifiers The alphabetic modifier associated with the shortcut. It should
+     *        be a combination of {@link KeyEvent#META_META_ON}, {@link KeyEvent#META_CTRL_ON},
+     *        {@link KeyEvent#META_ALT_ON}, {@link KeyEvent#META_SHIFT_ON},
+     *        {@link KeyEvent#META_SYM_ON}, {@link KeyEvent#META_FUNCTION_ON}.
+     */
+    public static void setShortcut(MenuItem item, char numericChar, char alphaChar,
+            int numericModifiers, int alphaModifiers) {
+        if (item instanceof SupportMenuItem) {
+            ((SupportMenuItem) item).setShortcut(numericChar, alphaChar, numericModifiers,
+                    alphaModifiers);
+        } else {
+            IMPL.setShortcut(item, numericChar, alphaChar, numericModifiers, alphaModifiers);
+        }
+    }
+
+    /**
+     * Change the numeric shortcut and modifiers associated with this item.
+     * <p>
+     * See {@link Menu} for the menu types that support shortcuts.
+     *
+     * @param numericChar The numeric shortcut key.  This is the shortcut when
+     *                 using a 12-key (numeric) keyboard.
+     * @param numericModifiers The modifier associated with the shortcut. It should
+     *        be a combination of {@link KeyEvent#META_META_ON}, {@link KeyEvent#META_CTRL_ON},
+     *        {@link KeyEvent#META_ALT_ON}, {@link KeyEvent#META_SHIFT_ON},
+     *        {@link KeyEvent#META_SYM_ON}, {@link KeyEvent#META_FUNCTION_ON}.
+     */
+    public static void setNumericShortcut(MenuItem item, char numericChar, int numericModifiers) {
+        if (item instanceof SupportMenuItem) {
+            ((SupportMenuItem) item).setNumericShortcut(numericChar, numericModifiers);
+        } else {
+            IMPL.setNumericShortcut(item, numericChar, numericModifiers);
+        }
+    }
+
+    /**
+     * Return the modifiers for this menu item's numeric (12-key) shortcut.
+     * The modifier is a combination of {@link KeyEvent#META_META_ON},
+     * {@link KeyEvent#META_CTRL_ON}, {@link KeyEvent#META_ALT_ON},
+     * {@link KeyEvent#META_SHIFT_ON}, {@link KeyEvent#META_SYM_ON},
+     * {@link KeyEvent#META_FUNCTION_ON}.
+     * For example, {@link KeyEvent#META_FUNCTION_ON}|{@link KeyEvent#META_CTRL_ON}
+     *
+     * @return Modifier associated with the numeric shortcut.
+     */
+    public int getNumericModifiers(MenuItem item) {
+        if (item instanceof SupportMenuItem) {
+            return ((SupportMenuItem) item).getNumericModifiers();
+        }
+        return IMPL.getNumericModifiers(item);
+    }
+
+    /**
+     * Change the alphabetic shortcut associated with this item. The shortcut
+     * will be triggered when the key that generates the given character is
+     * pressed along with the modifier keys. Case is not significant and shortcut
+     * characters will be displayed in lower case. Note that menu items with
+     * the characters '\b' or '\n' as shortcuts will get triggered by the
+     * Delete key or Carriage Return key, respectively.
+     * <p>
+     * See {@link Menu} for the menu types that support shortcuts.
+     *
+     * @param alphaChar The alphabetic shortcut key. This is the shortcut when
+     *        using a keyboard with alphabetic keys.
+     * @param alphaModifiers The modifier associated with the shortcut. It should
+     *        be a combination of {@link KeyEvent#META_META_ON}, {@link KeyEvent#META_CTRL_ON},
+     *        {@link KeyEvent#META_ALT_ON}, {@link KeyEvent#META_SHIFT_ON},
+     *        {@link KeyEvent#META_SYM_ON}, {@link KeyEvent#META_FUNCTION_ON}.
+     */
+    public static void setAlphabeticShortcut(MenuItem item, char alphaChar, int alphaModifiers) {
+        if (item instanceof SupportMenuItem) {
+            ((SupportMenuItem) item).setAlphabeticShortcut(alphaChar, alphaModifiers);
+        } else {
+            IMPL.setAlphabeticShortcut(item, alphaChar, alphaModifiers);
+        }
+    }
+
+    /**
+     * Return the modifier for this menu item's alphabetic shortcut.
+     * The modifier is a combination of {@link KeyEvent#META_META_ON},
+     * {@link KeyEvent#META_CTRL_ON}, {@link KeyEvent#META_ALT_ON},
+     * {@link KeyEvent#META_SHIFT_ON}, {@link KeyEvent#META_SYM_ON},
+     * {@link KeyEvent#META_FUNCTION_ON}.
+     * For example, {@link KeyEvent#META_FUNCTION_ON}|{@link KeyEvent#META_CTRL_ON}
+     *
+     * @return Modifier associated with the keyboard shortcut.
+     */
+    public int getAlphabeticModifiers(MenuItem item) {
+        if (item instanceof SupportMenuItem) {
+            return ((SupportMenuItem) item).getAlphabeticModifiers();
+        }
+        return IMPL.getAlphabeticModifiers(item);
     }
 
     private MenuItemCompat() {}

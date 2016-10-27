@@ -30,6 +30,8 @@
         <activity
                 android:name="android.support.v7.app.AppCompatActivity"/>
 
+        <activity android:name="android.support.v7.app.AppCompatMenuItemShortcutsTestActivity"/>
+
         <activity
                 android:name="android.support.v7.app.WindowDecorAppCompatActivity"/>
         <activity
@@ -55,6 +57,8 @@
                 android:name="android.support.v7.app.AlertDialogTestActivity"
                 android:label="@string/alert_dialog_activity"
                 android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity android:name="android.support.v7.view.SupportMenuInflaterTestActivity" />
 
         <activity
                 android:name="android.support.v7.widget.PopupTestActivity"
