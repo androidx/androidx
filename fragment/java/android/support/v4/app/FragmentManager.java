@@ -1315,8 +1315,13 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 setHWLayerAnimListenerIfAlpha(fragment.mView, anim);
                 anim.start();
             }
-            final int visibility = fragment.mHidden ? View.GONE : View.VISIBLE;
+            final int visibility = fragment.mHidden && !fragment.isHideReplaced()
+                    ? View.GONE
+                    : View.VISIBLE;
             fragment.mView.setVisibility(visibility);
+            if (fragment.isHideReplaced()) {
+                fragment.setHideReplaced(false);
+            }
         }
         if (fragment.mAdded && fragment.mHasMenu && fragment.mMenuVisible) {
             mNeedMenuInvalidate = true;

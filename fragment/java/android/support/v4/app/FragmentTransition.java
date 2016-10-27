@@ -220,6 +220,7 @@ class FragmentTransition {
                 sharedElementTransition, inFragment, inIsPop);
 
         if (transition != null) {
+            replaceHide(exitTransition, outFragment, exitingViews);
             ArrayList<String> inNames =
                     FragmentTransitionCompat21.prepareSetNameOverridesOptimized(sharedElementsIn);
             FragmentTransitionCompat21.scheduleRemoveTargets(transition,
@@ -231,6 +232,31 @@ class FragmentTransition {
             setViewVisibility(enteringViews, View.VISIBLE);
             FragmentTransitionCompat21.swapSharedElementTargets(sharedElementTransition,
                     sharedElementsOut, sharedElementsIn);
+        }
+    }
+
+    /**
+     * Replace hide operations with visibility changes on the exiting views. Instead of making
+     * the entire fragment's view GONE, make each exiting view INVISIBLE. At the end of the
+     * transition, make the fragment's view GONE.
+     */
+    private static void replaceHide(Object exitTransition, Fragment exitingFragment,
+            final ArrayList<View> exitingViews) {
+        if (exitingFragment != null && exitTransition != null && exitingFragment.mAdded
+                && exitingFragment.mHidden && exitingFragment.mHiddenChanged) {
+            exitingFragment.setHideReplaced(true);
+            FragmentTransitionCompat21.scheduleHideFragmentView(exitTransition,
+                    exitingFragment.getView(), exitingViews);
+            final ViewGroup container = exitingFragment.mContainer;
+            container.getViewTreeObserver().addOnPreDrawListener(
+                    new ViewTreeObserver.OnPreDrawListener() {
+                        @Override
+                        public boolean onPreDraw() {
+                            container.getViewTreeObserver().removeOnPreDrawListener(this);
+                            setViewVisibility(exitingViews, View.INVISIBLE);
+                            return true;
+                        }
+                    });
         }
     }
 
