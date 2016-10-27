@@ -25,9 +25,11 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.transition.TransitionSet;
@@ -46,6 +48,7 @@ import java.util.Map;
 
 @MediumTest
 @RunWith(Parameterized.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class FragmentTransitionTest {
     private final boolean mOptimize;
 

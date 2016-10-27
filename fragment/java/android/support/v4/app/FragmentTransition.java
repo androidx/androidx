@@ -16,6 +16,7 @@
 package android.support.v4.app;
 
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.view.ViewCompat;
 import android.util.SparseArray;
@@ -80,7 +81,8 @@ class FragmentTransition {
     static void startTransitions(FragmentManagerImpl fragmentManager,
             ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop,
             int startIndex, int endIndex, boolean isOptimized) {
-        if (fragmentManager.mCurState < Fragment.CREATED) {
+        if (fragmentManager.mCurState < Fragment.CREATED
+                || Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return;
         }
         SparseArray<FragmentContainerTransition> transitioningFragments =
