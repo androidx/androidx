@@ -458,6 +458,31 @@ public class FragmentLifecycleTest {
         fc.dispatchDestroy();
     }
 
+    /**
+     * This tests that fragments call onDestroy when the activity finishes.
+     */
+    @Test
+    @UiThreadTest
+    public void fragmentDestroyedOnFinish() throws Throwable {
+        FragmentController fc = startupFragmentController(null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        StrictViewFragment fragmentA = StrictViewFragment.create(R.layout.fragment_a);
+        StrictViewFragment fragmentB = StrictViewFragment.create(R.layout.fragment_b);
+        fm.beginTransaction()
+                .add(android.R.id.content, fragmentA)
+                .commit();
+        fm.executePendingTransactions();
+        fm.beginTransaction()
+                .replace(android.R.id.content, fragmentB)
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+        shutdownFragmentController(fc);
+        assertTrue(fragmentB.mCalledOnDestroy);
+        assertTrue(fragmentA.mCalledOnDestroy);
+    }
+
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
             int popExit) {
         FragmentManagerImpl fmImpl = (FragmentManagerImpl) fm;
