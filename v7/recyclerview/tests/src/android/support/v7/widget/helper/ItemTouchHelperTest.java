@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 import android.os.Build;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.util.PollingCheck;
 import android.support.v7.util.TouchUtils;
@@ -119,6 +120,8 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
         basicSwipeTest(END, START | END, getActivity().getWindow().getDecorView().getWidth());
     }
 
+    // Test is disabled as it is flaky.
+    @Suppress
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Test
     public void swipeStartInRTL() throws Throwable {
