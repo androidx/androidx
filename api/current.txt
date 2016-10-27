@@ -4417,8 +4417,10 @@ package android.support.v4.app {
     method public abstract boolean popBackStackImmediate(java.lang.String, int);
     method public abstract boolean popBackStackImmediate(int, int);
     method public abstract void putFragment(android.os.Bundle, java.lang.String, android.support.v4.app.Fragment);
+    method public abstract void registerFragmentLifecycleCallbacks(android.support.v4.app.FragmentManager.FragmentLifecycleCallbacks, boolean);
     method public abstract void removeOnBackStackChangedListener(android.support.v4.app.FragmentManager.OnBackStackChangedListener);
     method public abstract android.support.v4.app.Fragment.SavedState saveFragmentInstanceState(android.support.v4.app.Fragment);
+    method public abstract void unregisterFragmentLifecycleCallbacks(android.support.v4.app.FragmentManager.FragmentLifecycleCallbacks);
     field public static final int POP_BACK_STACK_INCLUSIVE = 1; // 0x1
   }
 
@@ -4429,6 +4431,23 @@ package android.support.v4.app {
     method public abstract int getBreadCrumbTitleRes();
     method public abstract int getId();
     method public abstract java.lang.String getName();
+  }
+
+  public abstract class FragmentManager.FragmentLifecycleCallbacks {
+    ctor public FragmentManager.FragmentLifecycleCallbacks();
+    method public void onFragmentActivityCreated(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment, android.os.Bundle);
+    method public void onFragmentAttached(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment, android.content.Context);
+    method public void onFragmentCreated(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment, android.os.Bundle);
+    method public void onFragmentDestroyed(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment);
+    method public void onFragmentDetached(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment);
+    method public void onFragmentPaused(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment);
+    method public void onFragmentPreAttached(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment, android.content.Context);
+    method public void onFragmentResumed(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment);
+    method public void onFragmentSaveInstanceState(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment, android.os.Bundle);
+    method public void onFragmentStarted(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment);
+    method public void onFragmentStopped(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment);
+    method public void onFragmentViewCreated(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment, android.view.View, android.os.Bundle);
+    method public void onFragmentViewDestroyed(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment);
   }
 
   public static abstract interface FragmentManager.OnBackStackChangedListener {

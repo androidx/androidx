@@ -711,6 +711,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
+     * Return this fragment's child FragmentManager one has been previously created,
+     * otherwise null.
+     */
+    FragmentManager peekChildFragmentManager() {
+        return mChildFragmentManager;
+    }
+
+    /**
      * Returns the parent Fragment containing this Fragment.  If this Fragment
      * is attached directly to an Activity, returns null.
      */
