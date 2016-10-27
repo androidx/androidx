@@ -4493,15 +4493,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         public void run() {
             try {
                 TraceCompat.beginSection(TRACE_PREFETCH_TAG);
-                final int prefetchCount = mLayout.getItemPrefetchCount();
                 if (mAdapter == null
                         || mLayout == null
                         || !mLayout.isItemPrefetchEnabled()
-                        || prefetchCount < 1
+                        || mLayout.getItemPrefetchCount() < 1
                         || hasPendingAdapterUpdates()) {
                     // abort - no work
                     return;
                 }
+                final int prefetchCount = mLayout.getItemPrefetchCount();
 
                 // Query last vsync so we can predict next one. Note that drawing time not yet
                 // valid in animation/input callbacks, so query it here to be safe.
