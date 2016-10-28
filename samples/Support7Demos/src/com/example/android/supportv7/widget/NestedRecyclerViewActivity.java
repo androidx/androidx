@@ -125,8 +125,7 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             // Note: would be equally valid to replace adapter content instead of swapping adapter
-            //holder.mRecyclerView.swapAdapter(mAdapters.get(position), true);
-            holder.mRecyclerView.setAdapter(mAdapters.get(position));
+            holder.mRecyclerView.swapAdapter(mAdapters.get(position), true);
 
             Parcelable savedState = mSavedStates.get(position);
             if (savedState != null) {
