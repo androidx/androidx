@@ -28,10 +28,18 @@ import javax.tools.Diagnostic
 @SupportedAnnotationTypes("com.android.support.lifecycle.OnState")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 class LifecycleProcessor : AbstractProcessor() {
+    companion object ErrorMessages {
+        const val TOO_MANY_ARGS_ERROR_MSG = "callback method cannot have more than 2 parameters"
+        const val INVALID_SECOND_ARGUMENT = "2nd argument of a callback method" +
+                " must be an int and represent the previous state"
+        const val INVALID_FIRST_ARGUMENT = "1st argument of a callback method must be " +
+                "a LifecycleProvider which represents the source of the event"
+    }
+
     private val LIFECYCLE_PROVIDER = ClassName.get(LifecycleProvider::class.java)
-    val T = "\$T"
-    val N = "\$N"
-    val L = "\$L"
+    private val T = "\$T"
+    private val N = "\$N"
+    private val L = "\$L"
 
     private fun printErrorMessage(msg: CharSequence, elem: Element) {
         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, msg, elem)
@@ -45,18 +53,16 @@ class LifecycleProcessor : AbstractProcessor() {
 
     private fun validateMethod(method: ExecutableElement) {
         if (method.parameters.size > 2) {
-            printErrorMessage("callback method cannot have more than 2 parameters", method)
+            printErrorMessage(TOO_MANY_ARGS_ERROR_MSG, method)
         }
 
         if (method.parameters.size > 1) {
             // 2nd parameter must be an int
-            checkParameter(method.parameters[1], Integer.TYPE, "2nd argument of a callback method" +
-                    " must be an int and represent the previous state")
+            checkParameter(method.parameters[1], Integer.TYPE, INVALID_SECOND_ARGUMENT)
         }
         if (method.parameters.size > 0) {
             checkParameter(method.parameters[0], LifecycleProvider::class.java,
-                    "1st argument of a callback method must be a LifecycleProvider " +
-                            "which represents the source of the event")
+                    INVALID_FIRST_ARGUMENT)
         }
     }
 

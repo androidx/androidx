@@ -21,20 +21,44 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import com.google.common.truth.Truth.assertAbout
+import com.google.common.truth.Truth.assertThat
+import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory.javaSource
-import com.google.testing.compile.JavaSourcesSubjectFactory.javaSources
 import java.io.File
 import java.nio.charset.Charset
 
 @RunWith(JUnit4::class)
 class ProcessorTest {
+
+    fun processClass(className: String): CompileTester {
+        val code = File("src/tests/test-data/$className.java").readText(Charset.defaultCharset())
+        val processedWith = assertAbout(javaSource())
+                .that(JavaFileObjects.forSourceString("foo.$className", code))
+                .processedWith(LifecycleProcessor())
+        return checkNotNull(processedWith)
+    }
+
     @Test
     fun testTest() {
-        val code = File("src/tests/test-data/Bar.java").readText(Charset.defaultCharset())
-        assertAbout(javaSource())
-                .that(JavaFileObjects.forSourceString("foo.Bar", code))
-                .processedWith(LifecycleProcessor())
-            .compilesWithoutError()
+        processClass("Bar").compilesWithoutError()
+    }
+
+    @Test
+    fun testTooManyArguments() {
+        processClass("TooManyArgs").failsToCompile()?.withErrorContaining(
+                LifecycleProcessor.TOO_MANY_ARGS_ERROR_MSG)
+    }
+
+    @Test
+    fun testInvalidFirstArg() {
+        processClass("InvalidFirstArg").failsToCompile()?.withErrorContaining(
+                LifecycleProcessor.INVALID_FIRST_ARGUMENT)
+    }
+
+    @Test
+    fun testInvalidSecondArg() {
+        processClass("InvalidSecondArg").failsToCompile()?.withErrorContaining(
+                LifecycleProcessor.INVALID_SECOND_ARGUMENT)
     }
 }
