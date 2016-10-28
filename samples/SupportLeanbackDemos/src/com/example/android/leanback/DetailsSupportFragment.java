@@ -50,7 +50,7 @@ public class DetailsSupportFragment extends android.support.v17.leanback.app.Det
     private ArrayObjectAdapter mRowsAdapter;
     private PhotoItem mPhotoItem;
     final CardPresenter cardPresenter = new CardPresenter();
-    private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
+    private BackgroundHelper mBackgroundHelper;
 
     private static final int ACTION_PLAY = 1;
     private static final int ACTION_RENT = 2;
@@ -70,6 +70,9 @@ public class DetailsSupportFragment extends android.support.v17.leanback.app.Det
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        mBackgroundHelper = new BackgroundHelper(getActivity());
+        mBackgroundHelper.attachToWindow();
 
         Context context = getActivity();
         setBadgeDrawable(ResourcesCompat.getDrawable(context.getResources(),
@@ -219,8 +222,7 @@ public class DetailsSupportFragment extends android.support.v17.leanback.app.Det
     public void onStart() {
         super.onStart();
         if (mPhotoItem != null) {
-            mBackgroundHelper.setBackground(
-                    getActivity(), mPhotoItem.getImageResourceId());
+            mBackgroundHelper.setBackground(mPhotoItem.getImageResourceId());
         }
     }
 }

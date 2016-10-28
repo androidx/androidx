@@ -14,6 +14,7 @@
 package com.example.android.leanback;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -49,7 +50,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private static final long HEADER_ID3 = 1003;
 
     private ArrayObjectAdapter mRowsAdapter;
-    private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
+    private BackgroundHelper mBackgroundHelper;
 
     // For good performance, it's important to use a single instance of
     // a card presenter for all rows using that presenter.
@@ -64,6 +65,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        mBackgroundHelper = new BackgroundHelper(getActivity());
+        mBackgroundHelper.attachToWindow();
 
         setBadgeDrawable(ResourcesCompat.getDrawable(getActivity().getResources(),
                 R.drawable.ic_title, getActivity().getTheme()));
@@ -84,12 +88,13 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemSelected: " + item + " row " + row);
 
-                if (isShowingHeaders()) {
-                    mBackgroundHelper.setBackground(getActivity(), null);
-                } else if (item instanceof PhotoItem) {
-                    mBackgroundHelper.setBackground(
-                            getActivity(), ((PhotoItem) item).getImageResourceId());
-                }
+                updateBackgroundToSelection();
+            }
+        });
+        setBrowseTransitionListener(new BrowseTransitionListener() {
+            @Override
+            public void onHeadersTransitionStop(boolean withHeaders) {
+                updateBackgroundToSelection();
             }
         });
         if (TEST_ENTRANCE_TRANSITION) {
@@ -107,6 +112,26 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 startEntranceTransition();
             }
         }, 2000);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateBackgroundToSelection();
+    }
+
+    void updateBackgroundToSelection() {
+        if (!isShowingHeaders()) {
+            RowPresenter.ViewHolder rowViewHolder = getSelectedRowViewHolder();
+            Object item = rowViewHolder == null ? null : rowViewHolder.getSelectedItem();
+            if (item != null) {
+                mBackgroundHelper.setBackground(((PhotoItem) item).getImageResourceId());
+            } else {
+                mBackgroundHelper.clearDrawable();
+            }
+        } else {
+            mBackgroundHelper.clearDrawable();
+        }
     }
 
     @Override

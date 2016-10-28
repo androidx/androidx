@@ -24,15 +24,4 @@ public class BrowseActivity extends Activity {
         setContentView(R.layout.browse);
     }
 
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        BackgroundHelper.attach(this);
-    }
-
-    @Override
-    public void onStop() {
-        BackgroundHelper.release(this);
-        super.onStop();
-    }
 }

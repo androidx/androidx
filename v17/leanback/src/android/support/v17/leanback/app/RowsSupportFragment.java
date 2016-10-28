@@ -559,6 +559,19 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
         }
     }
 
+    /**
+     * Find row ViewHolder by position in adapter.
+     * @param position Position of row.
+     * @return ViewHolder of Row.
+     */
+    public RowPresenter.ViewHolder findRowViewHolderByPosition(int position) {
+        if (mVerticalGridView == null) {
+            return null;
+        }
+        return getRowViewHolder((ItemBridgeAdapter.ViewHolder) mVerticalGridView
+                .findViewHolderForAdapterPosition(position));
+    }
+
     public static class MainFragmentAdapter extends BrowseSupportFragment.MainFragmentAdapter<RowsSupportFragment> {
 
         public MainFragmentAdapter(RowsSupportFragment fragment) {
@@ -643,6 +656,11 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
         @Override
         public int getSelectedPosition() {
             return getFragment().getSelectedPosition();
+        }
+
+        @Override
+        public RowPresenter.ViewHolder findRowViewHolderByPosition(int position) {
+            return getFragment().findRowViewHolderByPosition(position);
         }
     }
 }
