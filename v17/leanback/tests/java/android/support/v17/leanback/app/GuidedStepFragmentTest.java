@@ -171,17 +171,13 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
             }
         });
         PollingCheck.waitFor(new EnterTransitionFinish(second));
-        verify(first, times(2)).onCreate(any(Bundle.class));
         verify(first, times(1)).onCreateView(any(LayoutInflater.class), any(ViewGroup.class),
                 any(Bundle.class), any(View.class));
-        verify(first, times(2)).onCreateActions(any(List.class), any(Bundle.class));
         verify(first, times(1)).onDestroy();
         verify(second, times(2)).onCreate(any(Bundle.class));
         verify(second, times(2)).onCreateView(any(LayoutInflater.class), any(ViewGroup.class),
                 any(Bundle.class), any(View.class));
         verify(second, times(1)).onDestroy();
-        assertEquals("modified text", first.getFragment().findActionById(1001).getTitle());
-        assertEquals("text", first.getFragment().findActionById(1002).getTitle());
 
         sendKey(KeyEvent.KEYCODE_BACK);
         PollingCheck.waitFor(new EnterTransitionFinish(first));
@@ -189,6 +185,10 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
         verify(second, times(2)).onStop();
         verify(second, times(2)).onDestroyView();
         verify(second, times(2)).onDestroy();
+        assertEquals("modified text", first.getFragment().findActionById(1001).getTitle());
+        assertEquals("text", first.getFragment().findActionById(1002).getTitle());
+        verify(first, times(2)).onCreate(any(Bundle.class));
+        verify(first, times(2)).onCreateActions(any(List.class), any(Bundle.class));
         verify(first, times(2)).onCreateView(any(LayoutInflater.class), any(ViewGroup.class),
                 any(Bundle.class), any(View.class));
     }
