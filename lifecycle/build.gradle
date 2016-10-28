@@ -10,7 +10,7 @@ subprojects { project ->
         maven { url "file://${rootProject.rootDir.absolutePath}/../../../prebuilts/maven_repo/android" }
     }
 }
-
+ext.localMavenRepo = "file://${new File(project.rootProject.rootDir, "maven-repo").absolutePath}"
 buildscript {
     repositories {
         jcenter()

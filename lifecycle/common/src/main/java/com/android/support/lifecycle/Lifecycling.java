@@ -91,7 +91,7 @@ class Lifecycling {
         return null;
     }
 
-    static String getAdapterName(String callbackName) {
-        return callbackName.replace(".", "_") + "_LifecycleAdapter";
+    static String getAdapterName(String className) {
+        return className.replace(".", "_") + "_LifecycleAdapter";
     }
 }

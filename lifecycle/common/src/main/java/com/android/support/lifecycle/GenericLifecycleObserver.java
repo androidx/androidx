@@ -18,10 +18,11 @@
 package com.android.support.lifecycle;
 
 /**
+ * @hide
  * Internal class that can receive any lifecycle change and dispatch it to the receiver.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-interface GenericLifecycleObserver extends LifecycleObserver {
+public interface GenericLifecycleObserver extends LifecycleObserver {
     void onStateChanged(LifecycleProvider source, @Lifecycle.State int previousState);
     Object getReceiver();
 }
