@@ -36,6 +36,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Tests for Fragment startActivityForResult and startIntentSenderForResult.
  */
@@ -127,6 +130,7 @@ public class FragmentReceiveResultTest {
                 mFragment.startActivityForResult(intent, requestCode);
             }
         });
+        assertTrue(mFragment.mResultReceiveLatch.await(1, TimeUnit.SECONDS));
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
@@ -150,6 +154,7 @@ public class FragmentReceiveResultTest {
                 }
             }
         });
+        assertTrue(mFragment.mResultReceiveLatch.await(1, TimeUnit.SECONDS));
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
@@ -158,6 +163,7 @@ public class FragmentReceiveResultTest {
         int mRequestCode = -1;
         int mResultCode = 100;
         String mResultContent;
+        final CountDownLatch mResultReceiveLatch = new CountDownLatch(1);
 
         @Override
         public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -165,6 +171,7 @@ public class FragmentReceiveResultTest {
             mRequestCode = requestCode;
             mResultCode = resultCode;
             mResultContent = data.getStringExtra(FragmentResultActivity.EXTRA_RESULT_CONTENT);
+            mResultReceiveLatch.countDown();
         }
     }
 }

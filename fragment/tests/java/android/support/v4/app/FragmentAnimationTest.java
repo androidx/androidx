@@ -30,6 +30,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
+import android.support.v4.view.ViewCompat;
 import android.util.Pair;
 import android.view.View;
 import android.view.animation.Animation;
@@ -290,7 +291,7 @@ public class FragmentAnimationTest {
         assertPostponed(fragment2, 0);
         assertNotNull(fragment1.getView());
         assertEquals(View.VISIBLE, fragment1.getView().getVisibility());
-        assertTrue(fragment1.getView().isAttachedToWindow());
+        assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
 
         fragment2.startPostponedEnterTransition();
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -328,7 +329,7 @@ public class FragmentAnimationTest {
 
         assertNotNull(fragment1.getView());
         assertEquals(View.VISIBLE, fragment1.getView().getVisibility());
-        assertTrue(fragment1.getView().isAttachedToWindow());
+        assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
         assertTrue(fragment1.isAdded());
 
         assertNull(fragment2.getView());
@@ -442,7 +443,7 @@ public class FragmentAnimationTest {
         assertEquals(isEnter, fragment.enter);
         assertEquals(animatorResourceId, fragment.resourceId);
         assertNotNull(fragment.animation);
-        assertTrue(FragmentTestUtil.waitForAnimationEnd(200, fragment.animation));
+        assertTrue(FragmentTestUtil.waitForAnimationEnd(1000, fragment.animation));
         assertTrue(fragment.animation.hasStarted());
     }
 
