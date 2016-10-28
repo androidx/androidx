@@ -318,10 +318,10 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
         }
 
         @Override
-        public void collectPrefetchPositions(int dx, int dy, RecyclerView.State state,
+        public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
                 RecyclerView.PrefetchRegistry prefetchRegistry) {
             if (prefetchLatch != null) prefetchLatch.countDown();
-            super.collectPrefetchPositions(dx, dy, state, prefetchRegistry);
+            super.collectAdjacentPrefetchPositions(dx, dy, state, prefetchRegistry);
         }
     }
 

@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
-class GapWorker implements Runnable {
+final class GapWorker implements Runnable {
 
     static final ThreadLocal<GapWorker> sGapWorker = new ThreadLocal<>();
 
@@ -56,7 +56,7 @@ class GapWorker implements Runnable {
     private ArrayList<Task> mTasks = new ArrayList<>();
 
     /**
-     * Prefetch information associated with a specfic RecyclerView.
+     * Prefetch information associated with a specific RecyclerView.
      */
     static class PrefetchRegistryImpl implements RecyclerView.PrefetchRegistry {
         private int mPrefetchDx;
@@ -70,7 +70,7 @@ class GapWorker implements Runnable {
             mPrefetchDy = dy;
         }
 
-        void collectPrefetchPositionsFromView(RecyclerView view) {
+        void collectPrefetchPositionsFromView(RecyclerView view, boolean nested) {
             mCount = 0;
             if (mPrefetchArray != null) {
                 Arrays.fill(mPrefetchArray, -1);
@@ -79,9 +79,21 @@ class GapWorker implements Runnable {
             final RecyclerView.LayoutManager layout = view.mLayout;
             if (view.mAdapter != null
                     && layout != null
-                    && layout.isItemPrefetchEnabled()
-                    && !view.hasPendingAdapterUpdates()) {
-                layout.collectPrefetchPositions(mPrefetchDx, mPrefetchDy, view.mState, this);
+                    && layout.isItemPrefetchEnabled()) {
+                if (nested) {
+                    // nested prefetch, only if no adapter updates pending. Note: we don't query
+                    // view.hasPendingAdapterUpdates(), as first layout may not have occurred
+                    if (!view.mAdapterHelper.hasPendingUpdates()) {
+                        layout.collectInitialPrefetchPositions(view.mAdapter.getItemCount(), this);
+                    }
+                } else {
+                    // momentum based prefetch, only if we trust current child/adapter state
+                    if (!view.hasPendingAdapterUpdates()) {
+                        layout.collectAdjacentPrefetchPositions(mPrefetchDx, mPrefetchDy,
+                                view.mState, this);
+                    }
+                }
+
                 if (mCount > layout.mPrefetchMaxCountObserved) {
                     layout.mPrefetchMaxCountObserved = mCount;
                     view.mRecycler.updateViewCacheSize();
@@ -195,7 +207,7 @@ class GapWorker implements Runnable {
         int totalTaskCount = 0;
         for (int i = 0; i < viewCount; i++) {
             RecyclerView view = mRecyclerViews.get(i);
-            view.mPrefetchRegistry.collectPrefetchPositionsFromView(view);
+            view.mPrefetchRegistry.collectPrefetchPositionsFromView(view, false);
             totalTaskCount += view.mPrefetchRegistry.mCount;
         }
 
@@ -244,36 +256,67 @@ class GapWorker implements Runnable {
         return false;
     }
 
+    private RecyclerView.ViewHolder flushWorkWithDeadline(RecyclerView view,
+            int position, long deadlineNs) {
+        if (isPrefetchPositionAttached(view, position)) {
+            // don't attempt to prefetch attached views
+            return null;
+        }
+
+        RecyclerView.Recycler recycler = view.mRecycler;
+        RecyclerView.ViewHolder holder = recycler.tryGetViewHolderForPositionByDeadline(
+                position, false, deadlineNs);
+
+        if (holder != null) {
+            if (holder.isBound()) {
+                // Only give the view a chance to go into the cache if binding succeeded
+                // Note that we must use public method, since item may need cleanup
+                recycler.recycleView(holder.itemView);
+            } else {
+                // Didn't bind, so we can't cache the view, but it will stay in the pool until
+                // next prefetch/traversal. If a View fails to bind, it means we didn't have
+                // enough time prior to the deadline (and won't for other instances of this
+                // type, during this GapWorker prefetch pass).
+                recycler.addViewHolderToRecycledViewPool(holder, false);
+            }
+        }
+        return holder;
+    }
+
+    private void flushTaskWithDeadline(Task task, long deadlineNs) {
+        long taskDeadlineNs = task.immediate ? RecyclerView.FOREVER_NS : deadlineNs;
+        RecyclerView.ViewHolder holder = flushWorkWithDeadline(task.view,
+                task.position, taskDeadlineNs);
+        if (holder != null && holder.mNestedRecyclerView != null) {
+            // do nested prefetch!
+            final RecyclerView innerView = holder.mNestedRecyclerView;
+            final PrefetchRegistryImpl innerPrefetchRegistry = innerView.mPrefetchRegistry;
+            innerPrefetchRegistry.collectPrefetchPositionsFromView(innerView, true);
+
+            if (innerPrefetchRegistry.mCount != 0) {
+                try {
+                    TraceCompat.beginSection(RecyclerView.TRACE_NESTED_PREFETCH_TAG);
+                    innerView.mState.prepareForNestedPrefetch(innerView.mAdapter);
+                    for (int i = 0; i < innerPrefetchRegistry.mCount * 2; i += 2) {
+                        // Note that we ignore immediate flag for inner items because
+                        // we have lower confidence they're needed next frame.
+                        final int innerPosition = innerPrefetchRegistry.mPrefetchArray[i];
+                        flushWorkWithDeadline(innerView, innerPosition, deadlineNs);
+                    }
+                } finally {
+                    TraceCompat.endSection();
+                }
+            }
+        }
+    }
+
     private void flushTasksWithDeadline(long deadlineNs) {
         for (int i = 0; i < mTasks.size(); i++) {
             final Task task = mTasks.get(i);
             if (task.view == null) {
-                // abort, only empty Tasks left
-                return;
+                break; // done with populated tasks
             }
-
-            if (isPrefetchPositionAttached(task.view, task.position)) {
-                // don't attempt to prefetch attached views
-                continue;
-            }
-
-            RecyclerView.Recycler recycler = task.view.mRecycler;
-            RecyclerView.ViewHolder holder = recycler.tryGetViewHolderForPositionByDeadline(
-                    task.position, false, task.immediate ? RecyclerView.FOREVER_NS : deadlineNs);
-
-            if (holder != null) {
-                if (holder.isBound()) {
-                    // Only give the view a chance to go into the cache if binding succeeded
-                    // Note that we must use public method, since item may need cleanup
-                    recycler.recycleView(holder.itemView);
-                } else {
-                    // Didn't bind, so we can't cache the view, but it will stay in the pool until
-                    // next prefetch/traversal. If a View fails to bind, it means we didn't have
-                    // enough time prior to the deadline (and won't for other instances of this
-                    // type, during this GapWorker prefetch pass).
-                    recycler.addViewHolderToRecycledViewPool(holder);
-                }
-            }
+            flushTaskWithDeadline(task, deadlineNs);
             task.clear();
         }
     }

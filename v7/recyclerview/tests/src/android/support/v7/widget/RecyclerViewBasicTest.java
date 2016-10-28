@@ -40,6 +40,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import org.junit.Before;
@@ -368,7 +369,7 @@ public class RecyclerViewBasicTest {
         mRecyclerView.setAdapter(new MockAdapter(20));
         MockLayoutManager mlm = new MockLayoutManager() {
             @Override
-            public void collectPrefetchPositions(int dx, int dy, RecyclerView.State state,
+            public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
                     RecyclerView.PrefetchRegistry prefetchManager) {
                 prefetchManager.addPosition(0, 0);
                 prefetchManager.addPosition(1, 0);
@@ -387,7 +388,7 @@ public class RecyclerViewBasicTest {
             mRecyclerView.layout(0, 0, 100, 100);
 
             // prefetch gets 3 items, so expands cache by 3
-            mRecyclerView.mPrefetchRegistry.collectPrefetchPositionsFromView(mRecyclerView);
+            mRecyclerView.mPrefetchRegistry.collectPrefetchPositionsFromView(mRecyclerView, false);
             assertEquals(3, mRecyclerView.mPrefetchRegistry.mCount);
             assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE + 3, recycler.mViewCacheMax);
 
@@ -412,6 +413,49 @@ public class RecyclerViewBasicTest {
             // expect to avoid cost of system.nanoTime on older platforms that don't do prefetch
             assertEquals(0, mRecyclerView.getNanoTime());
         }
+    }
+
+    @Test
+    public void findNestedRecyclerView() {
+        RecyclerView recyclerView = new RecyclerView(getContext());
+        assertEquals(recyclerView, RecyclerView.findNestedRecyclerView(recyclerView));
+
+        ViewGroup parent = new FrameLayout(getContext());
+        assertEquals(null, RecyclerView.findNestedRecyclerView(parent));
+        parent.addView(recyclerView);
+        assertEquals(recyclerView, RecyclerView.findNestedRecyclerView(parent));
+
+        ViewGroup grandParent = new FrameLayout(getContext());
+        assertEquals(null, RecyclerView.findNestedRecyclerView(grandParent));
+        grandParent.addView(parent);
+        assertEquals(recyclerView, RecyclerView.findNestedRecyclerView(grandParent));
+    }
+
+    @Test
+    public void clearNestedRecyclerViewIfNotNested() {
+        RecyclerView recyclerView = new RecyclerView(getContext());
+        ViewGroup parent = new FrameLayout(getContext());
+        parent.addView(recyclerView);
+        ViewGroup grandParent = new FrameLayout(getContext());
+        grandParent.addView(parent);
+
+        // verify trivial noop case
+        RecyclerView.ViewHolder holder = new RecyclerView.ViewHolder(recyclerView) {};
+        holder.mNestedRecyclerView = recyclerView;
+        RecyclerView.clearNestedRecyclerViewIfNotNested(holder);
+        assertEquals(recyclerView, holder.mNestedRecyclerView);
+
+        // verify clear case
+        holder = new RecyclerView.ViewHolder(new View(getContext())) {};
+        holder.mNestedRecyclerView = recyclerView;
+        RecyclerView.clearNestedRecyclerViewIfNotNested(holder);
+        assertNull(holder.mNestedRecyclerView);
+
+        // verify more deeply nested case
+        holder = new RecyclerView.ViewHolder(grandParent) {};
+        holder.mNestedRecyclerView = recyclerView;
+        RecyclerView.clearNestedRecyclerViewIfNotNested(holder);
+        assertEquals(recyclerView, holder.mNestedRecyclerView);
     }
 
     static class MockLayoutManager extends RecyclerView.LayoutManager {

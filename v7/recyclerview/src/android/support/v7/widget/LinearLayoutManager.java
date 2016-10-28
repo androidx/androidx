@@ -144,6 +144,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     private final LayoutChunkResult mLayoutChunkResult = new LayoutChunkResult();
 
     /**
+     * Number of items to prefetch when first coming on screen with new data.
+     */
+    private int mInitialItemPrefetchCount = 2;
+
+    /**
      * Creates a vertical LinearLayoutManager
      *
      * @param context Current context, will be used to access resources.
@@ -1190,9 +1195,56 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         }
     }
 
+    /**
+     * TODO: we expand cache by largest prefetch seen - not appropriate for nested prefetch?
+     * @hide
+     */
+    @Override
+    public void collectInitialPrefetchPositions(int adapterItemCount,
+            RecyclerView.PrefetchRegistry prefetchRegistry) {
+        final boolean fromEnd;
+        final int anchorPos;
+        if (mPendingSavedState != null && mPendingSavedState.hasValidAnchor()) {
+            // use restored state, since it hasn't been resolved yet
+            fromEnd = mPendingSavedState.mAnchorLayoutFromEnd;
+            anchorPos = mPendingSavedState.mAnchorPosition;
+        } else {
+            resolveShouldLayoutReverse();
+            fromEnd = mShouldReverseLayout;
+            if (mPendingScrollPosition == NO_POSITION) {
+                anchorPos = fromEnd ? adapterItemCount - 1 : 0;
+            } else {
+                anchorPos = mPendingScrollPosition;
+            }
+        }
+
+        final int direction = fromEnd
+                ? LayoutState.ITEM_DIRECTION_HEAD
+                : LayoutState.ITEM_DIRECTION_TAIL;
+        int targetPos = anchorPos;
+        for (int i = 0; i < mInitialItemPrefetchCount; i++) {
+            if (targetPos >= 0 && targetPos < adapterItemCount) {
+                prefetchRegistry.addPosition(targetPos, 0);
+            } else {
+                break; // no more to prefetch
+            }
+            targetPos += direction;
+        }
+    }
+
+    /** @hide */
+    public void setInitialPrefetchItemCount(int itemCount) {
+        mInitialItemPrefetchCount = itemCount;
+    }
+
+    /** @hide */
+    public int getInitialItemPrefetchCount() {
+        return mInitialItemPrefetchCount;
+    }
+
     /** @hide */
     @Override
-    public void collectPrefetchPositions(int dx, int dy, RecyclerView.State state,
+    public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
             RecyclerView.PrefetchRegistry prefetchRegistry) {
         int delta = (mOrientation == HORIZONTAL) ? dx : dy;
         if (getChildCount() == 0 || delta == 0) {

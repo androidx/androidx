@@ -213,8 +213,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     private boolean mSmoothScrollbarEnabled = true;
 
     /**
-     * Temporary array used (solely in {@link #collectPrefetchPositions}) for stashing and sorting
-     * distances to views being prefetched.
+     * Temporary array used (solely in {@link #collectAdjacentPrefetchPositions}) for stashing and
+     * sorting distances to views being prefetched.
      */
     private int[] mPrefetchDistances;
 
@@ -2073,7 +2073,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
 
     /** @hide */
     @Override
-    public void collectPrefetchPositions(int dx, int dy, RecyclerView.State state,
+    public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
             RecyclerView.PrefetchRegistry prefetchRegistry) {
         /* This method uses the simplifying assumption that the next N items (where N = span count)
          * will be assigned, one-to-one, to spans, where ordering is based on which span  extends
