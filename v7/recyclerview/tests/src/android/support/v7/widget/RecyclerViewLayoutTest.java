@@ -141,7 +141,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
         assertThat("test sanity", rv.mRecycler.mCachedViews.size(), is(1));
         tlm.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 adapter.notifyItemChanged(4);
