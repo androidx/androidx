@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Parcelable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -549,7 +550,7 @@ public class RecyclerViewCacheTest {
     }
 
     static class InnerAdapter extends RecyclerView.Adapter<InnerAdapter.ViewHolder> {
-        private static final int INNER_ITEM_COUNT = 10;
+        private static final int INNER_ITEM_COUNT = 20;
         static class ViewHolder extends RecyclerView.ViewHolder {
             ViewHolder(View itemView) {
                 super(itemView);
@@ -577,6 +578,8 @@ public class RecyclerViewCacheTest {
     static class OuterAdapter extends RecyclerView.Adapter<OuterAdapter.ViewHolder> {
         private static final int OUTER_ITEM_COUNT = 10;
 
+        private boolean mReverseInner;
+
         static class ViewHolder extends RecyclerView.ViewHolder {
             private final RecyclerView mRecyclerView;
             ViewHolder(RecyclerView itemView) {
@@ -586,11 +589,18 @@ public class RecyclerViewCacheTest {
         }
 
         ArrayList<InnerAdapter> mAdapters = new ArrayList<>();
+        ArrayList<Parcelable> mSavedStates = new ArrayList<>();
         RecyclerView.RecycledViewPool mSharedPool = new RecyclerView.RecycledViewPool();
 
         OuterAdapter() {
+            this(false);
+        }
+
+        OuterAdapter(boolean reverseInner) {
+            mReverseInner = reverseInner;
             for (int i = 0; i <= OUTER_ITEM_COUNT; i++) {
                 mAdapters.add(new InnerAdapter());
+                mSavedStates.add(null);
             }
         }
 
@@ -598,7 +608,7 @@ public class RecyclerViewCacheTest {
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             RecyclerView rv = new RecyclerView(parent.getContext());
             rv.setLayoutManager(new LinearLayoutManager(parent.getContext(),
-                    LinearLayoutManager.HORIZONTAL, false));
+                    LinearLayoutManager.HORIZONTAL, mReverseInner));
             rv.setRecycledViewPool(mSharedPool);
             rv.setLayoutParams(new RecyclerView.LayoutParams(200, 100));
             return new ViewHolder(rv);
@@ -606,8 +616,21 @@ public class RecyclerViewCacheTest {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            // Note: would be equally valid to replace adapter content instead of swapping adapter
-            holder.mRecyclerView.setAdapter(mAdapters.get(position));
+            // Tests may rely on bound holders not being shared between inner adapters,
+            // since we force recycle here
+            holder.mRecyclerView.swapAdapter(mAdapters.get(position), true);
+
+            Parcelable savedState = mSavedStates.get(position);
+            if (savedState != null) {
+                holder.mRecyclerView.getLayoutManager().onRestoreInstanceState(savedState);
+                mSavedStates.set(position, null);
+            }
+        }
+
+        @Override
+        public void onViewRecycled(ViewHolder holder) {
+            mSavedStates.set(holder.getAdapterPosition(),
+                    holder.mRecyclerView.getLayoutManager().onSaveInstanceState());
         }
 
         @Override
@@ -617,7 +640,7 @@ public class RecyclerViewCacheTest {
     }
 
     @Test
-    public void simpleNestedPrefetch() {
+    public void nestedPrefetchSimple() {
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         assertEquals(2, llm.getInitialItemPrefetchCount());
 
@@ -639,5 +662,53 @@ public class RecyclerViewCacheTest {
                 .setInitialPrefetchItemCount(4);
         mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
         CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView, 0, 1, 2, 3);
+    }
+
+    @Test
+    public void nestedPrefetchReverseInner() {
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.setAdapter(new OuterAdapter(/* reverseInner = */ true));
+
+        layout(200, 200);
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
+
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+        RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 2);
+
+        // anchor from right side, should see last two positions
+        CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView, 18, 19);
+    }
+
+    @Test
+    public void nestedPrefetchOffset() {
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.setAdapter(new OuterAdapter());
+
+        layout(200, 200);
+
+        // Scroll top row by 5.5 items, verify positions 5, 6, 7 showing
+        RecyclerView inner = (RecyclerView) mRecyclerView.getChildAt(0);
+        inner.scrollBy(550, 0);
+        assertEquals(5, RecyclerView.getChildViewHolderInt(inner.getChildAt(0)).mPosition);
+        assertEquals(6, RecyclerView.getChildViewHolderInt(inner.getChildAt(1)).mPosition);
+        assertEquals(7, RecyclerView.getChildViewHolderInt(inner.getChildAt(2)).mPosition);
+
+        // scroll down 4 rows, up 3 so row 0 is adjacent but uncached
+        mRecyclerView.scrollBy(0, 400);
+        mRecyclerView.scrollBy(0, -300);
+
+        // top row no longer present
+        CacheUtils.verifyCacheDoesNotContainPositions(mRecyclerView, 0);
+
+        // prefetch upward, and validate that we've gotten the top row with correct offsets
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, -1);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+        inner = (RecyclerView) CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 0).itemView;
+        CacheUtils.verifyCacheContainsPrefetchedPositions(inner, 5, 6);
+
+        // prefetch 4
+        ((LinearLayoutManager) inner.getLayoutManager()).setInitialPrefetchItemCount(4);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+        CacheUtils.verifyCacheContainsPrefetchedPositions(inner, 5, 6, 7, 8);
     }
 }
