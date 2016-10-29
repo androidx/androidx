@@ -28,6 +28,7 @@ dependencies {
     compile "com.google.auto:auto-common:0.6"
     compile "com.squareup:javapoet:1.7.0"
     testCompile "com.google.testing.compile:compile-testing:0.9"
+    testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
 uploadArchives {

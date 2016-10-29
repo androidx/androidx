@@ -20,9 +20,11 @@ package com.android.support.lifecycle
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.*
+import java.util.*
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.*
+import javax.lang.model.type.NoType
 import javax.tools.Diagnostic
 
 @SupportedAnnotationTypes("com.android.support.lifecycle.OnState")
@@ -68,7 +70,7 @@ class LifecycleProcessor : AbstractProcessor() {
 
     override fun process(annotations: MutableSet<out TypeElement>,
                          roundEnv: RoundEnvironment): Boolean {
-        val observersInfo = roundEnv.getElementsAnnotatedWith(OnState::class.java).map { elem ->
+        val world = roundEnv.getElementsAnnotatedWith(OnState::class.java).map { elem ->
             if (elem.kind != ElementKind.METHOD) {
                 printErrorMessage("OnState can only be added to methods", elem)
                 null
@@ -85,14 +87,58 @@ class LifecycleProcessor : AbstractProcessor() {
         }
                 .filterNotNull()
                 .groupBy { MoreElements.asType(it.method.enclosingElement) }
-                .entries
-                .map { entry ->
-                    LifecycleObserverInfo(entry.key, entry.value)
-                }
-        observersInfo.forEach {
+                .mapValues { entry -> LifecycleObserverInfo(entry.key, entry.value) }
+
+        flattenObserverInfos(world).forEach {
             writeAdapter(it)
         }
         return true
+    }
+
+    private fun superObserver(world: Map<TypeElement, LifecycleObserverInfo>,
+                              observer: LifecycleObserverInfo): LifecycleObserverInfo? {
+        // TODO: do something about interfaces.
+        var currentSuper = observer.type.superclass
+        while (currentSuper !is NoType) {
+            val currentType = MoreTypes.asTypeElement(currentSuper)
+            if (currentType in world) {
+                return world[currentType]
+            }
+            currentSuper = currentType.superclass
+        }
+        return null
+    }
+
+    private fun mergeAndVerifyMethods(l1: List<StateMethod>,
+                                      l2: List<StateMethod>): List<StateMethod> {
+        //TODO: remove duplicates etc
+        return l1 + l2
+    }
+
+    private fun flattenObserverInfos(
+            world: Map<TypeElement, LifecycleObserverInfo>): List<LifecycleObserverInfo> {
+        val superObservers = world.mapValues { superObserver(world, it.value) }
+        var flattened: MutableMap<LifecycleObserverInfo, LifecycleObserverInfo> = HashMap()
+        fun traverse(observer: LifecycleObserverInfo) {
+            if (observer in flattened) {
+                return
+            }
+            val sObserver = superObservers[observer.type]
+            if (sObserver == null) {
+                flattened[observer] = observer
+                return
+            }
+            if (sObserver !in flattened) {
+                traverse(sObserver)
+            }
+
+            val flat = flattened[sObserver]
+            flattened[observer] = LifecycleObserverInfo(observer.type,
+                    mergeAndVerifyMethods(flat!!.methods, observer.methods))
+        }
+
+        world.values.forEach(::traverse)
+        return flattened.values.toList()
     }
 
     private fun writeAdapter(observer: LifecycleObserverInfo) {

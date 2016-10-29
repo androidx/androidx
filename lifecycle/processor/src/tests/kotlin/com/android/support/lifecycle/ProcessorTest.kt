@@ -21,20 +21,25 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import com.google.common.truth.Truth.assertAbout
-import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory.javaSource
 import java.io.File
 import java.nio.charset.Charset
+import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class ProcessorTest {
 
+    fun load(className: String, folder: String = ""): JavaFileObject {
+        val folderPath = "src/tests/test-data/${if (folder.isEmpty()) "" else folder + "/" }"
+        val code = File("$folderPath/$className.java").readText(Charset.defaultCharset())
+        return JavaFileObjects.forSourceString("foo.$className", code);
+    }
+
     fun processClass(className: String): CompileTester {
-        val code = File("src/tests/test-data/$className.java").readText(Charset.defaultCharset())
         val processedWith = assertAbout(javaSource())
-                .that(JavaFileObjects.forSourceString("foo.$className", code))
+                .that(load(className))
                 .processedWith(LifecycleProcessor())
         return checkNotNull(processedWith)
     }
@@ -60,5 +65,17 @@ class ProcessorTest {
     fun testInvalidSecondArg() {
         processClass("InvalidSecondArg").failsToCompile()?.withErrorContaining(
                 LifecycleProcessor.INVALID_SECOND_ARGUMENT)
+    }
+
+    fun testInheritance() {
+        processClass("InheritanceOk").compilesWithoutError()
+    }
+
+                @Test
+    fun testInheritance2() {
+        processClass("InheritanceOk2").compilesWithoutError().and().generatesSources(
+                load("InheritanceOk2Base_LifecycleAdapter", "expected"),
+                load("InheritanceOk2Derived_LifecycleAdapter", "expected")
+        )
     }
 }
