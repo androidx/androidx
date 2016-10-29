@@ -1587,6 +1587,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         | AdapterHelper.UpdateOp.MOVE)) {
             TraceCompat.beginSection(TRACE_HANDLE_ADAPTER_UPDATES_TAG);
             eatRequestLayout();
+            onEnterLayoutOrScroll();
             mAdapterHelper.preProcess();
             if (!mLayoutRequestEaten) {
                 if (hasUpdatedView()) {
@@ -1597,6 +1598,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 }
             }
             resumeRequestLayout(true);
+            onExitLayoutOrScroll();
             TraceCompat.endSection();
         } else if (mAdapterHelper.hasPendingUpdates()) {
             TraceCompat.beginSection(TRACE_ON_DATA_SET_CHANGE_LAYOUT_TAG);
