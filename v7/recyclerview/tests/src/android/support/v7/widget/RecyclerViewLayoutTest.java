@@ -97,6 +97,64 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
+    public void triggerFocusSearchInOnRecycledCallback() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity()) {
+            @Override
+            void consumePendingUpdateOperations() {
+                try {
+                    super.consumePendingUpdateOperations();
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
+            }
+        };
+        final AtomicBoolean receivedOnRecycled = new AtomicBoolean(false);
+        final TestAdapter adapter = new TestAdapter(20) {
+            @Override
+            public void onViewRecycled(TestViewHolder holder) {
+                super.onViewRecycled(holder);
+                if (receivedOnRecycled.getAndSet(true)) {
+                    return;
+                }
+                rv.focusSearch(rv.getChildAt(0), View.FOCUS_FORWARD);
+            }
+        };
+        final AtomicInteger layoutCnt = new AtomicInteger(5);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                layoutRange(recycler, 0, layoutCnt.get());
+                layoutLatch.countDown();
+            }
+        };
+        rv.setLayoutManager(tlm);
+        rv.setAdapter(adapter);
+        tlm.expectLayouts(1);
+        setRecyclerView(rv);
+        tlm.waitForLayout(2);
+
+        layoutCnt.set(4);
+        tlm.expectLayouts(1);
+        requestLayoutOnUIThread(rv);
+        tlm.waitForLayout(1);
+
+        assertThat("test sanity", rv.mRecycler.mCachedViews.size(), is(1));
+        tlm.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyItemChanged(4);
+                rv.smoothScrollBy(0, 1);
+            }
+        });
+        checkForMainThreadException();
+        tlm.waitForLayout(2);
+        assertThat("test sanity", rv.mRecycler.mCachedViews.size(), is(0));
+        assertThat(receivedOnRecycled.get(), is(true));
+    }
+
+    @Test
     public void detachAttachGetReadyWithoutChanges() throws Throwable {
         detachAttachGetReady(false, false, false);
     }
