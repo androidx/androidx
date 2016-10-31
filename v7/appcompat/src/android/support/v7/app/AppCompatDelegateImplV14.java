@@ -235,7 +235,7 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
             return true;
         } else {
             if (DEBUG) {
-                Log.d(TAG, "applyNightMode() | Night mode has not changed. Skipping");
+                Log.d(TAG, "applyNightMode() | Skipping. Night mode has not changed: " + mode);
             }
         }
         return false;
@@ -325,6 +325,7 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
 
         @ApplyableNightMode
         final int getApplyableNightMode() {
+            mIsNight = mTwilightManager.isNight();
             return mIsNight ? MODE_NIGHT_YES : MODE_NIGHT_NO;
         }
 
@@ -340,7 +341,7 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
             cleanup();
 
             // If we're set to AUTO, we register a receiver to be notified on time changes. The
-            // system only send the tick out every minute, but that's enough fidelity for our use
+            // system only sends the tick out every minute, but that's enough fidelity for our use
             // case
             if (mAutoTimeChangeReceiver == null) {
                 mAutoTimeChangeReceiver = new BroadcastReceiver() {
