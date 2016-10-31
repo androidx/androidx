@@ -36,6 +36,8 @@
     <string name="search_details_support">Search Details(support version)</string>
     <string name="search_details_support_description">Search style DetailsSupportFragment test</string>
     <string name="playback">Playback</string>
+    <string name="video_playback">Video Playback</string>
+    <string name="video_playback_support">Video Playback(support version)</string>
     <string name="playback_description">PlaybackOverlayFragment test</string>
     <string name="playback_support">Playback(support version)</string>
     <string name="playback_support_description">PlaybackOverlaySupportFragment test</string>

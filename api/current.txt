@@ -1944,6 +1944,7 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost getHost();
     method public boolean isReadyForPlayback();
     method public void next();
+    method public void onDetachedFromHost();
     method public void pause();
     method public void play();
     method public void previous();
@@ -2187,6 +2188,10 @@ package android.support.v17.leanback.app {
     method public abstract boolean onQueryTextSubmit(java.lang.String);
   }
 
+  public abstract interface SurfaceHolderGlueHost {
+    method public abstract void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
+  }
+
   public class VerticalGridFragment extends android.support.v17.leanback.app.BrandedFragment {
     ctor public VerticalGridFragment();
     method protected java.lang.Object createEntranceTransition();
@@ -2217,20 +2222,22 @@ package android.support.v17.leanback.app {
 
   public class VideoFragment extends android.support.v17.leanback.app.PlaybackFragment {
     ctor public VideoFragment();
+    method public android.view.SurfaceView getSurfaceView();
     method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
   }
 
-  public class VideoFragmentGlueHost extends android.support.v17.leanback.app.PlaybackFragmentGlueHost {
+  public class VideoFragmentGlueHost extends android.support.v17.leanback.app.PlaybackFragmentGlueHost implements android.support.v17.leanback.app.SurfaceHolderGlueHost {
     ctor public VideoFragmentGlueHost(android.support.v17.leanback.app.VideoFragment);
     method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
   }
 
   public class VideoSupportFragment extends android.support.v17.leanback.app.PlaybackSupportFragment {
     ctor public VideoSupportFragment();
+    method public android.view.SurfaceView getSurfaceView();
     method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
   }
 
-  public class VideoSupportFragmentGlueHost extends android.support.v17.leanback.app.PlaybackSupportFragmentGlueHost {
+  public class VideoSupportFragmentGlueHost extends android.support.v17.leanback.app.PlaybackSupportFragmentGlueHost implements android.support.v17.leanback.app.SurfaceHolderGlueHost {
     ctor public VideoSupportFragmentGlueHost(android.support.v17.leanback.app.VideoSupportFragment);
     method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
   }
