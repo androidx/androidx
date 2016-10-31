@@ -64,6 +64,6 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_gravity="bottom"
-            android:background="#eee"
+            android:background="#fafafa"
             app:menu="@menu/sample_bottom_menu"/>
 </FrameLayout>
