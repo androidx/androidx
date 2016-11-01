@@ -1,2 +1,4 @@
+include ':extensions'
+include ':runtime'
 include 'common'
 include 'compiler'

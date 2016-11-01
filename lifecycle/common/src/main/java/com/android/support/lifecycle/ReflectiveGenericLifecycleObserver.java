@@ -46,6 +46,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
         invokeCallbacks(mInfo, source, state, previousState);
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void invokeCallbacks(CallbackInfo info, LifecycleProvider source,
             @Lifecycle.State int state, @Lifecycle.State int previousState) {
         if ((info.mStates & state) != 0) {
@@ -54,7 +55,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
                 invokeCallback(reference, source, previousState, state);
             }
         }
-        // TODO prevent duplicate calls into the same method. Preferebly while parsing
+        // TODO prevent duplicate calls into the same method. Preferably while parsing
         if (info.mSuper != null) {
             invokeCallbacks(info.mSuper, source, state, previousState);
         }
