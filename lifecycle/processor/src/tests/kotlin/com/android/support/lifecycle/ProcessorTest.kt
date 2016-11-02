@@ -50,6 +50,12 @@ class ProcessorTest {
     }
 
     @Test
+    fun testInvalidMethodModifier() {
+        processClass("InvalidMethodModifier").failsToCompile()?.withErrorContaining(
+                LifecycleProcessor.INVALID_METHOD_MODIFIER)
+    }
+
+    @Test
     fun testTooManyArguments() {
         processClass("TooManyArgs").failsToCompile()?.withErrorContaining(
                 LifecycleProcessor.TOO_MANY_ARGS_ERROR_MSG)

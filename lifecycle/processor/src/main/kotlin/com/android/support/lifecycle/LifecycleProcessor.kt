@@ -36,6 +36,8 @@ class LifecycleProcessor : AbstractProcessor() {
                 " must be an int and represent the previous state"
         const val INVALID_FIRST_ARGUMENT = "1st argument of a callback method must be " +
                 "a LifecycleProvider which represents the source of the event"
+        const val INVALID_METHOD_MODIFIER = "method marked with OnState annotation can not be " +
+                "private"
     }
 
     private val LIFECYCLE_PROVIDER = ClassName.get(LifecycleProvider::class.java)
@@ -54,10 +56,12 @@ class LifecycleProcessor : AbstractProcessor() {
     }
 
     private fun validateMethod(method: ExecutableElement) {
+        if (Modifier.PRIVATE in method.modifiers) {
+            printErrorMessage(INVALID_METHOD_MODIFIER, method)
+        }
         if (method.parameters.size > 2) {
             printErrorMessage(TOO_MANY_ARGS_ERROR_MSG, method)
         }
-
         if (method.parameters.size > 1) {
             // 2nd parameter must be an int
             checkParameter(method.parameters[1], Integer.TYPE, INVALID_SECOND_ARGUMENT)
