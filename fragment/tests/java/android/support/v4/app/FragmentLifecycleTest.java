@@ -17,6 +17,19 @@
 
 package android.support.v4.app;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertSame;
+import static junit.framework.Assert.assertTrue;
+
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,6 +49,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.TextView;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,10 +57,6 @@ import org.junit.runner.RunWith;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-
-import static junit.framework.Assert.*;
-import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Mockito.*;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -538,6 +548,42 @@ public class FragmentLifecycleTest {
         shutdownFragmentController(fc);
         assertTrue(fragmentB.mCalledOnDestroy);
         assertTrue(fragmentA.mCalledOnDestroy);
+    }
+
+    /**
+     * Test to ensure that when dispatch* is called that the fragment manager
+     * doesn't cause the contained fragment states to change even if no state changes.
+     */
+    @Test
+    @UiThreadTest
+    public void noPrematureStateChange() throws Throwable {
+        FragmentController fc = startupFragmentController(null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        fm.beginTransaction()
+                .add(new StrictFragment(), "1")
+                .commitNow();
+
+        Parcelable savedState = shutdownFragmentController(fc);
+        fc = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        fc.attachHost(null);
+        fc.dispatchCreate();
+        fc.dispatchActivityCreated();
+        fc.noteStateNotSaved();
+        fc.execPendingActions();
+        fc.doLoaderStart();
+        fc.dispatchStart();
+        fc.reportLoaderStart();
+        fc.dispatchResume();
+        fc.restoreAllState(savedState, (FragmentManagerNonConfig) null);
+        fc.dispatchResume();
+        fm = fc.getSupportFragmentManager();
+
+        StrictFragment fragment1 = (StrictFragment) fm.findFragmentByTag("1");
+
+        assertFalse(fragment1.mCalledOnResume);
     }
 
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
