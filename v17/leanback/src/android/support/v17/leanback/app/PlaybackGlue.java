@@ -87,6 +87,7 @@ public abstract class PlaybackGlue {
      * defines the interaction between {@link PlaybackGlue} and the host.
      */
     public static class PlaybackGlueHost {
+        PlaybackGlue mGlue;
 
         /**
          * Enables or disables view fading.  If enabled, the view will be faded in when the
@@ -128,6 +129,13 @@ public abstract class PlaybackGlue {
          * to be rendered.
          */
         public void setPlaybackRow(Row row) {}
+
+        final void attachToGlue(PlaybackGlue glue) {
+            if (mGlue != null) {
+                mGlue.onDetachedFromHost();
+            }
+            mGlue = glue;
+        }
     }
 
     /**
@@ -150,6 +158,17 @@ public abstract class PlaybackGlue {
      */
     public void setHost(PlaybackGlueHost host) {
         mPlaybackGlueHost = host;
+        if (host != null) {
+            host.attachToGlue(this);
+        }
+    }
+
+    /**
+     * This method is called when we try to attach a new host by calling
+     * {@link #setHost(PlaybackGlueHost)}.
+     */
+    public void onDetachedFromHost() {
+        mPlaybackGlueHost = null;
     }
 
     /**

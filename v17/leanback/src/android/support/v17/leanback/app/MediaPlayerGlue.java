@@ -136,8 +136,8 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     @Override
     public void setHost(PlaybackGlueHost host) {
         super.setHost(host);
-        if (getHost() instanceof VideoFragmentGlueHost) {
-            ((VideoFragmentGlueHost) getHost()).setSurfaceHolderCallback(
+        if (getHost() instanceof SurfaceHolderGlueHost) {
+            ((SurfaceHolderGlueHost) getHost()).setSurfaceHolderCallback(
                     new VideoFragmentSurfaceHolderCallback());
         }
     }
@@ -154,9 +154,20 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
      * not required to call this method before playing the first file. However you have to call it
      * before playing a second one.
      */
-    void reset() {
+    public void reset() {
         mInitialized = false;
         mPlayer.reset();
+    }
+
+    public void release() {
+        mPlayer.release();
+    }
+
+    @Override
+    public void onDetachedFromHost() {
+        super.onDetachedFromHost();
+        reset();
+        release();
     }
 
     /**
@@ -267,7 +278,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
 
     @Override
     public boolean hasValidMedia() {
-        return mTitle != null && mMediaSourcePath != null;
+        return mTitle != null && (mMediaSourcePath != null || mMediaSourceUri != null);
     }
 
     @Override
@@ -403,7 +414,13 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
         if (mMediaSourceUri != null && mMediaSourceUri.equals(uri)) {
             return false;
         }
-        mMediaSourceUri = uri;
+        if (mMediaSourceUri != null || mMediaSourcePath != null) {
+            mMediaSourceUri = uri;
+            mMediaSourcePath = null;
+            prepareMediaForPlaying();
+        } else {
+            mMediaSourceUri = uri;
+        }
         return true;
     }
 
@@ -418,15 +435,26 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
         if (mMediaSourcePath != null && mMediaSourcePath.equals(mMediaSourcePath)) {
             return false;
         }
-        mMediaSourcePath = path;
+        if (mMediaSourceUri != null || mMediaSourcePath != null) {
+            mMediaSourceUri = null;
+            mMediaSourcePath = path;
+            prepareMediaForPlaying();
+        } else {
+            mMediaSourcePath = path;
+        }
         return true;
     }
 
     private void prepareMediaForPlaying() {
         reset();
         try {
-            if (mMediaSourceUri != null) mPlayer.setDataSource(getContext(), mMediaSourceUri);
-            else mPlayer.setDataSource(mMediaSourcePath);
+            if (mMediaSourceUri != null) {
+                mPlayer.setDataSource(getContext(), mMediaSourceUri);
+            } else if (mMediaSourcePath != null) {
+                mPlayer.setDataSource(mMediaSourcePath);
+            } else {
+                return;
+            }
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

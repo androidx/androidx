@@ -136,5 +136,10 @@
                   android:theme="@style/Theme.Example.Leanback.Onboarding"
                   android:exported="true" />
 
+        <activity android:name=".VideoActivity"
+            android:exported="true" />
+
+        <activity android:name=".VideoSupportActivity"
+            android:exported="true" />
     </application>
 </manifest>

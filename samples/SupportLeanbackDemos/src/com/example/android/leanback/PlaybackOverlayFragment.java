@@ -15,6 +15,7 @@ package com.example.android.leanback;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.PlaybackFragment;
 import android.support.v17.leanback.app.PlaybackFragmentGlueHost;
 import android.support.v17.leanback.widget.Action;
@@ -30,7 +31,7 @@ import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.util.Log;
 
 public class PlaybackOverlayFragment
-        extends android.support.v17.leanback.app.VideoFragment
+        extends android.support.v17.leanback.app.PlaybackFragment
         implements PlaybackOverlayActivity.PictureInPictureListener {
     private static final String TAG = "leanback.PlaybackControlsFragment";
 
@@ -100,8 +101,6 @@ public class PlaybackOverlayFragment
                 super.onActionClicked(action);
             }
         };
-
-        //mGlue.setOnItemViewClickedListener(mOnItemViewClickedListener);
 
         mPlaybackControlsRowPresenter = mGlue.createControlsRowAndPresenter();
         mPlaybackControlsRowPresenter.setSecondaryActionsHidden(SECONDARY_HIDDEN);

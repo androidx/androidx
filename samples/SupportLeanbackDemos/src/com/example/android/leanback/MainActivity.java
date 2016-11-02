@@ -95,6 +95,10 @@ public class MainActivity extends Activity {
                     R.string.playback_description);
             addAction(actions, PlaybackOverlaySupportActivity.class, R.string.playback_support,
                     R.string.playback_support_description);
+            addAction(actions, VideoActivity.class, R.string.video_playback,
+                    R.string.playback_description);
+            addAction(actions, VideoSupportActivity.class, R.string.video_playback_support,
+                    R.string.playback_description);
             addAction(actions, HorizontalGridTestActivity.class, R.string.hgrid,
                     R.string.hgrid_description);
             addAction(actions, DetailsPresenterSelectionActivity.class,

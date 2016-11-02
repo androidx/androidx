@@ -22,7 +22,8 @@ import android.view.SurfaceHolder;
  * {@link PlaybackGlue.PlaybackGlueHost} implementation
  * the interaction between this class and {@link VideoSupportFragment}.
  */
-public class VideoSupportFragmentGlueHost extends PlaybackSupportFragmentGlueHost {
+public class VideoSupportFragmentGlueHost extends PlaybackSupportFragmentGlueHost
+        implements SurfaceHolderGlueHost {
     private final VideoSupportFragment mFragment;
 
     public VideoSupportFragmentGlueHost(VideoSupportFragment fragment) {
@@ -35,6 +36,7 @@ public class VideoSupportFragmentGlueHost extends PlaybackSupportFragmentGlueHos
      * {@link PlaybackGlue.PlaybackGlueHost} is assumed to either host the {@link SurfaceHolder} or
      * have a reference to the component hosting it for rendering the video.
      */
+    @Override
     public void setSurfaceHolderCallback(SurfaceHolder.Callback callback) {
         mFragment.setSurfaceHolderCallback(callback);
     }
