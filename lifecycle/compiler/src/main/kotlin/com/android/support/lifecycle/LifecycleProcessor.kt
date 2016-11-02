@@ -38,6 +38,7 @@ class LifecycleProcessor : AbstractProcessor() {
                 "a LifecycleProvider which represents the source of the event"
         const val INVALID_METHOD_MODIFIER = "method marked with OnState annotation can not be " +
                 "private"
+        const val INVALID_CLASS_MODIFIER = "class containing OnState methods can not be private"
     }
 
     private val LIFECYCLE_PROVIDER = ClassName.get(LifecycleProvider::class.java)
@@ -49,27 +50,45 @@ class LifecycleProcessor : AbstractProcessor() {
         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, msg, elem)
     }
 
-    private fun checkParameter(param: VariableElement, expectedType: Class<*>, errorMsg: String) {
+    private fun validateParam(param: VariableElement,
+                              expectedType: Class<*>, errorMsg: String): Boolean {
         if (!MoreTypes.isTypeOf(expectedType, param.asType())) {
             printErrorMessage(errorMsg, param)
+            return false
         }
+        return true
     }
 
-    private fun validateMethod(method: ExecutableElement) {
+    private fun validateMethod(method: ExecutableElement): Boolean {
         if (Modifier.PRIVATE in method.modifiers) {
             printErrorMessage(INVALID_METHOD_MODIFIER, method)
+            return false
         }
         if (method.parameters.size > 2) {
             printErrorMessage(TOO_MANY_ARGS_ERROR_MSG, method)
+            return false
         }
         if (method.parameters.size > 1) {
             // 2nd parameter must be an int
-            checkParameter(method.parameters[1], Integer.TYPE, INVALID_SECOND_ARGUMENT)
+            return validateParam(method.parameters[1], Integer.TYPE, INVALID_SECOND_ARGUMENT)
         }
         if (method.parameters.size > 0) {
-            checkParameter(method.parameters[0], LifecycleProvider::class.java,
+            return validateParam(method.parameters[0], LifecycleProvider::class.java,
                     INVALID_FIRST_ARGUMENT)
         }
+        return true
+    }
+
+    private fun validateClass(classElement: Element): Boolean {
+        if (classElement.kind != ElementKind.CLASS) {
+            printErrorMessage("Parent of OnState should be a class", classElement)
+            return false
+        }
+        if (Modifier.PRIVATE in classElement.modifiers) {
+            printErrorMessage(INVALID_CLASS_MODIFIER, classElement)
+            return false
+        }
+        return true
     }
 
     override fun process(annotations: MutableSet<out TypeElement>,
@@ -80,13 +99,13 @@ class LifecycleProcessor : AbstractProcessor() {
                 null
             } else {
                 val enclosingElement = elem.enclosingElement
-                if (enclosingElement.kind != ElementKind.CLASS) {
-                    printErrorMessage("Parent of OnState should be a class", elem)
-                }
                 val onState = elem.getAnnotation(OnState::class.java)
                 val method = MoreElements.asExecutable(elem)
-                validateMethod(method)
-                StateMethod(method, onState)
+                if (validateClass(enclosingElement) && validateMethod(method)) {
+                    StateMethod(method, onState)
+                } else {
+                    null
+                }
             }
         }
                 .filterNotNull()

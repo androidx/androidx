@@ -56,6 +56,12 @@ class ProcessorTest {
     }
 
     @Test
+    fun testInvalidClassModifier() {
+        processClass("InvalidClassModifier").failsToCompile()?.withErrorContaining(
+                LifecycleProcessor.INVALID_CLASS_MODIFIER)
+    }
+
+    @Test
     fun testTooManyArguments() {
         processClass("TooManyArgs").failsToCompile()?.withErrorContaining(
                 LifecycleProcessor.TOO_MANY_ARGS_ERROR_MSG)
@@ -73,11 +79,12 @@ class ProcessorTest {
                 LifecycleProcessor.INVALID_SECOND_ARGUMENT)
     }
 
+    @Test
     fun testInheritance() {
         processClass("InheritanceOk").compilesWithoutError()
     }
 
-                @Test
+    @Test
     fun testInheritance2() {
         processClass("InheritanceOk2").compilesWithoutError().and().generatesSources(
                 load("InheritanceOk2Base_LifecycleAdapter", "expected"),
