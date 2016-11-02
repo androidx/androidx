@@ -74,8 +74,8 @@ public final class MediaControllerCompat {
         }
         mToken = session.getSessionToken();
 
-        if (android.os.Build.VERSION.SDK_INT >= 25) {
-            mImpl = new MediaControllerImplApi25(context, session);
+        if (android.os.Build.VERSION.SDK_INT >= 26) {
+            mImpl = new MediaControllerImplApi26(context, session);
         } else if (android.os.Build.VERSION.SDK_INT >= 24) {
             mImpl = new MediaControllerImplApi24(context, session);
         } else if (android.os.Build.VERSION.SDK_INT >= 23) {
@@ -101,8 +101,8 @@ public final class MediaControllerCompat {
         }
         mToken = sessionToken;
 
-        if (android.os.Build.VERSION.SDK_INT >= 25) {
-            mImpl = new MediaControllerImplApi25(context, sessionToken);
+        if (android.os.Build.VERSION.SDK_INT >= 26) {
+            mImpl = new MediaControllerImplApi26(context, sessionToken);
         } else if (android.os.Build.VERSION.SDK_INT >= 24) {
             mImpl = new MediaControllerImplApi24(context, sessionToken);
         } else if (android.os.Build.VERSION.SDK_INT >= 23) {
@@ -378,8 +378,8 @@ public final class MediaControllerCompat {
         boolean mRegistered = false;
 
         public Callback() {
-            if (android.os.Build.VERSION.SDK_INT >= 25) {
-                mCallbackObj = MediaControllerCompatApi25.createCallback(new StubApi25());
+            if (android.os.Build.VERSION.SDK_INT >= 26) {
+                mCallbackObj = MediaControllerCompatApi26.createCallback(new StubApi26());
             } else if (android.os.Build.VERSION.SDK_INT >= 21) {
                 mCallbackObj = MediaControllerCompatApi21.createCallback(new StubApi21());
             } else {
@@ -547,7 +547,7 @@ public final class MediaControllerCompat {
             }
         }
 
-        private class StubApi25 extends StubApi21 implements MediaControllerCompatApi25.Callback {
+        private class StubApi26 extends StubApi21 implements MediaControllerCompatApi26.Callback {
             @Override
             public void onRepeatModeChanged(@PlaybackStateCompat.RepeatMode int repeatMode) {
                 Callback.this.onRepeatModeChanged(repeatMode);
@@ -1418,7 +1418,7 @@ public final class MediaControllerCompat {
         public MediaControllerImplApi21(Context context, MediaSessionCompat session) {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     session.getSessionToken().getToken());
-            if (android.os.Build.VERSION.SDK_INT < 23) {
+            if (android.os.Build.VERSION.SDK_INT < 26) {
                 requestExtraBinder();
             }
         }
@@ -1428,7 +1428,7 @@ public final class MediaControllerCompat {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     sessionToken.getToken());
             if (mControllerObj == null) throw new RemoteException();
-            if (android.os.Build.VERSION.SDK_INT < 23) {
+            if (android.os.Build.VERSION.SDK_INT < 26) {
                 requestExtraBinder();
             }
         }
@@ -1447,7 +1447,7 @@ public final class MediaControllerCompat {
                 } catch (RemoteException e) {
                     Log.e(TAG, "Dead object in registerCallback. " + e);
                 }
-            } else if (android.os.Build.VERSION.SDK_INT < 23) {
+            } else if (android.os.Build.VERSION.SDK_INT < 26) {
                 if (mPendingCallbacks == null) {
                     mPendingCallbacks = new ArrayList<>();
                 }
@@ -1468,7 +1468,7 @@ public final class MediaControllerCompat {
                 } catch (RemoteException e) {
                     Log.e(TAG, "Dead object in unregisterCallback. " + e);
                 }
-            } else if (android.os.Build.VERSION.SDK_INT < 23) {
+            } else if (android.os.Build.VERSION.SDK_INT < 26) {
                 if (mPendingCallbacks == null) {
                     mPendingCallbacks = new ArrayList<>();
                 }
@@ -1537,13 +1537,25 @@ public final class MediaControllerCompat {
 
         @Override
         public int getRepeatMode() {
-            // TODO: implement this
-            return 0;
+            if (mExtraBinder != null) {
+                try {
+                    return mExtraBinder.getRepeatMode();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in getRepeatMode. " + e);
+                }
+            }
+            return PlaybackStateCompat.REPEAT_MODE_NONE;
         }
 
         @Override
         public boolean isShuffleModeEnabled() {
-            // TODO: implement this
+            if (mExtraBinder != null) {
+                try {
+                    return mExtraBinder.isShuffleModeEnabled();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in isShuffleModeEnabled. " + e);
+                }
+            }
             return false;
         }
 
@@ -1593,6 +1605,7 @@ public final class MediaControllerCompat {
             return mControllerObj;
         }
 
+        // TODO: Handle the case of calling other methods before receiving the extra binder.
         private void requestExtraBinder() {
             ResultReceiver cb = new ResultReceiver(new Handler()) {
                 @Override
@@ -1674,15 +1687,23 @@ public final class MediaControllerCompat {
             }
 
             @Override
-            public void onRepeatModeChanged(int repeatMode) throws RemoteException {
-                // Will not be called.
-                throw new AssertionError();
+            public void onRepeatModeChanged(final int repeatMode) throws RemoteException {
+                mCallback.mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onRepeatModeChanged(repeatMode);
+                    }
+                });
             }
 
             @Override
-            public void onShuffleModeChanged(boolean enabled) throws RemoteException {
-                // Will not be called.
-                throw new AssertionError();
+            public void onShuffleModeChanged(final boolean enabled) throws RemoteException {
+                mCallback.mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onShuffleModeChanged(enabled);
+                    }
+                });
             }
 
             @Override
@@ -1783,12 +1804,16 @@ public final class MediaControllerCompat {
 
         @Override
         public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
-            // TODO: implement this
+            Bundle bundle = new Bundle();
+            bundle.putInt(MediaSessionCompat.ACTION_ARGUMENT_REPEAT_MODE, repeatMode);
+            sendCustomAction(MediaSessionCompat.ACTION_SET_REPEAT_MODE, bundle);
         }
 
         @Override
         public void setShuffleModeEnabled(boolean enabled) {
-            // TODO: implement this
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(MediaSessionCompat.ACTION_ARGUMENT_SHUFFLE_MODE_ENABLED, enabled);
+            sendCustomAction(MediaSessionCompat.ACTION_SET_SHUFFLE_MODE_ENABLED, bundle);
         }
 
         @Override
@@ -1911,13 +1936,13 @@ public final class MediaControllerCompat {
         }
     }
 
-    static class MediaControllerImplApi25 extends MediaControllerImplApi24 {
+    static class MediaControllerImplApi26 extends MediaControllerImplApi24 {
 
-        MediaControllerImplApi25(Context context, MediaSessionCompat session) {
+        MediaControllerImplApi26(Context context, MediaSessionCompat session) {
             super(context, session);
         }
 
-        MediaControllerImplApi25(Context context, MediaSessionCompat.Token sessionToken)
+        MediaControllerImplApi26(Context context, MediaSessionCompat.Token sessionToken)
                 throws RemoteException {
             super(context, sessionToken);
         }
@@ -1925,34 +1950,34 @@ public final class MediaControllerCompat {
         @Override
         public TransportControls getTransportControls() {
             Object controlsObj = MediaControllerCompatApi21.getTransportControls(mControllerObj);
-            return controlsObj != null ? new TransportControlsApi25(controlsObj) : null;
+            return controlsObj != null ? new TransportControlsApi26(controlsObj) : null;
         }
 
         @Override
         public int getRepeatMode() {
-            return MediaControllerCompatApi25.getRepeatMode(mControllerObj);
+            return MediaControllerCompatApi26.getRepeatMode(mControllerObj);
         }
 
         @Override
         public boolean isShuffleModeEnabled() {
-            return MediaControllerCompatApi25.isShuffleModeEnabled(mControllerObj);
+            return MediaControllerCompatApi26.isShuffleModeEnabled(mControllerObj);
         }
     }
 
-    static class TransportControlsApi25 extends TransportControlsApi24 {
+    static class TransportControlsApi26 extends TransportControlsApi24 {
 
-        TransportControlsApi25(Object controlsObj) {
+        TransportControlsApi26(Object controlsObj) {
             super(controlsObj);
         }
 
         @Override
         public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
-            MediaControllerCompatApi25.TransportControls.setRepeatMode(mControlsObj, repeatMode);
+            MediaControllerCompatApi26.TransportControls.setRepeatMode(mControlsObj, repeatMode);
         }
 
         @Override
         public void setShuffleModeEnabled(boolean enabled) {
-            MediaControllerCompatApi25.TransportControls.setShuffleModeEnabled(mControlsObj,
+            MediaControllerCompatApi26.TransportControls.setShuffleModeEnabled(mControlsObj,
                     enabled);
         }
     }
