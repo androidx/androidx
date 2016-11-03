@@ -39,6 +39,8 @@ class LifecycleProcessor : AbstractProcessor() {
         const val INVALID_METHOD_MODIFIER = "method marked with OnState annotation can not be " +
                 "private"
         const val INVALID_CLASS_MODIFIER = "class containing OnState methods can not be private"
+        const val INVALID_STATE_OVERRIDE_METHOD = "overridden method must handle the same " +
+                "onState changes as original method"
     }
 
     private val LIFECYCLE_PROVIDER = ClassName.get(LifecycleProvider::class.java)
@@ -132,10 +134,19 @@ class LifecycleProcessor : AbstractProcessor() {
         return null
     }
 
-    private fun mergeAndVerifyMethods(l1: List<StateMethod>,
-                                      l2: List<StateMethod>): List<StateMethod> {
-        //TODO: remove duplicates etc
-        return l1 + l2
+    private fun mergeAndVerifyMethods(classMethods: List<StateMethod>,
+                                      parentMethods: List<StateMethod>): List<StateMethod> {
+        return parentMethods + classMethods.filter { currentMethod ->
+            val baseMethod = parentMethods.find { m ->
+                currentMethod.method.simpleName == m.method.simpleName
+                        && currentMethod.method.parameters.size == m.method.parameters.size
+            }
+            if (baseMethod != null && baseMethod.onState != currentMethod.onState) {
+                printErrorMessage(INVALID_STATE_OVERRIDE_METHOD, currentMethod.method)
+            }
+            baseMethod == null
+        }
+
     }
 
     private fun flattenObserverInfos(
@@ -157,7 +168,7 @@ class LifecycleProcessor : AbstractProcessor() {
 
             val flat = flattened[sObserver]
             flattened[observer] = LifecycleObserverInfo(observer.type,
-                    mergeAndVerifyMethods(flat!!.methods, observer.methods))
+                    mergeAndVerifyMethods(observer.methods, flat!!.methods))
         }
 
         world.values.forEach(::traverse)
