@@ -155,10 +155,9 @@ class AppCompatBackgroundHelper {
     void applySupportBackgroundTint() {
         final Drawable background = mView.getBackground();
         if (background != null) {
-            if (Build.VERSION.SDK_INT == 21 && applyFrameworkTintUsingColorFilter(background)) {
-                // GradientDrawable doesn't implement setTintList on API 21, and since there is
-                // no nice way to unwrap DrawableContainers we have to blanket apply this
-                // on API 21. This needs to be called before the internal tints below so it takes
+            if (shouldApplyFrameworkTintUsingColorFilter()
+                    && applyFrameworkTintUsingColorFilter(background)) {
+                // This needs to be called before the internal tints below so it takes
                 // effect on any widgets using the compat tint on API 21 (EditText)
                 return;
             }
@@ -184,6 +183,23 @@ class AppCompatBackgroundHelper {
             mInternalBackgroundTint = null;
         }
         applySupportBackgroundTint();
+    }
+
+    private boolean shouldApplyFrameworkTintUsingColorFilter() {
+        final int sdk = Build.VERSION.SDK_INT;
+        if (sdk < 21) {
+            // API 19 and below doesn't have framework tint
+            return false;
+        } else if (sdk == 21) {
+            // GradientDrawable doesn't implement setTintList on API 21, and since there is
+            // no nice way to unwrap DrawableContainers we have to blanket apply this
+            // on API 21
+            return true;
+        } else {
+            // On API 22+, if we're using an internal compat background tint, we're also
+            // responsible for applying any custom tint set via the framework impl
+            return mInternalBackgroundTint != null;
+        }
     }
 
     /**
