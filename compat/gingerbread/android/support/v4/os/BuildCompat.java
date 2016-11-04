@@ -18,7 +18,6 @@
 package android.support.v4.os;
 
 import android.os.Build.VERSION;
-import android.text.TextUtils;
 
 /**
  * BuildCompat contains additional platform version checking methods for
@@ -53,6 +52,6 @@ public class BuildCompat {
      */
     public static boolean isAtLeastO() {
         return !"REL".equals(VERSION.CODENAME)
-                && "O".compareTo(VERSION.CODENAME) <= 0;
+                && ("O".equals(VERSION.CODENAME) || VERSION.CODENAME.startsWith("OMR"));
     }
 }
