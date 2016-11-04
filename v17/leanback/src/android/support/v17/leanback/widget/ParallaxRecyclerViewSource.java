@@ -28,9 +28,19 @@ import android.view.View;
  */
 public class ParallaxRecyclerViewSource extends
         ParallaxSource.IntSource<ParallaxRecyclerViewSource.ChildPositionProperty> {
-    private final RecyclerView mRecylerView;
-    private Listener mListener;
-    private final boolean mIsVertical;
+    RecyclerView mRecylerView;
+    Listener mListener;
+    boolean mIsVertical;
+
+    OnScrollListener mOnScrollListener = new OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            for (ChildPositionProperty prop: getProperties()) {
+                prop.updateValue(ParallaxRecyclerViewSource.this);
+            }
+            mListener.onPropertiesChanged(ParallaxRecyclerViewSource.this);
+        }
+    };
 
     /**
      * Subclass of {@link ParallaxSource.IntProperty}. Using this Property, users can track a
@@ -128,10 +138,10 @@ public class ParallaxRecyclerViewSource extends
 
         void updateValue(ParallaxRecyclerViewSource source) {
             RecyclerView recyclerView = source.mRecylerView;
-            ViewHolder viewHolder =
-                    recyclerView.findViewHolderForAdapterPosition(mAdapterPosition);
+            ViewHolder viewHolder = recyclerView == null ? null
+                    : recyclerView.findViewHolderForAdapterPosition(mAdapterPosition);
             if (viewHolder == null) {
-                if (recyclerView.getLayoutManager().getChildCount() == 0) {
+                if (recyclerView == null || recyclerView.getLayoutManager().getChildCount() == 0) {
                     source.setPropertyValue(getIndex(), IntProperty.UNKNOWN_AFTER);
                     return;
                 }
@@ -182,25 +192,29 @@ public class ParallaxRecyclerViewSource extends
     }
 
     /**
-     * Constructor.
+     * Set RecyclerView that this ParallaxSource will register onScrollListener.
+     * @param recyclerView RecyclerView to register onScrollListener.
      */
-    public ParallaxRecyclerViewSource(RecyclerView parent) {
-        this.mRecylerView = parent;
-        LayoutManager.Properties properties = mRecylerView.getLayoutManager()
-                .getProperties(mRecylerView.getContext(), null, 0, 0);
-        mIsVertical = properties.orientation == RecyclerView.VERTICAL;
-        setupScrollListener();
+    public void setRecyclerView(RecyclerView recyclerView) {
+        if (mRecylerView == recyclerView) {
+            return;
+        }
+        if (mRecylerView != null) {
+            mRecylerView.removeOnScrollListener(mOnScrollListener);
+        }
+        mRecylerView = recyclerView;
+        if (mRecylerView != null) {
+            LayoutManager.Properties properties = mRecylerView.getLayoutManager()
+                    .getProperties(mRecylerView.getContext(), null, 0, 0);
+            mIsVertical = properties.orientation == RecyclerView.VERTICAL;
+            mRecylerView.addOnScrollListener(mOnScrollListener);
+        }
     }
 
-    private void setupScrollListener() {
-        mRecylerView.addOnScrollListener(new OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                for (ChildPositionProperty prop: getProperties()) {
-                    prop.updateValue(ParallaxRecyclerViewSource.this);
-                }
-                mListener.onPropertiesChanged(ParallaxRecyclerViewSource.this);
-            }
-        });
+    /**
+     * @return Currently RecylerView that the source has registered onScrollListener.
+     */
+    public RecyclerView getRecyclerView() {
+        return mRecylerView;
     }
 }

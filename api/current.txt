@@ -1544,10 +1544,12 @@ package android.support.v17.leanback.app {
     method public final android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost createPlaybackGlueHost();
     method public final android.app.Fragment findOrCreateVideoFragment();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
+    method public android.view.View getBackgroundView();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.app.DetailsParallaxManager getParallaxManager();
     method public android.support.v17.leanback.app.RowsFragment getRowsFragment();
     method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method public android.support.v17.leanback.app.DetailsParallaxManager onCreateParallaxManager();
     method public android.app.Fragment onCreateVideoFragment();
     method public android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost onCreateVideoFragmentHost(android.app.Fragment);
     method protected void onEntranceTransitionEnd();
@@ -1571,11 +1573,12 @@ package android.support.v17.leanback.app {
   }
 
   public class DetailsParallaxManager {
-    ctor public DetailsParallaxManager(android.support.v7.widget.RecyclerView);
+    ctor public DetailsParallaxManager();
     method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty getFrameBottom();
     method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty getFrameTop();
     method public android.support.v17.leanback.widget.Parallax getParallax();
     method public android.support.v7.widget.RecyclerView getRecyclerView();
+    method public void setRecyclerView(android.support.v7.widget.RecyclerView);
   }
 
   public class DetailsSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
@@ -1584,10 +1587,12 @@ package android.support.v17.leanback.app {
     method public final android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost createPlaybackGlueHost();
     method public final android.support.v4.app.Fragment findOrCreateVideoSupportFragment();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
+    method public android.view.View getBackgroundView();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.app.DetailsParallaxManager getParallaxManager();
     method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
     method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method public android.support.v17.leanback.app.DetailsParallaxManager onCreateParallaxManager();
     method public android.support.v4.app.Fragment onCreateVideoSupportFragment();
     method public android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost onCreateVideoSupportFragmentHost(android.support.v4.app.Fragment);
     method protected void onEntranceTransitionEnd();
@@ -3292,10 +3297,12 @@ package android.support.v17.leanback.widget {
   }
 
   public class ParallaxRecyclerViewSource extends android.support.v17.leanback.widget.ParallaxSource.IntSource {
-    ctor public ParallaxRecyclerViewSource(android.support.v7.widget.RecyclerView);
+    ctor public ParallaxRecyclerViewSource();
     method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty createProperty(java.lang.String, int);
     method public int getMaxParentVisibleSize();
+    method public android.support.v7.widget.RecyclerView getRecyclerView();
     method public void setListener(android.support.v17.leanback.widget.ParallaxSource.Listener);
+    method public void setRecyclerView(android.support.v7.widget.RecyclerView);
   }
 
   public static final class ParallaxRecyclerViewSource.ChildPositionProperty extends android.support.v17.leanback.widget.ParallaxSource.IntProperty {

@@ -48,8 +48,8 @@ public class DetailsParallaxManagerTest {
     @Test
     public void setupTest() {
         double delta = 0.0002;
-        DetailsParallaxManager dpm = new DetailsParallaxManager(
-                mActivity.getDetailsFragment().getRowsFragment().getVerticalGridView());
+        DetailsParallaxManager dpm = new DetailsParallaxManager();
+        dpm.setRecyclerView(mActivity.getDetailsFragment().getRowsFragment().getVerticalGridView());
 
         assertNotNull(dpm.getParallax());
 
