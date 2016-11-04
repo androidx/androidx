@@ -484,10 +484,18 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
 
         /**
-         * Returns the selected position.
+         * @return The position of selected row.
          */
         public int getSelectedPosition() {
             return 0;
+        }
+
+        /**
+         * @param position Position of Row.
+         * @return Row ViewHolder.
+         */
+        public RowPresenter.ViewHolder findRowViewHolderByPosition(int position) {
+            return null;
         }
     }
 
@@ -1485,6 +1493,17 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public int getSelectedPosition() {
         return mSelectedPosition;
+    }
+
+    /**
+     * @return selected row ViewHolder inside fragment created by {@link MainFragmentRowsAdapter}.
+     */
+    public RowPresenter.ViewHolder getSelectedRowViewHolder() {
+        if (mMainFragmentRowsAdapter != null) {
+            int rowPos = mMainFragmentRowsAdapter.getSelectedPosition();
+            return mMainFragmentRowsAdapter.findRowViewHolderByPosition(rowPos);
+        }
+        return null;
     }
 
     /**

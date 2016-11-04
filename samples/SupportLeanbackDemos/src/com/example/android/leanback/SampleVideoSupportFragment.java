@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from OnboardingDemoFragment.java.  DO NOT MODIFY. */
 
 /*

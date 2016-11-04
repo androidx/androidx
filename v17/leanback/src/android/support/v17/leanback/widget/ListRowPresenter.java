@@ -122,6 +122,21 @@ public class ListRowPresenter extends RowPresenter {
             }
             return ibvh.getViewHolder();
         }
+
+        @Override
+        public Presenter.ViewHolder getSelectedItemViewHolder() {
+            return getItemViewHolder(getSelectedPosition());
+        }
+
+        @Override
+        public Object getSelectedItem() {
+            ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) mGridView
+                    .findViewHolderForAdapterPosition(getSelectedPosition());
+            if (ibvh == null) {
+                return null;
+            }
+            return ibvh.getItem();
+        }
     }
 
     /**
