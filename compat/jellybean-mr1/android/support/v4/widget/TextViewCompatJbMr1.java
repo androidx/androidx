@@ -46,8 +46,17 @@ class TextViewCompatJbMr1 {
                 bottom);
     }
 
-    static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
-        return textView.getCompoundDrawablesRelative();
+    public static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
+        final boolean rtl = textView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+        final Drawable[] compounds = textView.getCompoundDrawables();
+        if (rtl) {
+            // If we're on RTL, we need to invert the horizontal result like above
+            final Drawable start = compounds[2];
+            final Drawable end = compounds[0];
+            compounds[0] = start;
+            compounds[2] = end;
+        }
+        return compounds;
     }
 
 }
