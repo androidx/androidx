@@ -3255,8 +3255,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             resetFocusInfo();
         } else {
             mState.mFocusedItemId = mAdapter.hasStableIds() ? focusedVh.getItemId() : NO_ID;
+            // mFocusedItemPosition should hold the current adapter position of the previously
+            // focused item. If the item is removed, we store the previous adapter position of the
+            // removed item.
             mState.mFocusedItemPosition = mDataSetHasChangedAfterLayout ? NO_POSITION :
-                    focusedVh.getAdapterPosition();
+                    (focusedVh.isRemoved() ? focusedVh.mOldPosition
+                            : focusedVh.getAdapterPosition());
             mState.mFocusedSubChildId = getDeepestFocusedViewWithId(focusedVh.itemView);
         }
     }
@@ -3267,40 +3271,95 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         mState.mFocusedSubChildId = View.NO_ID;
     }
 
+    /**
+     * Finds the best view candidate to request focus on using mFocusedItemPosition index of the
+     * previously focused item. It first traverses the adapter forward to find a focusable candidate
+     * and if no such candidate is found, it reverses the focus search direction for the items
+     * before the mFocusedItemPosition'th index;
+     * @return The best candidate to request focus on, or null if no such candidate exists. Null
+     * indicates all the existing adapter items are unfocusable.
+     */
+    @Nullable
+    private View findNextViewToFocus() {
+        int startFocusSearchIndex = mState.mFocusedItemPosition != -1 ? mState.mFocusedItemPosition
+                : 0;
+        ViewHolder nextFocus;
+        final int itemCount = mState.getItemCount();
+        for (int i = startFocusSearchIndex; i < itemCount; i++) {
+            nextFocus = findViewHolderForAdapterPosition(i);
+            if (nextFocus == null) {
+                break;
+            }
+            if (nextFocus.itemView.hasFocusable()) {
+                return nextFocus.itemView;
+            }
+        }
+        final int limit = Math.min(itemCount, startFocusSearchIndex);
+        for (int i = limit - 1; i >= 0; i--) {
+            nextFocus = findViewHolderForAdapterPosition(i);
+            if (nextFocus == null) {
+                return null;
+            }
+            if (nextFocus.itemView.hasFocusable()) {
+                return nextFocus.itemView;
+            }
+        }
+        return null;
+    }
+
     private void recoverFocusFromState() {
-        if (!mPreserveFocusAfterLayout || mAdapter == null || !hasFocus()) {
+        if (!mPreserveFocusAfterLayout || mAdapter == null || !hasFocus()
+                || getDescendantFocusability() == FOCUS_BLOCK_DESCENDANTS
+                || (getDescendantFocusability() == FOCUS_BEFORE_DESCENDANTS && isFocused())) {
+            // No-op if either of these cases happens:
+            // 1. RV has no focus, or 2. RV blocks focus to its children, or 3. RV takes focus
+            // before its children and is focused (i.e. it already stole the focus away from its
+            // descendants).
             return;
         }
         // only recover focus if RV itself has the focus or the focused view is hidden
         if (!isFocused()) {
             final View focusedChild = getFocusedChild();
-            if (focusedChild == null || (!mChildHelper.isHidden(focusedChild)
+            if (!mChildHelper.isHidden(focusedChild)
                     // on API 15, this happens :/.
-                    && focusedChild.getParent() == this && focusedChild.hasFocus())) {
+                    && focusedChild.getParent() == this && focusedChild.hasFocus()) {
                 return;
             }
         }
         ViewHolder focusTarget = null;
-        if (mState.mFocusedItemPosition != NO_POSITION) {
-            focusTarget = findViewHolderForAdapterPosition(mState.mFocusedItemPosition);
-        }
-        if (focusTarget == null && mState.mFocusedItemId != NO_ID && mAdapter.hasStableIds()) {
+        // RV first attempts to locate the previously focused item to request focus on using
+        // mFocusedItemId. If such an item no longer exists, it then makes a best-effort attempt to
+        // find the next best candidate to request focus on based on mFocusedItemPosition.
+        if (mState.mFocusedItemId != NO_ID && mAdapter.hasStableIds()) {
             focusTarget = findViewHolderForItemId(mState.mFocusedItemId);
         }
-        if (focusTarget == null || focusTarget.itemView.hasFocus() ||
-                !focusTarget.itemView.hasFocusable()) {
-            return;
-        }
-        // looks like the focused item has been replaced with another view that represents the
-        // same item in the adapter. Request focus on that.
-        View viewToFocus = focusTarget.itemView;
-        if (mState.mFocusedSubChildId != NO_ID) {
-            View child = focusTarget.itemView.findViewById(mState.mFocusedSubChildId);
-            if (child != null && child.isFocusable()) {
-                viewToFocus = child;
+        View viewToFocus = null;
+        if (focusTarget == null || mChildHelper.isHidden(focusTarget.itemView)
+                || !focusTarget.itemView.hasFocusable()) {
+            if (mChildHelper.getChildCount() > 0) {
+                // At this point, RV has focus and either of these conditions are true:
+                // 1. There's no previously focused item either because RV received focused before
+                // layout, or the previously focused item was removed, or RV doesn't have stable IDs
+                // 2. Previous focus child is hidden, or 3. Previous focused child is no longer
+                // focusable. In either of these cases, we make sure that RV still passes down the
+                // focus to one of its focusable children using a best-effort algorithm.
+                viewToFocus = findNextViewToFocus();
             }
+        } else {
+            // looks like the focused item has been replaced with another view that represents the
+            // same item in the adapter. Request focus on that.
+            viewToFocus = focusTarget.itemView;
         }
-        viewToFocus.requestFocus();
+
+        if (viewToFocus != null) {
+            if (mState.mFocusedSubChildId != NO_ID) {
+                View child = viewToFocus.findViewById(mState.mFocusedSubChildId);
+                if (child != null && child.isFocusable()) {
+                    viewToFocus = child;
+                }
+            }
+            viewToFocus.requestFocus();
+        }
     }
 
     private int getDeepestFocusedViewWithId(View view) {
