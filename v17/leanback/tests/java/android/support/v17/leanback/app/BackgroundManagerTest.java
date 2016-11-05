@@ -379,7 +379,10 @@ public class BackgroundManagerTest {
             @Override
             public void onStart(TestActivity activity) {
                 BackgroundManager m = BackgroundManager.getInstance(activity);
-                m.attach(activity.getWindow());
+                if (!m.isAttached()) {
+                    // onStart will be called mutliple times, attach() can only be called once.
+                    m.attach(activity.getWindow());
+                }
                 m.setColor(Color.BLUE);
             }
         };
@@ -397,7 +400,8 @@ public class BackgroundManagerTest {
     public void assignColorImmediately() throws Throwable {
         TestActivity.Provider provider1 = new TestActivity.Provider() {
             @Override
-            public void onStart(TestActivity activity) {
+            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                super.onCreate(activity, savedInstanceState);
                 BackgroundManager m = BackgroundManager.getInstance(activity);
                 // if we set color before attach, it will be assigned immediately
                 m.setColor(Color.BLUE);
@@ -418,7 +422,8 @@ public class BackgroundManagerTest {
         final Bitmap bitmap = createBitmap(200, 100, Color.BLUE);
         TestActivity.Provider provider1 = new TestActivity.Provider() {
             @Override
-            public void onStart(TestActivity activity) {
+            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                super.onCreate(activity, savedInstanceState);
                 BackgroundManager m = BackgroundManager.getInstance(activity);
                 // if we set bitmap before attach, it will be assigned immediately
                 m.setBitmap(bitmap);
@@ -440,7 +445,8 @@ public class BackgroundManagerTest {
         final Bitmap bitmap = createBitmap(200, 100, Color.BLUE);
         TestActivity.Provider provider1 = new TestActivity.Provider() {
             @Override
-            public void onStart(TestActivity activity) {
+            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                super.onCreate(activity, savedInstanceState);
                 BackgroundManager m = BackgroundManager.getInstance(activity);
                 // if we set bitmap before attach, it will be assigned immediately
                 m.setBitmap(bitmap);
@@ -450,11 +456,11 @@ public class BackgroundManagerTest {
         };
         mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
         final TestActivity activity1 = mRule.launchActivity();
-        activity1.finish();
 
         TestActivity.Provider provider2 = new TestActivity.Provider() {
             @Override
-            public void onStart(TestActivity activity) {
+            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                super.onCreate(activity, savedInstanceState);
                 BackgroundManager m = BackgroundManager.getInstance(activity);
                 m.attach(activity.getWindow());
                 assertIsBitmapDrawable(m, bitmap);
@@ -474,7 +480,8 @@ public class BackgroundManagerTest {
         final int color = Color.BLUE;
         TestActivity.Provider provider1 = new TestActivity.Provider() {
             @Override
-            public void onStart(TestActivity activity) {
+            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                super.onCreate(activity, savedInstanceState);
                 BackgroundManager m = BackgroundManager.getInstance(activity);
                 // if we set color before attach, it will be assigned immediately
                 m.setColor(color);
@@ -484,11 +491,11 @@ public class BackgroundManagerTest {
         };
         mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
         final TestActivity activity1 = mRule.launchActivity();
-        activity1.finish();
 
         TestActivity.Provider provider2 = new TestActivity.Provider() {
             @Override
-            public void onStart(TestActivity activity) {
+            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                super.onCreate(activity, savedInstanceState);
                 BackgroundManager m = BackgroundManager.getInstance(activity);
                 m.attach(activity.getWindow());
                 assertIsColorDrawable(m, color);
@@ -525,7 +532,8 @@ public class BackgroundManagerTest {
 
         TestActivity.Provider provider2 = new TestActivity.Provider() {
             @Override
-            public void onStart(TestActivity activity) {
+            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                super.onCreate(activity, savedInstanceState);
                 BackgroundManager m = BackgroundManager.getInstance(activity);
                 m.attach(activity.getWindow());
                 assertIsBitmapDrawable(m, bitmap);
@@ -577,7 +585,8 @@ public class BackgroundManagerTest {
 
         TestActivity.Provider provider2 = new TestActivity.Provider() {
             @Override
-            public void onStart(TestActivity activity) {
+            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                super.onCreate(activity, savedInstanceState);
                 BackgroundManager m = BackgroundManager.getInstance(activity);
                 m.attach(activity.getWindow());
                 assertIsBitmapDrawable(m, bitmap);
@@ -625,7 +634,8 @@ public class BackgroundManagerTest {
 
         TestActivity.Provider provider2 = new TestActivity.Provider() {
             @Override
-            public void onStart(TestActivity activity) {
+            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                super.onCreate(activity, savedInstanceState);
                 BackgroundManager m = BackgroundManager.getInstance(activity);
                 m.attach(activity.getWindow());
                 assertIsBitmapDrawable(m, bitmap);
