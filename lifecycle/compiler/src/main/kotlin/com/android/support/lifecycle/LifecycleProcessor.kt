@@ -178,8 +178,8 @@ class LifecycleProcessor : AbstractProcessor() {
     private fun writeAdapter(observer: LifecycleObserverInfo) {
         val packageElement = MoreElements.getPackage(observer.type)
         val qName = observer.type.qualifiedName.toString()
-        // TODO what if no package
-        val partialName = qName.substring(packageElement.toString().length + 1)
+        val partialName = if (packageElement.isUnnamed) qName else qName.substring(
+                packageElement.toString().length + 1)
         val adapterName = Lifecycling.getAdapterName(partialName)
 
         val providerParam = ParameterSpec.builder(LIFECYCLE_PROVIDER, "provider").build()

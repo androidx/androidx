@@ -37,16 +37,22 @@ class ValidCasesTest {
     @Test
     fun testInheritance2() {
         processClass("InheritanceOk2").compilesWithoutError().and().generatesSources(
-                load("InheritanceOk2Base_LifecycleAdapter", "expected"),
-                load("InheritanceOk2Derived_LifecycleAdapter", "expected")
+                load("foo", "InheritanceOk2Base_LifecycleAdapter", "expected"),
+                load("foo", "InheritanceOk2Derived_LifecycleAdapter", "expected")
         )
     }
 
     @Test
     fun testInheritance3() {
         processClass("InheritanceOk3").compilesWithoutError().and().generatesSources(
-                load("InheritanceOk3Base_LifecycleAdapter", "expected"),
-                load("InheritanceOk3Derived_LifecycleAdapter", "expected")
+                load("foo", "InheritanceOk3Base_LifecycleAdapter", "expected"),
+                load("foo", "InheritanceOk3Derived_LifecycleAdapter", "expected")
         )
     }
+
+    @Test
+    fun testNoPackageClass() {
+        processClass("NoPackageOk", "").compilesWithoutError()
+    }
+
 }

@@ -25,15 +25,16 @@ import java.io.File
 import java.nio.charset.Charset
 import javax.tools.JavaFileObject
 
-fun load(className: String, folder: String = ""): JavaFileObject {
-    val folderPath = "src/tests/test-data/${if (folder.isEmpty()) "" else folder + "/" }"
+fun load(packageName: String, className: String, folder: String): JavaFileObject {
+    val folderPath = "src/tests/test-data/${if (folder.isEmpty()) "" else folder + "/"}"
     val code = File("$folderPath/$className.java").readText(Charset.defaultCharset())
-    return JavaFileObjects.forSourceString("foo.$className", code);
+    val fullName = "$packageName${if (packageName.isEmpty()) "" else "."}$className"
+    return JavaFileObjects.forSourceString(fullName, code);
 }
 
-fun processClass(className: String): CompileTester {
+fun processClass(className: String, packageName: String = "foo"): CompileTester {
     val processedWith = Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
-            .that(load(className))
+            .that(load(packageName, className, ""))
             .processedWith(LifecycleProcessor())
     return checkNotNull(processedWith)
 }
