@@ -6830,7 +6830,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
             for (int i = 0; i < count; i++) {
                 View child = getChildAt(i);
-                LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 final Rect bounds = mRecyclerView.mTempRect;
                 getDecoratedBoundsWithMargins(child, bounds);
                 if (bounds.left < minX) {
