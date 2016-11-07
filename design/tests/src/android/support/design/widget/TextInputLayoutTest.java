@@ -50,8 +50,8 @@ import android.support.design.test.R;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.ViewAssertion;
+import android.support.test.filters.SmallTest;
 import android.support.v4.widget.TextViewCompat;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
@@ -329,6 +329,7 @@ public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLa
                 1, layout.animateToExpansionFractionCount);
     }
 
+    @UiThreadTest
     @Test
     public void testMaintainsLeftRightCompoundDrawables() throws Throwable {
         final Activity activity = mActivityTestRule.getActivity();
@@ -343,14 +344,9 @@ public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLa
         editText.setCompoundDrawables(left, top, right, bottom);
 
         // Now add the EditText to a TextInputLayout
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TextInputLayout til = (TextInputLayout)
-                        activity.findViewById(R.id.textinput_noedittext);
-                til.addView(editText);
-            }
-        });
+        TextInputLayout til = (TextInputLayout)
+                activity.findViewById(R.id.textinput_noedittext);
+        til.addView(editText);
 
         // Finally assert that all of the drawables are untouched
         final Drawable[] compoundDrawables = editText.getCompoundDrawables();
@@ -360,6 +356,7 @@ public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLa
         assertSame(bottom, compoundDrawables[3]);
     }
 
+    @UiThreadTest
     @Test
     public void testMaintainsStartEndCompoundDrawables() throws Throwable {
         final Activity activity = mActivityTestRule.getActivity();
@@ -374,14 +371,9 @@ public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLa
         TextViewCompat.setCompoundDrawablesRelative(editText, start, top, end, bottom);
 
         // Now add the EditText to a TextInputLayout
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TextInputLayout til = (TextInputLayout)
-                        activity.findViewById(R.id.textinput_noedittext);
-                til.addView(editText);
-            }
-        });
+        TextInputLayout til = (TextInputLayout)
+                activity.findViewById(R.id.textinput_noedittext);
+        til.addView(editText);
 
         // Finally assert that all of the drawables are untouched
         final Drawable[] compoundDrawables = TextViewCompat.getCompoundDrawablesRelative(editText);
