@@ -9755,6 +9755,7 @@ package android.support.v7.widget {
     method public int getBaselineAlignedChildIndex();
     method public android.graphics.drawable.Drawable getDividerDrawable();
     method public int getDividerPadding();
+    method public int getGravity();
     method public int getOrientation();
     method public int getShowDividers();
     method public float getWeightSum();

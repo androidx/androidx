@@ -468,7 +468,6 @@
 
     <style name="Base.Widget.AppCompat.Button.ButtonBar.AlertDialog" parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:minWidth">64dp</item>
-        <item name="android:maxLines">2</item>
         <item name="android:minHeight">@dimen/abc_alert_dialog_button_bar_height</item>
     </style>
 
