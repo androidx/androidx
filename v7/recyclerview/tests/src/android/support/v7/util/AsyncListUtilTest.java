@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.support.annotation.UiThread;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.Suppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v7.widget.TestActivity;
 import android.util.SparseBooleanArray;
@@ -91,7 +92,8 @@ public class AsyncListUtilTest {
     }
 
     // This test is disabled as it is flaky.
-    // @Test
+    @Suppress
+    @Test
     public void tileCaching() throws Throwable {
         scrollAndExpectTiles(25, "next screen", 30, 40);
 
@@ -103,6 +105,8 @@ public class AsyncListUtilTest {
         scrollAndExpectTiles(0, "scroll back to top, all pages should reload", 0, 10, 20);
     }
 
+    // This test is disabled as it is flaky.
+    @Suppress
     @Test
     public void dataRefresh() throws Throwable {
         mViewCallback.expectDataSetChanged(40);
