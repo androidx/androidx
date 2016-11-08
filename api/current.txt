@@ -3322,6 +3322,7 @@ package android.support.v17.leanback.widget {
     method public abstract PropertyT createProperty(java.lang.String, int);
     method public final java.util.List<PropertyT> getProperties();
     method public abstract void setListener(android.support.v17.leanback.widget.ParallaxSource.Listener);
+    method public void updateValues();
     method public abstract void verifyProperties() throws java.lang.IllegalStateException;
   }
 

@@ -228,11 +228,13 @@ public final class DetailsBackgroundParallaxHelper {
         // Add solid color parallax effect:
         // When frameBottom moves from bottom of the screen to top of the screen,
         // change solid ColorDrawable's top from bottom of screen to top of the screen.
-        // Also we are changing the drawing the bitmap from bottom to top of the screen.
         parallax.addEffect(frameBottom.atFraction(1f), frameBottom.atFraction(0f))
                 .target(mCompositeDrawable.getChildAt(1),
                         PropertyValuesHolder.ofFloat(
-                                CompositeDrawable.ChildDrawable.TOP_FRACTION, 1f, 0f))
+                                CompositeDrawable.ChildDrawable.TOP_FRACTION, 1f, 0f));
+        // Also when frameTop moves from bottom of screen to top of the screen,
+        // we are changing bottom of the bitmap from bottom of screen to top of screen.
+        parallax.addEffect(frameTop.atFraction(1f), frameTop.atFraction(0f))
                 .target(mCompositeDrawable.getChildAt(0),
                         PropertyValuesHolder.ofFloat(
                                 CompositeDrawable.ChildDrawable.BOTTOM_FRACTION, 1f, 0f));
