@@ -3387,8 +3387,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         eatRequestLayout();
         mViewInfoStore.clear();
         onEnterLayoutOrScroll();
-        saveFocusInfo();
         processAdapterUpdatesAndSetAnimationFlags();
+        saveFocusInfo();
         mState.mTrackOldChangeHolders = mState.mRunSimpleAnimations && mItemsChanged;
         mItemsAddedOrRemoved = mItemsChanged = false;
         mState.mInPreLayout = mState.mRunPredictiveAnimations;

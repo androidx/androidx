@@ -792,7 +792,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
 
     private void requestFocus(RecyclerView.ViewHolder viewHolder) throws Throwable {
         FocusViewHolder fvh = cast(viewHolder);
-        requestFocus(fvh.getViewToFocus(), true);
+        requestFocus(fvh.getViewToFocus(), false);
     }
 
     private void assertFocus(RecyclerView.ViewHolder viewHolder, boolean hasFocus) {
