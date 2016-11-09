@@ -17,6 +17,7 @@
 package com.android.support.lifecycle;
 
 import android.support.annotation.NonNull;
+import android.support.v4.util.Pair;
 
 /**
  * An implementation of {@link Lifecycle} that can handle multiple observers.
@@ -30,7 +31,18 @@ public class LifecycleRegistry implements Lifecycle {
     /**
      * Custom list that keeps observers and can handle removals / additions during traversal.
      */
-    private ObserverList mObserverList = new ObserverList();
+    private ObserverSet<Pair<LifecycleObserver, GenericLifecycleObserver>> mObserverSet =
+            new ObserverSet<Pair<LifecycleObserver, GenericLifecycleObserver>>() {
+                @Override
+                protected boolean checkEquality(Pair<LifecycleObserver, GenericLifecycleObserver>
+                        existing, Pair<LifecycleObserver, GenericLifecycleObserver> added) {
+                    return existing.first == added.first;
+                }
+            };
+
+    /**
+     * Current state
+     */
     @State
     private int mState;
     /**
@@ -44,12 +56,15 @@ public class LifecycleRegistry implements Lifecycle {
      */
     private final LifecycleProvider mLifecycleProvider;
 
-    private final ObserverList.Callback mDispatchCallback = new ObserverList.Callback() {
-        @Override
-        public void run(GenericLifecycleObserver observer) {
-            observer.onStateChanged(mLifecycleProvider, mLastEvent);
-        }
-    };
+
+    private final ObserverSet.Callback<Pair<LifecycleObserver, GenericLifecycleObserver>>
+            mDispatchCallback =
+            new ObserverSet.Callback<Pair<LifecycleObserver, GenericLifecycleObserver>>() {
+                @Override
+                public void run(Pair<LifecycleObserver, GenericLifecycleObserver> pair) {
+                    pair.second.onStateChanged(mLifecycleProvider, mLastEvent);
+                }
+            };
 
     /**
      * Creates a new LifecycleRegistry for the given provider.
@@ -57,7 +72,7 @@ public class LifecycleRegistry implements Lifecycle {
      * You should usually create this inside your LifecycleProvider class's constructor and hold
      * onto the same instance.
      *
-     * @param provider     The owner LifecycleProvider
+     * @param provider The owner LifecycleProvider
      */
     public LifecycleRegistry(@NonNull LifecycleProvider provider) {
         mLifecycleProvider = provider;
@@ -79,17 +94,17 @@ public class LifecycleRegistry implements Lifecycle {
         mLastEvent = event;
         // TODO fake intermediate events
         mState = getStateAfter(event);
-        mObserverList.forEach(mDispatchCallback);
+        mObserverSet.forEach(mDispatchCallback);
     }
 
     @Override
     public void addObserver(LifecycleObserver observer) {
-        mObserverList.add(observer);
+        mObserverSet.add(new Pair<>(observer, Lifecycling.getCallback(observer)));
     }
 
     @Override
     public void removeObserver(LifecycleObserver observer) {
-        mObserverList.remove(observer);
+        mObserverSet.remove(new Pair<LifecycleObserver, GenericLifecycleObserver>(observer, null));
     }
 
     /**
@@ -98,7 +113,7 @@ public class LifecycleRegistry implements Lifecycle {
      * @return The number of observers.
      */
     public int size() {
-        return mObserverList.size();
+        return mObserverSet.size();
     }
 
     @Override

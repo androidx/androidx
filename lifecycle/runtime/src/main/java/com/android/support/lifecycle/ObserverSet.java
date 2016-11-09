@@ -23,40 +23,46 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-class ObserverList {
+/**
+ * A set class that can keep a list of items and allows modifications while traversing.
+ * It is NOT thread safe.
+ * @param <T> Item type
+ */
+abstract class ObserverSet<T> {
     private boolean mLocked = false;
     private static final Object TO_BE_ADDED = new Object();
     private static final Object TO_BE_REMOVED = new Object();
-    private List<Pair<LifecycleObserver, Object>> mPendingModifications = new ArrayList<>(0);
-    private List<Pair<LifecycleObserver, GenericLifecycleObserver>> mData = new ArrayList<>(5);
+    private List<Pair<T, Object>> mPendingModifications = new ArrayList<>(0);
+    private List<T> mData = new ArrayList<>(5);
 
     private static final String ERR_RE_ADD = "Trying to re-add an already existing observer. "
             + "Ignoring the call for ";
     private static final String WARN_RE_REMOVE = "Trying to remove a non-existing observer. ";
 
-    private boolean exists(LifecycleObserver observer) {
+    private boolean exists(T observer) {
         final int size = mData.size();
         for (int i = 0; i < size; i++) {
-            Pair<LifecycleObserver, GenericLifecycleObserver> pair = mData.get(i);
-            if (pair.first == observer) {
+            if (checkEquality(mData.get(i), observer)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean hasPendingRemoval(LifecycleObserver observer) {
+    protected abstract boolean checkEquality(T existing, T added);
+
+    private boolean hasPendingRemoval(T observer) {
         final int size = mPendingModifications.size();
         for (int i = 0; i < size; i++) {
-            Pair<LifecycleObserver, Object> pair = mPendingModifications.get(i);
-            if (pair.first == observer && pair.second == TO_BE_REMOVED) {
+            Pair<T, Object> pair = mPendingModifications.get(i);
+            if (checkEquality(pair.first, observer) && pair.second == TO_BE_REMOVED) {
                 return true;
             }
         }
         return false;
     }
 
-    void add(LifecycleObserver observer) {
+    void add(T observer) {
         if (!mLocked) {
             addInternal(observer);
             return;
@@ -64,16 +70,20 @@ class ObserverList {
         mPendingModifications.add(new Pair<>(observer, TO_BE_ADDED));
     }
 
-    private void addInternal(LifecycleObserver observer) {
+    private void addInternal(T observer) {
         if (exists(observer)) {
             Log.e(LifecycleRegistry.TAG, ERR_RE_ADD + observer);
             return;
         }
-        GenericLifecycleObserver genericObserver = Lifecycling.getCallback(observer);
-        mData.add(new Pair<>(observer, genericObserver));
+        mData.add(observer);
+        onAdded(observer);
     }
 
-    void remove(LifecycleObserver observer) {
+    protected void onAdded(T observer) {
+
+    }
+
+    void remove(T observer) {
         if (!mLocked) {
             removeInternal(observer);
             return;
@@ -81,27 +91,31 @@ class ObserverList {
         mPendingModifications.add(new Pair<>(observer, TO_BE_REMOVED));
     }
 
-    private void removeInternal(LifecycleObserver observer) {
-        Iterator<Pair<LifecycleObserver, GenericLifecycleObserver>> iterator = mData.iterator();
+    private void removeInternal(T observer) {
+        Iterator<T> iterator = mData.iterator();
         while (iterator.hasNext()) {
-            if (iterator.next().first == observer) {
+            T next = iterator.next();
+            if (checkEquality(next, observer)) {
                 iterator.remove();
+                onRemoved(next);
                 return;
             }
         }
         Log.w(LifecycleRegistry.TAG, WARN_RE_REMOVE + observer);
     }
 
-    void forEach(Callback func) {
+    protected void onRemoved(T item) {}
+
+    void forEach(Callback<T> func) {
         mLocked = true;
         try {
             final int size = mData.size();
             for (int i = 0; i < size; i++) {
-                Pair<LifecycleObserver, GenericLifecycleObserver> pair = mData.get(i);
-                if (hasPendingRemoval(pair.first)) {
+                T item = mData.get(i);
+                if (hasPendingRemoval(item)) {
                     continue;
                 }
-                func.run(pair.second);
+                func.run(item);
             }
         } finally {
             mLocked = false;
@@ -116,7 +130,7 @@ class ObserverList {
         final int size = mPendingModifications.size();
         //noinspection StatementWithEmptyBody
         for (int i = 0; i < size; i++) {
-            Pair<LifecycleObserver, Object> pair = mPendingModifications.get(i);
+            Pair<T, Object> pair = mPendingModifications.get(i);
             if (pair.second == TO_BE_REMOVED) {
                 removeInternal(pair.first);
             } else { // TO_BE_ADDED
@@ -130,8 +144,7 @@ class ObserverList {
         return mData.size();
     }
 
-    interface Callback {
-        void run(GenericLifecycleObserver observer);
+    interface Callback<T> {
+        void run(T key);
     }
-
 }
