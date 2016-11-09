@@ -158,4 +158,29 @@
 
     <style name="Base.ThemeOverlay.AppCompat.Dialog" parent="Base.V11.ThemeOverlay.AppCompat.Dialog" />
 
+    <style name="Base.ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
+    </style>
+
+    <style name="Base.Theme.AppCompat.Dialog.Alert">
+        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
+    </style>
+
+    <style name="Base.Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
+    </style>
+
+    <style name="Base.Theme.AppCompat.Dialog.MinWidth">
+        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
+    </style>
+
+    <style name="Base.Theme.AppCompat.Light.Dialog.MinWidth">
+        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
+    </style>
+
 </resources>
