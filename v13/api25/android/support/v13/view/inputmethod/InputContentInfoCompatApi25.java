@@ -44,6 +44,6 @@ final class InputContentInfoCompatApi25 {
     }
 
     public static void releasePermission(Object inputContentInfo) {
-        ((InputContentInfo) inputContentInfo).requestPermission();
+        ((InputContentInfo) inputContentInfo).releasePermission();
     }
 }
