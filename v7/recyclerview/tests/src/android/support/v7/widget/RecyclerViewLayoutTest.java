@@ -352,6 +352,24 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                         child0.getBottom() + getDecoratedMeasuredHeight(view));
                 return view;
             }
+
+            @Override
+            public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+                                            RecyclerView.State state) {
+                super.scrollHorizontallyBy(dx, recycler, state);
+                // offset by -dx because the views translate opposite of the scrolling direction
+                mRecyclerView.offsetChildrenHorizontal(-dx);
+                return dx;
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                                          RecyclerView.State state) {
+                super.scrollVerticallyBy(dy, recycler, state);
+                // offset by -dy because the views translate opposite of the scrolling direction
+                mRecyclerView.offsetChildrenVertical(-dy);
+                return dy;
+            }
         };
         tlm.setAutoMeasureEnabled(true);
         rv.setLayoutManager(tlm);
