@@ -503,9 +503,8 @@ final class ColorCutQuantizer {
     private static int modifyWordWidth(int value, int currentWidth, int targetWidth) {
         final int newValue;
         if (targetWidth > currentWidth) {
-            // If we're approximating up in word width, we'll use scaling to approximate the
-            // new value
-            newValue = value * ((1 << targetWidth) - 1) / ((1 << currentWidth) - 1);
+            // If we're approximating up in word width, we'll shift up
+            newValue = value << (targetWidth - currentWidth);
         } else {
             // Else, we will just shift and keep the MSB
             newValue = value >> (currentWidth - targetWidth);
