@@ -41,35 +41,35 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
     }
 
     @Override
-    public void onStateChanged(LifecycleProvider source, @Lifecycle.State int previousState) {
+    public void onStateChanged(LifecycleProvider source, @Lifecycle.Event int event) {
         final int state = source.getLifecycle().getCurrentState();
-        invokeCallbacks(mInfo, source, state, previousState);
+        invokeCallbacks(mInfo, source, state, event);
     }
 
     @SuppressWarnings("ConstantConditions")
     private void invokeCallbacks(CallbackInfo info, LifecycleProvider source,
-            @Lifecycle.State int state, @Lifecycle.State int previousState) {
-        if ((info.mStates & state) != 0) {
+            @Lifecycle.State int state, @Lifecycle.Event int event) {
+        if ((info.mEvents & event) != 0) {
             for (int i = info.mMethodReferences.size() - 1; i >= 0; i--) {
                 MethodReference reference = info.mMethodReferences.get(i);
-                invokeCallback(reference, source, previousState, state);
+                invokeCallback(reference, source, state, event);
             }
         }
         // TODO prevent duplicate calls into the same method. Preferably while parsing
         if (info.mSuper != null) {
-            invokeCallbacks(info.mSuper, source, state, previousState);
+            invokeCallbacks(info.mSuper, source, state, event);
         }
         if (info.mInterfaces != null) {
             final int size = info.mInterfaces.size();
             for (int i = 0; i < size; i++) {
-                invokeCallbacks(info.mInterfaces.get(i), source, state, previousState);
+                invokeCallbacks(info.mInterfaces.get(i), source, state, event);
             }
         }
     }
 
     private void invokeCallback(MethodReference reference, LifecycleProvider source,
-            @Lifecycle.State int previousState, int state) {
-        if ((reference.mStates & state) != 0) {
+            @Lifecycle.State int state, @Lifecycle.Event  int event) {
+        if ((reference.mEvents & event) != 0) {
             try {
                 switch (reference.mCallType) {
                     case CALL_TYPE_NO_ARG:
@@ -78,8 +78,8 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
                     case CALL_TYPE_PROVIDER:
                         reference.mMethod.invoke(mWrapped, source);
                         break;
-                    case CALL_TYPE_PROVIDER_PREV_STATE:
-                        reference.mMethod.invoke(mWrapped, source, previousState);
+                    case CALL_TYPE_PROVIDER_WITH_EVENT:
+                        reference.mMethod.invoke(mWrapped, source, event);
                         break;
                 }
             } catch (Throwable t) {
@@ -105,9 +105,9 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
     private static CallbackInfo createInfo(Class klass) {
         Method[] methods = klass.getDeclaredMethods();
         List<MethodReference> methodReferences = null;
-        int allStates = 0;
+        int allEvents = 0;
         for (Method method : methods) {
-            OnState annotation = method.getAnnotation(OnState.class);
+            OnLifecycleEvent annotation = method.getAnnotation(OnLifecycleEvent.class);
             if (annotation == null) {
                 continue;
             }
@@ -121,10 +121,10 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
                 }
             }
             if (params.length > 1) {
-                callType = CALL_TYPE_PROVIDER_PREV_STATE;
+                callType = CALL_TYPE_PROVIDER_WITH_EVENT;
                 if (!params[1].isAssignableFrom(int.class)) {
                     throw new IllegalArgumentException(
-                            "invalid parameter type. second arg must be an old state");
+                            "invalid parameter type. second arg must be an event");
                 }
             }
             if (params.length > 2) {
@@ -134,9 +134,9 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
                 methodReferences = new ArrayList<>();
             }
             methodReferences.add(new MethodReference(annotation.value(), callType, method));
-            allStates |= annotation.value();
+            allEvents |= annotation.value();
         }
-        CallbackInfo info = new CallbackInfo(allStates, methodReferences);
+        CallbackInfo info = new CallbackInfo(allEvents, methodReferences);
         sInfoCache.put(klass, info);
         Class superclass = klass.getSuperclass();
         if (superclass != null) {
@@ -145,7 +145,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
         Class[] interfaces = klass.getInterfaces();
         for (Class intrfc : interfaces) {
             CallbackInfo interfaceInfo = getInfo(intrfc);
-            if (interfaceInfo.mStates != 0) {
+            if (interfaceInfo.mEvents != 0) {
                 if (info.mInterfaces == null) {
                     info.mInterfaces = new ArrayList<>();
                 }
@@ -157,7 +157,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
 
     @SuppressWarnings("WeakerAccess")
     static class CallbackInfo {
-        int mStates;
+        int mEvents;
         @Nullable
         List<MethodReference> mMethodReferences;
         @Nullable
@@ -165,20 +165,20 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
         @Nullable
         CallbackInfo mSuper;
 
-        public CallbackInfo(int states, @Nullable List<MethodReference> methodReferences) {
-            mStates = states;
+        CallbackInfo(int events, @Nullable List<MethodReference> methodReferences) {
+            mEvents = events;
             mMethodReferences = methodReferences;
         }
     }
 
     @SuppressWarnings("WeakerAccess")
     static class MethodReference {
-        final int mStates;
+        final int mEvents;
         final int mCallType;
         final Method mMethod;
 
-        public MethodReference(int states, int callType, Method method) {
-            mStates = states;
+        MethodReference(int events, int callType, Method method) {
+            mEvents = events;
             mCallType = callType;
             mMethod = method;
         }
@@ -186,5 +186,5 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
 
     private static final int CALL_TYPE_NO_ARG = 0;
     private static final int CALL_TYPE_PROVIDER = 1;
-    private static final int CALL_TYPE_PROVIDER_PREV_STATE = 2;
+    private static final int CALL_TYPE_PROVIDER_WITH_EVENT = 2;
 }

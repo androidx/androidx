@@ -26,7 +26,7 @@ import javax.lang.model.element.*
 import javax.lang.model.type.NoType
 import javax.tools.Diagnostic
 
-@SupportedAnnotationTypes("com.android.support.lifecycle.OnState")
+@SupportedAnnotationTypes("com.android.support.lifecycle.OnLifecycleEvent")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 class LifecycleProcessor : AbstractProcessor() {
     companion object ErrorMessages {
@@ -35,9 +35,10 @@ class LifecycleProcessor : AbstractProcessor() {
                 " must be an int and represent the previous state"
         const val INVALID_FIRST_ARGUMENT = "1st argument of a callback method must be " +
                 "a LifecycleProvider which represents the source of the event"
-        const val INVALID_METHOD_MODIFIER = "method marked with OnState annotation can not be " +
+        const val INVALID_METHOD_MODIFIER = "method marked with OnLifecycleEvent annotation can " +
+                "not be private"
+        const val INVALID_CLASS_MODIFIER = "class containing OnLifecycleEvent methods can not be " +
                 "private"
-        const val INVALID_CLASS_MODIFIER = "class containing OnState methods can not be private"
         const val INVALID_STATE_OVERRIDE_METHOD = "overridden method must handle the same " +
                 "onState changes as original method"
     }
@@ -82,7 +83,7 @@ class LifecycleProcessor : AbstractProcessor() {
 
     private fun validateClass(classElement: Element): Boolean {
         if (classElement.kind != ElementKind.CLASS) {
-            printErrorMessage("Parent of OnState should be a class", classElement)
+            printErrorMessage("Parent of OnLifecycleEvent should be a class", classElement)
             return false
         }
         if (Modifier.PRIVATE in classElement.modifiers) {
@@ -94,13 +95,13 @@ class LifecycleProcessor : AbstractProcessor() {
 
     override fun process(annotations: MutableSet<out TypeElement>,
                          roundEnv: RoundEnvironment): Boolean {
-        val world = roundEnv.getElementsAnnotatedWith(OnState::class.java).map { elem ->
+        val world = roundEnv.getElementsAnnotatedWith(OnLifecycleEvent::class.java).map { elem ->
             if (elem.kind != ElementKind.METHOD) {
-                printErrorMessage("OnState can only be added to methods", elem)
+                printErrorMessage("OnLifecycleEvent can only be added to methods", elem)
                 null
             } else {
                 val enclosingElement = elem.enclosingElement
-                val onState = elem.getAnnotation(OnState::class.java)
+                val onState = elem.getAnnotation(OnLifecycleEvent::class.java)
                 val method = MoreElements.asExecutable(elem)
                 if (validateClass(enclosingElement) && validateMethod(method)) {
                     StateMethod(method, onState)
@@ -140,7 +141,7 @@ class LifecycleProcessor : AbstractProcessor() {
                 currentMethod.method.simpleName == m.method.simpleName
                         && currentMethod.method.parameters.size == m.method.parameters.size
             }
-            if (baseMethod != null && baseMethod.onState != currentMethod.onState) {
+            if (baseMethod != null && baseMethod.onLifecycleEvent != currentMethod.onLifecycleEvent) {
                 printErrorMessage(INVALID_STATE_OVERRIDE_METHOD, currentMethod.method)
             }
             baseMethod == null
@@ -197,7 +198,7 @@ class LifecycleProcessor : AbstractProcessor() {
                 .addStatement("final $T $N = $N.getLifecycle().getCurrentState()",
                         TypeName.INT, curStateName, providerParam)
                 .apply {
-                    observer.methods.groupBy { it.onState.value }
+                    observer.methods.groupBy { it.onLifecycleEvent.value }
                             .forEach { entry ->
                                 val onStateValue = entry.key
                                 val methods = entry.value
@@ -260,7 +261,7 @@ class LifecycleProcessor : AbstractProcessor() {
         }
     }
 
-    data class StateMethod(val method: ExecutableElement, val onState: OnState)
+    data class StateMethod(val method: ExecutableElement, val onLifecycleEvent: OnLifecycleEvent)
 
     data class LifecycleObserverInfo(val type: TypeElement, val methods: List<StateMethod>)
 }

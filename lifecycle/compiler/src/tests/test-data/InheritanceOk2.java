@@ -1,16 +1,18 @@
 package foo;
-import com.android.support.lifecycle.OnState;
-import static com.android.support.lifecycle.Lifecycle.STARTED;
-import static com.android.support.lifecycle.Lifecycle.STOPPED;
+
+import static com.android.support.lifecycle.Lifecycle.ON_STOP;
+
 import com.android.support.lifecycle.LifecycleProvider;
-import java.util.HashMap;
+import com.android.support.lifecycle.OnLifecycleEvent;
 
 class InheritanceOk2Base {
-    @OnState(STOPPED)
-    public void onStop(LifecycleProvider provider, int prevstate){}
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop(LifecycleProvider provider, int lastEvent) {
+    }
 }
 
 class InheritanceOk2Derived extends InheritanceOk2Base {
-    @OnState(STOPPED)
-    public void onStop2(LifecycleProvider provider, int prevstate){}
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop2(LifecycleProvider provider, int lastEvent) {
+    }
 }

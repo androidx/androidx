@@ -16,6 +16,11 @@
 
 package com.android.support.lifecycle;
 
+import static com.android.support.lifecycle.Lifecycle.ON_CREATE;
+import static com.android.support.lifecycle.Lifecycle.ON_PAUSE;
+import static com.android.support.lifecycle.Lifecycle.ON_START;
+import static com.android.support.lifecycle.Lifecycle.ON_STOP;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,7 +45,7 @@ public class LifecycleRegistryTest {
         mLifecycleProvider = mock(LifecycleProvider.class);
         mLifecycle = mock(Lifecycle.class);
         when(mLifecycleProvider.getLifecycle()).thenReturn(mLifecycle);
-        mRegistry = new LifecycleRegistry(mLifecycleProvider, Lifecycle.INITIALIZED);
+        mRegistry = new LifecycleRegistry(mLifecycleProvider);
     }
     @Test
     public void addRemove() {
@@ -55,20 +60,20 @@ public class LifecycleRegistryTest {
     public void addGenericAndObserve() {
         GenericLifecycleObserver generic = mock(GenericLifecycleObserver.class);
         mRegistry.addObserver(generic);
-        setState(Lifecycle.CREATED);
-        verify(generic).onStateChanged(mLifecycleProvider, Lifecycle.INITIALIZED);
+        dispatchEvent(ON_CREATE);
+        verify(generic).onStateChanged(mLifecycleProvider, ON_CREATE);
         reset(generic);
-        setState(Lifecycle.CREATED);
-        verify(generic, never()).onStateChanged(mLifecycleProvider, Lifecycle.INITIALIZED);
+        dispatchEvent(ON_CREATE);
+        verify(generic, never()).onStateChanged(mLifecycleProvider, ON_CREATE);
     }
 
     @Test
     public void addRegularClass() {
         TestObserver testObserver = mock(TestObserver.class);
         mRegistry.addObserver(testObserver);
-        setState(Lifecycle.STARTED);
+        dispatchEvent(ON_START);
         verify(testObserver, never()).onStopped();
-        setState(Lifecycle.STOPPED);
+        dispatchEvent(ON_STOP);
         verify(testObserver).onStopped();
     }
 
@@ -81,7 +86,7 @@ public class LifecycleRegistryTest {
         mRegistry.addObserver(observer2);
         mRegistry.addObserver(observer3);
 
-        setState(Lifecycle.STOPPED);
+        dispatchEvent(ON_STOP);
 
         verify(observer1).onStopped();
         verify(observer2).onStopped();
@@ -89,9 +94,9 @@ public class LifecycleRegistryTest {
         reset(observer1, observer2, observer3);
 
         mRegistry.removeObserver(observer2);
-        setState(Lifecycle.PAUSED);
+        dispatchEvent(ON_PAUSE);
 
-        setState(Lifecycle.STOPPED);
+        dispatchEvent(ON_STOP);
         verify(observer1).onStopped();
         verify(observer2, never()).onStopped();
         verify(observer3).onStopped();
@@ -108,18 +113,18 @@ public class LifecycleRegistryTest {
         });
         mRegistry.addObserver(observer1);
         mRegistry.addObserver(observer2);
-        setState(Lifecycle.STOPPED);
+        dispatchEvent(ON_STOP);
         verify(observer2, never()).onStopped();
         verify(observer1).onStopped();
     }
 
-    private void setState(@Lifecycle.State int state) {
-        when(mLifecycle.getCurrentState()).thenReturn(state);
-        mRegistry.setCurrentState(state);
+    private void dispatchEvent(@Lifecycle.Event int event) {
+        when(mLifecycle.getCurrentState()).thenReturn(LifecycleRegistry.getStateAfter(event));
+        mRegistry.handleLifecycleEvent(event);
     }
 
     private interface TestObserver extends LifecycleObserver {
-        @OnState(Lifecycle.STOPPED)
+        @OnLifecycleEvent(ON_STOP)
         void onStopped();
     }
 }

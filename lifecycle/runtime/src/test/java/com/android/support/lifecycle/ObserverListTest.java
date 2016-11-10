@@ -176,7 +176,7 @@ public class ObserverListTest {
         mObserverList.forEach(new ObserverList.Callback() {
             @Override
             public void run(GenericLifecycleObserver observer) {
-                observer.onStateChanged(lifecycleProvider, Lifecycle.CREATED);
+                observer.onStateChanged(lifecycleProvider, Lifecycle.ON_START);
             }
         });
 
@@ -208,15 +208,15 @@ public class ObserverListTest {
 
     @SuppressWarnings("unused")
     private interface StartedObserverWith2Methods extends LifecycleObserver {
-        @OnState(Lifecycle.STARTED)
+        @OnLifecycleEvent(Lifecycle.ON_START)
         void onStarted1();
 
-        @OnState(Lifecycle.STARTED)
+        @OnLifecycleEvent(Lifecycle.ON_START)
         void onStarted2();
     }
 
     private interface ObserveAll extends LifecycleObserver {
-        @OnState(Lifecycle.ANY)
+        @OnLifecycleEvent(Lifecycle.ANY)
         void onAny();
     }
 }

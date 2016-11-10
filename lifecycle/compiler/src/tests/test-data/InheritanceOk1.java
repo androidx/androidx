@@ -16,34 +16,40 @@
 
 package foo;
 
-import static com.android.support.lifecycle.Lifecycle.STOPPED;
+import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 
 import com.android.support.lifecycle.LifecycleProvider;
-import com.android.support.lifecycle.OnState;
+import com.android.support.lifecycle.OnLifecycleEvent;
 
 class Base1 {
-    @OnState(STOPPED)
-    public void onStop(LifecycleProvider provider, int prevstate){}
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop(LifecycleProvider provider, int lastEvent) {
+    }
 }
 
-class Proxy extends Base1 { }
+class Proxy extends Base1 {
+}
 
 class Derived1 extends Proxy {
-    @OnState(STOPPED)
-    public void onStop2(LifecycleProvider provider, int prevstate){}
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop2(LifecycleProvider provider, int lastEvent) {
+    }
 }
 
 class Derived2 extends Proxy {
-    @OnState(STOPPED)
-    public void onStop2(LifecycleProvider provider, int prevstate){}
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop2(LifecycleProvider provider, int lastEvent) {
+    }
 }
 
 class Base2 {
-    @OnState(STOPPED)
-    public void onStop(LifecycleProvider provider, int prevstate){}
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop(LifecycleProvider provider, int lastEvent) {
+    }
 }
 
 class Derived3 extends Base2 {
-    @OnState(STOPPED)
-    public void onStop2(LifecycleProvider provider, int prevstate){}
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop2(LifecycleProvider provider, int lastEvent) {
+    }
 }

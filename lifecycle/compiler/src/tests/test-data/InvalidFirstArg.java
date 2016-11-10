@@ -1,10 +1,11 @@
 package foo;
-import com.android.support.lifecycle.OnState;
-import static com.android.support.lifecycle.Lifecycle.STARTED;
-import static com.android.support.lifecycle.Lifecycle.STOPPED;
-import com.android.support.lifecycle.LifecycleProvider;
+
+import static com.android.support.lifecycle.Lifecycle.ON_STOP;
+
+import com.android.support.lifecycle.OnLifecycleEvent;
 
 public class InvalidFirstArg {
-    @OnState(STOPPED)
-    public void onStop(int prevState){}
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop(int lastEvent) {
+    }
 }

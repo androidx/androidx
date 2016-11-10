@@ -16,17 +16,19 @@
 
 package foo;
 
-import com.android.support.lifecycle.OnState;
+import static com.android.support.lifecycle.Lifecycle.ON_START;
+import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 
-import static com.android.support.lifecycle.Lifecycle.STARTED;
-import static com.android.support.lifecycle.Lifecycle.STOPPED;
+import com.android.support.lifecycle.OnLifecycleEvent;
 
 class Base {
-    @OnState(STOPPED)
-    void onStop(){}
+    @OnLifecycleEvent(ON_STOP)
+    void onStop() {
+    }
 }
 
 class Derived extends Base {
-    @OnState(STARTED | STOPPED)
-    void onStop(){}
+    @OnLifecycleEvent(ON_START | ON_STOP)
+    void onStop() {
+    }
 }

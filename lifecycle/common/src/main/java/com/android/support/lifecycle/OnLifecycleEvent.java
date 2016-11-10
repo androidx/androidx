@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.android.support.lifecycle;
@@ -25,7 +24,7 @@ import java.lang.annotation.Target;
 @SuppressWarnings("unused")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface OnState {
-    @Lifecycle.State
+public @interface OnLifecycleEvent {
+    @Lifecycle.Event
     int value();
 }

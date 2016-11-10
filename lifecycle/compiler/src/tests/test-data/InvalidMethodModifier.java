@@ -16,11 +16,12 @@
 
 package foo;
 
-import static com.android.support.lifecycle.Lifecycle.STOPPED;
+import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 
-import com.android.support.lifecycle.OnState;
+import com.android.support.lifecycle.OnLifecycleEvent;
 
 public class InvalidMethodModifier {
-    @OnState(STOPPED)
-    private void onStop(int prevState){}
+    @OnLifecycleEvent(ON_STOP)
+    private void onStop(int lastEvent) {
+    }
 }

@@ -17,7 +17,6 @@
 package com.android.support.lifecycle;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 
 /**
  * An implementation of {@link Lifecycle} that can handle multiple observers.
@@ -32,18 +31,13 @@ public class LifecycleRegistry implements Lifecycle {
      * Custom list that keeps observers and can handle removals / additions during traversal.
      */
     private ObserverList mObserverList = new ObserverList();
-
-    /**
-     * Latest state that was provided via {@link #setCurrentState(int)}.
-     */
     @State
-    private int mCurrentState;
-
+    private int mState;
     /**
-     * Previously set state. This allows us to re-use the dispatcher while traversing listeners.
+     * Latest event that was provided via {@link #handleLifecycleEvent(int)}.
      */
-    @VisibleForTesting
-    private int mPrevState;
+    @Event
+    private int mLastEvent;
 
     /**
      * The provider that owns this Lifecycle.
@@ -53,7 +47,7 @@ public class LifecycleRegistry implements Lifecycle {
     private final ObserverList.Callback mDispatchCallback = new ObserverList.Callback() {
         @Override
         public void run(GenericLifecycleObserver observer) {
-            observer.onStateChanged(mLifecycleProvider, mPrevState);
+            observer.onStateChanged(mLifecycleProvider, mLastEvent);
         }
     };
 
@@ -64,11 +58,10 @@ public class LifecycleRegistry implements Lifecycle {
      * onto the same instance.
      *
      * @param provider     The owner LifecycleProvider
-     * @param initialState The start state.
      */
-    public LifecycleRegistry(@NonNull LifecycleProvider provider, @State int initialState) {
-        mCurrentState = initialState;
+    public LifecycleRegistry(@NonNull LifecycleProvider provider) {
         mLifecycleProvider = provider;
+        mState = INITIALIZED;
     }
 
     /**
@@ -77,14 +70,15 @@ public class LifecycleRegistry implements Lifecycle {
      * Note that if the {@code currentState} is the same state as the last call to this method,
      * calling this method has no effect.
      *
-     * @param currentState The updated state of the LifecycleProvider.
+     * @param event The event that was received
      */
-    public void setCurrentState(@State int currentState) {
-        if (mCurrentState == currentState) {
+    public void handleLifecycleEvent(@Event int event) {
+        if (mLastEvent == event) {
             return;
         }
-        mPrevState = mCurrentState;
-        mCurrentState = currentState;
+        mLastEvent = event;
+        // TODO fake intermediate events
+        mState = getStateAfter(event);
         mObserverList.forEach(mDispatchCallback);
     }
 
@@ -110,6 +104,24 @@ public class LifecycleRegistry implements Lifecycle {
     @Override
     @State
     public int getCurrentState() {
-        return mCurrentState;
+        return mState;
+    }
+
+    @Lifecycle.State
+    static int getStateAfter(@Event int event) {
+        // TODO do some masking logic to return this fast.
+        switch (event) {
+            case ON_CREATE:
+            case ON_STOP:
+                return STOPPED;
+            case ON_START:
+            case ON_PAUSE:
+                return STARTED;
+            case ON_RESUME:
+                return RESUMED;
+            case ON_DESTROY:
+                return DESTROYED;
+        }
+        throw new RuntimeException("Unexpected state value");
     }
 }

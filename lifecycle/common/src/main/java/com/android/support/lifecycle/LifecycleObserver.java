@@ -19,7 +19,7 @@ package com.android.support.lifecycle;
 
 /**
  * Marks a class as a LifecycleObserver. It does not have any methods, instead, relies on
- * {@link OnState} annotated methods.
+ * {@link OnLifecycleEvent} annotated methods.
  */
 @SuppressWarnings("WeakerAccess")
 public interface LifecycleObserver {

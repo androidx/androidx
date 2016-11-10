@@ -1,10 +1,12 @@
 package foo;
-import com.android.support.lifecycle.OnState;
-import static com.android.support.lifecycle.Lifecycle.STARTED;
-import static com.android.support.lifecycle.Lifecycle.STOPPED;
+
+import static com.android.support.lifecycle.Lifecycle.ON_STOP;
+
 import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.OnLifecycleEvent;
 
 public class InvalidSecondArg {
-    @OnState(STOPPED)
-    public void onStop(LifecycleProvider provider, Object prevState){}
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop(LifecycleProvider provider, Object lastEvent) {
+    }
 }

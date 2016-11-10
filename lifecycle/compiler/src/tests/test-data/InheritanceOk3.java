@@ -16,17 +16,19 @@
 
 package foo;
 
-import com.android.support.lifecycle.LifecycleProvider;
-import com.android.support.lifecycle.OnState;
+import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 
-import static com.android.support.lifecycle.Lifecycle.STOPPED;
+import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.OnLifecycleEvent;
 
 class InheritanceOk3Base {
-    @OnState(STOPPED)
-    public void onStop(LifecycleProvider provider, int prevstate){}
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop(LifecycleProvider provider, int lastEvent) {
+    }
 }
 
 class InheritanceOk3Derived extends InheritanceOk3Base {
-    @OnState(STOPPED)
-    public void onStop(LifecycleProvider provider, int prevstate){}
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop(LifecycleProvider provider, int lastEvent) {
+    }
 }

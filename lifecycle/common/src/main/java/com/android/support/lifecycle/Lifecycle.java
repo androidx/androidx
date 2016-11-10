@@ -46,6 +46,15 @@ public interface Lifecycle {
     @MainThread
     void removeObserver(LifecycleObserver observer);
 
+    int DESTROYED = 1;
+    int INITIALIZED = DESTROYED << 1;
+    int STOPPED = INITIALIZED << 1;
+    int STARTED = STOPPED << 1;
+    int RESUMED = STARTED << 1;
+    @IntDef(value = {DESTROYED, INITIALIZED, STOPPED, STARTED, RESUMED})
+    public @interface State {
+    }
+
     /**
      * Returns the current state of the Lifecycle.
      *
@@ -53,18 +62,16 @@ public interface Lifecycle {
      */
     @MainThread @State
     public int getCurrentState();
-    public static final int INITIALIZED = 1;
-    public static final int CREATED = INITIALIZED << 2;
-    public static final int STARTED = CREATED << 2;
-    public static final int RESUMED = STARTED << 2;
-    public static final int PAUSED = RESUMED << 2;
-    public static final int STOPPED = PAUSED << 2;
-    public static final int DESTROYED = STOPPED << 2;
-    public static final int FINISHED = DESTROYED << 2;
-    public static final int ANY = -1;
+    int ON_CREATE = RESUMED << 1;
+    int ON_START = ON_CREATE << 2;
+    int ON_RESUME = ON_START << 2;
+    int ON_PAUSE = ON_RESUME << 2;
+    int ON_STOP = ON_PAUSE << 2;
+    int ON_DESTROY = ON_STOP << 2;
+    int ANY = -1;
 
-    @IntDef(value = {INITIALIZED, CREATED, STARTED, RESUMED, PAUSED, STOPPED, DESTROYED, ANY},
+    @IntDef(value = {ON_CREATE, ON_START, ON_RESUME, ON_PAUSE, ON_STOP, ON_DESTROY, ANY},
             flag = true)
-    public @interface State {
+    public @interface Event {
     }
 }

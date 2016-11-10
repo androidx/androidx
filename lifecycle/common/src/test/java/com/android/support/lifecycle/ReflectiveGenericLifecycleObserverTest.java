@@ -1,10 +1,12 @@
 package com.android.support.lifecycle;
 
-import static com.android.support.lifecycle.Lifecycle.CREATED;
-import static com.android.support.lifecycle.Lifecycle.DESTROYED;
-import static com.android.support.lifecycle.Lifecycle.FINISHED;
 import static com.android.support.lifecycle.Lifecycle.INITIALIZED;
-import static com.android.support.lifecycle.Lifecycle.PAUSED;
+import static com.android.support.lifecycle.Lifecycle.ON_CREATE;
+import static com.android.support.lifecycle.Lifecycle.ON_DESTROY;
+import static com.android.support.lifecycle.Lifecycle.ON_PAUSE;
+import static com.android.support.lifecycle.Lifecycle.ON_RESUME;
+import static com.android.support.lifecycle.Lifecycle.ON_START;
+import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 import static com.android.support.lifecycle.Lifecycle.RESUMED;
 import static com.android.support.lifecycle.Lifecycle.STARTED;
 import static com.android.support.lifecycle.Lifecycle.STOPPED;
@@ -21,53 +23,49 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class ReflectiveGenericLifecycleObserverTest {
-    LifecycleProvider provider;
-    Lifecycle lifecycle;
+    private LifecycleProvider mProvider;
+    private Lifecycle mLifecycle;
 
     @Before
     public void initMocks() {
-        provider = mock(LifecycleProvider.class);
-        lifecycle = mock(Lifecycle.class);
-        when(provider.getLifecycle()).thenReturn(lifecycle);
+        mProvider = mock(LifecycleProvider.class);
+        mLifecycle = mock(Lifecycle.class);
+        when(mProvider.getLifecycle()).thenReturn(mLifecycle);
     }
 
     @Test
     public void anyState() {
         AnyStateListener obj = mock(AnyStateListener.class);
         ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
-        when(lifecycle.getCurrentState()).thenReturn(STARTED);
-        observer.onStateChanged(provider, CREATED);
+        when(mLifecycle.getCurrentState()).thenReturn(STARTED);
+        observer.onStateChanged(mProvider, ON_CREATE);
         verify(obj).onAnyState();
         reset(obj);
 
-        observer.onStateChanged(provider, STARTED);
+        observer.onStateChanged(mProvider, ON_START);
         verify(obj).onAnyState();
         reset(obj);
 
-        observer.onStateChanged(provider, RESUMED);
+        observer.onStateChanged(mProvider, ON_RESUME);
         verify(obj).onAnyState();
         reset(obj);
 
-        observer.onStateChanged(provider, PAUSED);
+        observer.onStateChanged(mProvider, ON_PAUSE);
         verify(obj).onAnyState();
         reset(obj);
 
-        observer.onStateChanged(provider, STOPPED);
+        observer.onStateChanged(mProvider, ON_STOP);
         verify(obj).onAnyState();
         reset(obj);
 
-        observer.onStateChanged(provider, DESTROYED);
-        verify(obj).onAnyState();
-        reset(obj);
-
-        observer.onStateChanged(provider, FINISHED);
+        observer.onStateChanged(mProvider, ON_DESTROY);
         verify(obj).onAnyState();
         reset(obj);
     }
 
     private static class AnyStateListener implements LifecycleObserver {
-        @OnState(Lifecycle.ANY)
-        public void onAnyState() {
+        @OnLifecycleEvent(Lifecycle.ANY)
+        void onAnyState() {
 
         }
     }
@@ -76,24 +74,26 @@ public class ReflectiveGenericLifecycleObserverTest {
     public void singleMethod() {
         CreatedStateListener obj = mock(CreatedStateListener.class);
         ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
-        when(lifecycle.getCurrentState()).thenReturn(CREATED);
-        observer.onStateChanged(provider, INITIALIZED);
+        when(mLifecycle.getCurrentState()).thenReturn(STOPPED);
+        observer.onStateChanged(mProvider, ON_CREATE);
         verify(obj).onCreated();
-        verify(obj).onCreated(provider);
-        verify(obj).onCreated(provider, INITIALIZED);
+        verify(obj).onCreated(mProvider);
+        verify(obj).onCreated(mProvider, ON_CREATE);
     }
 
     private static class CreatedStateListener implements LifecycleObserver {
-        @OnState(CREATED)
-        public void onCreated() {
+        @OnLifecycleEvent(ON_CREATE)
+        void onCreated() {
 
         }
-        @OnState(CREATED)
-        public void onCreated(LifecycleProvider provider) {
+        @SuppressWarnings("UnusedParameters")
+        @OnLifecycleEvent(ON_CREATE)
+        void onCreated(LifecycleProvider provider) {
 
         }
-        @OnState(CREATED)
-        public void onCreated(LifecycleProvider provider, int prevState) {
+        @SuppressWarnings("UnusedParameters")
+        @OnLifecycleEvent(ON_CREATE)
+        void onCreated(LifecycleProvider provider, int event) {
 
         }
     }
@@ -102,64 +102,56 @@ public class ReflectiveGenericLifecycleObserverTest {
     public void eachEvent() {
         AllMethodsListener obj = mock(AllMethodsListener.class);
         ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
-        when(lifecycle.getCurrentState()).thenReturn(CREATED);
+        when(mLifecycle.getCurrentState()).thenReturn(STOPPED);
 
-        observer.onStateChanged(provider, CREATED);
+        observer.onStateChanged(mProvider, ON_CREATE);
         verify(obj).created();
         reset(obj);
 
-        when(lifecycle.getCurrentState()).thenReturn(STARTED);
-        observer.onStateChanged(provider, CREATED);
+        when(mLifecycle.getCurrentState()).thenReturn(STARTED);
+        observer.onStateChanged(mProvider, ON_START);
         verify(obj).started();
         reset(obj);
 
-        when(lifecycle.getCurrentState()).thenReturn(RESUMED);
-        observer.onStateChanged(provider, STARTED);
+        when(mLifecycle.getCurrentState()).thenReturn(RESUMED);
+        observer.onStateChanged(mProvider, ON_RESUME);
         verify(obj).resumed();
         reset(obj);
 
-        when(lifecycle.getCurrentState()).thenReturn(PAUSED);
-        observer.onStateChanged(provider, RESUMED);
+        when(mLifecycle.getCurrentState()).thenReturn(STARTED);
+        observer.onStateChanged(mProvider, ON_PAUSE);
         verify(obj).paused();
         reset(obj);
 
-        when(lifecycle.getCurrentState()).thenReturn(STOPPED);
-        observer.onStateChanged(provider, PAUSED);
+        when(mLifecycle.getCurrentState()).thenReturn(STOPPED);
+        observer.onStateChanged(mProvider, ON_STOP);
         verify(obj).stopped();
         reset(obj);
 
-        when(lifecycle.getCurrentState()).thenReturn(DESTROYED);
-        observer.onStateChanged(provider, STOPPED);
+        when(mLifecycle.getCurrentState()).thenReturn(INITIALIZED);
+        observer.onStateChanged(mProvider, ON_DESTROY);
         verify(obj).destroyed();
-        reset(obj);
-
-        when(lifecycle.getCurrentState()).thenReturn(FINISHED);
-        observer.onStateChanged(provider, DESTROYED);
-        verify(obj).finished();
         reset(obj);
     }
 
 
     private static class AllMethodsListener implements LifecycleObserver {
-        @OnState(CREATED)
-        public void created() {}
+        @OnLifecycleEvent(ON_CREATE)
+        void created() {}
 
-        @OnState(STARTED)
-        public void started() {}
+        @OnLifecycleEvent(ON_START)
+        void started() {}
 
-        @OnState(RESUMED)
-        public void resumed() {}
+        @OnLifecycleEvent(ON_RESUME)
+        void resumed() {}
 
-        @OnState(PAUSED)
-        public void paused() {}
+        @OnLifecycleEvent(ON_PAUSE)
+        void paused() {}
 
-        @OnState(STOPPED)
-        public void stopped() {}
+        @OnLifecycleEvent(ON_STOP)
+        void stopped() {}
 
-        @OnState(DESTROYED)
-        public void destroyed() {}
-
-        @OnState(FINISHED)
-        public void finished() {}
+        @OnLifecycleEvent(ON_DESTROY)
+        void destroyed() {}
     }
 }

@@ -23,6 +23,12 @@ package com.android.support.lifecycle;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public interface GenericLifecycleObserver extends LifecycleObserver {
-    void onStateChanged(LifecycleProvider source, @Lifecycle.State int previousState);
+    /**
+     * Called when a state transition event happens.
+     *
+     * @param source The source of the event
+     * @param event The event
+     */
+    void onStateChanged(LifecycleProvider source, @Lifecycle.Event int event);
     Object getReceiver();
 }
