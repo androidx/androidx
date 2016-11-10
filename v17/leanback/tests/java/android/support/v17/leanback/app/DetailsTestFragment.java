@@ -88,6 +88,15 @@ public class DetailsTestFragment extends android.support.v17.leanback.app.Detail
         if (getArguments() != null) {
             mMinVerticalOffset = getArguments().getInt(VERTICAL_OFFSET, -100);
         }
+        mParallaxHelper = new DetailsBackgroundParallaxHelper.ParallaxBuilder(
+                getActivity(),
+                getParallaxManager())
+                .setCoverImageMinVerticalOffset(mMinVerticalOffset)
+                .build();
+        BackgroundManager backgroundManager = BackgroundManager.getInstance(getActivity());
+        backgroundManager.attach(getActivity().getWindow());
+        backgroundManager.setDrawable(mParallaxHelper.getDrawable());
+
         mActionPlay = new Action(ACTION_PLAY, "Play");
         mActionRent = new Action(ACTION_RENT, "Rent", "$3.99",
                 getResources().getDrawable(R.drawable.ic_action_a));
@@ -155,19 +164,6 @@ public class DetailsTestFragment extends android.support.v17.leanback.app.Detail
         }, TIME_TO_LOAD_RELATED_ROWS_MS);
 
         setAdapter(mRowsAdapter);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mParallaxHelper = new DetailsBackgroundParallaxHelper.ParallaxBuilder(
-                getActivity(),
-                getParallaxManager())
-                .setCoverImageMinVerticalOffset(mMinVerticalOffset)
-                .build();
-        BackgroundManager backgroundManager = BackgroundManager.getInstance(getActivity());
-        backgroundManager.attach(getActivity().getWindow());
-        backgroundManager.setDrawable(mParallaxHelper.getDrawable());
     }
 
     @Override

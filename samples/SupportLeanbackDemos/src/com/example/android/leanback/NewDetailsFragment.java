@@ -16,7 +16,6 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.DetailsBackgroundParallaxHelper;
@@ -79,7 +78,6 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
     private int mBitmapMinVerticalOffset = -100;
     private MediaPlayerGlue mMediaPlayerGlue;
     private VideoFragment mVideoFragment;
-    private boolean mSetupDone;
 
     private void initializeTest() {
         TEST_SHARED_ELEMENT_TRANSITION = null != getActivity().getWindow()
@@ -95,6 +93,19 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         initializeTest();
 
         mBackgroundHelper = new BackgroundHelper(getActivity());
+        mParallaxHelper = new DetailsBackgroundParallaxHelper.ParallaxBuilder(
+                getActivity(), getParallaxManager())
+                .setCoverImageMinVerticalOffset(mBitmapMinVerticalOffset)
+                .build();
+        mMediaPlayerGlue = new MediaPlayerGlue(getActivity(), null);
+        mMediaPlayerGlue.setHost(createPlaybackGlueHost());
+        mVideoHelper = new DetailsFragmentVideoHelper(mMediaPlayerGlue, getParallaxManager());
+        mVideoHelper.setBackgroundDrawable(mParallaxHelper.getCoverImageDrawable());
+
+        mMediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
+        mMediaPlayerGlue.setArtist("A Googleer");
+        mMediaPlayerGlue.setTitle("Diving with Sharks");
+        mMediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
 
         final Context context = getActivity();
         setBadgeDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_title,
@@ -208,7 +219,7 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        mBackgroundHelper.attachToView(view.findViewById(R.id.details_background_view));
+        mBackgroundHelper.attachToView(getBackgroundView());
         return view;
     }
 
@@ -266,35 +277,19 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         setAdapter(mRowsAdapter);
     }
 
-    void setupHelpers() {
-        if (!mSetupDone) {
-            mParallaxHelper = new DetailsBackgroundParallaxHelper.ParallaxBuilder(
-                    getActivity(), getParallaxManager())
-                    .setCoverImageMinVerticalOffset(mBitmapMinVerticalOffset)
-                    .build();
-            mMediaPlayerGlue = new MediaPlayerGlue(getActivity(), null);
-
-            mMediaPlayerGlue.setHost(createPlaybackGlueHost());
-            mVideoHelper = new DetailsFragmentVideoHelper(mMediaPlayerGlue, getParallaxManager());
-            mVideoHelper.setBackgroundDrawable(mParallaxHelper.getCoverImageDrawable());
-            mSetupDone = true;
-        }
-    }
-
     @Override
     public void onStart() {
         super.onStart();
-        Bitmap bitmap = BitmapFactory.decodeResource(getActivity().getResources(),
-                R.drawable.spiderman);
 
-        setupHelpers();
-        mMediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
-        mMediaPlayerGlue.setArtist("A Googleer");
-        mMediaPlayerGlue.setTitle("Diving with Sharks");
-        mMediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
-
+        // Restore background drawable in onStart():
         mBackgroundHelper.setDrawable(mParallaxHelper.getDrawable());
-        mParallaxHelper.setCoverImageBitmap(bitmap);
+        mBackgroundHelper.loadBitmap(R.drawable.spiderman,
+                new BackgroundHelper.BitmapLoadCallback() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap) {
+                    mParallaxHelper.setCoverImageBitmap(bitmap);
+                }
+            });
     }
 
     @Override

@@ -39,11 +39,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 
@@ -91,19 +88,10 @@ public final class BackgroundManager {
     private static final int CHANGE_BG_DELAY_MS = 500;
     private static final int FADE_DURATION = 500;
 
-    /**
-     * Using a separate window for backgrounds can improve graphics performance by
-     * leveraging hardware display layers.
-     * TODO: support a leanback configuration option.
-     */
-    private static final boolean USE_SEPARATE_WINDOW = false;
-
-    private static final String WINDOW_NAME = "BackgroundManager";
     private static final String FRAGMENT_TAG = BackgroundManager.class.getCanonicalName();
 
-    Context mContext;
+    Activity mContext;
     Handler mHandler;
-    private WindowManager mWindowManager;
     private View mBgView;
     private BackgroundContinuityService mService;
     private int mThemeDrawableResourceId;
@@ -654,11 +642,7 @@ public final class BackgroundManager {
      * when the background is set.
      */
     public void attach(Window window) {
-        if (USE_SEPARATE_WINDOW) {
-            attachBehindWindow(window);
-        } else {
-            attachToView(window.getDecorView());
-        }
+        attachToViewInternal(window.getDecorView());
     }
 
     /**
@@ -670,31 +654,15 @@ public final class BackgroundManager {
         mThemeDrawableResourceId = resourceId;
     }
 
-    private void attachBehindWindow(Window window) {
-        if (DEBUG) Log.v(TAG, "attachBehindWindow " + window);
-        mWindowManager = window.getWindowManager();
-
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                // Media window sits behind the main application window
-                WindowManager.LayoutParams.TYPE_APPLICATION_MEDIA,
-                // Avoid default to software format RGBA
-                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                android.graphics.PixelFormat.TRANSLUCENT);
-        params.setTitle(WINDOW_NAME);
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        params.height = ViewGroup.LayoutParams.MATCH_PARENT;
-
-        View backgroundView = LayoutInflater.from(mContext).inflate(
-                R.layout.lb_background_window, null);
-        mWindowManager.addView(backgroundView, params);
-
-        attachToView(backgroundView);
-    }
-
     /**
      * Adds the composite drawable to the given view.
      */
     public void attachToView(View sceneRoot) {
+        attachToViewInternal(sceneRoot);
+        mContext.getWindow().getDecorView().setBackground(null);
+    }
+
+    void attachToViewInternal(View sceneRoot) {
         if (mAttached) {
             throw new IllegalStateException("Already attached to " + mBgView);
         }
@@ -718,11 +686,6 @@ public final class BackgroundManager {
         if (DEBUG) Log.v(TAG, "detach " + this);
         release();
 
-        if (mWindowManager != null && mBgView != null) {
-            mWindowManager.removeViewImmediate(mBgView);
-        }
-
-        mWindowManager = null;
         mBgView = null;
         mAttached = false;
 

@@ -83,6 +83,15 @@ public class BackgroundHelper {
         }
     }
 
+    /**
+     * Callback class to perform task after bitmap is loaded.
+     */
+    public abstract static class BitmapLoadCallback {
+        /**
+         * Called when Bitmap is loaded.
+         */
+        public abstract void onBitmapLoaded(Bitmap bitmap);
+    }
 
     static class Request {
         Object mImageToken;
@@ -108,12 +117,12 @@ public class BackgroundHelper {
         @Override
         public void run() {
             if (DEBUG) Log.v(TAG, "Executing task");
-            new LoadBitmapTask().execute(mRequest);
+            new LoadBitmapIntoBackgroundManagerTask().execute(mRequest);
             mRunnable = null;
         }
     }
 
-    class LoadBitmapTask extends AsyncTask<Request, Object, Request> {
+    class LoadBitmapTaskBase extends AsyncTask<Request, Object, Request> {
         @Override
         protected Request doInBackground(Request... params) {
             boolean cancelled = isCancelled();
@@ -129,7 +138,6 @@ public class BackgroundHelper {
         protected void onPostExecute(Request request) {
             if (DEBUG) Log.v(TAG, "onPostExecute");
             BitmapCache.getInstance().putCache(request.mImageToken, request.mResult);
-            mBackgroundManager.setBitmap(request.mResult);
         }
 
         @Override
@@ -148,7 +156,30 @@ public class BackgroundHelper {
             }
             return null;
         }
+    }
 
+    class LoadBitmapIntoBackgroundManagerTask extends LoadBitmapTaskBase {
+        @Override
+        protected void onPostExecute(Request request) {
+            super.onPostExecute(request);
+            mBackgroundManager.setBitmap(request.mResult);
+        }
+    }
+
+    class LoadBitmapCallbackTask extends LoadBitmapTaskBase {
+        BitmapLoadCallback mCallback;
+
+        LoadBitmapCallbackTask(BitmapLoadCallback callback) {
+            mCallback = callback;
+        }
+
+        @Override
+        protected void onPostExecute(Request request) {
+            super.onPostExecute(request);
+            if (mCallback != null) {
+                mCallback.onBitmapLoaded(request.mResult);
+            }
+        }
     }
 
     final Activity mActivity;
@@ -237,5 +268,19 @@ public class BackgroundHelper {
         if (DEBUG) Log.v(TAG, "setDrawable " + drawable + " to " + mActivity);
         createBackgroundManagerIfNeeded();
         mBackgroundManager.setDrawable(drawable);
+    }
+
+    /**
+     * Load bitmap in background and pass result to BitmapLoadCallback.
+     */
+    public void loadBitmap(Object imageToken, BitmapLoadCallback callback) {
+        Bitmap cachedBitmap = BitmapCache.getInstance().getCache(imageToken);
+        if (cachedBitmap != null) {
+            if (callback != null) {
+                callback.onBitmapLoaded(cachedBitmap);
+                return;
+            }
+        }
+        new LoadBitmapCallbackTask(callback).execute(new Request(imageToken));
     }
 }

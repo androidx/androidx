@@ -26,15 +26,13 @@ import android.support.v7.widget.RecyclerView;
  * half/full screen.
  */
 public class DetailsParallaxManager {
-    private final RecyclerView mRecyclerView;
     private final ParallaxRecyclerViewSource mParallaxSource;
     private final ParallaxRecyclerViewSource.ChildPositionProperty mFrameTop;
     private final ParallaxRecyclerViewSource.ChildPositionProperty mFrameBottom;
     private Parallax mParallax;
 
-    public DetailsParallaxManager(RecyclerView recyclerView) {
-        this.mRecyclerView = recyclerView;
-        mParallaxSource = new ParallaxRecyclerViewSource(mRecyclerView);
+    public DetailsParallaxManager() {
+        mParallaxSource = new ParallaxRecyclerViewSource();
 
         // track the top edge of details_frame of first item of adapter
         mFrameTop = mParallaxSource
@@ -61,7 +59,15 @@ public class DetailsParallaxManager {
     }
 
     public RecyclerView getRecyclerView() {
-        return mRecyclerView;
+        return mParallaxSource.getRecyclerView();
+    }
+
+    /**
+     * Set the RecyclerView to register onScrollListener.
+     * @param recyclerView
+     */
+    public void setRecyclerView(RecyclerView recyclerView) {
+        mParallaxSource.setRecyclerView(recyclerView);
     }
 
     /**

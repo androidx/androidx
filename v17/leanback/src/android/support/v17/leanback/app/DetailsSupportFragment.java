@@ -203,6 +203,8 @@ public class DetailsSupportFragment extends BaseSupportFragment {
             }
         });
 
+        setupVideoPlayback();
+
         return mRootView;
     }
 
@@ -341,7 +343,6 @@ public class DetailsSupportFragment extends BaseSupportFragment {
             ft2.add(android.support.v17.leanback.R.id.video_surface_container,
                     fragment = onCreateVideoSupportFragment());
             ft2.commit();
-            setupVideoPlayback();
         }
         mVideoSupportFragment = fragment;
         return mVideoSupportFragment;
@@ -442,6 +443,9 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         if (isEntranceTransitionEnabled()) {
             mRowsSupportFragment.setEntranceTransitionState(false);
         }
+        if (mDetailsParallaxManager != null) {
+            mDetailsParallaxManager.setRecyclerView(mRowsSupportFragment.getVerticalGridView());
+        }
         mRowsSupportFragment.getVerticalGridView().requestFocus();
     }
 
@@ -472,15 +476,41 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * Returns the {@link DetailsParallaxManager} instance used to configure
-     * {@link android.support.v17.leanback.widget.Parallax} instance.
+     * Create a DetailsParallaxManager that will be used to configure parallax effect of background
+     * and start/stop Video playback. Subclass may override.
+     *
+     * @return The new created DetailsParallaxManager.
+     * @see #getParallaxManager()
+     */
+    public DetailsParallaxManager onCreateParallaxManager() {
+        return new DetailsParallaxManager();
+    }
+
+    /**
+     * Returns the {@link DetailsParallaxManager} instance used to configure parallax effect of
+     * background.
+     *
+     * @return The DetailsParallaxManager instance attached to the DetailsSupportFragment.
+     * @see #onCreateParallaxManager()
      */
     public DetailsParallaxManager getParallaxManager() {
         if (mDetailsParallaxManager == null) {
-            mDetailsParallaxManager = new DetailsParallaxManager(
-                    getRowsSupportFragment().getVerticalGridView());
+            mDetailsParallaxManager = onCreateParallaxManager();
+            if (mRowsSupportFragment != null) {
+                mDetailsParallaxManager.setRecyclerView(mRowsSupportFragment.getVerticalGridView());
+            }
         }
         return mDetailsParallaxManager;
+    }
+
+    /**
+     * Returns background View that above VideoSupportFragment. App can set a background drawable to this
+     * view to hide the VideoSupportFragment before it is ready to play.
+     *
+     * @see #findOrCreateVideoSupportFragment()
+     */
+    public View getBackgroundView() {
+        return mRootView == null ? null : mRootView.findViewById(R.id.details_background_view);
     }
 
     /**
@@ -525,7 +555,8 @@ public class DetailsSupportFragment extends BaseSupportFragment {
                 // This is used to check if we are in full screen video mode. This is somewhat
                 // hacky and relies on the behavior of the video helper class to update the
                 // focusability of the video surface view.
-                if (mVideoSupportFragment.getView() != null && mVideoSupportFragment.getView().hasFocus()) {
+                if (mVideoSupportFragment != null && mVideoSupportFragment.getView() != null
+                        && mVideoSupportFragment.getView().hasFocus()) {
                     if (keyCode == KeyEvent.KEYCODE_BACK) {
                         slideInGridView();
                         getVerticalGridView().requestFocus();
