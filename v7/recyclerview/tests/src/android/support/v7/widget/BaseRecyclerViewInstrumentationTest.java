@@ -759,10 +759,20 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
         final String mText;
         int mType = 0;
+        boolean mFocusable;
 
         Item(int adapterIndex, String text) {
             mAdapterIndex = adapterIndex;
             mText = text;
+            mFocusable = true;
+        }
+
+        public boolean isFocusable() {
+            return mFocusable;
+        }
+
+        public void setFocusable(boolean mFocusable) {
+            this.mFocusable = mFocusable;
         }
 
         @Override

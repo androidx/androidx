@@ -29,18 +29,46 @@ import android.view.ViewGroup;
  * and rendering video.
  */
 public class VideoSupportFragment extends PlaybackSupportFragment {
-    private SurfaceView mVideoSurface;
-    private SurfaceHolder.Callback mMediaPlaybackCallback;
+    static final int SURFACE_NOT_CREATED = 0;
+    static final int SURFACE_CREATED = 1;
+
+    SurfaceView mVideoSurface;
+    SurfaceHolder.Callback mMediaPlaybackCallback;
+
+    int mState = SURFACE_NOT_CREATED;
 
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
-        mVideoSurface = (SurfaceView) inflater.inflate(R.layout.lb_video_surface, container, false);
+        mVideoSurface = (SurfaceView) getActivity().getLayoutInflater().inflate(
+                R.layout.lb_video_surface, root, false);
         root.addView(mVideoSurface, 0);
-        if (mMediaPlaybackCallback != null) {
-            mVideoSurface.getHolder().addCallback(mMediaPlaybackCallback);
-        }
+        mVideoSurface.getHolder().addCallback(new SurfaceHolder.Callback() {
+
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                if (mMediaPlaybackCallback != null) {
+                    mMediaPlaybackCallback.surfaceCreated(holder);
+                }
+                mState = SURFACE_CREATED;
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                if (mMediaPlaybackCallback != null) {
+                    mMediaPlaybackCallback.surfaceChanged(holder, format, width, height);
+                }
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                if (mMediaPlaybackCallback != null) {
+                    mMediaPlaybackCallback.surfaceDestroyed(holder);
+                }
+                mState = SURFACE_NOT_CREATED;
+            }
+        });
         setBackgroundType(PlaybackSupportFragment.BG_LIGHT);
         return root;
     }
@@ -49,13 +77,19 @@ public class VideoSupportFragment extends PlaybackSupportFragment {
      * Adds {@link SurfaceHolder.Callback} to {@link android.view.SurfaceView}.
      */
     public void setSurfaceHolderCallback(SurfaceHolder.Callback callback) {
-        if (mVideoSurface != null && mMediaPlaybackCallback != null) {
-            mVideoSurface.getHolder().removeCallback(mMediaPlaybackCallback);
-        }
-
         mMediaPlaybackCallback = callback;
-        if (mVideoSurface != null && mMediaPlaybackCallback != null) {
-            mVideoSurface.getHolder().addCallback(mMediaPlaybackCallback);
+
+        if (callback != null) {
+            if (mState == SURFACE_CREATED) {
+                mMediaPlaybackCallback.surfaceCreated(mVideoSurface.getHolder());
+            }
         }
+    }
+
+    /**
+     * Returns the surface view.
+     */
+    public SurfaceView getSurfaceView() {
+        return mVideoSurface;
     }
 }

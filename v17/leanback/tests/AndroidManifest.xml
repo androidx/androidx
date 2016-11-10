@@ -75,6 +75,9 @@
             android:theme="@style/Theme.Leanback"
             android:exported="true" />
 
+        <activity android:name="android.support.v17.leanback.app.TestActivity"
+            android:theme="@style/Theme.Leanback"
+            android:exported="true" />
     </application>
 
 </manifest>

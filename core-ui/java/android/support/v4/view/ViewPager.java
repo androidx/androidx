@@ -101,12 +101,8 @@ import java.util.List;
  * href="{@docRoot}training/implementing-navigation/lateral.html">Creating Swipe Views with
  * Tabs</a>.</p>
  *
- * <p>Below is a more complicated example of ViewPager, using it in conjunction
- * with {@link android.app.ActionBar} tabs.  You can find other examples of using
- * ViewPager in the API 4+ Support Demos and API 13+ Support Demos sample code.
- *
- * {@sample frameworks/support/samples/Support13Demos/src/com/example/android/supportv13/app/ActionBarTabsPager.java
- *      complete}
+ * <p>You can find examples of using ViewPager in the API 4+ Support Demos and API 13+ Support Demos
+ * sample code.
  */
 public class ViewPager extends ViewGroup {
     private static final String TAG = "ViewPager";

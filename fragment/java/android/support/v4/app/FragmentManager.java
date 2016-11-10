@@ -16,6 +16,8 @@
 
 package android.support.v4.app;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources.NotFoundException;
@@ -61,8 +63,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Static library support version of the framework's {@link android.app.FragmentManager}.
@@ -1554,9 +1554,22 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void moveToState(int newState) {
+    /**
+     * Changes the state of the fragment manager to {@code newState}. If the fragment manager
+     * changes state or {@code always} is {@code true}, any fragments within it have their
+     * states updated as well.
+     *
+     * @param newState The new state for the fragment manager
+     * @param always If {@code true}, all fragments update their state, even
+     *               if {@code newState} matches the current fragment manager's state.
+     */
+    void moveToState(int newState, boolean always) {
         if (mHost == null && newState != Fragment.INITIALIZING) {
             throw new IllegalStateException("No activity");
+        }
+
+        if (!always && newState == mCurState) {
+            return;
         }
 
         mCurState = newState;
@@ -2129,7 +2142,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             // need to run something now
             FragmentTransition.startTransitions(this, records, isRecordPop, startIndex,
                     postponeIndex, true);
-            moveToState(mCurState);
+            moveToState(mCurState, true);
         }
 
         for (int recordNum = startIndex; recordNum < endIndex; recordNum++) {
@@ -2221,7 +2234,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             FragmentTransition.startTransitions(this, records, isRecordPop, 0, 1, true);
         }
         if (moveToState) {
-            moveToState(mCurState);
+            moveToState(mCurState, true);
         } else if (mActive != null) {
             final int numActive = mActive.size();
             for (int i = 0; i < numActive; i++) {
@@ -2811,26 +2824,26 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     public void dispatchCreate() {
         mStateSaved = false;
-        moveToState(Fragment.CREATED);
+        moveToState(Fragment.CREATED, false);
     }
 
     public void dispatchActivityCreated() {
         mStateSaved = false;
-        moveToState(Fragment.ACTIVITY_CREATED);
+        moveToState(Fragment.ACTIVITY_CREATED, false);
     }
 
     public void dispatchStart() {
         mStateSaved = false;
-        moveToState(Fragment.STARTED);
+        moveToState(Fragment.STARTED, false);
     }
 
     public void dispatchResume() {
         mStateSaved = false;
-        moveToState(Fragment.RESUMED);
+        moveToState(Fragment.RESUMED, false);
     }
 
     public void dispatchPause() {
-        moveToState(Fragment.STARTED);
+        moveToState(Fragment.STARTED, false);
     }
 
     public void dispatchStop() {
@@ -2839,21 +2852,21 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         // them.
         mStateSaved = true;
 
-        moveToState(Fragment.STOPPED);
+        moveToState(Fragment.STOPPED, false);
     }
 
     public void dispatchReallyStop() {
-        moveToState(Fragment.ACTIVITY_CREATED);
+        moveToState(Fragment.ACTIVITY_CREATED, false);
     }
 
     public void dispatchDestroyView() {
-        moveToState(Fragment.CREATED);
+        moveToState(Fragment.CREATED, false);
     }
 
     public void dispatchDestroy() {
         mDestroyed = true;
         execPendingActions();
-        moveToState(Fragment.INITIALIZING);
+        moveToState(Fragment.INITIALIZING, false);
         mHost = null;
         mContainer = null;
         mParent = null;

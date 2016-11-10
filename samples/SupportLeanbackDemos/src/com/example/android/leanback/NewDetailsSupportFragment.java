@@ -46,7 +46,9 @@ import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 public class NewDetailsSupportFragment extends android.support.v17.leanback.app.DetailsSupportFragment {
@@ -76,7 +78,7 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
     private FullWidthDetailsOverviewSharedElementHelper mHelper;
     private DetailsBackgroundParallaxHelper mParallaxHelper;
     private DetailsFragmentVideoHelper mVideoHelper;
-    private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
+    private BackgroundHelper mBackgroundHelper;
     private int mBitmapMinVerticalOffset = -100;
     private MediaPlayerGlue mMediaPlayerGlue;
     private VideoSupportFragment mVideoSupportFragment;
@@ -94,6 +96,8 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         initializeTest();
+
+        mBackgroundHelper = new BackgroundHelper(getActivity());
 
         final Context context = getActivity();
         setBadgeDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_title,
@@ -203,6 +207,14 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
 
     }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        mBackgroundHelper.attachToView(view.findViewById(R.id.details_background_view));
+        return view;
+    }
+
     public void setItem(PhotoItem photoItem) {
         mPhotoItem = photoItem;
 
@@ -284,7 +296,7 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
         mMediaPlayerGlue.setTitle("Diving with Sharks");
         mMediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
 
-        mBackgroundHelper.setDrawable(getActivity(), mParallaxHelper.getDrawable());
+        mBackgroundHelper.setDrawable(mParallaxHelper.getDrawable());
         mParallaxHelper.setCoverImageBitmap(bitmap);
     }
 

@@ -258,6 +258,9 @@
         <attr name="min" format="integer"/>
         <attr name="android:max"/>
         <attr name="android:layout" />
+        <!--Attribute controlling the amount to increment or decrement the seekbar when the user
+        presses the arrow keys-->
+        <attr name="seekBarIncrement" format="integer" />
         <!-- Attribute indicating whether the slider within this preference can be adjusted, that is
         pressing left/right keys when this preference is focused will move the slider accordingly
         (e.g. inline adjustable preferences). False, if the slider within the preference is

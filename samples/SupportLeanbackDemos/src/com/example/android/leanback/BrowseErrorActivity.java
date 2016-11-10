@@ -36,18 +36,6 @@ public class BrowseErrorActivity extends Activity
         testError();
     }
 
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        BackgroundHelper.attach(this);
-    }
-
-    @Override
-    public void onStop() {
-        BackgroundHelper.release(this);
-        super.onStop();
-    }
-
     private void testError() {
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {

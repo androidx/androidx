@@ -290,6 +290,21 @@ public abstract class RowPresenter extends Presenter {
         public final BaseOnItemViewClickedListener getOnItemViewClickedListener() {
             return mOnItemViewClickedListener;
         }
+        /**
+         * Return {@link ViewHolder} of currently selected item inside a row ViewHolder.
+         * @return The selected item's ViewHolder.
+         */
+        public Presenter.ViewHolder getSelectedItemViewHolder() {
+            return null;
+        }
+
+        /**
+         * Return currently selected item inside a row ViewHolder.
+         * @return The selected item.
+         */
+        public Object getSelectedItem() {
+            return null;
+        }
     }
 
     private RowHeaderPresenter mHeaderPresenter = new RowHeaderPresenter();

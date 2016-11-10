@@ -199,6 +199,8 @@ abstract class BaseGridView extends RecyclerView {
         super(context, attrs, defStyle);
         mLayoutManager = new GridLayoutManager(this);
         setLayoutManager(mLayoutManager);
+        // leanback LayoutManager already restores focus inside onLayoutChildren().
+        setPreserveFocusAfterLayout(false);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setHasFixedSize(true);
         setChildrenDrawingOrderEnabled(true);

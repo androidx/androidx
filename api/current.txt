@@ -1227,16 +1227,19 @@ package android.support.v17.leanback.app {
   public final class BackgroundManager {
     method public void attach(android.view.Window);
     method public void attachToView(android.view.View);
+    method public void clearDrawable();
     method public final int getColor();
-    method public android.graphics.drawable.Drawable getDefaultDimLayer();
-    method public android.graphics.drawable.Drawable getDimLayer();
+    method public deprecated android.graphics.drawable.Drawable getDefaultDimLayer();
+    method public deprecated android.graphics.drawable.Drawable getDimLayer();
     method public android.graphics.drawable.Drawable getDrawable();
     method public static android.support.v17.leanback.app.BackgroundManager getInstance(android.app.Activity);
     method public boolean isAttached();
+    method public boolean isAutoReleaseOnStop();
     method public void release();
+    method public void setAutoReleaseOnStop(boolean);
     method public void setBitmap(android.graphics.Bitmap);
     method public void setColor(int);
-    method public void setDimLayer(android.graphics.drawable.Drawable);
+    method public deprecated void setDimLayer(android.graphics.drawable.Drawable);
     method public void setDrawable(android.graphics.drawable.Drawable);
     method public void setThemeDrawableResourceId(int);
   }
@@ -1329,6 +1332,7 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.app.RowsFragment getRowsFragment();
     method public int getSelectedPosition();
+    method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getSelectedRowViewHolder();
     method public final boolean isHeadersTransitionOnBackEnabled();
     method public boolean isInHeadersTransition();
     method public boolean isShowingHeaders();
@@ -1402,6 +1406,7 @@ package android.support.v17.leanback.app {
 
   public static class BrowseFragment.MainFragmentRowsAdapter<T extends android.app.Fragment> {
     ctor public BrowseFragment.MainFragmentRowsAdapter(T);
+    method public android.support.v17.leanback.widget.RowPresenter.ViewHolder findRowViewHolderByPosition(int);
     method public final T getFragment();
     method public int getSelectedPosition();
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
@@ -1431,6 +1436,7 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
     method public int getSelectedPosition();
+    method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getSelectedRowViewHolder();
     method public final boolean isHeadersTransitionOnBackEnabled();
     method public boolean isInHeadersTransition();
     method public boolean isShowingHeaders();
@@ -1504,6 +1510,7 @@ package android.support.v17.leanback.app {
 
   public static class BrowseSupportFragment.MainFragmentRowsAdapter<T extends android.support.v4.app.Fragment> {
     ctor public BrowseSupportFragment.MainFragmentRowsAdapter(T);
+    method public android.support.v17.leanback.widget.RowPresenter.ViewHolder findRowViewHolderByPosition(int);
     method public final T getFragment();
     method public int getSelectedPosition();
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
@@ -1944,6 +1951,7 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost getHost();
     method public boolean isReadyForPlayback();
     method public void next();
+    method public void onDetachedFromHost();
     method public void pause();
     method public void play();
     method public void previous();
@@ -2083,6 +2091,7 @@ package android.support.v17.leanback.app {
     ctor public RowsFragment();
     method public deprecated void enableRowScaling(boolean);
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
+    method public android.support.v17.leanback.widget.RowPresenter.ViewHolder findRowViewHolderByPosition(int);
     method public android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapter getMainFragmentAdapter();
     method public android.support.v17.leanback.app.BrowseFragment.MainFragmentRowsAdapter getMainFragmentRowsAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
@@ -2108,6 +2117,7 @@ package android.support.v17.leanback.app {
     ctor public RowsSupportFragment();
     method public deprecated void enableRowScaling(boolean);
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
+    method public android.support.v17.leanback.widget.RowPresenter.ViewHolder findRowViewHolderByPosition(int);
     method public android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentAdapter getMainFragmentAdapter();
     method public android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentRowsAdapter getMainFragmentRowsAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
@@ -2187,6 +2197,10 @@ package android.support.v17.leanback.app {
     method public abstract boolean onQueryTextSubmit(java.lang.String);
   }
 
+  public abstract interface SurfaceHolderGlueHost {
+    method public abstract void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
+  }
+
   public class VerticalGridFragment extends android.support.v17.leanback.app.BrandedFragment {
     ctor public VerticalGridFragment();
     method protected java.lang.Object createEntranceTransition();
@@ -2217,20 +2231,22 @@ package android.support.v17.leanback.app {
 
   public class VideoFragment extends android.support.v17.leanback.app.PlaybackFragment {
     ctor public VideoFragment();
+    method public android.view.SurfaceView getSurfaceView();
     method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
   }
 
-  public class VideoFragmentGlueHost extends android.support.v17.leanback.app.PlaybackFragmentGlueHost {
+  public class VideoFragmentGlueHost extends android.support.v17.leanback.app.PlaybackFragmentGlueHost implements android.support.v17.leanback.app.SurfaceHolderGlueHost {
     ctor public VideoFragmentGlueHost(android.support.v17.leanback.app.VideoFragment);
     method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
   }
 
   public class VideoSupportFragment extends android.support.v17.leanback.app.PlaybackSupportFragment {
     ctor public VideoSupportFragment();
+    method public android.view.SurfaceView getSurfaceView();
     method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
   }
 
-  public class VideoSupportFragmentGlueHost extends android.support.v17.leanback.app.PlaybackSupportFragmentGlueHost {
+  public class VideoSupportFragmentGlueHost extends android.support.v17.leanback.app.PlaybackSupportFragmentGlueHost implements android.support.v17.leanback.app.SurfaceHolderGlueHost {
     ctor public VideoSupportFragmentGlueHost(android.support.v17.leanback.app.VideoSupportFragment);
     method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
   }
@@ -3649,6 +3665,8 @@ package android.support.v17.leanback.widget {
     method public final android.support.v17.leanback.widget.Row getRow();
     method public final java.lang.Object getRowObject();
     method public final float getSelectLevel();
+    method public java.lang.Object getSelectedItem();
+    method public android.support.v17.leanback.widget.Presenter.ViewHolder getSelectedItemViewHolder();
     method public final boolean isExpanded();
     method public final boolean isSelected();
     method public final void setActivated(boolean);
@@ -9300,11 +9318,13 @@ package android.support.v7.preference {
     ctor public SeekBarPreference(android.content.Context);
     method public int getMax();
     method public int getMin();
+    method public final int getSeekBarIncrement();
     method public int getValue();
     method public boolean isAdjustable();
     method public void setAdjustable(boolean);
-    method public void setMax(int);
+    method public final void setMax(int);
     method public void setMin(int);
+    method public final void setSeekBarIncrement(int);
     method public void setValue(int);
   }
 
