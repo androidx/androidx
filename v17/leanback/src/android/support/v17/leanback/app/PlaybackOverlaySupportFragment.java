@@ -49,6 +49,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
@@ -133,9 +134,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
     private ValueAnimator mControlRowFadeInAnimator, mControlRowFadeOutAnimator;
     private ValueAnimator mDescriptionFadeInAnimator, mDescriptionFadeOutAnimator;
     private ValueAnimator mOtherRowFadeInAnimator, mOtherRowFadeOutAnimator;
-    private boolean mTranslateAnimationEnabled;
     boolean mResetControlsToPrimaryActionsPending;
-    private RecyclerView.ItemAnimator mItemAnimator;
 
     private final Animator.AnimatorListener mFadeListener =
             new Animator.AnimatorListener() {
@@ -172,14 +171,22 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         }
     };
 
-    private final Handler mHandler = new Handler() {
+    static class FadeHandler extends Handler {
         @Override
         public void handleMessage(Message message) {
-            if (message.what == START_FADE_OUT && mFadingEnabled) {
-                fade(false);
+            PlaybackOverlaySupportFragment fragment;
+            if (message.what == START_FADE_OUT) {
+                fragment = ((WeakReference<PlaybackOverlaySupportFragment>) message.obj).get();
+                if (fragment != null && fragment.mFadingEnabled) {
+                    fragment.fade(false);
+                }
             }
         }
-    };
+    }
+
+    final static Handler sHandler = new FadeHandler();
+
+    final WeakReference<PlaybackOverlaySupportFragment> mFragmentReference =  new WeakReference(this);
 
     private final VerticalGridView.OnTouchInterceptListener mOnTouchInterceptListener =
             new VerticalGridView.OnTouchInterceptListener() {
@@ -236,12 +243,12 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
             mFadingEnabled = enabled;
             if (mFadingEnabled) {
                 if (isResumed() && mFadingStatus == IDLE
-                        && !mHandler.hasMessages(START_FADE_OUT)) {
+                        && !sHandler.hasMessages(START_FADE_OUT, mFragmentReference)) {
                     startFadeTimer();
                 }
             } else {
                 // Ensure fully opaque
-                mHandler.removeMessages(START_FADE_OUT);
+                sHandler.removeMessages(START_FADE_OUT, mFragmentReference);
                 fade(true);
             }
         }
@@ -292,7 +299,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         if (!mFadingEnabled || !isResumed()) {
             return;
         }
-        if (mHandler.hasMessages(START_FADE_OUT)) {
+        if (sHandler.hasMessages(START_FADE_OUT, mFragmentReference)) {
             // Restart the timer
             startFadeTimer();
         } else {
@@ -304,7 +311,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
      * Fades out the playback overlay immediately.
      */
     public void fadeOut() {
-        mHandler.removeMessages(START_FADE_OUT);
+        sHandler.removeMessages(START_FADE_OUT, mFragmentReference);
         fade(false);
     }
 
@@ -344,7 +351,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
                 // them out (even if the key was consumed by the handler).
                 if (mFadingEnabled && !controlsHidden) {
                     consumeEvent = true;
-                    mHandler.removeMessages(START_FADE_OUT);
+                    sHandler.removeMessages(START_FADE_OUT, mFragmentReference);
                     fade(false);
                 } else if (consumeEvent) {
                     tickle();
@@ -370,10 +377,9 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
     }
 
     void startFadeTimer() {
-        if (mHandler != null) {
-            mHandler.removeMessages(START_FADE_OUT);
-            mHandler.sendEmptyMessageDelayed(START_FADE_OUT, mShowTimeMs);
-        }
+        sHandler.removeMessages(START_FADE_OUT, mFragmentReference);
+        sHandler.sendMessageDelayed(sHandler.obtainMessage(START_FADE_OUT, mFragmentReference),
+                mShowTimeMs);
     }
 
     private static ValueAnimator loadAnimator(Context context, int resId) {

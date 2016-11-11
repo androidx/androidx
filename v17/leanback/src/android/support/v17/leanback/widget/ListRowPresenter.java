@@ -437,12 +437,9 @@ public class ListRowPresenter extends RowPresenter {
                 new BaseGridView.OnUnhandledKeyListener() {
             @Override
             public boolean onUnhandledKey(KeyEvent event) {
-                if (rowViewHolder.getOnKeyListener() != null &&
+                return rowViewHolder.getOnKeyListener() != null &&
                         rowViewHolder.getOnKeyListener().onKey(
-                                rowViewHolder.view, event.getKeyCode(), event)) {
-                    return true;
-                }
-                return false;
+                                rowViewHolder.view, event.getKeyCode(), event);
             }
         });
         rowViewHolder.mGridView.setNumRows(mNumRows);
