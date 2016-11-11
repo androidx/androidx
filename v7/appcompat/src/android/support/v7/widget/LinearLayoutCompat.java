@@ -1690,6 +1690,16 @@ public class LinearLayoutCompat extends ViewGroup {
         }
     }
 
+    /**
+     * Returns the current gravity. See {@link android.view.Gravity}
+     *
+     * @return the current gravity.
+     * @see #setGravity
+     */
+    public int getGravity() {
+        return mGravity;
+    }
+
     public void setHorizontalGravity(int horizontalGravity) {
         final int gravity = horizontalGravity & GravityCompat.RELATIVE_HORIZONTAL_GRAVITY_MASK;
         if ((mGravity & GravityCompat.RELATIVE_HORIZONTAL_GRAVITY_MASK) != gravity) {

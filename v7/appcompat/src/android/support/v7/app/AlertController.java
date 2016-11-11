@@ -29,7 +29,9 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.appcompat.R;
 import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -109,6 +111,8 @@ class AlertController {
     int mSingleChoiceItemLayout;
     int mListItemLayout;
 
+    private boolean mShowTitle;
+
     private int mButtonPanelLayoutHint = AlertDialog.LAYOUT_HINT_NONE;
 
     Handler mHandler;
@@ -163,6 +167,12 @@ class AlertController {
         }
     }
 
+    private static boolean shouldCenterSingleButton(Context context) {
+        final TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.alertDialogCenterButtons, outValue, true);
+        return outValue.data != 0;
+    }
+
     public AlertController(Context context, AppCompatDialog di, Window window) {
         mContext = context;
         mDialog = di;
@@ -180,6 +190,7 @@ class AlertController {
         mSingleChoiceItemLayout = a
                 .getResourceId(R.styleable.AlertDialog_singleChoiceItemLayout, 0);
         mListItemLayout = a.getResourceId(R.styleable.AlertDialog_listItemLayout, 0);
+        mShowTitle = a.getBoolean(R.styleable.AlertDialog_showTitle, true);
 
         a.recycle();
 
@@ -486,6 +497,29 @@ class AlertController {
             if (mScrollView != null) {
                 mScrollView.setClipToPadding(true);
             }
+
+            // Only show the divider if we have a title.
+            View divider = null;
+            if (mMessage != null || mListView != null || hasCustomPanel) {
+                if (!hasCustomPanel) {
+                    divider = topPanel.findViewById(R.id.titleDividerNoCustom);
+                }
+            }
+
+            if (divider != null) {
+                divider.setVisibility(View.VISIBLE);
+            }
+        } else {
+            if (contentPanel != null) {
+                final View spacer = contentPanel.findViewById(R.id.textSpacerNoTitle);
+                if (spacer != null) {
+                    spacer.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+
+        if (mListView instanceof RecycleListView) {
+            ((RecycleListView) mListView).setHasDecor(hasTopPanel, hasButtonPanel);
         }
 
         // Update scroll indicators as needed.
@@ -640,7 +674,7 @@ class AlertController {
             mIconView = (ImageView) mWindow.findViewById(android.R.id.icon);
 
             final boolean hasTextTitle = !TextUtils.isEmpty(mTitle);
-            if (hasTextTitle) {
+            if (hasTextTitle && mShowTitle) {
                 // Display the title if a title is supplied, else hide it.
                 mTitleView = (TextView) mWindow.findViewById(R.id.alertTitle);
                 mTitleView.setText(mTitle);
@@ -751,9 +785,60 @@ class AlertController {
             whichButtons = whichButtons | BIT_BUTTON_NEUTRAL;
         }
 
+        if (shouldCenterSingleButton(mContext)) {
+            /*
+             * If we only have 1 button it should be centered on the layout and
+             * expand to fill 50% of the available space.
+             */
+            if (whichButtons == BIT_BUTTON_POSITIVE) {
+                centerButton(mButtonPositive);
+            } else if (whichButtons == BIT_BUTTON_NEGATIVE) {
+                centerButton(mButtonNegative);
+            } else if (whichButtons == BIT_BUTTON_NEUTRAL) {
+                centerButton(mButtonNeutral);
+            }
+        }
+
         final boolean hasButtons = whichButtons != 0;
         if (!hasButtons) {
             buttonPanel.setVisibility(View.GONE);
+        }
+    }
+
+    private void centerButton(Button button) {
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) button.getLayoutParams();
+        params.gravity = Gravity.CENTER_HORIZONTAL;
+        params.weight = 0.5f;
+        button.setLayoutParams(params);
+    }
+
+    public static class RecycleListView extends ListView {
+        private final int mPaddingTopNoTitle;
+        private final int mPaddingBottomNoButtons;
+
+        public RecycleListView(Context context) {
+            this(context, null);
+        }
+
+        public RecycleListView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+
+            final TypedArray ta = context.obtainStyledAttributes(
+                    attrs, R.styleable.RecycleListView);
+            mPaddingBottomNoButtons = ta.getDimensionPixelOffset(
+                    R.styleable.RecycleListView_paddingBottomNoButtons, -1);
+            mPaddingTopNoTitle = ta.getDimensionPixelOffset(
+                    R.styleable.RecycleListView_paddingTopNoTitle, -1);
+        }
+
+        public void setHasDecor(boolean hasTitle, boolean hasButtons) {
+            if (!hasButtons || !hasTitle) {
+                final int paddingLeft = getPaddingLeft();
+                final int paddingTop = hasTitle ? getPaddingTop() : mPaddingTopNoTitle;
+                final int paddingRight = getPaddingRight();
+                final int paddingBottom = hasButtons ? getPaddingBottom() : mPaddingBottomNoButtons;
+                setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+            }
         }
     }
 
@@ -877,7 +962,8 @@ class AlertController {
         }
 
         private void createListView(final AlertController dialog) {
-            final ListView listView = (ListView) mInflater.inflate(dialog.mListLayout, null);
+            final RecycleListView listView =
+                    (RecycleListView) mInflater.inflate(dialog.mListLayout, null);
             final ListAdapter adapter;
 
             if (mIsMultiChoice) {
