@@ -108,6 +108,7 @@ task(prepareRepo) << {
 import android.support.build.ApiModule
 import com.google.common.io.Files
 import com.google.common.base.Charsets
+import com.android.build.gradle.internal.coverage.JacocoPlugin;
 
 task(createXml) << {
     def repoArchive = createRepository.archivePath
@@ -291,6 +292,34 @@ subprojects {
             // enable code coverage for debug builds only if we are not running inside the IDE
             // enabling coverage reports breaks the method parameter resolution in the IDE debugger
             project.android.buildTypes.debug.testCoverageEnabled = !hasProperty('android.injected.invoked.from.ide')
+            // Copy the class files in a jar to be later used to generate code coverage report
+            project.android.testVariants.all { v ->
+                // check if the variant has any source files
+                // and test coverage is enabled
+                if (v.buildType.testCoverageEnabled
+                        && v.sourceSets.any { !it.java.sourceFiles.isEmpty() }) {
+                    def jarifyTask = project.tasks.create(
+                            name: "package${v.name.capitalize()}ClassFilesForCoverageReport",
+                            type: Jar) {
+                        from v.javaCompile.destinationDir
+                        destinationDir = file(project.distDir)
+                        archiveName = project.name + "-" + v.name + "-allclasses.jar"
+                    }
+                    def copyJacocoAnt = project.tasks.create(
+                            name: 'copyJacocoAnt',
+                            type: Copy) {
+                        def jacocoAntConfig =
+                                project.configurations[JacocoPlugin.ANT_CONFIGURATION_NAME]
+                        def jacocoAntArtifact =
+                                jacocoAntConfig.resolvedConfiguration.resolvedArtifacts.find {
+                                    "org.jacoco.ant".equals(it.moduleVersion.id.name)
+                                }
+                        from jacocoAntArtifact.getFile()
+                        into project.distDir
+                    }
+                    v.assemble.dependsOn jarifyTask, copyJacocoAnt
+                }
+            }
         }
 
         // Create release and separate zip task for Android libraries (and android-annotations,
