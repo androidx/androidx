@@ -231,6 +231,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // True if this fragment has been restored from previously saved state.
     boolean mRestored;
 
+    // True if performCreateView has been called and a matching call to performDestroyView
+    // has not yet happened.
+    boolean mPerformedCreateView;
+
     // Number of active back stack entries this fragment is in.
     int mBackStackNesting;
 
@@ -425,7 +429,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             Fragment f = (Fragment)clazz.newInstance();
             if (args != null) {
                 args.setClassLoader(f.getClass().getClassLoader());
-                f.mArguments = args;
+                f.setArguments(args);
             }
             return f;
         } catch (ClassNotFoundException e) {
@@ -2181,6 +2185,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mChildFragmentManager != null) {
             mChildFragmentManager.noteStateNotSaved();
         }
+        mPerformedCreateView = true;
         return onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -2415,6 +2420,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mLoaderManager != null) {
             mLoaderManager.doReportNextStart();
         }
+        mPerformedCreateView = false;
     }
 
     void performDestroy() {
