@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_action_mode_done" msgid="4076576682505996667">"Կատարված է"</string>
+    <string name="abc_action_mode_done" msgid="4076576682505996667">"Պատրաստ է"</string>
     <string name="abc_action_bar_home_description" msgid="4600421777120114993">"Ուղղվել տուն"</string>
     <string name="abc_action_bar_up_description" msgid="1594238315039666878">"Ուղղվել վերև"</string>
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"Այլ ընտրանքներ"</string>
