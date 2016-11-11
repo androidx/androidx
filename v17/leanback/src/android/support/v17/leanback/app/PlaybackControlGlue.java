@@ -34,6 +34,8 @@ import android.view.InputEvent;
 import android.view.KeyEvent;
 import android.view.View;
 
+import java.lang.ref.WeakReference;
+
 /**
  * A helper class for managing a {@link android.support.v17.leanback.widget.PlaybackControlsRow}
  * and {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost} that implements a
@@ -188,14 +190,21 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
     private int mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
     private boolean mFadeWhenPlaying = true;
 
-    private final Handler mHandler = new Handler() {
+    static class UpdatePlaybackStateHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_UPDATE_PLAYBACK_STATE) {
-                updatePlaybackState();
+                PlaybackControlGlue glue = ((WeakReference<PlaybackControlGlue>) msg.obj).get();
+                if (glue != null) {
+                    glue.updatePlaybackState();
+                }
             }
         }
-    };
+    }
+
+    static final Handler sHandler = new UpdatePlaybackStateHandler();
+
+    final WeakReference<PlaybackControlGlue> mGlueWeakReference =  new WeakReference(this);
 
     /**
      * Interface allowing the application to handle input events.
@@ -595,16 +604,16 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
     private void updateControlsRow() {
         updateRowMetadata();
-        mHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE);
+        sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
         updatePlaybackState();
     }
 
     private void updatePlaybackStatusAfterUserAction() {
         updatePlaybackState(mPlaybackSpeed);
         // Sync playback state after a delay
-        mHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE);
-        mHandler.sendEmptyMessageDelayed(MSG_UPDATE_PLAYBACK_STATE,
-                UPDATE_PLAYBACK_STATE_DELAY_MS);
+        sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
+        sHandler.sendMessageDelayed(sHandler.obtainMessage(MSG_UPDATE_PLAYBACK_STATE,
+                mGlueWeakReference), UPDATE_PLAYBACK_STATE_DELAY_MS);
     }
 
     private void updateRowMetadata() {
@@ -885,12 +894,12 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
         if (!hasValidMedia()) {
             return;
         }
-        if (mHandler.hasMessages(MSG_UPDATE_PLAYBACK_STATE)) {
-            mHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE);
+        if (sHandler.hasMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference)) {
+            sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
             if (getCurrentSpeedId() != mPlaybackSpeed) {
                 if (DEBUG) Log.v(TAG, "Status expectation mismatch, delaying update");
-                mHandler.sendEmptyMessageDelayed(MSG_UPDATE_PLAYBACK_STATE,
-                        UPDATE_PLAYBACK_STATE_DELAY_MS);
+                sHandler.sendMessageDelayed(sHandler.obtainMessage(MSG_UPDATE_PLAYBACK_STATE,
+                        mGlueWeakReference), UPDATE_PLAYBACK_STATE_DELAY_MS);
             } else {
                 if (DEBUG) Log.v(TAG, "Update state matches expectation");
                 updatePlaybackState();
