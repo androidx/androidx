@@ -1,21 +1,22 @@
-subprojects { project ->
-    project.repositories {
-        maven {
-            println "file://${rootProject.rootDir.absolutePath}/../../../prebuilts/maven_repo"
-            url "file://"
+buildscript {
+    ext.lifecyclesRootFolder = project.rootProject.rootDir
+    apply from: 'init.gradle'
+    ext.addRepos(repositories)
+    dependencies {
+        classpath "com.android.tools.build:gradle:$android_gradle_plugin_version"
+        if (enablePublicRepos) {
+            classpath "com.android.databinding:localizemaven:${localize_maven_version}"
         }
-        maven { url "file://${rootProject.rootDir.absolutePath}/../../../prebuilts/gradle-plugin" }
-        maven { url "file://${rootProject.rootDir.absolutePath}/../../../prebuilts/tools/common/m2/repository" }
-        maven { url "file://${rootProject.rootDir.absolutePath}/../../../prebuilts/tools/common/m2/internal" }
-        maven { url "file://${rootProject.rootDir.absolutePath}/../../../prebuilts/maven_repo/android" }
     }
 }
-ext.localMavenRepo = "file://${new File(project.rootProject.rootDir, "maven-repo").absolutePath}"
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
+
+subprojects { project ->
+    addRepos(project.repositories)
+    if (enablePublicRepos) {
+        apply plugin: 'com.android.databinding.localizemaven'
+        project.localizeMaven {
+            localRepoDir = file("$prebuiltsRoot/tools/common/m2/repository")
+            otherRepoDirs = repoNames
+        }
     }
 }

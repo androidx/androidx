@@ -1,0 +1,55 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+def root = ext.lifecyclesRootFolder
+ext.prebuiltsRoot = "file://${root}/../../../prebuilts"
+ext.repoNames = ["$prebuiltsRoot/maven_repo",
+                 "$prebuiltsRoot/gradle-plugin",
+                 "$prebuiltsRoot/tools/common/m2/repository",
+                 "$prebuiltsRoot/tools/common/m2/internal",
+                 "$prebuiltsRoot/tools/common/offline-m2",
+                 "$prebuiltsRoot/maven_repo/android",
+                 "$prebuiltsRoot/../out/host/gradle/frameworks/support/build/support_repo/"]
+
+ext.kotlin_version = "1.0.5"
+ext.android_gradle_plugin_version = "2.2.0"
+ext.auto_common_version = "0.6"
+ext.javapoet_version = "1.7.0"
+ext.compile_testing_version = "0.9"
+ext.localize_maven_version = "1.1"
+ext.support_lib_version = "25.1.0-SNAPSHOT"
+ext.junit_version = "4.12"
+ext.mockito_version = "1.9.5"
+ext.min_sdk_version = 14
+ext.target_sdk_version = 24
+ext.compile_sdk_version = 24
+ext.build_tools_version = "24.0.0"
+
+ext.enablePublicRepos = System.getenv("ALLOW_PUBLIC_REPOS")
+
+def addRepos(RepositoryHandler handler) {
+    repoNames.each { repo ->
+        handler.maven {
+            url repo
+        }
+        if (ext.enablePublicRepos) {
+            handler.mavenCentral()
+            handler.jcenter()
+        }
+    }
+}
+
+ext.localMavenRepo = "file://${new File(root, "maven-repo").absolutePath}"
+ext.addRepos = this.&addRepos

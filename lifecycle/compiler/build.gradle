@@ -1,18 +1,8 @@
 buildscript {
-    ext.kotlin_version = '1.0.4'
-
-    repositories {
-        // TODO: update kotlin in prebuits to 1.0.4 and remove this.
-        mavenCentral()
-    }
+    addRepos(repositories)
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
-}
-
-repositories {
-    // TODO: update kotlin in prebuits to 1.0.4 and remove this.
-    mavenCentral()
 }
 
 apply plugin: 'kotlin'
@@ -26,9 +16,9 @@ sourceSets {
 dependencies {
     compile project(":common")
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "com.google.auto:auto-common:0.6"
-    compile "com.squareup:javapoet:1.7.0"
-    testCompile "com.google.testing.compile:compile-testing:0.9"
+    compile "com.google.auto:auto-common:$auto_common_version"
+    compile "com.squareup:javapoet:$javapoet_version"
+    testCompile "com.google.testing.compile:compile-testing:$compile_testing_version"
     testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 

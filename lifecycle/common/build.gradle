@@ -4,9 +4,9 @@ apply plugin: 'maven'
 sourceCompatibility = 1.7
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile "org.mockito:mockito-core:1.9.5"
-    compile "com.android.support:support-annotations:25.0.0"
+    testCompile "junit:junit:$junit_version"
+    testCompile "org.mockito:mockito-core:$mockito_version"
+    compile "com.android.support:support-annotations:$support_lib_version"
 }
 
 uploadArchives {
