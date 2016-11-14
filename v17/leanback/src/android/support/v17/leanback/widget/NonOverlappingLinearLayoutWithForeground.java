@@ -60,6 +60,7 @@ class NonOverlappingLinearLayoutWithForeground extends LinearLayout {
             if (d != null) {
                 setForegroundCompat(d);
             }
+            a.recycle();
         }
     }
 
