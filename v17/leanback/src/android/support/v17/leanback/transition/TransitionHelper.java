@@ -48,11 +48,8 @@ public final class TransitionHelper {
      * @return True if Transition animations are supported.
      */
     public static boolean systemSupportsTransitions() {
-        if (Build.VERSION.SDK_INT >= 19) {
-            // Supported on Android 4.4 or later.
-            return true;
-        }
-        return false;
+        // Supported on Android 4.4 or later.
+        return Build.VERSION.SDK_INT >= 19;
     }
 
     /**

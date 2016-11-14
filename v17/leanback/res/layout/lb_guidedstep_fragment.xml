@@ -33,6 +33,7 @@
         <LinearLayout
             android:id="@+id/content_frame"
             android:orientation="horizontal"
+            android:baselineAligned="false"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -40,8 +41,7 @@
                 android:id="@+id/content_fragment"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:layout_alignParentStart="true" />
+                android:layout_height="match_parent" />
 
             <android.support.v17.leanback.widget.NonOverlappingFrameLayout
                 android:id="@+id/action_fragment_root"
@@ -53,8 +53,7 @@
                 android:paddingStart="@dimen/lb_guidedactions_section_shadow_width"
                 android:layout_width="0dp"
                 android:layout_weight="?attr/guidedActionContentWidthWeight"
-                android:layout_height="match_parent"
-                android:layout_alignParentEnd="true">
+                android:layout_height="match_parent" >
 
                 <android.support.v17.leanback.widget.NonOverlappingView
                     android:id="@+id/action_fragment_background"
