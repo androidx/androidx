@@ -99,13 +99,18 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         }
     }
 
+    /**
+     * mutate() will be effective only if the getConstantState() is returning non-null.
+     * Otherwise, it just return the current object without modification.
+     */
     @Override
     public Drawable mutate() {
         if (mDelegateDrawable != null) {
             mDelegateDrawable.mutate();
-            return this;
         }
-        throw new IllegalStateException("Mutate() is not supported for older platform");
+        // For older platforms that there is no delegated drawable, we just return this without
+        // any modification here, and the getConstantState() will return null in this case.
+        return this;
     }
 
 
