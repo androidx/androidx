@@ -17,7 +17,6 @@ package android.support.v17.leanback.app;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
-import android.support.annotation.RestrictTo;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -27,6 +26,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.GuidanceStylist;
@@ -1317,6 +1317,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * For now clients(subclasses) can call this method inside the constructor.
      * @hide
      */
+    @RestrictTo(GROUP_ID)
     public void setEntranceTransitionType(int transitionType) {
       this.entranceTransitionType = transitionType;
     }

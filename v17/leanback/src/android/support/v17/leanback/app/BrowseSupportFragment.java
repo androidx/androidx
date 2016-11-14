@@ -1008,11 +1008,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                     mMainFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
                 return true;
             }
-            if (getTitleView() != null &&
-                    getTitleView().requestFocus(direction, previouslyFocusedRect)) {
-                return true;
-            }
-            return false;
+            return getTitleView() != null &&
+                    getTitleView().requestFocus(direction, previouslyFocusedRect);
         }
 
         @Override
@@ -1122,8 +1119,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                     .getMainFragmentAdapter();
             mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
 
-            mIsPageRow = savedInstanceState != null ?
-                    savedInstanceState.getBoolean(IS_PAGE_ROW, false) : false;
+            mIsPageRow = savedInstanceState != null
+                    && savedInstanceState.getBoolean(IS_PAGE_ROW, false);
 
             mSelectedPosition = savedInstanceState != null ?
                     savedInstanceState.getInt(CURRENT_SELECTED_POSITION, 0) : 0;

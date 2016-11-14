@@ -23,6 +23,8 @@ import android.view.InputEvent;
 import android.view.KeyEvent;
 import android.view.View;
 
+import java.lang.ref.WeakReference;
+
 
 /**
  * A helper class for managing a {@link android.support.v17.leanback.widget.PlaybackControlsRow} and
@@ -180,14 +182,21 @@ public abstract class PlaybackControlSupportGlue implements OnActionClickedListe
     private int mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
     private boolean mFadeWhenPlaying = true;
 
-    private final Handler mHandler = new Handler() {
+    static class UpdatePlaybackStateHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_UPDATE_PLAYBACK_STATE) {
-                updatePlaybackState();
+                PlaybackControlSupportGlue glue = ((WeakReference<PlaybackControlSupportGlue>) msg.obj).get();
+                if (glue != null) {
+                    glue.updatePlaybackState();
+                }
             }
         }
-    };
+    }
+
+    final static Handler sHandler = new UpdatePlaybackStateHandler();
+
+    final WeakReference<PlaybackControlSupportGlue> mGlueWeakReference =  new WeakReference(this);
 
     private final OnItemViewClickedListener mOnItemViewClickedListener =
             new OnItemViewClickedListener() {
@@ -494,14 +503,18 @@ public abstract class PlaybackControlSupportGlue implements OnActionClickedListe
             boolean canPause = keyEvent == null ||
                     keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ||
                     keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PAUSE;
-            if (mPlaybackSpeed != PLAYBACK_SPEED_NORMAL) {
-                if (canPlay) {
-                    mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
-                    startPlayback(mPlaybackSpeed);
-                }
-            } else if (canPause) {
+            //            PLAY_PAUSE    PLAY      PAUSE
+            // playing    paused                  paused
+            // paused     playing       playing
+            // ff/rw      playing       playing   paused
+            if (canPause &&
+                (canPlay ? mPlaybackSpeed == PLAYBACK_SPEED_NORMAL :
+                        mPlaybackSpeed != PLAYBACK_SPEED_PAUSED)) {
                 mPlaybackSpeed = PLAYBACK_SPEED_PAUSED;
                 pausePlayback();
+            } else if (canPlay && mPlaybackSpeed != PLAYBACK_SPEED_NORMAL) {
+                mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
+                startPlayback(mPlaybackSpeed);
             }
             updatePlaybackStatusAfterUserAction();
             handled = true;
@@ -559,16 +572,16 @@ public abstract class PlaybackControlSupportGlue implements OnActionClickedListe
 
     private void updateControlsRow() {
         updateRowMetadata();
-        mHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE);
+        sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
         updatePlaybackState();
     }
 
     private void updatePlaybackStatusAfterUserAction() {
         updatePlaybackState(mPlaybackSpeed);
         // Sync playback state after a delay
-        mHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE);
-        mHandler.sendEmptyMessageDelayed(MSG_UPDATE_PLAYBACK_STATE,
-                UPDATE_PLAYBACK_STATE_DELAY_MS);
+        sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
+        sHandler.sendMessageDelayed(sHandler.obtainMessage(MSG_UPDATE_PLAYBACK_STATE,
+                mGlueWeakReference), UPDATE_PLAYBACK_STATE_DELAY_MS);
     }
 
     private void updateRowMetadata() {
@@ -829,12 +842,12 @@ public abstract class PlaybackControlSupportGlue implements OnActionClickedListe
         if (!hasValidMedia()) {
             return;
         }
-        if (mHandler.hasMessages(MSG_UPDATE_PLAYBACK_STATE)) {
-            mHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE);
+        if (sHandler.hasMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference)) {
+            sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
             if (getCurrentSpeedId() != mPlaybackSpeed) {
                 if (DEBUG) Log.v(TAG, "Status expectation mismatch, delaying update");
-                mHandler.sendEmptyMessageDelayed(MSG_UPDATE_PLAYBACK_STATE,
-                        UPDATE_PLAYBACK_STATE_DELAY_MS);
+                sHandler.sendMessageDelayed(sHandler.obtainMessage(MSG_UPDATE_PLAYBACK_STATE,
+                        mGlueWeakReference), UPDATE_PLAYBACK_STATE_DELAY_MS);
             } else {
                 if (DEBUG) Log.v(TAG, "Update state matches expectation");
                 updatePlaybackState();
