@@ -268,6 +268,8 @@ public class AnimatedVectorDrawableTest {
             assertEquals(0x40, d1.getAlpha());
             assertEquals(0x20, d2.getAlpha());
             assertEquals(originalAlpha, d3.getAlpha());
+        } else {
+            assertEquals(d1.mutate(), d1);
         }
     }
 }
