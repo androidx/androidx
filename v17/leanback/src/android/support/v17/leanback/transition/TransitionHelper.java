@@ -13,6 +13,8 @@
  */
 package android.support.v17.leanback.transition;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RestrictTo;
@@ -22,8 +24,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 
 import java.util.ArrayList;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Helper for view transitions.
@@ -48,11 +48,8 @@ public final class TransitionHelper {
      * @return True if Transition animations are supported.
      */
     public static boolean systemSupportsTransitions() {
-        if (Build.VERSION.SDK_INT >= 19) {
-            // Supported on Android 4.4 or later.
-            return true;
-        }
-        return false;
+        // Supported on Android 4.4 or later.
+        return Build.VERSION.SDK_INT >= 19;
     }
 
     /**
