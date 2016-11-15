@@ -798,6 +798,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         node.setClassName(DEFAULT_CLASS_NAME);
         node.setBoundsInParent(INVALID_PARENT_BOUNDS);
         node.setBoundsInScreen(INVALID_PARENT_BOUNDS);
+        node.setParent(mHost);
 
         // Allow the client to populate the node.
         onPopulateNodeForVirtualView(virtualViewId, node);
@@ -827,7 +828,6 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         // Don't allow the client to override these properties.
         node.setPackageName(mHost.getContext().getPackageName());
         node.setSource(mHost, virtualViewId);
-        node.setParent(mHost);
 
         // Manage internal accessibility focus state.
         if (mAccessibilityFocusedVirtualViewId == virtualViewId) {
