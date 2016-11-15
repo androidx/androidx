@@ -34,7 +34,7 @@ dependencies {
 ext.supportVersion = '25.1.0-SNAPSHOT'
 ext.extraVersion = 40
 ext.supportRepoOut = ''
-ext.buildToolsVersion = '23.0.2'
+ext.buildToolsVersion = '24.0.1'
 ext.buildNumber = Integer.toString(ext.extraVersion)
 
 ext.testRunnerVersion = '0.6-alpha'
