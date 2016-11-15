@@ -14,7 +14,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion project.ext.currentSdk
     defaultConfig {
         minSdkVersion 11
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
