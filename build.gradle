@@ -307,22 +307,27 @@ subprojects {
                             name: "package${v.name.capitalize()}ClassFilesForCoverageReport",
                             type: Jar) {
                         from v.javaCompile.destinationDir
-                        destinationDir = file(project.distDir)
-                        archiveName = project.name + "-" + v.name + "-allclasses.jar"
+                        destinationDir file(project.distDir)
+                        archiveName "${project.archivesBaseName}-${v.baseName}-allclasses.jar"
                     }
-                    def copyJacocoAnt = project.tasks.create(
-                            name: 'copyJacocoAnt',
-                            type: Copy) {
-                        def jacocoAntConfig =
-                                project.configurations[JacocoPlugin.ANT_CONFIGURATION_NAME]
-                        def jacocoAntArtifact =
-                                jacocoAntConfig.resolvedConfiguration.resolvedArtifacts.find {
-                                    "org.jacoco.ant".equals(it.moduleVersion.id.name)
-                                }
-                        from jacocoAntArtifact.getFile()
-                        into project.distDir
+                    def jacocoAntConfig =
+                            project.configurations[JacocoPlugin.ANT_CONFIGURATION_NAME]
+                    def jacocoAntArtifacts = jacocoAntConfig.resolvedConfiguration.resolvedArtifacts
+                    def version = jacocoAntArtifacts.find { "org.jacoco.ant".equals(it.name) }
+                            .moduleVersion.id.version
+                    def collectJacocoAntPackages = project.tasks.create(
+                            name: "collectJacocoAntPackages",
+                            type: Jar) {
+                        from (jacocoAntArtifacts.collect { zipTree(it.getFile()) }) {
+                            // exclude all the signatures the jar might have
+                            exclude "META-INF/*.SF"
+                            exclude "META-INF/*.DSA"
+                            exclude "META-INF/*.RSA"
+                        }
+                        destinationDir file(project.distDir)
+                        archiveName "jacocoant-" + version  + ".jar"
                     }
-                    v.assemble.dependsOn jarifyTask, copyJacocoAnt
+                    v.assemble.dependsOn jarifyTask, collectJacocoAntPackages
                 }
             }
 
