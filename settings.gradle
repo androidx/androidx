@@ -1,5 +1,3 @@
-apply from:'buildSrc/studioCompat.gradle'
-
 /////////////////////////////
 //
 // Libraries
