@@ -41,11 +41,6 @@ android {
         main.aidl.srcDirs = ['java']
     }
 
-    lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7

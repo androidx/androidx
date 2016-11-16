@@ -105,6 +105,10 @@ unzipRepo.doFirst {
 task(prepareRepo) << {
 }
 
+// lint every library
+task(lint) << {
+}
+
 
 import com.google.common.io.Files
 import com.google.common.base.Charsets
@@ -292,6 +296,7 @@ subprojects {
             // enable code coverage for debug builds only if we are not running inside the IDE
             // enabling coverage reports breaks the method parameter resolution in the IDE debugger
             project.android.buildTypes.debug.testCoverageEnabled = !hasProperty('android.injected.invoked.from.ide')
+
             // Copy the class files in a jar to be later used to generate code coverage report
             project.android.testVariants.all { v ->
                 // check if the variant has any source files
@@ -320,6 +325,11 @@ subprojects {
                     v.assemble.dependsOn jarifyTask, copyJacocoAnt
                 }
             }
+
+            // Ensure we run API lint checks.
+            project.android.lintOptions.check 'NewApi'
+            project.android.lintOptions.fatal 'NewApi'
+            project.parent.lint.dependsOn project.lint
         }
 
         // Create release and separate zip task for Android libraries (and android-annotations,

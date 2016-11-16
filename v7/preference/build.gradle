@@ -63,8 +63,8 @@ android {
     }
 
     lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
+        // Remove this once all NewApi breakages have been fixed.
+        disable "NewApi"
     }
 
     buildTypes.all {

@@ -47,11 +47,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
-    lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
-    }
-
     packagingOptions {
         exclude 'LICENSE.txt'
     }

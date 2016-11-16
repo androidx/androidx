@@ -16,6 +16,7 @@ package android.support.graphics.drawable;
 
 import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
+import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -418,6 +419,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         return new PorterDuffColorFilter(color, tintMode);
     }
 
+    @SuppressLint("NewApi")
     @Override
     public void setTint(int tint) {
         if (mDelegateDrawable != null) {
@@ -568,6 +570,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * @param theme the theme of this vector drawable, it can be null.
      * @return a new VectorDrawableCompat or null if parsing error is found.
      */
+    @SuppressLint("NewApi")
     @Nullable
     public static VectorDrawableCompat create(@NonNull Resources res, @DrawableRes int resId,
                                               @Nullable Theme theme) {
@@ -605,6 +608,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * document, tries to create a Drawable from that tag. Returns {@code null}
      * if the tag is not a valid drawable.
      */
+    @SuppressLint("NewApi")
     public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,
             AttributeSet attrs, Theme theme) throws XmlPullParserException, IOException {
         final VectorDrawableCompat drawable = new VectorDrawableCompat();
@@ -619,6 +623,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         return color;
     }
 
+    @SuppressLint("NewApi")
     @Override
     public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)
             throws XmlPullParserException, IOException {
@@ -842,6 +847,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     // We don't support RTL auto mirroring since the getLayoutDirection() is for API 17+.
+    @SuppressLint("NewApi")
     private boolean needMirroring() {
         if (Build.VERSION.SDK_INT < 17) {
             return false;

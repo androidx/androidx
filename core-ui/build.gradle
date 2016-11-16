@@ -43,11 +43,6 @@ android {
         androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
-    lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
-    }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }

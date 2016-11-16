@@ -901,6 +901,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      *
      * @attr name android:clipToPadding
      */
+    @Override
     public boolean getClipToPadding() {
         return mClipToPadding;
     }
