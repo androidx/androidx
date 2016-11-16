@@ -4458,7 +4458,7 @@ package android.support.v4.app {
     method public abstract java.lang.String getName();
   }
 
-  public abstract class FragmentManager.FragmentLifecycleCallbacks {
+  public static abstract class FragmentManager.FragmentLifecycleCallbacks {
     ctor public FragmentManager.FragmentLifecycleCallbacks();
     method public void onFragmentActivityCreated(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment, android.os.Bundle);
     method public void onFragmentAttached(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment, android.content.Context);
