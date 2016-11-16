@@ -1539,9 +1539,11 @@ public class BrowseFragment extends BaseFragment {
         mHeadersFragment.setAlignment(mContainerListAlignTop);
         setMainFragmentAlignment();
 
-        if (mCanShowHeaders && mShowingHeaders && mHeadersFragment.getView() != null) {
+        if (mCanShowHeaders && mShowingHeaders && mHeadersFragment != null
+                && mHeadersFragment.getView() != null) {
             mHeadersFragment.getView().requestFocus();
-        } else if ((!mCanShowHeaders || !mShowingHeaders) && mMainFragment.getView() != null) {
+        } else if ((!mCanShowHeaders || !mShowingHeaders) && mMainFragment != null
+                && mMainFragment.getView() != null) {
             mMainFragment.getView().requestFocus();
         }
 
