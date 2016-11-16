@@ -162,6 +162,15 @@ public class ParallaxRecyclerViewSource extends
                 Rect rect = new Rect(
                         0, 0, trackingView.getWidth(), trackingView.getHeight());
                 recyclerView.offsetDescendantRectToMyCoords(trackingView, rect);
+                // Slide transition may change the trackingView's translationX/translationY,
+                // add up translation values in parent.
+                float tx = 0, ty = 0;
+                while (trackingView != recyclerView && trackingView != null) {
+                    tx += trackingView.getTranslationX();
+                    ty += trackingView.getTranslationY();
+                    trackingView = (View) trackingView.getParent();
+                }
+                rect.offset((int) tx, (int) ty);
                 if (source.mIsVertical) {
                     source.setPropertyValue(getIndex(), rect.top + mOffset
                             + (int) (mFraction * rect.height()));
@@ -172,6 +181,7 @@ public class ParallaxRecyclerViewSource extends
             }
         }
     }
+
 
     @Override
     public ChildPositionProperty createProperty(String name, int index) {
@@ -208,6 +218,20 @@ public class ParallaxRecyclerViewSource extends
                     .getProperties(mRecylerView.getContext(), null, 0, 0);
             mIsVertical = properties.orientation == RecyclerView.VERTICAL;
             mRecylerView.addOnScrollListener(mOnScrollListener);
+        }
+    }
+
+    /**
+     * Manually update values. This is used for changes not controlled by RecyclerView. E.g.
+     * called by a Slide transition that changes translation of the view.
+     */
+    @Override
+    public void updateValues() {
+        for (ChildPositionProperty prop: getProperties()) {
+            prop.updateValue(ParallaxRecyclerViewSource.this);
+        }
+        if (mListener != null) {
+            mListener.onPropertiesChanged(ParallaxRecyclerViewSource.this);
         }
     }
 

@@ -515,4 +515,10 @@ public abstract class ParallaxSource<PropertyT extends Property> {
      */
     public abstract void setListener(Listener listener);
 
+    /**
+     * This is used when the source is unaware of the updates and requires caller to update the
+     * values at the right time.
+     */
+    public void updateValues() {
+    }
 }

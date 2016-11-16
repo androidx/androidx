@@ -83,7 +83,7 @@ public class DetailsFragmentTest {
         detailsFrameRect.set(0, 0, detailsFrame.getWidth(), detailsFrame.getHeight());
         verticalGridView.offsetDescendantRectToMyCoords(detailsFrame, detailsFrameRect);
 
-        assertEquals(Math.min(windowHeight, detailsFrameRect.bottom),
+        assertEquals(Math.min(windowHeight, detailsFrameRect.top),
                 bitmapDrawable.getBounds().height());
         assertEquals(0, bitmapDrawable.getVerticalOffset());
 
@@ -103,13 +103,14 @@ public class DetailsFragmentTest {
 
         detailsFrameRect.set(0, 0, detailsFrame.getWidth(), detailsFrame.getHeight());
         verticalGridView.offsetDescendantRectToMyCoords(detailsFrame, detailsFrameRect);
-        assertEquals(detailsFrameRect.bottom, bitmapDrawable.getBounds().height());
+
+        assertEquals(0, bitmapDrawable.getBounds().top);
+        assertEquals(Math.max(detailsFrameRect.top, 0), bitmapDrawable.getBounds().bottom);
         assertEquals(windowWidth, bitmapDrawable.getBounds().width());
 
         ColorDrawable colorDrawable = (ColorDrawable) (drawable.getChildAt(1).getDrawable());
         assertEquals(windowWidth, colorDrawable.getBounds().width());
-        // Since bottom is using float mapping, using float compare with delta
-        assertEquals(windowHeight - detailsFrameRect.bottom,
-                (float) colorDrawable.getBounds().height(), 2 /*delta*/);
+        assertEquals(detailsFrameRect.bottom, colorDrawable.getBounds().top);
+        assertEquals(windowHeight, colorDrawable.getBounds().bottom);
     }
 }

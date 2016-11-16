@@ -18,6 +18,7 @@ package android.support.v17.leanback.app;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
@@ -203,11 +204,26 @@ public class DetailsSupportFragment extends BaseSupportFragment {
             }
         });
 
-        setupVideoPlayback();
+        setupDpadNavigation();
 
+        if (Build.VERSION.SDK_INT >= 21) {
+            // Setup adapter listener to work with ParallaxTransition (>= API 21).
+            mRowsSupportFragment.setExternalAdapterListener(new ItemBridgeAdapter.AdapterListener() {
+                @Override
+                public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
+                    if (mDetailsParallaxManager != null && vh.getViewHolder()
+                            instanceof FullWidthDetailsOverviewRowPresenter.ViewHolder) {
+                        FullWidthDetailsOverviewRowPresenter.ViewHolder rowVh =
+                                (FullWidthDetailsOverviewRowPresenter.ViewHolder)
+                                        vh.getViewHolder();
+                        rowVh.getOverviewView().setTag(R.id.lb_parallax_source,
+                                mDetailsParallaxManager.getParallax().getSource());
+                    }
+                }
+            });
+        }
         return mRootView;
     }
-
 
     /**
      * @deprecated override {@link #onInflateTitleView(LayoutInflater,ViewGroup,Bundle)} instead.
@@ -496,7 +512,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     public DetailsParallaxManager getParallaxManager() {
         if (mDetailsParallaxManager == null) {
             mDetailsParallaxManager = onCreateParallaxManager();
-            if (mRowsSupportFragment != null) {
+            if (mRowsSupportFragment != null && mRowsSupportFragment.getView() != null) {
                 mDetailsParallaxManager.setRecyclerView(mRowsSupportFragment.getVerticalGridView());
             }
         }
@@ -523,7 +539,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
      * transition to appropriate mode like half/full screen video.</li>
      * </ul>
      */
-    void setupVideoPlayback() {
+    void setupDpadNavigation() {
         mRootView.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
             @Override
             public View onFocusSearch(View focused, int direction) {
