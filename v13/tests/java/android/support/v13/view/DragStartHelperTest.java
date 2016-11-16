@@ -170,6 +170,36 @@ public class DragStartHelperTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
+    public void mouseClick() throws Throwable {
+        final DragStartListener listener = createListener(true);
+        final DragStartHelper helper = createDragStartHelper(listener);
+        helper.attach();
+
+        sendMouseEvent(MotionEvent.ACTION_DOWN, MotionEvent.BUTTON_PRIMARY, mDragSource, 0, 0);
+        sendMouseEvent(MotionEvent.ACTION_UP, MotionEvent.BUTTON_PRIMARY, mDragSource, 0, 0);
+
+        // A simple mouse click does not trigger OnDragStart.
+        verifyNoMoreInteractions(listener);
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    @Test
+    public void mousePressWithSecondaryButton() throws Throwable {
+        final DragStartListener listener = createListener(true);
+        final DragStartHelper helper = createDragStartHelper(listener);
+        helper.attach();
+
+        sendMouseEvent(MotionEvent.ACTION_DOWN, MotionEvent.BUTTON_PRIMARY, mDragSource, 0, 0);
+        sendMouseEvent(MotionEvent.ACTION_MOVE,
+                MotionEvent.BUTTON_PRIMARY | MotionEvent.BUTTON_SECONDARY, mDragSource, 0, 0);
+        sendMouseEvent(MotionEvent.ACTION_MOVE, MotionEvent.BUTTON_PRIMARY, mDragSource, 0, 0);
+
+        // ACTION_MOVE with the same position does not trigger OnDragStart.
+        verifyNoMoreInteractions(listener);
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    @Test
     public void mouseDrag() throws Throwable {
         final DragStartListener listener = createListener(true);
         final DragStartHelper helper = createDragStartHelper(listener);
@@ -201,7 +231,7 @@ public class DragStartHelperTest {
         sendMouseEvent(MotionEvent.ACTION_MOVE, MotionEvent.BUTTON_TERTIARY, mDragSource, 1, 2);
         sendMouseEvent(MotionEvent.ACTION_UP, MotionEvent.BUTTON_TERTIARY, mDragSource, 3, 4);
 
-        // Dragging mouse with a non-primary button down should not trigger OnDragStart.
+        // Dragging mouse with a non-primary button down does not trigger OnDragStart.
         verifyNoMoreInteractions(listener);
     }
 
@@ -281,6 +311,19 @@ public class DragStartHelperTest {
         sendTouchEvent(MotionEvent.ACTION_MOVE, mDragSource, 5, 6);
 
         // Touch and drag (without delay) does not trigger OnDragStart.
+        verifyNoMoreInteractions(listener);
+    }
+
+    @Test
+    public void touchTap() throws Throwable {
+        final DragStartListener listener = createListener(false);
+        final DragStartHelper helper = createDragStartHelper(listener);
+        helper.attach();
+
+        sendTouchEvent(MotionEvent.ACTION_DOWN, mDragSource, 0, 0);
+        sendTouchEvent(MotionEvent.ACTION_UP, mDragSource, 0, 0);
+
+        // A simple tap does not trigger OnDragStart.
         verifyNoMoreInteractions(listener);
     }
 
