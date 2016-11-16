@@ -31,6 +31,7 @@ dependencies {
     doclava project(':doclava')
 }
 
+gradle.ext.currentSdk = 'current'
 ext.supportVersion = '25.1.0-SNAPSHOT'
 ext.extraVersion = 40
 ext.supportRepoOut = ''
@@ -105,7 +106,6 @@ task(prepareRepo) << {
 }
 
 
-import android.support.build.ApiModule
 import com.google.common.io.Files
 import com.google.common.base.Charsets
 import com.android.build.gradle.internal.coverage.JacocoPlugin;
