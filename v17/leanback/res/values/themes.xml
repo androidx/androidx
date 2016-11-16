@@ -147,6 +147,8 @@
     </style>
 
     <style name="Theme.Leanback.GuidedStep" parent="Theme.Leanback.GuidedStepBase">
+        <item name="android:windowBackground">@null</item>
+
         <item name="guidedStepThemeFlag">true</item>
         <item name="guidedStepHeightWeight">@string/lb_guidedstep_height_weight</item>
 
@@ -202,7 +204,6 @@
       <item name="android:windowEnterTransition">@transition/lb_guidedstep_activity_enter_bottom</item>
       <item name="guidedStepHeightWeight">@string/lb_guidedstep_height_weight_translucent</item>
       <item name="android:windowIsTranslucent">true</item>
-      <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
     <style name="Theme.Leanback.Onboarding" parent="Theme.LeanbackBase">
