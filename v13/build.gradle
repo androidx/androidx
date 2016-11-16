@@ -4,6 +4,16 @@ archivesBaseName = 'support-v13'
 dependencies {
     compile project(':support-annotations')
     compile project(':support-v4')
+
+    androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile ("com.android.support.test.espresso:espresso-core:${project.rootProject.ext.espressoVersion}") {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile "org.mockito:mockito-core:1.9.5"
+    androidTestCompile "com.google.dexmaker:dexmaker:1.2"
+    androidTestCompile "com.google.dexmaker:dexmaker-mockito:1.2"
 }
 
 android {
@@ -11,6 +21,7 @@ android {
 
     defaultConfig {
         minSdkVersion 13
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
@@ -23,6 +34,11 @@ android {
                 'api25',
                 'java'
         ]
+
+        androidTest.setRoot('tests')
+        androidTest.java.srcDir 'tests/java'
+        androidTest.res.srcDir 'tests/res'
+        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
     lintOptions {
