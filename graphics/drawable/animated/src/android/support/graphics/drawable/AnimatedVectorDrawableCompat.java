@@ -19,6 +19,7 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -61,6 +62,7 @@ import java.util.List;
  * API. In order to refer to AnimatedVectorDrawableCompat inside a XML file, you can use
  * app:srcCompat attribute in AppCompat library's ImageButton or ImageView.
  */
+@SuppressLint("NewApi")
 public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implements Animatable {
     private static final String LOGTAG = "AnimatedVDCompat";
 

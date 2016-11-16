@@ -51,11 +51,6 @@ android {
     aaptOptions {
         additionalParameters "--no-version-vectors"
     }
-
-    lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
-    }
 }
 
 android.libraryVariants.all { variant ->
