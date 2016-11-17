@@ -127,4 +127,5 @@
     <string name="bottomnavigation_add">Add an item</string>
     <string name="bottomnavigation_remove">Remove an item</string>
     <string name="bottomnavigation_tint">Toggle tint</string>
+    <string name="bottomnavigation_select_next">Select next item</string>
 </resources>
