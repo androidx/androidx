@@ -55,4 +55,19 @@ class ValidCasesTest {
         processClass("NoPackageOk", "").compilesWithoutError()
     }
 
+    @Test
+    fun testInterface1(){
+        processClass("InterfaceOk1").compilesWithoutError()
+    }
+
+    @Test
+    fun testInterface2() {
+        processClass("InterfaceOk2").compilesWithoutError().and().generatesSources(
+                load("foo", "InterfaceOk2Base_LifecycleAdapter", "expected"),
+                load("foo", "InterfaceOk2Derived_LifecycleAdapter", "expected"),
+                load("foo", "InterfaceOk2Interface_LifecycleAdapter", "expected")
+        )
+    }
+
+
 }

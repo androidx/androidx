@@ -24,6 +24,7 @@ import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.*
 import javax.lang.model.type.NoType
+import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
 
 @SupportedAnnotationTypes("com.android.support.lifecycle.OnLifecycleEvent")
@@ -82,8 +83,9 @@ class LifecycleProcessor : AbstractProcessor() {
     }
 
     private fun validateClass(classElement: Element): Boolean {
-        if (classElement.kind != ElementKind.CLASS) {
-            printErrorMessage("Parent of OnLifecycleEvent should be a class", classElement)
+        if (classElement.kind != ElementKind.CLASS && classElement.kind != ElementKind.INTERFACE) {
+            printErrorMessage("Parent of OnLifecycleEvent should be a class or interface",
+                    classElement)
             return false
         }
         if (Modifier.PRIVATE in classElement.modifiers) {
@@ -120,18 +122,27 @@ class LifecycleProcessor : AbstractProcessor() {
         return true
     }
 
-    private fun superObserver(world: Map<TypeElement, LifecycleObserverInfo>,
-                              observer: LifecycleObserverInfo): LifecycleObserverInfo? {
-        // TODO: do something about interfaces.
-        var currentSuper = observer.type.superclass
-        while (currentSuper !is NoType) {
-            val currentType = MoreTypes.asTypeElement(currentSuper)
-            if (currentType in world) {
-                return world[currentType]
+    private fun superObservers(world: Map<TypeElement, LifecycleObserverInfo>,
+                               observer: LifecycleObserverInfo): List<LifecycleObserverInfo> {
+        val stack = LinkedList<TypeMirror>()
+        stack += observer.type.interfaces.reversed()
+        stack += observer.type.superclass
+        val result = mutableListOf<LifecycleObserverInfo>()
+        while (stack.isNotEmpty()) {
+            val typeMirror = stack.removeLast()
+            if (typeMirror is NoType) {
+                continue
             }
-            currentSuper = currentType.superclass
+            val type = MoreTypes.asTypeElement(typeMirror)
+            val observer = world[type]
+            if (observer != null) {
+                result.add(observer)
+            } else {
+                stack += type.interfaces.reversed()
+                stack += type.superclass
+            }
         }
-        return null
+        return result
     }
 
     private fun mergeAndVerifyMethods(classMethods: List<StateMethod>,
@@ -151,24 +162,23 @@ class LifecycleProcessor : AbstractProcessor() {
 
     private fun flattenObserverInfos(
             world: Map<TypeElement, LifecycleObserverInfo>): List<LifecycleObserverInfo> {
-        val superObservers = world.mapValues { superObserver(world, it.value) }
+        val superObservers = world.mapValues { superObservers(world, it.value) }
         var flattened: MutableMap<LifecycleObserverInfo, LifecycleObserverInfo> = HashMap()
         fun traverse(observer: LifecycleObserverInfo) {
             if (observer in flattened) {
                 return
             }
-            val sObserver = superObservers[observer.type]
-            if (sObserver == null) {
+            val superObservers = superObservers[observer.type]!!
+            if (superObservers.isEmpty()) {
                 flattened[observer] = observer
                 return
             }
-            if (sObserver !in flattened) {
-                traverse(sObserver)
-            }
+            superObservers.filter { it !in flattened }.forEach(::traverse)
+            var methods: List<StateMethod> = superObservers.fold(emptyList(),
+                    {list, observer -> mergeAndVerifyMethods(observer.methods, list)})
 
-            val flat = flattened[sObserver]
             flattened[observer] = LifecycleObserverInfo(observer.type,
-                    mergeAndVerifyMethods(observer.methods, flat!!.methods))
+                    mergeAndVerifyMethods(observer.methods, methods))
         }
 
         world.values.forEach(::traverse)
