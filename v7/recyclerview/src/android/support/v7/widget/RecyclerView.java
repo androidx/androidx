@@ -2429,7 +2429,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 // NOTE: we only do this query once, statically, because it's very expensive (> 1ms)
                 Display display = ViewCompat.getDisplay(this);
                 float refreshRate = 60.0f;
-                if (display != null) {
+                if (!isInEditMode() && display != null) {
                     float displayRefreshRate = display.getRefreshRate();
                     if (displayRefreshRate >= 30.0f) {
                         refreshRate = displayRefreshRate;
