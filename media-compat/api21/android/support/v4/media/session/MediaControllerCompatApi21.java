@@ -17,6 +17,7 @@
 package android.support.v4.media.session;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.media.AudioAttributes;
@@ -54,6 +55,18 @@ class MediaControllerCompatApi21 {
     public static void unregisterCallback(Object controllerObj, Object callbackObj) {
         ((MediaController) controllerObj)
                 .unregisterCallback((MediaController.Callback) callbackObj);
+    }
+
+    public static void setMediaController(Activity activity, Object controllerObj) {
+        activity.setMediaController((MediaController) controllerObj);
+    }
+
+    public static Object getMediaController(Activity activity) {
+        return activity.getMediaController();
+    }
+
+    public static Object getSessionToken(Object controllerObj) {
+        return ((MediaController) controllerObj).getSessionToken();
     }
 
     public static Object getTransportControls(Object controllerObj) {

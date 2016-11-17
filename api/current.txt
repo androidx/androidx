@@ -4337,14 +4337,14 @@ package android.support.v4.app {
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
     method public android.support.v4.app.LoaderManager getSupportLoaderManager();
-    method public final android.support.v4.media.session.MediaControllerCompat getSupportMediaController();
+    method public final deprecated android.support.v4.media.session.MediaControllerCompat getSupportMediaController();
     method public void onAttachFragment(android.support.v4.app.Fragment);
     method protected void onResumeFragments();
     method public java.lang.Object onRetainCustomNonConfigurationInstance();
     method public final java.lang.Object onRetainNonConfigurationInstance();
     method public void setEnterSharedElementCallback(android.support.v4.app.SharedElementCallback);
     method public void setExitSharedElementCallback(android.support.v4.app.SharedElementCallback);
-    method public final void setSupportMediaController(android.support.v4.media.session.MediaControllerCompat);
+    method public final deprecated void setSupportMediaController(android.support.v4.media.session.MediaControllerCompat);
     method public void startActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int);
     method public void startActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int, android.os.Bundle);
     method public void startIntentSenderFromFragment(android.support.v4.app.Fragment, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) throws android.content.IntentSender.SendIntentException;
@@ -5735,6 +5735,7 @@ package android.support.v4.media.session {
     method public boolean dispatchMediaButtonEvent(android.view.KeyEvent);
     method public android.os.Bundle getExtras();
     method public long getFlags();
+    method public static android.support.v4.media.session.MediaControllerCompat getMediaController(android.app.Activity);
     method public java.lang.Object getMediaController();
     method public android.support.v4.media.MediaMetadataCompat getMetadata();
     method public java.lang.String getPackageName();
@@ -5751,6 +5752,7 @@ package android.support.v4.media.session {
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback, android.os.Handler);
     method public void sendCommand(java.lang.String, android.os.Bundle, android.os.ResultReceiver);
+    method public static void setMediaController(android.app.Activity, android.support.v4.media.session.MediaControllerCompat);
     method public void setVolumeTo(int, int);
     method public void unregisterCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
   }
