@@ -7,7 +7,7 @@
 ##############################################################################
 
 # Pick the correct fullsdk for this OS.
-if [ $os = "Darwin" ]; then
+if [ "$os" = "Darwin" ]; then
     plat="darwin"
 else
     plat="linux"
