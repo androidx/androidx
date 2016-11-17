@@ -28,8 +28,10 @@ import java.util.List;
  * It is NOT thread safe.
  * @param <T> Item type
  */
+// TODO this class is doing more than it should. Needs cleanup / change / removal.
 abstract class ObserverSet<T> {
-    private boolean mLocked = false;
+    private int mLockCounter = 0;
+    private boolean mPendingSyncRequest = false;
     private static final Object TO_BE_ADDED = new Object();
     private static final Object TO_BE_REMOVED = new Object();
     private List<Pair<T, Object>> mPendingModifications = new ArrayList<>(0);
@@ -38,6 +40,14 @@ abstract class ObserverSet<T> {
     private static final String ERR_RE_ADD = "Trying to re-add an already existing observer. "
             + "Ignoring the call for ";
     private static final String WARN_RE_REMOVE = "Trying to remove a non-existing observer. ";
+
+    public boolean isLocked() {
+        return mLockCounter > 0;
+    }
+
+    public void  invokeSyncOnUnlock() {
+        mPendingSyncRequest = true;
+    }
 
     private boolean exists(T observer) {
         final int size = mData.size();
@@ -63,7 +73,7 @@ abstract class ObserverSet<T> {
     }
 
     void add(T observer) {
-        if (!mLocked) {
+        if (mLockCounter < 1) {
             addInternal(observer);
             return;
         }
@@ -84,7 +94,7 @@ abstract class ObserverSet<T> {
     }
 
     void remove(T observer) {
-        if (!mLocked) {
+        if (mLockCounter < 1) {
             removeInternal(observer);
             return;
         }
@@ -107,7 +117,7 @@ abstract class ObserverSet<T> {
     protected void onRemoved(T item) {}
 
     void forEach(Callback<T> func) {
-        mLocked = true;
+        mLockCounter++;
         try {
             final int size = mData.size();
             for (int i = 0; i < size; i++) {
@@ -118,8 +128,10 @@ abstract class ObserverSet<T> {
                 func.run(item);
             }
         } finally {
-            mLocked = false;
-            syncPending();
+            mLockCounter--;
+            if (mLockCounter == 0) {
+                syncPending();
+            }
         }
     }
 
@@ -138,6 +150,15 @@ abstract class ObserverSet<T> {
             }
         }
         mPendingModifications.clear();
+        if (size > 0 || mPendingSyncRequest) {
+            mPendingSyncRequest = false;
+            onSync();
+        }
+    }
+
+    // called after pending changes are applied to the list
+    protected void onSync() {
+
     }
 
     int size() {

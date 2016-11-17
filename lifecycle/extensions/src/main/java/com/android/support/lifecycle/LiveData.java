@@ -32,9 +32,11 @@ import android.support.annotation.VisibleForTesting;
  * @param <T> The type of data hold by this instance
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
+// TODO the usage of ObserverSet needs to be cleaned. Maybe we should simplify the rules.
 public class LiveData<T> {
     private static final int START_VERSION = -1;
     private static final Object NOT_SET = new Object();
+    private boolean mPendingActiveChanges = false;
 
     @VisibleForTesting
     ObserverSet<LifecycleBoundObserver> mObservers =
@@ -56,13 +58,10 @@ public class LiveData<T> {
                 protected void onAdded(LifecycleBoundObserver observer) {
                     observer.onAdded();
                     mObserverCount++;
-                    if (mObserverCount == 1) {
-                        onHasObserversChanged(true);
-                    }
                     if (observer.active) {
                         mActiveCount++;
                         if (mActiveCount == 1) {
-                            onHasActiveObserversChanged(true);
+                            onActive();
                         }
                     }
                     if (mData != NOT_SET) {
@@ -76,14 +75,20 @@ public class LiveData<T> {
                     if (observer.active) {
                         mActiveCount--;
                         if (mActiveCount == 0) {
-                            onHasActiveObserversChanged(false);
+                            onInactive();
                         }
                     }
                     mObserverCount--;
-                    if (mObserverCount == 0) {
-                        onHasObserversChanged(false);
-                    }
                     observer.onRemoved();
+                }
+
+                @Override
+                protected void onSync() {
+                    if (!mPendingActiveChanges) {
+                        return;
+                    }
+                    forEach(mUpdateActiveCount);
+                    mPendingActiveChanges = false;
                 }
             };
 
@@ -104,6 +109,33 @@ public class LiveData<T> {
                 }
             };
 
+    private ObserverSet.Callback<LifecycleBoundObserver> mUpdateActiveCount =
+            new ObserverSet.Callback<LifecycleBoundObserver>() {
+                @Override
+                public void run(LifecycleBoundObserver observer) {
+                    if (observer.pendingActiveStateChange == null) {
+                        return;
+                    }
+                    boolean newValue = observer.pendingActiveStateChange;
+                    observer.pendingActiveStateChange = null;
+                    observer.active = newValue;
+                    if (newValue) {
+                        mActiveCount++;
+                        if (mActiveCount == 1) {
+                            onActive();
+                        }
+                        if (mData != NOT_SET) {
+                            //noinspection unchecked
+                            observer.considerNotify((T) mData, mVersion);
+                        }
+                    } else {
+                        mActiveCount--;
+                        if (mActiveCount == 0) {
+                            onInactive();
+                        }
+                    }
+                }
+            };
     /**
      * Adds the given observer to the observers list within the lifespan of the given provider. The
      * events are dispatched on the main thread. If LiveData already has data set, it is instantly
@@ -208,32 +240,52 @@ public class LiveData<T> {
     }
 
     /**
-     * Called when the number of active observers change between 0 and 1.
+     * Called when the number of active observers change to 1 from 0.
      * <p>
-     * If your LiveData observes another resource (e.g. {@link android.hardware.SensorManager},
-     * this should be the place where you enable / disable that observability.
-     *
-     * @param hasActiveObservers True if there are active observers, false otherwise.
+     * This callback can be used to know that this LiveData is being used thus should be kept
+     * up to date.
      */
-    protected void onHasActiveObserversChanged(boolean hasActiveObservers) {
+    protected void onActive() {
+
     }
 
     /**
-     * Called when the number of observers change between 0 and 1.
+     * Called when the number of active observers change from 1 to 0.
      * <p>
-     * Since there are no observers on this LiveData, this might be a good place to clear it from
-     * its owner object.
-     *
-     * @param hasObservers True if there are 1 or more observers, false otherwise.
+     * This does not mean that there are no observers left, there may still be observers but their
+     * lifecycle states is not {@link Lifecycle#STARTED} or {@link Lifecycle#STOPPED} (like an
+     * Activity in the back stack).
+     * <p>
+     * You can get the number of observers via {@link #getObserverCount()}.
      */
-    protected void onHasObserversChanged(boolean hasObservers) {
+    protected void onInactive() {
+
     }
 
+    /**
+     * Returns the number of observers.
+     *
+     * @return The number of observers
+     */
+    @MainThread
+    public int getObserverCount() {
+        return mObserverCount;
+    }
+
+    /**
+     * Returns the number of active observers.
+     *
+     * @return The number of active observers
+     */
+    public int getActiveObserverCount() {
+        return mActiveCount;
+    }
 
     class LifecycleBoundObserver implements LifecycleObserver {
         public final LifecycleProvider provider;
         public final Observer<T> observer;
         public boolean active;
+        public Boolean pendingActiveStateChange;
         public int lastVersion = START_VERSION;
 
         LifecycleBoundObserver(LifecycleProvider provider, Observer<T> observer) {
@@ -269,9 +321,13 @@ public class LiveData<T> {
                 return;
             }
             boolean activeNow = isActiveState(provider.getLifecycle().getCurrentState());
-            if (active != activeNow) {
-                active = activeNow;
-                handleActiveStateChange(this);
+            if (pendingActiveStateChange == null) {
+                if (activeNow != active) {
+                    pendingActiveStateChange = activeNow;
+                    onActiveStateChanged(this);
+                }
+            } else if (activeNow != pendingActiveStateChange) {
+                pendingActiveStateChange = null;
             }
         }
     }
@@ -281,21 +337,13 @@ public class LiveData<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private void handleActiveStateChange(LifecycleBoundObserver observer) {
-        if (observer.active) {
-            mActiveCount++;
-            if (mActiveCount == 1) {
-                onHasActiveObserversChanged(true);
-            }
-            if (mData != NOT_SET) {
-                observer.considerNotify((T) mData, mVersion);
-            }
-        } else {
-            mActiveCount--;
-            if (mActiveCount == 0) {
-                onHasActiveObserversChanged(false);
-            }
+    private void onActiveStateChanged(LifecycleBoundObserver observer) {
+        if (mObservers.isLocked()) {
+            mPendingActiveChanges = true;
+            mObservers.invokeSyncOnUnlock();
+            return;
         }
+        mUpdateActiveCount.run(observer);
     }
 
     static boolean isActiveState(@Lifecycle.State int state) {
