@@ -53,8 +53,8 @@ import java.util.List;
  * <p>
  * <h3>Building the screen</h3>
  * The view structure of onboarding screen is composed of the common parts and custom parts. The
- * common parts are composed of title, description and page navigator and the custom parts are
- * composed of background, contents and foreground.
+ * common parts are composed of icon, title, description and page navigator and the custom parts
+ * are composed of background, contents and foreground.
  * <p>
  * To build the screen views, the inherited class should override:
  * <ul>
@@ -102,8 +102,12 @@ import java.util.List;
  * If the inherited class provides neither the logo image nor the animation, the logo animation will
  * be omitted.
  * <h4>Page enter animation</h4>
- * After logo animation finishes, page enter animation starts. The application can provide the
- * animations of custom views by overriding {@link #onCreateEnterAnimation}.
+ * After logo animation finishes, page enter animation starts, which causes the header section -
+ * title and description views to fade and slide in. Users can override the default
+ * fade + slide animation by overriding {@link #onCreateTitleAnimator()} &
+ * {@link #onCreateDescriptionAnimator()}. By default we don't animate the custom views but users
+ * can provide animation by overriding {@link #onCreateEnterAnimation}.
+ *
  * <h4>Page change animation</h4>
  * When the page changes, the default animations of the title and description are played. The
  * inherited class can override {@link #onPageChanged} to start the custom animations.
@@ -149,8 +153,6 @@ abstract public class OnboardingFragment extends Fragment {
     private static final boolean DEBUG = false;
 
     private static final long LOGO_SPLASH_PAUSE_DURATION_MS = 1333;
-    private static final long START_DELAY_TITLE_MS = 33;
-    private static final long START_DELAY_DESCRIPTION_MS = 33;
 
     private static final long HEADER_ANIMATION_DURATION_MS = 417;
     private static final long DESCRIPTION_START_DELAY_MS = 33;
@@ -171,6 +173,10 @@ abstract public class OnboardingFragment extends Fragment {
     PagingIndicator mPageIndicator;
     View mStartButton;
     private ImageView mLogoView;
+    // Optional icon that can be displayed on top of the header section.
+    private ImageView mMainIconView;
+    private int mIconResourceId;
+
     TextView mTitleView;
     TextView mDescriptionView;
 
@@ -264,6 +270,7 @@ abstract public class OnboardingFragment extends Fragment {
         mStartButton = view.findViewById(R.id.button_start);
         mStartButton.setOnClickListener(mOnClickListener);
         mStartButton.setOnKeyListener(mOnKeyListener);
+        mMainIconView = (ImageView) view.findViewById(R.id.main_icon);
         mLogoView = (ImageView) view.findViewById(R.id.logo);
         mTitleView = (TextView) view.findViewById(R.id.title);
         mDescriptionView = (TextView) view.findViewById(R.id.description);
@@ -410,6 +417,12 @@ abstract public class OnboardingFragment extends Fragment {
 
     private void initializeViews(View container) {
         mLogoView.setVisibility(View.GONE);
+
+        if (mIconResourceId != 0) {
+            mMainIconView.setImageResource(mIconResourceId);
+            mMainIconView.setVisibility(View.VISIBLE);
+        }
+
         // Create custom views.
         LayoutInflater inflater = getThemeInflater(LayoutInflater.from(getActivity()));
         ViewGroup backgroundContainer = (ViewGroup) container.findViewById(
@@ -457,32 +470,54 @@ abstract public class OnboardingFragment extends Fragment {
                 R.animator.lb_onboarding_page_indicator_enter);
         animator.setTarget(getPageCount() <= 1 ? mStartButton : mPageIndicator);
         animators.add(animator);
-        // Header title
-        View view = getActivity().findViewById(R.id.title);
-        view.setAlpha(0);
-        animator = AnimatorInflater.loadAnimator(getActivity(),
-                R.animator.lb_onboarding_title_enter);
-        animator.setStartDelay(START_DELAY_TITLE_MS);
-        animator.setTarget(view);
-        animators.add(animator);
-        // Header description
-        view = getActivity().findViewById(R.id.description);
-        view.setAlpha(0);
-        animator = AnimatorInflater.loadAnimator(getActivity(),
-                R.animator.lb_onboarding_description_enter);
-        animator.setStartDelay(START_DELAY_DESCRIPTION_MS);
-        animator.setTarget(view);
-        animators.add(animator);
+
+        animator = onCreateTitleAnimator();
+        if (animator != null) {
+            // Header title.
+            animator.setTarget(mTitleView);
+            animators.add(animator);
+        }
+
+        animator = onCreateDescriptionAnimator();
+        if (animator != null) {
+            // Header description.
+            animator.setTarget(mDescriptionView);
+            animators.add(animator);
+        }
+
         // Customized animation by the inherited class.
         Animator customAnimator = onCreateEnterAnimation();
         if (customAnimator != null) {
             animators.add(customAnimator);
+        }
+
+        // Return if we don't have any animations.
+        if (animators.isEmpty()) {
+            return;
         }
         mAnimator = new AnimatorSet();
         mAnimator.playTogether(animators);
         mAnimator.start();
         // Search focus and give the focus to the appropriate child which has become visible.
         getView().requestFocus();
+    }
+
+    /**
+     * Provides the entry animation for description view. This allows users to override the
+     * default fade and slide animation. Returning null will disable the animation.
+     */
+    protected Animator onCreateDescriptionAnimator() {
+        return AnimatorInflater.loadAnimator(getActivity(),
+                R.animator.lb_onboarding_description_enter);
+    }
+
+    /**
+     * Provides the entry animation for title view. This allows users to override the
+     * default fade and slide animation. Returning null will disable the animation.
+     */
+    protected Animator onCreateTitleAnimator() {
+        return AnimatorInflater.loadAnimator(getActivity(),
+                R.animator.lb_onboarding_title_enter);
     }
 
     /**
@@ -689,5 +724,23 @@ abstract public class OnboardingFragment extends Fragment {
             animator.setStartDelay(startDelay);
         }
         return animator;
+    }
+
+    /**
+     * Sets the resource id for the main icon.
+     */
+    public final void setIconResouceId(int resourceId) {
+        this.mIconResourceId = resourceId;
+        if (mMainIconView != null) {
+            mMainIconView.setImageResource(resourceId);
+            mMainIconView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Returns the resource id of the main icon.
+     */
+    public final int getIconResourceId() {
+        return mIconResourceId;
     }
 }

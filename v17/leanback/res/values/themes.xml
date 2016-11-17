@@ -213,6 +213,7 @@
         <item name="onboardingPageIndicatorStyle">@style/Widget.Leanback.OnboardingPageIndicatorStyle</item>
         <item name="onboardingStartButtonStyle">@style/Widget.Leanback.OnboardingStartButtonStyle</item>
         <item name="onboardingLogoStyle">@style/Widget.Leanback.OnboardingLogoStyle</item>
+        <item name="onboardingMainIconStyle">@style/Widget.Leanback.OnboardingMainIconStyle</item>
     </style>
 
 </resources>

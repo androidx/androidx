@@ -28,10 +28,15 @@
         android:layout_height="match_parent"
         android:visibility="gone" />
 
+    <ImageView
+        android:id="@+id/main_icon"
+        style="?attr/onboardingMainIconStyle"/>
+
     <LinearLayout
         android:id="@+id/page_container"
         style="?attr/onboardingHeaderStyle"
         android:visibility="gone">
+
         <TextView
             android:id="@+id/title"
             style="?attr/onboardingTitleStyle"/>
