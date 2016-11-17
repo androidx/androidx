@@ -26,10 +26,10 @@ import android.support.v7.widget.RecyclerView;
  * half/full screen.
  */
 public class DetailsParallaxManager {
-    private final ParallaxRecyclerViewSource mParallaxSource;
-    private final ParallaxRecyclerViewSource.ChildPositionProperty mFrameTop;
-    private final ParallaxRecyclerViewSource.ChildPositionProperty mFrameBottom;
-    private Parallax mParallax;
+    final ParallaxRecyclerViewSource mParallaxSource;
+    final ParallaxRecyclerViewSource.ChildPositionProperty mFrameTop;
+    final ParallaxRecyclerViewSource.ChildPositionProperty mFrameBottom;
+    final Parallax mParallax;
 
     public DetailsParallaxManager() {
         mParallaxSource = new ParallaxRecyclerViewSource();
