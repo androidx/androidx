@@ -3,7 +3,6 @@ archivesBaseName = 'support-fragment'
 
 dependencies {
     compile project(':support-compat')
-    compile project(':support-media-compat')
     compile project(':support-core-ui')
     compile project(':support-core-utils')
     androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {

@@ -40,7 +40,6 @@ LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-compat \
     android-support-core-ui \
     android-support-core-utils \
-    android-support-media-compat \
     android-support-annotations
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
