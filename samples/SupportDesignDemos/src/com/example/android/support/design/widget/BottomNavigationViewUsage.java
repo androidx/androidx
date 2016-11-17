@@ -76,6 +76,20 @@ public class BottomNavigationViewUsage extends AppCompatActivity {
                 }
             }
         });
+        Button buttonNext = (Button) findViewById(R.id.button_select_next);
+        buttonNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final int menuSize = bottom.getMenu().size();
+                int currentlySelected = 0;
+                for (int i = 0; i < menuSize; i++) {
+                    if (bottom.getMenu().getItem(i).isChecked()) {
+                        currentlySelected = i;
+                    }
+                }
+                bottom.getMenu().getItem((currentlySelected + 1) % menuSize).setChecked(true);
+            }
+        });
         final TextView selectedItem = (TextView) findViewById(R.id.selected_item);
         bottom.setOnNavigationItemSelectedListener(
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
