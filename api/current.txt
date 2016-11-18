@@ -5925,17 +5925,12 @@ package android.support.v4.media.session {
     field public static final long ACTION_REWIND = 8L; // 0x8L
     field public static final long ACTION_SEEK_TO = 256L; // 0x100L
     field public static final long ACTION_SET_RATING = 128L; // 0x80L
-    field public static final long ACTION_SET_REPEAT_MODE = 262144L; // 0x40000L
-    field public static final long ACTION_SET_SHUFFLE_MODE_ENABLED = 524288L; // 0x80000L
     field public static final long ACTION_SKIP_TO_NEXT = 32L; // 0x20L
     field public static final long ACTION_SKIP_TO_PREVIOUS = 16L; // 0x10L
     field public static final long ACTION_SKIP_TO_QUEUE_ITEM = 4096L; // 0x1000L
     field public static final long ACTION_STOP = 1L; // 0x1L
     field public static final android.os.Parcelable.Creator<android.support.v4.media.session.PlaybackStateCompat> CREATOR;
     field public static final long PLAYBACK_POSITION_UNKNOWN = -1L; // 0xffffffffffffffffL
-    field public static final int REPEAT_MODE_ALL = 2; // 0x2
-    field public static final int REPEAT_MODE_NONE = 0; // 0x0
-    field public static final int REPEAT_MODE_ONE = 1; // 0x1
     field public static final int STATE_BUFFERING = 6; // 0x6
     field public static final int STATE_CONNECTING = 8; // 0x8
     field public static final int STATE_ERROR = 7; // 0x7
