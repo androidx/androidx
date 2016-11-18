@@ -659,7 +659,6 @@ public final class BackgroundManager {
      */
     public void attachToView(View sceneRoot) {
         attachToViewInternal(sceneRoot);
-        mContext.getWindow().getDecorView().setBackground(null);
     }
 
     void attachToViewInternal(View sceneRoot) {
