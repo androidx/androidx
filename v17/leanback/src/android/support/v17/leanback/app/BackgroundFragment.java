@@ -13,7 +13,7 @@
  */
 package android.support.v17.leanback.app;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Fragment;
 import android.support.annotation.RestrictTo;
@@ -22,7 +22,7 @@ import android.support.annotation.RestrictTo;
  * Fragment used by the background manager.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public final class BackgroundFragment extends Fragment {
     private BackgroundManager mBackgroundManager;
 

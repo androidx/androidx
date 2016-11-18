@@ -16,6 +16,8 @@
 
 package android.support.transition;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
@@ -32,8 +34,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 @RequiresApi(14)
 @TargetApi(14)
@@ -178,7 +178,7 @@ abstract class TransitionPort implements Cloneable {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
             TransitionValuesMaps endValues) {
         if (DBG) {
@@ -414,7 +414,7 @@ abstract class TransitionPort implements Cloneable {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void runAnimators() {
         if (DBG) {
             Log.d(LOG_TAG, "runAnimators() on " + this);
@@ -798,7 +798,7 @@ abstract class TransitionPort implements Cloneable {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void pause(View sceneRoot) {
         if (!mEnded) {
             ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
@@ -830,7 +830,7 @@ abstract class TransitionPort implements Cloneable {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void resume(View sceneRoot) {
         if (mPaused) {
             if (!mEnded) {
@@ -929,7 +929,7 @@ abstract class TransitionPort implements Cloneable {
      * @param animator The Animator to be run during this transition.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void animate(Animator animator) {
         // TODO: maybe pass auto-end as a boolean parameter?
         if (animator == null) {
@@ -962,7 +962,7 @@ abstract class TransitionPort implements Cloneable {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void start() {
         if (mNumInstances == 0) {
             if (mListeners != null && mListeners.size() > 0) {
@@ -989,7 +989,7 @@ abstract class TransitionPort implements Cloneable {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void end() {
         --mNumInstances;
         if (mNumInstances == 0) {
@@ -1024,7 +1024,7 @@ abstract class TransitionPort implements Cloneable {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void cancel() {
         int numAnimators = mCurrentAnimators.size();
         for (int i = numAnimators - 1; i >= 0; i--) {
@@ -1197,7 +1197,7 @@ abstract class TransitionPort implements Cloneable {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static class TransitionListenerAdapter implements TransitionListener {
 
         @Override

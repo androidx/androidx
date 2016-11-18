@@ -13,7 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -35,7 +35,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
  * Do not directly use this class, use {@link VerticalGridView} and {@link HorizontalGridView}.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 abstract class BaseGridView extends RecyclerView {
 
     /**
@@ -983,7 +983,7 @@ abstract class BaseGridView extends RecyclerView {
      *                          Must be bigger or equals to 0.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void setExtraLayoutSpace(int extraLayoutSpace) {
         mLayoutManager.setExtraLayoutSpace(extraLayoutSpace);
     }
@@ -993,7 +993,7 @@ abstract class BaseGridView extends RecyclerView {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public int getExtraLayoutSpace() {
         return mLayoutManager.getExtraLayoutSpace();
     }

@@ -16,7 +16,7 @@
 
 package android.support.v17.leanback.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -45,7 +45,7 @@ import android.view.animation.DecelerateInterpolator;
  * A page indicator with dots.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class PagingIndicator extends View {
     private static final long DURATION_ALPHA = 167;
     private static final long DURATION_DIAMETER = 417;

@@ -16,7 +16,7 @@
 
 package android.support.v17.leanback.system;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.Intent;
@@ -69,7 +69,7 @@ public class Settings {
      * Returns true if static shadows are recommended.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public boolean preferStaticShadows() {
         return mPreferStaticShadows;
     }

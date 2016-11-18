@@ -15,6 +15,8 @@
  */
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -27,15 +29,13 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * An extension of LinearLayout that automatically switches to vertical
  * orientation when it can't fit its child views horizontally.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class ButtonBarLayout extends LinearLayout {
     /** Minimum screen height required for button stacking. */
     private static final int ALLOW_STACKING_MIN_HEIGHT_DP = 320;

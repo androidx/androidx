@@ -16,6 +16,8 @@
 
 package android.support.v7.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -31,15 +33,13 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * An adapter that connects a RecyclerView to the {@link Preference} objects contained in the
  * associated {@link PreferenceGroup}.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewHolder>
         implements Preference.OnPreferenceChangeInternalListener,
         PreferenceGroup.PreferencePositionCallback {

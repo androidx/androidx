@@ -16,14 +16,14 @@
 
 package android.support.v7.preference;
 
-import android.support.annotation.RestrictTo;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import android.support.annotation.RestrictTo;
 
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class AndroidResources {
 
     public static final int ANDROID_R_ICON_FRAME = android.R.id.icon_frame;

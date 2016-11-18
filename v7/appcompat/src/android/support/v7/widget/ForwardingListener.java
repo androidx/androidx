@@ -16,7 +16,7 @@
 
 package android.support.v7.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -38,7 +38,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public abstract class ForwardingListener implements View.OnTouchListener {
 
     /** Scaled touch slop, used for detecting movement outside bounds. */

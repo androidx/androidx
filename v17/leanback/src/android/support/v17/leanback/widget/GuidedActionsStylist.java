@@ -13,7 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v17.leanback.widget.GuidedAction.EDITING_ACTIVATOR_VIEW;
 import static android.support.v17.leanback.widget.GuidedAction.EDITING_DESCRIPTION;
 import static android.support.v17.leanback.widget.GuidedAction.EDITING_NONE;
@@ -945,7 +945,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * Sets listener for reporting view being edited.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void setEditListener(EditListener listener) {
         mEditListener = listener;
     }

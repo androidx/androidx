@@ -16,6 +16,8 @@
 
 package android.support.v7.view;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.TargetApi;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
@@ -33,8 +35,6 @@ import android.view.accessibility.AccessibilityEvent;
 
 import java.util.List;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * A simple decorator stub for Window.Callback that passes through any calls
  * to the wrapped instance as a base implementation. Call super.foo() to call into
@@ -42,7 +42,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class WindowCallbackWrapper implements Window.Callback {
 
     final Window.Callback mWrapped;
