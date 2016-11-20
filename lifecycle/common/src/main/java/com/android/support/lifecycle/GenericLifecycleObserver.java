@@ -12,14 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.android.support.lifecycle;
 
 /**
- * @hide
  * Internal class that can receive any lifecycle change and dispatch it to the receiver.
+ * @hide
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public interface GenericLifecycleObserver extends LifecycleObserver {
@@ -30,5 +29,11 @@ public interface GenericLifecycleObserver extends LifecycleObserver {
      * @param event The event
      */
     void onStateChanged(LifecycleProvider source, @Lifecycle.Event int event);
+
+    /**
+     * Returns the actual receiver of the event
+     *
+     * @return The actual receiver
+     */
     Object getReceiver();
 }

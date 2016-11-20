@@ -12,13 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.android.support.lifecycle;
 
 import android.support.annotation.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,8 +82,10 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
                         reference.mMethod.invoke(mWrapped, source, event);
                         break;
                 }
-            } catch (Throwable t) {
-                throw new RuntimeException(t);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
         }
     }

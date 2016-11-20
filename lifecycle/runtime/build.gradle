@@ -32,3 +32,5 @@ dependencies {
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-core:$mockito_version"
 }
+
+createAndroidCheckstyle(project)

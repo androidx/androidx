@@ -31,11 +31,4 @@ uploadArchives {
     }
 }
 
-task('checkstyle', type: Checkstyle) {
-    configFile rootProject.file('kotlin-style.xml')
-    source 'src/main/kotlin'
-    ignoreFailures false
-    showViolations true
-    include '**/*.kt'
-    classpath = files()
-}
+createKotlinCheckstyle(project)

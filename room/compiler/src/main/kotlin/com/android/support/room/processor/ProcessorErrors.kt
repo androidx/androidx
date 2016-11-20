@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle;
+package com.android.support.room.processor
 
-/**
- * Marks a class as a LifecycleObserver. It does not have any methods, instead, relies on
- * {@link OnLifecycleEvent} annotated methods.
- */
-@SuppressWarnings("WeakerAccess")
-public interface LifecycleObserver {
+import com.android.support.room.Query
 
+object ProcessorErrors {
+    val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
+    val CANNOT_RESOLVE_RETURN_TYPE = "Cannot resolve return type for %s"
+    val CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS = "Cannot use unbound generics in query " +
+            "methods. It must be bound to a type through base Dao class."
 }

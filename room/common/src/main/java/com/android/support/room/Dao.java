@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle;
+package com.android.support.room;
 
-/**
- * Marks a class as a LifecycleObserver. It does not have any methods, instead, relies on
- * {@link OnLifecycleEvent} annotated methods.
- */
-@SuppressWarnings("WeakerAccess")
-public interface LifecycleObserver {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
+public @interface Dao {
 }

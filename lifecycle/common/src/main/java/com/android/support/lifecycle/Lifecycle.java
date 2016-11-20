@@ -19,6 +19,9 @@ package com.android.support.lifecycle;
 import android.support.annotation.IntDef;
 import android.support.annotation.MainThread;
 
+/**
+ * Defines an object that has an Android Lifecycle and it can be observed.
+ */
 @SuppressWarnings({"UnnecessaryInterfaceModifier", "WeakerAccess", "unused"})
 public interface Lifecycle {
     /**
@@ -51,6 +54,9 @@ public interface Lifecycle {
     int STOPPED = INITIALIZED << 1;
     int STARTED = STOPPED << 1;
     int RESUMED = STARTED << 1;
+    /**
+     * IntDef for Lifecycle states
+     */
     @IntDef(value = {DESTROYED, INITIALIZED, STOPPED, STARTED, RESUMED})
     public @interface State {
     }
@@ -61,7 +67,7 @@ public interface Lifecycle {
      * @return The current state of the Lifecycle.
      */
     @MainThread @State
-    public int getCurrentState();
+    int getCurrentState();
     int ON_CREATE = RESUMED << 1;
     int ON_START = ON_CREATE << 2;
     int ON_RESUME = ON_START << 2;
@@ -70,6 +76,9 @@ public interface Lifecycle {
     int ON_DESTROY = ON_STOP << 2;
     int ANY = -1;
 
+    /**
+     * IntDef for Lifecycle events
+     */
     @IntDef(value = {ON_CREATE, ON_START, ON_RESUME, ON_PAUSE, ON_STOP, ON_DESTROY, ANY},
             flag = true)
     public @interface Event {

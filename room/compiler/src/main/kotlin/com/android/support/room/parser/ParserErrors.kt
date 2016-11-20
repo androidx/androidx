@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle;
+package com.android.support.room.parser
 
-/**
- * Marks a class as a LifecycleObserver. It does not have any methods, instead, relies on
- * {@link OnLifecycleEvent} annotated methods.
- */
-@SuppressWarnings("WeakerAccess")
-public interface LifecycleObserver {
+object ParserErrors {
+    val TOO_MANY_UNNAMED_VARIABLES = "Unnamed bind variables can only be used if it is the only" +
+            " parameter. Use named parameters (e..g :name)"
 
+    fun cannotUseVariableIndices(name: String, position: Int) = "Cannot use variable indices." +
+            " Use named parameters instead (e.g. WHERE name LIKE :nameArg and lastName LIKE " +
+            ":lastName). Problem: $name at $position"
 }

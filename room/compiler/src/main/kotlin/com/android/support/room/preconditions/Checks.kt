@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle;
+package com.android.support.room.preconditions
+
+import com.android.support.room.errors.ElementBoundException
+import javax.lang.model.element.Element
 
 /**
- * Marks a class as a LifecycleObserver. It does not have any methods, instead, relies on
- * {@link OnLifecycleEvent} annotated methods.
+ * Similar to preconditions but element bound.
  */
-@SuppressWarnings("WeakerAccess")
-public interface LifecycleObserver {
-
+object Checks {
+    fun check(predicate: Boolean, element: Element, errorMsg: String, vararg args: Any) {
+        if (!predicate) {
+            throw ElementBoundException(element, String.format(errorMsg, args))
+        }
+    }
 }

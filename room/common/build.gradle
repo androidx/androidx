@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle;
+apply plugin: 'java'
+apply plugin: 'maven'
 
-/**
- * Marks a class as a LifecycleObserver. It does not have any methods, instead, relies on
- * {@link OnLifecycleEvent} annotated methods.
- */
-@SuppressWarnings("WeakerAccess")
-public interface LifecycleObserver {
+sourceCompatibility = 1.7
+
+dependencies {
+    testCompile "junit:junit:$junit_version"
+    testCompile "org.mockito:mockito-core:$mockito_version"
 
 }
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: rootProject.ext.localMavenRepo)
+            pom.artifactId = "common"
+        }
+    }
+}
+
+createAndroidCheckstyle(project)

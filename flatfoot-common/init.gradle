@@ -36,7 +36,7 @@ ext.min_sdk_version = 14
 ext.target_sdk_version = 24
 ext.compile_sdk_version = 24
 ext.build_tools_version = "24.0.0"
-
+ext.intellij_annotation = "12.0"
 ext.enablePublicRepos = System.getenv("ALLOW_PUBLIC_REPOS")
 
 def addRepos(RepositoryHandler handler) {
@@ -51,5 +51,46 @@ def addRepos(RepositoryHandler handler) {
     }
 }
 
+def createKotlinCheckstyle(Project project) {
+    def kotlinCheckstyle = project.tasks.create(name : 'checkstyleKotlin', type: Checkstyle) {
+        configFile rootProject.file('../flatfoot-common/kotlin-checkstyle.xml')
+        source project.sourceSets.main.allJava
+        ignoreFailures false
+        showViolations true
+        include '**/*.kt'
+        classpath = project.files()
+        checkstyleClasspath = files(rootProject.file('../../../development/tools/checkstyle/checkstyle.jar').path)
+    }
+    project.tasks.findByName("check").dependsOn(kotlinCheckstyle)
+    // poor man's line length check
+    def lineCheck = project.tasks.create(name : "lineLengthCheck") {
+        project.sourceSets.main.allJava.getSourceDirectories().each { sourceDir ->
+            fileTree(dir : sourceDir, include : "**/*.kt").each{ file ->
+                file.readLines().eachWithIndex { line, index ->
+                    if (line.size() > 100) {
+                        throw new Exception("line too long:\nfile: $file line:$index line: $line")
+                    }
+                }
+            }
+        }
+    }
+    kotlinCheckstyle.dependsOn(lineCheck)
+}
+
+def createAndroidCheckstyle(Project project) {
+    def androidCheckstyle = project.tasks.create(name : 'checkstyleAndroid', type: Checkstyle) {
+        configFile rootProject.file('../../../development/tools/checkstyle/android-style.xml')
+        source 'src/main/java'
+        ignoreFailures false
+        showViolations true
+        include '**/*.java'
+        classpath = project.files()
+        checkstyleClasspath = files(rootProject.file('../../../development/tools/checkstyle/checkstyle.jar').path)
+    }
+    project.tasks.findByName("check").dependsOn(androidCheckstyle)
+}
+
 ext.localMavenRepo = "file://${new File(root, "maven-repo").absolutePath}"
 ext.addRepos = this.&addRepos
+ext.createKotlinCheckstyle = this.&createKotlinCheckstyle
+ext.createAndroidCheckstyle = this.&createAndroidCheckstyle

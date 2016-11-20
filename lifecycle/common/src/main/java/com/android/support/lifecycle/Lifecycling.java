@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.android.support.lifecycle;
@@ -20,6 +19,7 @@ package com.android.support.lifecycle;
 import android.support.annotation.Nullable;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,11 +27,11 @@ import java.util.Map;
  * Internal class to handle lifecycle conversion etc.
  */
 class Lifecycling {
-    private static Constructor<? extends GenericLifecycleObserver> REFLECTIVE;
+    private static Constructor<? extends GenericLifecycleObserver> sREFLECTIVE;
 
     static {
         try {
-            REFLECTIVE = ReflectiveGenericLifecycleObserver.class.getConstructor(Object.class);
+            sREFLECTIVE = ReflectiveGenericLifecycleObserver.class.getConstructor(Object.class);
         } catch (NoSuchMethodException e) {
 
         }
@@ -59,11 +59,15 @@ class Lifecycling {
                 }
                 return cachedConstructor.newInstance(object);
             } else {
-                sCallbackCache.put(klass, REFLECTIVE);
+                sCallbackCache.put(klass, sREFLECTIVE);
             }
             return new ReflectiveGenericLifecycleObserver(object);
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
         }
 
     }

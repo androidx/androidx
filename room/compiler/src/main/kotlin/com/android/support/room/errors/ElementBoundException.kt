@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle;
+package com.android.support.room.errors
 
-/**
- * Marks a class as a LifecycleObserver. It does not have any methods, instead, relies on
- * {@link OnLifecycleEvent} annotated methods.
- */
-@SuppressWarnings("WeakerAccess")
-public interface LifecycleObserver {
+import javax.lang.model.element.Element
 
-}
+class ElementBoundException(val element: Element, val msg: String)
+    : RuntimeException("[$element] $msg")

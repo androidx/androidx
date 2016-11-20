@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle;
+package com.android.support.room.vo
+
+import com.android.support.room.parser.ParsedQuery
+import com.squareup.javapoet.TypeName
 
 /**
- * Marks a class as a LifecycleObserver. It does not have any methods, instead, relies on
- * {@link OnLifecycleEvent} annotated methods.
+ * A class that holds information about a QueryMethod.
+ * It is self sufficient and must have all generics etc resolved once created.
  */
-@SuppressWarnings("WeakerAccess")
-public interface LifecycleObserver {
-
-}
+class QueryMethod(val query: ParsedQuery, val name: String, val returnType: TypeName,
+                  val parameters: List<Parameter>)

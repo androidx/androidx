@@ -17,3 +17,5 @@ uploadArchives {
         }
     }
 }
+
+createAndroidCheckstyle(project)

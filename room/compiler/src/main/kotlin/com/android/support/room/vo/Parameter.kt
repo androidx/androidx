@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle;
+package com.android.support.room.vo
+
+import com.squareup.javapoet.TypeName
 
 /**
- * Marks a class as a LifecycleObserver. It does not have any methods, instead, relies on
- * {@link OnLifecycleEvent} annotated methods.
+ * Holds the parameter for a {@link QueryMethod}.
  */
-@SuppressWarnings("WeakerAccess")
-public interface LifecycleObserver {
-
-}
+class Parameter(val name: String, val type: TypeName)
