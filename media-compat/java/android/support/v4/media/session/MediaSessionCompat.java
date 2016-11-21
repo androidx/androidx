@@ -17,7 +17,7 @@
 
 package android.support.v4.media.session;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -93,7 +93,7 @@ public class MediaSessionCompat {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef(flag=true, value={FLAG_HANDLES_MEDIA_BUTTONS, FLAG_HANDLES_TRANSPORT_CONTROLS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface SessionFlags {}
@@ -533,7 +533,7 @@ public class MediaSessionCompat {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public String getCallingPackage() {
         return mImpl.getCallingPackage();
     }

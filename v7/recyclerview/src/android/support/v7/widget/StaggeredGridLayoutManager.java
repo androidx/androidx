@@ -16,7 +16,7 @@
 
 package android.support.v7.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_HEAD;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_TAIL;
 import static android.support.v7.widget.LayoutState.LAYOUT_END;
@@ -2996,7 +2996,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static class SavedState implements Parcelable {
 
         int mAnchorPosition;

@@ -16,12 +16,12 @@
 
 package android.support.v7.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.TypedArrayUtils;
 import android.util.AttributeSet;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Represents a top-level {@link Preference} that
@@ -84,7 +84,7 @@ public final class PreferenceScreen extends PreferenceGroup  {
      * Do NOT use this constructor, use {@link PreferenceManager#createPreferenceScreen(Context)}.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public PreferenceScreen(Context context, AttributeSet attrs) {
         super(context, attrs, TypedArrayUtils.getAttr(context, R.attr.preferenceScreenStyle,
                 android.R.attr.preferenceScreenStyle));

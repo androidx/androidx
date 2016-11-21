@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.AssetManager;
@@ -27,15 +29,13 @@ import android.support.annotation.RestrictTo;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * A {@link android.content.ContextWrapper} which returns a tint-aware
  * {@link android.content.res.Resources} instance from {@link #getResources()}.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class TintContextWrapper extends ContextWrapper {
 
     private static final Object CACHE_LOCK = new Object();

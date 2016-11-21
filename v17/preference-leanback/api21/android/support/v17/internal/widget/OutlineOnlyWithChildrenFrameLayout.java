@@ -16,6 +16,8 @@
 
 package android.support.v17.internal.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Outline;
@@ -26,8 +28,6 @@ import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * {@link FrameLayout} subclass that provides an outline only when it has children, so that it does
  * not cast a shadow when empty.
@@ -36,7 +36,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  */
 @RequiresApi(21)
 @TargetApi(21)
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class OutlineOnlyWithChildrenFrameLayout extends FrameLayout {
 
     private ViewOutlineProvider mMagicalOutlineProvider;

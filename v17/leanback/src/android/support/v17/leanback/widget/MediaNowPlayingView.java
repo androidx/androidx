@@ -13,7 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -32,7 +32,7 @@ import android.widget.LinearLayout;
  * The view displaying 3 animated peak meters next to each other when a media item is playing.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class MediaNowPlayingView extends LinearLayout{
 
     private final ImageView mImage1;

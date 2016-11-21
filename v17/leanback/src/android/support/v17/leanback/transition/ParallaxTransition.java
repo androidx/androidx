@@ -16,7 +16,7 @@
 
 package android.support.v17.leanback.transition;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
@@ -44,7 +44,7 @@ import android.view.animation.LinearInterpolator;
  */
 @RequiresApi(21)
 @TargetApi(21)
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class ParallaxTransition extends Visibility {
 
     static Interpolator sInterpolator = new LinearInterpolator();

@@ -15,6 +15,8 @@
  */
 package android.support.v17.leanback.transition;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.TimeInterpolator;
@@ -35,15 +37,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Execute horizontal slide of 1/4 width and fade (to workaround bug 23718734)
  * @hide
  */
 @RequiresApi(21)
 @TargetApi(21)
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class FadeAndShortSlide extends Visibility {
 
     private static final TimeInterpolator sDecelerate = new DecelerateInterpolator();

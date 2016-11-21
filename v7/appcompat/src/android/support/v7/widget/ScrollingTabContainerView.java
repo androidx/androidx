@@ -15,6 +15,8 @@
  */
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -46,15 +48,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * This widget implements the dynamic action bar tab behavior that can change across different
  * configurations or circumstances.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class ScrollingTabContainerView extends HorizontalScrollView
         implements AdapterView.OnItemSelectedListener {
 

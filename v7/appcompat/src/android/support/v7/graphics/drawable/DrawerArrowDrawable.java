@@ -16,6 +16,8 @@
 
 package android.support.v7.graphics.drawable;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -35,8 +37,6 @@ import android.support.v7.appcompat.R;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A drawable that can draw a "Drawer hamburger" menu or an arrow and animate between them.
@@ -87,7 +87,7 @@ public class DrawerArrowDrawable extends Drawable {
     public static final int ARROW_DIRECTION_END = 3;
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({ARROW_DIRECTION_LEFT, ARROW_DIRECTION_RIGHT,
             ARROW_DIRECTION_START, ARROW_DIRECTION_END})
     @Retention(RetentionPolicy.SOURCE)

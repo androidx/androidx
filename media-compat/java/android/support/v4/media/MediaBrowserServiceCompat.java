@@ -16,7 +16,7 @@
 
 package android.support.v4.media;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNECT;
@@ -113,14 +113,14 @@ public abstract class MediaBrowserServiceCompat extends Service {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static final String KEY_MEDIA_ITEM = "media_item";
 
     static final int RESULT_FLAG_OPTION_NOT_HANDLED = 0x00000001;
     static final int RESULT_FLAG_ON_LOAD_ITEM_NOT_IMPLEMENTED = 0x00000002;
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag=true, value = { RESULT_FLAG_OPTION_NOT_HANDLED,
             RESULT_FLAG_ON_LOAD_ITEM_NOT_IMPLEMENTED })

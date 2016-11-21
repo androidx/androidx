@@ -16,7 +16,7 @@
 
 package android.support.v4.app;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
 import android.content.ComponentCallbacks;
@@ -792,13 +792,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     final public boolean hasOptionsMenu() {
         return mHasMenu;
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     final public boolean isMenuVisible() {
         return mMenuVisible;
     }
@@ -1120,7 +1120,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * inflation.  Maybe this should become a public API. Note sure.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
         LayoutInflater result = mHost.onGetLayoutInflater();
         getChildFragmentManager(); // Init if needed; use raw implementation below.

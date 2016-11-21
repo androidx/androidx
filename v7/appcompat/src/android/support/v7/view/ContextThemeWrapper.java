@@ -16,6 +16,8 @@
 
 package android.support.v7.view;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.AssetManager;
@@ -25,15 +27,13 @@ import android.support.annotation.StyleRes;
 import android.support.v7.appcompat.R;
 import android.view.LayoutInflater;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * A ContextWrapper that allows you to modify the theme from what is in the
  * wrapped context.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class ContextThemeWrapper extends ContextWrapper {
     private int mThemeResource;
     private Resources.Theme mTheme;

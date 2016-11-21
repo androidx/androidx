@@ -16,7 +16,7 @@
 
 package android.support.v7.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v4.graphics.ColorUtils.compositeColors;
 import static android.support.v7.content.res.AppCompatResources.getColorStateList;
 import static android.support.v7.widget.ThemeUtils.getDisabledThemeAttrColor;
@@ -64,7 +64,7 @@ import java.util.WeakHashMap;
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public final class AppCompatDrawableManager {
 
     private interface InflateDelegate {

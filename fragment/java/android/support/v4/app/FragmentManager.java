@@ -16,7 +16,7 @@
 
 package android.support.v4.app;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -158,7 +158,7 @@ public abstract class FragmentManager {
      * @hide -- remove once prebuilts are in.
      * @deprecated
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Deprecated
     public FragmentTransaction openTransaction() {
         return beginTransaction();
@@ -331,7 +331,7 @@ public abstract class FragmentManager {
      * @return The list of all fragments or null if none.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public abstract List<Fragment> getFragments();
 
     /**

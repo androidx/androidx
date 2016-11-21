@@ -13,18 +13,19 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_LARGE;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_MEDIUM;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_NONE;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_SMALL;
+import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_XSMALL;
+
+import android.animation.TimeAnimator;
+import android.content.res.Resources;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.animation.TimeAnimator;
-import android.content.res.Resources;
-import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_NONE;
-import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_SMALL;
-import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_XSMALL;
-import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_MEDIUM;
-import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_LARGE;
 
 /**
  * Sets up the highlighting behavior when an item gains focus.
