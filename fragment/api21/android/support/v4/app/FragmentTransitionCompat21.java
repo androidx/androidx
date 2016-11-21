@@ -24,7 +24,6 @@ import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -343,18 +342,15 @@ class FragmentTransitionCompat21 {
             }
         }
 
-        sceneRoot.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
-                        for (int i = 0; i < numSharedElements; i++) {
-                            sharedElementsIn.get(i).setTransitionName(inNames.get(i));
-                            sharedElementsOut.get(i).setTransitionName(outNames.get(i));
-                        }
-                        return true;
-                    }
-                });
+        OneShotPreDrawListener.add(sceneRoot, new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < numSharedElements; i++) {
+                    sharedElementsIn.get(i).setTransitionName(inNames.get(i));
+                    sharedElementsOut.get(i).setTransitionName(outNames.get(i));
+                }
+            }
+        });
     }
 
     /**
@@ -406,23 +402,20 @@ class FragmentTransitionCompat21 {
 
     public static void setNameOverridesUnoptimized(final View sceneRoot,
             final ArrayList<View> sharedElementsIn, final Map<String, String> nameOverrides) {
-        sceneRoot.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
-                        final int numSharedElements = sharedElementsIn.size();
-                        for (int i = 0; i < numSharedElements; i++) {
-                            View view = sharedElementsIn.get(i);
-                            String name = view.getTransitionName();
-                            if (name != null) {
-                                String inName = findKeyForValue(nameOverrides, name);
-                                view.setTransitionName(inName);
-                            }
-                        }
-                        return true;
+        OneShotPreDrawListener.add(sceneRoot, new Runnable() {
+            @Override
+            public void run() {
+                final int numSharedElements = sharedElementsIn.size();
+                for (int i = 0; i < numSharedElements; i++) {
+                    View view = sharedElementsIn.get(i);
+                    String name = view.getTransitionName();
+                    if (name != null) {
+                        String inName = findKeyForValue(nameOverrides, name);
+                        view.setTransitionName(inName);
                     }
-                });
+                }
+            }
+        });
     }
 
     /**
@@ -566,20 +559,17 @@ class FragmentTransitionCompat21 {
 
     public static void scheduleNameReset(final ViewGroup sceneRoot,
             final ArrayList<View> sharedElementsIn, final Map<String, String> nameOverrides) {
-        sceneRoot.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
-                        final int numSharedElements = sharedElementsIn.size();
-                        for (int i = 0; i < numSharedElements; i++) {
-                            final View view = sharedElementsIn.get(i);
-                            final String name = view.getTransitionName();
-                            final String inName = nameOverrides.get(name);
-                            view.setTransitionName(inName);
-                        }
-                        return true;
-                    }
-                });
+        OneShotPreDrawListener.add(sceneRoot, new Runnable() {
+            @Override
+            public void run() {
+                final int numSharedElements = sharedElementsIn.size();
+                for (int i = 0; i < numSharedElements; i++) {
+                    final View view = sharedElementsIn.get(i);
+                    final String name = view.getTransitionName();
+                    final String inName = nameOverrides.get(name);
+                    view.setTransitionName(inName);
+                }
+            }
+        });
     }
 }

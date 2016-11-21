@@ -22,7 +22,6 @@ import android.support.v4.view.ViewCompat;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -250,15 +249,12 @@ class FragmentTransition {
             FragmentTransitionCompat21.scheduleHideFragmentView(exitTransition,
                     exitingFragment.getView(), exitingViews);
             final ViewGroup container = exitingFragment.mContainer;
-            container.getViewTreeObserver().addOnPreDrawListener(
-                    new ViewTreeObserver.OnPreDrawListener() {
-                        @Override
-                        public boolean onPreDraw() {
-                            container.getViewTreeObserver().removeOnPreDrawListener(this);
-                            setViewVisibility(exitingViews, View.INVISIBLE);
-                            return true;
-                        }
-                    });
+            OneShotPreDrawListener.add(container, new Runnable() {
+                @Override
+                public void run() {
+                    setViewVisibility(exitingViews, View.INVISIBLE);
+                }
+            });
         }
     }
 
@@ -356,33 +352,27 @@ class FragmentTransition {
             final ArrayList<View> sharedElementsIn,
             final Object enterTransition, final ArrayList<View> enteringViews,
             final Object exitTransition, final ArrayList<View> exitingViews) {
+        OneShotPreDrawListener.add(sceneRoot, new Runnable() {
+            @Override
+            public void run() {
+                if (enterTransition != null) {
+                    FragmentTransitionCompat21.removeTarget(enterTransition,
+                            nonExistentView);
+                    ArrayList<View> views = configureEnteringExitingViews(
+                            enterTransition, inFragment, sharedElementsIn, nonExistentView);
+                    enteringViews.addAll(views);
+                }
 
-        sceneRoot.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
-
-                        if (enterTransition != null) {
-                            FragmentTransitionCompat21.removeTarget(enterTransition,
-                                    nonExistentView);
-                            ArrayList<View> views = configureEnteringExitingViews(
-                                    enterTransition, inFragment, sharedElementsIn, nonExistentView);
-                            enteringViews.addAll(views);
-                        }
-
-                        if (exitingViews != null) {
-                            ArrayList<View> tempExiting = new ArrayList<>();
-                            tempExiting.add(nonExistentView);
-                            FragmentTransitionCompat21.replaceTargets(exitTransition, exitingViews,
-                                    tempExiting);
-                            exitingViews.clear();
-                            exitingViews.add(nonExistentView);
-                        }
-
-                        return true;
-                    }
-                });
+                if (exitingViews != null) {
+                    ArrayList<View> tempExiting = new ArrayList<>();
+                    tempExiting.add(nonExistentView);
+                    FragmentTransitionCompat21.replaceTargets(exitTransition, exitingViews,
+                            tempExiting);
+                    exitingViews.clear();
+                    exitingViews.add(nonExistentView);
+                }
+            }
+        });
     }
 
     /**
@@ -519,19 +509,16 @@ class FragmentTransition {
             epicenterView = null;
         }
 
-        sceneRoot.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
-                        callSharedElementStartEnd(inFragment, outFragment, inIsPop,
-                                inSharedElements, false);
-                        if (epicenterView != null) {
-                            FragmentTransitionCompat21.getBoundsOnScreen(epicenterView, epicenter);
-                        }
-                        return true;
-                    }
-                });
+        OneShotPreDrawListener.add(sceneRoot, new Runnable() {
+            @Override
+            public void run() {
+                callSharedElementStartEnd(inFragment, outFragment, inIsPop,
+                        inSharedElements, false);
+                if (epicenterView != null) {
+                    FragmentTransitionCompat21.getBoundsOnScreen(epicenterView, epicenter);
+                }
+            }
+        });
         return sharedElementTransition;
     }
 
@@ -612,38 +599,36 @@ class FragmentTransition {
             inEpicenter = null;
         }
 
+
         final Object finalSharedElementTransition = sharedElementTransition;
+        OneShotPreDrawListener.add(sceneRoot, new Runnable() {
+            @Override
+            public void run() {
+                ArrayMap<String, View> inSharedElements = captureInSharedElements(
+                        nameOverrides, finalSharedElementTransition, fragments);
 
-        sceneRoot.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
-                        ArrayMap<String, View> inSharedElements = captureInSharedElements(
-                                nameOverrides, finalSharedElementTransition, fragments);
+                if (inSharedElements != null) {
+                    sharedElementsIn.addAll(inSharedElements.values());
+                    sharedElementsIn.add(nonExistentView);
+                }
 
-                        if (inSharedElements != null) {
-                            sharedElementsIn.addAll(inSharedElements.values());
-                            sharedElementsIn.add(nonExistentView);
-                        }
+                callSharedElementStartEnd(inFragment, outFragment, inIsPop,
+                        inSharedElements, false);
+                if (finalSharedElementTransition != null) {
+                    FragmentTransitionCompat21.swapSharedElementTargets(
+                            finalSharedElementTransition, sharedElementsOut,
+                            sharedElementsIn);
 
-                        callSharedElementStartEnd(inFragment, outFragment, inIsPop,
-                                inSharedElements, false);
-                        if (finalSharedElementTransition != null) {
-                            FragmentTransitionCompat21.swapSharedElementTargets(
-                                    finalSharedElementTransition, sharedElementsOut,
-                                    sharedElementsIn);
-
-                            final View inEpicenterView = getInEpicenterView(inSharedElements,
-                                    fragments, enterTransition, inIsPop);
-                            if (inEpicenterView != null) {
-                                FragmentTransitionCompat21.getBoundsOnScreen(inEpicenterView,
-                                        inEpicenter);
-                            }
-                        }
-                        return true;
+                    final View inEpicenterView = getInEpicenterView(inSharedElements,
+                            fragments, enterTransition, inIsPop);
+                    if (inEpicenterView != null) {
+                        FragmentTransitionCompat21.getBoundsOnScreen(inEpicenterView,
+                                inEpicenter);
                     }
-                });
+                }
+            }
+        });
+
         return sharedElementTransition;
     }
 
