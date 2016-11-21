@@ -19,6 +19,9 @@
     <string name="mr_system_route_name" msgid="5441529851481176817">"அமைப்பு"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"சாதனங்கள்"</string>
     <string name="mr_button_content_description" msgid="3698378085901466129">"திரையிடு பட்டன்"</string>
+    <string name="mr_cast_button_disconnected" msgid="816305490427819240">"அனுப்புதல் பொத்தான். துண்டிக்கப்பட்டது"</string>
+    <string name="mr_cast_button_connecting" msgid="2187642765091873834">"அனுப்புதல் பொத்தான். இணைக்கிறது"</string>
+    <string name="mr_cast_button_connected" msgid="5088427771788648085">"அனுப்புதல் பொத்தான். இணைக்கப்பட்டது"</string>
     <string name="mr_chooser_title" msgid="414301941546135990">"இதில் திரையிடு"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"சாதனங்களைத் தேடுகிறது"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"தொடர்பைத் துண்டி"</string>
@@ -29,6 +32,7 @@
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"விரிவாக்கு"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"சுருக்கு"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"ஆல்பம் ஆர்ட்"</string>
+    <string name="mr_controller_volume_slider" msgid="2361785992211841709">"ஒலியளவு ஸ்லைடர்"</string>
     <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"மீடியா எதுவும் தேர்ந்தெடுக்கப்படவில்லை"</string>
     <string name="mr_controller_no_info_available" msgid="5585418471741142924">"தகவல் எதுவுமில்லை"</string>
     <string name="mr_controller_casting_screen" msgid="4868457957151124867">"திரையை அனுப்புகிறீர்கள்"</string>
