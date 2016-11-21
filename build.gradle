@@ -1,7 +1,6 @@
 import android.support.doclava.DoclavaMultilineJavadocOptionFileOption
 import com.android.build.gradle.internal.coverage.JacocoReportTask
 import com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask
-import org.gradle.internal.os.OperatingSystem
 
 import android.support.checkapi.CheckApiTask
 import android.support.checkapi.UpdateApiTask
@@ -32,7 +31,7 @@ dependencies {
     doclava project(':doclava')
 }
 
-gradle.ext.currentSdk = 25
+gradle.ext.currentSdk = 'current'
 ext.supportVersion = '25.1.0-SNAPSHOT'
 ext.extraVersion = 40
 ext.supportRepoOut = ''
@@ -45,11 +44,6 @@ ext.espressoVersion = '2.3-alpha'
 // Enforce the use of prebuilt dependencies in all sub-projects. This is
 // required for the doclava dependency.
 ext.usePrebuilts = "true"
-
-// Use the embedded SDK by default, which can be overridden by setting the 'sdk.dir' property
-// (e.g. local.properties) or the 'ANDROID_HOME' environment variable.
-final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
-System.setProperty('android.home', "${rootDir}/../../prebuilts/fullsdk-${platform}")
 
 /*
  * With the build server you are given two env variables.
