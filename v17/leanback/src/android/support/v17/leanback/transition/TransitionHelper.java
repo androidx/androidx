@@ -13,7 +13,7 @@
  */
 package android.support.v17.leanback.transition;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.os.Build;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
  * Helper for view transitions.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public final class TransitionHelper {
 
     public static final int FADE_IN = 0x1;

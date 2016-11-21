@@ -16,12 +16,12 @@
 
 package android.support.v4.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Interface implemented by notification compat builders that support
@@ -32,7 +32,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  */
 @RequiresApi(11)
 @TargetApi(11)
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public interface NotificationBuilderWithBuilderAccessor {
     public Notification.Builder getBuilder();
     public Notification build();

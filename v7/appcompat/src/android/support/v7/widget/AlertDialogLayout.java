@@ -16,7 +16,7 @@
 
 package android.support.v7.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -47,7 +47,7 @@ import android.view.ViewGroup;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class AlertDialogLayout extends LinearLayoutCompat {
 
     public AlertDialogLayout(@Nullable Context context) {

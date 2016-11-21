@@ -13,7 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Paint;
 import android.support.annotation.RestrictTo;
@@ -42,7 +42,7 @@ public class RowHeaderPresenter extends Presenter {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public RowHeaderPresenter(int layoutResourceId) {
         this(layoutResourceId, true);
     }
@@ -50,7 +50,7 @@ public class RowHeaderPresenter extends Presenter {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public RowHeaderPresenter(int layoutResourceId, boolean animateSelect) {
         mLayoutResourceId = layoutResourceId;
         mAnimateSelect = animateSelect;

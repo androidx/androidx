@@ -16,6 +16,8 @@
 
 package android.support.transition;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.animation.TimeInterpolator;
 import android.annotation.TargetApi;
 import android.support.annotation.RequiresApi;
@@ -25,8 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 @RequiresApi(14)
 @TargetApi(14)
@@ -169,7 +169,7 @@ class TransitionSetPort extends TransitionPort {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
             TransitionValuesMaps endValues) {
@@ -181,7 +181,7 @@ class TransitionSetPort extends TransitionPort {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     protected void runAnimators() {
         if (mTransitions.isEmpty()) {
@@ -240,7 +240,7 @@ class TransitionSetPort extends TransitionPort {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void pause(View sceneRoot) {
         super.pause(sceneRoot);
@@ -251,7 +251,7 @@ class TransitionSetPort extends TransitionPort {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void resume(View sceneRoot) {
         super.resume(sceneRoot);
@@ -262,7 +262,7 @@ class TransitionSetPort extends TransitionPort {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     protected void cancel() {
         super.cancel();

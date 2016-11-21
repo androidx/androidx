@@ -16,7 +16,7 @@
 
 package android.support.v4.app;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -492,7 +492,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected boolean onPrepareOptionsPanel(View view, Menu menu) {
         return super.onPreparePanel(Window.FEATURE_OPTIONS_PANEL, view, menu);
     }

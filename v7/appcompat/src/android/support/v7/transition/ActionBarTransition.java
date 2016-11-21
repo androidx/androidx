@@ -17,15 +17,15 @@
 
 package android.support.v7.transition;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.RestrictTo;
 import android.view.ViewGroup;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class ActionBarTransition {
 
     private static final boolean TRANSITIONS_ENABLED = false;

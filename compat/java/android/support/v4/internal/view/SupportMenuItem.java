@@ -16,13 +16,13 @@
 
 package android.support.v4.internal.view;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.view.MenuItem;
 import android.view.View;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Interface for direct access to a previously created menu item.
@@ -33,7 +33,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * @see android.view.MenuItem
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public interface SupportMenuItem extends android.view.MenuItem {
     /*
     * These should be kept in sync with attrs.xml enum constants for showAsAction

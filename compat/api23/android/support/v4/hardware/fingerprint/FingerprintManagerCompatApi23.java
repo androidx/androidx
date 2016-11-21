@@ -16,6 +16,8 @@
 
 package android.support.v4.hardware.fingerprint;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.fingerprint.FingerprintManager;
@@ -28,15 +30,13 @@ import java.security.Signature;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Actual FingerprintManagerCompat implementation for API level 23 and later.
  * @hide
  */
 @RequiresApi(23)
 @TargetApi(23)
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public final class FingerprintManagerCompatApi23 {
 
     public static boolean hasEnrolledFingerprints(Context context) {

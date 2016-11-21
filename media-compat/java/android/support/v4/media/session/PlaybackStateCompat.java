@@ -16,7 +16,7 @@
 package android.support.v4.media.session;
 
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -44,7 +44,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef(flag=true, value={ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND,
             ACTION_SKIP_TO_PREVIOUS, ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_SET_RATING,
             ACTION_SEEK_TO, ACTION_PLAY_PAUSE, ACTION_PLAY_FROM_MEDIA_ID, ACTION_PLAY_FROM_SEARCH,
@@ -57,7 +57,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND, ACTION_SKIP_TO_PREVIOUS,
             ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_PLAY_PAUSE})
     @Retention(RetentionPolicy.SOURCE)
@@ -206,7 +206,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({STATE_NONE, STATE_STOPPED, STATE_PAUSED, STATE_PLAYING, STATE_FAST_FORWARDING,
             STATE_REWINDING, STATE_BUFFERING, STATE_ERROR, STATE_CONNECTING,
             STATE_SKIPPING_TO_PREVIOUS, STATE_SKIPPING_TO_NEXT, STATE_SKIPPING_TO_QUEUE_ITEM})

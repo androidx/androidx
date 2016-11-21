@@ -13,7 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -28,7 +28,7 @@ import android.widget.FrameLayout;
  * Subclass of FrameLayout that support scale layout area size for children.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class ScaleFrameLayout extends FrameLayout {
 
     private static final int DEFAULT_CHILD_GRAVITY = Gravity.TOP | Gravity.START;

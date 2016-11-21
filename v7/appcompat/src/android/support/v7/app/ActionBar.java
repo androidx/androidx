@@ -16,6 +16,8 @@
 
 package android.support.v7.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
@@ -41,8 +43,6 @@ import android.widget.SpinnerAdapter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A primary toolbar within the activity that may display the activity title, application-level
@@ -91,7 +91,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 public abstract class ActionBar {
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({NAVIGATION_MODE_STANDARD, NAVIGATION_MODE_LIST, NAVIGATION_MODE_TABS})
     public @interface NavigationMode {}
@@ -136,7 +136,7 @@ public abstract class ActionBar {
     public static final int NAVIGATION_MODE_TABS = 2;
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef(flag=true, value={
             DISPLAY_USE_LOGO,
             DISPLAY_SHOW_HOME,
@@ -865,7 +865,7 @@ public abstract class ActionBar {
      * @return true if the Title field has been truncated
      * @hide pending API approval
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public boolean isTitleTruncated() { return false; }
 
     /**
@@ -1036,63 +1036,63 @@ public abstract class ActionBar {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void setDefaultDisplayHomeAsUpEnabled(boolean enabled) {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void setShowHideAnimationEnabled(boolean enabled) {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void onConfigurationChanged(Configuration config) {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void dispatchMenuVisibilityChanged(boolean visible) {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public ActionMode startActionMode(ActionMode.Callback callback) {
         return null;
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public boolean openOptionsMenu() {
         return false;
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public boolean invalidateOptionsMenu() {
         return false;
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public boolean onMenuKeyEvent(KeyEvent event) {
         return false;
     }
 
     /** @hide **/
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public boolean onKeyShortcut(int keyCode, KeyEvent ev) {
         return false;
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public boolean collapseActionView() {
         return false;
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void setWindowTitle(CharSequence title) {
     }
 

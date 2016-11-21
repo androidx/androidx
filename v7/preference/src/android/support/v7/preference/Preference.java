@@ -16,6 +16,8 @@
 
 package android.support.v7.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,8 +43,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Represents the basic Preference UI building
@@ -960,7 +960,7 @@ public class Preference implements Comparable<Preference> {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void performClick(View view) {
         performClick();
     }
@@ -970,7 +970,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void performClick() {
 
         if (!isEnabled()) {
@@ -1111,7 +1111,7 @@ public class Preference implements Comparable<Preference> {
      * Called from {@link PreferenceGroup} to pass in an ID for reuse
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void onAttachedToHierarchy(PreferenceManager preferenceManager, long id) {
         mId = id;
         mHasId = true;

@@ -16,12 +16,11 @@
 
 package android.support.v4.util;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.RestrictTo;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Commonly used regular expression patterns.
@@ -300,7 +299,7 @@ public final class PatternsCompat {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static final Pattern AUTOLINK_WEB_URL = Pattern.compile(
             "(" + WEB_URL_WITH_PROTOCOL + "|" + WEB_URL_WITHOUT_PROTOCOL + ")");
 
@@ -329,7 +328,7 @@ public final class PatternsCompat {
      * and the special characters #&~!^`{}/=$*?| that are included in RFC5321.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static final Pattern AUTOLINK_EMAIL_ADDRESS = Pattern.compile("(" + WORD_BOUNDARY +
             "(?:" + EMAIL_ADDRESS_LOCAL_PART + "@" + EMAIL_ADDRESS_DOMAIN + ")" +
             WORD_BOUNDARY + ")"

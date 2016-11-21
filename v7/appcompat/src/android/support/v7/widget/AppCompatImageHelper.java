@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.RestrictTo;
@@ -24,12 +26,10 @@ import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class AppCompatImageHelper {
 
     private final ImageView mView;

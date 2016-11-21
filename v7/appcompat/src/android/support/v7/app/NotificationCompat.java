@@ -16,7 +16,7 @@
 
 package android.support.v7.app;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -397,7 +397,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
          *
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         @Override
         protected CharSequence resolveText() {
             if (mStyle instanceof MessagingStyle) {
@@ -417,7 +417,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
          *
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         @Override
         protected CharSequence resolveTitle() {
             if (mStyle instanceof MessagingStyle) {
@@ -434,7 +434,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         /**
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         @Override
         protected BuilderExtender getExtender() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

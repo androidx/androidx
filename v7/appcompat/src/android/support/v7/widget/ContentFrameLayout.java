@@ -16,6 +16,11 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.view.View.MeasureSpec.AT_MOST;
+import static android.view.View.MeasureSpec.EXACTLY;
+import static android.view.View.MeasureSpec.getMode;
+
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.annotation.RestrictTo;
@@ -24,11 +29,6 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.FrameLayout;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-import static android.view.View.MeasureSpec.AT_MOST;
-import static android.view.View.MeasureSpec.EXACTLY;
-import static android.view.View.MeasureSpec.getMode;
 
 /**
  * @hide
@@ -67,7 +67,7 @@ public class ContentFrameLayout extends FrameLayout {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void dispatchFitSystemWindows(Rect insets) {
         fitSystemWindows(insets);
     }
@@ -82,7 +82,7 @@ public class ContentFrameLayout extends FrameLayout {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void setDecorPadding(int left, int top, int right, int bottom) {
         mDecorPadding.set(left, top, right, bottom);
         if (ViewCompat.isLaidOut(this)) {

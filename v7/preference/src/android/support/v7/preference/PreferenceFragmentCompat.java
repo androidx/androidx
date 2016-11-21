@@ -16,6 +16,8 @@
 
 package android.support.v7.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -38,8 +40,6 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Shows a hierarchy of {@link Preference} objects as
@@ -545,12 +545,12 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void onBindPreferences() {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void onUnbindPreferences() {
     }
 
@@ -652,7 +652,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      * @return Fragment to possibly use as a callback
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public Fragment getCallbackFragment() {
         return null;
     }
