@@ -16,7 +16,7 @@
 
 package android.support.v4.app;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.support.annotation.AnimRes;
 import android.support.annotation.IdRes;
@@ -164,7 +164,7 @@ public abstract class FragmentTransaction {
     public static final int TRANSIT_EXIT_MASK = 0x2000;
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE, TRANSIT_FRAGMENT_FADE})
     @Retention(RetentionPolicy.SOURCE)
     private @interface Transit {}

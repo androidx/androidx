@@ -16,6 +16,8 @@
 
 package android.support.v7.text;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.annotation.RestrictTo;
@@ -24,12 +26,10 @@ import android.view.View;
 
 import java.util.Locale;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class AllCapsTransformationMethod implements TransformationMethod {
     private Locale mLocale;
 

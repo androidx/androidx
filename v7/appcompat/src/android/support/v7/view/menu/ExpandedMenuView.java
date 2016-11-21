@@ -16,6 +16,8 @@
 
 package android.support.v7.view.menu;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v7.view.menu.MenuBuilder.ItemInvoker;
@@ -26,15 +28,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * The expanded menu view is a list-like menu with all of the available menu items.  It is opened
  * by the user clicking no the 'More' button on the icon menu view.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public final class ExpandedMenuView extends ListView
         implements ItemInvoker, MenuView, OnItemClickListener {
 

@@ -16,6 +16,15 @@
 
 package android.support.v4.net;
 
+import static android.net.ConnectivityManager.TYPE_MOBILE;
+import static android.net.ConnectivityManager.TYPE_MOBILE_DUN;
+import static android.net.ConnectivityManager.TYPE_MOBILE_HIPRI;
+import static android.net.ConnectivityManager.TYPE_MOBILE_MMS;
+import static android.net.ConnectivityManager.TYPE_MOBILE_SUPL;
+import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.net.ConnectivityManager.TYPE_WIMAX;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -25,15 +34,6 @@ import android.support.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
-import static android.net.ConnectivityManager.TYPE_MOBILE;
-import static android.net.ConnectivityManager.TYPE_MOBILE_DUN;
-import static android.net.ConnectivityManager.TYPE_MOBILE_HIPRI;
-import static android.net.ConnectivityManager.TYPE_MOBILE_MMS;
-import static android.net.ConnectivityManager.TYPE_MOBILE_SUPL;
-import static android.net.ConnectivityManager.TYPE_WIFI;
-import static android.net.ConnectivityManager.TYPE_WIMAX;
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Helper for accessing features in {@link ConnectivityManager} introduced after
@@ -49,7 +49,7 @@ public final class ConnectivityManagerCompat {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = false, value = {
             RESTRICT_BACKGROUND_STATUS_DISABLED,

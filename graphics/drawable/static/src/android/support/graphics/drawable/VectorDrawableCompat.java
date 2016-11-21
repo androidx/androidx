@@ -14,7 +14,7 @@
 
 package android.support.graphics.drawable;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
@@ -515,7 +515,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public float getPixelSize() {
         if (mVectorState == null && mVectorState.mVPathRenderer == null ||
                 mVectorState.mVPathRenderer.mBaseWidth == 0 ||

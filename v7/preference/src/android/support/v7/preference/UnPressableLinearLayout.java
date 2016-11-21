@@ -16,7 +16,7 @@
 
 package android.support.v7.preference;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.support.annotation.RestrictTo;
@@ -29,7 +29,7 @@ import android.widget.LinearLayout;
  * or long-clickable.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class UnPressableLinearLayout extends LinearLayout {
     public UnPressableLinearLayout(Context context) {
         this(context, null);

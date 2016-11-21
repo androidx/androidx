@@ -16,13 +16,12 @@
 
 package android.support.v4.graphics.drawable;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.RestrictTo;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Interface which allows a {@link android.graphics.drawable.Drawable} to receive tinting calls
@@ -30,7 +29,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public interface TintAwareDrawable {
     void setTint(@ColorInt int tint);
     void setTintList(ColorStateList tint);

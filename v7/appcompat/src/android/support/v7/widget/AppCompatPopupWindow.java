@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -34,8 +36,6 @@ import android.widget.PopupWindow;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 class AppCompatPopupWindow extends PopupWindow {
 
@@ -151,7 +151,7 @@ class AppCompatPopupWindow extends PopupWindow {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void setSupportOverlapAnchor(boolean overlapAnchor) {
         if (COMPAT_OVERLAP_ANCHOR) {
             mOverlapAnchor = overlapAnchor;
@@ -163,7 +163,7 @@ class AppCompatPopupWindow extends PopupWindow {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public boolean getSupportOverlapAnchor() {
         if (COMPAT_OVERLAP_ANCHOR) {
             return mOverlapAnchor;

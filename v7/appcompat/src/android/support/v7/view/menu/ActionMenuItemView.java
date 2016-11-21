@@ -16,13 +16,14 @@
 
 package android.support.v7.view.menu;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.ConfigurationHelper;
@@ -32,21 +33,17 @@ import android.support.v7.appcompat.R;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.ForwardingListener;
-import android.support.v7.widget.ListPopupWindow;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class ActionMenuItemView extends AppCompatTextView
         implements MenuView.ItemView, View.OnClickListener, View.OnLongClickListener,
         ActionMenuView.ActionMenuChildView {

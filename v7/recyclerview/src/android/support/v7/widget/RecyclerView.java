@@ -17,7 +17,7 @@
 
 package android.support.v7.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -11060,7 +11060,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * This is public so that the CREATOR can be access on cold launch.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static class SavedState extends AbsSavedState {
 
         Parcelable mLayoutState;

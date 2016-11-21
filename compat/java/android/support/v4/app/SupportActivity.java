@@ -16,7 +16,7 @@
 
 package android.support.v4.app;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
 import android.support.annotation.RestrictTo;
@@ -27,7 +27,7 @@ import android.support.v4.util.SimpleArrayMap;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class SupportActivity extends Activity {
     /**
      * Storage for {@link ExtraData} instances.
@@ -46,7 +46,7 @@ public class SupportActivity extends Activity {
      * @see #getExtraData
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void putExtraData(ExtraData extraData) {
         mExtraDataMap.put(extraData.getClass(), extraData);
     }
@@ -57,7 +57,7 @@ public class SupportActivity extends Activity {
      * @see #putExtraData
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public <T extends ExtraData> T getExtraData(Class<T> extraDataClass) {
         return (T) mExtraDataMap.get(extraDataClass);
     }
@@ -65,7 +65,7 @@ public class SupportActivity extends Activity {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static class ExtraData {
     }
 }

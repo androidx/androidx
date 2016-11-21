@@ -16,7 +16,7 @@
 
 package android.support.v7.media;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -875,7 +875,7 @@ public final class MediaRouter {
          * @see #getDeviceType
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public static final int DEVICE_TYPE_UNKNOWN = 0;
 
         /**
@@ -901,7 +901,7 @@ public final class MediaRouter {
          * @see #getDeviceType
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public static final int DEVICE_TYPE_BLUETOOTH = 3;
 
         @IntDef({PLAYBACK_VOLUME_FIXED,PLAYBACK_VOLUME_VARIABLE})
@@ -931,7 +931,7 @@ public final class MediaRouter {
          * with the route.
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public static final int PRESENTATION_DISPLAY_ID_NONE = -1;
 
         static final int CHANGE_GENERAL = 1 << 0;
@@ -1282,7 +1282,7 @@ public final class MediaRouter {
         /**
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public boolean isDefaultOrBluetooth() {
             if (isDefault() || mDeviceType == DEVICE_TYPE_BLUETOOTH) {
                 return true;
@@ -1413,7 +1413,7 @@ public final class MediaRouter {
          * Gets the route's presentation display id, or -1 if none.
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public int getPresentationDisplayId() {
             return mPresentationDisplayId;
         }
@@ -1558,7 +1558,7 @@ public final class MediaRouter {
         }
 
         /** @hide */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public MediaRouteProvider getProviderInstance() {
             return mProvider.getProviderInstance();
         }
@@ -1568,7 +1568,7 @@ public final class MediaRouter {
      * Information about a route that consists of multiple other routes in a group.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static class RouteGroup extends RouteInfo {
         private List<RouteInfo> mRoutes = new ArrayList<>();
 

@@ -17,6 +17,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
@@ -25,15 +27,13 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.Window;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Implemented by the top-level decor layout for a window. DecorContentParent offers
  * entry points for a number of title/window decor features.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public interface DecorContentParent {
     void setWindowCallback(Window.Callback cb);
     void setWindowTitle(CharSequence title);
