@@ -9846,6 +9846,7 @@ package android.support.v7.widget {
     method public int findLastVisibleItemPosition();
     method public android.support.v7.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
     method protected int getExtraLayoutSpace(android.support.v7.widget.RecyclerView.State);
+    method public int getInitialItemPrefetchCount();
     method public int getOrientation();
     method public boolean getRecycleChildrenOnDetach();
     method public boolean getReverseLayout();
@@ -9853,6 +9854,7 @@ package android.support.v7.widget {
     method protected boolean isLayoutRTL();
     method public boolean isSmoothScrollbarEnabled();
     method public void scrollToPositionWithOffset(int, int);
+    method public void setInitialPrefetchItemCount(int);
     method public void setOrientation(int);
     method public void setRecycleChildrenOnDetach(boolean);
     method public void setReverseLayout(boolean);
@@ -10243,6 +10245,8 @@ package android.support.v7.widget {
     method public boolean canScrollVertically();
     method public boolean checkLayoutParams(android.support.v7.widget.RecyclerView.LayoutParams);
     method public static int chooseSize(int, int, int);
+    method public void collectAdjacentPrefetchPositions(int, int, android.support.v7.widget.RecyclerView.State, android.support.v7.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry);
+    method public void collectInitialPrefetchPositions(int, android.support.v7.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry);
     method public int computeHorizontalScrollExtent(android.support.v7.widget.RecyclerView.State);
     method public int computeHorizontalScrollOffset(android.support.v7.widget.RecyclerView.State);
     method public int computeHorizontalScrollRange(android.support.v7.widget.RecyclerView.State);
@@ -10366,6 +10370,10 @@ package android.support.v7.widget {
     method public void startSmoothScroll(android.support.v7.widget.RecyclerView.SmoothScroller);
     method public void stopIgnoringView(android.view.View);
     method public boolean supportsPredictiveItemAnimations();
+  }
+
+  public static abstract interface RecyclerView.LayoutManager.LayoutPrefetchRegistry {
+    method public abstract void addPosition(int, int);
   }
 
   public static class RecyclerView.LayoutManager.Properties {
