@@ -462,7 +462,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * until the end of the layout because a11y service may make sync calls back to the RV while
      * the View's state is undefined.
      */
-    private final List<ViewHolder> mPendingAccessibilityImportanceChange = new ArrayList();
+    @VisibleForTesting
+    final List<ViewHolder> mPendingAccessibilityImportanceChange = new ArrayList();
 
     private Runnable mItemAnimatorRunner = new Runnable() {
         @Override
@@ -9956,7 +9957,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         private int mWasImportantForAccessibilityBeforeHidden =
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
         // set if we defer the accessibility state change of the view holder
-        private  int mPendingAccessibilityState = PENDING_ACCESSIBILITY_STATE_NOT_SET;
+        @VisibleForTesting
+        int mPendingAccessibilityState = PENDING_ACCESSIBILITY_STATE_NOT_SET;
 
         /**
          * Is set when VH is bound from the adapter and cleaned right before it is sent to
@@ -10351,7 +10353,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         for (int i = mPendingAccessibilityImportanceChange.size() - 1; i >= 0; i --) {
             ViewHolder viewHolder = mPendingAccessibilityImportanceChange.get(i);
             if (viewHolder.itemView.getParent() != this || viewHolder.shouldIgnore()) {
-                return;
+                continue;
             }
             int state = viewHolder.mPendingAccessibilityState;
             if (state != ViewHolder.PENDING_ACCESSIBILITY_STATE_NOT_SET) {
