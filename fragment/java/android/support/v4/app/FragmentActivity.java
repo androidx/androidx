@@ -34,7 +34,6 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
@@ -178,43 +177,6 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
         if (!mFragments.getSupportFragmentManager().popBackStackImmediate()) {
             super.onBackPressed();
         }
-    }
-
-    /**
-     * Sets a {@link MediaControllerCompat} for later retrieval via
-     * {@link #getSupportMediaController()}.
-     *
-     * <p>On API 21 and later, this controller will be tied to the window of the activity and
-     * media key and volume events which are received while the Activity is in the foreground
-     * will be forwarded to the controller and used to invoke transport controls or adjust the
-     * volume. Prior to API 21, the global handling of media key and volume events through an
-     * active {@link android.support.v4.media.session.MediaSessionCompat} and media button receiver
-     * will still be respected.</p>
-     *
-     * @param mediaController The controller for the session which should receive
-     *     media keys and volume changes on API 21 and later.
-     * @see #getSupportMediaController()
-     * @see #setMediaController(android.media.session.MediaController)
-     * @deprecated Use {@link MediaControllerCompat#setMediaController} instead. This API will be
-     * removed in a future release.
-     */
-    @Deprecated
-    final public void setSupportMediaController(MediaControllerCompat mediaController) {
-        MediaControllerCompat.setMediaController(this, mediaController);
-    }
-
-    /**
-     * Retrieves the current {@link MediaControllerCompat} for sending media key and volume events.
-     *
-     * @return The controller which should receive events.
-     * @see #setSupportMediaController(MediaControllerCompat)
-     * @see #getMediaController()
-     * @deprecated Use {@link MediaControllerCompat#getMediaController} instead. This API will be
-     * removed in a future release.
-     */
-    @Deprecated
-    final public MediaControllerCompat getSupportMediaController() {
-        return MediaControllerCompat.getMediaController(this);
     }
 
     /**
