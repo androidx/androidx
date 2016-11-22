@@ -16,7 +16,6 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
@@ -28,8 +27,6 @@ import android.support.annotation.RequiresApi;
  *
  * @hide
  */
-@RequiresApi(16)
-@TargetApi(16)
 abstract class BaseFragmentActivityJB extends BaseFragmentActivityHoneycomb {
 
     // We need to keep track of whether startActivityForResult originated from a Fragment, so we
@@ -39,6 +36,7 @@ abstract class BaseFragmentActivityJB extends BaseFragmentActivityHoneycomb {
     // fragment, since we need to use the ActivityCompat version for backward compatibility.
     boolean mStartedActivityFromFragment;
 
+    @RequiresApi(16)
     @Override
     public void startActivityForResult(Intent intent, int requestCode,
             @Nullable Bundle options) {
@@ -52,6 +50,7 @@ abstract class BaseFragmentActivityJB extends BaseFragmentActivityHoneycomb {
         super.startActivityForResult(intent, requestCode, options);
     }
 
+    @RequiresApi(16)
     @Override
     public void startIntentSenderForResult(IntentSender intent, int requestCode,
             @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,
