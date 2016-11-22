@@ -11,18 +11,22 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package android.support.v4.app;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 @RunWith(AndroidJUnit4.class)
 public class NotificationCompatTest {
@@ -47,6 +51,31 @@ public class NotificationCompatTest {
         NotificationCompat.Action aCopy = new NotificationCompat.Action.Builder(a).build();
 
         assertEquals(a.getAllowGeneratedReplies(), aCopy.getAllowGeneratedReplies());
+    }
+
+    @SmallTest
+    @Test
+    public void testNotificationActionBuilder_defaultAllowGeneratedRepliesTrue() throws Throwable {
+        NotificationCompat.Action a = newActionBuilder().build();
+
+        assertTrue(a.getAllowGeneratedReplies());
+    }
+
+    @SmallTest
+    @Test
+    public void testNotificationAction_defaultAllowGeneratedRepliesTrue() throws Throwable {
+        NotificationCompat.Action a = new NotificationCompat.Action(0, null, null);
+
+        assertTrue(a.getAllowGeneratedReplies());
+    }
+
+    @SmallTest
+    @Test
+    public void testNotificationActionBuilder_setAllowGeneratedRepliesFalse() throws Throwable {
+        NotificationCompat.Action a = newActionBuilder()
+                .setAllowGeneratedReplies(false).build();
+
+        assertFalse(a.getAllowGeneratedReplies());
     }
 
     private NotificationCompat.Action.Builder newActionBuilder() {
