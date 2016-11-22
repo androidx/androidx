@@ -83,12 +83,13 @@ public class AppCompatButtonTest
         assertEquals("Button is not in all caps", text, button.getLayout().getText());
     }
 
-    /**
-     * Currently only runs on API 22+ due to http://b.android.com/221469
-     */
     @Test
-    @SdkSuppress(minSdkVersion = 22)
     public void testBackgroundTintListOnColoredButton() {
         testUntintedBackgroundTintingViewCompatAcrossStateChange(R.id.button_colored_untinted);
+    }
+
+    @Test
+    public void testBackgroundTintListOnButton() {
+        testUntintedBackgroundTintingViewCompatAcrossStateChange(R.id.button_untinted);
     }
 }

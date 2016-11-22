@@ -33,9 +33,9 @@ class AppCompatBackgroundHelper {
 
     private int mBackgroundResId = -1;
 
-    private BackgroundTintInfo mInternalBackgroundTint;
-    private BackgroundTintInfo mBackgroundTint;
-    private BackgroundTintInfo mTmpInfo;
+    private TintInfo mInternalBackgroundTint;
+    private TintInfo mBackgroundTint;
+    private TintInfo mTmpInfo;
 
     AppCompatBackgroundHelper(View view) {
         mView = view;
@@ -76,62 +76,23 @@ class AppCompatBackgroundHelper {
         setInternalBackgroundTint(mDrawableManager != null
                 ? mDrawableManager.getTintList(mView.getContext(), resId)
                 : null);
-
-        if (updateBackgroundTint()) {
-            applySupportBackgroundTint();
-        }
+        applySupportBackgroundTint();
     }
 
     void onSetBackgroundDrawable(Drawable background) {
         mBackgroundResId = -1;
         // We don't know that this drawable is, so we need to clear the default background tint
         setInternalBackgroundTint(null);
-
-        if (updateBackgroundTint()) {
-            applySupportBackgroundTint();
-        }
+        applySupportBackgroundTint();
     }
 
     void setSupportBackgroundTintList(ColorStateList tint) {
         if (mBackgroundTint == null) {
-            mBackgroundTint = new BackgroundTintInfo();
+            mBackgroundTint = new TintInfo();
         }
-
-        // Store the original tint and null out the applicable tint. updateBackgroundTint() will
-        // set mTintList to the tint to actually use
-        mBackgroundTint.mOriginalTintList = tint;
-        mBackgroundTint.mTintList = null;
+        mBackgroundTint.mTintList = tint;
         mBackgroundTint.mHasTintList = true;
-
-        if (updateBackgroundTint()) {
-            applySupportBackgroundTint();
-        }
-    }
-
-    /**
-     * Updates the background tint state
-     * @return true if the state was changed and requires an apply
-     */
-    private boolean updateBackgroundTint() {
-        if (mBackgroundTint != null && mBackgroundTint.mHasTintList) {
-            if (mBackgroundResId >= 0) {
-                // If we have a background resource id, lets see if we need to modify the tint
-                // list to add any touch highlights in (for example, Button needs this)
-                final ColorStateList updated = mDrawableManager.getTintList(
-                        mView.getContext(), mBackgroundResId, mBackgroundTint.mOriginalTintList);
-                if (updated != null) {
-                    mBackgroundTint.mTintList = updated;
-                    return true;
-                }
-            }
-            // If we reach here then we should just be using the original tint list. Check if we
-            // need to set and apply
-            if (mBackgroundTint.mTintList != mBackgroundTint.mOriginalTintList) {
-                mBackgroundTint.mTintList = mBackgroundTint.mOriginalTintList;
-                return true;
-            }
-        }
-        return false;
+        applySupportBackgroundTint();
     }
 
     ColorStateList getSupportBackgroundTintList() {
@@ -140,7 +101,7 @@ class AppCompatBackgroundHelper {
 
     void setSupportBackgroundTintMode(PorterDuff.Mode tintMode) {
         if (mBackgroundTint == null) {
-            mBackgroundTint = new BackgroundTintInfo();
+            mBackgroundTint = new TintInfo();
         }
         mBackgroundTint.mTintMode = tintMode;
         mBackgroundTint.mHasTintMode = true;
@@ -175,7 +136,7 @@ class AppCompatBackgroundHelper {
     void setInternalBackgroundTint(ColorStateList tint) {
         if (tint != null) {
             if (mInternalBackgroundTint == null) {
-                mInternalBackgroundTint = new BackgroundTintInfo();
+                mInternalBackgroundTint = new TintInfo();
             }
             mInternalBackgroundTint.mTintList = tint;
             mInternalBackgroundTint.mHasTintList = true;
@@ -209,7 +170,7 @@ class AppCompatBackgroundHelper {
      */
     private boolean applyFrameworkTintUsingColorFilter(@NonNull Drawable background) {
         if (mTmpInfo == null) {
-            mTmpInfo = new BackgroundTintInfo();
+            mTmpInfo = new TintInfo();
         }
         final TintInfo info = mTmpInfo;
         info.clear();
@@ -231,20 +192,5 @@ class AppCompatBackgroundHelper {
         }
 
         return false;
-    }
-
-    private static class BackgroundTintInfo extends TintInfo {
-        // The original tint list given to the call. We need this distinction because create a
-        // modified for actual tinting purposes
-        public ColorStateList mOriginalTintList;
-
-        BackgroundTintInfo() {
-        }
-
-        @Override
-        void clear() {
-            super.clear();
-            mOriginalTintList = null;
-        }
     }
 }
