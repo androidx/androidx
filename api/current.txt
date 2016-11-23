@@ -4128,6 +4128,13 @@ package android.support.v4.app {
     field public static final java.lang.String EXTRA_USAGE_TIME_REPORT_PACKAGES = "android.usage_time_packages";
   }
 
+  public final class AlarmManagerCompat {
+    method public static void setAlarmClock(android.app.AlarmManager, long, android.app.PendingIntent, android.app.PendingIntent);
+    method public static void setAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
+    method public static void setExact(android.app.AlarmManager, int, long, android.app.PendingIntent);
+    method public static void setExactAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
+  }
+
   public class AppLaunchChecker {
     ctor public AppLaunchChecker();
     method public static boolean hasStartedFromLauncher(android.content.Context);
