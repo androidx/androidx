@@ -28,6 +28,11 @@ import android.support.v17.leanback.widget.VerticalGridView;
 import android.util.Log;
 import android.view.View;
 
+import static android.support.v17.leanback.app.BrowseFragmentTestActivity.*;
+
+/**
+ * @hide from javadoc
+ */
 public class BrowseTestFragment extends BrowseFragment {
     private static final String TAG = "BrowseTestFragment";
 
@@ -37,22 +42,32 @@ public class BrowseTestFragment extends BrowseFragment {
     final static boolean DEFAULT_TEST_ENTRANCE_TRANSITION = true;
     final static boolean DEFAULT_SET_ADAPTER_AFTER_DATA_LOAD = false;
 
-    static int NUM_ROWS = DEFAULT_NUM_ROWS;
-    static int REPEAT_PER_ROW = DEFAULT_REPEAT_PER_ROW;
-    static long LOAD_DATA_DELAY = DEFAULT_LOAD_DATA_DELAY;
-    static boolean TEST_ENTRANCE_TRANSITION = DEFAULT_TEST_ENTRANCE_TRANSITION;
-    static boolean SET_ADAPTER_AFTER_DATA_LOAD = DEFAULT_SET_ADAPTER_AFTER_DATA_LOAD;
-
     private ArrayObjectAdapter mRowsAdapter;
 
     // For good performance, it's important to use a single instance of
     // a card presenter for all rows using that presenter.
     final static StringPresenter sCardPresenter = new StringPresenter();
 
+    int NUM_ROWS;
+    int REPEAT_PER_ROW;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        Bundle arguments = getArguments();
+        NUM_ROWS = arguments.getInt(EXTRA_NUM_ROWS, BrowseTestFragment.DEFAULT_NUM_ROWS);
+        REPEAT_PER_ROW = arguments.getInt(EXTRA_REPEAT_PER_ROW,
+                DEFAULT_REPEAT_PER_ROW);
+        long LOAD_DATA_DELAY = arguments.getLong(EXTRA_LOAD_DATA_DELAY,
+                DEFAULT_LOAD_DATA_DELAY);
+        boolean TEST_ENTRANCE_TRANSITION = arguments.getBoolean(
+                EXTRA_TEST_ENTRANCE_TRANSITION,
+                DEFAULT_TEST_ENTRANCE_TRANSITION);
+        final boolean SET_ADAPTER_AFTER_DATA_LOAD = arguments.getBoolean(
+                EXTRA_SET_ADAPTER_AFTER_DATA_LOAD,
+                DEFAULT_SET_ADAPTER_AFTER_DATA_LOAD);
 
         if (!SET_ADAPTER_AFTER_DATA_LOAD) {
             setupRows();
@@ -86,6 +101,9 @@ public class BrowseTestFragment extends BrowseFragment {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                if (getActivity() == null || getActivity().isDestroyed()) {
+                    return;
+                }
                 if (SET_ADAPTER_AFTER_DATA_LOAD) {
                     setupRows();
                 }

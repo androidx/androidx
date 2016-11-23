@@ -42,4 +42,8 @@ class TextViewCompatJbMr2 {
         textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom);
     }
 
+    public static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
+        return textView.getCompoundDrawablesRelative();
+    }
+
 }

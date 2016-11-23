@@ -76,6 +76,13 @@
             android:text="@string/sample_text2"
             android:background="@drawable/test_background_green" />
 
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/button_colored_untinted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            style="@style/Widget.AppCompat.Button.Colored"/>
+
     </LinearLayout>
 
 </ScrollView>

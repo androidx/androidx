@@ -32,12 +32,33 @@ import android.view.View.MeasureSpec;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
 
-    static final String TAG = "DetailsOverviewSharedElementHelper";
+    static final String TAG = "DetailsTransitionHelper";
     static final boolean DEBUG = false;
+
+    static class TransitionTimeOutRunnable implements Runnable {
+        WeakReference<DetailsOverviewSharedElementHelper> mHelperRef;
+
+        TransitionTimeOutRunnable(DetailsOverviewSharedElementHelper helper) {
+            mHelperRef = new WeakReference<DetailsOverviewSharedElementHelper>(helper);
+        }
+
+        @Override
+        public void run() {
+            DetailsOverviewSharedElementHelper helper = mHelperRef.get();
+            if (helper == null) {
+                return;
+            }
+            if (DEBUG) {
+                Log.d(TAG, "timeout " + helper.mActivityToRunTransition);
+            }
+            helper.startPostponedEnterTransition();
+        }
+    }
 
     ViewHolder mViewHolder;
     Activity mActivityToRunTransition;
@@ -182,18 +203,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         ActivityCompat.setEnterSharedElementCallback(mActivityToRunTransition, this);
         ActivityCompat.postponeEnterTransition(mActivityToRunTransition);
         if (timeoutMs > 0) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (mStartedPostpone) {
-                        return;
-                    }
-                    if (DEBUG) {
-                        Log.d(TAG, "timeout " + mActivityToRunTransition);
-                    }
-                    startPostponedEnterTransition();
-                }
-            }, timeoutMs);
+            new Handler().postDelayed(new TransitionTimeOutRunnable(this), timeoutMs);
         }
     }
 

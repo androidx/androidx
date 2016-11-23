@@ -1577,6 +1577,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 .hasAnyUpdateTypes(UpdateOp.ADD | UpdateOp.REMOVE | UpdateOp.MOVE)) {
             TraceCompat.beginSection(TRACE_HANDLE_ADAPTER_UPDATES_TAG);
             eatRequestLayout();
+            onEnterLayoutOrScroll();
             mAdapterHelper.preProcess();
             if (!mLayoutRequestEaten) {
                 if (hasUpdatedView()) {
@@ -1587,6 +1588,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 }
             }
             resumeRequestLayout(true);
+            onExitLayoutOrScroll();
             TraceCompat.endSection();
         } else if (mAdapterHelper.hasPendingUpdates()) {
             TraceCompat.beginSection(TRACE_ON_DATA_SET_CHANGE_LAYOUT_TAG);
@@ -2389,9 +2391,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // We only query the display/refresh rate once, since it's an expensive binder call
             float refreshRate = 60.0f;
             Display display = ViewCompat.getDisplay(this);
-            if (display != null && display.getRefreshRate() >= 30.0f) {
-                // break 60 fps assumption if data appears good
-                refreshRate  = display.getRefreshRate();
+            if (!isInEditMode() && display != null) {
+                float displayRefreshRate = display.getRefreshRate();
+                if (displayRefreshRate >= 30.0f) {
+                    // break 60 fps assumption if data appears good
+                    refreshRate = displayRefreshRate;
+                }
             }
             sFrameIntervalNanos = (long) (1000000000 / refreshRate);
         }
@@ -4490,15 +4495,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         public void run() {
             try {
                 TraceCompat.beginSection(TRACE_PREFETCH_TAG);
-                final int prefetchCount = mLayout.getItemPrefetchCount();
                 if (mAdapter == null
                         || mLayout == null
                         || !mLayout.isItemPrefetchEnabled()
-                        || prefetchCount < 1
+                        || mLayout.getItemPrefetchCount() < 1
                         || hasPendingAdapterUpdates()) {
                     // abort - no work
                     return;
                 }
+                final int prefetchCount = mLayout.getItemPrefetchCount();
 
                 // Query last vsync so we can predict next one. Note that drawing time not yet
                 // valid in animation/input callbacks, so query it here to be safe.

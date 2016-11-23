@@ -364,6 +364,12 @@ public class RecyclerViewBasicTest {
         assertEquals(RecyclerView.Recycler.DEFAULT_CACHE_SIZE + 3, recycler.mViewCacheMax);
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void prefetcherWithoutLayout() {
+        mRecyclerView.mViewPrefetcher.run();
+    }
+
     static class MockLayoutManager extends RecyclerView.LayoutManager {
 
         int mLayoutCount = 0;

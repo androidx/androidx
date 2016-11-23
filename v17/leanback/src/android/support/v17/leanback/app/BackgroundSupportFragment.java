@@ -15,8 +15,8 @@
  */
 package android.support.v17.leanback.app;
 
-import android.support.annotation.RestrictTo;
 import android.support.v4.app.Fragment;
+import android.support.annotation.RestrictTo;
 
 import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
