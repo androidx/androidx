@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2007 The Android Open Source Project
+<!-- Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,17 +14,6 @@
      limitations under the License.
 -->
 
-<resources>
-    <drawable name="blue">#770000ff</drawable>
-    <color name="card_yellow">#FCF0AD</color>
-    <color name="card_aquatic">#FCF0AD</color>
-    <color name="card_classic">#BAB7A9</color>
-    <color name="card_sunbrite">#F9D6AC</color>
-    <color name="card_tropical">#56C4E8</color>
-
-    <color name="drawer_sample_metal_blue">#FF505080</color>
-
-    <color name="color_sky_day">#90F0FF</color>
-    <color name="color_sky_night">#3050CF</color>
-    <color name="color_sky">@color/color_sky_day</color>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/color_sky" />
+</selector>
