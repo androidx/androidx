@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNull;
 
 import android.app.Activity;
 import android.support.compat.test.R;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.Display;
@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@SmallTest
 public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivity> {
 
     private View mView;

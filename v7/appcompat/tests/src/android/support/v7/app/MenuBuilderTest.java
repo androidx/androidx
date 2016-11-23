@@ -19,7 +19,7 @@ package android.support.v7.app;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.view.menu.MenuBuilder;
 
@@ -30,7 +30,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@SmallTest
 public class MenuBuilderTest {
 
     @Test
