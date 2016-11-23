@@ -306,7 +306,7 @@ subprojects {
                     def jarifyTask = project.tasks.create(
                             name: "package${v.name.capitalize()}ClassFilesForCoverageReport",
                             type: Jar) {
-                        from v.javaCompile.destinationDir
+                        from v.testedVariant.javaCompile.destinationDir
                         destinationDir file(project.distDir)
                         archiveName "${project.archivesBaseName}-${v.baseName}-allclasses.jar"
                     }
