@@ -32,12 +32,15 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.os.Build;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -253,6 +256,71 @@ public class RecyclerViewCacheTest {
         // row 3 is still cached, with a couple other recycled views:
         CacheUtils.verifyCacheContainsPositions(mRecyclerView, 9, 10, 11);
         assertTrue(mRecycler.mCachedViews.size() == 5);
+    }
+
+    @Test
+    public void prefetchDrag() {
+        // event dispatch requires a parent
+        ViewGroup parent = new FrameLayout(getContext());
+        parent.addView(mRecyclerView);
+
+
+        mRecyclerView.setLayoutManager(
+                new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+
+        // 1000x1000 pixel views
+        RecyclerView.Adapter adapter = new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                mRecyclerView.registerTimePassingMs(5);
+                View view = new View(getContext());
+                view.setMinimumWidth(1000);
+                view.setMinimumHeight(1000);
+                return new RecyclerView.ViewHolder(view) {};
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                mRecyclerView.registerTimePassingMs(5);
+            }
+
+            @Override
+            public int getItemCount() {
+                return 100;
+            }
+        };
+        mRecyclerView.setAdapter(adapter);
+
+        layout(1000, 1000);
+
+        long time = SystemClock.uptimeMillis();
+        mRecyclerView.onTouchEvent(
+                MotionEvent.obtain(time, time, MotionEvent.ACTION_DOWN, 500, 1000, 0));
+
+        assertEquals(0, mRecyclerView.mPrefetchRegistry.mPrefetchDx);
+        assertEquals(0, mRecyclerView.mPrefetchRegistry.mPrefetchDy);
+
+        // Consume slop
+        mRecyclerView.onTouchEvent(
+                MotionEvent.obtain(time, time, MotionEvent.ACTION_MOVE, 50, 500, 0));
+
+        // move by 0,30
+        mRecyclerView.onTouchEvent(
+                MotionEvent.obtain(time, time, MotionEvent.ACTION_MOVE, 50, 470, 0));
+        assertEquals(0, mRecyclerView.mPrefetchRegistry.mPrefetchDx);
+        assertEquals(30, mRecyclerView.mPrefetchRegistry.mPrefetchDy);
+
+        // move by 10,15
+        mRecyclerView.onTouchEvent(
+                MotionEvent.obtain(time, time, MotionEvent.ACTION_MOVE, 40, 455, 0));
+        assertEquals(10, mRecyclerView.mPrefetchRegistry.mPrefetchDx);
+        assertEquals(15, mRecyclerView.mPrefetchRegistry.mPrefetchDy);
+
+        // move by 0,0 - IGNORED
+        mRecyclerView.onTouchEvent(
+                MotionEvent.obtain(time, time, MotionEvent.ACTION_MOVE, 40, 455, 0));
+        assertEquals(10, mRecyclerView.mPrefetchRegistry.mPrefetchDx); // same as prev
+        assertEquals(15, mRecyclerView.mPrefetchRegistry.mPrefetchDy); // same as prev
     }
 
     @Test
