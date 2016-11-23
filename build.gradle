@@ -6,6 +6,7 @@ import android.support.doclava.DoclavaTask
 import com.android.build.gradle.internal.coverage.JacocoPlugin
 import com.android.build.gradle.internal.coverage.JacocoReportTask
 import com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask
+import org.gradle.internal.os.OperatingSystem
 
 import com.google.common.base.Charsets
 import com.google.common.hash.HashCode
@@ -40,11 +41,9 @@ dependencies {
     doclava project(':doclava')
 }
 
-gradle.ext.currentSdk = 'current'
 ext.supportVersion = '26.0.0-SNAPSHOT'
 ext.extraVersion = 41
 ext.supportRepoOut = ''
-ext.buildToolsVersion = '24.0.1'
 ext.buildNumber = Integer.toString(ext.extraVersion)
 
 ext.testRunnerVersion = '0.6-alpha'
@@ -53,6 +52,24 @@ ext.espressoVersion = '2.3-alpha'
 // Enforce the use of prebuilt dependencies in all sub-projects. This is
 // required for the doclava dependency.
 ext.usePrebuilts = "true"
+
+final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
+System.setProperty('android.dir', "${rootDir}/../../")
+final String fullSdkPath = "${rootDir}/../../prebuilts/fullsdk-${platform}"
+if (file(fullSdkPath).exists()) {
+    gradle.ext.currentSdk = 26
+    ext.buildToolsVersion = '26.0.0'
+    project.ext.androidJar = files("${fullSdkPath}/platforms/android-${gradle.ext.currentSdk}/android.jar")
+    System.setProperty('android.home', "${rootDir}/../../prebuilts/fullsdk-${platform}")
+    File props = file("local.properties")
+    props.write "sdk.dir=${fullSdkPath}"
+} else {
+    gradle.ext.currentSdk = 'current'
+    ext.buildToolsVersion = '24.0.1'
+    project.ext.androidJar = files("${project.rootDir}/../../prebuilts/sdk/current/android.jar")
+    File props = file("local.properties")
+    props.write "android.dir=../../"
+}
 
 /*
  * With the build server you are given two env variables.
@@ -178,16 +195,6 @@ String getSha1(File inputFile) {
     return hashCode.toString()
 }
 
-/**
- * Returns the Android prebuilt JAR for the specified API level.
- *
- * @param apiLevel the API level or "current"
- * @return a file collection containing the Android prebuilt JAR
- */
-FileCollection getAndroidPrebuilt(apiLevel) {
-    files("${project.rootDir}/../../prebuilts/sdk/$apiLevel/android.jar")
-}
-
 void registerForDocsTask(Task task, Project subProject, releaseVariant) {
     task.dependsOn releaseVariant.javaCompile
     task.source {
@@ -206,7 +213,7 @@ task generateDocs(type: DoclavaTask, dependsOn: configurations.doclava) {
     destinationDir = new File(project.docsDir, "online")
 
     // Base classpath is Android SDK, sub-projects add their own.
-    classpath = getAndroidPrebuilt(gradle.ext.currentSdk)
+    classpath = project.ext.androidJar
 
     def hdfOption = new DoclavaMultilineJavadocOptionFileOption('hdf')
     hdfOption.add(
@@ -225,8 +232,6 @@ task generateDocs(type: DoclavaTask, dependsOn: configurations.doclava) {
         addStringOption "templatedir",
                 "${project.rootDir}/../../build/tools/droiddoc/templates-sdk"
         addStringOption "federate Android", "http://developer.android.com"
-        addStringOption "federationapi Android",
-                "${project.rootDir}/../../prebuilts/sdk/api/24.txt"
         addStringOption "stubpackages", "android.support.*"
         addStringOption "samplesdir", "${project.rootDir}/samples"
         addOption hdfOption
@@ -241,7 +246,7 @@ task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
     destinationDir = project.docsDir
 
     // Base classpath is Android SDK, sub-projects add their own.
-    classpath = getAndroidPrebuilt(gradle.ext.currentSdk)
+    classpath = project.ext.androidJar
 
     apiFile = new File(project.docsDir, 'release/current.txt')
     removedApiFile = new File(project.docsDir, 'release/removed.txt')
@@ -251,8 +256,6 @@ task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
         addStringOption "templatedir",
                 "${project.rootDir}/../../build/tools/droiddoc/templates-sdk"
         addStringOption "federate Android", "http://developer.android.com"
-        addStringOption "federationapi Android",
-                "${project.rootDir}/../../prebuilts/sdk/api/24.txt"
         addStringOption "stubpackages", "android.support.*"
     }
     exclude '**/BuildConfig.java'
