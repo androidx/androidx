@@ -44,7 +44,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.test.espresso.DataInteraction;
-import android.support.test.filters.SmallTest;
+import android.support.test.filters.MediumTest;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.TestUtilsMatchers;
 import android.view.View;
@@ -60,6 +60,7 @@ import org.junit.Test;
 
 import java.io.File;
 
+@MediumTest
 public class AlertDialogCursorTest
         extends BaseInstrumentationTestCase<AlertDialogTestActivity> {
 
@@ -188,7 +189,6 @@ public class AlertDialogCursorTest
     }
 
     @Test
-    @SmallTest
     public void testSimpleItemsFromCursor() {
         mCursor = mDatabase.query("test", mProjectionWithoutChecked,
                 null, null, null, null, null);
@@ -287,7 +287,6 @@ public class AlertDialogCursorTest
     }
 
     @Test
-    @SmallTest
     public void testMultiChoiceItemsFromCursor() {
         mCursor = mDatabase.query("test", mProjectionWithChecked,
                 null, null, null, null, null);
@@ -398,7 +397,6 @@ public class AlertDialogCursorTest
     }
 
     @Test
-    @SmallTest
     public void testSingleChoiceItemsFromCursor() {
         mCursor = mDatabase.query("test", mProjectionWithoutChecked,
                 null, null, null, null, null);

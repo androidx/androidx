@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.util.PatternsCompat;
 import android.text.Spannable;
@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 /**
  * Test {@link LinkifyCompat}.
  */
-@MediumTest
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class LinkifyCompatTest {
     private static final Pattern LINKIFY_TEST_PATTERN = Pattern.compile(
