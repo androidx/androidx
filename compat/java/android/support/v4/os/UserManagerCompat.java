@@ -27,34 +27,6 @@ public class UserManagerCompat {
     }
 
     /**
-     * Return whether the calling user is running in a "locked" state. A user is
-     * unlocked only after they've entered their credentials (such as a lock
-     * pattern or PIN), and credential-encrypted private app data storage is
-     * available.
-     *
-     * @removed
-     * @deprecated Removed. Do not use.
-     */
-    @Deprecated
-    public static boolean isUserRunningAndLocked(Context context) {
-        return !isUserUnlocked(context);
-    }
-
-    /**
-     * Return whether the calling user is running in an "unlocked" state. A user
-     * is unlocked only after they've entered their credentials (such as a lock
-     * pattern or PIN), and credential-encrypted private app data storage is
-     * available.
-     *
-     * @removed
-     * @deprecated Removed. Do not use.
-     */
-    @Deprecated
-    public static boolean isUserRunningAndUnlocked(Context context) {
-        return isUserUnlocked(context);
-    }
-
-    /**
      * Return whether the calling user is running in an "unlocked" state. A user
      * is unlocked only after they've entered their credentials (such as a lock
      * pattern or PIN), and credential-encrypted private app data storage is

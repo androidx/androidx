@@ -40,8 +40,6 @@ import android.text.TextUtils;
  */
 public class PreferenceManager {
 
-    private static final String TAG = "PreferenceManager";
-
     public static final String KEY_HAS_SET_DEFAULT_VALUES = "_has_set_default_values";
 
     /**
@@ -235,15 +233,6 @@ public class PreferenceManager {
             mStorage = STORAGE_DEVICE_PROTECTED;
             mSharedPreferences = null;
         }
-    }
-
-    /**
-     * @removed
-     * @deprecated
-     */
-    @Deprecated
-    public void setStorageDeviceEncrypted() {
-        setStorageDeviceProtected();
     }
 
     /**
