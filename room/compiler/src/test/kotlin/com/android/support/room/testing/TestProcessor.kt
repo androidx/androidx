@@ -30,9 +30,11 @@ import kotlin.reflect.KClass
 class TestProcessor(val handlers: List<(TestInvocation) -> Boolean>,
                     val annotations: MutableSet<String>) : AbstractProcessor() {
     var count = 0
-    override fun process(annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment): Boolean {
+    override fun process(annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment)
+            : Boolean {
         try {
-            return handlers.getOrNull(count++)?.invoke(TestInvocation(processingEnv, annotations, roundEnv)) ?: true
+            return handlers.getOrNull(count++)?.invoke(
+                    TestInvocation(processingEnv, annotations, roundEnv)) ?: true
         } catch (elmBound: ElementBoundException) {
             processingEnv.messager.printMessage(ERROR, elmBound.msg, elmBound.element)
         }
