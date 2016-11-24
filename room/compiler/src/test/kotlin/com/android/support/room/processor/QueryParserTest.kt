@@ -36,7 +36,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
 class QueryParserTest {
     companion object {
@@ -133,32 +132,26 @@ class QueryParserTest {
                 static abstract class ExtendingModel extends BaseModel<Integer> {
                 }
                 """) { parsedQuery ->
-            assertThat(parsedQuery.parameters.first().type,
-                    `is`(ClassName.get(Integer::class.java) as TypeName))
+            assertThat(parsedQuery.parameters.first().type, `is`(ClassName.get(Integer::class.java) as TypeName))
         }.compilesWithoutError()
     }
 
 
-    fun singleQueryMethod(vararg input: String,
+    fun singleQueryMethod(vararg methods: String,
                           handler: (QueryMethod) -> Unit):
             CompileTester {
         return assertAbout(JavaSourceSubjectFactory.javaSource())
                 .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
-                        DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
+                        DAO_PREFIX + methods.joinToString("\n") + DAO_SUFFIX
+
                 ))
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(Query::class, Dao::class)
                         .nextRunHandler { invocation ->
-                            val (owner, methods) = invocation.roundEnv
-                                    .getElementsAnnotatedWith(Dao::class.java)
+                            val (owner, methods) = invocation.roundEnv.getElementsAnnotatedWith(Dao::class.java)
                                     .map {
-                                        Pair(it,
-                                                invocation.processingEnv.elementUtils
-                                                        .getAllMembers(MoreElements.asType(it))
-                                                        .filter {
-                                                            MoreElements.isAnnotationPresent(it,
-                                                                    Query::class.java)
-                                                        }
+                                        Pair(it, invocation.processingEnv.elementUtils.getAllMembers(MoreElements.asType(it))
+                                                .filter { MoreElements.isAnnotationPresent(it, Query::class.java) }
                                         )
                                     }.filter { it.second.isNotEmpty() }.first()
                             val parser = QueryParser(invocation.roundEnv, invocation.processingEnv)

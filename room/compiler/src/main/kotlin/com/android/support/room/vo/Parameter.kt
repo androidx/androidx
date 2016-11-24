@@ -21,4 +21,4 @@ import com.squareup.javapoet.TypeName
 /**
  * Holds the parameter for a {@link QueryMethod}.
  */
-data class Parameter(val name: String, val type: TypeName)
+class Parameter(val name: String, val type: TypeName)

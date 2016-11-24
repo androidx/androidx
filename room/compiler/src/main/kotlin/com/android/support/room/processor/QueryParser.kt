@@ -48,12 +48,20 @@ class QueryParser(val roundEnv: RoundEnvironment,
 
         val returnTypeName = TypeName.get(executableType.returnType)
 
-        Checks.assertNotUnbound(returnTypeName, executableElement,
-                ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
+        assertNoUnboundParameter(returnTypeName, executableElement)
         return QueryMethod(
                 query,
                 executableElement.simpleName.toString(),
                 returnTypeName,
                 executableElement.parameters.map { parameterParser.parse(containing, it) })
+    }
+
+    fun assertNoUnboundParameter(typeName: TypeName, element: Element) {
+        // TODO support bounds cases like <T extends Foo> T bar()
+        Checks.check(typeName !is TypeVariableName, element,
+                ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
+        if (typeName is ParameterizedTypeName) {
+            typeName.typeArguments.forEach { assertNoUnboundParameter(it, element) }
+        }
     }
 }

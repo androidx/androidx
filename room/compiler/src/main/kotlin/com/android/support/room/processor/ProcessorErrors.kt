@@ -23,5 +23,4 @@ object ProcessorErrors {
     val CANNOT_RESOLVE_RETURN_TYPE = "Cannot resolve return type for %s"
     val CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS = "Cannot use unbound generics in query " +
             "methods. It must be bound to a type through base Dao class."
-    val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS = "Cannot use unbound fields in entities."
 }

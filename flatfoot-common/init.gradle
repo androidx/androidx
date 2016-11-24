@@ -55,7 +55,6 @@ def createKotlinCheckstyle(Project project) {
     def kotlinCheckstyle = project.tasks.create(name : 'checkstyleKotlin', type: Checkstyle) {
         configFile rootProject.file('../flatfoot-common/kotlin-checkstyle.xml')
         source project.sourceSets.main.allJava
-        source project.sourceSets.test.allJava
         ignoreFailures false
         showViolations true
         include '**/*.kt'
@@ -65,15 +64,14 @@ def createKotlinCheckstyle(Project project) {
     project.tasks.findByName("check").dependsOn(kotlinCheckstyle)
     // poor man's line length check
     def lineCheck = project.tasks.create(name : "lineLengthCheck") {
-        (project.sourceSets.main.allJava.getSourceDirectories() +
-            project.sourceSets.test.allJava.getSourceDirectories()).each { sourceDir ->
-                  fileTree(dir : sourceDir, include : "**/*.kt").each{ file ->
-                      file.readLines().eachWithIndex { line, index ->
-                          if (line.size() > 100) {
-                              throw new Exception("line too long:\nfile: $file line:$index line: $line")
-                          }
-                      }
-                  }
+        project.sourceSets.main.allJava.getSourceDirectories().each { sourceDir ->
+            fileTree(dir : sourceDir, include : "**/*.kt").each{ file ->
+                file.readLines().eachWithIndex { line, index ->
+                    if (line.size() > 100) {
+                        throw new Exception("line too long:\nfile: $file line:$index line: $line")
+                    }
+                }
+            }
         }
     }
     kotlinCheckstyle.dependsOn(lineCheck)
@@ -82,7 +80,7 @@ def createKotlinCheckstyle(Project project) {
 def createAndroidCheckstyle(Project project) {
     def androidCheckstyle = project.tasks.create(name : 'checkstyleAndroid', type: Checkstyle) {
         configFile rootProject.file('../../../development/tools/checkstyle/android-style.xml')
-        source project.sourceSets.main.allJava
+        source 'src/main/java'
         ignoreFailures false
         showViolations true
         include '**/*.java'

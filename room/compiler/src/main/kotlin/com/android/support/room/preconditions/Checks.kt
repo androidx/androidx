@@ -17,10 +17,6 @@
 package com.android.support.room.preconditions
 
 import com.android.support.room.errors.ElementBoundException
-import com.android.support.room.processor.ProcessorErrors
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeVariableName
 import javax.lang.model.element.Element
 
 /**
@@ -30,15 +26,6 @@ object Checks {
     fun check(predicate: Boolean, element: Element, errorMsg: String, vararg args: Any) {
         if (!predicate) {
             throw ElementBoundException(element, String.format(errorMsg, args))
-        }
-    }
-
-    fun assertNotUnbound(typeName: TypeName, element: Element, errorMsg : String,
-                         vararg args : Any) {
-        // TODO support bounds cases like <T extends Foo> T bar()
-        Checks.check(typeName !is TypeVariableName, element, errorMsg, args)
-        if (typeName is ParameterizedTypeName) {
-            typeName.typeArguments.forEach { assertNotUnbound(it, element, errorMsg, args) }
         }
     }
 }

@@ -23,5 +23,5 @@ import com.squareup.javapoet.TypeName
  * A class that holds information about a QueryMethod.
  * It is self sufficient and must have all generics etc resolved once created.
  */
-data class QueryMethod(val query: ParsedQuery, val name: String, val returnType: TypeName,
+class QueryMethod(val query: ParsedQuery, val name: String, val returnType: TypeName,
                   val parameters: List<Parameter>)
