@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.support.room.vo
+package com.android.support.room;
 
-import com.android.support.room.parser.ParsedQuery
-import com.squareup.javapoet.TypeName
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/**
- * A class that holds information about a QueryMethod.
- * It is self sufficient and must have all generics etc resolved once created.
- */
-data class QueryMethod(val query: ParsedQuery, val name: String, val returnType: TypeName,
-                  val parameters: List<Parameter>)
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.SOURCE)
+public @interface PrimaryKey {
+}
