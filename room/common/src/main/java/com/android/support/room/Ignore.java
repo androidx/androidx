@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.support.room.vo
+package com.android.support.room;
 
-import com.squareup.javapoet.TypeName
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-data class Entity(val type: TypeName, val fields : List<Field>)
+@Target({ElementType.METHOD, ElementType.FIELD})
+@Retention(RetentionPolicy.SOURCE)
+public @interface Ignore {
+}

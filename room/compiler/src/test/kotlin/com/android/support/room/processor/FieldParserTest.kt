@@ -17,6 +17,7 @@
 package com.android.support.room.processor
 
 import com.android.support.room.Entity
+import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.vo.Field
 import com.google.auto.common.MoreElements
@@ -32,6 +33,8 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito.mock
+import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 
 @RunWith(JUnit4::class)
@@ -58,9 +61,11 @@ class FieldParserTest {
     @Test
     fun primitives() {
         ALL_PRIMITIVES.forEach { primitive ->
-            singleEntity("$primitive x;") { field ->
+            singleEntity("$primitive x;") { field, invocation ->
                 assertThat(field, `is`(
-                        Field(name = "x", type = primitive, primaryKey = false)))
+                        Field(name = "x", type = primitive, primaryKey = false,
+                                element = field.element
+                                )))
             }.compilesWithoutError()
         }
     }
@@ -68,9 +73,10 @@ class FieldParserTest {
     @Test
     fun boxed() {
         ALL_PRIMITIVES.forEach { primitive ->
-            singleEntity("${primitive.box()} y;") { field ->
+            singleEntity("${primitive.box()} y;") { field, invocation ->
                 assertThat(field, `is`(
-                        Field(name = "y", type = primitive.box(), primaryKey = false)))
+                        Field(name = "y", type = primitive.box(), primaryKey = false,
+                                element = field.element)))
             }.compilesWithoutError()
         }
     }
@@ -80,20 +86,20 @@ class FieldParserTest {
         singleEntity("""
             @PrimaryKey
             int x;
-            """) { field ->
+            """) { field, invocation ->
             assertThat(field, `is`(
-                    Field(name = "x", type = TypeName.INT, primaryKey = true)
-            ))
+                    Field(name = "x", type = TypeName.INT, primaryKey = true,
+                            element = field.element)))
         }.compilesWithoutError()
     }
 
     @Test
     fun primitiveArray() {
         ALL_PRIMITIVES.forEach { primitive ->
-            singleEntity("$primitive[] arr;") { field ->
+            singleEntity("$primitive[] arr;") { field, invocation ->
                 assertThat(field, `is`(
-                        Field(name = "arr", type = ArrayTypeName.of(primitive), primaryKey = false)
-                ))
+                        Field(name = "arr", type = ArrayTypeName.of(primitive), primaryKey = false,
+                                element = field.element)))
             }.compilesWithoutError()
         }
     }
@@ -101,11 +107,11 @@ class FieldParserTest {
     @Test
     fun boxedArray() {
         ALL_PRIMITIVES.forEach { primitive ->
-            singleEntity("${primitive.box()}[] arr;") { field ->
+            singleEntity("${primitive.box()}[] arr;") { field, invocation ->
                 assertThat(field, `is`(
                         Field(name = "arr", type = ArrayTypeName.of(primitive.box()),
-                                primaryKey = false)
-                ))
+                                primaryKey = false,
+                                element = field.element)))
             }.compilesWithoutError()
         }
     }
@@ -119,10 +125,11 @@ class FieldParserTest {
                 @Entity
                 static class Extending extends BaseClass<java.lang.Integer> {
                 }
-                """) { field ->
+                """) { field, invocation ->
             assertThat(field, `is`(Field(name = "item",
                     type = TypeName.INT.box(),
-                    primaryKey = false)))
+                    primaryKey = false,
+                    element = field.element)))
         }.compilesWithoutError()
     }
 
@@ -133,11 +140,72 @@ class FieldParserTest {
                 static class BaseClass<T> {
                     T item;
                 }
-                """) {}.failsToCompile()
+                """) {field, invocation -> }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS)
     }
 
-    fun singleEntity(vararg input: String, handler: (Field) -> Unit): CompileTester {
+    @Test
+    fun nameVariations() {
+        assertThat(Field(mock(Element::class.java), "x", TypeName.INT, false)
+                .nameWithVariations, `is`(arrayListOf("x")))
+        assertThat(Field(mock(Element::class.java), "x", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("x")))
+        assertThat(Field(mock(Element::class.java), "xAll", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("xAll")))
+    }
+
+    @Test
+    fun nameVariations_is() {
+        assertThat(Field(mock(Element::class.java), "isX", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("isX", "x")))
+        assertThat(Field(mock(Element::class.java), "isX", TypeName.INT, false)
+                .nameWithVariations, `is`(arrayListOf("isX")))
+        assertThat(Field(mock(Element::class.java), "is", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("is")))
+        assertThat(Field(mock(Element::class.java), "isAllItems", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("isAllItems", "allItems")))
+    }
+
+    @Test
+    fun nameVariations_has() {
+        assertThat(Field(mock(Element::class.java), "hasX", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("hasX", "x")))
+        assertThat(Field(mock(Element::class.java), "hasX", TypeName.INT, false)
+                .nameWithVariations, `is`(arrayListOf("hasX")))
+        assertThat(Field(mock(Element::class.java), "has", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("has")))
+        assertThat(Field(mock(Element::class.java), "hasAllItems", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("hasAllItems", "allItems")))
+    }
+
+    @Test
+    fun nameVariations_m() {
+        assertThat(Field(mock(Element::class.java), "mall", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("mall")))
+        assertThat(Field(mock(Element::class.java), "mallVars", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("mallVars")))
+        assertThat(Field(mock(Element::class.java), "mAll", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("mAll", "all")))
+        assertThat(Field(mock(Element::class.java), "m", TypeName.INT, false)
+                .nameWithVariations, `is`(arrayListOf("m")))
+        assertThat(Field(mock(Element::class.java), "mallItems", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("mallItems")))
+        assertThat(Field(mock(Element::class.java), "mAllItems", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("mAllItems", "allItems")))
+    }
+
+    @Test
+    fun nameVariations_underscore() {
+        assertThat(Field(mock(Element::class.java), "_all", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("_all", "all")))
+        assertThat(Field(mock(Element::class.java), "_", TypeName.INT, false)
+                .nameWithVariations, `is`(arrayListOf("_")))
+        assertThat(Field(mock(Element::class.java), "_allItems", TypeName.BOOLEAN, false)
+                .nameWithVariations, `is`(arrayListOf("_allItems", "allItems")))
+    }
+
+    fun singleEntity(vararg input: String, handler: (Field, invocation : TestInvocation) -> Unit):
+            CompileTester {
         return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
                 .that(JavaFileObjects.forSourceString("foo.bar.MyEntity",
                         ENTITY_PREFIX + input.joinToString("\n") + ENTITY_SUFFIX
@@ -155,7 +223,7 @@ class FieldParserTest {
                                     .first { it.second != null }
                             val parser = FieldParser(invocation.roundEnv, invocation.processingEnv)
                             handler(parser.parse(
-                                    MoreTypes.asDeclared(owner.asType()), field!!))
+                                    MoreTypes.asDeclared(owner.asType()), field!!), invocation)
                             true
                         }
                         .build())

@@ -22,12 +22,9 @@ import com.android.support.room.preconditions.Checks
 import com.android.support.room.vo.QueryMethod
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeVariableName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
-import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
@@ -51,9 +48,11 @@ class QueryParser(val roundEnv: RoundEnvironment,
         Checks.assertNotUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
         return QueryMethod(
-                query,
-                executableElement.simpleName.toString(),
-                returnTypeName,
-                executableElement.parameters.map { parameterParser.parse(containing, it) })
+                element = executableElement,
+                query = query,
+                name = executableElement.simpleName.toString(),
+                returnType = returnTypeName,
+                parameters = executableElement.parameters
+                        .map { parameterParser.parse(containing, it) })
     }
 }

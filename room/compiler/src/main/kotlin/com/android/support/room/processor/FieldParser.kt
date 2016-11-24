@@ -35,6 +35,7 @@ class FieldParser(val roundEnv: RoundEnvironment,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS)
         return Field(name = element.simpleName.toString(),
                 type = type,
-                primaryKey = MoreElements.isAnnotationPresent(element, PrimaryKey::class.java))
+                primaryKey = MoreElements.isAnnotationPresent(element, PrimaryKey::class.java),
+                element = element)
     }
 }

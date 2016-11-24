@@ -16,6 +16,7 @@
 
 package com.android.support.room.vo
 
-import com.squareup.javapoet.TypeName
-
-data class Entity(val type: TypeName, val fields : List<Field>)
+enum class CallType {
+    FIELD,
+    METHOD
+}

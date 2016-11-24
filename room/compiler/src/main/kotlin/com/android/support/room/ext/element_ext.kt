@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-package com.android.support.room.vo
+package com.android.support.room.ext
 
-import com.squareup.javapoet.TypeName
+import com.google.auto.common.MoreElements
+import javax.lang.model.element.Element
+import javax.lang.model.element.Modifier
+import kotlin.reflect.KClass
 
-data class Entity(val type: TypeName, val fields : List<Field>)
+fun Element.hasAnyOf(vararg modifiers: Modifier) : Boolean {
+    return this.modifiers.any { modifiers.contains(it) }
+}
+
+fun Element.hasAnnotation(klass : KClass<out Annotation>) : Boolean {
+    return MoreElements.isAnnotationPresent(this, klass.java)
+}
