@@ -16,10 +16,8 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -28,8 +26,6 @@ import android.view.View;
  *
  * @hide
  */
-@RequiresApi(11)
-@TargetApi(11)
 abstract class BaseFragmentActivityHoneycomb extends BaseFragmentActivityGingerbread {
 
     @Override
