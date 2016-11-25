@@ -152,7 +152,8 @@ class LifecycleProcessor : AbstractProcessor() {
                 currentMethod.method.simpleName == m.method.simpleName
                         && currentMethod.method.parameters.size == m.method.parameters.size
             }
-            if (baseMethod != null && baseMethod.onLifecycleEvent != currentMethod.onLifecycleEvent) {
+            if (baseMethod != null
+                    && baseMethod.onLifecycleEvent != currentMethod.onLifecycleEvent) {
                 printErrorMessage(INVALID_STATE_OVERRIDE_METHOD, currentMethod.method)
             }
             baseMethod == null

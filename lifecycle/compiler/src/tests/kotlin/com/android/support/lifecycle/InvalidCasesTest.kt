@@ -32,8 +32,10 @@ class InvalidCasesTest(val name: String, val errorMsg: String) {
                 arrayOf<Any>("TooManyArgs", LifecycleProcessor.TOO_MANY_ARGS_ERROR_MSG),
                 arrayOf<Any>("InvalidMethodModifier", LifecycleProcessor.INVALID_METHOD_MODIFIER),
                 arrayOf<Any>("InvalidClassModifier", LifecycleProcessor.INVALID_CLASS_MODIFIER),
-                arrayOf<Any>("InvalidInheritance1", LifecycleProcessor.INVALID_STATE_OVERRIDE_METHOD),
-                arrayOf<Any>("InvalidInheritance2", LifecycleProcessor.INVALID_STATE_OVERRIDE_METHOD)
+                arrayOf<Any>("InvalidInheritance1",
+                        LifecycleProcessor.INVALID_STATE_OVERRIDE_METHOD),
+                arrayOf<Any>("InvalidInheritance2",
+                        LifecycleProcessor.INVALID_STATE_OVERRIDE_METHOD)
         )
     }
 

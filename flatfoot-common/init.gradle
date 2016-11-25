@@ -82,7 +82,12 @@ def createKotlinCheckstyle(Project project) {
 def createAndroidCheckstyle(Project project) {
     def androidCheckstyle = project.tasks.create(name : 'checkstyleAndroid', type: Checkstyle) {
         configFile rootProject.file('../../../development/tools/checkstyle/android-style.xml')
-        source project.sourceSets.main.allJava
+        if (project.hasProperty('android')) {
+            source project.android.sourceSets.main.java.getSrcDirs()
+        }
+        if (project.sourceSets.hasProperty('main')) {
+          source project.sourceSets.main.allJava
+        }
         ignoreFailures false
         showViolations true
         include '**/*.java'
