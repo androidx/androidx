@@ -23,16 +23,23 @@ object ProcessorErrors {
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
     val CANNOT_RESOLVE_RETURN_TYPE = "Cannot resolve return type for %s"
     val CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS = "Cannot use unbound generics in query " +
-            "methods. It must be bound to a type through base Dao class."
+            "queryMethods. It must be bound to a type through base Dao class."
     val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS = "Cannot use unbound fields in entities."
+    val CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES = "Cannot use unbound generics in Dao classes." +
+            " If you are trying to create a base DAO, create a normal class, extend it with type" +
+            " params then mark the subclass with @Dao."
     val CANNOT_FIND_GETTER_FOR_FIELD = "Cannot find getter for field."
     val CANNOT_FIND_SETTER_FOR_FIELD = "Cannot find setter for field."
     val MISSING_PRIMARY_KEY = "An entity must have at least 1 field annotated with @PrimaryKey"
+    val DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE = "Dao class must be an abstract class or" +
+            " an interface"
 
     private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
     private val TOO_MANY_MATCHING_SETTERS = "Ambiguous setter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
+
+    val DAO_MUST_BE_ANNOTATED_WITH_DAO = "Dao class must be annoated with @Dao"
 
     fun tooManyMatchingGetters(field : Field, methodNames : List<String>) : String {
         return TOO_MANY_MATCHING_GETTERS.format(field, methodNames.joinToString(", "))
