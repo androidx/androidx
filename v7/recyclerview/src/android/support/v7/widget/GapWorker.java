@@ -59,8 +59,8 @@ final class GapWorker implements Runnable {
      * Prefetch information associated with a specific RecyclerView.
      */
     static class PrefetchRegistryImpl implements RecyclerView.PrefetchRegistry {
-        private int mPrefetchDx;
-        private int mPrefetchDy;
+        int mPrefetchDx;
+        int mPrefetchDy;
         int[] mPrefetchArray;
 
         int mCount;

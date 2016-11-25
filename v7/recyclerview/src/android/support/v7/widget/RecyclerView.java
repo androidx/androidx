@@ -2822,7 +2822,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                             vtev)) {
                         getParent().requestDisallowInterceptTouchEvent(true);
                     }
-                    if (mGapWorker != null) {
+                    if (mGapWorker != null && (dx != 0 || dy != 0)) {
                         mGapWorker.postFromTraversal(this, dx, dy);
                     }
                 }
