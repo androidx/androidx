@@ -48,7 +48,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Root;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
-import android.support.test.filters.SmallTest;
+import android.support.test.filters.MediumTest;
 import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
 import android.view.MenuInflater;
@@ -98,7 +98,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBasicContent() {
         final Builder menuBuilder = new Builder();
         menuBuilder.wireToActionButton();
@@ -261,7 +261,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testAnchoring() {
         Builder menuBuilder = new Builder();
         menuBuilder.wireToActionButton();
@@ -284,7 +284,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDismissalViaAPI() throws Throwable {
         Builder menuBuilder = new Builder().withDismissListener();
         menuBuilder.wireToActionButton();
@@ -308,7 +308,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDismissalViaTouch() throws Throwable {
         Builder menuBuilder = new Builder().withDismissListener();
         menuBuilder.wireToActionButton();
@@ -364,7 +364,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSimpleMenuItemClickViaEvent() {
         Builder menuBuilder = new Builder().withMenuItemClickListener();
         menuBuilder.wireToActionButton();
@@ -387,7 +387,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSimpleMenuItemClickViaAPI() throws Throwable {
         Builder menuBuilder = new Builder().withMenuItemClickListener();
         menuBuilder.wireToActionButton();
@@ -413,7 +413,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSubMenuClicksViaEvent() throws Throwable {
         Builder menuBuilder = new Builder().withMenuItemClickListener();
         menuBuilder.wireToActionButton();
@@ -475,7 +475,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSubMenuClicksViaAPI() throws Throwable {
         Builder menuBuilder = new Builder().withMenuItemClickListener();
         menuBuilder.wireToActionButton();

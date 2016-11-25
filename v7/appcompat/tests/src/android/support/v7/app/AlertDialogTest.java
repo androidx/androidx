@@ -57,6 +57,7 @@ import android.support.annotation.StringRes;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.ViewInteraction;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.v7.appcompat.test.R;
@@ -133,7 +134,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBasicContent() {
         final Context context = mActivityTestRule.getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
@@ -164,7 +165,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     // Tests for message logic
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testMessageString() {
         final String dialogMessage = "Dialog message";
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
@@ -177,7 +178,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testMessageStringPostCreation() throws Throwable {
         final String dialogInitialMessage = "Initial message";
         final String dialogUpdatedMessage = "Updated message";
@@ -231,7 +232,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCustomTitle() {
         final Context context = mActivityTestRule.getActivity();
         final LayoutInflater inflater = LayoutInflater.from(context);
@@ -247,7 +248,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCustomTitlePostCreation() {
         final Context context = mActivityTestRule.getActivity();
         final LayoutInflater inflater = LayoutInflater.from(context);
@@ -300,7 +301,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCustomView() {
         final Context context = mActivityTestRule.getActivity();
         final LayoutInflater inflater = LayoutInflater.from(context);
@@ -316,7 +317,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCustomViewById() {
         final Context context = mActivityTestRule.getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
@@ -331,7 +332,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCustomViewPostCreation() {
         final Context context = mActivityTestRule.getActivity();
         final LayoutInflater inflater = LayoutInflater.from(context);
@@ -361,7 +362,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     // Tests for cancel logic
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCancelCancelableDialog() {
         DialogInterface.OnCancelListener mockCancelListener =
                 mock(DialogInterface.OnCancelListener.class);
@@ -382,7 +383,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCancelNonCancelableDialog() {
         DialogInterface.OnCancelListener mockCancelListener =
                 mock(DialogInterface.OnCancelListener.class);
@@ -437,7 +438,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCustomAdapter() {
         final Context context = mActivityTestRule.getActivity();
         final String[] content = context.getResources().getStringArray(R.array.alert_dialog_items);
@@ -454,7 +455,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSimpleItemsFromRuntimeArray() {
         final String[] content = new String[] { "Alice", "Bob", "Charlie", "Delta" };
         final DialogInterface.OnClickListener mockClickListener =
@@ -468,7 +469,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSimpleItemsFromResourcesArray() {
         final DialogInterface.OnClickListener mockClickListener =
                 mock(DialogInterface.OnClickListener.class);
@@ -563,7 +564,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testMultiChoiceItemsFromRuntimeArray() {
         final String[] content = new String[] { "Alice", "Bob", "Charlie", "Delta" };
         final boolean[] checkedTracker = new boolean[] { false, true, false, false };
@@ -586,7 +587,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testMultiChoiceItemsFromResourcesArray() {
         final boolean[] checkedTracker = new boolean[] { true, false, true, false };
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
@@ -683,7 +684,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSingleChoiceItemsFromRuntimeArray() {
         final String[] content = new String[] { "Alice", "Bob", "Charlie", "Delta" };
         final DialogInterface.OnClickListener mockClickListener =
@@ -697,7 +698,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSingleChoiceItemsFromResourcesArray() {
         final DialogInterface.OnClickListener mockClickListener =
                 mock(DialogInterface.OnClickListener.class);
@@ -713,7 +714,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     // Tests for icon logic
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testIconResource() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
@@ -734,7 +735,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testIconResourceChangeAfterInitialSetup() throws Throwable {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
@@ -766,7 +767,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testIconResourceChangeWithNoInitialSetup() throws Throwable {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
@@ -797,7 +798,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testIconResourceRemoveAfterInitialSetup() throws Throwable {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
@@ -829,7 +830,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testIconDrawable() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
@@ -850,7 +851,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testIconResourceDrawableAfterInitialSetup() throws Throwable {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
@@ -882,7 +883,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testIconDrawableChangeWithNoInitialSetup() throws Throwable {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
@@ -913,7 +914,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testIconDrawableRemoveAfterInitialSetup() throws Throwable {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
@@ -1262,7 +1263,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testButtonVisibility() {
         final String positiveButtonText = "Positive button";
         final String negativeButtonText = "Negative button";
@@ -1296,7 +1297,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testButtons() {
         // Positive-only button
         verifyDialogButtons("Positive", null, null, AlertDialog.BUTTON_POSITIVE);

@@ -44,6 +44,7 @@ import android.support.test.espresso.action.GeneralLocation;
 import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.Swipe;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.v4.view.GravityCompat;
@@ -207,7 +208,7 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDrawerOpenCloseWithRedundancyViaSwipes() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
