@@ -723,6 +723,23 @@ public class BottomSheetBehaviorTest extends
         }
     }
 
+    @Test
+    @MediumTest
+    public void testExpandedPeekHeight() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Make the peek height as tall as the bottom sheet.
+                BottomSheetBehavior behavior = getBehavior();
+                behavior.setPeekHeight(getBottomSheet().getHeight());
+                assertThat(behavior.getState(), is(BottomSheetBehavior.STATE_COLLAPSED));
+            }
+        });
+        // Both of these will not animate the sheet , but the state should be changed.
+        checkSetState(BottomSheetBehavior.STATE_EXPANDED, ViewMatchers.isDisplayed());
+        checkSetState(BottomSheetBehavior.STATE_COLLAPSED, ViewMatchers.isDisplayed());
+    }
+
     private void checkSetState(final int state, Matcher<View> matcher) throws Throwable {
         registerIdlingResourceCallback();
         try {
