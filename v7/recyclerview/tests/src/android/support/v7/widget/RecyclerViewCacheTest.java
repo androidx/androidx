@@ -551,6 +551,8 @@ public class RecyclerViewCacheTest {
 
     static class InnerAdapter extends RecyclerView.Adapter<InnerAdapter.ViewHolder> {
         private static final int INNER_ITEM_COUNT = 20;
+        int mItemsBound = 0;
+
         static class ViewHolder extends RecyclerView.ViewHolder {
             ViewHolder(View itemView) {
                 super(itemView);
@@ -567,7 +569,9 @@ public class RecyclerViewCacheTest {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {}
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            mItemsBound++;
+        }
 
         @Override
         public int getItemCount() {
@@ -710,5 +714,34 @@ public class RecyclerViewCacheTest {
         ((LinearLayoutManager) inner.getLayoutManager()).setInitialPrefetchItemCount(4);
         mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
         CacheUtils.verifyCacheContainsPrefetchedPositions(inner, 5, 6, 7, 8);
+    }
+
+
+    @Test
+    public void nestedPrefetchNotReset() {
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        OuterAdapter outerAdapter = new OuterAdapter();
+        mRecyclerView.setAdapter(outerAdapter);
+
+        layout(200, 200);
+
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
+
+        // prefetch row 2, items 0 & 1
+        assertEquals(0, outerAdapter.mAdapters.get(2).mItemsBound);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+        RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 2);
+        RecyclerView innerRecyclerView = holder.mNestedRecyclerView;
+
+        assertNotNull(innerRecyclerView);
+        CacheUtils.verifyCacheContainsPrefetchedPositions(innerRecyclerView, 0, 1);
+        assertEquals(2, outerAdapter.mAdapters.get(2).mItemsBound);
+
+        // new row comes on, triggers layout...
+        mRecyclerView.scrollBy(0, 50);
+
+        // ... which shouldn't require new items to be bound,
+        // as prefetch has already done that work
+        assertEquals(2, outerAdapter.mAdapters.get(2).mItemsBound);
     }
 }

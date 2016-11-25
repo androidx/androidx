@@ -361,7 +361,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     /**
      * Set to true when an adapter data set changed notification is received.
-     * In that case, we cannot run any animations since we don't know what happened.
+     * In that case, we cannot run any animations since we don't know what happened until layout.
+     *
+     * Attached items are invalid until next layout, at which point layout will animate/replace
+     * items as necessary, building up content from the (effectively) new adapter from scratch.
+     *
+     * Cached items must be discarded when setting this to true, so that the cache may be freely
+     * used by prefetching until the next layout occurs.
+     *
+     * @see #setDataSetChangedAfterLayout()
      */
     boolean mDataSetHasChangedAfterLayout = false;
 
@@ -1013,7 +1021,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         mRecycler.onAdapterChanged(oldAdapter, mAdapter, compatibleWithPrevious);
         mState.mStructureChanged = true;
-        markKnownViewsInvalid();
+        markKnownViewsInvalid(true);
     }
 
     /**
@@ -3171,7 +3179,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // Processing these items have no value since data set changed unexpectedly.
             // Instead, we just reset it.
             mAdapterHelper.reset();
-            markKnownViewsInvalid();
+            markKnownViewsInvalid(false);
             mLayout.onItemsChanged(this);
         }
         // simple animations are a subset of advanced animations (which will cause a
@@ -3183,13 +3191,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mAdapterHelper.consumeUpdatesInOnePass();
         }
         boolean animationTypeSupported = mItemsAddedOrRemoved || mItemsChanged;
-        mState.mRunSimpleAnimations = mFirstLayoutComplete && mItemAnimator != null &&
-                (mDataSetHasChangedAfterLayout || animationTypeSupported ||
-                        mLayout.mRequestedSimpleAnimations) &&
-                (!mDataSetHasChangedAfterLayout || mAdapter.hasStableIds());
-        mState.mRunPredictiveAnimations = mState.mRunSimpleAnimations &&
-                animationTypeSupported && !mDataSetHasChangedAfterLayout &&
-                predictiveItemAnimationsEnabled();
+        mState.mRunSimpleAnimations = mFirstLayoutComplete
+                && mItemAnimator != null
+                && (mDataSetHasChangedAfterLayout
+                        || animationTypeSupported
+                        || mLayout.mRequestedSimpleAnimations)
+                && (!mDataSetHasChangedAfterLayout
+                        || mAdapter.hasStableIds());
+        mState.mRunPredictiveAnimations = mState.mRunSimpleAnimations
+                && animationTypeSupported
+                && !mDataSetHasChangedAfterLayout
+                && predictiveItemAnimationsEnabled();
     }
 
     /**
@@ -4011,6 +4023,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 viewHolder.getUnmodifiedPayloads());
     }
 
+
+    /**
+     * Call this method to signal that *all* adapter content has changed (generally, because of
+     * swapAdapter, or notifyDataSetChanged), and that once layout occurs, all attached items should
+     * be discarded or animated. Note that this work is deferred because RecyclerView requires a
+     * layout to resolve non-incremental changes to the data set.
+     *
+     * Attached items are labeled as position unknown, and may no longer be cached.
+     *
+     * It is still possible for items to be prefetched while mDataSetHasChangedAfterLayout == true,
+     * so calling this method *must* be associated with clearing the recycler cache, so that the
+     * only items that remain in the cache, once layout occurs, are prefetched items.
+     */
     void setDataSetChangedAfterLayout() {
         if (mDataSetHasChangedAfterLayout) {
             return;
@@ -4030,7 +4055,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * Mark all known views as invalid. Used in response to a, "the whole world might have changed"
      * data change event.
      */
-    void markKnownViewsInvalid() {
+    void markKnownViewsInvalid(boolean dispatchToRecycler) {
         final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
             final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
@@ -4039,7 +4064,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
         }
         markItemDecorInsetsDirty();
-        mRecycler.markKnownViewsInvalid();
+        if (dispatchToRecycler) {
+            mRecycler.markKnownViewsInvalid();
+        }
     }
 
     /**
@@ -4809,16 +4836,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         @Override
         public void onChanged() {
             assertNotInLayoutOrScroll(null);
-            if (mAdapter.hasStableIds()) {
-                // TODO Determine what actually changed.
-                // This is more important to implement now since this callback will disable all
-                // animations because we cannot rely on positions.
-                mState.mStructureChanged = true;
-                setDataSetChangedAfterLayout();
-            } else {
-                mState.mStructureChanged = true;
-                setDataSetChangedAfterLayout();
-            }
+            mState.mStructureChanged = true;
+
+            // clear cache, so we can trust any prefetched data that is cached before next layout
+            mRecycler.recycleAndClearCachedViews();
+
+            setDataSetChangedAfterLayout();
             if (!mAdapterHelper.hasPendingUpdates()) {
                 requestLayout();
             }
@@ -5643,7 +5666,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             if (forceRecycle || holder.isRecyclable()) {
                 if (mViewCacheMax > 0
                         && !holder.hasAnyOfTheFlags(ViewHolder.FLAG_INVALID
-                                | ViewHolder.FLAG_REMOVED | ViewHolder.FLAG_UPDATE)) {
+                                | ViewHolder.FLAG_REMOVED
+                                | ViewHolder.FLAG_UPDATE
+                                | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN)) {
                     // Retire oldest cached view
                     int cachedViewSize = mCachedViews.size();
                     if (cachedViewSize >= mViewCacheMax && cachedViewSize > 0) {
