@@ -18,4 +18,8 @@ package com.android.support.room.vo
 
 import com.squareup.javapoet.TypeName
 
-data class Entity(val type: TypeName, val fields : List<Field>)
+data class Entity(val type: TypeName, val fields : List<Field>) {
+    val primaryKeys by lazy {
+        fields.filter { it.primaryKey }
+    }
+}

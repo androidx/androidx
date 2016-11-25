@@ -20,6 +20,7 @@ import com.android.support.room.Ignore
 import com.android.support.room.errors.ElementBoundException
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
+import com.android.support.room.preconditions.Checks
 import com.android.support.room.vo.*
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -66,7 +67,9 @@ class EntityParser(val roundEnv: RoundEnvironment,
 
         assignGetters(fields, getterCandidates)
         assignSetters(fields, setterCandidates)
-        return Entity(TypeName.get(declaredType), fields)
+        val entity = Entity(TypeName.get(declaredType), fields)
+        Checks.check(entity.primaryKeys.isNotEmpty(), element, ProcessorErrors.MISSING_PRIMARY_KEY)
+        return entity
     }
 
     private fun assignGetters(fields: List<Field>, getterCandidates: List<ExecutableElement>) {

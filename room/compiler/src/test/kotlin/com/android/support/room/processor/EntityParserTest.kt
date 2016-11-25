@@ -47,6 +47,7 @@ class EntityParserTest : BaseEntityParserTest() {
                     primaryKey = true)))
             assertThat(field.setter, `is`(FieldSetter("setId", CallType.METHOD)))
             assertThat(field.getter, `is`(FieldGetter("getId", CallType.METHOD)))
+            assertThat(entity.primaryKeys, `is`(listOf(field)))
         }.compilesWithoutError()
     }
 
@@ -122,5 +123,25 @@ class EntityParserTest : BaseEntityParserTest() {
                 """) { entity, invocation ->
             assertThat(entity.fields.first().setter.name, `is`("setId"))
         }.compilesWithoutError()
+    }
+
+    @Test
+    fun multiplePrimaryKeys() {
+        singleEntity("""
+                @PrimaryKey
+                int x;
+                @PrimaryKey
+                int y;
+                """) { entity , invocation ->
+            assertThat(entity.primaryKeys.size, `is`(2))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun missingPrimaryKey() {
+        singleEntity("""
+                """) { entity, invocation ->
+        }.failsToCompile()
+                .withErrorContaining(ProcessorErrors.MISSING_PRIMARY_KEY)
     }
 }

@@ -27,6 +27,8 @@ object ProcessorErrors {
     val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS = "Cannot use unbound fields in entities."
     val CANNOT_FIND_GETTER_FOR_FIELD = "Cannot find getter for field."
     val CANNOT_FIND_SETTER_FOR_FIELD = "Cannot find setter for field."
+    val MISSING_PRIMARY_KEY = "An entity must have at least 1 field annotated with @PrimaryKey"
+
     private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
     private val TOO_MANY_MATCHING_SETTERS = "Ambiguous setter for %s. All of the following " +
