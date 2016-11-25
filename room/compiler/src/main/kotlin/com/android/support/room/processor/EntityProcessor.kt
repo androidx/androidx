@@ -34,11 +34,13 @@ import javax.lang.model.element.Modifier.*
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
 
-class EntityParser(val roundEnv: RoundEnvironment,
-                   val processingEnvironment: ProcessingEnvironment) {
-    val fieldParser = FieldParser(roundEnv, processingEnvironment)
+class EntityProcessor(val roundEnv: RoundEnvironment,
+                      val processingEnvironment: ProcessingEnvironment) {
+    val fieldParser = FieldProcessor(roundEnv, processingEnvironment)
 
     fun parse(element: TypeElement): Entity {
+        Checks.hasAnnotation(element, com.android.support.room.Entity::class,
+                ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
         val declaredType = MoreTypes.asDeclared(element.asType())
         val allMembers = processingEnvironment.elementUtils.getAllMembers(element)
         val fields = allMembers

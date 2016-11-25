@@ -17,11 +17,13 @@
 package com.android.support.room.preconditions
 
 import com.android.support.room.errors.ElementBoundException
+import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.processor.ProcessorErrors
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
 import javax.lang.model.element.Element
+import kotlin.reflect.KClass
 
 /**
  * Similar to preconditions but element bound.
@@ -29,7 +31,14 @@ import javax.lang.model.element.Element
 object Checks {
     fun check(predicate: Boolean, element: Element, errorMsg: String, vararg args: Any) {
         if (!predicate) {
-            throw ElementBoundException(element, String.format(errorMsg, args))
+            throw ElementBoundException(element, errorMsg.format(args))
+        }
+    }
+
+    fun hasAnnotation(element : Element, annotation: KClass<out Annotation>, errorMsg: String,
+                      vararg args: Any) {
+        if (!element.hasAnnotation(annotation)) {
+            throw ElementBoundException(element, errorMsg.format(args))
         }
     }
 

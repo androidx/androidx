@@ -38,7 +38,7 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 
 @RunWith(JUnit4::class)
-class FieldParserTest {
+class FieldProcessorTest {
     companion object {
         const val ENTITY_PREFIX = """
                 package foo.bar;
@@ -221,7 +221,8 @@ class FieldParserTest {
                                                 .firstOrNull { it.kind == ElementKind.FIELD })
                                     }
                                     .first { it.second != null }
-                            val parser = FieldParser(invocation.roundEnv, invocation.processingEnv)
+                            val parser = FieldProcessor(invocation.roundEnv,
+                                    invocation.processingEnv)
                             handler(parser.parse(
                                     MoreTypes.asDeclared(owner.asType()), field!!), invocation)
                             true

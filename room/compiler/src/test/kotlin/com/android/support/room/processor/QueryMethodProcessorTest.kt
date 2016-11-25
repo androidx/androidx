@@ -38,7 +38,7 @@ import org.junit.runners.JUnit4
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
-class QueryParserTest {
+class QueryMethodProcessorTest {
     companion object {
         const val DAO_PREFIX = """
                 package foo.bar;
@@ -161,7 +161,8 @@ class QueryParserTest {
                                                         }
                                         )
                                     }.filter { it.second.isNotEmpty() }.first()
-                            val parser = QueryParser(invocation.roundEnv, invocation.processingEnv)
+                            val parser = QueryMethodProcessor(invocation.roundEnv,
+                                    invocation.processingEnv)
                             val parsedQuery = parser.parse(MoreTypes.asDeclared(owner.asType()),
                                     MoreElements.asExecutable(methods.first()))
                             handler(parsedQuery)

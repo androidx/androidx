@@ -29,8 +29,8 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 
-class QueryParser(val roundEnv: RoundEnvironment,
-                  val processingEnvironment: ProcessingEnvironment) {
+class QueryMethodProcessor(val roundEnv: RoundEnvironment,
+                           val processingEnvironment: ProcessingEnvironment) {
     val parameterParser = ParameterParser(roundEnv, processingEnvironment)
     fun parse(containing: DeclaredType, executableElement: ExecutableElement): QueryMethod {
         val asMember = processingEnvironment.typeUtils.asMemberOf(containing, executableElement)

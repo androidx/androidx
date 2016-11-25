@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class DaoParserTest {
+class DaoProcessorTest {
     companion object {
         const val DAO_PREFIX = """
             package foo.bar;
@@ -58,7 +58,21 @@ class DaoParserTest {
     }
 
     @Test
-    fun testWithQueryMethod() {
+    fun testAbstractClass() {
+        singleDao("""
+                @Dao abstract class MyDao {
+                    @Query("SELECT id FROM users")
+                    abstract int[] getIds();
+                }
+                """) { dao, invocation ->
+            assertThat(dao.queryMethods.size, `is`(1))
+            val method = dao.queryMethods.first()
+            assertThat(method.name, `is`("getIds"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testInterface() {
         singleDao("""
                 @Dao interface MyDao {
                     @Query("SELECT id FROM users")
@@ -84,7 +98,7 @@ class DaoParserTest {
                                     .getElementsAnnotatedWith(
                                             com.android.support.room.Dao::class.java)
                                     .first()
-                            val parser = DaoParser(invocation.roundEnv, invocation.processingEnv)
+                            val parser = DaoProcessor(invocation.roundEnv, invocation.processingEnv)
                             val parsedDao = parser.parse(MoreElements.asType(entity))
                             handler(parsedDao, invocation)
                             true

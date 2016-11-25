@@ -33,13 +33,15 @@ object ProcessorErrors {
     val MISSING_PRIMARY_KEY = "An entity must have at least 1 field annotated with @PrimaryKey"
     val DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE = "Dao class must be an abstract class or" +
             " an interface"
-
+    val DATABASE_MUST_BE_ANNOTATED_WITH_DATABASE = "Database must be annotated with @Database"
     private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
     private val TOO_MANY_MATCHING_SETTERS = "Ambiguous setter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
-
-    val DAO_MUST_BE_ANNOTATED_WITH_DAO = "Dao class must be annoated with @Dao"
+    val DAO_MUST_BE_ANNOTATED_WITH_DAO = "Dao class must be annotated with @Dao"
+    val ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY = "Entity class must be annotated with @Entity"
+    val DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES = "@Database annotation must specify list" +
+            " of entities"
 
     fun tooManyMatchingGetters(field : Field, methodNames : List<String>) : String {
         return TOO_MANY_MATCHING_GETTERS.format(field, methodNames.joinToString(", "))

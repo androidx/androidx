@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.support.room;
+package com.android.support.room.vo
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.lang.model.element.Element
 
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
-public @interface Database {
-    Class[] entities();
-}
+/**
+ * References a method that returns a dao in a Database
+ */
+data class DaoMethod(val element : Element, val name : String, val dao : Dao)

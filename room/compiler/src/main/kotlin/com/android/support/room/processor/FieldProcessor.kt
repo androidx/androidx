@@ -26,8 +26,8 @@ import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.type.DeclaredType
 
-class FieldParser(val roundEnv: RoundEnvironment,
-                  val processingEnvironment: ProcessingEnvironment) {
+class FieldProcessor(val roundEnv: RoundEnvironment,
+                     val processingEnvironment: ProcessingEnvironment) {
     fun parse(containing : DeclaredType, element : Element) : Field {
         val member = processingEnvironment.typeUtils.asMemberOf(containing, element)
         val type = TypeName.get(member)

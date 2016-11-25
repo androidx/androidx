@@ -49,7 +49,8 @@ abstract class BaseEntityParserTest {
                                     .getElementsAnnotatedWith(
                                             com.android.support.room.Entity::class.java)
                                     .first()
-                            val parser = EntityParser(invocation.roundEnv, invocation.processingEnv)
+                            val parser = EntityProcessor(invocation.roundEnv,
+                                    invocation.processingEnv)
                             val parsedQuery = parser.parse(MoreElements.asType(entity))
                             handler(parsedQuery, invocation)
                             true

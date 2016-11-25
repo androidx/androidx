@@ -16,7 +16,6 @@
 
 package com.android.support.room.processor
 
-import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
 import com.android.support.room.preconditions.Checks
 import com.android.support.room.vo.Dao
@@ -29,11 +28,11 @@ import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.TypeElement
 
-class DaoParser(val roundEnv: RoundEnvironment,
-                val processingEnvironment: ProcessingEnvironment) {
-    val queryParser = QueryParser(roundEnv, processingEnvironment)
+class DaoProcessor(val roundEnv: RoundEnvironment,
+                   val processingEnvironment: ProcessingEnvironment) {
+    val queryParser = QueryMethodProcessor(roundEnv, processingEnvironment)
     fun parse(element: TypeElement) : Dao {
-        Checks.check(element.hasAnnotation(com.android.support.room.Dao::class), element,
+        Checks.hasAnnotation(element, com.android.support.room.Dao::class,
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO)
         Checks.check(element.hasAnyOf(ABSTRACT) || element.kind == ElementKind.INTERFACE,
                 element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
@@ -41,7 +40,7 @@ class DaoParser(val roundEnv: RoundEnvironment,
         val declaredType = MoreTypes.asDeclared(element.asType())
         val allMembers = processingEnvironment.elementUtils.getAllMembers(element)
         val methods = allMembers.filter {
-            it.hasAnyOf(ABSTRACT)
+            it.hasAnyOf(ABSTRACT) && it.kind == ElementKind.METHOD
         }.map {
             queryParser.parse(declaredType, MoreElements.asExecutable(it))
         }
