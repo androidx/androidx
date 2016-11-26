@@ -24,7 +24,7 @@ ext.repoNames = ["$prebuiltsRoot/maven_repo",
                  "$prebuiltsRoot/../out/host/gradle/frameworks/support/build/support_repo/"]
 
 ext.kotlin_version = "1.0.5"
-ext.android_gradle_plugin_version = "2.2.0"
+ext.android_gradle_plugin_version = "2.2.1"
 ext.auto_common_version = "0.6"
 ext.javapoet_version = "1.7.0"
 ext.compile_testing_version = "0.9"

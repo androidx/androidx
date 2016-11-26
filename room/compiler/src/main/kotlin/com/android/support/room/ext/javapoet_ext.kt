@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-include 'common'
-include 'runtime'
-include 'compiler'
+
+package com.android.support.room.ext
+
+val L = "\$L"
+val T = "\$T"
+val N = "\$N"

@@ -34,11 +34,13 @@ class InProcessorTest {
         val didRun = AtomicBoolean(false)
         Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
                 .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
-                        "package foo.bar;" +
-                                "abstract public class MyClass {" +
-                                "  @com.android.support.room.Query(\"foo\")" +
-                                "  abstract public java.util.List<Object> getUsers();" +
-                                "}"))
+                        """
+                        package foo.bar;
+                        abstract public class MyClass {
+                        @com.android.support.room.Query("foo")
+                        abstract public void setFoo(String foo);
+                        }
+                        """))
                 .processedWith(TestProcessor.builder()
                         .nextRunHandler { invocation ->
                             didRun.set(true)

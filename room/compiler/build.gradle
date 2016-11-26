@@ -32,6 +32,10 @@ sourceSets {
 }
 
 dependencies {
+    // take from ButterKnife
+    def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)
+    def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
+
     compile project(":common")
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "com.google.auto:auto-common:$auto_common_version"
@@ -39,10 +43,10 @@ dependencies {
     compile 'org.antlr:antlr4:4.5.3'
 
     testCompile "com.google.testing.compile:compile-testing:$compile_testing_version"
-    testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
     testCompile "junit:junit:$junit_version"
     testCompile "com.intellij:annotations:$intellij_annotation"
     testCompile "org.mockito:mockito-core:$mockito_version"
+    testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$target_sdk_version/", include : "android.jar")
 }
 
 uploadArchives {

@@ -18,7 +18,6 @@ package com.android.support.room.preconditions
 
 import com.android.support.room.errors.ElementBoundException
 import com.android.support.room.ext.hasAnnotation
-import com.android.support.room.processor.ProcessorErrors
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName

@@ -18,7 +18,6 @@ package com.android.support.room.testing
 
 import com.android.support.room.errors.ElementBoundException
 import javax.annotation.processing.AbstractProcessor
-import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.annotation.processing.SupportedSourceVersion
 import javax.lang.model.SourceVersion

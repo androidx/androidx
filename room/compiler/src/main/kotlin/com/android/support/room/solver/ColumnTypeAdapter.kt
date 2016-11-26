@@ -13,6 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-include 'common'
-include 'runtime'
-include 'compiler'
+
+package com.android.support.room.solver
+
+import com.squareup.javapoet.TypeName
+import javax.lang.model.type.TypeMirror
+
+/**
+ * A code generator that can read a field from Cursor and write a field to a Statement
+ */
+abstract class ColumnTypeAdapter(val out: TypeMirror) {
+    val outTypeName by lazy { TypeName.get(out) }
+    abstract fun readFromCursor(outVarName : String, cursorVarName: String, index: Int,
+                                scope: CodeGenScope)
+
+    abstract fun bindToStmt(stmtName: String, index: Int, valueVarName: String,
+                            scope: CodeGenScope)
+}
