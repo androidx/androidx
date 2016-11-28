@@ -86,6 +86,13 @@ public class ExploreByTouchHelperActivity extends Activity {
         CustomView.CustomItem itemC =
                 customView.addItem(getString(R.string.sample_item_c), 0, 0.75f, 1, 1);
         customView.setParentItem(itemC, itemB);
+
+        // Add an item at the left quarter of Item C.
+        CustomView.CustomItem itemD =
+                customView.addItem(getString(R.string.sample_item_d), 0, 0f, 0.25f, 1);
+        customView.setParentItem(itemD, itemC);
+
+        customView.layoutItems();
     }
 
     /**
@@ -169,12 +176,28 @@ public class ExploreByTouchHelperActivity extends Activity {
         public void setParentItem(CustomItem item, CustomItem parent) {
             item.mParent = parent;
             parent.mChildren.add(item.mId);
-            RectF bounds = item.mBounds;
-            item.mBounds = new RectF(parent.mBounds.left + bounds.left * parent.mBounds.width(),
-                    parent.mBounds.top + bounds.top * parent.mBounds.height(),
-                    parent.mBounds.left + bounds.right * parent.mBounds.width(),
-                    parent.mBounds.top + bounds.bottom * parent.mBounds.height());
+        }
 
+        /**
+         * Walk the view hierarchy of each item and calculate mBoundsInRoot.
+         */
+        public void layoutItems() {
+            for (CustomItem item : mItems) {
+                layoutItem(item);
+            }
+        }
+
+        void layoutItem(CustomItem item) {
+            item.mBoundsInRoot = new RectF(item.mBounds);
+            CustomItem parent = item.mParent;
+            while (parent != null) {
+                RectF bounds = item.mBoundsInRoot;
+                item.mBoundsInRoot.set(parent.mBounds.left + bounds.left * parent.mBounds.width(),
+                        parent.mBounds.top + bounds.top * parent.mBounds.height(),
+                        parent.mBounds.left + bounds.right * parent.mBounds.width(),
+                        parent.mBounds.top + bounds.bottom * parent.mBounds.height());
+                parent = parent.mParent;
+            }
         }
 
         @Override
@@ -193,7 +216,7 @@ public class ExploreByTouchHelperActivity extends Activity {
                     paint.setColor(item.mChecked ? Color.MAGENTA : Color.GREEN);
                 }
                 paint.setStyle(Style.FILL);
-                scaleRectF(item.mBounds, bounds, width, height);
+                scaleRectF(item.mBoundsInRoot, bounds, width, height);
                 canvas.drawRect(bounds, paint);
                 paint.setColor(Color.WHITE);
                 paint.setTextAlign(Align.CENTER);
@@ -232,7 +255,7 @@ public class ExploreByTouchHelperActivity extends Activity {
             // Search in reverse order, so that topmost items are selected first.
             for (int i = n - 1; i >= 0; i--) {
                 final CustomItem item = mItems.get(i);
-                if (item.mBounds.contains(scaledX, scaledY)) {
+                if (item.mBoundsInRoot.contains(scaledX, scaledY)) {
                     return i;
                 }
             }
@@ -321,8 +344,12 @@ public class ExploreByTouchHelperActivity extends Activity {
                 // hit detection performed in getVirtualViewAt() and
                 // onTouchEvent().
                 final Rect bounds = mTempRect;
-                final int height = getHeight();
-                final int width = getWidth();
+                int height = getHeight();
+                int width = getWidth();
+                if (item.mParent != null) {
+                    width = (int) (width * item.mParent.mBoundsInRoot.width());
+                    height = (int) (height * item.mParent.mBoundsInRoot.height());
+                }
                 scaleRectF(item.mBounds, bounds, width, height);
                 node.setBoundsInParent(bounds);
 
@@ -365,6 +392,7 @@ public class ExploreByTouchHelperActivity extends Activity {
             private List<Integer> mChildren = new ArrayList<>();
             private String mDescription;
             private RectF mBounds;
+            private RectF mBoundsInRoot;
             private boolean mChecked;
         }
     }
