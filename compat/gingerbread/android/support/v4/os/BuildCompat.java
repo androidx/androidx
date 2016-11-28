@@ -26,6 +26,12 @@ import android.os.Build.VERSION;
 public class BuildCompat {
     private BuildCompat() {
     }
+    /* Boilerplate for isAtLeast${PLATFORM}:
+     * public static boolean isAtLeast*() {
+     *     return !"REL".equals(VERSION.CODENAME)
+     *             && ("${PLATFORM}".equals(VERSION.CODENAME) || VERSION.CODENAME.startsWith("${PLATFORM}MR"));
+     * }
+     */
 
     /**
      * Check if the device is running on the Android N release or newer.
