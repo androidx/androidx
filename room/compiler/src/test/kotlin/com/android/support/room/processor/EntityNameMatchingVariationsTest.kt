@@ -65,7 +65,8 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
                     element = field.element,
                     name = fieldName,
                     type = TypeName.INT,
-                    primaryKey = true)))
+                    primaryKey = true,
+                    columnName = fieldName)))
             assertThat(field.setter, `is`(FieldSetter(setterName, CallType.METHOD)))
             assertThat(field.getter, `is`(FieldGetter(getterName, CallType.METHOD)))
         }.compilesWithoutError()

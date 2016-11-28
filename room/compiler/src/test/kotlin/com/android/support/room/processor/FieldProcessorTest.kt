@@ -94,6 +94,28 @@ class FieldProcessorTest {
     }
 
     @Test
+    fun columnName() {
+        singleEntity("""
+            @ColumnName("foo")
+            @PrimaryKey
+            int x;
+            """) { field, invocation ->
+            assertThat(field, `is`(
+                    Field(name = "x", type = TypeName.INT, primaryKey = true,
+                            element = field.element, columnName = "foo")))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun emptyColumnName() {
+        singleEntity("""
+            @ColumnName("")
+            int x;
+            """) { field, invocation ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY)
+    }
+
+    @Test
     fun primitiveArray() {
         ALL_PRIMITIVES.forEach { primitive ->
             singleEntity("$primitive[] arr;") { field, invocation ->

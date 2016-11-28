@@ -22,6 +22,7 @@ import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
 import com.android.support.room.preconditions.Checks
 import com.android.support.room.vo.*
+import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
@@ -69,7 +70,22 @@ class EntityProcessor(val roundEnv: RoundEnvironment,
 
         assignGetters(fields, getterCandidates)
         assignSetters(fields, setterCandidates)
-        val entity = Entity(TypeName.get(declaredType), fields)
+        val annotation = MoreElements.getAnnotationMirror(element,
+                com.android.support.room.Entity::class.java)
+        val tableName : String
+        if (annotation.isPresent) {
+            val annotationValue = AnnotationMirrors
+                    .getAnnotationValue(annotation.get(), "tableName").value.toString()
+            if (annotationValue == "") {
+                tableName = element.simpleName.toString()
+            } else {
+                tableName = annotationValue
+            }
+        } else {
+            tableName = element.simpleName.toString()
+        }
+        Checks.notBlank(tableName, element, ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
+        val entity = Entity(tableName, TypeName.get(declaredType), fields)
         Checks.check(entity.primaryKeys.isNotEmpty(), element, ProcessorErrors.MISSING_PRIMARY_KEY)
         return entity
     }

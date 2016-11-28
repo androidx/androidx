@@ -16,9 +16,11 @@
 
 package com.android.support.room.processor
 
+import com.android.support.room.ColumnName
 import com.android.support.room.PrimaryKey
 import com.android.support.room.preconditions.Checks
 import com.android.support.room.vo.Field
+import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.squareup.javapoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
@@ -31,11 +33,23 @@ class FieldProcessor(val roundEnv: RoundEnvironment,
     fun parse(containing : DeclaredType, element : Element) : Field {
         val member = processingEnvironment.typeUtils.asMemberOf(containing, element)
         val type = TypeName.get(member)
-        Checks.assertNotUnbound(type, element,
+        val columnNameAnnotation = MoreElements.getAnnotationMirror(element,
+                ColumnName::class.java)
+        val name = element.simpleName.toString()
+        val columnName : String
+        if (columnNameAnnotation.isPresent) {
+            columnName = AnnotationMirrors
+                    .getAnnotationValue(columnNameAnnotation.get(), "value").value.toString()
+        } else {
+            columnName = name
+        }
+        Checks.notBlank(columnName, element, ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY)
+        Checks.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS)
-        return Field(name = element.simpleName.toString(),
+        return Field(name = name,
                 type = type,
                 primaryKey = MoreElements.isAnnotationPresent(element, PrimaryKey::class.java),
-                element = element)
+                element = element,
+                columnName = columnName)
     }
 }

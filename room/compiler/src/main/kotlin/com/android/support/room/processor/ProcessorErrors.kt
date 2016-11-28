@@ -42,6 +42,11 @@ object ProcessorErrors {
     val ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY = "Entity class must be annotated with @Entity"
     val DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES = "@Database annotation must specify list" +
             " of entities"
+    val COLUMN_NAME_CANNOT_BE_EMPTY = "Column name cannot be blank. If you don't want to set it" +
+            ", just remove the @ColumnName annotation."
+
+    val ENTITY_TABLE_NAME_CANNOT_BE_EMPTY = "Entity table name cannot be blank. If you don't want" +
+            " to set it, just remove the tableName property."
 
     fun tooManyMatchingGetters(field : Field, methodNames : List<String>) : String {
         return TOO_MANY_MATCHING_GETTERS.format(field, methodNames.joinToString(", "))

@@ -21,8 +21,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.SOURCE)
-public @interface Entity {
-    String tableName() default "";
+public @interface ColumnName {
+    /**
+     * Name of the column in the database. Defaults to the field name if not set.
+     *
+     * @return Name of the column in the database.
+     */
+    String value();
 }

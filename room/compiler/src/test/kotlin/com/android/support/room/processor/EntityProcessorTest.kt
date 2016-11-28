@@ -44,7 +44,8 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     element = field.element,
                     name = "id",
                     type = TypeName.INT,
-                    primaryKey = true)))
+                    primaryKey = true,
+                    columnName = "id")))
             assertThat(field.setter, `is`(FieldSetter("setId", CallType.METHOD)))
             assertThat(field.getter, `is`(FieldGetter("getId", CallType.METHOD)))
             assertThat(entity.primaryKeys, `is`(listOf(field)))
@@ -135,6 +136,25 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """) { entity , invocation ->
             assertThat(entity.primaryKeys.size, `is`(2))
         }.compilesWithoutError()
+    }
+
+    @Test
+    fun customName() {
+        singleEntity("""
+                @PrimaryKey
+                int x;
+                """, hashMapOf(Pair("tableName", "\"foo_table\""))) { entity , invocation ->
+            assertThat(entity.tableName, `is`("foo_table"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun emptyCustomName() {
+        singleEntity("""
+                @PrimaryKey
+                int x;
+                """, hashMapOf(Pair("tableName", "\" \""))) { entity , invocation ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
     }
 
     @Test

@@ -41,12 +41,16 @@ object Checks {
         }
     }
 
-    fun assertNotUnbound(typeName: TypeName, element: Element, errorMsg : String,
-                         vararg args : Any) {
+    fun notUnbound(typeName: TypeName, element: Element, errorMsg : String,
+                   vararg args : Any) {
         // TODO support bounds cases like <T extends Foo> T bar()
         Checks.check(typeName !is TypeVariableName, element, errorMsg, args)
         if (typeName is ParameterizedTypeName) {
-            typeName.typeArguments.forEach { assertNotUnbound(it, element, errorMsg, args) }
+            typeName.typeArguments.forEach { notUnbound(it, element, errorMsg, args) }
         }
+    }
+
+    fun notBlank(value: String?, element: Element, msg: String, vararg args : Any) {
+        Checks.check(value != null && value.isNotBlank(), element, msg, args)
     }
 }

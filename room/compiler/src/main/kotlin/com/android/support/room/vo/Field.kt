@@ -19,8 +19,9 @@ package com.android.support.room.vo
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 
-data class Field(val element : Element, val name : String, val type: TypeName,
-                 val primaryKey : Boolean) {
+data class Field(val element : Element, val name : String,
+                 val type: TypeName,
+                 val primaryKey : Boolean, val columnName : String = name) {
     lateinit var getter : FieldGetter
     lateinit var setter : FieldSetter
     /**

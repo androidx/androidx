@@ -30,17 +30,26 @@ abstract class BaseEntityParserTest {
         const val ENTITY_PREFIX = """
             package foo.bar;
             import com.android.support.room.*;
-            @Entity
+            @Entity%s
             abstract class MyEntity {
             """
         const val ENTITY_SUFFIX = "}"
     }
 
-    fun singleEntity(vararg input: String, handler: (Entity, TestInvocation) -> Unit):
+    fun singleEntity(input: String, attributes: Map<String, String> = mapOf(),
+                     handler: (Entity, TestInvocation) -> Unit):
             CompileTester {
+        val attributesReplacement : String
+        if (attributes.isEmpty()) {
+            attributesReplacement = ""
+        } else {
+            attributesReplacement = "(" +
+                    attributes.entries.map { "${it.key} = ${it.value}" }.joinToString(",") +
+                    ")".trimIndent()
+        }
         return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
                 .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
-                        ENTITY_PREFIX + input.joinToString("\n") + ENTITY_SUFFIX
+                        ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX
                 ))
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(com.android.support.room.Entity::class)

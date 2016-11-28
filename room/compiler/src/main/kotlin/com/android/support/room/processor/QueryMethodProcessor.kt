@@ -45,7 +45,7 @@ class QueryMethodProcessor(val roundEnv: RoundEnvironment,
 
         val returnTypeName = TypeName.get(executableType.returnType)
 
-        Checks.assertNotUnbound(returnTypeName, executableElement,
+        Checks.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
         return QueryMethod(
                 element = executableElement,

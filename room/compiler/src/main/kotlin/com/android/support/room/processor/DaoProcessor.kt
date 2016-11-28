@@ -45,7 +45,7 @@ class DaoProcessor(val roundEnv: RoundEnvironment,
             queryParser.parse(declaredType, MoreElements.asExecutable(it))
         }
         val type = TypeName.get(declaredType)
-        Checks.assertNotUnbound(type, element,
+        Checks.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES)
         return Dao(element = element, type = type, queryMethods = methods)
     }
