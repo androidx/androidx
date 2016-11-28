@@ -21,6 +21,7 @@ import android.view.SurfaceHolder;
 /**
  * {@link PlaybackGlue.PlaybackGlueHost} implementation
  * the interaction between this class and {@link VideoSupportFragment}.
+ * @hide
  */
 public class VideoSupportFragmentGlueHost extends PlaybackSupportFragmentGlueHost
         implements SurfaceHolderGlueHost {

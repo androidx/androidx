@@ -35,6 +35,7 @@ import java.util.List;
  * to {@link ParallaxTarget#update(float)}.
  * <p>
  * ParallaxEffect has two concrete subclasses, {@link IntEffect} and {@link FloatEffect}.
+ * @hide
  */
 public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
         PropertyKeyValueT extends ParallaxSource.PropertyKeyValue> {

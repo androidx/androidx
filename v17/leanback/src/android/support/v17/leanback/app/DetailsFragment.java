@@ -329,6 +329,7 @@ public class DetailsFragment extends BaseFragment {
      * and provide their own instance of a {@link Fragment}. When you provide your own instance of
      * video fragment, you MUST also provide a custom
      * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost}.
+     * @hide
      */
     public Fragment onCreateVideoFragment() {
         return new VideoFragment();
@@ -338,6 +339,7 @@ public class DetailsFragment extends BaseFragment {
      * Creates an instance of
      * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost}. The implementation
      * of this host depends on the instance of video fragment {@link #onCreateVideoFragment()}.
+     * @hide
      */
     public PlaybackGlue.PlaybackGlueHost onCreateVideoFragmentHost(Fragment fragment) {
         return new VideoFragmentGlueHost((VideoFragment) fragment);
@@ -348,6 +350,7 @@ public class DetailsFragment extends BaseFragment {
      * fragment is being restored, it will return the video fragment in there.
      *
      * @return Fragment the added or restored fragment responsible for rendering video.
+     * @hide
      */
     public final Fragment findOrCreateVideoFragment() {
         Fragment fragment = getFragmentManager().findFragmentById(R.id.video_surface_container);
@@ -365,6 +368,7 @@ public class DetailsFragment extends BaseFragment {
      * This method initializes a video fragment, create an instance of
      * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost} using that fragment
      * and return it.
+     * @hide
      */
     public final PlaybackGlue.PlaybackGlueHost createPlaybackGlueHost() {
         Fragment fragment = findOrCreateVideoFragment();
@@ -494,6 +498,7 @@ public class DetailsFragment extends BaseFragment {
      *
      * @return The new created DetailsParallaxManager.
      * @see #getParallaxManager()
+     * @hide
      */
     public DetailsParallaxManager onCreateParallaxManager() {
         return new DetailsParallaxManager();
@@ -505,6 +510,7 @@ public class DetailsFragment extends BaseFragment {
      *
      * @return The DetailsParallaxManager instance attached to the DetailsFragment.
      * @see #onCreateParallaxManager()
+     * @hide
      */
     public DetailsParallaxManager getParallaxManager() {
         if (mDetailsParallaxManager == null) {
@@ -521,6 +527,7 @@ public class DetailsFragment extends BaseFragment {
      * view to hide the VideoFragment before it is ready to play.
      *
      * @see #findOrCreateVideoFragment()
+     * @hide
      */
     public View getBackgroundView() {
         return mRootView == null ? null : mRootView.findViewById(R.id.details_background_view);

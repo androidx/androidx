@@ -1536,34 +1536,13 @@ package android.support.v17.leanback.app {
     method public abstract android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentRowsAdapter getMainFragmentRowsAdapter();
   }
 
-  public final class DetailsBackgroundParallaxHelper {
-    method public android.graphics.drawable.Drawable getCoverImageDrawable();
-    method public android.graphics.drawable.Drawable getDrawable();
-    method public void setColor(int);
-    method public void setCoverImageBitmap(android.graphics.Bitmap);
-  }
-
-  public static class DetailsBackgroundParallaxHelper.ParallaxBuilder {
-    ctor public DetailsBackgroundParallaxHelper.ParallaxBuilder(android.content.Context, android.support.v17.leanback.app.DetailsParallaxManager);
-    method public android.support.v17.leanback.app.DetailsBackgroundParallaxHelper build();
-    method public android.support.v17.leanback.app.DetailsBackgroundParallaxHelper.ParallaxBuilder setColor(int);
-    method public android.support.v17.leanback.app.DetailsBackgroundParallaxHelper.ParallaxBuilder setCoverImageMinVerticalOffset(int);
-  }
-
   public class DetailsFragment extends android.support.v17.leanback.app.BrandedFragment {
     ctor public DetailsFragment();
     method protected java.lang.Object createEntranceTransition();
-    method public final android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost createPlaybackGlueHost();
-    method public final android.app.Fragment findOrCreateVideoFragment();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
-    method public android.view.View getBackgroundView();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
-    method public android.support.v17.leanback.app.DetailsParallaxManager getParallaxManager();
     method public android.support.v17.leanback.app.RowsFragment getRowsFragment();
     method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
-    method public android.support.v17.leanback.app.DetailsParallaxManager onCreateParallaxManager();
-    method public android.app.Fragment onCreateVideoFragment();
-    method public android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost onCreateVideoFragmentHost(android.app.Fragment);
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
     method protected void onEntranceTransitionStart();
@@ -1579,34 +1558,13 @@ package android.support.v17.leanback.app {
     method protected void setupPresenter(android.support.v17.leanback.widget.Presenter);
   }
 
-  public class DetailsFragmentVideoHelper {
-    ctor public DetailsFragmentVideoHelper(android.support.v17.leanback.app.PlaybackGlue, android.support.v17.leanback.app.DetailsParallaxManager);
-    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
-  }
-
-  public class DetailsParallaxManager {
-    ctor public DetailsParallaxManager();
-    method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty getFrameBottom();
-    method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty getFrameTop();
-    method public android.support.v17.leanback.widget.Parallax getParallax();
-    method public android.support.v7.widget.RecyclerView getRecyclerView();
-    method public void setRecyclerView(android.support.v7.widget.RecyclerView);
-  }
-
   public class DetailsSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
     ctor public DetailsSupportFragment();
     method protected java.lang.Object createEntranceTransition();
-    method public final android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost createPlaybackGlueHost();
-    method public final android.support.v4.app.Fragment findOrCreateVideoSupportFragment();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
-    method public android.view.View getBackgroundView();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
-    method public android.support.v17.leanback.app.DetailsParallaxManager getParallaxManager();
     method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
     method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
-    method public android.support.v17.leanback.app.DetailsParallaxManager onCreateParallaxManager();
-    method public android.support.v4.app.Fragment onCreateVideoSupportFragment();
-    method public android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost onCreateVideoSupportFragmentHost(android.support.v4.app.Fragment);
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
     method protected void onEntranceTransitionStart();
@@ -2261,28 +2219,6 @@ package android.support.v17.leanback.app {
     method public void setSelectedPosition(int);
   }
 
-  public class VideoFragment extends android.support.v17.leanback.app.PlaybackFragment {
-    ctor public VideoFragment();
-    method public android.view.SurfaceView getSurfaceView();
-    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
-  }
-
-  public class VideoFragmentGlueHost extends android.support.v17.leanback.app.PlaybackFragmentGlueHost implements android.support.v17.leanback.app.SurfaceHolderGlueHost {
-    ctor public VideoFragmentGlueHost(android.support.v17.leanback.app.VideoFragment);
-    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
-  }
-
-  public class VideoSupportFragment extends android.support.v17.leanback.app.PlaybackSupportFragment {
-    ctor public VideoSupportFragment();
-    method public android.view.SurfaceView getSurfaceView();
-    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
-  }
-
-  public class VideoSupportFragmentGlueHost extends android.support.v17.leanback.app.PlaybackSupportFragmentGlueHost implements android.support.v17.leanback.app.SurfaceHolderGlueHost {
-    ctor public VideoSupportFragmentGlueHost(android.support.v17.leanback.app.VideoSupportFragment);
-    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
-  }
-
 }
 
 package android.support.v17.leanback.database {
@@ -2342,52 +2278,6 @@ package android.support.v17.leanback.graphics {
     method public android.graphics.Paint getPaint();
     method public boolean needsDraw();
     method public void setActiveLevel(float);
-  }
-
-  public class CompositeDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
-    ctor public CompositeDrawable();
-    method public void addChildDrawable(android.graphics.drawable.Drawable);
-    method public void draw(android.graphics.Canvas);
-    method public android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable getChildAt(int);
-    method public int getChildCount();
-    method public android.graphics.drawable.Drawable getDrawable(int);
-    method public int getOpacity();
-    method public void invalidateDrawable(android.graphics.drawable.Drawable);
-    method public void removeChild(int);
-    method public void removeDrawable(android.graphics.drawable.Drawable);
-    method public void scheduleDrawable(android.graphics.drawable.Drawable, java.lang.Runnable, long);
-    method public void setAlpha(int);
-    method public void setColorFilter(android.graphics.ColorFilter);
-    method public void unscheduleDrawable(android.graphics.drawable.Drawable, java.lang.Runnable);
-  }
-
-  public static final class CompositeDrawable.ChildDrawable {
-    ctor public CompositeDrawable.ChildDrawable(android.graphics.drawable.Drawable, android.support.v17.leanback.graphics.CompositeDrawable);
-    method public android.support.v17.leanback.graphics.BoundsRule getBoundsRule();
-    method public android.graphics.drawable.Drawable getDrawable();
-    method public void recomputeBounds();
-    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> BOTTOM_ABSOLUTE;
-    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> BOTTOM_FRACTION;
-    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> LEFT_ABSOLUTE;
-    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> LEFT_FRACTION;
-    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> RIGHT_ABSOLUTE;
-    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> RIGHT_FRACTION;
-    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> TOP_ABSOLUTE;
-    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> TOP_FRACTION;
-  }
-
-  public class FitWidthBitmapDrawable extends android.graphics.drawable.Drawable {
-    ctor public FitWidthBitmapDrawable();
-    method public void draw(android.graphics.Canvas);
-    method public android.graphics.Bitmap getBitmap();
-    method public int getOpacity();
-    method public android.graphics.Rect getSource();
-    method public int getVerticalOffset();
-    method public void setAlpha(int);
-    method public void setBitmap(android.graphics.Bitmap);
-    method public void setColorFilter(android.graphics.ColorFilter);
-    method public void setSource(android.graphics.Rect);
-    method public void setVerticalOffset(int);
   }
 
 }
@@ -3287,147 +3177,6 @@ package android.support.v17.leanback.widget {
   public class PageRow extends android.support.v17.leanback.widget.Row {
     ctor public PageRow(android.support.v17.leanback.widget.HeaderItem);
     method public final boolean isRenderedAsRowView();
-  }
-
-  public final class Parallax {
-    ctor public Parallax();
-    method public void addEffect(android.support.v17.leanback.widget.ParallaxEffect);
-    method public android.support.v17.leanback.widget.ParallaxEffect addEffect(android.support.v17.leanback.widget.ParallaxSource.IntPropertyKeyValue...);
-    method public android.support.v17.leanback.widget.ParallaxEffect addEffect(android.support.v17.leanback.widget.ParallaxSource.FloatPropertyKeyValue...);
-    method public java.util.List<android.support.v17.leanback.widget.ParallaxEffect> getEffects();
-    method public android.support.v17.leanback.widget.ParallaxSource getSource();
-    method public void removeAllEffects();
-    method public void removeEffect(android.support.v17.leanback.widget.ParallaxEffect);
-    method public void setSource(android.support.v17.leanback.widget.ParallaxSource);
-  }
-
-  public abstract class ParallaxEffect<ParallaxEffectT extends android.support.v17.leanback.widget.ParallaxEffect, PropertyKeyValueT extends android.support.v17.leanback.widget.ParallaxSource.PropertyKeyValue> {
-    ctor public ParallaxEffect();
-    method public final void addTarget(android.support.v17.leanback.widget.ParallaxTarget);
-    method protected abstract float calculateFraction(android.support.v17.leanback.widget.ParallaxSource);
-    method public final java.util.List<PropertyKeyValueT> getPropertyRanges();
-    method public final java.util.List<android.support.v17.leanback.widget.ParallaxTarget> getTargets();
-    method public final void performMapping(android.support.v17.leanback.widget.ParallaxSource);
-    method public final void removeTarget(android.support.v17.leanback.widget.ParallaxTarget);
-    method public final void setPropertyRanges(PropertyKeyValueT...);
-    method public final android.support.v17.leanback.widget.ParallaxEffect target(android.support.v17.leanback.widget.ParallaxTarget);
-    method public final android.support.v17.leanback.widget.ParallaxEffect target(java.lang.Object, android.animation.PropertyValuesHolder);
-  }
-
-  public static final class ParallaxEffect.FloatEffect extends android.support.v17.leanback.widget.ParallaxEffect {
-    ctor public ParallaxEffect.FloatEffect();
-    method protected float calculateFraction(android.support.v17.leanback.widget.ParallaxSource);
-  }
-
-  public static final class ParallaxEffect.IntEffect extends android.support.v17.leanback.widget.ParallaxEffect {
-    ctor public ParallaxEffect.IntEffect();
-    method protected float calculateFraction(android.support.v17.leanback.widget.ParallaxSource);
-  }
-
-  public class ParallaxRecyclerViewSource extends android.support.v17.leanback.widget.ParallaxSource.IntSource {
-    ctor public ParallaxRecyclerViewSource();
-    method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty createProperty(java.lang.String, int);
-    method public int getMaxParentVisibleSize();
-    method public android.support.v7.widget.RecyclerView getRecyclerView();
-    method public void setListener(android.support.v17.leanback.widget.ParallaxSource.Listener);
-    method public void setRecyclerView(android.support.v7.widget.RecyclerView);
-  }
-
-  public static final class ParallaxRecyclerViewSource.ChildPositionProperty extends android.support.v17.leanback.widget.ParallaxSource.IntProperty {
-    method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty adapterPosition(int);
-    method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty fraction(float);
-    method public int getAdapterPosition();
-    method public float getFraction();
-    method public int getOffset();
-    method public int getViewId();
-    method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty offset(int);
-    method public android.support.v17.leanback.widget.ParallaxRecyclerViewSource.ChildPositionProperty viewId(int);
-  }
-
-  public abstract class ParallaxSource<PropertyT extends android.util.Property> {
-    ctor public ParallaxSource();
-    method public abstract PropertyT addProperty(java.lang.String);
-    method public abstract PropertyT createProperty(java.lang.String, int);
-    method public final java.util.List<PropertyT> getProperties();
-    method public abstract void setListener(android.support.v17.leanback.widget.ParallaxSource.Listener);
-    method public void updateValues();
-    method public abstract void verifyProperties() throws java.lang.IllegalStateException;
-  }
-
-  public static class ParallaxSource.FloatProperty extends android.util.Property {
-    ctor public ParallaxSource.FloatProperty(java.lang.String, int);
-    method public final android.support.v17.leanback.widget.ParallaxSource.FloatPropertyKeyValue at(float, float);
-    method public final android.support.v17.leanback.widget.ParallaxSource.FloatPropertyKeyValue atAbsolute(float);
-    method public final android.support.v17.leanback.widget.ParallaxSource.FloatPropertyKeyValue atFraction(float);
-    method public final java.lang.Float get(android.support.v17.leanback.widget.ParallaxSource.FloatSource);
-    method public final int getIndex();
-    method public final void set(android.support.v17.leanback.widget.ParallaxSource.FloatSource, java.lang.Float);
-    field public static final float UNKNOWN_AFTER = 3.4028235E38f;
-    field public static final float UNKNOWN_BEFORE = -3.4028235E38f;
-  }
-
-  public static class ParallaxSource.FloatPropertyKeyValue extends android.support.v17.leanback.widget.ParallaxSource.PropertyKeyValue {
-    ctor public ParallaxSource.FloatPropertyKeyValue(android.support.v17.leanback.widget.ParallaxSource.FloatProperty, float);
-    ctor public ParallaxSource.FloatPropertyKeyValue(android.support.v17.leanback.widget.ParallaxSource.FloatProperty, float, float);
-    method public final float getKeyValue(android.support.v17.leanback.widget.ParallaxSource.FloatSource);
-  }
-
-  public static abstract class ParallaxSource.FloatSource<FloatPropertyT extends android.support.v17.leanback.widget.ParallaxSource.FloatProperty> extends android.support.v17.leanback.widget.ParallaxSource {
-    ctor public ParallaxSource.FloatSource();
-    method public final FloatPropertyT addProperty(java.lang.String);
-    method public abstract float getMaxParentVisibleSize();
-    method public final float getPropertyValue(int);
-    method public final void setPropertyValue(int, float);
-    method public final void verifyProperties() throws java.lang.IllegalStateException;
-  }
-
-  public static class ParallaxSource.IntProperty extends android.util.Property {
-    ctor public ParallaxSource.IntProperty(java.lang.String, int);
-    method public final android.support.v17.leanback.widget.ParallaxSource.IntPropertyKeyValue at(int, float);
-    method public final android.support.v17.leanback.widget.ParallaxSource.IntPropertyKeyValue atAbsolute(int);
-    method public final android.support.v17.leanback.widget.ParallaxSource.IntPropertyKeyValue atFraction(float);
-    method public final java.lang.Integer get(android.support.v17.leanback.widget.ParallaxSource.IntSource);
-    method public final int getIndex();
-    method public final void set(android.support.v17.leanback.widget.ParallaxSource.IntSource, java.lang.Integer);
-    field public static final int UNKNOWN_AFTER = 2147483647; // 0x7fffffff
-    field public static final int UNKNOWN_BEFORE = -2147483648; // 0x80000000
-  }
-
-  public static class ParallaxSource.IntPropertyKeyValue extends android.support.v17.leanback.widget.ParallaxSource.PropertyKeyValue {
-    ctor public ParallaxSource.IntPropertyKeyValue(android.support.v17.leanback.widget.ParallaxSource.IntProperty, int);
-    ctor public ParallaxSource.IntPropertyKeyValue(android.support.v17.leanback.widget.ParallaxSource.IntProperty, int, float);
-    method public final int getKeyValue(android.support.v17.leanback.widget.ParallaxSource.IntSource);
-  }
-
-  public static abstract class ParallaxSource.IntSource<IntPropertyT extends android.support.v17.leanback.widget.ParallaxSource.IntProperty> extends android.support.v17.leanback.widget.ParallaxSource {
-    ctor public ParallaxSource.IntSource();
-    method public final IntPropertyT addProperty(java.lang.String);
-    method public abstract int getMaxParentVisibleSize();
-    method public final int getPropertyValue(int);
-    method public final void setPropertyValue(int, int);
-    method public final void verifyProperties() throws java.lang.IllegalStateException;
-  }
-
-  public static abstract class ParallaxSource.Listener {
-    ctor public ParallaxSource.Listener();
-    method public void onPropertiesChanged(android.support.v17.leanback.widget.ParallaxSource);
-  }
-
-  public static class ParallaxSource.PropertyKeyValue<PropertyT extends android.util.Property> {
-    ctor public ParallaxSource.PropertyKeyValue(PropertyT);
-    method public PropertyT getProperty();
-  }
-
-  public abstract class ParallaxTarget {
-    ctor public ParallaxTarget();
-    method public abstract float getFraction();
-    method public abstract void update(float);
-  }
-
-  public static final class ParallaxTarget.PropertyValuesHolderTarget extends android.support.v17.leanback.widget.ParallaxTarget {
-    ctor public ParallaxTarget.PropertyValuesHolderTarget(java.lang.Object, android.animation.PropertyValuesHolder);
-    method public float getFraction();
-    method public void update(float);
   }
 
   public class PlaybackControlsRow extends android.support.v17.leanback.widget.Row {
