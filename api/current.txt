@@ -787,6 +787,7 @@ package android.support.design.widget {
     method public void setCounterMaxLength(int);
     method public void setError(java.lang.CharSequence);
     method public void setErrorEnabled(boolean);
+    method public void setErrorTextAppearance(int);
     method public void setHint(java.lang.CharSequence);
     method public void setHintAnimationEnabled(boolean);
     method public void setHintEnabled(boolean);
