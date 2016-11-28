@@ -2425,7 +2425,7 @@ public class NotificationCompat {
     public static class Action extends NotificationCompatBase.Action {
         final Bundle mExtras;
         private final RemoteInput[] mRemoteInputs;
-        private boolean mAllowGeneratedReplies = false;
+        private boolean mAllowGeneratedReplies;
 
         /**
          * Small icon representing the action.
@@ -2442,7 +2442,7 @@ public class NotificationCompat {
         public PendingIntent actionIntent;
 
         public Action(int icon, CharSequence title, PendingIntent intent) {
-            this(icon, title, intent, new Bundle(), null, false);
+            this(icon, title, intent, new Bundle(), null, true);
         }
 
         Action(int icon, CharSequence title, PendingIntent intent, Bundle extras,
@@ -2503,7 +2503,7 @@ public class NotificationCompat {
             private final int mIcon;
             private final CharSequence mTitle;
             private final PendingIntent mIntent;
-            private boolean mAllowGeneratedReplies;
+            private boolean mAllowGeneratedReplies = true;
             private final Bundle mExtras;
             private ArrayList<RemoteInput> mRemoteInputs;
 
@@ -2514,7 +2514,7 @@ public class NotificationCompat {
              * @param intent the {@link PendingIntent} to fire when users trigger this action
              */
             public Builder(int icon, CharSequence title, PendingIntent intent) {
-                this(icon, title, intent, new Bundle(), null, false);
+                this(icon, title, intent, new Bundle(), null, true);
             }
 
             /**
@@ -2583,7 +2583,7 @@ public class NotificationCompat {
              * @param allowGeneratedReplies {@code true} to allow generated replies, {@code false}
              * otherwise
              * @return this object for method chaining
-             * The default value is {@code false}
+             * The default value is {@code true}
              */
             public Builder setAllowGeneratedReplies(boolean allowGeneratedReplies) {
                 mAllowGeneratedReplies = allowGeneratedReplies;
