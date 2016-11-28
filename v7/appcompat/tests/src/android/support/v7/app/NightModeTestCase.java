@@ -28,7 +28,7 @@ import static org.junit.Assert.assertFalse;
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.Suppress;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.appcompat.test.R;
 import android.test.suitebuilder.annotation.MediumTest;
 
@@ -66,12 +66,11 @@ public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActi
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
     }
 
-    @Suppress // Disabled b/31515380
     @Test
     public void testColorConvertedDrawableChangesWithNightMode() throws Throwable {
         final NightModeActivity activity = mActivityTestRule.getActivity();
-        final int dayColor = activity.getResources().getColor(R.color.color_sky_day);
-        final int nightColor = activity.getResources().getColor(R.color.color_sky_night);
+        final int dayColor = ContextCompat.getColor(activity, R.color.color_sky_day);
+        final int nightColor = ContextCompat.getColor(activity, R.color.color_sky_night);
 
         // Loop through and switching from day to night and vice-versa multiple times. It needs
         // to be looped since the issue is with drawable caching, therefore we need to prime the
