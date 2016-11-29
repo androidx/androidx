@@ -1334,7 +1334,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (DEBUG) Log.v(getTag(), "request Layout from runnable");
             requestLayout();
         }
-     };
+    };
 
     @Override
     public void onMeasure(Recycler recycler, State state, int widthSpec, int heightSpec) {
@@ -1374,18 +1374,18 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             processRowSizeSecondary(true);
 
             switch (modeSecondary) {
-            case MeasureSpec.UNSPECIFIED:
-                measuredSizeSecondary = getSizeSecondary() + paddingSecondary;
-                break;
-            case MeasureSpec.AT_MOST:
-                measuredSizeSecondary = Math.min(getSizeSecondary() + paddingSecondary,
-                        mMaxSizeSecondary);
-                break;
-            case MeasureSpec.EXACTLY:
-                measuredSizeSecondary = mMaxSizeSecondary;
-                break;
-            default:
-                throw new IllegalStateException("wrong spec");
+                case MeasureSpec.UNSPECIFIED:
+                    measuredSizeSecondary = getSizeSecondary() + paddingSecondary;
+                    break;
+                case MeasureSpec.AT_MOST:
+                    measuredSizeSecondary = Math.min(getSizeSecondary() + paddingSecondary,
+                            mMaxSizeSecondary);
+                    break;
+                case MeasureSpec.EXACTLY:
+                    measuredSizeSecondary = mMaxSizeSecondary;
+                    break;
+                default:
+                    throw new IllegalStateException("wrong spec");
             }
 
         } else {
@@ -1395,7 +1395,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                             ? sizeSecondary - paddingSecondary : mRowSizeSecondaryRequested;
                     mNumRows = mNumRowsRequested == 0 ? 1 : mNumRowsRequested;
                     measuredSizeSecondary = mFixedRowSizeSecondary * mNumRows + mSpacingSecondary
-                        * (mNumRows - 1) + paddingSecondary;
+                            * (mNumRows - 1) + paddingSecondary;
                     break;
                 case MeasureSpec.AT_MOST:
                 case MeasureSpec.EXACTLY:
@@ -1405,7 +1405,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     } else if (mNumRowsRequested == 0) {
                         mFixedRowSizeSecondary = mRowSizeSecondaryRequested;
                         mNumRows = (sizeSecondary + mSpacingSecondary)
-                            / (mRowSizeSecondaryRequested + mSpacingSecondary);
+                                / (mRowSizeSecondaryRequested + mSpacingSecondary);
                     } else if (mRowSizeSecondaryRequested == 0) {
                         mNumRows = mNumRowsRequested;
                         mFixedRowSizeSecondary = (sizeSecondary - paddingSecondary
@@ -1646,7 +1646,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         final int verticalGravity = mGravity & Gravity.VERTICAL_GRAVITY_MASK;
         final int horizontalGravity = (mReverseFlowPrimary || mReverseFlowSecondary)
                 ? Gravity.getAbsoluteGravity(mGravity & Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK,
-                        View.LAYOUT_DIRECTION_RTL)
+                View.LAYOUT_DIRECTION_RTL)
                 : mGravity & Gravity.HORIZONTAL_GRAVITY_MASK;
         if (mOrientation == HORIZONTAL && verticalGravity == Gravity.TOP
                 || mOrientation == VERTICAL && horizontalGravity == Gravity.LEFT) {
@@ -2442,7 +2442,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (DEBUG) Log.v(getTag(), "onItemsRemoved positionStart "
                 + positionStart + " itemCount " + itemCount);
         if (mFocusPosition != NO_POSITION  && mGrid != null && mGrid.getFirstVisibleIndex() >= 0
-            && mFocusPositionOffset != Integer.MIN_VALUE) {
+                && mFocusPositionOffset != Integer.MIN_VALUE) {
             int pos = mFocusPosition + mFocusPositionOffset;
             if (positionStart <= pos) {
                 if (positionStart + itemCount > pos) {
@@ -2638,12 +2638,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     boolean getScrollPosition(View view, View childView, int[] deltas) {
         switch (mFocusScrollStrategy) {
-        case BaseGridView.FOCUS_SCROLL_ALIGNED:
-        default:
-            return getAlignedPosition(view, childView, deltas);
-        case BaseGridView.FOCUS_SCROLL_ITEM:
-        case BaseGridView.FOCUS_SCROLL_PAGE:
-            return getNoneAlignedPosition(view, deltas);
+            case BaseGridView.FOCUS_SCROLL_ALIGNED:
+            default:
+                return getAlignedPosition(view, childView, deltas);
+            case BaseGridView.FOCUS_SCROLL_ITEM:
+            case BaseGridView.FOCUS_SCROLL_PAGE:
+                return getNoneAlignedPosition(view, deltas);
         }
     }
 
@@ -3079,14 +3079,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     boolean gridOnRequestFocusInDescendants(RecyclerView recyclerView, int direction,
             Rect previouslyFocusedRect) {
         switch (mFocusScrollStrategy) {
-        case BaseGridView.FOCUS_SCROLL_ALIGNED:
-        default:
-            return gridOnRequestFocusInDescendantsAligned(recyclerView,
-                    direction, previouslyFocusedRect);
-        case BaseGridView.FOCUS_SCROLL_PAGE:
-        case BaseGridView.FOCUS_SCROLL_ITEM:
-            return gridOnRequestFocusInDescendantsUnaligned(recyclerView,
-                    direction, previouslyFocusedRect);
+            case BaseGridView.FOCUS_SCROLL_ALIGNED:
+            default:
+                return gridOnRequestFocusInDescendantsAligned(recyclerView,
+                        direction, previouslyFocusedRect);
+            case BaseGridView.FOCUS_SCROLL_PAGE:
+            case BaseGridView.FOCUS_SCROLL_ITEM:
+                return gridOnRequestFocusInDescendantsUnaligned(recyclerView,
+                        direction, previouslyFocusedRect);
         }
     }
 
@@ -3157,22 +3157,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     movement = NEXT_ROW;
                     break;
             }
-         } else if (mOrientation == VERTICAL) {
-             switch(direction) {
-                 case View.FOCUS_LEFT:
-                     movement = (!mReverseFlowSecondary) ? PREV_ROW : NEXT_ROW;
-                     break;
-                 case View.FOCUS_RIGHT:
-                     movement = (!mReverseFlowSecondary) ? NEXT_ROW : PREV_ROW;
-                     break;
-                 case View.FOCUS_UP:
-                     movement = PREV_ITEM;
-                     break;
-                 case View.FOCUS_DOWN:
-                     movement = NEXT_ITEM;
-                     break;
-             }
-         }
+        } else if (mOrientation == VERTICAL) {
+            switch(direction) {
+                case View.FOCUS_LEFT:
+                    movement = (!mReverseFlowSecondary) ? PREV_ROW : NEXT_ROW;
+                    break;
+                case View.FOCUS_RIGHT:
+                    movement = (!mReverseFlowSecondary) ? NEXT_ROW : PREV_ROW;
+                    break;
+                case View.FOCUS_UP:
+                    movement = PREV_ITEM;
+                    break;
+                case View.FOCUS_DOWN:
+                    movement = NEXT_ITEM;
+                    break;
+            }
+        }
 
         return movement;
     }

@@ -14,9 +14,13 @@ import static org.junit.Assert.assertTrue;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.StateSet;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -907,7 +911,13 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
                 lp.rightMargin = 7;
                 lp.bottomMargin = 9;
             }
-
+            // Good to have colors for debugging
+            StateListDrawable stl = new StateListDrawable();
+            stl.addState(new int[]{android.R.attr.state_focused},
+                    new ColorDrawable(Color.RED));
+            stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
+            //noinspection deprecation using this for kitkat tests
+            holder.itemView.setBackgroundDrawable(stl);
             if (mOnBindCallback != null) {
                 mOnBindCallback.onBoundItem(holder, position);
             }
