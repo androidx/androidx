@@ -2233,26 +2233,6 @@ package android.support.v17.leanback.database {
 
 package android.support.v17.leanback.graphics {
 
-  public class BoundsRule {
-    ctor public BoundsRule();
-    ctor public BoundsRule(android.support.v17.leanback.graphics.BoundsRule);
-    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule absoluteValue(int);
-    method public void calculateBounds(android.graphics.Rect, android.graphics.Rect);
-    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParent(float);
-    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParentWithOffset(float, int);
-    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule mBottom;
-    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule mLeft;
-    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule mRight;
-    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule mTop;
-  }
-
-  public static final class BoundsRule.ValueRule {
-    method public int getAbsoluteValue();
-    method public float getFraction();
-    method public void setAbsoluteValue(int);
-    method public void setFraction(float);
-  }
-
   public final class ColorFilterCache {
     method public static android.support.v17.leanback.graphics.ColorFilterCache getColorFilterCache(int);
     method public android.graphics.ColorFilter getFilterForLevel(float);

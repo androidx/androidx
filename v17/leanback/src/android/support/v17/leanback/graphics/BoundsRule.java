@@ -21,6 +21,7 @@ import android.graphics.Rect;
  * This class contains the rules for updating the bounds of a
  * {@link CompositeDrawable.ChildDrawable}. It contains four rules, one for each value of the
  * rectangular bound - left/top/right/bottom.
+ * @hide
  */
 public class BoundsRule {
     static final int INHERIT_PARENT = 0;
