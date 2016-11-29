@@ -85,8 +85,7 @@ public class ExploreByTouchHelperTest extends BaseInstrumentationTestCase<Explor
                 helper.getAccessibilityNodeProvider(mHost).createAccessibilityNodeInfo(1);
         assertNotNull(scrolledNode);
 
-        mHost.getLocalVisibleRect(hostBounds);
-        hostBounds.intersect(nodeBoundsInParent);
+        // Bounds in parent should not be affected by visibility.
         final Rect scrolledNodeBoundsInParent = new Rect();
         scrolledNode.getBoundsInParent(scrolledNodeBoundsInParent);
         assertEquals("Wrong bounds in parent after scrolling",
