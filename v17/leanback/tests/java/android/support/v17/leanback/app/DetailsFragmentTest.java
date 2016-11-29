@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.Suppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.CompositeDrawable;
@@ -46,6 +47,7 @@ public class DetailsFragmentTest {
             new ActivityTestRule<>(DetailsFragmentTestActivity.class, false, false);
     private DetailsFragmentTestActivity mActivity;
 
+    @Suppress // Disabled due to flakiness.
     @Test
     public void parallaxTest() throws Throwable {
         final int mDefaultVerticalOffset = -300;
