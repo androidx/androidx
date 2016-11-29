@@ -847,45 +847,21 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         }
         node.setFocused(isFocused);
 
-        mHost.getLocationOnScreen(mTempGlobalRect);
+        // Set the visibility based on the parent bound.
+        if (intersectVisibleToUser(mTempParentRect)) {
+            node.setVisibleToUser(true);
+            node.setBoundsInParent(mTempParentRect);
+        }
 
         // If not explicitly specified, calculate screen-relative bounds and
         // offset for scroll position based on bounds in parent.
         node.getBoundsInScreen(mTempScreenRect);
         if (mTempScreenRect.equals(INVALID_PARENT_BOUNDS)) {
+            mHost.getLocationOnScreen(mTempGlobalRect);
             node.getBoundsInParent(mTempScreenRect);
-
-            // If there is a parent node, adjust bounds based on the parent node.
-            if (node.mParentVirtualDescendantId != HOST_ID) {
-                AccessibilityNodeInfoCompat parentNode = AccessibilityNodeInfoCompat.obtain();
-                // Walk up the node tree to adjust the screen rect.
-                for (int virtualDescendantId = node.mParentVirtualDescendantId;
-                        virtualDescendantId != HOST_ID;
-                        virtualDescendantId = parentNode.mParentVirtualDescendantId) {
-                    // Reset the values in the parent node we'll be using.
-                    parentNode.setParent(mHost, HOST_ID);
-                    parentNode.setBoundsInParent(INVALID_PARENT_BOUNDS);
-                    // Adjust the bounds for the parent node.
-                    onPopulateNodeForVirtualView(virtualDescendantId, parentNode);
-                    parentNode.getBoundsInParent(mTempParentRect);
-                    mTempScreenRect.offset(mTempParentRect.left, mTempParentRect.top);
-                }
-                parentNode.recycle();
-            }
-            // Adjust the rect for the host view's location.
             mTempScreenRect.offset(mTempGlobalRect[0] - mHost.getScrollX(),
                     mTempGlobalRect[1] - mHost.getScrollY());
-        }
-
-        if (mHost.getLocalVisibleRect(mTempVisibleRect)) {
-            mTempVisibleRect.offset(mTempGlobalRect[0] - mHost.getScrollX(),
-                    mTempGlobalRect[1] - mHost.getScrollY());
-            mTempScreenRect.intersect(mTempVisibleRect);
             node.setBoundsInScreen(mTempScreenRect);
-
-            if (isVisibleToUser(mTempScreenRect)) {
-                node.setVisibleToUser(true);
-            }
         }
 
         return node;
@@ -927,7 +903,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * @param localRect a rectangle in local (parent) coordinates
      * @return whether the specified {@link Rect} is visible on the screen
      */
-    private boolean isVisibleToUser(Rect localRect) {
+    private boolean intersectVisibleToUser(Rect localRect) {
         // Missing or empty bounds mean this view is not visible.
         if ((localRect == null) || localRect.isEmpty()) {
             return false;
@@ -949,7 +925,17 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         }
 
         // A null parent implies the view is not visible.
-        return viewParent != null;
+        if (viewParent == null) {
+            return false;
+        }
+
+        // If no portion of the parent is visible, this view is not visible.
+        if (!mHost.getLocalVisibleRect(mTempVisibleRect)) {
+            return false;
+        }
+
+        // Check if the view intersects the visible portion of the parent.
+        return localRect.intersect(mTempVisibleRect);
     }
 
     /**

@@ -215,7 +215,6 @@
     <string name="sample_item_a">Sample item A</string>
     <string name="sample_item_b">Sample item B</string>
     <string name="sample_item_c">Sample item C</string>
-    <string name="sample_item_d">Sample item D</string>
 
     <!-- ContentLoadingProgressBar -->
     <string name="content_loading_progress_bar">Widget/Content Loading Progress Bar</string>
