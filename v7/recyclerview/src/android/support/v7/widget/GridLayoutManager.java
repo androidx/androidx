@@ -1017,47 +1017,98 @@ public class GridLayoutManager extends LinearLayoutManager {
             limit = getChildCount();
         }
         final boolean preferLastSpan = mOrientation == VERTICAL && isLayoutRTL();
-        View weakCandidate = null; // somewhat matches but not strong
-        int weakCandidateSpanIndex = -1;
-        int weakCandidateOverlap = 0; // how many spans overlap
 
+        // The focusable candidate to be picked if no perfect focusable candidate is found.
+        // The best focusable candidate is the one with the highest amount of span overlap with
+        // the currently focused view.
+        View focusableWeakCandidate = null; // somewhat matches but not strong
+        int focusableWeakCandidateSpanIndex = -1;
+        int focusableWeakCandidateOverlap = 0; // how many spans overlap
+
+        // The unfocusable candidate to become visible on the screen next, if no perfect or
+        // weak focusable candidates are found to receive focus next.
+        // We are only interested in partially visible unfocusable views. These are views that are
+        // not fully visible, that is either partially overlapping, or out-of-bounds and right below
+        // or above RV's padded bounded area. The best unfocusable candidate is the one with the
+        // highest amount of span overlap with the currently focused view.
+        View unfocusableWeakCandidate = null; // somewhat matches but not strong
+        int unfocusableWeakCandidateSpanIndex = -1;
+        int unfocusableWeakCandidateOverlap = 0; // how many spans overlap
+
+        // The span group index of the start child. This indicates the span group index of the
+        // next focusable item to receive focus, if a focusable item within the same span group
+        // exists. Any focusable item beyond this group index are not relevant since they
+        // were already stored in the layout before onFocusSearchFailed call and were not picked
+        // by the focusSearch algorithm.
+        int focusableSpanGroupIndex = getSpanGroupIndex(recycler, state, start);
         for (int i = start; i != limit; i += inc) {
+            int spanGroupIndex = getSpanGroupIndex(recycler, state, i);
             View candidate = getChildAt(i);
             if (candidate == prevFocusedChild) {
                 break;
             }
-            if (!candidate.isFocusable()) {
+
+            if (candidate.isFocusable() && spanGroupIndex != focusableSpanGroupIndex) {
+                // We are past the allowable span group index for the next focusable item.
+                // The search only continues if no focusable weak candidates have been found up
+                // until this point, in order to find the best unfocusable candidate to become
+                // visible on the screen next.
+                if (focusableWeakCandidate != null) {
+                    break;
+                }
                 continue;
             }
+
             final LayoutParams candidateLp = (LayoutParams) candidate.getLayoutParams();
             final int candidateStart = candidateLp.mSpanIndex;
             final int candidateEnd = candidateLp.mSpanIndex + candidateLp.mSpanSize;
-            if (candidateStart == prevSpanStart && candidateEnd == prevSpanEnd) {
+            if (candidate.isFocusable() && candidateStart == prevSpanStart
+                    && candidateEnd == prevSpanEnd) {
                 return candidate; // perfect match
             }
             boolean assignAsWeek = false;
-            if (weakCandidate == null) {
+            if ((candidate.isFocusable() && focusableWeakCandidate == null)
+                    || (!candidate.isFocusable() && unfocusableWeakCandidate == null)) {
                 assignAsWeek = true;
             } else {
                 int maxStart = Math.max(candidateStart, prevSpanStart);
                 int minEnd = Math.min(candidateEnd, prevSpanEnd);
                 int overlap = minEnd - maxStart;
-                if (overlap > weakCandidateOverlap) {
-                    assignAsWeek = true;
-                } else if (overlap == weakCandidateOverlap
-                        && preferLastSpan == (candidateStart > weakCandidateSpanIndex)) {
-                    assignAsWeek = true;
+                if (candidate.isFocusable()) {
+                    if (overlap > focusableWeakCandidateOverlap) {
+                        assignAsWeek = true;
+                    } else if (overlap == focusableWeakCandidateOverlap
+                            && preferLastSpan == (candidateStart
+                            > focusableWeakCandidateSpanIndex)) {
+                        assignAsWeek = true;
+                    }
+                } else if (focusableWeakCandidate == null
+                        && isViewPartiallyVisible(candidate, false, true)) {
+                    if (overlap > unfocusableWeakCandidateOverlap) {
+                        assignAsWeek = true;
+                    } else if (overlap == unfocusableWeakCandidateOverlap
+                            && preferLastSpan == (candidateStart
+                                    > unfocusableWeakCandidateSpanIndex)) {
+                        assignAsWeek = true;
+                    }
                 }
             }
 
             if (assignAsWeek) {
-                weakCandidate = candidate;
-                weakCandidateSpanIndex = candidateLp.mSpanIndex;
-                weakCandidateOverlap = Math.min(candidateEnd, prevSpanEnd)
-                        - Math.max(candidateStart, prevSpanStart);
+                if (candidate.isFocusable()) {
+                    focusableWeakCandidate = candidate;
+                    focusableWeakCandidateSpanIndex = candidateLp.mSpanIndex;
+                    focusableWeakCandidateOverlap = Math.min(candidateEnd, prevSpanEnd)
+                            - Math.max(candidateStart, prevSpanStart);
+                } else {
+                    unfocusableWeakCandidate = candidate;
+                    unfocusableWeakCandidateSpanIndex = candidateLp.mSpanIndex;
+                    unfocusableWeakCandidateOverlap = Math.min(candidateEnd, prevSpanEnd)
+                            - Math.max(candidateStart, prevSpanStart);
+                }
             }
         }
-        return weakCandidate;
+        return (focusableWeakCandidate != null) ? focusableWeakCandidate : unfocusableWeakCandidate;
     }
 
     @Override

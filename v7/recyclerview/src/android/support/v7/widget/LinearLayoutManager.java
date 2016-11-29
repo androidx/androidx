@@ -676,7 +676,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * If necessary, layouts new items for predictive animations
      */
     private void layoutForPredictiveAnimations(RecyclerView.Recycler recycler,
-            RecyclerView.State state, int startOffset,  int endOffset) {
+            RecyclerView.State state, int startOffset,
+            int endOffset) {
         // If there are scrap children that we did not layout, we need to find where they did go
         // and layout them accordingly so that animations can work as expected.
         // This case may happen if new views are added or an existing view expands and pushes
@@ -856,7 +857,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                 }
                 anchorInfo.mCoordinate = anchorInfo.mLayoutFromEnd
                         ? (mOrientationHelper.getDecoratedEnd(child) + mOrientationHelper
-                                .getTotalSpaceChange())
+                        .getTotalSpaceChange())
                         : mOrientationHelper.getDecoratedStart(child);
             } else { // item is not visible.
                 if (getChildCount() > 0) {
@@ -1793,6 +1794,32 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         return outOfBoundsMatch != null ? outOfBoundsMatch : invalidMatch;
     }
 
+    // returns the out-of-bound child view closest to RV's end bounds. An out-of-bound child is
+    // defined as a child that's either partially or fully invisible (outside RV's padding area).
+    private View findPartiallyOrCompletelyInvisibleChildClosestToEnd(RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        return mShouldReverseLayout ? findFirstPartiallyOrCompletelyInvisibleChild(recycler, state)
+                : findLastPartiallyOrCompletelyInvisibleChild(recycler, state);
+    }
+
+    // returns the out-of-bound child view closest to RV's starting bounds. An out-of-bound child is
+    // defined as a child that's either partially or fully invisible (outside RV's padding area).
+    private View findPartiallyOrCompletelyInvisibleChildClosestToStart(
+            RecyclerView.Recycler recycler, RecyclerView.State state) {
+        return mShouldReverseLayout ? findLastPartiallyOrCompletelyInvisibleChild(recycler, state) :
+                findFirstPartiallyOrCompletelyInvisibleChild(recycler, state);
+    }
+
+    private View findFirstPartiallyOrCompletelyInvisibleChild(RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        return findOnePartiallyOrCompletelyInvisibleChild(0, getChildCount());
+    }
+
+    private View findLastPartiallyOrCompletelyInvisibleChild(RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        return findOnePartiallyOrCompletelyInvisibleChild(getChildCount() - 1, -1);
+    }
+
     /**
      * Returns the adapter position of the first visible view. This position does not include
      * adapter changes that were dispatched after the last layout pass.
@@ -1876,27 +1903,52 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     View findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible,
             boolean acceptPartiallyVisible) {
         ensureLayoutState();
-        final int start = mOrientationHelper.getStartAfterPadding();
-        final int end = mOrientationHelper.getEndAfterPadding();
-        final int next = toIndex > fromIndex ? 1 : -1;
-        View partiallyVisible = null;
-        for (int i = fromIndex; i != toIndex; i += next) {
-            final View child = getChildAt(i);
-            final int childStart = mOrientationHelper.getDecoratedStart(child);
-            final int childEnd = mOrientationHelper.getDecoratedEnd(child);
-            if (childStart < end && childEnd > start) {
-                if (completelyVisible) {
-                    if (childStart >= start && childEnd <= end) {
-                        return child;
-                    } else if (acceptPartiallyVisible && partiallyVisible == null) {
-                        partiallyVisible = child;
-                    }
-                } else {
-                    return child;
-                }
-            }
+        @ViewBoundsCheck.ViewBounds int preferredBoundsFlag = 0;
+        @ViewBoundsCheck.ViewBounds int acceptableBoundsFlag = 0;
+        if (completelyVisible) {
+            preferredBoundsFlag = (ViewBoundsCheck.FLAG_CVS_GT_PVS | ViewBoundsCheck.FLAG_CVS_EQ_PVS
+                    | ViewBoundsCheck.FLAG_CVE_LT_PVE | ViewBoundsCheck.FLAG_CVE_EQ_PVE);
+        } else {
+            preferredBoundsFlag = (ViewBoundsCheck.FLAG_CVS_LT_PVE | ViewBoundsCheck.FLAG_CVS_EQ_PVE
+                    | ViewBoundsCheck.FLAG_CVE_GT_PVS | ViewBoundsCheck.FLAG_CVE_EQ_PVS);
         }
-        return partiallyVisible;
+        if (acceptPartiallyVisible) {
+            acceptableBoundsFlag = (ViewBoundsCheck.FLAG_CVS_LT_PVE
+                    | ViewBoundsCheck.FLAG_CVS_EQ_PVE | ViewBoundsCheck.FLAG_CVE_GT_PVS
+                    | ViewBoundsCheck.FLAG_CVE_EQ_PVS);
+        }
+        return (mOrientation == HORIZONTAL) ? mHorizontalBoundCheck
+                .findOneViewWithinBoundFlags(fromIndex, toIndex, preferredBoundsFlag,
+                        acceptableBoundsFlag) : mVerticalBoundCheck
+                .findOneViewWithinBoundFlags(fromIndex, toIndex, preferredBoundsFlag,
+                        acceptableBoundsFlag);
+    }
+
+    View findOnePartiallyOrCompletelyInvisibleChild(int fromIndex, int toIndex) {
+        ensureLayoutState();
+        final int next = toIndex > fromIndex ? 1 : (toIndex < fromIndex ? -1 : 0);
+        if (next == 0) {
+            return getChildAt(fromIndex);
+        }
+        @ViewBoundsCheck.ViewBounds int preferredBoundsFlag = 0;
+        @ViewBoundsCheck.ViewBounds int acceptableBoundsFlag = 0;
+        if (mOrientationHelper.getDecoratedStart(getChildAt(fromIndex))
+                < mOrientationHelper.getStartAfterPadding()) {
+            preferredBoundsFlag = (ViewBoundsCheck.FLAG_CVS_LT_PVS | ViewBoundsCheck.FLAG_CVE_LT_PVE
+                    | ViewBoundsCheck.FLAG_CVE_GT_PVS);
+            acceptableBoundsFlag = (ViewBoundsCheck.FLAG_CVS_LT_PVS
+                    | ViewBoundsCheck.FLAG_CVE_LT_PVE);
+        } else {
+            preferredBoundsFlag = (ViewBoundsCheck.FLAG_CVE_GT_PVE | ViewBoundsCheck.FLAG_CVS_GT_PVS
+                    | ViewBoundsCheck.FLAG_CVS_LT_PVE);
+            acceptableBoundsFlag = (ViewBoundsCheck.FLAG_CVE_GT_PVE
+                    | ViewBoundsCheck.FLAG_CVS_GT_PVS);
+        }
+        return (mOrientation == HORIZONTAL) ? mHorizontalBoundCheck
+                .findOneViewWithinBoundFlags(fromIndex, toIndex, preferredBoundsFlag,
+                        acceptableBoundsFlag) : mVerticalBoundCheck
+                .findOneViewWithinBoundFlags(fromIndex, toIndex, preferredBoundsFlag,
+                        acceptableBoundsFlag);
     }
 
     @Override
@@ -1912,35 +1964,38 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             return null;
         }
         ensureLayoutState();
-        final View referenceChild;
-        if (layoutDir == LayoutState.LAYOUT_START) {
-            referenceChild = findReferenceChildClosestToStart(recycler, state);
-        } else {
-            referenceChild = findReferenceChildClosestToEnd(recycler, state);
-        }
-        if (referenceChild == null) {
-            if (DEBUG) {
-                Log.d(TAG,
-                        "Cannot find a child with a valid position to be used for focus search.");
-            }
-            return null;
-        }
         ensureLayoutState();
         final int maxScroll = (int) (MAX_SCROLL_FACTOR * mOrientationHelper.getTotalSpace());
         updateLayoutState(layoutDir, maxScroll, false, state);
         mLayoutState.mScrollingOffset = LayoutState.SCROLLING_OFFSET_NaN;
         mLayoutState.mRecycle = false;
         fill(recycler, mLayoutState, state, true);
+
+        // nextCandidate is the first child view in the layout direction that's partially
+        // within RV's bounds, i.e. part of it is visible or it's completely invisible but still
+        // touching RV's bounds. This will be the unfocusable candidate view to become visible onto
+        // the screen if no focusable views are found in the given layout direction.
+        final View nextCandidate;
+        if (layoutDir == LayoutState.LAYOUT_START) {
+            nextCandidate = findPartiallyOrCompletelyInvisibleChildClosestToStart(recycler, state);
+        } else {
+            nextCandidate = findPartiallyOrCompletelyInvisibleChildClosestToEnd(recycler, state);
+        }
+        // nextFocus is meaningful only if it refers to a focusable child, in which case it
+        // indicates the next view to gain focus.
         final View nextFocus;
         if (layoutDir == LayoutState.LAYOUT_START) {
             nextFocus = getChildClosestToStart();
         } else {
             nextFocus = getChildClosestToEnd();
         }
-        if (nextFocus == referenceChild || !nextFocus.isFocusable()) {
-            return null;
+        if (nextFocus.isFocusable()) {
+            if (nextCandidate == null) {
+                return null;
+            }
+            return nextFocus;
         }
-        return nextFocus;
+        return nextCandidate;
     }
 
     /**
@@ -2030,7 +2085,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                 scrollToPositionWithOffset(targetPos,
                         mOrientationHelper.getEndAfterPadding()
                                 - (mOrientationHelper.getDecoratedStart(target)
-                                        + mOrientationHelper.getDecoratedMeasurement(view)));
+                                + mOrientationHelper.getDecoratedMeasurement(view)));
             } else {
                 scrollToPositionWithOffset(targetPos,
                         mOrientationHelper.getEndAfterPadding()
