@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verify;
 import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
@@ -657,6 +658,45 @@ public class FragmentTransitionTest {
         }
     }
 
+    // Test that invisible fragment views don't participate in transitions
+    @Test
+    public void invisibleNoTransitions() throws Throwable {
+        if (!mOptimize) {
+            return; // only optimized transitions can avoid interaction
+        }
+        // enter transition
+        TransitionFragment fragment = new InvisibleFragment();
+        fragment.setLayoutId(R.layout.scene1);
+        mFragmentManager.beginTransaction()
+                .setAllowOptimization(mOptimize)
+                .add(R.id.fragmentContainer, fragment)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.waitForExecution(mActivityRule);
+        fragment.waitForNoTransition();
+        verifyNoOtherTransitions(fragment);
+
+        // exit transition
+        mFragmentManager.beginTransaction()
+                .setAllowOptimization(mOptimize)
+                .remove(fragment)
+                .addToBackStack(null)
+                .commit();
+
+        fragment.waitForNoTransition();
+        verifyNoOtherTransitions(fragment);
+
+        // reenter transition
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        fragment.waitForNoTransition();
+        verifyNoOtherTransitions(fragment);
+
+        // return transition
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        fragment.waitForNoTransition();
+        verifyNoOtherTransitions(fragment);
+    }
+
     private TransitionFragment setupInitialFragment() throws Throwable {
         TransitionFragment fragment1 = new TransitionFragment();
         fragment1.setLayoutId(R.layout.scene1);
@@ -953,6 +993,13 @@ public class FragmentTransitionTest {
             setSharedElementEnterTransition(sharedElementEnterTransition);
             setSharedElementReturnTransition(sharedElementReturnTransition);
         }
+    }
 
+    public static class InvisibleFragment extends TransitionFragment {
+        @Override
+        public void onViewCreated(View view, Bundle savedInstanceState) {
+            view.setVisibility(View.INVISIBLE);
+            super.onViewCreated(view, savedInstanceState);
+        }
     }
 }
