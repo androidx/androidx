@@ -29,6 +29,8 @@
     <integer name="lb_playback_rows_fade_out_ms">250</integer>
     <integer name="lb_playback_rows_fade_delay_ms">100</integer>
     <integer name="lb_playback_controls_show_time_ms">3000</integer>
+    <integer name="lb_onboarding_header_title_delay">33</integer>
+    <integer name="lb_onboarding_header_description_delay">33</integer>
 
     <!-- Gravity.LEFT -->
     <integer name="slideEdgeStart">3</integer>

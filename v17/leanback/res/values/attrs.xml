@@ -559,6 +559,10 @@
         <!-- Theme attribute for the style of the logo in onboarding screen. Default is
              {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingLogoStyle}.-->
         <attr name="onboardingLogoStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the main icon in onboarding fragment. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingMainIconStyle}.-->
+        <attr name="onboardingMainIconStyle" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="PagingIndicator">
