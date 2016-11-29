@@ -39,23 +39,24 @@ import javax.crypto.Mac;
 @RestrictTo(LIBRARY_GROUP)
 public final class FingerprintManagerCompatApi23 {
 
-    private static FingerprintManager getFingerprintManager(Context ctx) {
-        return ctx.getSystemService(FingerprintManager.class);
-    }
-
     public static boolean hasEnrolledFingerprints(Context context) {
-        return getFingerprintManager(context).hasEnrolledFingerprints();
+        final FingerprintManager fp = context.getSystemService(FingerprintManager.class);
+        return (fp != null) && fp.hasEnrolledFingerprints();
     }
 
     public static boolean isHardwareDetected(Context context) {
-        return getFingerprintManager(context).isHardwareDetected();
+        final FingerprintManager fp = context.getSystemService(FingerprintManager.class);
+        return (fp != null) && fp.isHardwareDetected();
     }
 
     public static void authenticate(Context context, CryptoObject crypto, int flags, Object cancel,
             AuthenticationCallback callback, Handler handler) {
-        getFingerprintManager(context).authenticate(wrapCryptoObject(crypto),
-                (android.os.CancellationSignal) cancel, flags,
-                wrapCallback(callback), handler);
+        final FingerprintManager fp = context.getSystemService(FingerprintManager.class);
+        if (fp != null) {
+            fp.authenticate(wrapCryptoObject(crypto),
+                    (android.os.CancellationSignal) cancel, flags,
+                    wrapCallback(callback), handler);
+        }
     }
 
     private static FingerprintManager.CryptoObject wrapCryptoObject(CryptoObject cryptoObject) {
