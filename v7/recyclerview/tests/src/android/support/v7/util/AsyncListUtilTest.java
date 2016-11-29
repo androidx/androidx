@@ -36,6 +36,8 @@ import org.junit.runners.JUnit4;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+// This test is disabled as it is flaky.
+@Suppress
 @MediumTest
 @RunWith(JUnit4.class)
 public class AsyncListUtilTest {
@@ -91,8 +93,6 @@ public class AsyncListUtilTest {
         scrollAndExpectTiles(40, "scroll up a little, no new tiles loaded");
     }
 
-    // This test is disabled as it is flaky.
-    @Suppress
     @Test
     public void tileCaching() throws Throwable {
         scrollAndExpectTiles(25, "next screen", 30, 40);
@@ -105,8 +105,6 @@ public class AsyncListUtilTest {
         scrollAndExpectTiles(0, "scroll back to top, all pages should reload", 0, 10, 20);
     }
 
-    // This test is disabled as it is flaky.
-    @Suppress
     @Test
     public void dataRefresh() throws Throwable {
         mViewCallback.expectDataSetChanged(40);
