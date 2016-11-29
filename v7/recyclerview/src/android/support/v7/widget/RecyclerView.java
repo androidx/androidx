@@ -439,8 +439,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     final ViewFlinger mViewFlinger = new ViewFlinger();
 
     GapWorker mGapWorker;
-    GapWorker.PrefetchRegistryImpl mPrefetchRegistry =
-            ALLOW_THREAD_GAP_WORK ? new GapWorker.PrefetchRegistryImpl() : null;
+    GapWorker.LayoutPrefetchRegistryImpl mPrefetchRegistry =
+            ALLOW_THREAD_GAP_WORK ? new GapWorker.LayoutPrefetchRegistryImpl() : null;
 
     final State mState = new State();
 
@@ -6782,8 +6782,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         /**
          * Written by {@link GapWorker} when prefetches occur to track largest number of view ever
-         * requested by a {@link #collectInitialPrefetchPositions(int, PrefetchRegistry)} or
-         * {@link #collectAdjacentPrefetchPositions(int, int, State, PrefetchRegistry)} call.
+         * requested by a {@link #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)} or
+         * {@link #collectAdjacentPrefetchPositions(int, int, State, LayoutPrefetchRegistry)} call.
          */
         int mPrefetchMaxCountObserved;
 
@@ -6800,6 +6800,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         private int mWidthMode, mHeightMode;
         private int mWidth, mHeight;
+
+
+        /**
+         * Interface for LayoutManagers to request items to be prefetched, based on position, with
+         * specified distance from viewport, which indicates priority.
+         *
+         * @see LayoutManager#collectAdjacentPrefetchPositions(int, int, State, LayoutPrefetchRegistry)
+         * @see LayoutManager#collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)
+         */
+        public interface LayoutPrefetchRegistry {
+            /**
+             * Requests an an item to be prefetched, based on position, with a specified distance,
+             * indicating priority.
+             *
+             * @param layoutPosition Position of the item to prefetch.
+             * @param pixelDistance Distance from the current viewport to the bounds of the item,
+             *                      must be non-negative.
+             */
+            void addPosition(int layoutPosition, int pixelDistance);
+        }
 
         void setRecyclerView(RecyclerView recyclerView) {
             if (recyclerView == null) {
@@ -7114,7 +7134,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * which positions the LayoutManager will soon need, given upcoming movement in subsequent
          * traversals.</p>
          *
-         * <p>The LayoutManager should call {@link PrefetchRegistry#addPosition(int, int)} for each
+         * <p>The LayoutManager should call {@link LayoutPrefetchRegistry#addPosition(int, int)} for each
          * item to be prepared, and these positions will have their ViewHolders created and bound,
          * if there is sufficient time available, in advance of being needed by a
          * scroll or layout.</p>
@@ -7122,19 +7142,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param dx X movement component.
          * @param dy Y movement component.
          * @param state State of RecyclerView
-         * @param prefetchRegistry PrefetchRegistry to add prefetch entries into.
+         * @param layoutPrefetchRegistry PrefetchRegistry to add prefetch entries into.
          *
          * @see #isItemPrefetchEnabled()
-         * @see #collectInitialPrefetchPositions(int, PrefetchRegistry)
-         *
-         * @hide
+         * @see #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)
          */
         public void collectAdjacentPrefetchPositions(int dx, int dy, State state,
-                PrefetchRegistry prefetchRegistry) {}
+                LayoutPrefetchRegistry layoutPrefetchRegistry) {}
 
         /**
          * Gather all positions from the LayoutManager to be prefetched in preperation for its
-         * Recyclerview to come on screen, due to the movement of another, containing RecyclerView.
+         * RecyclerView to come on screen, due to the movement of another, containing RecyclerView.
          *
          * <p>This method is only called when a RecyclerView is nested in another RecyclerView.</p>
          *
@@ -7146,21 +7164,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * vertically scrolling LayoutManager, this method would be called when the horizontal list
          * is about to come onscreen.</p>
          *
-         * <p>The LayoutManager should call {@link PrefetchRegistry#addPosition(int, int)} for each
+         * <p>The LayoutManager should call {@link LayoutPrefetchRegistry#addPosition(int, int)} for each
          * item to be prepared, and these positions will have their ViewHolders created and bound,
          * if there is sufficient time available, in advance of being needed by a
          * scroll or layout.</p>
          *
          * @param adapterItemCount number of items in the associated adapter.
-         * @param prefetchRegistry PrefetchRegistry to add prefetch entries into.
+         * @param layoutPrefetchRegistry PrefetchRegistry to add prefetch entries into.
          *
          * @see #isItemPrefetchEnabled()
-         * @see #collectAdjacentPrefetchPositions(int, int, State, PrefetchRegistry
-         *
-         * @hide
+         * @see #collectAdjacentPrefetchPositions(int, int, State, LayoutPrefetchRegistry)
          */
         public void collectInitialPrefetchPositions(int adapterItemCount,
-                PrefetchRegistry prefetchRegistry) {}
+                LayoutPrefetchRegistry layoutPrefetchRegistry) {}
 
         void dispatchAttachedToWindow(RecyclerView view) {
             mIsAttachedToWindow = true;
@@ -9584,24 +9600,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             /** @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_stackFromEnd */
             public boolean stackFromEnd;
         }
-    }
-
-    /**
-     * Interface for LayoutManagers to request items to be prefetched, based on position, with
-     * specified distance from viewport, which indicates priority.
-     *
-     * @hide
-     */
-    public interface PrefetchRegistry {
-        /**
-         * Requests an an item to be prefetched, based on position, with a specified distance,
-         * indicating priority.
-         *
-         * @param layoutPosition Position of the item to prefetch.
-         * @param pixelDistance Distance from the current viewport to the bounds of the item,
-         *                      must be non-negative.
-         */
-        void addPosition(int layoutPosition, int pixelDistance);
     }
 
     /**

@@ -27,13 +27,14 @@ import static org.mockito.Mockito.verify;
 class CacheUtils {
     static void verifyPositionsPrefetched(RecyclerView view, int dx, int dy,
             Integer[]... positionData) {
-        RecyclerView.PrefetchRegistry prefetchRegistry = mock(RecyclerView.PrefetchRegistry.class);
+        RecyclerView.LayoutManager.LayoutPrefetchRegistry layoutPrefetchRegistry =
+                mock(RecyclerView.LayoutManager.LayoutPrefetchRegistry.class);
         view.mLayout.collectAdjacentPrefetchPositions(
-                dx, dy, view.mState, prefetchRegistry);
+                dx, dy, view.mState, layoutPrefetchRegistry);
 
-        verify(prefetchRegistry, times(positionData.length)).addPosition(anyInt(), anyInt());
+        verify(layoutPrefetchRegistry, times(positionData.length)).addPosition(anyInt(), anyInt());
         for (Integer[] aPositionData : positionData) {
-            verify(prefetchRegistry).addPosition(aPositionData[0], aPositionData[1]);
+            verify(layoutPrefetchRegistry).addPosition(aPositionData[0], aPositionData[1]);
         }
     }
 

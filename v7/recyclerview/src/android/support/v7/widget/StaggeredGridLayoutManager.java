@@ -2074,7 +2074,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     /** @hide */
     @Override
     public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
-            RecyclerView.PrefetchRegistry prefetchRegistry) {
+            LayoutPrefetchRegistry layoutPrefetchRegistry) {
         /* This method uses the simplifying assumption that the next N items (where N = span count)
          * will be assigned, one-to-one, to spans, where ordering is based on which span  extends
          * least beyond the viewport.
@@ -2106,7 +2106,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
 
         // then assign them in order to the next N views (where N = span count)
         for (int i = 0; i < mSpanCount && mLayoutState.hasMore(state); i++) {
-            prefetchRegistry.addPosition(mLayoutState.mCurrentPosition, mPrefetchDistances[i]);
+            layoutPrefetchRegistry.addPosition(mLayoutState.mCurrentPosition, mPrefetchDistances[i]);
             mLayoutState.mCurrentPosition += mLayoutState.mItemDirection;
         }
     }

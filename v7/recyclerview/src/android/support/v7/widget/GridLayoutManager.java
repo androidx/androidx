@@ -506,12 +506,12 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @Override
     void collectPrefetchPositionsForLayoutState(RecyclerView.State state, LayoutState layoutState,
-            RecyclerView.PrefetchRegistry prefetchRegistry) {
+            LayoutPrefetchRegistry layoutPrefetchRegistry) {
         int remainingSpan = mSpanCount;
         int count = 0;
         while (count < mSpanCount && layoutState.hasMore(state) && remainingSpan > 0) {
             final int pos = layoutState.mCurrentPosition;
-            prefetchRegistry.addPosition(pos, layoutState.mScrollingOffset);
+            layoutPrefetchRegistry.addPosition(pos, layoutState.mScrollingOffset);
             final int spanSize = mSpanSizeLookup.getSpanSize(pos);
             remainingSpan -= spanSize;
             layoutState.mCurrentPosition += layoutState.mItemDirection;

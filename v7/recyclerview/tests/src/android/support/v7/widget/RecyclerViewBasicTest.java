@@ -370,7 +370,7 @@ public class RecyclerViewBasicTest {
         MockLayoutManager mlm = new MockLayoutManager() {
             @Override
             public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
-                    RecyclerView.PrefetchRegistry prefetchManager) {
+                    RecyclerView.LayoutManager.LayoutPrefetchRegistry prefetchManager) {
                 prefetchManager.addPosition(0, 0);
                 prefetchManager.addPosition(1, 0);
                 prefetchManager.addPosition(2, 0);
