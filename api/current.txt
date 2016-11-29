@@ -322,7 +322,6 @@ package android.support.design.widget {
     method public boolean isShown();
     method public boolean isShownOrQueued();
     method public B removeCallback(android.support.design.widget.BaseTransientBottomBar.BaseCallback<B>);
-    method public deprecated B setCallback(android.support.design.widget.BaseTransientBottomBar.BaseCallback<B>);
     method public B setDuration(int);
     method public void show();
     field public static final int LENGTH_INDEFINITE = -2; // 0xfffffffe
