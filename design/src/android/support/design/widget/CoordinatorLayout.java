@@ -396,9 +396,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         for (int i = childCount - 1; i >= 0; i--) {
             final int childIndex = useCustomOrder ? getChildDrawingOrder(childCount, i) : i;
             final View child = getChildAt(childIndex);
-            if (child != null && child.getVisibility() == View.VISIBLE) {
-                out.add(child);
-            }
+            out.add(child);
         }
 
         if (TOP_SORTED_CHILDREN_COMPARATOR != null) {
@@ -528,6 +526,10 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                         MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0);
             }
             super.onTouchEvent(cancelEvent);
+        }
+
+        if (!handled && action == MotionEvent.ACTION_DOWN) {
+
         }
 
         if (cancelEvent != null) {
