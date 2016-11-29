@@ -17,11 +17,13 @@
 package com.android.support.room.processor
 
 import com.android.support.room.Ignore
-import com.android.support.room.errors.ElementBoundException
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
-import com.android.support.room.preconditions.Checks
-import com.android.support.room.vo.*
+import com.android.support.room.vo.CallType
+import com.android.support.room.vo.Entity
+import com.android.support.room.vo.Field
+import com.android.support.room.vo.FieldGetter
+import com.android.support.room.vo.FieldSetter
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -29,7 +31,9 @@ import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
-import javax.lang.model.element.Modifier.*
+import javax.lang.model.element.Modifier.ABSTRACT
+import javax.lang.model.element.Modifier.PRIVATE
+import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
 
@@ -37,7 +41,7 @@ class EntityProcessor(val context: Context) {
     val fieldParser = FieldProcessor(context)
 
     fun parse(element: TypeElement): Entity {
-        Checks.hasAnnotation(element, com.android.support.room.Entity::class,
+        context.checker.hasAnnotation(element, com.android.support.room.Entity::class,
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
         val declaredType = MoreTypes.asDeclared(element.asType())
         val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
@@ -68,11 +72,11 @@ class EntityProcessor(val context: Context) {
         assignGetters(fields, getterCandidates)
         assignSetters(fields, setterCandidates)
         val annotation = MoreElements.getAnnotationMirror(element,
-                com.android.support.room.Entity::class.java)
+                com.android.support.room.Entity::class.java).orNull()
         val tableName : String
-        if (annotation.isPresent) {
+        if (annotation != null) {
             val annotationValue = AnnotationMirrors
-                    .getAnnotationValue(annotation.get(), "tableName").value.toString()
+                    .getAnnotationValue(annotation, "tableName").value.toString()
             if (annotationValue == "") {
                 tableName = element.simpleName.toString()
             } else {
@@ -81,9 +85,11 @@ class EntityProcessor(val context: Context) {
         } else {
             tableName = element.simpleName.toString()
         }
-        Checks.notBlank(tableName, element, ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
+        context.checker.notBlank(tableName, element,
+                ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
         val entity = Entity(tableName, TypeName.get(declaredType), fields)
-        Checks.check(entity.primaryKeys.isNotEmpty(), element, ProcessorErrors.MISSING_PRIMARY_KEY)
+        context.checker.check(entity.primaryKeys.isNotEmpty(), element,
+                ProcessorErrors.MISSING_PRIMARY_KEY)
         return entity
     }
 
@@ -101,17 +107,19 @@ class EntityProcessor(val context: Context) {
                                     || field.getterNameWithVariations
                                     .contains(it.simpleName.toString())
                         }
-                if (matching.isEmpty()) {
-                    throw ElementBoundException(field.element,
-                            ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+                context.checker.check(matching.isNotEmpty(), field.element,
+                        ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+                context.checker.check(matching.size < 2, field.element,
+                        ProcessorErrors.tooManyMatchingGetters(field,
+                                matching.map { it.simpleName.toString() }))
+                val match = matching.firstOrNull()
+                if (match == null) {
+                    // just assume we can set it. the error will block javac anyways.
+                    field.getter = FieldGetter(field.name, CallType.FIELD)
+                } else {
+                    field.getter = FieldGetter(match.simpleName.toString(), CallType.METHOD)
                 }
-                if (matching.size > 1) {
-                    throw ElementBoundException(field.element,
-                            ProcessorErrors.tooManyMatchingGetters(field,
-                                    matching.map { it.simpleName.toString() }))
-                }
-                val match = matching.first()
-                field.getter = FieldGetter(match.simpleName.toString(), CallType.METHOD)
+
             }
         }
     }
@@ -130,17 +138,18 @@ class EntityProcessor(val context: Context) {
                                     || field.setterNameWithVariations
                                     .contains(it.simpleName.toString())
                         }
-                if (matching.isEmpty()) {
-                    throw ElementBoundException(field.element,
-                            ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
+                context.checker.check(matching.isNotEmpty(), field.element,
+                        ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
+                context.checker.check(matching.size < 2, field.element,
+                        ProcessorErrors.tooManyMatchingSetter(field,
+                                matching.map { it.simpleName.toString() }))
+                val match = matching.firstOrNull()
+                if (match == null) {
+                    // default to field setter
+                    field.setter = FieldSetter(field.name, CallType.FIELD)
+                } else {
+                    field.setter = FieldSetter(match.simpleName.toString(), CallType.METHOD)
                 }
-                if (matching.size > 1) {
-                    throw ElementBoundException(field.element,
-                            ProcessorErrors.tooManyMatchingSetter(field,
-                                    matching.map { it.simpleName.toString() }))
-                }
-                val match = matching.first()
-                field.setter = FieldSetter(match.simpleName.toString(), CallType.METHOD)
             }
         }
     }

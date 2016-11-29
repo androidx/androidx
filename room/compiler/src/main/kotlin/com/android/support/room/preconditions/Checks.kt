@@ -16,8 +16,8 @@
 
 package com.android.support.room.preconditions
 
-import com.android.support.room.errors.ElementBoundException
 import com.android.support.room.ext.hasAnnotation
+import com.android.support.room.log.RLog
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
@@ -25,32 +25,44 @@ import javax.lang.model.element.Element
 import kotlin.reflect.KClass
 
 /**
- * Similar to preconditions but element bound.
+ * Similar to preconditions but element bound and just logs the error instead of throwing an
+ * exception.
+ * <p>
+ * It is important for processing to continue when some errors happen so that we can generate as
+ * much code as possible, leaving only the errors in javac output.
  */
-object Checks {
-    fun check(predicate: Boolean, element: Element, errorMsg: String, vararg args: Any) {
+class Checks(private val logger: RLog) {
+    fun check(predicate: Boolean, element: Element, errorMsg: String, vararg args: Any): Boolean {
         if (!predicate) {
-            throw ElementBoundException(element, errorMsg.format(args))
+            logger.e(element, errorMsg, args)
+        }
+        return predicate
+    }
+
+    fun hasAnnotation(element: Element, annotation: KClass<out Annotation>, errorMsg: String,
+                      vararg args: Any): Boolean {
+        return if (!element.hasAnnotation(annotation)) {
+            logger.e(element, errorMsg, args)
+            false
+        } else {
+            true
         }
     }
 
-    fun hasAnnotation(element : Element, annotation: KClass<out Annotation>, errorMsg: String,
-                      vararg args: Any) {
-        if (!element.hasAnnotation(annotation)) {
-            throw ElementBoundException(element, errorMsg.format(args))
-        }
-    }
-
-    fun notUnbound(typeName: TypeName, element: Element, errorMsg : String,
-                   vararg args : Any) {
+    fun notUnbound(typeName: TypeName, element: Element, errorMsg: String,
+                   vararg args: Any): Boolean {
         // TODO support bounds cases like <T extends Foo> T bar()
-        Checks.check(typeName !is TypeVariableName, element, errorMsg, args)
+        val failed = check(typeName !is TypeVariableName, element, errorMsg, args)
         if (typeName is ParameterizedTypeName) {
-            typeName.typeArguments.forEach { notUnbound(it, element, errorMsg, args) }
+            val nestedFailure = typeName.typeArguments
+                    .map { notUnbound(it, element, errorMsg, args) }
+                    .any { it == true }
+            return !(failed || nestedFailure)
         }
+        return !failed
     }
 
-    fun notBlank(value: String?, element: Element, msg: String, vararg args : Any) {
-        Checks.check(value != null && value.isNotBlank(), element, msg, args)
+    fun notBlank(value: String?, element: Element, msg: String, vararg args: Any) : Boolean {
+        return check(value != null && value.isNotBlank(), element, msg, args)
     }
 }

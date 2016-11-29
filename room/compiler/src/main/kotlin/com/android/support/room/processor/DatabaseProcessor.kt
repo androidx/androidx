@@ -17,12 +17,13 @@
 package com.android.support.room.processor
 
 import com.android.support.room.ext.hasAnyOf
-import com.android.support.room.preconditions.Checks
 import com.android.support.room.vo.DaoMethod
 import com.android.support.room.vo.Database
+import com.android.support.room.vo.Entity
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
@@ -36,19 +37,11 @@ class DatabaseProcessor(val context: Context) {
     val daoParser = DaoProcessor(context)
 
     fun parse(element: TypeElement): Database {
-        Checks.hasAnnotation(element, com.android.support.room.Database::class,
-                ProcessorErrors.DATABASE_MUST_BE_ANNOTATED_WITH_DATABASE)
         val dbAnnotation = MoreElements
                 .getAnnotationMirror(element, com.android.support.room.Database::class.java)
-                .get()
-        val entityList = AnnotationMirrors.getAnnotationValue(dbAnnotation, "entities")
-        val listOfTypes = TO_LIST_OF_TYPES.visit(entityList, "entities")
-        Checks.check(listOfTypes.isNotEmpty(), element,
-                ProcessorErrors.DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES)
+                .orNull()
 
-        val entities = listOfTypes.map {
-            entityParser.parse(MoreTypes.asTypeElement(it))
-        }
+        val entities = processEntities(dbAnnotation, element)
 
         val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
         val daoMethods = allMembers.filter {
@@ -63,6 +56,22 @@ class DatabaseProcessor(val context: Context) {
         return Database(element = element,
                 entities = entities,
                 daoMethods = daoMethods)
+    }
+
+    private fun processEntities(dbAnnotation: AnnotationMirror?, element: TypeElement) :
+            List<Entity> {
+        if (!context.checker.check(dbAnnotation != null, element,
+                ProcessorErrors.DATABASE_MUST_BE_ANNOTATED_WITH_DATABASE)) {
+            return listOf()
+        }
+
+        val entityList = AnnotationMirrors.getAnnotationValue(dbAnnotation, "entities")
+        val listOfTypes = TO_LIST_OF_TYPES.visit(entityList, "entities")
+        context.checker.check(listOfTypes.isNotEmpty(), element,
+                ProcessorErrors.DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES)
+        return listOfTypes.map {
+            entityParser.parse(MoreTypes.asTypeElement(it))
+        }
     }
 
     // code below taken from dagger2

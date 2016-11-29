@@ -40,8 +40,9 @@ class FieldProcessor(val context: Context) {
         } else {
             columnName = name
         }
-        Checks.notBlank(columnName, element, ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY)
-        Checks.notUnbound(type, element,
+        context.checker.notBlank(columnName, element,
+                ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY)
+        context.checker.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS)
         return Field(name = name,
                 type = type,

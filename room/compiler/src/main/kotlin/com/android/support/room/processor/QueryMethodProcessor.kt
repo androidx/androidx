@@ -17,9 +17,10 @@
 package com.android.support.room.processor
 
 import com.android.support.room.Query
+import com.android.support.room.parser.ParsedQuery
 import com.android.support.room.parser.SqlParser
-import com.android.support.room.preconditions.Checks
 import com.android.support.room.vo.QueryMethod
+import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
@@ -32,17 +33,28 @@ class QueryMethodProcessor(val context: Context) {
     fun parse(containing: DeclaredType, executableElement: ExecutableElement): QueryMethod {
         val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
         val executableType = MoreTypes.asExecutable(asMember)
-        Checks.check(MoreElements.isAnnotationPresent(executableElement, Query::class.java),
-                executableElement, ProcessorErrors.MISSING_QUERY_ANNOTATION)
-        val annotation = executableElement.getAnnotation(Query::class.java)
-        val query = SqlParser.parse(annotation.value)
-        Checks.check(query.errors.isEmpty(), executableElement, query.errors.joinToString("\n"))
-        Checks.check(executableType.returnType.kind != TypeKind.ERROR, executableElement,
-                ProcessorErrors.CANNOT_RESOLVE_RETURN_TYPE, executableElement)
+
+        val annotation = MoreElements.getAnnotationMirror(executableElement,
+                Query::class.java).orNull()
+        context.checker.check(annotation != null, executableElement,
+                ProcessorErrors.MISSING_QUERY_ANNOTATION)
+
+        val query = if (annotation != null) {
+            val query = SqlParser.parse(
+                    AnnotationMirrors.getAnnotationValue(annotation, "value").value.toString())
+            context.checker.check(query.errors.isEmpty(), executableElement,
+                    query.errors.joinToString("\n"))
+            context.checker.check(executableType.returnType.kind != TypeKind.ERROR,
+                    executableElement, ProcessorErrors.CANNOT_RESOLVE_RETURN_TYPE,
+                    executableElement)
+            query
+        } else {
+            ParsedQuery.MISSING
+        }
 
         val returnTypeName = TypeName.get(executableType.returnType)
 
-        Checks.notUnbound(returnTypeName, executableElement,
+        context.checker.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
         return QueryMethod(
                 element = executableElement,

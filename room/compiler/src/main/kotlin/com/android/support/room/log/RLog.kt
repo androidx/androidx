@@ -14,9 +14,23 @@
  * limitations under the License.
  */
 
-package com.android.support.room.errors
+package com.android.support.room.log
 
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
+import javax.tools.Diagnostic.Kind.ERROR
+import javax.tools.Diagnostic.Kind.NOTE
 
-class ElementBoundException(val element: Element, val msg: String)
-    : RuntimeException("[$element] $msg")
+class RLog(val processingEnv : ProcessingEnvironment) {
+    fun d(element : Element, msg : String, vararg args : Any) {
+        processingEnv.messager.printMessage(NOTE, msg.format(args), element)
+    }
+
+    fun d(msg : String, vararg args : Any) {
+        processingEnv.messager.printMessage(NOTE, msg.format(args))
+    }
+
+    fun e(element : Element, msg : String, vararg args : Any) {
+        processingEnv.messager.printMessage(ERROR, msg.format(args), element)
+    }
+}

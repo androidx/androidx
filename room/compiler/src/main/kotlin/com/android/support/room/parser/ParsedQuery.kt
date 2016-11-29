@@ -36,6 +36,7 @@ data class ParsedQuery(val original: String, val inputs: List<TerminalNode>,
                        val syntaxErrors: List<String>) {
     companion object {
         val STARTS_WITH_NUMBER = "^\\?[0-9]".toRegex()
+        val MISSING = ParsedQuery("missing query", emptyList(), emptyList())
     }
 
     val sections by lazy {

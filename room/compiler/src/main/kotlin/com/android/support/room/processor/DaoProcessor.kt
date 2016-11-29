@@ -29,9 +29,9 @@ import javax.lang.model.element.TypeElement
 class DaoProcessor(val context : Context) {
     val queryParser = QueryMethodProcessor(context)
     fun parse(element: TypeElement) : Dao {
-        Checks.hasAnnotation(element, com.android.support.room.Dao::class,
+        context.checker.hasAnnotation(element, com.android.support.room.Dao::class,
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO)
-        Checks.check(element.hasAnyOf(ABSTRACT) || element.kind == ElementKind.INTERFACE,
+        context.checker.check(element.hasAnyOf(ABSTRACT) || element.kind == ElementKind.INTERFACE,
                 element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
 
         val declaredType = MoreTypes.asDeclared(element.asType())
@@ -42,7 +42,7 @@ class DaoProcessor(val context : Context) {
             queryParser.parse(declaredType, MoreElements.asExecutable(it))
         }
         val type = TypeName.get(declaredType)
-        Checks.notUnbound(type, element,
+        context.checker.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES)
         return Dao(element = element, type = type, queryMethods = methods)
     }

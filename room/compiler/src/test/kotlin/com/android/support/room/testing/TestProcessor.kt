@@ -16,13 +16,11 @@
 
 package com.android.support.room.testing
 
-import com.android.support.room.errors.ElementBoundException
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.RoundEnvironment
 import javax.annotation.processing.SupportedSourceVersion
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
-import javax.tools.Diagnostic.Kind.ERROR
 import kotlin.reflect.KClass
 
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
@@ -31,13 +29,8 @@ class TestProcessor(val handlers: List<(TestInvocation) -> Boolean>,
     var count = 0
     override fun process(annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment)
             : Boolean {
-        try {
-            return handlers.getOrNull(count++)?.invoke(
+        return handlers.getOrNull(count++)?.invoke(
                     TestInvocation(processingEnv, annotations, roundEnv)) ?: true
-        } catch (elmBound: ElementBoundException) {
-            processingEnv.messager.printMessage(ERROR, elmBound.msg, elmBound.element)
-        }
-        return true
     }
 
     override fun getSupportedAnnotationTypes(): MutableSet<String> {
