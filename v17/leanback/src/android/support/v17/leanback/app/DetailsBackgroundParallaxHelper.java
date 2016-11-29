@@ -80,6 +80,7 @@ import android.util.TypedValue;
  * </ul>
  *
  * In case the color is not set, it will use defaultBrandColorDark from LeanbackTheme.
+ * @hide
  */
 public final class DetailsBackgroundParallaxHelper {
     private DetailsParallaxManager mDetailsParallaxManager;

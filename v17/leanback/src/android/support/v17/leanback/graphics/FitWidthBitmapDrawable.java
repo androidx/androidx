@@ -29,6 +29,7 @@ import android.support.annotation.NonNull;
  * will be scaled to fit the full width of the region and will be aligned to the top left corner.
  * Any region outside the bounds will be clipped during {@link #draw(Canvas)} call. Top
  * position of the bitmap can be controlled by {@link #setVerticalOffset(int)} call.
+ * @hide
  */
 public class FitWidthBitmapDrawable extends Drawable {
 

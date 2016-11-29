@@ -24,6 +24,7 @@ import android.support.v17.leanback.widget.ParallaxEffect.IntEffect;
 /**
  * Parallax listens to {@link ParallaxSource} changes and invokes performMapping on each
  * {@link ParallaxEffect} object.
+ * @hide
  */
 public final class Parallax {
 

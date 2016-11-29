@@ -24,6 +24,7 @@ import android.support.v7.widget.RecyclerView;
  * Class in charge of managing the {@link Parallax} object for {@link DetailsFragment}. This
  * can be shared for creating both parallax effect and video animations when transitioning to/from
  * half/full screen.
+ * @hide
  */
 public class DetailsParallaxManager {
     final ParallaxRecyclerViewSource mParallaxSource;

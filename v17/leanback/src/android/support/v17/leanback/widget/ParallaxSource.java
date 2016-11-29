@@ -37,6 +37,7 @@ import java.util.List;
  *
  * These rules can be verified by {@link #verifyProperties()}.
  * </p>
+ * @hide
  */
 public abstract class ParallaxSource<PropertyT extends Property> {
 
