@@ -1021,7 +1021,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         mRecycler.onAdapterChanged(oldAdapter, mAdapter, compatibleWithPrevious);
         mState.mStructureChanged = true;
-        markKnownViewsInvalid(true);
+        markKnownViewsInvalid();
     }
 
     /**
@@ -3179,7 +3179,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // Processing these items have no value since data set changed unexpectedly.
             // Instead, we just reset it.
             mAdapterHelper.reset();
-            markKnownViewsInvalid(false);
             mLayout.onItemsChanged(this);
         }
         // simple animations are a subset of advanced animations (which will cause a
@@ -4033,8 +4032,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * Attached items are labeled as position unknown, and may no longer be cached.
      *
      * It is still possible for items to be prefetched while mDataSetHasChangedAfterLayout == true,
-     * so calling this method *must* be associated with clearing the recycler cache, so that the
-     * only items that remain in the cache, once layout occurs, are prefetched items.
+     * so calling this method *must* be associated with marking the cache invalid, so that the
+     * only valid items that remain in the cache, once layout occurs, are prefetched items.
      */
     void setDataSetChangedAfterLayout() {
         if (mDataSetHasChangedAfterLayout) {
@@ -4049,13 +4048,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
         }
         mRecycler.setAdapterPositionsAsUnknown();
+
+        // immediately mark all views as invalid, so prefetched views can be
+        // differentiated from views bound to previous data set - both in children, and cache
+        markKnownViewsInvalid();
     }
 
     /**
      * Mark all known views as invalid. Used in response to a, "the whole world might have changed"
      * data change event.
      */
-    void markKnownViewsInvalid(boolean dispatchToRecycler) {
+    void markKnownViewsInvalid() {
         final int childCount = mChildHelper.getUnfilteredChildCount();
         for (int i = 0; i < childCount; i++) {
             final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
@@ -4064,9 +4067,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
         }
         markItemDecorInsetsDirty();
-        if (dispatchToRecycler) {
-            mRecycler.markKnownViewsInvalid();
-        }
+        mRecycler.markKnownViewsInvalid();
     }
 
     /**
@@ -4837,9 +4838,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         public void onChanged() {
             assertNotInLayoutOrScroll(null);
             mState.mStructureChanged = true;
-
-            // clear cache, so we can trust any prefetched data that is cached before next layout
-            mRecycler.recycleAndClearCachedViews();
 
             setDataSetChangedAfterLayout();
             if (!mAdapterHelper.hasPendingUpdates()) {
