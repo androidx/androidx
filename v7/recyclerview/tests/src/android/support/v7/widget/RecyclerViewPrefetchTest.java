@@ -58,9 +58,9 @@ public class RecyclerViewPrefetchTest extends BaseRecyclerViewInstrumentationTes
 
         @Override
         public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
-                RecyclerView.PrefetchRegistry prefetchRegistry) {
+                LayoutPrefetchRegistry layoutPrefetchRegistry) {
             prefetchLatch.countDown();
-            prefetchRegistry.addPosition(6, 0);
+            layoutPrefetchRegistry.addPosition(6, 0);
         }
 
         void waitForPrefetch(int time) throws InterruptedException {

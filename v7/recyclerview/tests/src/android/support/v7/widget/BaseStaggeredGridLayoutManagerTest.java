@@ -806,9 +806,9 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
 
         @Override
         public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
-                RecyclerView.PrefetchRegistry prefetchRegistry) {
+                LayoutPrefetchRegistry layoutPrefetchRegistry) {
             if (prefetchLatch != null) prefetchLatch.countDown();
-            super.collectAdjacentPrefetchPositions(dx, dy, state, prefetchRegistry);
+            super.collectAdjacentPrefetchPositions(dx, dy, state, layoutPrefetchRegistry);
         }
     }
 

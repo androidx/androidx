@@ -58,7 +58,8 @@ final class GapWorker implements Runnable {
     /**
      * Prefetch information associated with a specific RecyclerView.
      */
-    static class PrefetchRegistryImpl implements RecyclerView.PrefetchRegistry {
+    static class LayoutPrefetchRegistryImpl
+            implements RecyclerView.LayoutManager.LayoutPrefetchRegistry {
         int mPrefetchDx;
         int mPrefetchDy;
         int[] mPrefetchArray;
@@ -216,7 +217,7 @@ final class GapWorker implements Runnable {
         int totalTaskIndex = 0;
         for (int i = 0; i < viewCount; i++) {
             RecyclerView view = mRecyclerViews.get(i);
-            PrefetchRegistryImpl prefetchRegistry = view.mPrefetchRegistry;
+            LayoutPrefetchRegistryImpl prefetchRegistry = view.mPrefetchRegistry;
             final int viewVelocity = Math.abs(prefetchRegistry.mPrefetchDx)
                     + Math.abs(prefetchRegistry.mPrefetchDy);
             for (int j = 0; j < prefetchRegistry.mCount * 2; j += 2) {
@@ -290,7 +291,7 @@ final class GapWorker implements Runnable {
         if (holder != null && holder.mNestedRecyclerView != null) {
             // do nested prefetch!
             final RecyclerView innerView = holder.mNestedRecyclerView;
-            final PrefetchRegistryImpl innerPrefetchRegistry = innerView.mPrefetchRegistry;
+            final LayoutPrefetchRegistryImpl innerPrefetchRegistry = innerView.mPrefetchRegistry;
             innerPrefetchRegistry.collectPrefetchPositionsFromView(innerView, true);
 
             if (innerPrefetchRegistry.mCount != 0) {
