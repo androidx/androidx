@@ -31,6 +31,7 @@ import android.os.Message;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.animation.LogAccelerateInterpolator;
 import android.support.v17.leanback.animation.LogDecelerateInterpolator;
+import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
@@ -77,7 +78,7 @@ public class PlaybackSupportFragment extends Fragment {
      * A dark translucent background.
      */
     public static final int BG_DARK = 1;
-    private PlaybackGlue.HostLifecycleCallback mHostLifecycleCallback;
+    private PlaybackGlueHost.HostCallback mHostCallback;
 
     /**
      * Resets the focus on the button in the middle of control row.
@@ -412,6 +413,9 @@ public class PlaybackSupportFragment extends Fragment {
         }
         getVerticalGridView().setOnTouchInterceptListener(mOnTouchInterceptListener);
         getVerticalGridView().setOnKeyInterceptListener(mOnKeyInterceptListener);
+        if (mHostCallback != null) {
+            mHostCallback.onHostResume();
+        }
     }
 
     private void startFadeTimer() {
@@ -754,11 +758,11 @@ public class PlaybackSupportFragment extends Fragment {
     }
 
     /**
-     * Sets the {@link PlaybackGlue.HostLifecycleCallback}. Implementor of this interface will
+     * Sets the {@link PlaybackGlueHost.HostCallback}. Implementor of this interface will
      * take appropriate actions to take action when the hosting fragment starts/stops processing.
      */
-    public void setHostLifecycleCallback(PlaybackGlue.HostLifecycleCallback hostLifecycleCallback) {
-        this.mHostLifecycleCallback = hostLifecycleCallback;
+    public void setHostCallback(PlaybackGlueHost.HostCallback hostCallback) {
+        this.mHostCallback = hostCallback;
     }
 
     @Override
@@ -766,17 +770,25 @@ public class PlaybackSupportFragment extends Fragment {
         super.onStart();
         setupChildFragmentLayout();
         mRowsSupportFragment.setAdapter(mAdapter);
-        if (mHostLifecycleCallback != null) {
-            mHostLifecycleCallback.onHostStart();
+        if (mHostCallback != null) {
+            mHostCallback.onHostStart();
         }
     }
 
     @Override
     public void onStop() {
-        super.onStop();
-        if (mHostLifecycleCallback != null) {
-            mHostLifecycleCallback.onHostStop();
+        if (mHostCallback != null) {
+            mHostCallback.onHostStop();
         }
+        super.onStop();
+    }
+
+    @Override
+    public void onPause() {
+        if (mHostCallback != null) {
+            mHostCallback.onHostPause();
+        }
+        super.onPause();
     }
 
     /**

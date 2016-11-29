@@ -20,8 +20,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.DetailsBackgroundParallaxHelper;
 import android.support.v17.leanback.app.DetailsFragmentVideoHelper;
-import android.support.v17.leanback.app.MediaPlayerGlue;
 import android.support.v17.leanback.app.VideoFragment;
+import android.support.v17.leanback.media.MediaPlayerGlue;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
@@ -97,7 +97,7 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
                 getActivity(), getParallaxManager())
                 .setCoverImageMinVerticalOffset(mBitmapMinVerticalOffset)
                 .build();
-        mMediaPlayerGlue = new MediaPlayerGlue(getActivity(), null);
+        mMediaPlayerGlue = new MediaPlayerGlue(getActivity());
         mMediaPlayerGlue.setHost(createPlaybackGlueHost());
         mVideoHelper = new DetailsFragmentVideoHelper(mMediaPlayerGlue, getParallaxManager());
         mVideoHelper.setBackgroundDrawable(mParallaxHelper.getCoverImageDrawable());

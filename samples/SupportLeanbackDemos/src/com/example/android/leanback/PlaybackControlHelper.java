@@ -19,15 +19,11 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.support.v17.leanback.app.MediaPlayerGlue;
-import android.support.v17.leanback.app.PlaybackControlGlue;
-import android.support.v17.leanback.app.PlaybackGlue;
+import android.support.v17.leanback.media.MediaPlayerGlue;
+import android.support.v17.leanback.media.PlaybackControlGlue;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
-import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.view.KeyEvent;
 import android.view.View;
@@ -65,8 +61,8 @@ abstract class PlaybackControlHelper extends MediaPlayerGlue {
         }
     };
 
-    public PlaybackControlHelper(Context context, PlaybackGlue.PlaybackGlueHost host) {
-        super(context, host, sFastForwardSpeeds, sFastForwardSpeeds);
+    PlaybackControlHelper(Context context) {
+        super(context, sFastForwardSpeeds, sFastForwardSpeeds);
         mThumbsUpAction = new PlaybackControlsRow.ThumbsUpAction(context);
         mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsUpAction.OUTLINE);
         mThumbsDownAction = new PlaybackControlsRow.ThumbsDownAction(context);
@@ -76,34 +72,26 @@ abstract class PlaybackControlHelper extends MediaPlayerGlue {
     }
 
     @Override
-    public PlaybackControlsRowPresenter createControlsRowAndPresenter() {
-        PlaybackControlsRowPresenter presenter = super.createControlsRowAndPresenter();
-
-        ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ControlButtonPresenterSelector());
-        getControlsRow().setSecondaryActionsAdapter(adapter);
+    protected void onCreateSecondaryActions(ArrayObjectAdapter secondaryActionsAdapter) {
         if (!THUMBS_PRIMARY) {
-            adapter.add(mThumbsDownAction);
+            secondaryActionsAdapter.add(mThumbsDownAction);
         }
         if (android.os.Build.VERSION.SDK_INT > 23) {
-            adapter.add(mPipAction);
+            secondaryActionsAdapter.add(mPipAction);
         }
-        adapter.add(mRepeatAction);
+        secondaryActionsAdapter.add(mRepeatAction);
         if (!THUMBS_PRIMARY) {
-            adapter.add(mThumbsUpAction);
+            secondaryActionsAdapter.add(mThumbsUpAction);
         }
-
-        return presenter;
     }
 
     @Override
-    protected SparseArrayObjectAdapter createPrimaryActionsAdapter(
-            PresenterSelector presenterSelector) {
-        SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter(presenterSelector);
+    protected void onCreatePrimaryActions(SparseArrayObjectAdapter adapter) {
+        super.onCreatePrimaryActions(adapter);
         if (THUMBS_PRIMARY) {
             adapter.set(PlaybackControlGlue.ACTION_CUSTOM_LEFT_FIRST, mThumbsUpAction);
             adapter.set(PlaybackControlGlue.ACTION_CUSTOM_RIGHT_FIRST, mThumbsDownAction);
         }
-        return adapter;
     }
 
     @Override
@@ -234,9 +222,9 @@ abstract class PlaybackControlHelper extends MediaPlayerGlue {
             @Override
             public void run() {
                 if (mRepeatAction.getIndex() == PlaybackControlsRow.RepeatAction.NONE) {
-                    pausePlayback();
+                    pause();
                 } else {
-                    startPlayback(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL);
+                    play(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL);
                 }
                 mStartPosition = 0;
                 onStateChanged();
@@ -245,7 +233,7 @@ abstract class PlaybackControlHelper extends MediaPlayerGlue {
     }
 
     @Override
-    protected void startPlayback(int speed) {
+    public void play(int speed) {
         if (speed == mSpeed) {
             return;
         }
@@ -256,7 +244,7 @@ abstract class PlaybackControlHelper extends MediaPlayerGlue {
     }
 
     @Override
-    protected void pausePlayback() {
+    public void pause() {
         if (mSpeed == PlaybackControlGlue.PLAYBACK_SPEED_PAUSED) {
             return;
         }
@@ -266,12 +254,12 @@ abstract class PlaybackControlHelper extends MediaPlayerGlue {
     }
 
     @Override
-    protected void skipToNext() {
+    public void next() {
         // Not supported
     }
 
     @Override
-    protected void skipToPrevious() {
+    public void previous() {
         // Not supported
     }
 

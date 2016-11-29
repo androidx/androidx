@@ -18,7 +18,6 @@ package com.example.android.leanback;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.PlaybackSupportFragment;
 import android.support.v17.leanback.app.PlaybackSupportFragmentGlueHost;
 import android.support.v17.leanback.widget.Action;
@@ -27,7 +26,6 @@ import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
@@ -56,7 +54,6 @@ public class PlaybackOverlaySupportFragment
     private static final int ROW_CONTROLS = 0;
 
     private PlaybackControlHelper mGlue;
-    private PlaybackControlsRowPresenter mPlaybackControlsRowPresenter;
     private ListRowPresenter mListRowPresenter;
 
     public SparseArrayObjectAdapter getAdapter() {
@@ -74,7 +71,7 @@ public class PlaybackOverlaySupportFragment
     }
 
     private void createComponents(Context context) {
-        mGlue = new PlaybackControlHelper(context, new PlaybackSupportFragmentGlueHost(this)) {
+        mGlue = new PlaybackControlHelper(context) {
             @Override
             public int getUpdatePeriod() {
                 int totalTime = getControlsRow().getTotalTime();
@@ -85,17 +82,6 @@ public class PlaybackOverlaySupportFragment
             }
 
             @Override
-            protected void onRowChanged(PlaybackControlsRow row) {
-                if (getAdapter() == null) {
-                    return;
-                }
-                int index = getAdapter().indexOf(row);
-                if (index >= 0) {
-                    getAdapter().notifyArrayItemRangeChanged(index, 1);
-                }
-            }
-
-            @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == R.id.lb_control_picture_in_picture) {
                     getActivity().enterPictureInPictureMode();
@@ -103,17 +89,22 @@ public class PlaybackOverlaySupportFragment
                 }
                 super.onActionClicked(action);
             }
+
+            @Override
+            protected void onCreateControlsRowAndPresenter() {
+                super.onCreateControlsRowAndPresenter();
+                getControlsRowPresenter().setSecondaryActionsHidden(SECONDARY_HIDDEN);
+            }
         };
 
-        mPlaybackControlsRowPresenter = mGlue.createControlsRowAndPresenter();
-        mPlaybackControlsRowPresenter.setSecondaryActionsHidden(SECONDARY_HIDDEN);
+        mGlue.setHost(new PlaybackSupportFragmentGlueHost(this));
         mListRowPresenter = new ListRowPresenter();
 
         setAdapter(new SparseArrayObjectAdapter(new PresenterSelector() {
             @Override
             public Presenter getPresenter(Object object) {
                 if (object instanceof PlaybackControlsRow) {
-                    return mPlaybackControlsRowPresenter;
+                    return mGlue.getControlsRowPresenter();
                 } else if (object instanceof ListRow) {
                     return mListRowPresenter;
                 }
@@ -137,14 +128,11 @@ public class PlaybackOverlaySupportFragment
     @Override
     public void onStart() {
         super.onStart();
-        mGlue.setFadingEnabled(true);
-        mGlue.enableProgressUpdating(mGlue.hasValidMedia() && mGlue.isMediaPlaying());
         ((PlaybackOverlaySupportActivity) getActivity()).registerPictureInPictureListener(this);
     }
 
     @Override
     public void onStop() {
-        mGlue.enableProgressUpdating(false);
         ((PlaybackOverlaySupportActivity) getActivity()).unregisterPictureInPictureListener(this);
         super.onStop();
     }
