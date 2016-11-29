@@ -25,19 +25,41 @@ import android.support.v7.preference.DialogPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.ArraySet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Checkable;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDialogFragment {
 
+    private static final String SAVE_STATE_IS_MULTI =
+            "LeanbackListPreferenceDialogFragment.isMulti";
+    private static final String SAVE_STATE_ENTRIES = "LeanbackListPreferenceDialogFragment.entries";
+    private static final String SAVE_STATE_ENTRY_VALUES =
+            "LeanbackListPreferenceDialogFragment.entryValues";
+    private static final String SAVE_STATE_TITLE = "LeanbackListPreferenceDialogFragment.title";
+    private static final String SAVE_STATE_MESSAGE = "LeanbackListPreferenceDialogFragment.message";
+    private static final String SAVE_STATE_INITIAL_SELECTIONS =
+            "LeanbackListPreferenceDialogFragment.initialSelections";
+    private static final String SAVE_STATE_INITIAL_SELECTION =
+            "LeanbackListPreferenceDialogFragment.initialSelection";
+
+    private boolean mMulti;
+    private CharSequence[] mEntries;
+    private CharSequence[] mEntryValues;
+    private CharSequence mDialogTitle;
+    private CharSequence mDialogMessage;
+    private Set<String> mInitialSelections;
+    private String mInitialSelection;
+
     public static LeanbackListPreferenceDialogFragment newInstanceSingle(String key) {
-        final Bundle args = new Bundle(5);
+        final Bundle args = new Bundle(1);
         args.putString(ARG_KEY, key);
 
         final LeanbackListPreferenceDialogFragment
@@ -48,7 +70,7 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
     }
 
     public static LeanbackListPreferenceDialogFragment newInstanceMulti(String key) {
-        final Bundle args = new Bundle(5);
+        final Bundle args = new Bundle(1);
         args.putString(ARG_KEY, key);
 
         final LeanbackListPreferenceDialogFragment
@@ -62,11 +84,58 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final DialogPreference preference = getPreference();
-        if (!(preference instanceof ListPreference) &&
-                !(preference instanceof MultiSelectListPreference)) {
-            throw new IllegalArgumentException("Preference must be a ListPreference or " +
-                    "MultiSelectListPreference");
+        if (savedInstanceState == null) {
+            final DialogPreference preference = getPreference();
+            mDialogTitle = preference.getDialogTitle();
+            mDialogMessage = preference.getDialogMessage();
+
+            if (preference instanceof ListPreference) {
+                mMulti = false;
+                mEntries = ((ListPreference) preference).getEntries();
+                mEntryValues = ((ListPreference) preference).getEntryValues();
+                mInitialSelection = ((ListPreference) preference).getValue();
+            } else if (preference instanceof MultiSelectListPreference) {
+                mMulti = true;
+                mEntries = ((MultiSelectListPreference) preference).getEntries();
+                mEntryValues = ((MultiSelectListPreference) preference).getEntryValues();
+                mInitialSelections = ((MultiSelectListPreference) preference).getValues();
+            } else {
+                throw new IllegalArgumentException("Preference must be a ListPreference or "
+                        + "MultiSelectListPreference");
+            }
+        } else {
+            mDialogTitle = savedInstanceState.getCharSequence(SAVE_STATE_TITLE);
+            mDialogMessage = savedInstanceState.getCharSequence(SAVE_STATE_MESSAGE);
+            mMulti = savedInstanceState.getBoolean(SAVE_STATE_IS_MULTI);
+            mEntries = savedInstanceState.getCharSequenceArray(SAVE_STATE_ENTRIES);
+            mEntryValues = savedInstanceState.getCharSequenceArray(SAVE_STATE_ENTRY_VALUES);
+            if (mMulti) {
+                final String[] initialSelections = savedInstanceState.getStringArray(
+                        SAVE_STATE_INITIAL_SELECTIONS);
+                mInitialSelections = new ArraySet<>(
+                        initialSelections != null ? initialSelections.length : 0);
+                if (initialSelections != null) {
+                    Collections.addAll(mInitialSelections, initialSelections);
+                }
+            } else {
+                mInitialSelection = savedInstanceState.getString(SAVE_STATE_INITIAL_SELECTION);
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putCharSequence(SAVE_STATE_TITLE, mDialogTitle);
+        outState.putCharSequence(SAVE_STATE_MESSAGE, mDialogMessage);
+        outState.putBoolean(SAVE_STATE_IS_MULTI, mMulti);
+        outState.putCharSequenceArray(SAVE_STATE_ENTRIES, mEntries);
+        outState.putCharSequenceArray(SAVE_STATE_ENTRY_VALUES, mEntryValues);
+        if (mMulti) {
+            outState.putStringArray(SAVE_STATE_INITIAL_SELECTIONS,
+                    mInitialSelections.toArray(new String[mInitialSelections.size()]));
+        } else {
+            outState.putString(SAVE_STATE_INITIAL_SELECTION, mInitialSelection);
         }
     }
 
@@ -83,14 +152,13 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
         verticalGridView.setAdapter(onCreateAdapter());
         verticalGridView.requestFocus();
 
-        final DialogPreference preference = getPreference();
-        final CharSequence title = preference.getDialogTitle();
+        final CharSequence title = mDialogTitle;
         if (!TextUtils.isEmpty(title)) {
             final TextView titleView = (TextView) view.findViewById(R.id.decor_title);
             titleView.setText(title);
         }
 
-        final CharSequence message = preference.getDialogMessage();
+        final CharSequence message = mDialogMessage;
         if (!TextUtils.isEmpty(message)) {
             final TextView messageView = (TextView) view.findViewById(android.R.id.message);
             messageView.setVisibility(View.VISIBLE);
@@ -101,21 +169,11 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
     }
 
     public RecyclerView.Adapter onCreateAdapter() {
-        final DialogPreference preference = getPreference();
-        if (preference instanceof MultiSelectListPreference) {
-            final MultiSelectListPreference pref = (MultiSelectListPreference) preference;
-            final CharSequence[] entries = pref.getEntries();
-            final CharSequence[] entryValues = pref.getEntryValues();
-            final Set<String> initialSelections = pref.getValues();
-            return new AdapterMulti(entries, entryValues, initialSelections);
-        } else if (preference instanceof ListPreference) {
-            final ListPreference pref = (ListPreference) preference;
-            final CharSequence[] entries = pref.getEntries();
-            final CharSequence[] entryValues = pref.getEntryValues();
-            final String initialSelection = pref.getValue();
-            return new AdapterSingle(entries, entryValues, initialSelection);
+        //final DialogPreference preference = getPreference();
+        if (mMulti) {
+            return new AdapterMulti(mEntries, mEntryValues, mInitialSelections);
         } else {
-            throw new IllegalStateException("Unknown preference type");
+            return new AdapterSingle(mEntries, mEntryValues, mInitialSelection);
         }
     }
 
@@ -224,6 +282,7 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
             // Pass copies of the set to callChangeListener and setValues to avoid mutations
             if (multiSelectListPreference.callChangeListener(new HashSet<>(mSelections))) {
                 multiSelectListPreference.setValues(new HashSet<>(mSelections));
+                mInitialSelections = mSelections;
             } else {
                 // Change refused, back it out
                 if (mSelections.contains(entry)) {

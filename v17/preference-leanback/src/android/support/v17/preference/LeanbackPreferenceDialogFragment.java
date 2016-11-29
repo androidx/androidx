@@ -42,15 +42,15 @@ public class LeanbackPreferenceDialogFragment extends Fragment {
             throw new IllegalStateException("Target fragment must implement TargetFragment" +
                     " interface");
         }
-
-        final DialogPreference.TargetFragment fragment =
-                (DialogPreference.TargetFragment) rawFragment;
-
-        final String key = getArguments().getString(LeanbackListPreferenceDialogFragment.ARG_KEY);
-        mPreference = (DialogPreference) fragment.findPreference(key);
     }
 
     public DialogPreference getPreference() {
+        if (mPreference == null) {
+            final String key = getArguments().getString(ARG_KEY);
+            final DialogPreference.TargetFragment fragment =
+                    (DialogPreference.TargetFragment) getTargetFragment();
+            mPreference = (DialogPreference) fragment.findPreference(key);
+        }
         return mPreference;
     }
 }
