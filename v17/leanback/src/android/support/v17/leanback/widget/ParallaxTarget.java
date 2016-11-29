@@ -24,6 +24,7 @@ import java.util.List;
  * {@link ParallaxEffect} transforms the values of {@link ParallaxSource}, which represents the
  * current state of UI, into a float value between 0 and 1. That float value is passed into
  * {@link #update(float)} method.
+ * @hide
  */
 public abstract class ParallaxTarget {
 

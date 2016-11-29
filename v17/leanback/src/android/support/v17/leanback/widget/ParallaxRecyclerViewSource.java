@@ -25,6 +25,7 @@ import android.view.View;
  * Implementation of {@link ParallaxSource} class for {@link RecyclerView}. This class
  * allows users to track position of specific views inside {@link RecyclerView} relative to
  * itself. @see {@link ChildPositionProperty} for details.
+ * @hide
  */
 public class ParallaxRecyclerViewSource extends
         ParallaxSource.IntSource<ParallaxRecyclerViewSource.ChildPositionProperty> {
