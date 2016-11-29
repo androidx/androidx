@@ -16,15 +16,8 @@
 
 package com.android.support.room.processor
 
-import com.android.support.room.vo.Parameter
-import com.google.auto.common.MoreTypes
-import com.squareup.javapoet.TypeName
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.DeclaredType
+import javax.annotation.processing.ProcessingEnvironment
+import javax.annotation.processing.RoundEnvironment
 
-class ParameterParser(val context: Context) {
-    fun parse(containing: DeclaredType, element: VariableElement): Parameter {
-        val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
-        return Parameter(element.simpleName.toString(), TypeName.get(asMember))
-    }
-}
+data class Context(val roundEnv: RoundEnvironment,
+                   val processingEnv: ProcessingEnvironment)

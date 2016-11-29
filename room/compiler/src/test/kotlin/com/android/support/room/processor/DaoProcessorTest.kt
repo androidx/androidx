@@ -98,7 +98,7 @@ class DaoProcessorTest {
                                     .getElementsAnnotatedWith(
                                             com.android.support.room.Dao::class.java)
                                     .first()
-                            val parser = DaoProcessor(invocation.roundEnv, invocation.processingEnv)
+                            val parser = DaoProcessor(invocation.context)
                             val parsedDao = parser.parse(MoreElements.asType(entity))
                             handler(parsedDao, invocation)
                             true

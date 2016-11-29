@@ -22,15 +22,12 @@ import com.android.support.room.vo.Dao
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
-import javax.annotation.processing.ProcessingEnvironment
-import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.TypeElement
 
-class DaoProcessor(val roundEnv: RoundEnvironment,
-                   val processingEnvironment: ProcessingEnvironment) {
-    val queryParser = QueryMethodProcessor(roundEnv, processingEnvironment)
+class DaoProcessor(val context : Context) {
+    val queryParser = QueryMethodProcessor(context)
     fun parse(element: TypeElement) : Dao {
         Checks.hasAnnotation(element, com.android.support.room.Dao::class,
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO)
@@ -38,7 +35,7 @@ class DaoProcessor(val roundEnv: RoundEnvironment,
                 element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
 
         val declaredType = MoreTypes.asDeclared(element.asType())
-        val allMembers = processingEnvironment.elementUtils.getAllMembers(element)
+        val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
         val methods = allMembers.filter {
             it.hasAnyOf(ABSTRACT) && it.kind == ElementKind.METHOD
         }.map {

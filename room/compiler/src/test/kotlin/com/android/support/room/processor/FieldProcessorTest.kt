@@ -243,8 +243,7 @@ class FieldProcessorTest {
                                                 .firstOrNull { it.kind == ElementKind.FIELD })
                                     }
                                     .first { it.second != null }
-                            val parser = FieldProcessor(invocation.roundEnv,
-                                    invocation.processingEnv)
+                            val parser = FieldProcessor(invocation.context)
                             handler(parser.parse(
                                     MoreTypes.asDeclared(owner.asType()), field!!), invocation)
                             true

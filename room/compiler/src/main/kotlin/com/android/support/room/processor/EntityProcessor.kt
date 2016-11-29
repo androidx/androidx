@@ -26,8 +26,6 @@ import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
-import javax.annotation.processing.ProcessingEnvironment
-import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
@@ -35,15 +33,14 @@ import javax.lang.model.element.Modifier.*
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
 
-class EntityProcessor(val roundEnv: RoundEnvironment,
-                      val processingEnvironment: ProcessingEnvironment) {
-    val fieldParser = FieldProcessor(roundEnv, processingEnvironment)
+class EntityProcessor(val context: Context) {
+    val fieldParser = FieldProcessor(context)
 
     fun parse(element: TypeElement): Entity {
         Checks.hasAnnotation(element, com.android.support.room.Entity::class,
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
         val declaredType = MoreTypes.asDeclared(element.asType())
-        val allMembers = processingEnvironment.elementUtils.getAllMembers(element)
+        val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
         val fields = allMembers
                 .filter {
                     it.kind == ElementKind.FIELD
@@ -91,7 +88,7 @@ class EntityProcessor(val roundEnv: RoundEnvironment,
     }
 
     private fun assignGetters(fields: List<Field>, getterCandidates: List<ExecutableElement>) {
-        val types = processingEnvironment.typeUtils
+        val types = context.processingEnv.typeUtils
 
         fields.forEach { field ->
             if (!field.element.hasAnyOf(PRIVATE)) {
@@ -120,7 +117,7 @@ class EntityProcessor(val roundEnv: RoundEnvironment,
     }
 
     private fun assignSetters(fields: List<Field>, setterCandidates: List<ExecutableElement>) {
-        val types = processingEnvironment.typeUtils
+        val types = context.processingEnv.typeUtils
 
         fields.forEach { field ->
             if (!field.element.hasAnyOf(PRIVATE)) {

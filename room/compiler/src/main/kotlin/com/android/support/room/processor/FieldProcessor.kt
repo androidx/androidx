@@ -23,15 +23,12 @@ import com.android.support.room.vo.Field
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.squareup.javapoet.TypeName
-import javax.annotation.processing.ProcessingEnvironment
-import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.type.DeclaredType
 
-class FieldProcessor(val roundEnv: RoundEnvironment,
-                     val processingEnvironment: ProcessingEnvironment) {
+class FieldProcessor(val context: Context) {
     fun parse(containing : DeclaredType, element : Element) : Field {
-        val member = processingEnvironment.typeUtils.asMemberOf(containing, element)
+        val member = context.processingEnv.typeUtils.asMemberOf(containing, element)
         val type = TypeName.get(member)
         val columnNameAnnotation = MoreElements.getAnnotationMirror(element,
                 ColumnName::class.java)

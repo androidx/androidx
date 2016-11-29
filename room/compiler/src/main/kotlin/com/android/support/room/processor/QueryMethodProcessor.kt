@@ -23,17 +23,14 @@ import com.android.support.room.vo.QueryMethod
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
-import javax.annotation.processing.ProcessingEnvironment
-import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 
-class QueryMethodProcessor(val roundEnv: RoundEnvironment,
-                           val processingEnvironment: ProcessingEnvironment) {
-    val parameterParser = ParameterParser(roundEnv, processingEnvironment)
+class QueryMethodProcessor(val context: Context) {
+    val parameterParser = ParameterParser(context)
     fun parse(containing: DeclaredType, executableElement: ExecutableElement): QueryMethod {
-        val asMember = processingEnvironment.typeUtils.asMemberOf(containing, executableElement)
+        val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
         val executableType = MoreTypes.asExecutable(asMember)
         Checks.check(MoreElements.isAnnotationPresent(executableElement, Query::class.java),
                 executableElement, ProcessorErrors.MISSING_QUERY_ANNOTATION)

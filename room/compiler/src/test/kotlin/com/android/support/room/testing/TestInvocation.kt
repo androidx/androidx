@@ -16,6 +16,7 @@
 
 package com.android.support.room.testing
 
+import com.android.support.room.processor.Context
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.TypeElement
@@ -23,4 +24,5 @@ import javax.lang.model.element.TypeElement
 data class TestInvocation(val processingEnv: ProcessingEnvironment,
                           val annotations: MutableSet<out TypeElement>,
                           val roundEnv: RoundEnvironment) {
+    val context = Context(roundEnv, processingEnv)
 }

@@ -124,13 +124,11 @@ class DatabaseProcessorTest {
                                     .getElementsAnnotatedWith(
                                             com.android.support.room.Database::class.java)
                                     .first()
-                            val parser = DatabaseProcessor(invocation.roundEnv,
-                                    invocation.processingEnv)
+                            val parser = DatabaseProcessor(invocation.context)
                             val parsedDb = parser.parse(MoreElements.asType(entity))
                             handler(parsedDb, invocation)
                             true
                         }
                         .build())
     }
-
 }

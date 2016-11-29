@@ -23,8 +23,6 @@ import com.android.support.room.vo.Database
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import javax.annotation.processing.ProcessingEnvironment
-import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
@@ -33,10 +31,9 @@ import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
 
 
-class DatabaseProcessor(val roundEnv: RoundEnvironment,
-                        val processingEnvironment: ProcessingEnvironment) {
-    val entityParser = EntityProcessor(roundEnv, processingEnvironment)
-    val daoParser = DaoProcessor(roundEnv, processingEnvironment)
+class DatabaseProcessor(val context: Context) {
+    val entityParser = EntityProcessor(context)
+    val daoParser = DaoProcessor(context)
 
     fun parse(element: TypeElement): Database {
         Checks.hasAnnotation(element, com.android.support.room.Database::class,
@@ -53,7 +50,7 @@ class DatabaseProcessor(val roundEnv: RoundEnvironment,
             entityParser.parse(MoreTypes.asTypeElement(it))
         }
 
-        val allMembers = processingEnvironment.elementUtils.getAllMembers(element)
+        val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
         val daoMethods = allMembers.filter {
             it.hasAnyOf(Modifier.ABSTRACT) && it.kind == ElementKind.METHOD
         }.map {

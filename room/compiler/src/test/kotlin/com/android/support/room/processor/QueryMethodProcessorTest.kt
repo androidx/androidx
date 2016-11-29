@@ -161,8 +161,7 @@ class QueryMethodProcessorTest {
                                                         }
                                         )
                                     }.filter { it.second.isNotEmpty() }.first()
-                            val parser = QueryMethodProcessor(invocation.roundEnv,
-                                    invocation.processingEnv)
+                            val parser = QueryMethodProcessor(invocation.context)
                             val parsedQuery = parser.parse(MoreTypes.asDeclared(owner.asType()),
                                     MoreElements.asExecutable(methods.first()))
                             handler(parsedQuery)
