@@ -18,11 +18,11 @@ package com.android.support.room.vo
 
 import com.android.support.room.parser.ParsedQuery
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
 
 /**
  * A class that holds information about a QueryMethod.
  * It is self sufficient and must have all generics etc resolved once created.
  */
-data class QueryMethod(val element : Element, val query: ParsedQuery, val name: String,
+data class QueryMethod(val element : ExecutableElement, val query: ParsedQuery, val name: String,
                        val returnType: TypeName, val parameters: List<Parameter>)

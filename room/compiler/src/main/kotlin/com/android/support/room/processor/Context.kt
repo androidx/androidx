@@ -18,6 +18,7 @@ package com.android.support.room.processor
 
 import com.android.support.room.log.RLog
 import com.android.support.room.preconditions.Checks
+import com.android.support.room.solver.TypeAdapterStore
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 
@@ -25,4 +26,5 @@ data class Context(val roundEnv: RoundEnvironment,
                    val processingEnv: ProcessingEnvironment) {
     val logger = RLog(processingEnv)
     val checker = Checks(logger)
+    val typeAdapterStore = TypeAdapterStore(roundEnv, processingEnv)
 }

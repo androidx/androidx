@@ -19,6 +19,8 @@ package com.android.support.room.solver
 import com.android.support.room.Entity
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
+import com.android.support.room.solver.types.CompositeAdapter
+import com.android.support.room.solver.types.TypeConverter
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.google.common.truth.Truth
@@ -45,7 +47,7 @@ class TypeAdapterStoreTest {
         singleRun { invocation ->
             val store = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
             val primitiveType = invocation.processingEnv.typeUtils.getPrimitiveType(TypeKind.INT)
-            val adapter = store.getAdapterFor(primitiveType)
+            val adapter = store.findAdapter(primitiveType)
             assertThat(adapter, notNullValue())
         }.compilesWithoutError()
     }
@@ -56,7 +58,7 @@ class TypeAdapterStoreTest {
             val store = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
             val booleanType = invocation.processingEnv.typeUtils
                     .getPrimitiveType(TypeKind.BOOLEAN)
-            val adapter = store.getAdapterFor(booleanType)
+            val adapter = store.findAdapter(booleanType)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val bindScope = CodeGenScope()
@@ -80,22 +82,22 @@ class TypeAdapterStoreTest {
     @Test
     fun testVia2TypeAdapters() {
         singleRun { invocation ->
-            val store = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
-            store.addTypeAdapter(PointTypeConverter(invocation.processingEnv))
+            val store = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv,
+                    PointTypeConverter(invocation.processingEnv))
             val pointType = invocation.processingEnv.elementUtils
                     .getTypeElement("foo.bar.Point").asType()
-            val adapter = store.getAdapterFor(pointType)
+            val adapter = store.findAdapter(pointType)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
 
             val bindScope = CodeGenScope()
             adapter!!.bindToStmt("stmt", 41, "fooVar", bindScope)
             assertThat(bindScope.generate().trim(), `is`("""
-                    final boolean ${tmp(0)};
-                    ${tmp(0)} = foo.bar.Point.toBoolean(fooVar);
-                    final int ${tmp(1)};
-                    ${tmp(1)} = ${tmp(0)} ? 1 : 0;
-                    stmt.bindLong(41, ${tmp(1)});
+                    final int ${tmp(0)};
+                    final boolean ${tmp(1)};
+                    ${tmp(1)} = foo.bar.Point.toBoolean(fooVar);
+                    ${tmp(0)} = ${tmp(1)} ? 1 : 0;
+                    stmt.bindLong(41, ${tmp(0)});
                     """.trimIndent()))
 
             val cursorScope = CodeGenScope()
@@ -120,7 +122,7 @@ class TypeAdapterStoreTest {
             val listType = invocation.processingEnv.elementUtils
                     .getTypeElement(java.util.List::class.java.canonicalName)
             val listOfInts = invocation.processingEnv.typeUtils.getDeclaredType(listType, intType)
-            val adapter = store.getAdapterFor(listOfInts)
+            val adapter = store.findAdapter(listOfInts)
             assertThat(adapter, notNullValue())
 
             val bindScope = CodeGenScope()

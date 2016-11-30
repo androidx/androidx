@@ -16,6 +16,17 @@
 
 package com.android.support.room.ext
 
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
+import javax.lang.model.type.TypeMirror
+import kotlin.reflect.KClass
+
 val L = "\$L"
 val T = "\$T"
 val N = "\$N"
+val S = "\$S"
+
+fun KClass<*>.typeName() = ClassName.get(this.java)
+fun KClass<*>.arrayTypeName() = ArrayTypeName.of(typeName())
+fun TypeMirror.typeName() = TypeName.get(this)

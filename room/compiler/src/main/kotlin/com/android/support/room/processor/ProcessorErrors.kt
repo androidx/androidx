@@ -48,6 +48,9 @@ object ProcessorErrors {
     val ENTITY_TABLE_NAME_CANNOT_BE_EMPTY = "Entity table name cannot be blank. If you don't want" +
             " to set it, just remove the tableName property."
 
+    val CANNOT_CONVERT_QUERY_PARAMETER_TO_STRING = "QueryMethod parameters should be suitable to" +
+            " be converted into String but I don't know how to convert this."
+
     fun tooManyMatchingGetters(field : Field, methodNames : List<String>) : String {
         return TOO_MANY_MATCHING_GETTERS.format(field, methodNames.joinToString(", "))
     }

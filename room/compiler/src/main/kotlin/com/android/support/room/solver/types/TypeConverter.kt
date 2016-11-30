@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.support.room.solver
+package com.android.support.room.solver.types
 
+import com.android.support.room.solver.CodeGenScope
 import com.squareup.javapoet.TypeName
 import javax.lang.model.type.TypeMirror
 

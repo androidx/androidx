@@ -14,50 +14,37 @@
  * limitations under the License.
  */
 
-package com.android.support.room.solver
+package com.android.support.room.solver.types
 
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
+import com.android.support.room.solver.CodeGenScope
 import com.squareup.javapoet.TypeName
 import javax.lang.model.type.TypeMirror
 
 /**
- * A column adapter that uses multiple type adapters to do the conversion.
+ * A column adapter that uses a type converter to do the conversion. The type converter may be
+ * a composite one.
  */
 class CompositeAdapter(out: TypeMirror, val columnTypeAdapter: ColumnTypeAdapter,
-                       val typeConverters: List<TypeConverter>) : ColumnTypeAdapter(out) {
+                       val typeConverter : TypeConverter) : ColumnTypeAdapter(out) {
     override fun readFromCursor(outVarName: String, cursorVarName: String, index: Int,
                                 scope: CodeGenScope) {
-        val reversed = typeConverters.reversed()
-
         scope.builder().apply {
             val tmpCursorValue = scope.getTmpVar()
             addStatement("final $T $L", columnTypeAdapter.outTypeName, tmpCursorValue)
             columnTypeAdapter.readFromCursor(tmpCursorValue, cursorVarName, index, scope)
-            var tmpInVar = tmpCursorValue
-            var tmpOutVar = scope.getTmpVar()
-            reversed.take(reversed.size - 1).forEach {
-                addStatement("final $T $L", it.fromTypeName, tmpOutVar)
-                it.convertBackward(tmpInVar, tmpOutVar, scope)
-                tmpInVar = tmpOutVar
-                tmpOutVar = scope.getTmpVar()
-            }
-            reversed.last().convertBackward(tmpInVar, outVarName, scope)
+            typeConverter.convertBackward(tmpCursorValue, outVarName, scope)
         }
     }
 
     override fun bindToStmt(stmtName: String, index: Int, valueVarName: String,
                             scope: CodeGenScope) {
-        var tmpInVar = valueVarName
-        var tmpOutVar = scope.getTmpVar()
         scope.builder().apply {
-            typeConverters.forEach {
-                addStatement("final $T $L", it.toTypeName, tmpOutVar)
-                it.convertForward(tmpInVar, tmpOutVar, scope)
-                tmpInVar = tmpOutVar
-                tmpOutVar = scope.getTmpVar()
-            }
-            columnTypeAdapter.bindToStmt(stmtName, index, tmpInVar, scope)
+            val tmpVar = scope.getTmpVar()
+            addStatement("final $T $L", columnTypeAdapter.out, tmpVar)
+            typeConverter.convertForward(valueVarName, tmpVar, scope)
+            columnTypeAdapter.bindToStmt(stmtName, index, tmpVar, scope)
         }
     }
 }

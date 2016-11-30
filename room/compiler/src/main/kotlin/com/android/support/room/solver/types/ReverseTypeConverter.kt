@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.support.room.solver
+package com.android.support.room.solver.types
+
+import com.android.support.room.solver.CodeGenScope
 
 /**
  * Takes a type adapter and reverses it.

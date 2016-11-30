@@ -17,6 +17,7 @@
 package com.android.support.room.processor
 
 import com.android.support.room.vo.Parameter
+import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.VariableElement
@@ -25,6 +26,12 @@ import javax.lang.model.type.DeclaredType
 class ParameterParser(val context: Context) {
     fun parse(containing: DeclaredType, element: VariableElement): Parameter {
         val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
-        return Parameter(element.simpleName.toString(), TypeName.get(asMember))
+        val typeConverter = context.typeAdapterStore.findTypeConverter(asMember,
+                context.processingEnv.elementUtils.getTypeElement("java.lang.String").asType()
+        )
+        context.checker.check(typeConverter != null, element,
+                ProcessorErrors.CANNOT_CONVERT_QUERY_PARAMETER_TO_STRING)
+
+        return Parameter(element.simpleName.toString(), TypeName.get(asMember), typeConverter)
     }
 }

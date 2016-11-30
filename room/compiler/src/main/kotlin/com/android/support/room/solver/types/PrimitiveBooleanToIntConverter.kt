@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.support.room.solver
+package com.android.support.room.solver.types
 
 import com.android.support.room.ext.L
+import com.android.support.room.solver.CodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeKind
+import javax.lang.model.type.TypeKind.BOOLEAN
+import javax.lang.model.type.TypeKind.INT
 
 /**
  * int to boolean adapter.
  */
 class PrimitiveBooleanToIntConverter(processingEnvironment: ProcessingEnvironment) : TypeConverter(
-        from = processingEnvironment.typeUtils.getPrimitiveType(TypeKind.BOOLEAN),
-        to = processingEnvironment.typeUtils.getPrimitiveType(TypeKind.INT)) {
+        from = processingEnvironment.typeUtils.getPrimitiveType(BOOLEAN),
+        to = processingEnvironment.typeUtils.getPrimitiveType(INT)) {
     override fun convertForward(inputVarName: String, outputVarName: String,
                                 scope: CodeGenScope) {
         scope.builder().addStatement("$L = $L ? 1 : 0", outputVarName, inputVarName)

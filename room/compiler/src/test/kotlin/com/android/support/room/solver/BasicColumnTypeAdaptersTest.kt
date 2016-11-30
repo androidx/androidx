@@ -79,7 +79,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
     fun bind() {
         simpleRun { invocation ->
             val adapter = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
-                    .getAdapterFor(input.getTypeMirror(invocation.processingEnv))!!
+                    .findAdapter(input.getTypeMirror(invocation.processingEnv))!!
             adapter.bindToStmt("st", 6, "inp", scope)
             assertThat(scope.generate().trim(), `is`(bindCode))
             generateCode(invocation)
@@ -106,7 +106,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
     fun read() {
         simpleRun { invocation ->
             val adapter = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
-                    .getAdapterFor(input.getTypeMirror(invocation.processingEnv))!!
+                    .findAdapter(input.getTypeMirror(invocation.processingEnv))!!
             adapter.readFromCursor("out", "crs", 9, scope)
             assertThat(scope.generate().trim(), `is`(cursorCode))
             generateCode(invocation)

@@ -16,6 +16,9 @@
 
 package com.android.support.room.parser
 
+import com.android.support.room.parser.SectionType.BIND_VAR
+import com.android.support.room.parser.SectionType.NEWLINE
+import com.android.support.room.parser.SectionType.TEXT
 import org.antlr.v4.runtime.tree.TerminalNode
 
 enum class SectionType {
@@ -62,6 +65,7 @@ data class ParsedQuery(val original: String, val inputs: List<TerminalNode>,
         }
         sections
     }
+
     val errors by lazy {
         val hasUnnamed = inputs.any { it.text == "?" }
         inputs.filter {
@@ -70,5 +74,16 @@ data class ParsedQuery(val original: String, val inputs: List<TerminalNode>,
             ParserErrors.cannotUseVariableIndices(it.text, it.symbol.charPositionInLine)
         } + (if (hasUnnamed && inputs.size > 1) arrayListOf(ParserErrors.TOO_MANY_UNNAMED_VARIABLES)
         else emptyList<String>()) + syntaxErrors
+    }
+
+    val queryWithReplacedBindParams by lazy {
+        sections.joinToString("") {
+            when(it.type) {
+                TEXT -> ""
+                BIND_VAR -> "?"
+                NEWLINE -> "\n"
+                else -> throw IllegalArgumentException("??")
+            }
+        }
     }
 }

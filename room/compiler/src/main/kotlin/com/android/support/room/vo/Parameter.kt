@@ -16,9 +16,15 @@
 
 package com.android.support.room.vo
 
+import com.android.support.room.solver.types.TypeConverter
 import com.squareup.javapoet.TypeName
 
 /**
  * Holds the parameter for a {@link QueryMethod}.
  */
-data class Parameter(val name: String, val type: TypeName)
+data class Parameter(val name: String, val type: TypeName,
+                     /**
+                      * Used when converting this parameter into the String[] of the query
+                      * parameters
+                      */
+                     val stringTypeConverter : TypeConverter?)

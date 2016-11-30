@@ -23,12 +23,13 @@ import com.squareup.javapoet.CodeBlock
  * Defines a code generation scope where we can provide temporary variables, global variables etc
  */
 class CodeGenScope {
-    private var tmpVarIndex = 0
+    private var tmpVarIndices = mutableMapOf<String, Int>()
     private var builder : CodeBlock.Builder? = null
     companion object {
-        const val TMP_VAR_PREFIX = "_tmp"
+        const val TMP_VAR_DEFAULT_PREFIX = "_tmp"
         @VisibleForTesting
-        fun _tmpVar(index:Int) = "${TMP_VAR_PREFIX}_$index"
+        fun _tmpVar(index:Int) = _tmpVar(TMP_VAR_DEFAULT_PREFIX, index)
+        fun _tmpVar(prefix : String, index:Int) = "${prefix}_$index"
     }
 
     fun builder() : CodeBlock.Builder {
@@ -39,7 +40,17 @@ class CodeGenScope {
     }
 
     fun getTmpVar() : String {
-        return _tmpVar(tmpVarIndex ++)
+        return getTmpVar(TMP_VAR_DEFAULT_PREFIX)
+    }
+
+    fun getTmpVar(prefix : String) : String {
+        if (!prefix.startsWith("_")) {
+            throw RuntimeException("tmp variable prefixes should start with _")
+        }
+        val index = tmpVarIndices.getOrElse(prefix) { 0 }
+        val result = _tmpVar(prefix, index)
+        tmpVarIndices.put(prefix, index + 1)
+        return result
     }
 
     fun generate() = builder().build().toString()
