@@ -19,14 +19,11 @@ package android.support.v7.widget;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.os.Build;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
@@ -37,7 +34,6 @@ import android.view.ViewGroup;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInstrumentationTest {
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void dontDispatchChangeDuringLayout() throws Throwable {
         LayoutAllLayoutManager lm = new LayoutAllLayoutManager();
