@@ -26,5 +26,12 @@ data class Context(val roundEnv: RoundEnvironment,
                    val processingEnv: ProcessingEnvironment) {
     val logger = RLog(processingEnv)
     val checker = Checks(logger)
-    val typeAdapterStore = TypeAdapterStore(roundEnv, processingEnv)
+    val COMMON_TYPES = CommonTypes(processingEnv)
+    val typeAdapterStore by lazy { TypeAdapterStore(this) }
+
+    class CommonTypes(val processingEnv: ProcessingEnvironment) {
+        val STRING by lazy {
+            processingEnv.elementUtils.getTypeElement("java.lang.String").asType()
+        }
+    }
 }

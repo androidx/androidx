@@ -16,6 +16,7 @@
 
 package com.android.support.room.solver
 
+import com.android.support.room.processor.Context
 import com.android.support.room.testing.TestInvocation
 import com.squareup.javapoet.*
 import org.hamcrest.CoreMatchers.`is`
@@ -78,7 +79,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
     @Test
     fun bind() {
         simpleRun { invocation ->
-            val adapter = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
+            val adapter = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv))
                     .findAdapter(input.getTypeMirror(invocation.processingEnv))!!
             adapter.bindToStmt("st", 6, "inp", scope)
             assertThat(scope.generate().trim(), `is`(bindCode))
@@ -105,7 +106,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
     @Test
     fun read() {
         simpleRun { invocation ->
-            val adapter = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
+            val adapter = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv))
                     .findAdapter(input.getTypeMirror(invocation.processingEnv))!!
             adapter.readFromCursor("out", "crs", 9, scope)
             assertThat(scope.generate().trim(), `is`(cursorCode))

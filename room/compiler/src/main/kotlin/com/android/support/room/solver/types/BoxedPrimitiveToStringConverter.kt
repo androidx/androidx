@@ -19,8 +19,8 @@ package com.android.support.room.solver.types
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
+import com.android.support.room.processor.Context
 import com.android.support.room.solver.CodeGenScope
-import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeMirror
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
@@ -29,9 +29,9 @@ open class BoxedPrimitiveToStringConverter(val boxed: TypeMirror,
                                            stringType: TypeMirror)
         : TypeConverter(boxed, stringType) {
     companion object {
-        fun createBoxedPrimitives(processingEnv: ProcessingEnvironment): List<TypeConverter> {
-            val elmUtils = processingEnv.elementUtils
-            val stringType = processingEnv.elementUtils.getTypeElement("java.lang.String").asType()
+        fun createBoxedPrimitives(context : Context): List<TypeConverter> {
+            val elmUtils = context.processingEnv.elementUtils
+            val stringType = context.COMMON_TYPES.STRING
             return listOf(
                     Pair(java.lang.Integer::class, "parseInt"),
                     Pair(java.lang.Long::class, "parseLong"),

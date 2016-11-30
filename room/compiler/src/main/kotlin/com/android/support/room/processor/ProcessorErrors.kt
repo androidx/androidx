@@ -34,10 +34,8 @@ object ProcessorErrors {
     val DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE = "Dao class must be an abstract class or" +
             " an interface"
     val DATABASE_MUST_BE_ANNOTATED_WITH_DATABASE = "Database must be annotated with @Database"
-    private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
-            "match: %s. You can @Ignore the ones that you don't want to match."
-    private val TOO_MANY_MATCHING_SETTERS = "Ambiguous setter for %s. All of the following " +
-            "match: %s. You can @Ignore the ones that you don't want to match."
+
+
     val DAO_MUST_BE_ANNOTATED_WITH_DAO = "Dao class must be annotated with @Dao"
     val ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY = "Entity class must be annotated with @Entity"
     val DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES = "@Database annotation must specify list" +
@@ -48,14 +46,37 @@ object ProcessorErrors {
     val ENTITY_TABLE_NAME_CANNOT_BE_EMPTY = "Entity table name cannot be blank. If you don't want" +
             " to set it, just remove the tableName property."
 
-    val CANNOT_CONVERT_QUERY_PARAMETER_TO_STRING = "QueryMethod parameters should be suitable to" +
-            " be converted into String but I don't know how to convert this."
+    val CANNOT_CONVERT_QUERY_PARAMETER_TO_STRING = "Query method parameters should either be a" +
+            " type that can be converted into String or a List / Array that contains such type."
 
+    val QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE = "Query method parameters cannot start" +
+            " with underscore (_)."
+
+    private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
+            "match: %s. You can @Ignore the ones that you don't want to match."
     fun tooManyMatchingGetters(field : Field, methodNames : List<String>) : String {
         return TOO_MANY_MATCHING_GETTERS.format(field, methodNames.joinToString(", "))
     }
 
+    private val TOO_MANY_MATCHING_SETTERS = "Ambiguous setter for %s. All of the following " +
+            "match: %s. You can @Ignore the ones that you don't want to match."
     fun tooManyMatchingSetter(field: Field, methodNames: List<String>) : String {
         return TOO_MANY_MATCHING_SETTERS.format(field, methodNames.joinToString(", "))
     }
+
+    private val MISSING_PARAMETER_FOR_BIND = "Each bind variable in the query must have a" +
+            " matching method parameter. Cannot find method parameters for %s."
+    fun missingParameterForBindVariable(bindVarName: List<String>): String {
+        return MISSING_PARAMETER_FOR_BIND.format(bindVarName.joinToString(", "))
+    }
+
+    private val UNUSED_QUERY_METHOD_PARAMETER = "Unused parameter%s: %s"
+    fun unusedQueryMethodParameter(unusedParams: List<String>): String {
+        return UNUSED_QUERY_METHOD_PARAMETER.format(
+                if (unusedParams.size > 1) "s" else "",
+                unusedParams.joinToString(","))
+    }
+
+
+
 }

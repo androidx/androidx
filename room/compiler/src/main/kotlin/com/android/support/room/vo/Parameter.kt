@@ -16,15 +16,13 @@
 
 package com.android.support.room.vo
 
+import com.android.support.room.solver.query.QueryParameterAdapter
 import com.android.support.room.solver.types.TypeConverter
 import com.squareup.javapoet.TypeName
+import javax.lang.model.type.TypeMirror
 
 /**
  * Holds the parameter for a {@link QueryMethod}.
  */
-data class Parameter(val name: String, val type: TypeName,
-                     /**
-                      * Used when converting this parameter into the String[] of the query
-                      * parameters
-                      */
-                     val stringTypeConverter : TypeConverter?)
+data class Parameter(val name: String, val type: TypeMirror,
+                     val queryParamAdapter : QueryParameterAdapter?)

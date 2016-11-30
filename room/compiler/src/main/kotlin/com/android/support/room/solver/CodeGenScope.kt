@@ -29,7 +29,7 @@ class CodeGenScope {
         const val TMP_VAR_DEFAULT_PREFIX = "_tmp"
         @VisibleForTesting
         fun _tmpVar(index:Int) = _tmpVar(TMP_VAR_DEFAULT_PREFIX, index)
-        fun _tmpVar(prefix : String, index:Int) = "${prefix}_$index"
+        fun _tmpVar(prefix : String, index:Int) = "$prefix${if(index == 0) "" else "_$index"}"
     }
 
     fun builder() : CodeBlock.Builder {

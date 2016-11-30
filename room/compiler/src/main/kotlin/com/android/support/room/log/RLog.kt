@@ -20,6 +20,7 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.tools.Diagnostic.Kind.ERROR
 import javax.tools.Diagnostic.Kind.NOTE
+import javax.tools.Diagnostic.Kind.WARNING
 
 class RLog(val processingEnv : ProcessingEnvironment) {
     fun d(element : Element, msg : String, vararg args : Any) {
@@ -32,5 +33,9 @@ class RLog(val processingEnv : ProcessingEnvironment) {
 
     fun e(element : Element, msg : String, vararg args : Any) {
         processingEnv.messager.printMessage(ERROR, msg.format(args), element)
+    }
+
+    fun w(element : Element, msg : String, vararg args : Any) {
+        processingEnv.messager.printMessage(WARNING, msg.format(args), element)
     }
 }

@@ -28,7 +28,31 @@ import java.util.StringTokenizer;
  */
 @SuppressWarnings("WeakerAccess")
 public class StringUtil {
+    /**
+     * Returns a new StringBuilder to be used while producing SQL queries.
+     *
+     * @return A new or recycled StringBuilder
+     */
+    public static StringBuilder newStringBuilder() {
+        // TODO pool:
+        return new StringBuilder();
+    }
 
+    /**
+     * Adds bind variable placeholders (?) to the given string. Each placeholder is separated
+     * by a comma.
+     *
+     * @param builder The StringBuilder for the query
+     * @param count Number of placeholders
+     */
+    public static void appendPlaceholders(StringBuilder builder, int count) {
+        for (int i = 0; i < count; i++) {
+            builder.append("?");
+            if (i < count - 1) {
+                builder.append(",");
+            }
+        }
+    }
     /**
      * Splits a comma separated list of integers to integer list.
      * <p>
@@ -38,7 +62,7 @@ public class StringUtil {
      * @return A List containing the integers or null if the input is null.
      */
     @Nullable
-    static List<Integer> splitToIntList(@Nullable String input) {
+    public static List<Integer> splitToIntList(@Nullable String input) {
         if (input == null) {
             return null;
         }
@@ -63,7 +87,7 @@ public class StringUtil {
      * value is null.
      */
     @Nullable
-    static String joinIntoString(@Nullable List<Integer> input) {
+    public static String joinIntoString(@Nullable List<Integer> input) {
         if (input == null) {
             return null;
         }

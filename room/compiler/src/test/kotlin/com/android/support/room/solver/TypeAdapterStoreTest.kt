@@ -19,6 +19,7 @@ package com.android.support.room.solver
 import com.android.support.room.Entity
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
+import com.android.support.room.processor.Context
 import com.android.support.room.solver.types.CompositeAdapter
 import com.android.support.room.solver.types.TypeConverter
 import com.android.support.room.testing.TestInvocation
@@ -45,7 +46,7 @@ class TypeAdapterStoreTest {
     @Test
     fun testDirect() {
         singleRun { invocation ->
-            val store = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
+            val store = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv))
             val primitiveType = invocation.processingEnv.typeUtils.getPrimitiveType(TypeKind.INT)
             val adapter = store.findAdapter(primitiveType)
             assertThat(adapter, notNullValue())
@@ -55,7 +56,7 @@ class TypeAdapterStoreTest {
     @Test
     fun testVia1TypeAdapter() {
         singleRun { invocation ->
-            val store = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
+            val store = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv))
             val booleanType = invocation.processingEnv.typeUtils
                     .getPrimitiveType(TypeKind.BOOLEAN)
             val adapter = store.findAdapter(booleanType)
@@ -82,7 +83,7 @@ class TypeAdapterStoreTest {
     @Test
     fun testVia2TypeAdapters() {
         singleRun { invocation ->
-            val store = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv,
+            val store = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv),
                     PointTypeConverter(invocation.processingEnv))
             val pointType = invocation.processingEnv.elementUtils
                     .getTypeElement("foo.bar.Point").asType()
@@ -115,7 +116,7 @@ class TypeAdapterStoreTest {
     @Test
     fun testIntList() {
         singleRun { invocation ->
-            val store = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
+            val store = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv))
             val intType = invocation.processingEnv.elementUtils
                     .getTypeElement(Integer::class.java.canonicalName)
                     .asType()

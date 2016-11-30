@@ -53,15 +53,32 @@ class QueryMethodProcessor(val context: Context) {
         }
 
         val returnTypeName = TypeName.get(executableType.returnType)
-
         context.checker.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
-        return QueryMethod(
+
+        val queryMethod = QueryMethod(
                 element = executableElement,
                 query = query,
                 name = executableElement.simpleName.toString(),
-                returnType = returnTypeName,
+                returnType = executableType.returnType,
                 parameters = executableElement.parameters
                         .map { parameterParser.parse(containing, it) })
+
+        val missing = queryMethod.sectionToParamMapping
+                .filter { it.second == null }
+                .map { it.first.text }
+        if (missing.isNotEmpty()) {
+            context.logger.e(executableElement,
+                    ProcessorErrors.missingParameterForBindVariable(missing))
+        }
+
+        val unused = queryMethod.parameters.filterNot { param ->
+            queryMethod.sectionToParamMapping.any { it.second == param }
+        }.map { it.name }
+        if (unused.isNotEmpty()) {
+            context.logger.w(executableElement,
+                    ProcessorErrors.unusedQueryMethodParameter(unused))
+        }
+        return queryMethod
     }
 }

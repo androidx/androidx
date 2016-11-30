@@ -18,6 +18,8 @@ package com.android.support.room.processor
 
 import com.android.support.room.Dao
 import com.android.support.room.Query
+import com.android.support.room.ext.typeName
+import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.vo.QueryMethod
 import com.google.auto.common.MoreElements
@@ -31,10 +33,13 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.lang.model.type.TypeKind.INT
+import javax.lang.model.type.TypeMirror
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -47,7 +52,6 @@ class QueryMethodProcessorTest {
                 abstract class MyClass {
                 """
         const val DAO_SUFFIX = "}"
-
     }
 
     @Test
@@ -56,10 +60,10 @@ class QueryMethodProcessorTest {
                 """
                 @Query("SELECT * from users")
                 abstract public void foo();
-                """) { parsedQuery ->
+                """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
-            assertThat(parsedQuery.returnType, `is`(TypeName.VOID))
+            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.VOID))
         }.compilesWithoutError()
     }
 
@@ -69,14 +73,155 @@ class QueryMethodProcessorTest {
                 """
                 @Query("SELECT * from users")
                 abstract public long foo(int x);
-                """) { parsedQuery ->
+                """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
-            assertThat(parsedQuery.returnType, `is`(TypeName.LONG))
+            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.LONG))
             assertThat(parsedQuery.parameters.size, `is`(1))
             val param = parsedQuery.parameters.first()
             assertThat(param.name, `is`("x"))
-            assertThat(param.type, `is`(TypeName.INT))
+            assertThat(param.type,
+                    `is`(invocation.processingEnv.typeUtils.getPrimitiveType(INT) as TypeMirror))
         }.compilesWithoutError()
+    }
+
+    @Test
+    fun testVarArgs() {
+        singleQueryMethod(
+                """
+                @Query("SELECT * from users where id in (?)")
+                abstract public long foo(int... ids);
+                """) { parsedQuery, invocation ->
+            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.LONG))
+            assertThat(parsedQuery.parameters.size, `is`(1))
+            val param = parsedQuery.parameters.first()
+            assertThat(param.name, `is`("ids"))
+            val types = invocation.processingEnv.typeUtils
+            assertThat(param.type,
+                    `is`(types.getArrayType(types.getPrimitiveType(INT)) as TypeMirror))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testParamBindingMatchingNoName() {
+        singleQueryMethod(
+                """
+                @Query("SELECT id from users where id = ?")
+                abstract public long getIdById(int id);
+                """) { parsedQuery, invocation ->
+            val section = parsedQuery.query.bindSections.first()
+            val param = parsedQuery.parameters.firstOrNull()
+            assertThat(section, notNullValue())
+            assertThat(param, notNullValue())
+            assertThat(parsedQuery.sectionToParamMapping, `is`(listOf(Pair(section, param))))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testParamBindingMatchingSimpleBind() {
+        singleQueryMethod(
+                """
+                @Query("SELECT id from users where id = :id")
+                abstract public long getIdById(int id);
+                """) { parsedQuery, invocation ->
+            val section = parsedQuery.query.bindSections.first()
+            val param = parsedQuery.parameters.firstOrNull()
+            assertThat(section, notNullValue())
+            assertThat(param, notNullValue())
+            assertThat(parsedQuery.sectionToParamMapping,
+                    `is`(listOf(Pair(section, param))))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testParamBindingTwoBindVarsIntoTheSameParameter() {
+        singleQueryMethod(
+                """
+                @Query("SELECT id from users where id = :id OR uid = :id")
+                abstract public long getIdById(int id);
+                """) { parsedQuery, invocation ->
+            val section = parsedQuery.query.bindSections[0]
+            val section2 = parsedQuery.query.bindSections[1]
+            val param = parsedQuery.parameters.firstOrNull()
+            assertThat(section, notNullValue())
+            assertThat(section2, notNullValue())
+            assertThat(param, notNullValue())
+            assertThat(parsedQuery.sectionToParamMapping,
+                    `is`(listOf(Pair(section, param), Pair(section2, param))))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testMissingParameterForBinding() {
+        singleQueryMethod(
+                """
+                @Query("SELECT id from users where id = :id OR uid = :uid")
+                abstract public long getIdById(int id);
+                """) { parsedQuery, invocation ->
+            val section = parsedQuery.query.bindSections[0]
+            val section2 = parsedQuery.query.bindSections[1]
+            val param = parsedQuery.parameters.firstOrNull()
+            assertThat(section, notNullValue())
+            assertThat(section2, notNullValue())
+            assertThat(param, notNullValue())
+            assertThat(parsedQuery.sectionToParamMapping,
+                    `is`(listOf(Pair(section, param), Pair(section2, null))))
+        }
+                .failsToCompile()
+                .withErrorContaining(
+                        ProcessorErrors.missingParameterForBindVariable(listOf(":uid")))
+    }
+
+    @Test
+    fun test2MissingParameterForBinding() {
+        singleQueryMethod(
+                """
+                @Query("SELECT id from users where foo = :bar AND id = :id OR uid = :uid")
+                abstract public long getIdById(int id);
+                """) { parsedQuery, invocation ->
+            val bar = parsedQuery.query.bindSections[0]
+            val id = parsedQuery.query.bindSections[1]
+            val uid = parsedQuery.query.bindSections[2]
+            val param = parsedQuery.parameters.firstOrNull()
+            assertThat(bar, notNullValue())
+            assertThat(id, notNullValue())
+            assertThat(uid, notNullValue())
+            assertThat(param, notNullValue())
+            assertThat(parsedQuery.sectionToParamMapping,
+                    `is`(listOf(Pair(bar, null), Pair(id, param), Pair(uid, null))))
+        }
+                .failsToCompile()
+                .withErrorContaining(
+                        ProcessorErrors.missingParameterForBindVariable(listOf(":bar", ":uid")))
+    }
+
+    @Test
+    fun testUnusedParameters() {
+        singleQueryMethod(
+                """
+                @Query("SELECT id from users where foo = :bar")
+                abstract public long getIdById(int bar, int whyNotUseMe);
+                """) { parsedQuery, invocation ->
+            val bar = parsedQuery.query.bindSections[0]
+            val barParam = parsedQuery.parameters.firstOrNull()
+            assertThat(bar, notNullValue())
+            assertThat(barParam, notNullValue())
+            assertThat(parsedQuery.sectionToParamMapping,
+                    `is`(listOf(Pair(bar, barParam))))
+        }.compilesWithoutError().withWarningContaining(
+                ProcessorErrors.unusedQueryMethodParameter(listOf("whyNotUseMe")))
+    }
+
+    @Test
+    fun testNameWithUnderscore() {
+        singleQueryMethod(
+                """
+                @Query("select * from users where id = :_blah")
+                abstract public long getSth(int _blah);
+                """
+        ){parsedQuery, invocation -> }
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
     }
 
     @Test
@@ -85,10 +230,10 @@ class QueryMethodProcessorTest {
                 """
                 @Query("select * from users")
                 abstract public <T> java.util.List<T> foo(int x);
-                """) { parsedQuery ->
+                """) { parsedQuery, invocation ->
             val expected: TypeName = ParameterizedTypeName.get(ClassName.get(List::class.java),
                     TypeVariableName.get("T"))
-            assertThat(parsedQuery.returnType, `is`(expected))
+            assertThat(parsedQuery.returnType.typeName(), `is`(expected))
         }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
     }
@@ -99,7 +244,7 @@ class QueryMethodProcessorTest {
                 """
                 @Query("select * from :1 :2")
                 abstract public long foo(int x);
-                """) { parsedQuery ->
+                """) { parsedQuery, invocation ->
             // do nothing
         }.failsToCompile()
                 .withErrorContaining("mismatched input")
@@ -116,8 +261,9 @@ class QueryMethodProcessorTest {
                 @Dao
                 static abstract class ExtendingModel extends BaseModel<Integer> {
                 }
-                """) { parsedQuery ->
-            assertThat(parsedQuery.returnType, `is`(ClassName.get(Integer::class.java) as TypeName))
+                """) { parsedQuery, invocation ->
+            assertThat(parsedQuery.returnType.typeName(),
+                    `is`(ClassName.get(Integer::class.java) as TypeName))
         }.compilesWithoutError()
     }
 
@@ -132,15 +278,15 @@ class QueryMethodProcessorTest {
                 @Dao
                 static abstract class ExtendingModel extends BaseModel<Integer> {
                 }
-                """) { parsedQuery ->
+                """) { parsedQuery, invocation ->
             assertThat(parsedQuery.parameters.first().type,
-                    `is`(ClassName.get(Integer::class.java) as TypeName))
+                    `is`(invocation.processingEnv.elementUtils
+                            .getTypeElement("java.lang.Integer").asType()))
         }.compilesWithoutError()
     }
 
-
     fun singleQueryMethod(vararg input: String,
-                          handler: (QueryMethod) -> Unit):
+                          handler: (QueryMethod, TestInvocation) -> Unit):
             CompileTester {
         return assertAbout(JavaSourceSubjectFactory.javaSource())
                 .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
@@ -164,7 +310,7 @@ class QueryMethodProcessorTest {
                             val parser = QueryMethodProcessor(invocation.context)
                             val parsedQuery = parser.parse(MoreTypes.asDeclared(owner.asType()),
                                     MoreElements.asExecutable(methods.first()))
-                            handler(parsedQuery)
+                            handler(parsedQuery, invocation)
                             true
                         }
                         .build())

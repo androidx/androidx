@@ -26,12 +26,14 @@ import javax.lang.model.type.DeclaredType
 class ParameterParser(val context: Context) {
     fun parse(containing: DeclaredType, element: VariableElement): Parameter {
         val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
-        val typeConverter = context.typeAdapterStore.findTypeConverter(asMember,
-                context.processingEnv.elementUtils.getTypeElement("java.lang.String").asType()
-        )
-        context.checker.check(typeConverter != null, element,
+        val parameterAdapter = context.typeAdapterStore.findQueryParameterAdapter(asMember)
+        context.checker.check(parameterAdapter != null, element,
                 ProcessorErrors.CANNOT_CONVERT_QUERY_PARAMETER_TO_STRING)
 
-        return Parameter(element.simpleName.toString(), TypeName.get(asMember), typeConverter)
+        val name = element.simpleName.toString()
+        context.checker.check(!name.startsWith("_"), element,
+                ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
+
+        return Parameter(name, asMember, parameterAdapter)
     }
 }

@@ -19,8 +19,8 @@ package com.android.support.room.solver.types
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
+import com.android.support.room.processor.Context
 import com.android.support.room.solver.CodeGenScope
-import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.PrimitiveType
 import javax.lang.model.type.TypeKind.BYTE
 import javax.lang.model.type.TypeKind.CHAR
@@ -32,24 +32,24 @@ import javax.lang.model.type.TypeKind.SHORT
 import javax.lang.model.type.TypeMirror
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-open class PrimitiveToStringConverter(val boxed : TypeMirror,
-                                      val parseMethod : String?,
-                                      val primitiveType : PrimitiveType,
-                                      val stringType : TypeMirror) :
+open class PrimitiveToStringConverter(val boxed: TypeMirror,
+                                      val parseMethod: String?,
+                                      val primitiveType: PrimitiveType,
+                                      val stringType: TypeMirror) :
         TypeConverter(primitiveType, stringType) {
     companion object {
-        fun createPrimitives(processingEnv : ProcessingEnvironment) : List<TypeConverter> {
-            val elmUtils = processingEnv.elementUtils
-            val typeUtils = processingEnv.typeUtils
-            val stringType = processingEnv.elementUtils.getTypeElement("java.lang.String").asType()
+        fun createPrimitives(context: Context): List<TypeConverter> {
+            val elmUtils = context.processingEnv.elementUtils
+            val typeUtils = context.processingEnv.typeUtils
+            val stringType = context.COMMON_TYPES.STRING
 
             return listOf(
-                Triple(java.lang.Integer::class, "parseInt", INT),
-                Triple(java.lang.Long::class, "parseLong", LONG),
-                Triple(java.lang.Short::class, "parseShort", SHORT),
-                Triple(java.lang.Byte::class, "parseByte", BYTE),
-                Triple(java.lang.Float::class, "parseFloat", FLOAT),
-                Triple(java.lang.Double::class, "parseDouble", DOUBLE)
+                    Triple(java.lang.Integer::class, "parseInt", INT),
+                    Triple(java.lang.Long::class, "parseLong", LONG),
+                    Triple(java.lang.Short::class, "parseShort", SHORT),
+                    Triple(java.lang.Byte::class, "parseByte", BYTE),
+                    Triple(java.lang.Float::class, "parseFloat", FLOAT),
+                    Triple(java.lang.Double::class, "parseDouble", DOUBLE)
             ).map {
                 PrimitiveToStringConverter(
                         boxed = elmUtils.getTypeElement(it.first.java.canonicalName).asType(),
@@ -58,17 +58,17 @@ open class PrimitiveToStringConverter(val boxed : TypeMirror,
                         stringType = stringType
                 )
             } + object : PrimitiveToStringConverter(
-                            boxed = elmUtils.getTypeElement("java.lang.Character").asType(),
-                            parseMethod = null,
-                            primitiveType = typeUtils.getPrimitiveType(CHAR),
-                            stringType = stringType
-                    ) {
-                        override fun convertBackward(inputVarName: String, outputVarName: String,
-                                                     scope: CodeGenScope) {
-                            scope.builder().addStatement("$L = $L.charAt(0)", outputVarName,
-                                    inputVarName)
-                        }
-                    }
+                    boxed = elmUtils.getTypeElement("java.lang.Character").asType(),
+                    parseMethod = null,
+                    primitiveType = typeUtils.getPrimitiveType(CHAR),
+                    stringType = stringType
+            ) {
+                override fun convertBackward(inputVarName: String, outputVarName: String,
+                                             scope: CodeGenScope) {
+                    scope.builder().addStatement("$L = $L.charAt(0)", outputVarName,
+                            inputVarName)
+                }
+            }
 
         }
     }

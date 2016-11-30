@@ -30,3 +30,7 @@ val S = "\$S"
 fun KClass<*>.typeName() = ClassName.get(this.java)
 fun KClass<*>.arrayTypeName() = ArrayTypeName.of(typeName())
 fun TypeMirror.typeName() = TypeName.get(this)
+
+object RoomTypeNames {
+    val STRING_UTIL: ClassName = ClassName.get("com.android.support.room.util", "StringUtil")
+}

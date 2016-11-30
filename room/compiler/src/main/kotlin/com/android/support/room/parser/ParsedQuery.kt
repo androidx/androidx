@@ -66,6 +66,8 @@ data class ParsedQuery(val original: String, val inputs: List<TerminalNode>,
         sections
     }
 
+    val bindSections by lazy { sections.filter { it.type == BIND_VAR }}
+
     val errors by lazy {
         val hasUnnamed = inputs.any { it.text == "?" }
         inputs.filter {
@@ -79,7 +81,7 @@ data class ParsedQuery(val original: String, val inputs: List<TerminalNode>,
     val queryWithReplacedBindParams by lazy {
         sections.joinToString("") {
             when(it.type) {
-                TEXT -> ""
+                TEXT -> it.text
                 BIND_VAR -> "?"
                 NEWLINE -> "\n"
                 else -> throw IllegalArgumentException("??")

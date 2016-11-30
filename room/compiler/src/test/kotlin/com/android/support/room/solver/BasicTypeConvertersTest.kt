@@ -16,6 +16,7 @@
 
 package com.android.support.room.solver
 
+import com.android.support.room.processor.Context
 import com.android.support.room.testing.TestInvocation
 import com.squareup.javapoet.*
 import org.hamcrest.CoreMatchers.`is`
@@ -41,14 +42,14 @@ class BasicTypeConvertersTest(val input: Input, val forwardCode: String,
             return listOf(
                     arrayOf(Input(TypeKind.BOOLEAN),
                             """
-                            final int _tmp_0;
-                            _tmp_0 = inp ? 1 : 0;
-                            out = java.lang.Integer.toString(_tmp_0);
+                            final int _tmp;
+                            _tmp = inp ? 1 : 0;
+                            out = java.lang.Integer.toString(_tmp);
                             """.trimIndent(),
                             """
-                            final int _tmp_0;
-                            _tmp_0 = java.lang.Integer.parseInt(inp);
-                            out = _tmp_0 != 0;
+                            final int _tmp;
+                            _tmp = java.lang.Integer.parseInt(inp);
+                            out = _tmp != 0;
                             """.trimIndent()),
                     arrayOf(Input(TypeKind.INT),
                             "out = java.lang.Integer.toString(inp);",
@@ -94,14 +95,14 @@ class BasicTypeConvertersTest(val input: Input, val forwardCode: String,
                             "out = inp == null ? null : inp.charAt(0);"),
                     arrayOf(Input(DECLARED, "java.lang.Boolean"),
                             """
-                            final java.lang.Integer _tmp_0;
-                            _tmp_0 = inp == null ? null : (inp ? 1 : 0);
-                            out = _tmp_0 == null ? null : java.lang.Integer.toString(_tmp_0);
+                            final java.lang.Integer _tmp;
+                            _tmp = inp == null ? null : (inp ? 1 : 0);
+                            out = _tmp == null ? null : java.lang.Integer.toString(_tmp);
                             """.trimIndent(),
                             """
-                            final java.lang.Integer _tmp_0;
-                            _tmp_0 = inp == null ? null : java.lang.Integer.parseInt(inp);
-                            out = _tmp_0 == null ? null : _tmp_0 != 0;
+                            final java.lang.Integer _tmp;
+                            _tmp = inp == null ? null : java.lang.Integer.parseInt(inp);
+                            out = _tmp == null ? null : _tmp != 0;
                             """.trimIndent()))
         }
     }
@@ -109,10 +110,8 @@ class BasicTypeConvertersTest(val input: Input, val forwardCode: String,
     @Test
     fun forward() {
         simpleRun { invocation ->
-            val stringTypeMirror = invocation
-                    .processingEnv.elementUtils
-                    .getTypeElement("java.lang.String").asType()
-            val converter = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
+            val stringTypeMirror = invocation.context.COMMON_TYPES.STRING
+            val converter = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv))
                     .findTypeConverter(input.getTypeMirror(invocation.processingEnv),
                             stringTypeMirror)!!
             converter.convertForward("inp", "out", scope)
@@ -125,10 +124,8 @@ class BasicTypeConvertersTest(val input: Input, val forwardCode: String,
     @Test
     fun backward() {
         simpleRun { invocation ->
-            val stringTypeMirror = invocation
-                    .processingEnv.elementUtils
-                    .getTypeElement("java.lang.String").asType()
-            val converter = TypeAdapterStore(invocation.roundEnv, invocation.processingEnv)
+            val stringTypeMirror = invocation.context.COMMON_TYPES.STRING
+            val converter = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv))
                     .findTypeConverter(input.getTypeMirror(invocation.processingEnv),
                             stringTypeMirror)!!
             converter.convertBackward("inp", "out", scope)
