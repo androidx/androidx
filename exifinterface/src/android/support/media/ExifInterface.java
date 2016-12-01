@@ -1299,7 +1299,8 @@ public class ExifInterface {
     /**
      * Reads Exif tags from the specified image input stream. Attribute mutation is not supported
      * for input streams. The given input stream will proceed its current position. Developers
-     * should close the input stream after use.
+     * should close the input stream after use. This constructor is not intended to be used with
+     * an input stream that performs any networking operations.
      */
     public ExifInterface(InputStream inputStream) throws IOException {
         if (inputStream == null) {
