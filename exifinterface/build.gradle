@@ -65,8 +65,8 @@ uploadArchives {
             }
 
             pom.project {
-                name 'Android Support ExifInteface'
-                description "Android Support ExifInteface"
+                name 'Android Support ExifInterface'
+                description "Android Support ExifInterface"
                 url 'http://developer.android.com/tools/extras/support-library.html'
                 inceptionYear '2016'
 
