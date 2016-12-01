@@ -17,6 +17,7 @@
 package android.support.v7.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -617,11 +618,11 @@ public class RecyclerViewCacheTest {
                 any(List.class));
     }
 
-    static class InnerAdapter extends RecyclerView.Adapter<InnerAdapter.ViewHolder> {
+    class InnerAdapter extends RecyclerView.Adapter<InnerAdapter.ViewHolder> {
         private static final int INNER_ITEM_COUNT = 20;
         int mItemsBound = 0;
 
-        static class ViewHolder extends RecyclerView.ViewHolder {
+        class ViewHolder extends RecyclerView.ViewHolder {
             ViewHolder(View itemView) {
                 super(itemView);
             }
@@ -631,6 +632,7 @@ public class RecyclerViewCacheTest {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            mRecyclerView.registerTimePassingMs(5);
             View view = new View(parent.getContext());
             view.setLayoutParams(new RecyclerView.LayoutParams(100, 100));
             return new ViewHolder(view);
@@ -638,6 +640,7 @@ public class RecyclerViewCacheTest {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
+            mRecyclerView.registerTimePassingMs(5);
             mItemsBound++;
         }
 
@@ -647,12 +650,12 @@ public class RecyclerViewCacheTest {
         }
     }
 
-    static class OuterAdapter extends RecyclerView.Adapter<OuterAdapter.ViewHolder> {
+    class OuterAdapter extends RecyclerView.Adapter<OuterAdapter.ViewHolder> {
         private static final int OUTER_ITEM_COUNT = 10;
 
         private boolean mReverseInner;
 
-        static class ViewHolder extends RecyclerView.ViewHolder {
+        class ViewHolder extends RecyclerView.ViewHolder {
             private final RecyclerView mRecyclerView;
             ViewHolder(RecyclerView itemView) {
                 super(itemView);
@@ -678,6 +681,8 @@ public class RecyclerViewCacheTest {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            mRecyclerView.registerTimePassingMs(5);
+
             RecyclerView rv = new RecyclerView(parent.getContext());
             rv.setLayoutManager(new LinearLayoutManager(parent.getContext(),
                     LinearLayoutManager.HORIZONTAL, mReverseInner));
@@ -688,6 +693,8 @@ public class RecyclerViewCacheTest {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
+            mRecyclerView.registerTimePassingMs(5);
+
             // Tests may rely on bound holders not being shared between inner adapters,
             // since we force recycle here
             holder.mRecyclerView.swapAdapter(mAdapters.get(position), true);
@@ -784,7 +791,6 @@ public class RecyclerViewCacheTest {
         CacheUtils.verifyCacheContainsPrefetchedPositions(inner, 5, 6, 7, 8);
     }
 
-
     @Test
     public void nestedPrefetchNotReset() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -811,5 +817,157 @@ public class RecyclerViewCacheTest {
         // ... which shouldn't require new items to be bound,
         // as prefetch has already done that work
         assertEquals(2, outerAdapter.mAdapters.get(2).mItemsBound);
+    }
+
+    static void validateRvChildrenValid(RecyclerView recyclerView, int childCount) {
+        ChildHelper childHelper = recyclerView.mChildHelper;
+
+        assertEquals(childCount, childHelper.getUnfilteredChildCount());
+        for (int i = 0; i < childHelper.getUnfilteredChildCount(); i++) {
+            assertFalse(recyclerView.getChildViewHolder(
+                    childHelper.getUnfilteredChildAt(i)).isInvalid());
+        }
+    }
+
+    @Test
+    public void nestedPrefetchCacheNotTouched() {
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        OuterAdapter outerAdapter = new OuterAdapter();
+        mRecyclerView.setAdapter(outerAdapter);
+
+        layout(200, 200);
+        mRecyclerView.scrollBy(0, 100);
+
+        // item 0 is cached
+        assertEquals(2, outerAdapter.mAdapters.get(0).mItemsBound);
+        RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 0);
+        validateRvChildrenValid(holder.mNestedRecyclerView, 2);
+
+        // try and prefetch it
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, -1);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+
+        // make sure cache's inner items aren't rebound unnecessarily
+        assertEquals(2, outerAdapter.mAdapters.get(0).mItemsBound);
+        validateRvChildrenValid(holder.mNestedRecyclerView, 2);
+    }
+
+    /**
+     * Similar to OuterAdapter above, but uses notifyDataSetChanged() instead of set/swapAdapter
+     * to update data for the inner RecyclerViews when containing ViewHolder is bound.
+     */
+    class OuterNotifyAdapter extends RecyclerView.Adapter<OuterNotifyAdapter.ViewHolder> {
+        private static final int OUTER_ITEM_COUNT = 10;
+
+        private boolean mReverseInner;
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            private final RecyclerView mRecyclerView;
+            private final InnerAdapter mAdapter;
+            ViewHolder(RecyclerView itemView) {
+                super(itemView);
+                mRecyclerView = itemView;
+                mAdapter = new InnerAdapter();
+                mRecyclerView.setAdapter(mAdapter);
+            }
+        }
+
+        ArrayList<Parcelable> mSavedStates = new ArrayList<>();
+        RecyclerView.RecycledViewPool mSharedPool = new RecyclerView.RecycledViewPool();
+
+        OuterNotifyAdapter() {
+            this(false);
+        }
+
+        OuterNotifyAdapter(boolean reverseInner) {
+            mReverseInner = reverseInner;
+            for (int i = 0; i <= OUTER_ITEM_COUNT; i++) {
+                mSavedStates.add(null);
+            }
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            mRecyclerView.registerTimePassingMs(5);
+            RecyclerView rv = new RecyclerView(parent.getContext());
+            rv.setLayoutManager(new LinearLayoutManager(parent.getContext(),
+                    LinearLayoutManager.HORIZONTAL, mReverseInner));
+            rv.setRecycledViewPool(mSharedPool);
+            rv.setLayoutParams(new RecyclerView.LayoutParams(200, 100));
+            return new ViewHolder(rv);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            mRecyclerView.registerTimePassingMs(5);
+            // if we had actual data to put into our adapter, this is where we'd do it...
+
+            // ... then notify the adapter that it has new content:
+            holder.mAdapter.notifyDataSetChanged();
+
+            Parcelable savedState = mSavedStates.get(position);
+            if (savedState != null) {
+                holder.mRecyclerView.getLayoutManager().onRestoreInstanceState(savedState);
+                mSavedStates.set(position, null);
+            }
+        }
+
+        @Override
+        public void onViewRecycled(ViewHolder holder) {
+            mSavedStates.set(holder.getAdapterPosition(),
+                    holder.mRecyclerView.getLayoutManager().onSaveInstanceState());
+        }
+
+        @Override
+        public int getItemCount() {
+            return OUTER_ITEM_COUNT;
+        }
+    }
+
+    @Test
+    public void nestedPrefetchDiscardStaleChildren() {
+        LinearLayoutManager llm = new LinearLayoutManager(getContext());
+        assertEquals(2, llm.getInitialItemPrefetchCount());
+
+        mRecyclerView.setLayoutManager(llm);
+        OuterNotifyAdapter outerAdapter = new OuterNotifyAdapter();
+        mRecyclerView.setAdapter(outerAdapter);
+
+        // zero cache, so item we prefetch can't already be ready
+        mRecyclerView.setItemViewCacheSize(0);
+
+        // layout 3 items, then resize to 2...
+        layout(200, 300);
+        layout(200, 200);
+
+        // so 1 item is evicted into the RecycledViewPool (bypassing cache)
+        assertEquals(1, mRecycler.mRecyclerPool.getRecycledViewCount(0));
+        assertEquals(0, mRecycler.mCachedViews.size());
+
+        // This is a simple imitation of other behavior (namely, varied types in the outer adapter)
+        // that results in the same initial state to test: items in the pool with attached children
+        for (RecyclerView.ViewHolder holder : mRecycler.mRecyclerPool.mScrap.get(0).mScrapHeap) {
+            // verify that children are attached and valid, since the RVs haven't been rebound
+            assertNotNull(holder.mNestedRecyclerView);
+            assertFalse(holder.mNestedRecyclerView.mDataSetHasChangedAfterLayout);
+            validateRvChildrenValid(holder.mNestedRecyclerView, 2);
+        }
+
+        // prefetch the outer item bind, but without enough time to do any inner binds
+        final long deadlineNs = mRecyclerView.getNanoTime() + TimeUnit.MILLISECONDS.toNanos(9);
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
+        mRecyclerView.mGapWorker.prefetch(deadlineNs);
+
+        // 2 is prefetched without children
+        CacheUtils.verifyCacheContainsPrefetchedPositions(mRecyclerView, 2);
+        RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 2);
+        assertNotNull(holder);
+        assertNotNull(holder.mNestedRecyclerView);
+        assertEquals(0, holder.mNestedRecyclerView.mChildHelper.getUnfilteredChildCount());
+        assertEquals(0, holder.mNestedRecyclerView.mRecycler.mCachedViews.size());
+
+        // but if we give it more time to bind items, it'll now acquire its inner items
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+        CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView, 0, 1);
     }
 }

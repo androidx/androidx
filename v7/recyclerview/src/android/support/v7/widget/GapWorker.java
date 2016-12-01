@@ -289,8 +289,16 @@ final class GapWorker implements Runnable {
         RecyclerView.ViewHolder holder = flushWorkWithDeadline(task.view,
                 task.position, taskDeadlineNs);
         if (holder != null && holder.mNestedRecyclerView != null) {
-            // do nested prefetch!
             final RecyclerView innerView = holder.mNestedRecyclerView;
+
+            if (innerView.mDataSetHasChangedAfterLayout
+                    && innerView.mChildHelper.getUnfilteredChildCount() != 0) {
+                // RecyclerView has new data, but old attached views. Clear everything, so that
+                // we can prefetch without partially stale data.
+                innerView.removeAndRecycleViews();
+            }
+
+            // do nested prefetch!
             final LayoutPrefetchRegistryImpl innerPrefetchRegistry = innerView.mPrefetchRegistry;
             innerPrefetchRegistry.collectPrefetchPositionsFromView(innerView, true);
 
