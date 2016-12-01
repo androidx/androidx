@@ -16,10 +16,13 @@
 
 package android.support.v4.view.accessibility;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
 import android.support.v4.view.ViewCompat;
 import android.text.InputType;
@@ -2365,6 +2368,14 @@ public class AccessibilityNodeInfoCompat {
 
     private final Object mInfo;
 
+    /**
+     *  android.support.v4.widget.ExploreByTouchHelper.HOST_ID = -1;
+     *
+     *  @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public int mParentVirtualDescendantId = -1;
+
     // Actions introduced in IceCreamSandwich
 
     /**
@@ -3171,6 +3182,7 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setParent(View root, int virtualDescendantId) {
+        mParentVirtualDescendantId = virtualDescendantId;
         IMPL.setParent(mInfo, root, virtualDescendantId);
     }
 
