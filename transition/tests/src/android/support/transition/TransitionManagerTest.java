@@ -21,6 +21,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
 
+import android.support.annotation.NonNull;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.transition.test.R;
@@ -148,35 +149,35 @@ public class TransitionManagerTest extends BaseTest {
         }
 
         @Override
-        public void onTransitionStart(Transition transition) {
+        public void onTransitionStart(@NonNull Transition transition) {
             if (mTargetEvent == EVENT_START) {
                 mLatch.countDown();
             }
         }
 
         @Override
-        public void onTransitionEnd(Transition transition) {
+        public void onTransitionEnd(@NonNull Transition transition) {
             if (mTargetEvent == EVENT_END) {
                 mLatch.countDown();
             }
         }
 
         @Override
-        public void onTransitionCancel(Transition transition) {
+        public void onTransitionCancel(@NonNull Transition transition) {
             if (mTargetEvent == EVENT_CANCEL) {
                 mLatch.countDown();
             }
         }
 
         @Override
-        public void onTransitionPause(Transition transition) {
+        public void onTransitionPause(@NonNull Transition transition) {
             if (mTargetEvent == EVENT_PAUSE) {
                 mLatch.countDown();
             }
         }
 
         @Override
-        public void onTransitionResume(Transition transition) {
+        public void onTransitionResume(@NonNull Transition transition) {
             if (mTargetEvent == EVENT_RESUME) {
                 mLatch.countDown();
             }

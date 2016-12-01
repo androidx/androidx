@@ -18,16 +18,16 @@ package com.example.android.support.transition.widget;
 
 import android.os.Bundle;
 import android.support.transition.TransitionManager;
-import android.support.v4.view.GravityCompat;
 import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import com.example.android.support.transition.R;
 
 public class BeginDelayedUsage extends TransitionUsageBase {
 
-    private FrameLayout mRoot;
-    private Button mButton;
+    private LinearLayout mRoot;
+    private TextView mMessage;
 
     @Override
     int getLayoutResId() {
@@ -37,9 +37,9 @@ public class BeginDelayedUsage extends TransitionUsageBase {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRoot = (FrameLayout) findViewById(R.id.root);
-        mButton = (Button) findViewById(R.id.button);
-        mButton.setOnClickListener(new View.OnClickListener() {
+        mRoot = (LinearLayout) findViewById(R.id.root);
+        mMessage = (TextView) findViewById(R.id.message);
+        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 toggle();
@@ -49,13 +49,11 @@ public class BeginDelayedUsage extends TransitionUsageBase {
 
     private void toggle() {
         TransitionManager.beginDelayedTransition(mRoot);
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mButton.getLayoutParams();
-        if ((params.gravity & GravityCompat.RELATIVE_HORIZONTAL_GRAVITY_MASK) == GravityCompat.END) {
-            params.gravity = params.gravity ^ GravityCompat.END | GravityCompat.START;
+        if (mMessage.getVisibility() != View.VISIBLE) {
+            mMessage.setVisibility(View.VISIBLE);
         } else {
-            params.gravity = params.gravity ^ GravityCompat.START | GravityCompat.END;
+            mMessage.setVisibility(View.GONE);
         }
-        mButton.setLayoutParams(params);
     }
 
 }

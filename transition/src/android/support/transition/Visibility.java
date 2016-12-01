@@ -17,8 +17,8 @@
 package android.support.transition;
 
 import android.animation.Animator;
-import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -33,32 +33,48 @@ import android.view.ViewGroup;
  * {@link #onAppear(ViewGroup, TransitionValues, int, TransitionValues, int)},
  * {@link #onDisappear(ViewGroup, TransitionValues, int, TransitionValues, int)},
  */
-public abstract class Visibility extends Transition implements VisibilityInterface {
+public abstract class Visibility extends Transition {
+
+    private static final String PROPNAME_VISIBILITY = "android:visibility:visibility";
+    private static final String PROPNAME_PARENT = "android:visibility:parent";
+
+    private static final String[] sTransitionProperties = {
+            PROPNAME_VISIBILITY,
+            PROPNAME_PARENT,
+    };
+
+    private static class VisibilityInfo {
+        boolean mVisibilityChange;
+        boolean mFadeIn;
+        int mStartVisibility;
+        int mEndVisibility;
+        ViewGroup mStartParent;
+        ViewGroup mEndParent;
+    }
 
     public Visibility() {
-        this(false);
     }
 
-    Visibility(boolean deferred) {
-        super(true);
-        if (!deferred) {
-            if (Build.VERSION.SDK_INT >= 19) {
-                mImpl = new VisibilityKitKat();
-            } else {
-                mImpl = new VisibilityIcs();
-            }
-            mImpl.init(this);
-        }
-    }
-
+    @Nullable
     @Override
-    public void captureEndValues(@NonNull TransitionValues transitionValues) {
-        mImpl.captureEndValues(transitionValues);
+    public String[] getTransitionProperties() {
+        return sTransitionProperties;
+    }
+
+    private void captureValues(TransitionValues transitionValues) {
+        int visibility = transitionValues.view.getVisibility();
+        transitionValues.values.put(PROPNAME_VISIBILITY, visibility);
+        transitionValues.values.put(PROPNAME_PARENT, transitionValues.view.getParent());
     }
 
     @Override
     public void captureStartValues(@NonNull TransitionValues transitionValues) {
-        mImpl.captureStartValues(transitionValues);
+        captureValues(transitionValues);
+    }
+
+    @Override
+    public void captureEndValues(@NonNull TransitionValues transitionValues) {
+        captureValues(transitionValues);
     }
 
     /**
@@ -76,9 +92,98 @@ public abstract class Visibility extends Transition implements VisibilityInterfa
      * @return True if the view reference by <code>values</code> is visible,
      * false otherwise.
      */
-    @Override
     public boolean isVisible(TransitionValues values) {
-        return ((VisibilityImpl) mImpl).isVisible(values);
+        if (values == null) {
+            return false;
+        }
+        int visibility = (Integer) values.values.get(PROPNAME_VISIBILITY);
+        View parent = (View) values.values.get(PROPNAME_PARENT);
+
+        return visibility == View.VISIBLE && parent != null;
+    }
+
+    private VisibilityInfo getVisibilityChangeInfo(TransitionValues startValues,
+            TransitionValues endValues) {
+        final VisibilityInfo visInfo = new VisibilityInfo();
+        visInfo.mVisibilityChange = false;
+        visInfo.mFadeIn = false;
+        if (startValues != null) {
+            visInfo.mStartVisibility = (Integer) startValues.values.get(PROPNAME_VISIBILITY);
+            visInfo.mStartParent = (ViewGroup) startValues.values.get(PROPNAME_PARENT);
+        } else {
+            visInfo.mStartVisibility = -1;
+            visInfo.mStartParent = null;
+        }
+        if (endValues != null) {
+            visInfo.mEndVisibility = (Integer) endValues.values.get(PROPNAME_VISIBILITY);
+            visInfo.mEndParent = (ViewGroup) endValues.values.get(PROPNAME_PARENT);
+        } else {
+            visInfo.mEndVisibility = -1;
+            visInfo.mEndParent = null;
+        }
+        if (startValues != null && endValues != null) {
+            if (visInfo.mStartVisibility == visInfo.mEndVisibility
+                    && visInfo.mStartParent == visInfo.mEndParent) {
+                return visInfo;
+            } else {
+                if (visInfo.mStartVisibility != visInfo.mEndVisibility) {
+                    if (visInfo.mStartVisibility == View.VISIBLE) {
+                        visInfo.mFadeIn = false;
+                        visInfo.mVisibilityChange = true;
+                    } else if (visInfo.mEndVisibility == View.VISIBLE) {
+                        visInfo.mFadeIn = true;
+                        visInfo.mVisibilityChange = true;
+                    }
+                    // no visibilityChange if going between INVISIBLE and GONE
+                } else /* if (visInfo.mStartParent != visInfo.mEndParent) */ {
+                    if (visInfo.mEndParent == null) {
+                        visInfo.mFadeIn = false;
+                        visInfo.mVisibilityChange = true;
+                    } else if (visInfo.mStartParent == null) {
+                        visInfo.mFadeIn = true;
+                        visInfo.mVisibilityChange = true;
+                    }
+                }
+            }
+        }
+        if (startValues == null) {
+            visInfo.mFadeIn = true;
+            visInfo.mVisibilityChange = true;
+        } else if (endValues == null) {
+            visInfo.mFadeIn = false;
+            visInfo.mVisibilityChange = true;
+        }
+        return visInfo;
+    }
+
+    @Nullable
+    @Override
+    public Animator createAnimator(@NonNull ViewGroup sceneRoot,
+            @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
+        VisibilityInfo visInfo = getVisibilityChangeInfo(startValues, endValues);
+        if (visInfo.mVisibilityChange) {
+            // Only transition views that are either targets of this transition
+            // or whose parent hierarchies remain stable between scenes
+            boolean isTarget = false;
+            if (mTargets.size() > 0 || mTargetIds.size() > 0) {
+                View startView = startValues != null ? startValues.view : null;
+                View endView = endValues != null ? endValues.view : null;
+                int startId = startView != null ? startView.getId() : -1;
+                int endId = endView != null ? endView.getId() : -1;
+                isTarget = isValidTarget(startView, startId) || isValidTarget(endView, endId);
+            }
+            if (isTarget || ((visInfo.mStartParent != null || visInfo.mEndParent != null))) {
+                if (visInfo.mFadeIn) {
+                    return onAppear(sceneRoot, startValues, visInfo.mStartVisibility,
+                            endValues, visInfo.mEndVisibility);
+                } else {
+                    return onDisappear(sceneRoot, startValues, visInfo.mStartVisibility,
+                            endValues, visInfo.mEndVisibility
+                    );
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -96,11 +201,10 @@ public abstract class Visibility extends Transition implements VisibilityInterfa
      * overall transition for this scene change. A null value means no animation
      * should be run.
      */
-    @Override
+    @SuppressWarnings("UnusedParameters")
     public Animator onAppear(ViewGroup sceneRoot, TransitionValues startValues, int startVisibility,
             TransitionValues endValues, int endVisibility) {
-        return ((VisibilityImpl) mImpl).onAppear(sceneRoot, startValues, startVisibility,
-                endValues, endVisibility);
+        return null;
     }
 
     /**
@@ -118,11 +222,10 @@ public abstract class Visibility extends Transition implements VisibilityInterfa
      * overall transition for this scene change. A null value means no animation
      * should be run.
      */
-    @Override
+    @SuppressWarnings("UnusedParameters")
     public Animator onDisappear(ViewGroup sceneRoot, TransitionValues startValues,
             int startVisibility, TransitionValues endValues, int endVisibility) {
-        return ((VisibilityImpl) mImpl).onDisappear(sceneRoot, startValues, startVisibility,
-                endValues, endVisibility);
+        return null;
     }
 
     // TODO: Implement API 21; onAppear (4 params), onDisappear (4 params), getMode, setMode
