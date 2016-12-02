@@ -41,12 +41,15 @@ dependencies {
     compile "com.google.auto:auto-common:$auto_common_version"
     compile "com.squareup:javapoet:$javapoet_version"
     compile 'org.antlr:antlr4:4.5.3'
-
     testCompile "com.google.testing.compile:compile-testing:$compile_testing_version"
     testCompile "junit:junit:$junit_version"
     testCompile "com.intellij:annotations:$intellij_annotation"
     testCompile "org.mockito:mockito-core:$mockito_version"
-    testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$target_sdk_version/", include : "android.jar")
+    testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$target_sdk_version/",
+            include : "android.jar")
+    testCompile fileTree(dir: "${new File(project(":runtime").buildDir, "libJar")}", include : "*.jar")
+    testCompile fileTree(dir: "${new File(project(":db").buildDir, "libJar")}", include : "*.jar")
+    testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
 uploadArchives {
@@ -69,6 +72,8 @@ def generateAntlrTask = task('generateAntlrGrammar', type: JavaExec) {
 }
 
 tasks.findByName("compileKotlin").dependsOn(generateAntlrTask)
+tasks.findByName("compileKotlin").dependsOn(":runtime:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":db:jarDebug")
 
 createKotlinCheckstyle(project)
 

@@ -29,7 +29,7 @@ import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 
 class QueryMethodProcessor(val context: Context) {
-    val parameterParser = ParameterParser(context)
+    val parameterParser = QueryParameterProcessor(context)
     fun parse(containing: DeclaredType, executableElement: ExecutableElement): QueryMethod {
         val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
         val executableType = MoreTypes.asExecutable(asMember)
@@ -56,13 +56,18 @@ class QueryMethodProcessor(val context: Context) {
         context.checker.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
 
+        val resultAdapter = context.typeAdapterStore
+                .findQueryResultAdapter(executableType.returnType)
+        context.checker.check(resultAdapter != null, executableElement,
+                ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
         val queryMethod = QueryMethod(
                 element = executableElement,
                 query = query,
                 name = executableElement.simpleName.toString(),
                 returnType = executableType.returnType,
                 parameters = executableElement.parameters
-                        .map { parameterParser.parse(containing, it) })
+                        .map { parameterParser.parse(containing, it) },
+                resultAdapter = resultAdapter)
 
         val missing = queryMethod.sectionToParamMapping
                 .filter { it.second == null }

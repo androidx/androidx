@@ -16,9 +16,22 @@
 
 package com.android.support.room.vo
 
-import com.squareup.javapoet.TypeName
+import com.android.support.room.ext.typeName
+import com.squareup.javapoet.ClassName
+import javax.lang.model.type.DeclaredType
 
-data class Entity(val tableName : String, val type: TypeName, val fields : List<Field>) {
+data class Entity(val tableName : String, val type: DeclaredType, val fields : List<Field>) {
+    val converterClassName by lazy {
+        val typeName = this.typeName
+        if (typeName is ClassName) {
+            "${typeName.simpleName()}_CursorConverter"
+        } else {
+            "${typeName}_CursorConverter"
+        }
+    }
+
+    val typeName by lazy { type.typeName() }
+
     val primaryKeys by lazy {
         fields.filter { it.primaryKey }
     }

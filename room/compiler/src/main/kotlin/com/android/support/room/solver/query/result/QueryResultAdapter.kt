@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.support.room.vo
+package com.android.support.room.solver.query.result
 
-import com.android.support.room.solver.query.QueryParameterAdapter
-import com.android.support.room.solver.types.TypeConverter
-import com.squareup.javapoet.TypeName
-import javax.lang.model.type.TypeMirror
+import com.android.support.room.solver.CodeGenScope
 
 /**
- * Holds the parameter for a {@link QueryMethod}.
+ * Gets a Cursor and converts it into the return type of a method annotated with @Query.
  */
-data class Parameter(val name: String, val type: TypeMirror,
-                     val queryParamAdapter : QueryParameterAdapter?)
+abstract class QueryResultAdapter {
+    abstract fun convert(outVarName : String, cursorVarName : String, scope : CodeGenScope)
+}

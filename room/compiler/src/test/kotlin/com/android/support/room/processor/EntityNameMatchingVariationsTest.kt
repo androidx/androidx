@@ -20,12 +20,12 @@ import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
 import com.android.support.room.vo.FieldSetter
-import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import javax.lang.model.type.TypeKind.INT
 
 @RunWith(Parameterized::class)
 class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
@@ -61,14 +61,17 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
             assertThat(entity.type.toString(), `is`("foo.bar.MyEntity"))
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
+            val intType = invocation.processingEnv.typeUtils.getPrimitiveType(INT)
             assertThat(field, `is`(Field(
                     element = field.element,
                     name = fieldName,
-                    type = TypeName.INT,
+                    type = intType,
                     primaryKey = true,
                     columnName = fieldName)))
-            assertThat(field.setter, `is`(FieldSetter(setterName, CallType.METHOD)))
-            assertThat(field.getter, `is`(FieldGetter(getterName, CallType.METHOD)))
+            assertThat(field.setter, `is`(FieldSetter(setterName, intType, CallType.METHOD,
+                    field.setter.columnAdapter)))
+            assertThat(field.getter, `is`(FieldGetter(getterName, intType, CallType.METHOD,
+                    field.getter.columnAdapter)))
         }.compilesWithoutError()
     }
 }

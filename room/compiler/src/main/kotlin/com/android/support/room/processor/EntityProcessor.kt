@@ -27,7 +27,6 @@ import com.android.support.room.vo.FieldSetter
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
@@ -87,7 +86,7 @@ class EntityProcessor(val context: Context) {
         }
         context.checker.notBlank(tableName, element,
                 ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
-        val entity = Entity(tableName, TypeName.get(declaredType), fields)
+        val entity = Entity(tableName, declaredType, fields)
         context.checker.check(entity.primaryKeys.isNotEmpty(), element,
                 ProcessorErrors.MISSING_PRIMARY_KEY)
         return entity
@@ -98,7 +97,11 @@ class EntityProcessor(val context: Context) {
 
         fields.forEach { field ->
             if (!field.element.hasAnyOf(PRIVATE)) {
-                field.getter = FieldGetter(field.name, CallType.FIELD)
+                field.getter = FieldGetter(
+                        name = field.name,
+                        type = field.type,
+                        callType = CallType.FIELD,
+                        columnAdapter = context.typeAdapterStore.findColumnTypeAdapter(field.type))
             } else {
                 val matching = getterCandidates
                         .filter {
@@ -115,11 +118,20 @@ class EntityProcessor(val context: Context) {
                 val match = matching.firstOrNull()
                 if (match == null) {
                     // just assume we can set it. the error will block javac anyways.
-                    field.getter = FieldGetter(field.name, CallType.FIELD)
+                    field.getter = FieldGetter(
+                            name = field.name,
+                            type = field.type,
+                            callType = CallType.FIELD,
+                            columnAdapter = context.typeAdapterStore
+                                    .findColumnTypeAdapter(field.type))
                 } else {
-                    field.getter = FieldGetter(match.simpleName.toString(), CallType.METHOD)
+                    field.getter = FieldGetter(
+                            name = match.simpleName.toString(),
+                            type = match.returnType,
+                            callType = CallType.METHOD,
+                            columnAdapter = context.typeAdapterStore
+                                    .findColumnTypeAdapter(match.returnType))
                 }
-
             }
         }
     }
@@ -129,7 +141,11 @@ class EntityProcessor(val context: Context) {
 
         fields.forEach { field ->
             if (!field.element.hasAnyOf(PRIVATE)) {
-                field.setter = FieldSetter(field.name, CallType.FIELD)
+                field.setter = FieldSetter(
+                        name = field.name,
+                        type = field.type,
+                        callType = CallType.FIELD,
+                        columnAdapter = context.typeAdapterStore.findColumnTypeAdapter(field.type))
             } else {
                 val matching = setterCandidates
                         .filter {
@@ -146,9 +162,20 @@ class EntityProcessor(val context: Context) {
                 val match = matching.firstOrNull()
                 if (match == null) {
                     // default to field setter
-                    field.setter = FieldSetter(field.name, CallType.FIELD)
+                    field.setter = FieldSetter(
+                            name = field.name,
+                            type = field.type,
+                            callType = CallType.FIELD,
+                            columnAdapter = context.typeAdapterStore
+                                    .findColumnTypeAdapter(field.type))
                 } else {
-                    field.setter = FieldSetter(match.simpleName.toString(), CallType.METHOD)
+                    val paramType = match.parameters.first().asType()
+                    field.setter = FieldSetter(
+                            name = match.simpleName.toString(),
+                            type = paramType,
+                            callType = CallType.METHOD,
+                            columnAdapter = context.typeAdapterStore
+                                    .findColumnTypeAdapter(paramType))
                 }
             }
         }

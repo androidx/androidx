@@ -43,7 +43,7 @@ open class PrimitiveColumnTypeAdapter(out: PrimitiveType,
 
     companion object {
         fun createPrimitiveAdapters(processingEnvironment: ProcessingEnvironment)
-                : List<ColumnTypeAdapter> {
+                : List<PrimitiveColumnTypeAdapter> {
             return listOf(
                     Triple(INT, "getInt", "bindLong"),
                     Triple(SHORT, "getShort", "bindLong"),
@@ -62,16 +62,16 @@ open class PrimitiveColumnTypeAdapter(out: PrimitiveType,
         }
     }
 
-    override fun bindToStmt(stmtName: String, index: Int, valueVarName: String,
+    override fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
                             scope: CodeGenScope) {
         scope.builder()
-                .addStatement("$L.$L($L, $L)", stmtName, stmtSetter, index, valueVarName)
+                .addStatement("$L.$L($L, $L)", stmtName, stmtSetter, indexVarName, valueVarName)
     }
 
-    override fun readFromCursor(outVarName: String, cursorVarName: String, index: Int,
+    override fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,
                                 scope: CodeGenScope) {
         scope.builder()
                 .addStatement("$L = $L$L.$L($L)", outVarName, cast, cursorVarName,
-                        cursorGetter, index)
+                        cursorGetter, indexVarName)
     }
 }

@@ -44,6 +44,6 @@ class DaoProcessor(val context : Context) {
         val type = TypeName.get(declaredType)
         context.checker.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES)
-        return Dao(element = element, type = type, queryMethods = methods)
+        return Dao(element = element, type = declaredType, queryMethods = methods)
     }
 }

@@ -45,7 +45,7 @@ class FieldProcessor(val context: Context) {
         context.checker.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS)
         return Field(name = name,
-                type = type,
+                type = member,
                 primaryKey = MoreElements.isAnnotationPresent(element, PrimaryKey::class.java),
                 element = element,
                 columnName = columnName)

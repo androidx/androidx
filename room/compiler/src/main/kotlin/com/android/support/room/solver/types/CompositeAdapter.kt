@@ -28,23 +28,23 @@ import javax.lang.model.type.TypeMirror
  */
 class CompositeAdapter(out: TypeMirror, val columnTypeAdapter: ColumnTypeAdapter,
                        val typeConverter : TypeConverter) : ColumnTypeAdapter(out) {
-    override fun readFromCursor(outVarName: String, cursorVarName: String, index: Int,
+    override fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,
                                 scope: CodeGenScope) {
         scope.builder().apply {
             val tmpCursorValue = scope.getTmpVar()
             addStatement("final $T $L", columnTypeAdapter.outTypeName, tmpCursorValue)
-            columnTypeAdapter.readFromCursor(tmpCursorValue, cursorVarName, index, scope)
+            columnTypeAdapter.readFromCursor(tmpCursorValue, cursorVarName, indexVarName, scope)
             typeConverter.convertBackward(tmpCursorValue, outVarName, scope)
         }
     }
 
-    override fun bindToStmt(stmtName: String, index: Int, valueVarName: String,
+    override fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
                             scope: CodeGenScope) {
         scope.builder().apply {
             val tmpVar = scope.getTmpVar()
             addStatement("final $T $L", columnTypeAdapter.out, tmpVar)
             typeConverter.convertForward(valueVarName, tmpVar, scope)
-            columnTypeAdapter.bindToStmt(stmtName, index, tmpVar, scope)
+            columnTypeAdapter.bindToStmt(stmtName, indexVarName, tmpVar, scope)
         }
     }
 }

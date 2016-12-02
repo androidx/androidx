@@ -16,4 +16,8 @@
 
 package com.android.support.room.vo
 
-data class FieldGetter(val name : String, val callType: CallType)
+import com.android.support.room.solver.types.ColumnTypeAdapter
+import javax.lang.model.type.TypeMirror
+
+data class FieldGetter(val name : String, val type : TypeMirror, val callType: CallType,
+                       val columnAdapter : ColumnTypeAdapter?)

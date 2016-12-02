@@ -16,15 +16,15 @@
 
 package com.android.support.room.processor
 
-import com.android.support.room.vo.Parameter
+import com.android.support.room.vo.QueryParameter
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 
-class ParameterParser(val context: Context) {
-    fun parse(containing: DeclaredType, element: VariableElement): Parameter {
+class QueryParameterProcessor(val context: Context) {
+    fun parse(containing: DeclaredType, element: VariableElement): QueryParameter {
         val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
         val parameterAdapter = context.typeAdapterStore.findQueryParameterAdapter(asMember)
         context.checker.check(parameterAdapter != null, element,
@@ -33,7 +33,8 @@ class ParameterParser(val context: Context) {
         val name = element.simpleName.toString()
         context.checker.check(!name.startsWith("_"), element,
                 ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
-
-        return Parameter(name, asMember, parameterAdapter)
+        return QueryParameter(name = name,
+                type = asMember,
+                queryParamAdapter = parameterAdapter)
     }
 }

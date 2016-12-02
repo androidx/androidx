@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.support.room.solver.query
+package com.android.support.room.solver.query.parameter
 
 import com.android.support.room.ext.L
 import com.android.support.room.solver.CodeGenScope

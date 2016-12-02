@@ -31,7 +31,7 @@ abstract class BaseEntityParserTest {
             package foo.bar;
             import com.android.support.room.*;
             @Entity%s
-            abstract class MyEntity {
+            public class MyEntity {
             """
         const val ENTITY_SUFFIX = "}"
     }
@@ -48,7 +48,7 @@ abstract class BaseEntityParserTest {
                     ")".trimIndent()
         }
         return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
-                .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
+                .that(JavaFileObjects.forSourceString("foo.bar.MyEntity",
                         ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX
                 ))
                 .processedWith(TestProcessor.builder()

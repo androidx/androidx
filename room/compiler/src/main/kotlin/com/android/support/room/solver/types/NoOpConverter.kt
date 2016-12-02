@@ -24,7 +24,7 @@ import javax.lang.model.type.TypeMirror
  * Yes, we need this when user input is the same as the desired output.
  * <p>
  * Each query parameter receives an adapter that converts it into a String (or String[]). This
- * TypeAdapter basically serves as a wrapper for converting String parameter into the String of
+ * TypeAdapter basically serves as a wrapper for converting String parameter into the String[] of
  * the query. Not having this would require us to special case handle String, String[], List<String>
  * etc.
  */

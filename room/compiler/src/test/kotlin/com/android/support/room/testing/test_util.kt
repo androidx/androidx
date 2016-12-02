@@ -1,13 +1,3 @@
-import com.android.support.room.Query
-import com.android.support.room.testing.TestInvocation
-import com.android.support.room.testing.TestProcessor
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourceSubjectFactory
-import org.hamcrest.CoreMatchers
-import org.hamcrest.MatcherAssert
-
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -23,6 +13,17 @@ import org.hamcrest.MatcherAssert
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import com.android.support.room.Query
+import com.android.support.room.testing.TestInvocation
+import com.android.support.room.testing.TestProcessor
+import com.google.common.truth.Truth
+import com.google.testing.compile.CompileTester
+import com.google.testing.compile.JavaFileObjects
+import com.google.testing.compile.JavaSourceSubjectFactory
+import java.io.File
+import javax.tools.JavaFileObject
+
 fun simpleRun(f: (TestInvocation) -> Unit): CompileTester {
     return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
             .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
@@ -40,4 +41,9 @@ fun simpleRun(f: (TestInvocation) -> Unit): CompileTester {
                     }
                     .forAnnotations(Query::class)
                     .build())
+}
+
+fun loadJavaCode(fileName : String, qName : String) : JavaFileObject {
+    val contents = File("src/test/data/$fileName").readText(Charsets.UTF_8)
+    return JavaFileObjects.forSourceString(qName, contents)
 }

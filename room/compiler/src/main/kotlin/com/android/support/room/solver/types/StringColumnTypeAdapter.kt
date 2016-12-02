@@ -23,20 +23,19 @@ import javax.annotation.processing.ProcessingEnvironment
 class StringColumnTypeAdapter(processingEnvironment: ProcessingEnvironment)
     : ColumnTypeAdapter((processingEnvironment.elementUtils.getTypeElement(
         String::class.java.canonicalName)).asType()) {
-    override fun readFromCursor(outVarName: String, cursorVarName: String, index: Int,
+    override fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,
                                 scope: CodeGenScope) {
         scope.builder()
-                .addStatement("$L = $L.isNull($L) ? null : $L.getString($L)",
-                        outVarName, cursorVarName, index, cursorVarName, index)
+                .addStatement("$L = $L.getString($L)", outVarName, cursorVarName, indexVarName)
     }
 
-    override fun bindToStmt(stmtName: String, index: Int, valueVarName: String,
+    override fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
                             scope: CodeGenScope) {
         scope.builder().apply {
             beginControlFlow("if ($L == null)", valueVarName)
-                    .addStatement("$L.bindNull($L)", stmtName, index)
+                    .addStatement("$L.bindNull($L)", stmtName, indexVarName)
             nextControlFlow("else")
-                    .addStatement("$L.bindString($L, $L)", stmtName, index, valueVarName)
+                    .addStatement("$L.bindString($L, $L)", stmtName, indexVarName, valueVarName)
             endControlFlow()
         }
     }

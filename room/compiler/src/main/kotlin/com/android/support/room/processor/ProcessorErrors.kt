@@ -52,20 +52,26 @@ object ProcessorErrors {
     val QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE = "Query method parameters cannot start" +
             " with underscore (_)."
 
+    val CANNOT_FIND_QUERY_RESULT_ADAPTER = "Not sure how to convert a Cursor to this method's " +
+            "return type"
+
     private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
-    fun tooManyMatchingGetters(field : Field, methodNames : List<String>) : String {
+
+    fun tooManyMatchingGetters(field: Field, methodNames: List<String>): String {
         return TOO_MANY_MATCHING_GETTERS.format(field, methodNames.joinToString(", "))
     }
 
     private val TOO_MANY_MATCHING_SETTERS = "Ambiguous setter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
-    fun tooManyMatchingSetter(field: Field, methodNames: List<String>) : String {
+
+    fun tooManyMatchingSetter(field: Field, methodNames: List<String>): String {
         return TOO_MANY_MATCHING_SETTERS.format(field, methodNames.joinToString(", "))
     }
 
     private val MISSING_PARAMETER_FOR_BIND = "Each bind variable in the query must have a" +
             " matching method parameter. Cannot find method parameters for %s."
+
     fun missingParameterForBindVariable(bindVarName: List<String>): String {
         return MISSING_PARAMETER_FOR_BIND.format(bindVarName.joinToString(", "))
     }
@@ -76,7 +82,5 @@ object ProcessorErrors {
                 if (unusedParams.size > 1) "s" else "",
                 unusedParams.joinToString(","))
     }
-
-
 
 }

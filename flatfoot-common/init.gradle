@@ -70,7 +70,7 @@ def createKotlinCheckstyle(Project project) {
                   fileTree(dir : sourceDir, include : "**/*.kt").each{ file ->
                       file.readLines().eachWithIndex { line, index ->
                           if (line.size() > 100) {
-                              throw new Exception("line too long:\nfile: $file line:$index line: $line")
+                              throw new Exception("line too long: file: $file line:$index line: $line")
                           }
                       }
                   }

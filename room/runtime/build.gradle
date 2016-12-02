@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import com.android.builder.core.BuilderConstants
 apply plugin: 'com.android.library'
+apply plugin: 'maven'
 
 android {
     compileSdkVersion compile_sdk_version
@@ -47,10 +48,30 @@ android {
 
 dependencies {
     compile project(":common")
+    compile project(":db")
     compile "com.android.support:support-core-utils:$support_lib_version"
 
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-core:$mockito_version"
 }
 
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: rootProject.ext.localMavenRepo)
+            pom.artifactId = "runtime"
+        }
+    }
+}
+
 createAndroidCheckstyle(project)
+
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+    def suffix = name.capitalize()
+    def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
+        dependsOn variant.javaCompile
+        from variant.javaCompile.destinationDir
+        destinationDir new File(project.buildDir, "libJar")
+    }
+}

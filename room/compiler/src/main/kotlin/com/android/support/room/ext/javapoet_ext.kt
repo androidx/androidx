@@ -31,6 +31,18 @@ fun KClass<*>.typeName() = ClassName.get(this.java)
 fun KClass<*>.arrayTypeName() = ArrayTypeName.of(typeName())
 fun TypeMirror.typeName() = TypeName.get(this)
 
+object SupportDbTypeNames {
+    val DB: ClassName = ClassName.get("com.android.support.db", "SupportDb")
+    val SQLITE_STMT : ClassName = ClassName.get("com.android.support.db", "SupportSqliteStatement")
+}
+
 object RoomTypeNames {
     val STRING_UTIL: ClassName = ClassName.get("com.android.support.room.util", "StringUtil")
+    val CURSOR_CONVERTER : ClassName = ClassName.get("com.android.support.room", "CursorConverter")
+    val ROOM : ClassName = ClassName.get("com.android.support.room", "Room")
+    val ROOM_DB : ClassName = ClassName.get("com.android.support.room", "RoomDatabase")
+}
+
+object AndroidTypeNames {
+    val CURSOR : ClassName = ClassName.get("android.database", "Cursor")
 }

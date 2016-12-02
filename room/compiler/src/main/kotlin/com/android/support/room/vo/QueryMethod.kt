@@ -17,6 +17,7 @@
 package com.android.support.room.vo
 
 import com.android.support.room.parser.ParsedQuery
+import com.android.support.room.solver.query.result.QueryResultAdapter
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.TypeMirror
 
@@ -25,7 +26,8 @@ import javax.lang.model.type.TypeMirror
  * It is self sufficient and must have all generics etc resolved once created.
  */
 data class QueryMethod(val element: ExecutableElement, val query: ParsedQuery, val name: String,
-                       val returnType: TypeMirror, val parameters: List<Parameter>) {
+                       val returnType: TypeMirror, val parameters: List<QueryParameter>,
+                       val resultAdapter : QueryResultAdapter?) {
     val sectionToParamMapping by lazy {
         query.bindSections.map {
             if (it.text.trim() == "?") {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.support.room.solver.query
+package com.android.support.room.writer
 
 import com.android.support.room.ext.L
 import com.android.support.room.ext.RoomTypeNames.STRING_UTIL
@@ -26,8 +26,8 @@ import com.android.support.room.parser.SectionType.BIND_VAR
 import com.android.support.room.parser.SectionType.NEWLINE
 import com.android.support.room.parser.SectionType.TEXT
 import com.android.support.room.solver.CodeGenScope
-import com.android.support.room.vo.Parameter
 import com.android.support.room.vo.QueryMethod
+import com.android.support.room.vo.QueryParameter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 
@@ -46,8 +46,8 @@ class QueryWriter(val queryMethod: QueryMethod) {
     }
 
     private fun createSqlQueryAndArgs(outSqlQueryName: String, outArgsName: String,
-                                      scope: CodeGenScope): List<Pair<Parameter, String>> {
-        val listSizeVars = arrayListOf<Pair<Parameter, String>>()
+                                      scope: CodeGenScope): List<Pair<QueryParameter, String>> {
+        val listSizeVars = arrayListOf<Pair<QueryParameter, String>>()
         val varargParams = queryMethod.parameters
                 .filter { it.queryParamAdapter?.isMultiple ?: false }
         val sectionToParamMapping = queryMethod.sectionToParamMapping
@@ -75,7 +75,7 @@ class QueryWriter(val queryMethod: QueryMethod) {
                                     pair.second
                                             ?.queryParamAdapter
                                             ?.getArgCount(pair.second!!.name, tmpCount, scope)
-                                    addStatement("$L.appendPlaceholders($L, $L)",
+                                    addStatement("$T.appendPlaceholders($L, $L)",
                                             STRING_UTIL, stringBuilderVar, tmpCount)
                                 } else {
                                     addStatement("$L.append($S)", stringBuilderVar, "?")
@@ -103,7 +103,7 @@ class QueryWriter(val queryMethod: QueryMethod) {
         return listSizeVars
     }
 
-    private fun bindArgs(outArgsName: String, listSizeVars : List<Pair<Parameter, String>>
+    private fun bindArgs(outArgsName: String, listSizeVars : List<Pair<QueryParameter, String>>
                          ,scope: CodeGenScope) {
         if (queryMethod.parameters.isEmpty()) {
             return

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.support.room.solver.query
+package com.android.support.room.solver.query.parameter
 
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
@@ -24,12 +24,12 @@ import com.android.support.room.solver.types.TypeConverter
 import com.squareup.javapoet.TypeName
 
 /**
- * Binds ARRAY(T) (e.g. int[]) into String[] args of a query.
+ * Binds Collection<T> (e.g. List<T>) into String[] query args.
  */
-class ArrayQueryParameterAdapter(val converter : TypeConverter) : QueryParameterAdapter(true) {
+class CollectionQueryParameterAdapter(val converter : TypeConverter) : QueryParameterAdapter(true) {
     override fun getArgCount(inputVarName: String, outputVarName : String, scope: CodeGenScope) {
         scope.builder()
-                .addStatement("final $T $L = $L.length", TypeName.INT, outputVarName, inputVarName)
+                .addStatement("final $T $L = $L.size()", TypeName.INT, outputVarName, inputVarName)
     }
 
     override fun convert(inputVarName: String, outputVarName: String, startIndexVarName: String,

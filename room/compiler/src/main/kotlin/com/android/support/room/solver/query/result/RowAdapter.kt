@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package com.android.support.room.solver.query
+package com.android.support.room.solver.query.result
 
 import com.android.support.room.solver.CodeGenScope
+import javax.lang.model.type.TypeMirror
 
 /**
- * Knows how to convert a query parameter into query arguments.
+ * Converts a row of a cursor result into an Entity or a primitive.
+ * <p>
+ * An instance of this is created for each usage so that it can keep local variables.
  */
-abstract class QueryParameterAdapter(val isMultiple: Boolean) {
+abstract class RowAdapter(val out : TypeMirror) {
     /**
-     * Must set the values on the String[] (outputVarName) starting from index
-     * startIndexVarName.
+     * Receives this at the beginning of the conversion. Can declare variables etc to access later.
+     * It should return a function that handles the conversion in the given scope.
      */
-    abstract fun convert(inputVarName: String, outputVarName: String, startIndexVarName: String,
-                         scope: CodeGenScope)
+    abstract fun init(cursorVarName: String, scope : CodeGenScope) : RowConverter
 
-    /**
-     * Should declare and set the given value with the count
-     */
-    abstract fun getArgCount(inputVarName: String, outputVarName : String, scope : CodeGenScope)
+    interface RowConverter {
+        fun convert(outVarName : String, cursorVarName : String)
+    }
 }

@@ -28,6 +28,7 @@ import com.google.common.truth.Truth.assertAbout
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory
+import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -59,11 +60,12 @@ class QueryMethodProcessorTest {
         singleQueryMethod(
                 """
                 @Query("SELECT * from users")
-                abstract public void foo();
+                abstract public int[] foo();
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
-            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.VOID))
+            assertThat(parsedQuery.returnType.typeName(),
+                    `is`(ArrayTypeName.of(TypeName.INT) as TypeName))
         }.compilesWithoutError()
     }
 

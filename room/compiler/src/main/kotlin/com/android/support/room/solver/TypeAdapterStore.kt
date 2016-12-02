@@ -16,12 +16,22 @@
 
 package com.android.support.room.solver
 
+import com.android.support.room.Entity
+import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.processor.Context
-import com.android.support.room.solver.query.ArrayQueryParameterAdapter
-import com.android.support.room.solver.query.BasicQueryParameterAdapter
-import com.android.support.room.solver.query.CollectionQueryParameterAdapter
-import com.android.support.room.solver.query.QueryParameterAdapter
+import com.android.support.room.solver.query.parameter.ArrayQueryParameterAdapter
+import com.android.support.room.solver.query.parameter.BasicQueryParameterAdapter
+import com.android.support.room.solver.query.parameter.CollectionQueryParameterAdapter
+import com.android.support.room.solver.query.parameter.QueryParameterAdapter
+import com.android.support.room.solver.query.result.ArrayQueryResultAdapter
+import com.android.support.room.solver.query.result.ListQueryResultAdapter
+import com.android.support.room.solver.query.result.EntityRowAdapter
+import com.android.support.room.solver.query.result.QueryResultAdapter
+import com.android.support.room.solver.query.result.RowAdapter
+import com.android.support.room.solver.query.result.SingleColumnRowAdapter
+import com.android.support.room.solver.query.result.SingleEntityQueryResultAdapter
 import com.android.support.room.solver.types.BoxedBooleanToBoxedIntConverter
+import com.android.support.room.solver.types.BoxedPrimitiveColumnTypeAdapter
 import com.android.support.room.solver.types.BoxedPrimitiveToStringConverter
 import com.android.support.room.solver.types.ColumnTypeAdapter
 import com.android.support.room.solver.types.CompositeAdapter
@@ -38,6 +48,7 @@ import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
 import java.util.*
 import javax.lang.model.type.ArrayType
+import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
@@ -69,8 +80,11 @@ class TypeAdapterStore(val context : Context,
             adapters.add(adapter)
         }
 
-        PrimitiveColumnTypeAdapter
+        val primitives = PrimitiveColumnTypeAdapter
                 .createPrimitiveAdapters(context.processingEnv)
+        primitives.forEach(::addColumnAdapter)
+        BoxedPrimitiveColumnTypeAdapter
+                .createBoxedPrimitiveAdapters(context.processingEnv, primitives)
                 .forEach(::addColumnAdapter)
         addColumnAdapter(StringColumnTypeAdapter(context.processingEnv))
         addTypeConverter(IntListConverter.create(context.processingEnv))
@@ -91,7 +105,7 @@ class TypeAdapterStore(val context : Context,
         columnTypeAdapters.map { it.out }
     }
 
-    fun findAdapter(out: TypeMirror): ColumnTypeAdapter? {
+    fun findColumnTypeAdapter(out: TypeMirror): ColumnTypeAdapter? {
         val adapters = getAllColumnAdapters(out)
         if (adapters.isNotEmpty()) {
             return adapters.last()
@@ -105,6 +119,56 @@ class TypeAdapterStore(val context : Context,
 
     fun findTypeConverter(input: TypeMirror, output: TypeMirror): TypeConverter? {
         return findTypeConverter(input, listOf(output))
+    }
+
+    fun findQueryResultAdapter(typeMirror: TypeMirror) : QueryResultAdapter? {
+        if (typeMirror.kind == TypeKind.DECLARED) {
+            val declared = MoreTypes.asDeclared(typeMirror)
+            if (declared.typeArguments.isEmpty()) {
+                val rowAdapter = findRowAdapter(typeMirror) ?: return null
+                return SingleEntityQueryResultAdapter(rowAdapter)
+            }
+            // TODO make this flexible so that things like LiveData, Rx can work
+            if (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)) {
+                val typeArg = declared.typeArguments.first()
+                val rowAdapter = findRowAdapter(typeArg) ?: return null
+                return ListQueryResultAdapter(rowAdapter)
+            }
+            return null
+        } else if (typeMirror.kind == TypeKind.ARRAY) {
+            val array = MoreTypes.asArray(typeMirror)
+            val rowAdapter = findRowAdapter(array.componentType) ?: return null
+            return ArrayQueryResultAdapter(rowAdapter)
+        } else {
+            val rowAdapter = findRowAdapter(typeMirror) ?: return null
+            return SingleEntityQueryResultAdapter(rowAdapter)
+        }
+    }
+
+    private fun findRowAdapter(typeMirror: TypeMirror) : RowAdapter? {
+        if (typeMirror.kind == TypeKind.DECLARED) {
+            val declared = MoreTypes.asDeclared(typeMirror)
+            if (declared.typeArguments.isNotEmpty()) {
+                // TODO one day support this
+                return null
+            }
+            val asElement = MoreTypes.asElement(typeMirror)
+            if (asElement.hasAnnotation(Entity::class)) {
+                return EntityRowAdapter(typeMirror)
+            }
+            val singleColumn = findColumnTypeAdapter(typeMirror)
+
+            if (singleColumn != null) {
+                return SingleColumnRowAdapter(singleColumn)
+            }
+
+            // TODO we can allow any class actually but need a proper API for that to avoid false
+            // positives
+            return null
+        } else {
+            val singleColumn = findColumnTypeAdapter(typeMirror) ?: return null
+            return SingleColumnRowAdapter(singleColumn)
+        }
     }
 
     fun findQueryParameterAdapter(typeMirror : TypeMirror) : QueryParameterAdapter? {

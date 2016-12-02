@@ -25,9 +25,9 @@ import javax.lang.model.type.TypeMirror
  */
 abstract class ColumnTypeAdapter(val out: TypeMirror) {
     val outTypeName by lazy { TypeName.get(out) }
-    abstract fun readFromCursor(outVarName : String, cursorVarName: String, index: Int,
+    abstract fun readFromCursor(outVarName : String, cursorVarName: String, indexVarName: String,
                                 scope: CodeGenScope)
 
-    abstract fun bindToStmt(stmtName: String, index: Int, valueVarName: String,
+    abstract fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
                             scope: CodeGenScope)
 }

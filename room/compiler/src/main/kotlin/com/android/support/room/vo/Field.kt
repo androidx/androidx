@@ -16,14 +16,16 @@
 
 package com.android.support.room.vo
 
+import com.android.support.room.ext.typeName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
+import javax.lang.model.type.TypeMirror
 
-data class Field(val element : Element, val name : String,
-                 val type: TypeName,
-                 val primaryKey : Boolean, val columnName : String = name) {
-    lateinit var getter : FieldGetter
-    lateinit var setter : FieldSetter
+data class Field(val element: Element, val name: String, val type: TypeMirror,
+                 val primaryKey: Boolean, val columnName: String = name) {
+    lateinit var getter: FieldGetter
+    lateinit var setter: FieldSetter
+    val typeName by lazy { type.typeName() }
     /**
      * List of names that include variations.
      * e.g. if it is mUser, user is added to the list
@@ -39,7 +41,7 @@ data class Field(val element : Element, val name : String,
                 result.add(name.substring(1).decapitalize())
             }
 
-            if (type == TypeName.BOOLEAN || type == TypeName.BOOLEAN.box()) {
+            if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
                 if (name.length > 2 && name.startsWith("is") && name[2].isUpperCase()) {
                     result.add(name.substring(2).decapitalize())
                 }
