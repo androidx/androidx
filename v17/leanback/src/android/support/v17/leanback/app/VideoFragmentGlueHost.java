@@ -13,10 +13,12 @@
  */
 package android.support.v17.leanback.app;
 
+import android.support.v17.leanback.media.PlaybackGlueHost;
+import android.support.v17.leanback.media.SurfaceHolderGlueHost;
 import android.view.SurfaceHolder;
 
 /**
- * {@link PlaybackGlue.PlaybackGlueHost} implementation
+ * {@link PlaybackGlueHost} implementation
  * the interaction between this class and {@link VideoFragment}.
  * @hide
  */
@@ -31,7 +33,7 @@ public class VideoFragmentGlueHost extends PlaybackFragmentGlueHost
 
     /**
      * Sets the {@link android.view.SurfaceHolder.Callback} on the host.
-     * {@link PlaybackGlue.PlaybackGlueHost} is assumed to either host the {@link SurfaceHolder} or
+     * {@link PlaybackGlueHost} is assumed to either host the {@link SurfaceHolder} or
      * have a reference to the component hosting it for rendering the video.
      */
     @Override

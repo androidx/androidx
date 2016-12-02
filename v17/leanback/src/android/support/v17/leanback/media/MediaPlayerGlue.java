@@ -1,19 +1,20 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-package android.support.v17.leanback.app;
+package android.support.v17.leanback.media;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -23,10 +24,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
@@ -38,8 +37,8 @@ import android.view.View;
 import java.io.IOException;
 
 /**
- * This glue extends the {@link PlaybackControlGlue} with a {@link MediaPlayer} synchronization. It
- * supports 7 actions:
+ * This glue extends the {@link android.support.v17.leanback.media.PlaybackControlGlue} with a
+ * {@link MediaPlayer} synchronization. It supports 7 actions:
  *
  * <ul>
  * <li>{@link android.support.v17.leanback.widget.PlaybackControlsRow.FastForwardAction}</li>
@@ -64,10 +63,8 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     private static final String TAG = "MediaPlayerGlue";
     protected final PlaybackControlsRow.ThumbsDownAction mThumbsDownAction;
     protected final PlaybackControlsRow.ThumbsUpAction mThumbsUpAction;
-    private final Context mContext;
     MediaPlayer mPlayer = new MediaPlayer();
     private final PlaybackControlsRow.RepeatAction mRepeatAction;
-    private PlaybackControlsRow mControlsRow;
     private Runnable mRunnable;
     private Handler mHandler = new Handler();
     private boolean mInitialized = false; // true when the MediaPlayer is prepared/initialized
@@ -113,32 +110,31 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     /**
      * Constructor.
      */
-    public MediaPlayerGlue(Context context, PlaybackGlueHost host) {
-        this(context, host, new int[]{1}, new int[]{1});
+    public MediaPlayerGlue(Context context) {
+        this(context, new int[]{1}, new int[]{1});
     }
 
     /**
      * Constructor.
      */
     public MediaPlayerGlue(
-            Context context, PlaybackGlueHost host, int[] fastForwardSpeeds, int[] rewindSpeeds) {
-        super(context, host, fastForwardSpeeds, rewindSpeeds);
-        mContext = context;
+            Context context, int[] fastForwardSpeeds, int[] rewindSpeeds) {
+        super(context, fastForwardSpeeds, rewindSpeeds);
 
         // Instantiate secondary actions
-        mRepeatAction = new PlaybackControlsRow.RepeatAction(mContext);
-        mThumbsDownAction = new PlaybackControlsRow.ThumbsDownAction(mContext);
-        mThumbsUpAction = new PlaybackControlsRow.ThumbsUpAction(mContext);
+        mRepeatAction = new PlaybackControlsRow.RepeatAction(getContext());
+        mThumbsDownAction = new PlaybackControlsRow.ThumbsDownAction(getContext());
+        mThumbsUpAction = new PlaybackControlsRow.ThumbsUpAction(getContext());
         mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsAction.OUTLINE);
         mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsAction.OUTLINE);
     }
 
     @Override
-    public void setHost(PlaybackGlueHost host) {
-        super.setHost(host);
-        if (getHost() instanceof SurfaceHolderGlueHost) {
-            ((SurfaceHolderGlueHost) getHost()).setSurfaceHolderCallback(
-                    new VideoFragmentSurfaceHolderCallback());
+    protected void onAttachedToHost(PlaybackGlueHost host) {
+        super.onAttachedToHost(host);
+        if (host instanceof SurfaceHolderGlueHost) {
+            ((SurfaceHolderGlueHost) host).setSurfaceHolderCallback(
+                    new VideoPlayerSurfaceHolderCallback());
         }
     }
 
@@ -159,23 +155,22 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
         mPlayer.reset();
     }
 
+    /**
+     * Release internal MediaPlayer. Should not use the object after call release().
+     */
     public void release() {
         mPlayer.release();
     }
 
     @Override
-    public void onDetachedFromHost() {
+    protected void onDetachedFromHost() {
         super.onDetachedFromHost();
         reset();
         release();
     }
 
-    /**
-     * Override this method in case you need to add different secondary actions.
-     *
-     * @param secondaryActionsAdapter The adapter you need to add the {@link Action}s to.
-     */
-    protected void addSecondaryActions(ArrayObjectAdapter secondaryActionsAdapter) {
+    @Override
+    protected void onCreateSecondaryActions(ArrayObjectAdapter secondaryActionsAdapter) {
         secondaryActionsAdapter.add(mRepeatAction);
         secondaryActionsAdapter.add(mThumbsDownAction);
         secondaryActionsAdapter.add(mThumbsUpAction);
@@ -186,22 +181,6 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
      */
     public void setDisplay(SurfaceHolder surfaceHolder) {
         mPlayer.setDisplay(surfaceHolder);
-    }
-
-    /**
-     * Creates a presenter ({@link PlaybackControlsRowPresenter}) for rendering playback controls.
-     * @return
-     */
-    public PlaybackControlsRowPresenter createControlsRowAndPresenter() {
-        PlaybackControlsRowPresenter presenter = super.createControlsRowAndPresenter();
-        mControlsRow = getControlsRow();
-
-        // Add secondary actions and change the control row color.
-        ArrayObjectAdapter secondaryActions = new ArrayObjectAdapter(
-                new ControlButtonPresenterSelector());
-        mControlsRow.setSecondaryActionsAdapter(secondaryActions);
-        addSecondaryActions(secondaryActions);
-        return presenter;
     }
 
     @Override
@@ -325,27 +304,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     }
 
     @Override
-    protected void startPlayback(int speed) throws IllegalStateException {
-        play();
-    }
-
-    @Override
-    protected void pausePlayback() {
-        pause();
-    }
-
-    @Override
-    protected void skipToNext() {
-        // Not supported.
-    }
-
-    @Override
-    protected void skipToPrevious() {
-        // Not supported.
-    }
-
-    @Override
-    public void play() {
+    public void play(int speed) {
         mPlayer.start();
         onMetadataChanged();
         onStateChanged();
@@ -477,7 +436,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
         mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                mControlsRow.setBufferedProgress((int) (mp.getDuration() * (percent / 100f)));
+                getControlsRow().setBufferedProgress((int) (mp.getDuration() * (percent / 100f)));
             }
         });
         mPlayer.prepareAsync();
@@ -485,23 +444,12 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     }
 
     /**
-     * Call to <code>startPlayback(1)</code>.
-     *
-     * @throws IllegalStateException See {@link MediaPlayer} for further information about it's
-     *                               different states when setting a data source and preparing it
-     *                               to be played.
-     */
-    public void startPlayback() throws IllegalStateException {
-        startPlayback(1);
-    }
-
-    /**
-     * This is a listener implementation for the {@link OnItemViewSelectedListener} of the {@link
-     * PlaybackFragment}. This implementation is required in order to detect KEY_DOWN events
+     * This is a listener implementation for the {@link OnItemViewSelectedListener}.
+     * This implementation is required in order to detect KEY_DOWN events
      * on the {@link android.support.v17.leanback.widget.PlaybackControlsRow.FastForwardAction} and
      * {@link android.support.v17.leanback.widget.PlaybackControlsRow.RewindAction}. Thus you
      * should <u>NOT</u> set another {@link OnItemViewSelectedListener} on your
-     * {@link PlaybackFragment}. Instead, override this method and call its super (this)
+     * Fragment. Instead, override this method and call its super (this)
      * implementation.
      *
      * @see OnItemViewSelectedListener#onItemSelected(
@@ -523,10 +471,10 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     }
 
     /**
-     * Implements {@link SurfaceHolder.Callback} that can then be set on the \
-     * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost}
+     * Implements {@link SurfaceHolder.Callback} that can then be set on the
+     * {@link PlaybackGlueHost}.
      */
-    private class VideoFragmentSurfaceHolderCallback implements SurfaceHolder.Callback {
+    class VideoPlayerSurfaceHolderCallback implements SurfaceHolder.Callback {
         private boolean mMediaPlayerReset = true;
 
         @Override

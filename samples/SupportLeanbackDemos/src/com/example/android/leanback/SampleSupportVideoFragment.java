@@ -16,9 +16,9 @@
 package com.example.android.leanback;
 
 import android.os.Bundle;
-import android.support.v17.leanback.app.MediaPlayerGlue;
-import android.support.v17.leanback.app.PlaybackGlue;
 import android.support.v17.leanback.app.VideoFragmentGlueHost;
+import android.support.v17.leanback.media.MediaPlayerGlue;
+import android.support.v17.leanback.media.PlaybackGlue;
 
 /**
  * Fragment demonstrating the use of {@link android.support.v17.leanback.app.VideoFragment} to
@@ -30,7 +30,7 @@ public class SampleSupportVideoFragment extends android.support.v17.leanback.app
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mMediaPlayerGlue = new MediaPlayerGlue(getActivity(), null);
+        mMediaPlayerGlue = new MediaPlayerGlue(getActivity());
         mMediaPlayerGlue.setHost(new VideoFragmentGlueHost(this));
         mMediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
     }

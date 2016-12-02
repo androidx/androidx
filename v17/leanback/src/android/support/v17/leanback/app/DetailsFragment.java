@@ -18,6 +18,7 @@ import android.app.FragmentTransaction;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
 import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
@@ -328,7 +329,7 @@ public class DetailsFragment extends BaseFragment {
      * Creates an instance of {@link VideoFragment}. Subclasses can override this method
      * and provide their own instance of a {@link Fragment}. When you provide your own instance of
      * video fragment, you MUST also provide a custom
-     * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost}.
+     * {@link android.support.v17.leanback.media.PlaybackGlueHost}.
      * @hide
      */
     public Fragment onCreateVideoFragment() {
@@ -337,11 +338,11 @@ public class DetailsFragment extends BaseFragment {
 
     /**
      * Creates an instance of
-     * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost}. The implementation
+     * {@link android.support.v17.leanback.media.PlaybackGlueHost}. The implementation
      * of this host depends on the instance of video fragment {@link #onCreateVideoFragment()}.
      * @hide
      */
-    public PlaybackGlue.PlaybackGlueHost onCreateVideoFragmentHost(Fragment fragment) {
+    public PlaybackGlueHost onCreateVideoFragmentHost(Fragment fragment) {
         return new VideoFragmentGlueHost((VideoFragment) fragment);
     }
 
@@ -366,11 +367,11 @@ public class DetailsFragment extends BaseFragment {
 
     /**
      * This method initializes a video fragment, create an instance of
-     * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost} using that fragment
+     * {@link android.support.v17.leanback.media.PlaybackGlueHost} using that fragment
      * and return it.
      * @hide
      */
-    public final PlaybackGlue.PlaybackGlueHost createPlaybackGlueHost() {
+    public final PlaybackGlueHost createPlaybackGlueHost() {
         Fragment fragment = findOrCreateVideoFragment();
         return onCreateVideoFragmentHost(fragment);
     }

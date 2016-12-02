@@ -14,12 +14,8 @@
 package android.support.v17.leanback.app;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
+import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.widget.Action;
-import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
@@ -29,16 +25,13 @@ import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
-import android.util.Log;
 import android.view.InputEvent;
 import android.view.KeyEvent;
 import android.view.View;
 
-import java.lang.ref.WeakReference;
-
 /**
  * A helper class for managing a {@link android.support.v17.leanback.widget.PlaybackControlsRow}
- * and {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost} that implements a
+ * and {@link PlaybackGlueHost} that implements a
  * recommended approach to handling standard playback control actions such as play/pause,
  * fast forward/rewind at progressive speed levels, and skip to next/previous. This helper class
  * is a glue layer in that manages the configuration of and interaction between the
@@ -51,8 +44,7 @@ import java.lang.ref.WeakReference;
  * </p>
  *
  * <p>To use an instance of the glue layer, first construct an instance.  Constructor parameters
- * inform the glue what speed levels are supported for fast forward/rewind. Providing a
- * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost} is optional.
+ * inform the glue what speed levels are supported for fast forward/rewind.
  * </p>
  *
  * <p>If you have your own controls row you must pass it to {@link #setControlsRow}.
@@ -73,7 +65,7 @@ import java.lang.ref.WeakReference;
  * </p>
  *
  * <p>This helper implements a key event handler. If you pass a
- * {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost}, it will configure it's
+ * {@link PlaybackOverlayFragment}, it will configure it's
  * fragment to intercept all key events.  Otherwise, you should set the glue object as key event
  * handler to the ViewHolder when bound by your row presenter; see
  * {@link RowPresenter.ViewHolder#setOnKeyListener(android.view.View.OnKeyListener)}.
@@ -83,144 +75,13 @@ import java.lang.ref.WeakReference;
  * to manage the lifecycle of a periodic callback to {@link #updateProgress()}.
  * {@link #getUpdatePeriod()} provides a recommended update period.
  * </p>
- *
+ * @deprecated Use {@link android.support.v17.leanback.media.PlaybackControlGlue}
  */
-public abstract class PlaybackControlGlue extends PlaybackGlue
-        implements OnActionClickedListener, View.OnKeyListener {
-    /**
-     * The adapter key for the first custom control on the left side
-     * of the predefined primary controls.
-     */
-    public static final int ACTION_CUSTOM_LEFT_FIRST = 0x1;
+@Deprecated
+public abstract class PlaybackControlGlue extends
+        android.support.v17.leanback.media.PlaybackControlGlue {
 
-    /**
-     * The adapter key for the skip to previous control.
-     */
-    public static final int ACTION_SKIP_TO_PREVIOUS = 0x10;
-
-    /**
-     * The adapter key for the rewind control.
-     */
-    public static final int ACTION_REWIND = 0x20;
-
-    /**
-     * The adapter key for the play/pause control.
-     */
-    public static final int ACTION_PLAY_PAUSE = 0x40;
-
-    /**
-     * The adapter key for the fast forward control.
-     */
-    public static final int ACTION_FAST_FORWARD = 0x80;
-
-    /**
-     * The adapter key for the skip to next control.
-     */
-    public static final int ACTION_SKIP_TO_NEXT = 0x100;
-
-    /**
-     * The adapter key for the first custom control on the right side
-     * of the predefined primary controls.
-     */
-    public static final int ACTION_CUSTOM_RIGHT_FIRST = 0x1000;
-
-    /**
-     * Invalid playback speed.
-     */
-    public static final int PLAYBACK_SPEED_INVALID = -1;
-
-    /**
-     * Speed representing playback state that is paused.
-     */
-    public static final int PLAYBACK_SPEED_PAUSED = 0;
-
-    /**
-     * Speed representing playback state that is playing normally.
-     */
-    public static final int PLAYBACK_SPEED_NORMAL = 1;
-
-    /**
-     * The initial (level 0) fast forward playback speed.
-     * The negative of this value is for rewind at the same speed.
-     */
-    public static final int PLAYBACK_SPEED_FAST_L0 = 10;
-
-    /**
-     * The level 1 fast forward playback speed.
-     * The negative of this value is for rewind at the same speed.
-     */
-    public static final int PLAYBACK_SPEED_FAST_L1 = 11;
-
-    /**
-     * The level 2 fast forward playback speed.
-     * The negative of this value is for rewind at the same speed.
-     */
-    public static final int PLAYBACK_SPEED_FAST_L2 = 12;
-
-    /**
-     * The level 3 fast forward playback speed.
-     * The negative of this value is for rewind at the same speed.
-     */
-    public static final int PLAYBACK_SPEED_FAST_L3 = 13;
-
-    /**
-     * The level 4 fast forward playback speed.
-     * The negative of this value is for rewind at the same speed.
-     */
-    public static final int PLAYBACK_SPEED_FAST_L4 = 14;
-
-    static final String TAG = "PlaybackControlGlue";
-    static final boolean DEBUG = false;
-
-    static final int MSG_UPDATE_PLAYBACK_STATE = 100;
-    private static final int UPDATE_PLAYBACK_STATE_DELAY_MS = 2000;
-    private static final int NUMBER_OF_SEEK_SPEEDS = PLAYBACK_SPEED_FAST_L4
-            - PLAYBACK_SPEED_FAST_L0 + 1;
-
-    private final int[] mFastForwardSpeeds;
-    private final int[] mRewindSpeeds;
-    private PlaybackControlsRow mControlsRow;
-    private SparseArrayObjectAdapter mPrimaryActionsAdapter;
-    private PlaybackControlsRow.PlayPauseAction mPlayPauseAction;
-    private PlaybackControlsRow.SkipNextAction mSkipNextAction;
-    private PlaybackControlsRow.SkipPreviousAction mSkipPreviousAction;
-    private PlaybackControlsRow.FastForwardAction mFastForwardAction;
-    private PlaybackControlsRow.RewindAction mRewindAction;
     OnItemViewClickedListener mExternalOnItemViewClickedListener;
-    private int mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
-    private boolean mFadeWhenPlaying = true;
-
-    static class UpdatePlaybackStateHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.what == MSG_UPDATE_PLAYBACK_STATE) {
-                PlaybackControlGlue glue = ((WeakReference<PlaybackControlGlue>) msg.obj).get();
-                if (glue != null) {
-                    glue.updatePlaybackState();
-                }
-            }
-        }
-    }
-
-    static final Handler sHandler = new UpdatePlaybackStateHandler();
-
-    final WeakReference<PlaybackControlGlue> mGlueWeakReference =  new WeakReference(this);
-
-    /**
-     * Interface allowing the application to handle input events.
-     * @deprecated Use
-     * {@link PlaybackGlue.PlaybackGlueHost#setOnKeyInterceptListener(View.OnKeyListener)}.
-     */
-    @Deprecated
-    public interface InputEventHandler {
-        /**
-         * Called when an {@link InputEvent} is received.
-         *
-         * @return If the event should be consumed, return true. To allow the event to
-         * continue on to the next handler, return false.
-         */
-        boolean handleInputEvent(InputEvent event);
-    }
 
     /**
      * Constructor for the glue.
@@ -229,7 +90,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
      * @param seekSpeeds Array of seek speeds for fast forward and rewind.
      */
     public PlaybackControlGlue(Context context, int[] seekSpeeds) {
-        this(context, (PlaybackGlueHost) null, seekSpeeds, seekSpeeds);
+        super(context, seekSpeeds, seekSpeeds);
     }
 
     /**
@@ -242,7 +103,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
     public PlaybackControlGlue(Context context,
                                int[] fastForwardSpeeds,
                                int[] rewindSpeeds) {
-        this(context, (PlaybackGlueHost) null, fastForwardSpeeds, rewindSpeeds);
+        super(context, fastForwardSpeeds, rewindSpeeds);
     }
 
     /**
@@ -251,10 +112,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
      * @param context
      * @param fragment Optional; if using a {@link PlaybackOverlayFragment}, pass it in.
      * @param seekSpeeds Array of seek speeds for fast forward and rewind.
-     * @deprecated Use
-     * {@link #PlaybackControlGlue(Context, PlaybackGlue.PlaybackGlueHost, int[], int[])}.
      */
-    @Deprecated
     public PlaybackControlGlue(Context context,
                                PlaybackOverlayFragment fragment,
                                int[] seekSpeeds) {
@@ -268,566 +126,32 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
      * @param fragment Optional; if using a {@link PlaybackOverlayFragment}, pass it in.
      * @param fastForwardSpeeds Array of seek speeds for fast forward.
      * @param rewindSpeeds Array of seek speeds for rewind.
-     * @deprecated Use
-     * {@link #PlaybackControlGlue(Context, PlaybackGlue.PlaybackGlueHost, int[], int[])}.
      */
-    @Deprecated
     public PlaybackControlGlue(Context context,
                                PlaybackOverlayFragment fragment,
                                int[] fastForwardSpeeds,
                                int[] rewindSpeeds) {
-        this(context, fragment == null ? (PlaybackGlueHost) null:
-                new PlaybackGlueHostOld(fragment), fastForwardSpeeds, rewindSpeeds);
-    }
-
-    /**
-     * Constructor for the glue.
-     *
-     * @param context
-     * @param host Optional; if using a {@link PlaybackGlue.PlaybackGlueHost}, pass it in.
-     * @param fastForwardSpeeds Array of seek speeds for fast forward.
-     * @param rewindSpeeds Array of seek speeds for rewind.
-     */
-    public PlaybackControlGlue(Context context,
-                               PlaybackGlueHost host,
-                               int[] fastForwardSpeeds,
-                               int[] rewindSpeeds) {
-        super(context);
-        if (fastForwardSpeeds.length == 0 || fastForwardSpeeds.length > NUMBER_OF_SEEK_SPEEDS) {
-            throw new IllegalStateException("invalid fastForwardSpeeds array size");
-        }
-        mFastForwardSpeeds = fastForwardSpeeds;
-        if (rewindSpeeds.length == 0 || rewindSpeeds.length > NUMBER_OF_SEEK_SPEEDS) {
-            throw new IllegalStateException("invalid rewindSpeeds array size");
-        }
-        mRewindSpeeds = rewindSpeeds;
-        setHost(host);
+        super(context, fastForwardSpeeds, rewindSpeeds);
+        setHost(fragment == null ? (PlaybackGlueHost) null : new PlaybackGlueHostOld(fragment));
     }
 
     @Override
-    public void setHost(PlaybackGlueHost host) {
-        super.setHost(host);
-        if (getHost() != null) {
-            if (getHost() instanceof PlaybackGlueHostOld) {
-                ((PlaybackGlueHostOld) getHost()).mGlue = this;
-            }
-            getHost().setOnKeyInterceptListener(this);
-            getHost().setOnActionClickedListener(this);
-            getHost().setPlaybackRowPresenter(createControlsRowAndPresenter());
-            getHost().setPlaybackRow(getControlsRow());
-            getHost().setHostLifeCycleCallback(new HostLifecycleCallback() {
-                @Override
-                public void onHostStart() {
-                    enableProgressUpdating(true);
-                }
-
-                @Override
-                public void onHostStop() {
-                    enableProgressUpdating(false);
-                }
-            });
+    protected void onAttachedToHost(PlaybackGlueHost host) {
+        super.onAttachedToHost(host);
+        if (host instanceof PlaybackGlueHostOld) {
+            ((PlaybackGlueHostOld) host).mGlue = this;
         }
-    }
-
-    /**
-     * Helper method for instantiating a {@link PlaybackControlsRow} and corresponding
-     * {@link PlaybackControlsRowPresenter}.
-     */
-    public PlaybackControlsRowPresenter createControlsRowAndPresenter() {
-        PlaybackControlsRow controlsRow = new PlaybackControlsRow(this);
-        setControlsRow(controlsRow);
-
-        final AbstractDetailsDescriptionPresenter detailsPresenter =
-                new AbstractDetailsDescriptionPresenter() {
-            @Override
-            protected void onBindDescription(AbstractDetailsDescriptionPresenter.ViewHolder
-                                                     viewHolder, Object object) {
-                PlaybackControlGlue glue = (PlaybackControlGlue) object;
-                if (glue.hasValidMedia()) {
-                    viewHolder.getTitle().setText(glue.getMediaTitle());
-                    viewHolder.getSubtitle().setText(glue.getMediaSubtitle());
-                } else {
-                    viewHolder.getTitle().setText("");
-                    viewHolder.getSubtitle().setText("");
-                }
-            }
-        };
-
-        return new PlaybackControlsRowPresenter(detailsPresenter) {
-            @Override
-            protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
-                super.onBindRowViewHolder(vh, item);
-                vh.setOnKeyListener(PlaybackControlGlue.this);
-            }
-            @Override
-            protected void onUnbindRowViewHolder(RowPresenter.ViewHolder vh) {
-                super.onUnbindRowViewHolder(vh);
-                vh.setOnKeyListener(null);
-            }
-        };
     }
 
     /**
      * Returns the fragment.
-     * @deprecated The glue is no longer associated with a fragment, use {@link #getHost()}.
      */
-    @Deprecated
     public PlaybackOverlayFragment getFragment() {
         if (getHost() instanceof PlaybackGlueHostOld) {
             return ((PlaybackGlueHostOld)getHost()).mFragment;
         }
         return null;
     }
-
-    /**
-     * Returns the fast forward speeds.
-     */
-    public int[] getFastForwardSpeeds() {
-        return mFastForwardSpeeds;
-    }
-
-    /**
-     * Returns the rewind speeds.
-     */
-    public int[] getRewindSpeeds() {
-        return mRewindSpeeds;
-    }
-
-    /**
-     * Sets the controls to fade after a timeout when media is playing.
-     */
-    public void setFadingEnabled(boolean enable) {
-        mFadeWhenPlaying = enable;
-        if (!mFadeWhenPlaying && getHost() != null) {
-            getHost().setFadingEnabled(false);
-        }
-    }
-
-    /**
-     * Returns true if controls are set to fade when media is playing.
-     */
-    public boolean isFadingEnabled() {
-        return mFadeWhenPlaying;
-    }
-
-    /**
-     * Set the {@link OnItemViewClickedListener} to be called if the click event
-     * is not handled internally.
-     * @param listener
-     * @deprecated Don't call this. Instead use the listener on the fragment yourself.
-     */
-    @Deprecated
-    public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
-        mExternalOnItemViewClickedListener = listener;
-    }
-
-    /**
-     * Returns the {@link OnItemViewClickedListener}.
-     * @deprecated Don't call this. Instead use the listener on the fragment yourself.
-     */
-    @Deprecated
-    public OnItemViewClickedListener getOnItemViewClickedListener() {
-        return mExternalOnItemViewClickedListener;
-    }
-
-    /**
-     * Sets the controls row to be managed by the glue layer.
-     * The primary actions and playback state related aspects of the row
-     * are updated by the glue.
-     */
-    public void setControlsRow(PlaybackControlsRow controlsRow) {
-        mControlsRow = controlsRow;
-        mPrimaryActionsAdapter = createPrimaryActionsAdapter(
-                new ControlButtonPresenterSelector());
-        mControlsRow.setPrimaryActionsAdapter(mPrimaryActionsAdapter);
-        updateControlsRow();
-    }
-
-    /**
-     * Returns the playback controls row managed by the glue layer.
-     */
-    public PlaybackControlsRow getControlsRow() {
-        return mControlsRow;
-    }
-
-    /**
-     * Override this to start/stop a runnable to call {@link #updateProgress} at
-     * an interval such as {@link #getUpdatePeriod}.
-     */
-    public void enableProgressUpdating(boolean enable) {
-    }
-
-    /**
-     * Returns the time period in milliseconds that should be used
-     * to update the progress.  See {@link #updateProgress()}.
-     */
-    public int getUpdatePeriod() {
-        // TODO: calculate a better update period based on total duration and screen size
-        return 500;
-    }
-
-    /**
-     * Updates the progress bar based on the current media playback position.
-     */
-    public void updateProgress() {
-        int position = getCurrentPosition();
-        if (DEBUG) Log.v(TAG, "updateProgress " + position);
-        mControlsRow.setCurrentTime(position);
-    }
-
-    /**
-     * Handles action clicks.  A subclass may override this add support for additional actions.
-     */
-    @Override
-    public void onActionClicked(Action action) {
-        dispatchAction(action, null);
-    }
-
-    /**
-     * Handles key events and returns true if handled.  A subclass may override this to provide
-     * additional support.
-     */
-    @Override
-    public boolean onKey(View v, int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_DPAD_UP:
-            case KeyEvent.KEYCODE_DPAD_DOWN:
-            case KeyEvent.KEYCODE_DPAD_RIGHT:
-            case KeyEvent.KEYCODE_DPAD_LEFT:
-            case KeyEvent.KEYCODE_BACK:
-            case KeyEvent.KEYCODE_ESCAPE:
-                boolean abortSeek = mPlaybackSpeed >= PLAYBACK_SPEED_FAST_L0
-                        || mPlaybackSpeed <= -PLAYBACK_SPEED_FAST_L0;
-                if (abortSeek) {
-                    mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
-                    startPlayback(mPlaybackSpeed);
-                    updatePlaybackStatusAfterUserAction();
-                    return keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE;
-                }
-                return false;
-        }
-        Action action = mControlsRow.getActionForKeyCode(mPrimaryActionsAdapter, keyCode);
-
-        if (action != null) {
-            if (action == mPrimaryActionsAdapter.lookup(ACTION_PLAY_PAUSE)
-                    || action == mPrimaryActionsAdapter.lookup(ACTION_REWIND)
-                    || action == mPrimaryActionsAdapter.lookup(ACTION_FAST_FORWARD)
-                    || action == mPrimaryActionsAdapter.lookup(ACTION_SKIP_TO_PREVIOUS)
-                    || action == mPrimaryActionsAdapter.lookup(ACTION_SKIP_TO_NEXT)) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    dispatchAction(action, event);
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Called when the given action is invoked, either by click or keyevent.
-     */
-    boolean dispatchAction(Action action, KeyEvent keyEvent) {
-        boolean handled = false;
-        if (action == mPlayPauseAction) {
-            boolean canPlay = keyEvent == null
-                    || keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
-                    || keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY;
-            boolean canPause = keyEvent == null
-                    || keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
-                    || keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PAUSE;
-            //            PLAY_PAUSE    PLAY      PAUSE
-            // playing    paused                  paused
-            // paused     playing       playing
-            // ff/rw      playing       playing   paused
-            if (canPause &&
-                (canPlay ? mPlaybackSpeed == PLAYBACK_SPEED_NORMAL :
-                        mPlaybackSpeed != PLAYBACK_SPEED_PAUSED)) {
-                mPlaybackSpeed = PLAYBACK_SPEED_PAUSED;
-                pausePlayback();
-            } else if (canPlay && mPlaybackSpeed != PLAYBACK_SPEED_NORMAL) {
-                mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
-                startPlayback(mPlaybackSpeed);
-            }
-            updatePlaybackStatusAfterUserAction();
-            handled = true;
-        } else if (action == mSkipNextAction) {
-            skipToNext();
-            handled = true;
-        } else if (action == mSkipPreviousAction) {
-            skipToPrevious();
-            handled = true;
-        } else if (action == mFastForwardAction) {
-            if (mPlaybackSpeed < getMaxForwardSpeedId()) {
-                switch (mPlaybackSpeed) {
-                    case PLAYBACK_SPEED_FAST_L0:
-                    case PLAYBACK_SPEED_FAST_L1:
-                    case PLAYBACK_SPEED_FAST_L2:
-                    case PLAYBACK_SPEED_FAST_L3:
-                        mPlaybackSpeed++;
-                        break;
-                    default:
-                        mPlaybackSpeed = PLAYBACK_SPEED_FAST_L0;
-                        break;
-                }
-                startPlayback(mPlaybackSpeed);
-                updatePlaybackStatusAfterUserAction();
-            }
-            handled = true;
-        } else if (action == mRewindAction) {
-            if (mPlaybackSpeed > -getMaxRewindSpeedId()) {
-                switch (mPlaybackSpeed) {
-                    case -PLAYBACK_SPEED_FAST_L0:
-                    case -PLAYBACK_SPEED_FAST_L1:
-                    case -PLAYBACK_SPEED_FAST_L2:
-                    case -PLAYBACK_SPEED_FAST_L3:
-                        mPlaybackSpeed--;
-                        break;
-                    default:
-                        mPlaybackSpeed = -PLAYBACK_SPEED_FAST_L0;
-                        break;
-                }
-                startPlayback(mPlaybackSpeed);
-                updatePlaybackStatusAfterUserAction();
-            }
-            handled = true;
-        }
-        return handled;
-    }
-
-    private int getMaxForwardSpeedId() {
-        return PLAYBACK_SPEED_FAST_L0 + (mFastForwardSpeeds.length - 1);
-    }
-
-    private int getMaxRewindSpeedId() {
-        return PLAYBACK_SPEED_FAST_L0 + (mRewindSpeeds.length - 1);
-    }
-
-    private void updateControlsRow() {
-        updateRowMetadata();
-        sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
-        updatePlaybackState();
-    }
-
-    private void updatePlaybackStatusAfterUserAction() {
-        updatePlaybackState(mPlaybackSpeed);
-        // Sync playback state after a delay
-        sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
-        sHandler.sendMessageDelayed(sHandler.obtainMessage(MSG_UPDATE_PLAYBACK_STATE,
-                mGlueWeakReference), UPDATE_PLAYBACK_STATE_DELAY_MS);
-    }
-
-    private void updateRowMetadata() {
-        if (mControlsRow == null) {
-            return;
-        }
-
-        if (DEBUG) Log.v(TAG, "updateRowMetadata");
-
-        if (!hasValidMedia()) {
-            mControlsRow.setImageDrawable(null);
-            mControlsRow.setTotalTime(0);
-            mControlsRow.setCurrentTime(0);
-        } else {
-            mControlsRow.setImageDrawable(getMediaArt());
-            mControlsRow.setTotalTime(getMediaDuration());
-            mControlsRow.setCurrentTime(getCurrentPosition());
-        }
-
-        if (getHost() != null) {
-            getHost().notifyPlaybackRowChanged();
-        }
-    }
-
-    void updatePlaybackState() {
-        if (hasValidMedia()) {
-            mPlaybackSpeed = getCurrentSpeedId();
-            updatePlaybackState(mPlaybackSpeed);
-        }
-    }
-
-    private void updatePlaybackState(int playbackSpeed) {
-        if (mControlsRow == null) {
-            return;
-        }
-
-        final long actions = getSupportedActions();
-        if ((actions & ACTION_SKIP_TO_PREVIOUS) != 0) {
-            if (mSkipPreviousAction == null) {
-                mSkipPreviousAction = new PlaybackControlsRow.SkipPreviousAction(getContext());
-            }
-            mPrimaryActionsAdapter.set(ACTION_SKIP_TO_PREVIOUS, mSkipPreviousAction);
-        } else {
-            mPrimaryActionsAdapter.clear(ACTION_SKIP_TO_PREVIOUS);
-            mSkipPreviousAction = null;
-        }
-        if ((actions & ACTION_REWIND) != 0) {
-            if (mRewindAction == null) {
-                mRewindAction = new PlaybackControlsRow.RewindAction(
-                        getContext(),
-                        mRewindSpeeds.length);
-            }
-            mPrimaryActionsAdapter.set(ACTION_REWIND, mRewindAction);
-        } else {
-            mPrimaryActionsAdapter.clear(ACTION_REWIND);
-            mRewindAction = null;
-        }
-        if ((actions & ACTION_PLAY_PAUSE) != 0) {
-            if (mPlayPauseAction == null) {
-                mPlayPauseAction = new PlaybackControlsRow.PlayPauseAction(getContext());
-            }
-            mPrimaryActionsAdapter.set(ACTION_PLAY_PAUSE, mPlayPauseAction);
-        } else {
-            mPrimaryActionsAdapter.clear(ACTION_PLAY_PAUSE);
-            mPlayPauseAction = null;
-        }
-        if ((actions & ACTION_FAST_FORWARD) != 0) {
-            if (mFastForwardAction == null) {
-                mFastForwardAction = new PlaybackControlsRow.FastForwardAction(
-                        getContext(),
-                        mFastForwardSpeeds.length);
-            }
-            mPrimaryActionsAdapter.set(ACTION_FAST_FORWARD, mFastForwardAction);
-        } else {
-            mPrimaryActionsAdapter.clear(ACTION_FAST_FORWARD);
-            mFastForwardAction = null;
-        }
-        if ((actions & ACTION_SKIP_TO_NEXT) != 0) {
-            if (mSkipNextAction == null) {
-                mSkipNextAction = new PlaybackControlsRow.SkipNextAction(getContext());
-            }
-            mPrimaryActionsAdapter.set(ACTION_SKIP_TO_NEXT, mSkipNextAction);
-        } else {
-            mPrimaryActionsAdapter.clear(ACTION_SKIP_TO_NEXT);
-            mSkipNextAction = null;
-        }
-
-        if (mFastForwardAction != null) {
-            int index = 0;
-            if (playbackSpeed >= PLAYBACK_SPEED_FAST_L0) {
-                index = playbackSpeed - PLAYBACK_SPEED_FAST_L0 + 1;
-            }
-            if (mFastForwardAction.getIndex() != index) {
-                mFastForwardAction.setIndex(index);
-                notifyItemChanged(mPrimaryActionsAdapter, mFastForwardAction);
-            }
-        }
-        if (mRewindAction != null) {
-            int index = 0;
-            if (playbackSpeed <= -PLAYBACK_SPEED_FAST_L0) {
-                index = -playbackSpeed - PLAYBACK_SPEED_FAST_L0 + 1;
-            }
-            if (mRewindAction.getIndex() != index) {
-                mRewindAction.setIndex(index);
-                notifyItemChanged(mPrimaryActionsAdapter, mRewindAction);
-            }
-        }
-
-        if (playbackSpeed == PLAYBACK_SPEED_PAUSED) {
-            updateProgress();
-            enableProgressUpdating(false);
-        } else {
-            enableProgressUpdating(true);
-        }
-
-        if (mFadeWhenPlaying && getHost() != null) {
-            getHost().setFadingEnabled(playbackSpeed == PLAYBACK_SPEED_NORMAL);
-        }
-
-        if (mPlayPauseAction != null) {
-            int index = playbackSpeed == PLAYBACK_SPEED_PAUSED
-                    ? PlaybackControlsRow.PlayPauseAction.PLAY
-                    : PlaybackControlsRow.PlayPauseAction.PAUSE;
-            if (mPlayPauseAction.getIndex() != index) {
-                mPlayPauseAction.setIndex(index);
-                notifyItemChanged(mPrimaryActionsAdapter, mPlayPauseAction);
-            }
-        }
-    }
-
-    private static void notifyItemChanged(SparseArrayObjectAdapter adapter, Object object) {
-        int index = adapter.indexOf(object);
-        if (index >= 0) {
-            adapter.notifyArrayItemRangeChanged(index, 1);
-        }
-    }
-
-    private static String getSpeedString(int speed) {
-        switch (speed) {
-            case PLAYBACK_SPEED_INVALID:
-                return "PLAYBACK_SPEED_INVALID";
-            case PLAYBACK_SPEED_PAUSED:
-                return "PLAYBACK_SPEED_PAUSED";
-            case PLAYBACK_SPEED_NORMAL:
-                return "PLAYBACK_SPEED_NORMAL";
-            case PLAYBACK_SPEED_FAST_L0:
-                return "PLAYBACK_SPEED_FAST_L0";
-            case PLAYBACK_SPEED_FAST_L1:
-                return "PLAYBACK_SPEED_FAST_L1";
-            case PLAYBACK_SPEED_FAST_L2:
-                return "PLAYBACK_SPEED_FAST_L2";
-            case PLAYBACK_SPEED_FAST_L3:
-                return "PLAYBACK_SPEED_FAST_L3";
-            case PLAYBACK_SPEED_FAST_L4:
-                return "PLAYBACK_SPEED_FAST_L4";
-            case -PLAYBACK_SPEED_FAST_L0:
-                return "-PLAYBACK_SPEED_FAST_L0";
-            case -PLAYBACK_SPEED_FAST_L1:
-                return "-PLAYBACK_SPEED_FAST_L1";
-            case -PLAYBACK_SPEED_FAST_L2:
-                return "-PLAYBACK_SPEED_FAST_L2";
-            case -PLAYBACK_SPEED_FAST_L3:
-                return "-PLAYBACK_SPEED_FAST_L3";
-            case -PLAYBACK_SPEED_FAST_L4:
-                return "-PLAYBACK_SPEED_FAST_L4";
-        }
-        return null;
-    }
-
-    /**
-     * Returns true if there is a valid media item.
-     */
-    public abstract boolean hasValidMedia();
-
-    /**
-     * Returns true if media is currently playing.
-     */
-    public abstract boolean isMediaPlaying();
-
-    /**
-     * Returns the title of the media item.
-     */
-    public abstract CharSequence getMediaTitle();
-
-    /**
-     * Returns the subtitle of the media item.
-     */
-    public abstract CharSequence getMediaSubtitle();
-
-    /**
-     * Returns the duration of the media item in milliseconds.
-     */
-    public abstract int getMediaDuration();
-
-    /**
-     * Returns a bitmap of the art for the media item.
-     */
-    public abstract Drawable getMediaArt();
-
-    /**
-     * Returns a bitmask of actions supported by the media player.
-     */
-    public abstract long getSupportedActions();
-
-    /**
-     * Returns the current playback speed.  When playing normally,
-     * {@link #PLAYBACK_SPEED_NORMAL} should be returned.
-     */
-    public abstract int getCurrentSpeedId();
-
-    /**
-     * Returns the current position of the media item in milliseconds.
-     */
-    public abstract int getCurrentPosition();
 
     /**
      * Start playback at the given speed.
@@ -861,13 +185,30 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
     @Deprecated
     protected void skipToPrevious() {}
 
+    @Override
+    public final void next() {
+        skipToNext();
+    }
+
+    @Override
+    public final void previous() {
+        skipToPrevious();
+    }
+
+    @Override
+    public final void play(int speed) {
+        startPlayback(speed);
+    }
+
+    @Override
+    public final void pause() {
+        pausePlayback();
+    }
+
     /**
      * This method invoked when the playback controls row has changed. The adapter
-     * containing this row should be notified. This method would be delegated to
-     * {@see android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost#notifyPlaybackRowChanged}.
-     * @deprecated see {@link android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost}.
+     * containing this row should be notified.
      */
-    @Deprecated
     protected void onRowChanged(PlaybackControlsRow row) {
         if (getHost() != null) {
             getHost().notifyPlaybackRowChanged();
@@ -875,46 +216,61 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
     }
 
     /**
-     * Creates the primary action adapter.  May be overridden to add additional primary
-     * actions to the adapter.
+     * Set the {@link OnItemViewClickedListener} to be called if the click event
+     * is not handled internally.
+     * @param listener
+     * @deprecated Don't call this. Instead use the listener on the fragment yourself.
      */
+    @Deprecated
+    public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+        mExternalOnItemViewClickedListener = listener;
+    }
+
+    /**
+     * Returns the {@link OnItemViewClickedListener}.
+     * @deprecated Don't call this. Instead use the listener on the fragment yourself.
+     */
+    @Deprecated
+    public OnItemViewClickedListener getOnItemViewClickedListener() {
+        return mExternalOnItemViewClickedListener;
+    }
+
+    @Override
+    protected void onCreateControlsRowAndPresenter() {
+        // backward compatible, we dont create row / presenter by default.
+        // User is expected to call createControlsRowAndPresenter() or setControlsRow()
+        // explicitly.
+    }
+
+    /**
+     * Helper method for instantiating a
+     * {@link android.support.v17.leanback.widget.PlaybackControlsRow} and corresponding
+     * {@link android.support.v17.leanback.widget.PlaybackControlsRowPresenter}.
+     */
+    public PlaybackControlsRowPresenter createControlsRowAndPresenter() {
+        super.onCreateControlsRowAndPresenter();
+        return getControlsRowPresenter();
+    }
+
     protected SparseArrayObjectAdapter createPrimaryActionsAdapter(
             PresenterSelector presenterSelector) {
-        return new SparseArrayObjectAdapter(presenterSelector);
+        return super.createPrimaryActionsAdapter(presenterSelector);
     }
 
     /**
-     * Must be called appropriately by a subclass when the playback state has changed.
-     * It updates the playback state displayed on the media player.
+     * Interface allowing the application to handle input events.
+     * @deprecated Use
+     * {@link PlaybackGlueHost#setOnKeyInterceptListener(View.OnKeyListener)}.
      */
-    protected void onStateChanged() {
-        if (DEBUG) Log.v(TAG, "onStateChanged");
-        // If a pending control button update is present, delay
-        // the update until the state settles.
-        if (!hasValidMedia()) {
-            return;
-        }
-        if (sHandler.hasMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference)) {
-            sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
-            if (getCurrentSpeedId() != mPlaybackSpeed) {
-                if (DEBUG) Log.v(TAG, "Status expectation mismatch, delaying update");
-                sHandler.sendMessageDelayed(sHandler.obtainMessage(MSG_UPDATE_PLAYBACK_STATE,
-                        mGlueWeakReference), UPDATE_PLAYBACK_STATE_DELAY_MS);
-            } else {
-                if (DEBUG) Log.v(TAG, "Update state matches expectation");
-                updatePlaybackState();
-            }
-        } else {
-            updatePlaybackState();
-        }
-    }
-
-    /**
-     * Must be called appropriately by a subclass when the metadata state has changed.
-     */
-    protected void onMetadataChanged() {
-        if (DEBUG) Log.v(TAG, "onMetadataChanged");
-        updateRowMetadata();
+    @Deprecated
+    public interface InputEventHandler {
+        /**
+         * Called when an {@link InputEvent} is received.
+         *
+         * @return If the event should be consumed, return true. To allow the event to
+         * continue on to the next handler, return false.
+         */
+        boolean handleInputEvent(InputEvent event);
     }
 
     static final class PlaybackGlueHostOld extends PlaybackGlueHost {
@@ -931,13 +287,13 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
         }
 
         @Override
-        public void setOnKeyInterceptListener(final View.OnKeyListener onKeyListenerr) {
+        public void setOnKeyInterceptListener(final View.OnKeyListener onKeyListener) {
             mFragment.setEventHandler( new InputEventHandler() {
                 @Override
                 public boolean handleInputEvent(InputEvent event) {
                     if (event instanceof KeyEvent) {
                         KeyEvent keyEvent = (KeyEvent) event;
-                        return onKeyListenerr.onKey(null, keyEvent.getKeyCode(), keyEvent);
+                        return onKeyListener.onKey(null, keyEvent.getKeyCode(), keyEvent);
                     }
                     return false;
                 }
@@ -952,13 +308,23 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
                                           RowPresenter.ViewHolder rowViewHolder, Row row) {
                     if (item instanceof Action) {
                         listener.onActionClicked((Action)item);
-                        if (mGlue.mExternalOnItemViewClickedListener != null) {
-                            mGlue.mExternalOnItemViewClickedListener.onItemClicked(itemViewHolder,
+                        if (mGlue.getOnItemViewClickedListener() != null) {
+                            mGlue.getOnItemViewClickedListener().onItemClicked(itemViewHolder,
                                     item, rowViewHolder, row);
                         }
                     }
                 }
             });
+        }
+
+        @Override
+        public void setHostCallback(HostCallback callback) {
+            mFragment.setHostCallback(callback);
+        }
+
+        @Override
+        public void fadeOut() {
+            mFragment.fadeOut();
         }
     }
 }

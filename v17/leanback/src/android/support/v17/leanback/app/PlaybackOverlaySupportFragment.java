@@ -30,6 +30,7 @@ import android.os.Message;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.animation.LogAccelerateInterpolator;
 import android.support.v17.leanback.animation.LogDecelerateInterpolator;
+import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter.DataObserver;
@@ -126,6 +127,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
     private ValueAnimator mDescriptionFadeInAnimator, mDescriptionFadeOutAnimator;
     private ValueAnimator mOtherRowFadeInAnimator, mOtherRowFadeOutAnimator;
     boolean mResetControlsToPrimaryActionsPending;
+    PlaybackGlueHost.HostCallback mHostCallback;
 
     private final Animator.AnimatorListener mFadeListener =
             new Animator.AnimatorListener() {
@@ -326,6 +328,30 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         fade(false);
     }
 
+    /**
+     * Sets the {@link PlaybackGlueHost.HostCallback}. Implementor of this interface will
+     * take appropriate actions to take action when the hosting fragment starts/stops processing.
+     */
+    void setHostCallback(PlaybackGlueHost.HostCallback hostCallback) {
+        this.mHostCallback = hostCallback;
+    }
+
+    @Override
+    public void onStop() {
+        if (mHostCallback != null) {
+            mHostCallback.onHostStop();
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onPause() {
+        if (mHostCallback != null) {
+            mHostCallback.onHostPause();
+        }
+        super.onPause();
+    }
+
     private boolean areControlsHidden() {
         return mFadingStatus == IDLE && mBgAlpha == 0;
     }
@@ -385,6 +411,9 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         }
         getVerticalGridView().setOnTouchInterceptListener(mOnTouchInterceptListener);
         getVerticalGridView().setOnKeyInterceptListener(mOnKeyInterceptListener);
+        if (mHostCallback != null) {
+            mHostCallback.onHostResume();
+        }
     }
 
     void startFadeTimer() {
@@ -768,6 +797,9 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         super.onStart();
         // Workaround problem VideoView forcing itself to focused, let controls take focus.
         getRowsSupportFragment().getView().requestFocus();
+        if (mHostCallback != null) {
+            mHostCallback.onHostStart();
+        }
     }
 
     private final DataObserver mObserver = new DataObserver() {
