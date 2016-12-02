@@ -47,6 +47,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -441,21 +442,21 @@ public class RecyclerViewBasicTest {
 
         // verify trivial noop case
         RecyclerView.ViewHolder holder = new RecyclerView.ViewHolder(recyclerView) {};
-        holder.mNestedRecyclerView = recyclerView;
+        holder.mNestedRecyclerView = new WeakReference<>(recyclerView);
         RecyclerView.clearNestedRecyclerViewIfNotNested(holder);
-        assertEquals(recyclerView, holder.mNestedRecyclerView);
+        assertEquals(recyclerView, holder.mNestedRecyclerView.get());
 
         // verify clear case
         holder = new RecyclerView.ViewHolder(new View(getContext())) {};
-        holder.mNestedRecyclerView = recyclerView;
+        holder.mNestedRecyclerView = new WeakReference<>(recyclerView);
         RecyclerView.clearNestedRecyclerViewIfNotNested(holder);
         assertNull(holder.mNestedRecyclerView);
 
         // verify more deeply nested case
         holder = new RecyclerView.ViewHolder(grandParent) {};
-        holder.mNestedRecyclerView = recyclerView;
+        holder.mNestedRecyclerView = new WeakReference<>(recyclerView);
         RecyclerView.clearNestedRecyclerViewIfNotNested(holder);
-        assertEquals(recyclerView, holder.mNestedRecyclerView);
+        assertEquals(recyclerView, holder.mNestedRecyclerView.get());
     }
 
     static class MockLayoutManager extends RecyclerView.LayoutManager {
