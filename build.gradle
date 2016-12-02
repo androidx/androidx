@@ -313,10 +313,10 @@ task checkApiStable(type: CheckApiTask, dependsOn: generateApi) {
 checkApi.dependsOn checkApiStable
 
 subprojects {
-    // Only modify android projects.
+    // Only modify Android projects.
     if (project.name.equals('doclava')) return;
 
-    // current SDK is set in studioCompat.gradle
+    // Current SDK is set in studioCompat.gradle.
     project.ext.currentSdk = gradle.ext.currentSdk
     apply plugin: 'maven'
 
@@ -330,23 +330,29 @@ subprojects {
     }
 
     project.plugins.whenPluginAdded { plugin ->
-        if ("com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)
-                || "com.android.build.gradle.AppPlugin".equals(plugin.class.name)) {
+        def isAndroidLibrary = "com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)
+        def isAndroidApp = "com.android.build.gradle.AppPlugin".equals(plugin.class.name)
+        def isJavaLibrary = "org.gradle.api.plugins.JavaPlugin".equals(plugin.class.name)
+
+        if (isAndroidLibrary || isAndroidApp) {
             project.android.buildToolsVersion = rootProject.buildToolsVersion
-            // enable code coverage for debug builds only if we are not running inside the IDE
-            // enabling coverage reports breaks the method parameter resolution in the IDE debugger
+
+            // Enable code coverage for debug builds only if we are not running inside the IDE,
+            // since enabling coverage reports breaks the method parameter resolution in the IDE
+            // debugger.
             project.android.buildTypes.debug.testCoverageEnabled = !hasProperty('android.injected.invoked.from.ide')
 
-            // Ensure we run API lint checks.
+            // Enforce NewApi lint check as fatal.
             project.android.lintOptions.check 'NewApi'
             project.android.lintOptions.fatal 'NewApi'
             project.parent.lint.dependsOn project.lint
         }
 
-        // Create release and separate zip task for Android libraries (and android-annotations,
-        // which is just a Java library).
-        if ("com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)
-                || "org.gradle.api.plugins.JavaPlugin".equals(plugin.class.name)) {
+        if (isAndroidLibrary || isJavaLibrary) {
+            // Add library to the aggregate dependency report.
+            task allDeps(type: DependencyReportTask) {}
+
+            // Create release and separate zip task for library.
             task release(type: Upload) {
                 configuration = configurations.archives
                 repositories {
@@ -413,9 +419,10 @@ subprojects {
             }
             project.parent.createArchive.dependsOn createSeparateZip
 
-            // before the upload, make sure the repo is ready.
+            // Before the upload, make sure the repo is ready.
             release.dependsOn rootProject.tasks.prepareRepo
-            // make the mainupload depend on this one.
+
+            // Make the mainupload depend on this one.
             mainUpload.dependsOn release
         }
     }
