@@ -212,6 +212,14 @@ task generateDocs(type: DoclavaTask, dependsOn: configurations.doclava) {
             ['android.whichdoc', 'online'],
             ['android.hasSamples', 'true']);
 
+    // Default hidden errors + hidden superclass (111) and
+    // deprecation mismatch (113) to match framework docs.
+    final def hidden = [105, 107, 111, 112, 113, 115, 116, 121]
+
+    doclavaErrors = (101..122) - hidden
+    doclavaWarnings = []
+    doclavaHidden += hidden
+
     options {
         addStringOption "templatedir",
                 "${project.rootDir}/../../build/tools/droiddoc/templates-sdk"
