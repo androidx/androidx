@@ -2016,14 +2016,10 @@ package android.support.v17.leanback.app {
     method public void fadeOut();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public int getBackgroundType();
-    method public final android.view.View.OnKeyListener getEventHandler();
-    method public android.support.v17.leanback.app.PlaybackFragment.OnFadeCompleteListener getFadeCompleteListener();
     method public boolean isFadingEnabled();
     method public void notifyPlaybackRowChanged();
-    method public void resetFocus();
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setBackgroundType(int);
-    method public void setFadeCompleteListener(android.support.v17.leanback.app.PlaybackFragment.OnFadeCompleteListener);
     method public void setFadingEnabled(boolean);
     method public void setHostCallback(android.support.v17.leanback.media.PlaybackGlueHost.HostCallback);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
@@ -2037,12 +2033,6 @@ package android.support.v17.leanback.app {
     field public static final int BG_DARK = 1; // 0x1
     field public static final int BG_LIGHT = 2; // 0x2
     field public static final int BG_NONE = 0; // 0x0
-  }
-
-  public static class PlaybackFragment.OnFadeCompleteListener {
-    ctor public PlaybackFragment.OnFadeCompleteListener();
-    method public void onFadeInComplete();
-    method public void onFadeOutComplete();
   }
 
   public class PlaybackFragmentGlueHost extends android.support.v17.leanback.media.PlaybackGlueHost {
@@ -2110,14 +2100,10 @@ package android.support.v17.leanback.app {
     method public void fadeOut();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public int getBackgroundType();
-    method public final android.view.View.OnKeyListener getEventHandler();
-    method public android.support.v17.leanback.app.PlaybackSupportFragment.OnFadeCompleteListener getFadeCompleteListener();
     method public boolean isFadingEnabled();
     method public void notifyPlaybackRowChanged();
-    method public void resetFocus();
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setBackgroundType(int);
-    method public void setFadeCompleteListener(android.support.v17.leanback.app.PlaybackSupportFragment.OnFadeCompleteListener);
     method public void setFadingEnabled(boolean);
     method public void setHostCallback(android.support.v17.leanback.media.PlaybackGlueHost.HostCallback);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
@@ -2131,12 +2117,6 @@ package android.support.v17.leanback.app {
     field public static final int BG_DARK = 1; // 0x1
     field public static final int BG_LIGHT = 2; // 0x2
     field public static final int BG_NONE = 0; // 0x0
-  }
-
-  public static class PlaybackSupportFragment.OnFadeCompleteListener {
-    ctor public PlaybackSupportFragment.OnFadeCompleteListener();
-    method public void onFadeInComplete();
-    method public void onFadeOutComplete();
   }
 
   public class PlaybackSupportFragmentGlueHost extends android.support.v17.leanback.media.PlaybackGlueHost {

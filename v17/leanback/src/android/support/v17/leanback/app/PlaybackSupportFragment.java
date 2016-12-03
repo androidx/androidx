@@ -82,6 +82,7 @@ public class PlaybackSupportFragment extends Fragment {
 
     /**
      * Resets the focus on the button in the middle of control row.
+     * @hide
      */
     public void resetFocus() {
         ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder) getVerticalGridView()
@@ -141,6 +142,7 @@ public class PlaybackSupportFragment extends Fragment {
     /**
      * Listener allowing the application to receive notification of fade in and/or fade out
      * completion events.
+     * @hide
      */
     public static class OnFadeCompleteListener {
         public void onFadeInComplete() {
@@ -299,6 +301,7 @@ public class PlaybackSupportFragment extends Fragment {
 
     /**
      * Sets the listener to be called when fade in or out has completed.
+     * @hide
      */
     public void setFadeCompleteListener(OnFadeCompleteListener listener) {
         mFadeCompleteListener = listener;
@@ -306,6 +309,7 @@ public class PlaybackSupportFragment extends Fragment {
 
     /**
      * Returns the listener to be called when fade in or out has completed.
+     * @hide
      */
     public OnFadeCompleteListener getFadeCompleteListener() {
         return mFadeCompleteListener;
@@ -316,13 +320,6 @@ public class PlaybackSupportFragment extends Fragment {
      */
     public final void setOnKeyInterceptListener(View.OnKeyListener handler) {
         mInputEventHandler = handler;
-    }
-
-    /**
-     * Returns the input event handler.
-     */
-    public final View.OnKeyListener getEventHandler() {
-        return mInputEventHandler;
     }
 
     /**
