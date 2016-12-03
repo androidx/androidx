@@ -608,7 +608,7 @@ public class RecyclerViewCacheTest {
                     @Override
                     public boolean matches(Object item) {
                         RecyclerView.ViewHolder holder = (RecyclerView.ViewHolder) item;
-                        return holder.itemView == holder.mNestedRecyclerView;
+                        return holder.itemView == holder.mNestedRecyclerView.get();
                     }
 
                     @Override
@@ -651,7 +651,6 @@ public class RecyclerViewCacheTest {
     }
 
     class OuterAdapter extends RecyclerView.Adapter<OuterAdapter.ViewHolder> {
-        private static final int OUTER_ITEM_COUNT = 10;
 
         private boolean mReverseInner;
 
@@ -672,11 +671,22 @@ public class RecyclerViewCacheTest {
         }
 
         OuterAdapter(boolean reverseInner) {
+            this(reverseInner, 10);
+        }
+
+        OuterAdapter(boolean reverseInner, int itemCount) {
             mReverseInner = reverseInner;
-            for (int i = 0; i <= OUTER_ITEM_COUNT; i++) {
+            for (int i = 0; i < itemCount; i++) {
                 mAdapters.add(new InnerAdapter());
                 mSavedStates.add(null);
             }
+        }
+
+        void addItem() {
+            int index = getItemCount();
+            mAdapters.add(new InnerAdapter());
+            mSavedStates.add(null);
+            notifyItemInserted(index);
         }
 
         @Override
@@ -714,7 +724,7 @@ public class RecyclerViewCacheTest {
 
         @Override
         public int getItemCount() {
-            return OUTER_ITEM_COUNT;
+            return mAdapters.size();
         }
     }
 
@@ -734,13 +744,14 @@ public class RecyclerViewCacheTest {
         RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 2);
         assertNotNull(holder);
         assertNotNull(holder.mNestedRecyclerView);
-        CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView, 0, 1);
+        RecyclerView innerView = holder.mNestedRecyclerView.get();
+        CacheUtils.verifyCacheContainsPrefetchedPositions(innerView, 0, 1);
 
         // prefetch 4
-        ((LinearLayoutManager) holder.mNestedRecyclerView.getLayoutManager())
+        ((LinearLayoutManager) innerView.getLayoutManager())
                 .setInitialPrefetchItemCount(4);
         mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
-        CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView, 0, 1, 2, 3);
+        CacheUtils.verifyCacheContainsPrefetchedPositions(innerView, 0, 1, 2, 3);
     }
 
     @Test
@@ -755,7 +766,7 @@ public class RecyclerViewCacheTest {
         RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 2);
 
         // anchor from right side, should see last two positions
-        CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView, 18, 19);
+        CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView.get(), 18, 19);
     }
 
     @Test
@@ -805,7 +816,7 @@ public class RecyclerViewCacheTest {
         assertEquals(0, outerAdapter.mAdapters.get(2).mItemsBound);
         mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
         RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 2);
-        RecyclerView innerRecyclerView = holder.mNestedRecyclerView;
+        RecyclerView innerRecyclerView = holder.mNestedRecyclerView.get();
 
         assertNotNull(innerRecyclerView);
         CacheUtils.verifyCacheContainsPrefetchedPositions(innerRecyclerView, 0, 1);
@@ -841,7 +852,7 @@ public class RecyclerViewCacheTest {
         // item 0 is cached
         assertEquals(2, outerAdapter.mAdapters.get(0).mItemsBound);
         RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 0);
-        validateRvChildrenValid(holder.mNestedRecyclerView, 2);
+        validateRvChildrenValid(holder.mNestedRecyclerView.get(), 2);
 
         // try and prefetch it
         mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, -1);
@@ -849,7 +860,44 @@ public class RecyclerViewCacheTest {
 
         // make sure cache's inner items aren't rebound unnecessarily
         assertEquals(2, outerAdapter.mAdapters.get(0).mItemsBound);
-        validateRvChildrenValid(holder.mNestedRecyclerView, 2);
+        validateRvChildrenValid(holder.mNestedRecyclerView.get(), 2);
+    }
+
+    @Test
+    public void nestedRemoveAnimatingView() {
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        OuterAdapter outerAdapter = new OuterAdapter(false, 1);
+        mRecyclerView.setAdapter(outerAdapter);
+        mRecyclerView.getItemAnimator().setAddDuration(TimeUnit.MILLISECONDS.toNanos(30));
+
+        layout(200, 200);
+
+        // Insert 3 items - only first one in viewport, so only it animates
+        for (int i = 0; i < 3; i++) {
+            outerAdapter.addItem();
+        }
+        layout(200, 200); // layout again to kick off animation
+
+
+        // item 1 is animating, so scroll it out of viewport
+        mRecyclerView.scrollBy(0, 200);
+
+        // 2 items attached, 1 cached (pos 0), but item animating pos 1 not accounted for...
+        assertEquals(2, mRecyclerView.mChildHelper.getUnfilteredChildCount());
+        assertEquals(1, mRecycler.mCachedViews.size());
+        CacheUtils.verifyCacheContainsPositions(mRecyclerView, 0);
+        assertEquals(0, mRecyclerView.getRecycledViewPool().getRecycledViewCount(0));
+
+        // until animation ends
+        mRecyclerView.getItemAnimator().endAnimations();
+        assertEquals(2, mRecyclerView.mChildHelper.getUnfilteredChildCount());
+        assertEquals(2, mRecycler.mCachedViews.size());
+        CacheUtils.verifyCacheContainsPositions(mRecyclerView, 0, 1);
+        assertEquals(0, mRecyclerView.getRecycledViewPool().getRecycledViewCount(0));
+
+        for (RecyclerView.ViewHolder viewHolder : mRecycler.mCachedViews) {
+            assertNotNull(viewHolder.mNestedRecyclerView);
+        }
     }
 
     /**
@@ -949,8 +997,8 @@ public class RecyclerViewCacheTest {
         for (RecyclerView.ViewHolder holder : mRecycler.mRecyclerPool.mScrap.get(0).mScrapHeap) {
             // verify that children are attached and valid, since the RVs haven't been rebound
             assertNotNull(holder.mNestedRecyclerView);
-            assertFalse(holder.mNestedRecyclerView.mDataSetHasChangedAfterLayout);
-            validateRvChildrenValid(holder.mNestedRecyclerView, 2);
+            assertFalse(holder.mNestedRecyclerView.get().mDataSetHasChangedAfterLayout);
+            validateRvChildrenValid(holder.mNestedRecyclerView.get(), 2);
         }
 
         // prefetch the outer item bind, but without enough time to do any inner binds
@@ -963,11 +1011,11 @@ public class RecyclerViewCacheTest {
         RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 2);
         assertNotNull(holder);
         assertNotNull(holder.mNestedRecyclerView);
-        assertEquals(0, holder.mNestedRecyclerView.mChildHelper.getUnfilteredChildCount());
-        assertEquals(0, holder.mNestedRecyclerView.mRecycler.mCachedViews.size());
+        assertEquals(0, holder.mNestedRecyclerView.get().mChildHelper.getUnfilteredChildCount());
+        assertEquals(0, holder.mNestedRecyclerView.get().mRecycler.mCachedViews.size());
 
         // but if we give it more time to bind items, it'll now acquire its inner items
         mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
-        CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView, 0, 1);
+        CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView.get(), 0, 1);
     }
 }

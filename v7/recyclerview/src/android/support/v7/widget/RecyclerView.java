@@ -74,6 +74,7 @@ import android.view.animation.Interpolator;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -5088,7 +5089,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     static void clearNestedRecyclerViewIfNotNested(@NonNull ViewHolder holder) {
         if (holder.mNestedRecyclerView != null) {
-            View item = holder.mNestedRecyclerView;
+            View item = holder.mNestedRecyclerView.get();
             while (item != null) {
                 if (item == holder.itemView) {
                     return; // match found, don't need to clear
@@ -5469,7 +5470,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     holder = mAdapter.createViewHolder(RecyclerView.this, type);
                     if (ALLOW_THREAD_GAP_WORK) {
                         // only bother finding nested RV if prefetching
-                        holder.mNestedRecyclerView = findNestedRecyclerView(holder.itemView);
+                        RecyclerView innerView = findNestedRecyclerView(holder.itemView);
+                        if (innerView != null) {
+                            holder.mNestedRecyclerView = new WeakReference<>(innerView);
+                        }
                     }
 
                     long end = getNanoTime();
@@ -5704,7 +5708,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     recycled = true;
                 }
             } else {
-                holder.mNestedRecyclerView = null;
+                // NOTE: A view can fail to be recycled when it is scrolled off while an animation
+                // runs. In this case, the item is eventually recycled by
+                // ItemAnimatorRestoreListener#onAnimationFinished.
+
+                // TODO: consider cancelling an animation when an item is removed scrollBy,
+                // to return it to the pool faster
                 if (DEBUG) {
                     Log.d(TAG, "trying to recycle a non-recycleable holder. Hopefully, it will "
                             + "re-visit here. We are still removing it from animation lists");
@@ -9860,7 +9869,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     public static abstract class ViewHolder {
         public final View itemView;
-        RecyclerView mNestedRecyclerView;
+        WeakReference<RecyclerView> mNestedRecyclerView;
         int mPosition = NO_POSITION;
         int mOldPosition = NO_POSITION;
         long mItemId = NO_ID;
