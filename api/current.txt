@@ -1918,10 +1918,9 @@ package android.support.v17.leanback.app {
     method public abstract void onHeaderSelected(android.support.v17.leanback.widget.RowHeaderPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
   }
 
-  public abstract class MediaControllerGlue extends android.support.v17.leanback.app.PlaybackControlGlue {
-    ctor public deprecated MediaControllerGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[]);
-    ctor public deprecated MediaControllerGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[], int[]);
-    ctor public MediaControllerGlue(android.content.Context, android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost, int[], int[]);
+  public abstract deprecated class MediaControllerGlue extends android.support.v17.leanback.app.PlaybackControlGlue {
+    ctor public MediaControllerGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[]);
+    ctor public MediaControllerGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[], int[]);
     method public void attachToMediaController(android.support.v4.media.session.MediaControllerCompat);
     method public void detach();
     method public int getCurrentPosition();
@@ -1980,59 +1979,25 @@ package android.support.v17.leanback.app {
     method public final void setLogoResourceId(int);
   }
 
-  public abstract class PlaybackControlGlue extends android.support.v17.leanback.app.PlaybackGlue implements android.support.v17.leanback.widget.OnActionClickedListener android.view.View.OnKeyListener {
+  public abstract deprecated class PlaybackControlGlue extends android.support.v17.leanback.media.PlaybackControlGlue {
     ctor public PlaybackControlGlue(android.content.Context, int[]);
     ctor public PlaybackControlGlue(android.content.Context, int[], int[]);
-    ctor public deprecated PlaybackControlGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[]);
-    ctor public deprecated PlaybackControlGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[], int[]);
-    ctor public PlaybackControlGlue(android.content.Context, android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost, int[], int[]);
+    ctor public PlaybackControlGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[]);
+    ctor public PlaybackControlGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[], int[]);
     method public android.support.v17.leanback.widget.PlaybackControlsRowPresenter createControlsRowAndPresenter();
     method protected android.support.v17.leanback.widget.SparseArrayObjectAdapter createPrimaryActionsAdapter(android.support.v17.leanback.widget.PresenterSelector);
-    method public void enableProgressUpdating(boolean);
-    method public android.support.v17.leanback.widget.PlaybackControlsRow getControlsRow();
-    method public abstract int getCurrentPosition();
-    method public abstract int getCurrentSpeedId();
-    method public int[] getFastForwardSpeeds();
-    method public deprecated android.support.v17.leanback.app.PlaybackOverlayFragment getFragment();
-    method public abstract android.graphics.drawable.Drawable getMediaArt();
-    method public abstract int getMediaDuration();
-    method public abstract java.lang.CharSequence getMediaSubtitle();
-    method public abstract java.lang.CharSequence getMediaTitle();
+    method public android.support.v17.leanback.app.PlaybackOverlayFragment getFragment();
     method public deprecated android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
-    method public int[] getRewindSpeeds();
-    method public abstract long getSupportedActions();
-    method public int getUpdatePeriod();
-    method public abstract boolean hasValidMedia();
-    method public boolean isFadingEnabled();
-    method public abstract boolean isMediaPlaying();
-    method public void onActionClicked(android.support.v17.leanback.widget.Action);
-    method public boolean onKey(android.view.View, int, android.view.KeyEvent);
-    method protected void onMetadataChanged();
-    method protected deprecated void onRowChanged(android.support.v17.leanback.widget.PlaybackControlsRow);
-    method protected void onStateChanged();
+    method public final void next();
+    method protected void onRowChanged(android.support.v17.leanback.widget.PlaybackControlsRow);
+    method public final void pause();
     method protected deprecated void pausePlayback();
-    method public void setControlsRow(android.support.v17.leanback.widget.PlaybackControlsRow);
-    method public void setFadingEnabled(boolean);
+    method public final void play(int);
+    method public final void previous();
     method public deprecated void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method protected deprecated void skipToNext();
     method protected deprecated void skipToPrevious();
     method protected deprecated void startPlayback(int);
-    method public void updateProgress();
-    field public static final int ACTION_CUSTOM_LEFT_FIRST = 1; // 0x1
-    field public static final int ACTION_CUSTOM_RIGHT_FIRST = 4096; // 0x1000
-    field public static final int ACTION_FAST_FORWARD = 128; // 0x80
-    field public static final int ACTION_PLAY_PAUSE = 64; // 0x40
-    field public static final int ACTION_REWIND = 32; // 0x20
-    field public static final int ACTION_SKIP_TO_NEXT = 256; // 0x100
-    field public static final int ACTION_SKIP_TO_PREVIOUS = 16; // 0x10
-    field public static final int PLAYBACK_SPEED_FAST_L0 = 10; // 0xa
-    field public static final int PLAYBACK_SPEED_FAST_L1 = 11; // 0xb
-    field public static final int PLAYBACK_SPEED_FAST_L2 = 12; // 0xc
-    field public static final int PLAYBACK_SPEED_FAST_L3 = 13; // 0xd
-    field public static final int PLAYBACK_SPEED_FAST_L4 = 14; // 0xe
-    field public static final int PLAYBACK_SPEED_INVALID = -1; // 0xffffffff
-    field public static final int PLAYBACK_SPEED_NORMAL = 1; // 0x1
-    field public static final int PLAYBACK_SPEED_PAUSED = 0; // 0x0
   }
 
   public static abstract deprecated interface PlaybackControlGlue.InputEventHandler {
@@ -2060,7 +2025,7 @@ package android.support.v17.leanback.app {
     method public void setBackgroundType(int);
     method public void setFadeCompleteListener(android.support.v17.leanback.app.PlaybackFragment.OnFadeCompleteListener);
     method public void setFadingEnabled(boolean);
-    method public void setHostLifecycleCallback(android.support.v17.leanback.app.PlaybackGlue.HostLifecycleCallback);
+    method public void setHostCallback(android.support.v17.leanback.media.PlaybackGlueHost.HostCallback);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
     method public final void setOnKeyInterceptListener(android.view.View.OnKeyListener);
     method public void setOnPlaybackItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
@@ -2080,44 +2045,8 @@ package android.support.v17.leanback.app {
     method public void onFadeOutComplete();
   }
 
-  public class PlaybackFragmentGlueHost extends android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost {
+  public class PlaybackFragmentGlueHost extends android.support.v17.leanback.media.PlaybackGlueHost {
     ctor public PlaybackFragmentGlueHost(android.support.v17.leanback.app.PlaybackFragment);
-  }
-
-  public abstract class PlaybackGlue {
-    ctor public PlaybackGlue(android.content.Context);
-    method public android.content.Context getContext();
-    method public android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost getHost();
-    method public boolean isReadyForPlayback();
-    method public void next();
-    method public void onDetachedFromHost();
-    method public void pause();
-    method public void play();
-    method public void previous();
-    method public void setHost(android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost);
-    method public void setPlayerCallback(android.support.v17.leanback.app.PlaybackGlue.PlayerCallback);
-  }
-
-  public static abstract class PlaybackGlue.HostLifecycleCallback {
-    ctor public PlaybackGlue.HostLifecycleCallback();
-    method public abstract void onHostStart();
-    method public abstract void onHostStop();
-  }
-
-  public static class PlaybackGlue.PlaybackGlueHost {
-    ctor public PlaybackGlue.PlaybackGlueHost();
-    method public void notifyPlaybackRowChanged();
-    method public void setFadingEnabled(boolean);
-    method public void setHostLifeCycleCallback(android.support.v17.leanback.app.PlaybackGlue.HostLifecycleCallback);
-    method public void setOnActionClickedListener(android.support.v17.leanback.widget.OnActionClickedListener);
-    method public void setOnKeyInterceptListener(android.view.View.OnKeyListener);
-    method public void setPlaybackRow(android.support.v17.leanback.widget.Row);
-    method public void setPlaybackRowPresenter(android.support.v17.leanback.widget.PlaybackRowPresenter);
-  }
-
-  public static abstract class PlaybackGlue.PlayerCallback {
-    ctor public PlaybackGlue.PlayerCallback();
-    method public abstract void onReadyForPlayback();
   }
 
   public deprecated class PlaybackOverlayFragment extends android.support.v17.leanback.app.DetailsFragment {
@@ -2190,7 +2119,7 @@ package android.support.v17.leanback.app {
     method public void setBackgroundType(int);
     method public void setFadeCompleteListener(android.support.v17.leanback.app.PlaybackSupportFragment.OnFadeCompleteListener);
     method public void setFadingEnabled(boolean);
-    method public void setHostLifecycleCallback(android.support.v17.leanback.app.PlaybackGlue.HostLifecycleCallback);
+    method public void setHostCallback(android.support.v17.leanback.media.PlaybackGlueHost.HostCallback);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
     method public final void setOnKeyInterceptListener(android.view.View.OnKeyListener);
     method public void setOnPlaybackItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
@@ -2210,7 +2139,7 @@ package android.support.v17.leanback.app {
     method public void onFadeOutComplete();
   }
 
-  public class PlaybackSupportFragmentGlueHost extends android.support.v17.leanback.app.PlaybackGlue.PlaybackGlueHost {
+  public class PlaybackSupportFragmentGlueHost extends android.support.v17.leanback.media.PlaybackGlueHost {
     ctor public PlaybackSupportFragmentGlueHost(android.support.v17.leanback.app.PlaybackSupportFragment);
   }
 
@@ -2336,10 +2265,6 @@ package android.support.v17.leanback.app {
     method public abstract boolean onQueryTextSubmit(java.lang.String);
   }
 
-  public abstract interface SurfaceHolderGlueHost {
-    method public abstract void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
-  }
-
   public class VerticalGridFragment extends android.support.v17.leanback.app.BrandedFragment {
     ctor public VerticalGridFragment();
     method protected java.lang.Object createEntranceTransition();
@@ -2407,6 +2332,123 @@ package android.support.v17.leanback.graphics {
     method public android.graphics.Paint getPaint();
     method public boolean needsDraw();
     method public void setActiveLevel(float);
+  }
+
+}
+
+package android.support.v17.leanback.media {
+
+  public abstract class MediaControllerGlue extends android.support.v17.leanback.media.PlaybackControlGlue {
+    ctor public MediaControllerGlue(android.content.Context, int[], int[]);
+    method public void attachToMediaController(android.support.v4.media.session.MediaControllerCompat);
+    method public void detach();
+    method public int getCurrentPosition();
+    method public int getCurrentSpeedId();
+    method public android.graphics.drawable.Drawable getMediaArt();
+    method public final android.support.v4.media.session.MediaControllerCompat getMediaController();
+    method public int getMediaDuration();
+    method public java.lang.CharSequence getMediaSubtitle();
+    method public java.lang.CharSequence getMediaTitle();
+    method public long getSupportedActions();
+    method public boolean hasValidMedia();
+    method public boolean isMediaPlaying();
+  }
+
+  public abstract class PlaybackControlGlue extends android.support.v17.leanback.media.PlaybackGlue implements android.support.v17.leanback.widget.OnActionClickedListener android.view.View.OnKeyListener {
+    ctor public PlaybackControlGlue(android.content.Context, int[]);
+    ctor public PlaybackControlGlue(android.content.Context, int[], int[]);
+    method public void enableProgressUpdating(boolean);
+    method public android.support.v17.leanback.widget.PlaybackControlsRow getControlsRow();
+    method public android.support.v17.leanback.widget.PlaybackControlsRowPresenter getControlsRowPresenter();
+    method public abstract int getCurrentPosition();
+    method public abstract int getCurrentSpeedId();
+    method public int[] getFastForwardSpeeds();
+    method public abstract android.graphics.drawable.Drawable getMediaArt();
+    method public abstract int getMediaDuration();
+    method public abstract java.lang.CharSequence getMediaSubtitle();
+    method public abstract java.lang.CharSequence getMediaTitle();
+    method public int[] getRewindSpeeds();
+    method public abstract long getSupportedActions();
+    method public int getUpdatePeriod();
+    method public abstract boolean hasValidMedia();
+    method public boolean isFadingEnabled();
+    method public abstract boolean isMediaPlaying();
+    method public void onActionClicked(android.support.v17.leanback.widget.Action);
+    method protected void onCreateControlsRowAndPresenter();
+    method protected void onCreatePrimaryActions(android.support.v17.leanback.widget.SparseArrayObjectAdapter);
+    method protected void onCreateSecondaryActions(android.support.v17.leanback.widget.ArrayObjectAdapter);
+    method public boolean onKey(android.view.View, int, android.view.KeyEvent);
+    method protected void onMetadataChanged();
+    method protected void onStateChanged();
+    method public void play(int);
+    method public final void play();
+    method public void setControlsRow(android.support.v17.leanback.widget.PlaybackControlsRow);
+    method public void setControlsRowPresenter(android.support.v17.leanback.widget.PlaybackControlsRowPresenter);
+    method public void setFadingEnabled(boolean);
+    method public void updateProgress();
+    field public static final int ACTION_CUSTOM_LEFT_FIRST = 1; // 0x1
+    field public static final int ACTION_CUSTOM_RIGHT_FIRST = 4096; // 0x1000
+    field public static final int ACTION_FAST_FORWARD = 128; // 0x80
+    field public static final int ACTION_PLAY_PAUSE = 64; // 0x40
+    field public static final int ACTION_REWIND = 32; // 0x20
+    field public static final int ACTION_SKIP_TO_NEXT = 256; // 0x100
+    field public static final int ACTION_SKIP_TO_PREVIOUS = 16; // 0x10
+    field public static final int PLAYBACK_SPEED_FAST_L0 = 10; // 0xa
+    field public static final int PLAYBACK_SPEED_FAST_L1 = 11; // 0xb
+    field public static final int PLAYBACK_SPEED_FAST_L2 = 12; // 0xc
+    field public static final int PLAYBACK_SPEED_FAST_L3 = 13; // 0xd
+    field public static final int PLAYBACK_SPEED_FAST_L4 = 14; // 0xe
+    field public static final int PLAYBACK_SPEED_INVALID = -1; // 0xffffffff
+    field public static final int PLAYBACK_SPEED_NORMAL = 1; // 0x1
+    field public static final int PLAYBACK_SPEED_PAUSED = 0; // 0x0
+  }
+
+  public abstract class PlaybackGlue {
+    ctor public PlaybackGlue(android.content.Context);
+    method public android.content.Context getContext();
+    method public android.support.v17.leanback.media.PlaybackGlueHost getHost();
+    method public boolean isReadyForPlayback();
+    method public void next();
+    method protected void onAttachedToHost(android.support.v17.leanback.media.PlaybackGlueHost);
+    method protected void onDetachedFromHost();
+    method protected void onHostPause();
+    method protected void onHostResume();
+    method protected void onHostStart();
+    method protected void onHostStop();
+    method public void pause();
+    method public void play();
+    method public void previous();
+    method public final void setHost(android.support.v17.leanback.media.PlaybackGlueHost);
+    method public void setPlayerCallback(android.support.v17.leanback.media.PlaybackGlue.PlayerCallback);
+  }
+
+  public static abstract class PlaybackGlue.PlayerCallback {
+    ctor public PlaybackGlue.PlayerCallback();
+    method public abstract void onReadyForPlayback();
+  }
+
+  public abstract class PlaybackGlueHost {
+    ctor public PlaybackGlueHost();
+    method public void fadeOut();
+    method public void notifyPlaybackRowChanged();
+    method public void setFadingEnabled(boolean);
+    method public void setHostCallback(android.support.v17.leanback.media.PlaybackGlueHost.HostCallback);
+    method public void setOnActionClickedListener(android.support.v17.leanback.widget.OnActionClickedListener);
+    method public void setOnKeyInterceptListener(android.view.View.OnKeyListener);
+    method public void setPlaybackRow(android.support.v17.leanback.widget.Row);
+    method public void setPlaybackRowPresenter(android.support.v17.leanback.widget.PlaybackRowPresenter);
+  }
+
+  public static abstract class PlaybackGlueHost.HostCallback {
+    ctor public PlaybackGlueHost.HostCallback();
+    method public void onHostPause();
+    method public void onHostResume();
+    method public void onHostStart();
+    method public void onHostStop();
+  }
+
+  public abstract interface SurfaceHolderGlueHost {
+    method public abstract void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
   }
 
 }

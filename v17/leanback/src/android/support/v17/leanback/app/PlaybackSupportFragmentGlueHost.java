@@ -16,6 +16,7 @@
  */
 package android.support.v17.leanback.app;
 
+import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
@@ -26,10 +27,10 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.view.View;
 
 /**
- * {@link PlaybackGlue.PlaybackGlueHost} implementation
+ * {@link PlaybackGlueHost} implementation
  * the interaction between this class and {@link PlaybackSupportFragment}.
  */
-public class PlaybackSupportFragmentGlueHost extends PlaybackGlue.PlaybackGlueHost {
+public class PlaybackSupportFragmentGlueHost extends PlaybackGlueHost {
     private final PlaybackSupportFragment mFragment;
 
     public PlaybackSupportFragmentGlueHost(PlaybackSupportFragment fragment) {
@@ -60,8 +61,8 @@ public class PlaybackSupportFragmentGlueHost extends PlaybackGlue.PlaybackGlueHo
     }
 
     @Override
-    public void setHostLifeCycleCallback(PlaybackGlue.HostLifecycleCallback callback) {
-        mFragment.setHostLifecycleCallback(callback);
+    public void setHostCallback(HostCallback callback) {
+        mFragment.setHostCallback(callback);
     }
 
     @Override
@@ -77,5 +78,10 @@ public class PlaybackSupportFragmentGlueHost extends PlaybackGlue.PlaybackGlueHo
     @Override
     public void setPlaybackRow(Row row) {
         mFragment.setPlaybackRow(row);
+    }
+
+    @Override
+    public void fadeOut() {
+        mFragment.fadeOut();
     }
 }

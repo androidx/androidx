@@ -3,6 +3,7 @@
 package android.support.v17.leanback.app;
 
 import android.content.Context;
+import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
@@ -14,29 +15,26 @@ import android.view.KeyEvent;
 import android.view.View;
 
 /**
- * @deprecated Use {@link PlaybackControlGlue} and {@link PlaybackSupportFragmentGlueHost} for
- * {@link PlaybackSupportFragment}.
+ * @deprecated Use {@link android.support.v17.leanback.media.PlaybackControlGlue} and
+ * {@link PlaybackSupportFragmentGlueHost} for {@link PlaybackSupportFragment}.
  */
 @Deprecated
 public abstract class PlaybackControlSupportGlue extends PlaybackControlGlue {
 
     public PlaybackControlSupportGlue(Context context, int[] seekSpeeds) {
-        super(context, seekSpeeds);
+        this(context, null, seekSpeeds, seekSpeeds);
     }
 
     public PlaybackControlSupportGlue(
             Context context, int[] fastForwardSpeeds, int[] rewindSpeeds) {
-        super(context, fastForwardSpeeds, rewindSpeeds);
+        this(context, null, fastForwardSpeeds, rewindSpeeds);
     }
 
     public PlaybackControlSupportGlue(
             Context context,
             PlaybackOverlaySupportFragment fragment,
             int[] seekSpeeds) {
-        super(context,
-                fragment == null ? null: new PlaybackSupportGlueHostOld(fragment),
-                seekSpeeds,
-                seekSpeeds);
+        this(context, fragment, seekSpeeds, seekSpeeds);
     }
 
     public PlaybackControlSupportGlue(
@@ -44,15 +42,13 @@ public abstract class PlaybackControlSupportGlue extends PlaybackControlGlue {
             PlaybackOverlaySupportFragment fragment,
             int[] fastForwardSpeeds,
             int[] rewindSpeeds) {
-        super(context,
-                fragment == null ? null: new PlaybackSupportGlueHostOld(fragment),
-                fastForwardSpeeds,
-                rewindSpeeds);
+        super(context, fastForwardSpeeds, rewindSpeeds);
+        setHost(fragment == null ? null : new PlaybackSupportGlueHostOld(fragment));
     }
 
     @Override
-    public void setHost(PlaybackGlueHost host) {
-        super.setHost(host);
+    protected void onAttachedToHost(PlaybackGlueHost host) {
+        super.onAttachedToHost(host);
         if (host instanceof PlaybackSupportGlueHostOld) {
             ((PlaybackSupportGlueHostOld) host).mGlue = this;
         }
@@ -100,6 +96,16 @@ public abstract class PlaybackControlSupportGlue extends PlaybackControlGlue {
                     }
                 }
             });
+        }
+
+        @Override
+        public void setHostCallback(HostCallback callback) {
+            mFragment.setHostCallback(callback);
+        }
+
+        @Override
+        public void fadeOut() {
+            mFragment.fadeOut();
         }
     }
 }

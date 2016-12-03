@@ -1,4 +1,20 @@
-package android.support.v17.leanback.app;
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package android.support.v17.leanback.media;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,12 +27,8 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 /**
- * A helper class for implementing a glue layer between a
- * {@link PlaybackOverlayFragment} and a
- * {@link android.support.v4.media.session.MediaControllerCompat}.
- * @deprecated Use {@link android.support.v17.leanback.media.MediaControllerGlue}.
+ * A helper class for implementing a glue layer for {@link MediaControllerCompat}.
  */
-@Deprecated
 public abstract class MediaControllerGlue extends PlaybackControlGlue {
     static final String TAG = "MediaControllerGlue";
     static final boolean DEBUG = false;
@@ -48,41 +60,14 @@ public abstract class MediaControllerGlue extends PlaybackControlGlue {
     /**
      * Constructor for the glue.
      *
-     * <p>The {@link PlaybackOverlayFragment} must be passed in.
-     * A {@link android.support.v17.leanback.widget.OnItemViewClickedListener} and
-     * {@link android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler}
-     * will be set on the fragment.
-     * </p>
-     *
      * @param context
-     * @param fragment
-     * @param seekSpeeds Array of seek speeds for fast forward and rewind.
-     */
-    public MediaControllerGlue(Context context,
-                               PlaybackOverlayFragment fragment,
-                               int[] seekSpeeds) {
-        super(context, fragment, seekSpeeds);
-    }
-
-    /**
-     * Constructor for the glue.
-     *
-     * <p>The {@link PlaybackOverlayFragment} must be passed in.
-     * A {@link android.support.v17.leanback.widget.OnItemViewClickedListener} and
-     * {@link android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler}
-     * will be set on the fragment.
-     * </p>
-     *
-     * @param context
-     * @param fragment
      * @param fastForwardSpeeds Array of seek speeds for fast forward.
      * @param rewindSpeeds Array of seek speeds for rewind.
      */
     public MediaControllerGlue(Context context,
-                               PlaybackOverlayFragment fragment,
                                int[] fastForwardSpeeds,
                                int[] rewindSpeeds) {
-        super(context, fragment, fastForwardSpeeds, rewindSpeeds);
+        super(context, fastForwardSpeeds, rewindSpeeds);
     }
 
     /**
@@ -205,7 +190,7 @@ public abstract class MediaControllerGlue extends PlaybackControlGlue {
     }
 
     @Override
-    protected void startPlayback(int speed) {
+    public void play(int speed) {
         if (DEBUG) Log.v(TAG, "startPlayback speed " + speed);
         if (speed == PLAYBACK_SPEED_NORMAL) {
             mMediaController.getTransportControls().play();
@@ -217,19 +202,19 @@ public abstract class MediaControllerGlue extends PlaybackControlGlue {
     }
 
     @Override
-    protected void pausePlayback() {
+    public void pause() {
         if (DEBUG) Log.v(TAG, "pausePlayback");
         mMediaController.getTransportControls().pause();
     }
 
     @Override
-    protected void skipToNext() {
+    public void next() {
         if (DEBUG) Log.v(TAG, "skipToNext");
         mMediaController.getTransportControls().skipToNext();
     }
 
     @Override
-    protected void skipToPrevious() {
+    public void previous() {
         if (DEBUG) Log.v(TAG, "skipToPrevious");
         mMediaController.getTransportControls().skipToPrevious();
     }
