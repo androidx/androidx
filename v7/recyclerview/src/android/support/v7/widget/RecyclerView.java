@@ -4993,7 +4993,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             if (oldAverage == 0) {
                 return newValue;
             }
-            return (oldAverage / 8 * 7) + (newValue / 8);
+            return (oldAverage / 4 * 3) + (newValue / 4);
         }
 
         void factorInCreateTime(int viewType, long createTimeNs) {
