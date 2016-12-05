@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Copyright (C) 2014 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"നാവിഗേഷൻ മെനു"</string>
+    <string name="orb_search_action" msgid="5651268540267663887">"തിരയൽ പ്രവർത്തനം"</string>
+    <string name="lb_search_bar_hint" msgid="8325490927970116252">"തിരയുക"</string>
+    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"ശബ്‌ദം ഉപയോഗിച്ച് തിരയുക"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> തിരയുക"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> തിരയുന്നതിന് സംസാരിക്കുക"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"പ്ലേ ചെയ്യുക"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"താൽക്കാലികമായി നിർത്തുക"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"ഫാസ്റ്റ് ഫോർവേഡ് ചെയ്യുക"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"%1$dX വേഗത്തിൽ ഫോർവേഡുചെയ്യുക"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"റിവൈൻഡുചെയ്യുക"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"%1$dX റിവൈൻഡുചെയ്യുക"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"അടുത്തതിലേക്ക് പോകുക"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"മുമ്പത്തേതിലേക്ക് പോകുക"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"കൂടുതൽ പ്രവർത്തനങ്ങൾ"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"തമ്പ് അപ്പ് തിരഞ്ഞെടുത്തത് മാറ്റുക"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"തമ്പ് അപ്പ് തിരഞ്ഞെടുക്കുക"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"തമ്പ് ഡൗൺ തിരഞ്ഞെടുത്തത് മാറ്റുക"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"തമ്പ് ഡൗൺ തിരഞ്ഞെടുക്കുക"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"ഒന്നും ആവർത്തിക്കരുത്"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"എല്ലാം ആവർത്തിക്കുക"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"ഒന്ന് ആവർത്തിക്കുക"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"ഷഫിൾ ചെയ്യുന്നത് പ്രവർത്തനക്ഷമമാക്കുക"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"ഷഫിൾ ചെയ്യുന്നത് പ്രവർത്തനരഹിതമാക്കുക"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"ഉയർന്ന നിലവാരം പ്രവർത്തനക്ഷമമാക്കുക"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"ഉയർന്ന നിലവാരം പ്രവർത്തനരഹിതമാക്കുക"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"അടച്ച അടിക്കുറിപ്പ് നൽകൽ പ്രവർത്തനക്ഷമമാക്കുക"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"അടച്ച അടിക്കുറിപ്പ് നൽകൽ പ്രവർത്തനരഹിതമാക്കുക"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"\'ചിത്രത്തിനുള്ളിൽ ചിത്രം\' മോഡിലേക്ക് പ്രവേശിക്കുക"</string>
+    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"പൂര്‍ത്തിയാക്കുക"</string>
+    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"തുടരുക"</string>
+    <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
+    <string name="lb_time_separator" msgid="2763247350845477227">":"</string>
+    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"ആരംഭിക്കുക"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"അടുത്തത്"</string>
+</resources>

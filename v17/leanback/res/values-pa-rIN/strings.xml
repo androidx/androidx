@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Copyright (C) 2014 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"ਆਵਾਗੌਣ ਮੀਨੂ"</string>
+    <string name="orb_search_action" msgid="5651268540267663887">"ਖੋਜ ਕਿਰਿਆ"</string>
+    <string name="lb_search_bar_hint" msgid="8325490927970116252">"ਖੋਜੋ"</string>
+    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"ਖੋਜਣ ਲਈ ਬੋਲੋ"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> ਖੋਜੋ"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> ਖੋਜਣ ਲਈ ਬੋਲੋ"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"ਪਲੇ ਕਰੋ"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"ਰੋਕੋ"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"ਅੱਗੇ ਭੇਜੋ"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"%1$dX ਨੂੰ ਅੱਗੇ ਭੇਜੋ"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"ਰੀਵਾਈਂਡ"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"%1$dX ਨੂੰ ਰੀਵਾਈਂਡ ਕਰੋ"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"ਅਗਲਾ ਨੂੰ ਛੱਡੋ"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"ਪਿਛਲਾ ਨੂੰ ਛੱਡੋ"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"ਹੋਰ ਕਿਰਿਆਵਾਂ"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"ਥੰਬ ਅਪ ਨੂੰ ਅਚੋਣਵਾਂ ਕਰੋ"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"ਥੰਬ ਅਪ ਨੂੰ ਚੁਣੋ"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"ਥੰਬ ਡਾਊਨ ਨੂੰ ਅਚੋਣਵਾਂ ਕਰੋ"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"ਥੰਬ ਡਾਊਨ ਨੂੰ ਚੁਣੋ"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"ਕੋਈ ਵੀ ਨਾ ਦੁਹਰਾਓ"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"ਸਾਰਿਆਂ ਨੂੰ ਦੁਹਰਾਓ"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"ਇੱਕ ਦੁਹਰਾਓ"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"ਸ਼ਫਲ ਨੂੰ ਸਮਰੱਥ ਬਣਾਓ"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"ਸ਼ਫਲ ਨੂੰ ਅਸਮਰੱਥ ਬਣਾਓ"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"ਉੱਚ ਗੁਣਵੱਤਾ ਨੂੰ ਸਮਰੱਥ ਬਣਾਓ"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"ਉੱਚ ਗੁਣਵੱਤਾ ਨੂੰ ਅਸਮਰੱਥ ਬਣਾਓ"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"ਬੰਦ ਕੈਪਸ਼ਨਿੰਗ ਸਮਰੱਥ ਬਣਾਓ"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"ਬੰਦ ਕੈਪਸ਼ਨਿੰਗ ਅਸਮਰੱਥ ਬਣਾਓ"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"ਤਸਵੀਰ ਮੋਡ ਵਿੱਚ ਤਸਵੀਰ ਦਾਖਲ ਕਰੋ"</string>
+    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"ਖ਼ਤਮ"</string>
+    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"ਜਾਰੀ ਰੱਖੋ"</string>
+    <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
+    <string name="lb_time_separator" msgid="2763247350845477227">":"</string>
+    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"ਸ਼ੁਰੂਆਤ ਕਰੋ"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"ਅੱਗੇ"</string>
+</resources>
