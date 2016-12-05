@@ -84,7 +84,7 @@ public final class Palette {
         void onGenerated(Palette palette);
     }
 
-    static final int DEFAULT_RESIZE_BITMAP_AREA = 160 * 160;
+    static final int DEFAULT_RESIZE_BITMAP_AREA = 112 * 112;
     static final int DEFAULT_CALCULATE_NUMBER_COLORS = 16;
 
     static final float MIN_CONTRAST_TITLE_TEXT = 3.0f;
@@ -909,7 +909,7 @@ public final class Palette {
             if (mResizeArea > 0) {
                 final int bitmapArea = bitmap.getWidth() * bitmap.getHeight();
                 if (bitmapArea > mResizeArea) {
-                    scaleRatio = mResizeArea / (double) bitmapArea;
+                    scaleRatio = Math.sqrt(mResizeArea / (double) bitmapArea);
                 }
             } else if (mResizeMaxDimension > 0) {
                 final int maxDimension = Math.max(bitmap.getWidth(), bitmap.getHeight());
