@@ -16,6 +16,8 @@ subprojects { project ->
             force "com.google.guava:guava-jdk5:17.0"
         }
     }
+    project.group = 'com.android.support.lifecycle'
+    project.version = release_version
     addRepos(project.repositories)
     if (enablePublicRepos) {
         apply plugin: 'com.android.databinding.localizemaven'

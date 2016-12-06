@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven'
 
 android {
     compileSdkVersion compile_sdk_version
@@ -34,3 +35,12 @@ dependencies {
 }
 
 createAndroidCheckstyle(project)
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url : rootProject.ext.localMavenRepo)
+            pom.artifactId = "runtime"
+        }
+    }
+}
