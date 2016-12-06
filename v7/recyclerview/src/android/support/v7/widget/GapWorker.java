@@ -98,6 +98,7 @@ final class GapWorker implements Runnable {
 
                 if (mCount > layout.mPrefetchMaxCountObserved) {
                     layout.mPrefetchMaxCountObserved = mCount;
+                    layout.mPrefetchMaxObservedInInitialPrefetch = nested;
                     view.mRecycler.updateViewCacheSize();
                 }
             }
