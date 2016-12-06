@@ -3586,6 +3586,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mRecycler.mChangedScrap != null) {
             mRecycler.mChangedScrap.clear();
         }
+        if (mLayout.mPrefetchMaxObservedInInitialPrefetch) {
+            // Initial prefetch has expanded cache, so reset until next prefetch.
+            // This prevents initial prefetches from expanding the cache permanently.
+            mLayout.mPrefetchMaxCountObserved = 0;
+            mLayout.mPrefetchMaxObservedInInitialPrefetch = false;
+            mRecycler.updateViewCacheSize();
+        }
+
         mLayout.onLayoutCompleted(mState);
         onExitLayoutOrScroll();
         resumeRequestLayout(false);
@@ -6798,8 +6806,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * Written by {@link GapWorker} when prefetches occur to track largest number of view ever
          * requested by a {@link #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)} or
          * {@link #collectAdjacentPrefetchPositions(int, int, State, LayoutPrefetchRegistry)} call.
+         *
+         * If expanded by a {@link #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)},
+         * will be reset upon layout to prevent initial prefetches (often large, since they're
+         * proportional to expected child count) from expanding cache permanently.
          */
         int mPrefetchMaxCountObserved;
+
+        /**
+         * If true, mPrefetchMaxCountObserved is only valid until next layout, and should be reset.
+         */
+        boolean mPrefetchMaxObservedInInitialPrefetch;
 
         /**
          * These measure specs might be the measure specs that were passed into RecyclerView's

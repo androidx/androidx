@@ -900,6 +900,54 @@ public class RecyclerViewCacheTest {
         }
     }
 
+    @Test
+    public void nestedExpandCacheCorrectly() {
+        final int DEFAULT_CACHE_SIZE = RecyclerView.Recycler.DEFAULT_CACHE_SIZE;
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        OuterAdapter outerAdapter = new OuterAdapter();
+        mRecyclerView.setAdapter(outerAdapter);
+
+        layout(200, 200);
+
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+
+        // after initial prefetch, view cache max expanded by number of inner items prefetched (2)
+        RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 2);
+        RecyclerView innerView = holder.mNestedRecyclerView.get();
+        assertTrue(innerView.getLayoutManager().mPrefetchMaxObservedInInitialPrefetch);
+        assertEquals(2, innerView.getLayoutManager().mPrefetchMaxCountObserved);
+        assertEquals(2 + DEFAULT_CACHE_SIZE, innerView.mRecycler.mViewCacheMax);
+
+        try {
+            // Note: As a hack, we not only must manually dispatch attachToWindow(), but we
+            // also have to be careful to call innerView.mGapWorker below. mRecyclerView.mGapWorker
+            // is registered to the wrong thread, since @setup is called on a different thread
+            // from @Test. Assert this, so this test can be fixed when setup == test thread.
+            assertEquals(1, mRecyclerView.mGapWorker.mRecyclerViews.size());
+            assertFalse(innerView.isAttachedToWindow());
+            innerView.onAttachedToWindow();
+
+            // bring prefetch view into viewport, at which point it shouldn't have cache expanded...
+            mRecyclerView.scrollBy(0, 100);
+            assertFalse(innerView.getLayoutManager().mPrefetchMaxObservedInInitialPrefetch);
+            assertEquals(0, innerView.getLayoutManager().mPrefetchMaxCountObserved);
+            assertEquals(DEFAULT_CACHE_SIZE, innerView.mRecycler.mViewCacheMax);
+
+            // until a valid horizontal prefetch caches an item, and expands view count by one
+            innerView.mPrefetchRegistry.setPrefetchVector(1, 0);
+            innerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS); // NB: must be innerView.mGapWorker
+            assertFalse(innerView.getLayoutManager().mPrefetchMaxObservedInInitialPrefetch);
+            assertEquals(1, innerView.getLayoutManager().mPrefetchMaxCountObserved);
+            assertEquals(1 + DEFAULT_CACHE_SIZE, innerView.mRecycler.mViewCacheMax);
+        } finally {
+            if (innerView.isAttachedToWindow()) {
+                innerView.onDetachedFromWindow();
+            }
+        }
+    }
+
     /**
      * Similar to OuterAdapter above, but uses notifyDataSetChanged() instead of set/swapAdapter
      * to update data for the inner RecyclerViews when containing ViewHolder is bound.
