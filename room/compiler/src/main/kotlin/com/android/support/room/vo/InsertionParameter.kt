@@ -14,24 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.support.room.ext
+package com.android.support.room.vo
 
-import com.google.auto.common.MoreElements
-import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
-import kotlin.reflect.KClass
+import javax.lang.model.type.TypeMirror
 
-fun Element.hasAnyOf(vararg modifiers: Modifier) : Boolean {
-    return this.modifiers.any { modifiers.contains(it) }
-}
-
-fun Element.hasAnnotation(klass : KClass<out Annotation>) : Boolean {
-    return MoreElements.isAnnotationPresent(this, klass.java)
-}
-
-/**
- * Checks if it has all of the annotations
- */
-fun Element.hasAllOf(vararg klasses : KClass<out Annotation>) : Boolean {
-    return !klasses.any { !hasAnnotation(it) }
-}
+data class InsertionParameter(val name: String, val type: TypeMirror,
+                              val entityType: TypeMirror?, val isMultiple: Boolean)

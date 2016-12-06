@@ -21,9 +21,31 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory
+import com.squareup.javapoet.ClassName
 import java.io.File
 import javax.tools.JavaFileObject
 
+object COMMON {
+    val USER by lazy {
+        loadJavaCode("common/input/User.java", "foo.bar.User")
+    }
+    val USER_TYPE_NAME by lazy {
+        ClassName.get("foo.bar", "User")
+    }
+    val BOOK by lazy {
+        loadJavaCode("common/input/Book.java", "foo.bar.Book")
+    }
+    val BOOK_TYPE_NAME by lazy {
+        ClassName.get("foo.bar", "Book")
+    }
+
+    val NOT_AN_ENTITY by lazy {
+        loadJavaCode("common/input/NotAnEntity.java", "foo.bar.NotAnEntity")
+    }
+    val NOT_AN_ENITITY_TYPE_NAME by lazy {
+        ClassName.get("foo.bar", "NotAnEntity")
+    }
+}
 fun simpleRun(f: (TestInvocation) -> Unit): CompileTester {
     return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
             .that(JavaFileObjects.forSourceString("foo.bar.MyClass",

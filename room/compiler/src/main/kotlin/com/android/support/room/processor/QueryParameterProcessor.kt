@@ -17,9 +17,7 @@
 package com.android.support.room.processor
 
 import com.android.support.room.vo.QueryParameter
-import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import com.squareup.javapoet.TypeName
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 

@@ -41,6 +41,8 @@ object RoomTypeNames {
     val CURSOR_CONVERTER : ClassName = ClassName.get("com.android.support.room", "CursorConverter")
     val ROOM : ClassName = ClassName.get("com.android.support.room", "Room")
     val ROOM_DB : ClassName = ClassName.get("com.android.support.room", "RoomDatabase")
+    val INSERTION_ADAPTER : ClassName =
+            ClassName.get("com.android.support.room", "EntityInsertionAdapter")
 }
 
 object AndroidTypeNames {

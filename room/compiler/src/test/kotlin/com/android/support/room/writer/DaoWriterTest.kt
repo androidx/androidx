@@ -21,7 +21,6 @@ import com.android.support.room.testing.TestProcessor
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import loadJavaCode
 import org.junit.Test
@@ -31,18 +30,6 @@ import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class DaoWriterTest {
-    companion object {
-        val USER: JavaFileObject = JavaFileObjects.forSourceString("foo.bar.User",
-                """
-                package foo.bar;
-                import com.android.support.room.*;
-                @Entity
-                public class User {
-                    @PrimaryKey
-                    int uid;
-                }
-                """)
-    }
     @Test
     fun complexDao() {
         singleDao(
@@ -52,9 +39,18 @@ class DaoWriterTest {
         )
     }
 
+    @Test
+    fun writerDao() {
+        singleDao(
+                loadJavaCode("daoWriter/input/WriterDao.java", "foo.bar.WriterDao")
+        ).compilesWithoutError().and().generatesSources(
+                loadJavaCode("daoWriter/output/WriterDao.java", "foo.bar.WriterDao_Impl")
+        )
+    }
+
     fun singleDao(vararg jfo : JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(jfo.toList() + USER)
+                .that(jfo.toList() + COMMON.USER)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(com.android.support.room.Dao::class)
                         .nextRunHandler { invocation ->

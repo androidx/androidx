@@ -37,7 +37,6 @@ class EntityRowAdapter(type : TypeMirror) : RowAdapter(type) {
                         .addStatement("$L = $L.convert($L)", outVarName, converterVar,
                                 cursorVarName)
             }
-
         }
     }
 }

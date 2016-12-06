@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.support.room.vo
-
-import com.squareup.javapoet.ClassName
-import javax.lang.model.element.Element
-import javax.lang.model.type.DeclaredType
-
-data class Dao(val element : Element, val type : DeclaredType,
-               val queryMethods: List<QueryMethod>,
-               val insertionMethods : List<InsertionMethod>) {
-    val typeName by lazy { ClassName.get(type) as ClassName }
-
-    val implClassName by lazy {
-        "${typeName.simpleName()}_Impl"
-    }
+package foo.bar;
+import com.android.support.room.*;
+@Entity
+public class User {
+    @PrimaryKey
+    int uid;
 }

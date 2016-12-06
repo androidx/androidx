@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.support.room.ext
+package foo.bar;
+import com.android.support.room.*;
+import java.util.List;
 
-import com.google.auto.common.MoreElements
-import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
-import kotlin.reflect.KClass
-
-fun Element.hasAnyOf(vararg modifiers: Modifier) : Boolean {
-    return this.modifiers.any { modifiers.contains(it) }
-}
-
-fun Element.hasAnnotation(klass : KClass<out Annotation>) : Boolean {
-    return MoreElements.isAnnotationPresent(this, klass.java)
-}
-
-/**
- * Checks if it has all of the annotations
- */
-fun Element.hasAllOf(vararg klasses : KClass<out Annotation>) : Boolean {
-    return !klasses.any { !hasAnnotation(it) }
+@Dao
+abstract interface WriterDao {
+    @Insert
+    void insertUser(User user);
+    @Insert
+    void insertUsers(User user1, List<User> others);
+    @Insert(onConflict=Insert.REPLACE)
+    void insertUsers(User[] users);
 }

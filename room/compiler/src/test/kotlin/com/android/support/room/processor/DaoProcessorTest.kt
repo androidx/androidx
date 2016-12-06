@@ -16,6 +16,7 @@
 
 package com.android.support.room.processor
 
+import COMMON
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.vo.Dao
@@ -23,7 +24,7 @@ import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourceSubjectFactory
+import com.google.testing.compile.JavaSourcesSubjectFactory
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -52,9 +53,22 @@ class DaoProcessorTest {
                 @Dao public interface MyDao {
                     int getFoo();
                 }
-        """) { dao, invocation -> }
-                .failsToCompile().withErrorContaining(ProcessorErrors
-                .MISSING_QUERY_ANNOTATION)
+        """) { dao, invocation ->
+        }.failsToCompile()
+                .withErrorContaining(ProcessorErrors.ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION)
+    }
+
+    @Test
+    fun testBothAnnotations() {
+        singleDao("""
+                @Dao public interface MyDao {
+                    @Query("select 1")
+                    @Insert
+                    int getFoo(int x);
+                }
+        """) { dao, invocation ->
+
+        }.failsToCompile().withErrorContaining(ProcessorErrors.CANNOT_USE_BOTH_QUERY_AND_INSERT)
     }
 
     @Test
@@ -85,12 +99,31 @@ class DaoProcessorTest {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun testWithInsertAndQuery() {
+        singleDao("""
+                @Dao abstract class MyDao {
+                    @Query("SELECT id FROM users")
+                    abstract int[] getIds();
+                    @Insert
+                    abstract void insert(User user);
+                }
+                """) { dao, invocation ->
+            assertThat(dao.queryMethods.size, `is`(1))
+            val method = dao.queryMethods.first()
+            assertThat(method.name, `is`("getIds"))
+            assertThat(dao.insertionMethods.size, `is`(1))
+            val insertMethod = dao.insertionMethods.first()
+            assertThat(insertMethod.name, `is`("insert"))
+        }.compilesWithoutError()
+    }
+
     fun singleDao(vararg inputs: String, handler: (Dao, TestInvocation) -> Unit):
             CompileTester {
-        return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
-                .that(JavaFileObjects.forSourceString("foo.bar.MyDao",
+        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+                .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyDao",
                         DAO_PREFIX + inputs.joinToString("\n")
-                ))
+                ), COMMON.USER))
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(com.android.support.room.Dao::class)
                         .nextRunHandler { invocation ->

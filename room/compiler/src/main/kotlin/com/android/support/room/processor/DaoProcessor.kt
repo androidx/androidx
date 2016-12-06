@@ -16,8 +16,11 @@
 
 package com.android.support.room.processor
 
+import com.android.support.room.Insert
+import com.android.support.room.Query
+import com.android.support.room.ext.hasAllOf
+import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
-import com.android.support.room.preconditions.Checks
 import com.android.support.room.vo.Dao
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -27,7 +30,9 @@ import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.TypeElement
 
 class DaoProcessor(val context : Context) {
-    val queryParser = QueryMethodProcessor(context)
+    // TODO we should start injecting these to avoid parsing the same class multiple times
+    val queryProcessor = QueryMethodProcessor(context)
+    val insertionProcessor = InsertionMethodProcessor(context)
     fun parse(element: TypeElement) : Dao {
         context.checker.hasAnnotation(element, com.android.support.room.Dao::class,
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO)
@@ -35,15 +40,41 @@ class DaoProcessor(val context : Context) {
                 element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
 
         val declaredType = MoreTypes.asDeclared(element.asType())
-        val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
-        val methods = allMembers.filter {
-            it.hasAnyOf(ABSTRACT) && it.kind == ElementKind.METHOD
-        }.map {
-            queryParser.parse(declaredType, MoreElements.asExecutable(it))
-        }
+        val methods = context.processingEnv.elementUtils.getAllMembers(element)
+            .filter {
+                it.hasAnyOf(ABSTRACT) && it.kind == ElementKind.METHOD
+            }.map {
+                MoreElements.asExecutable(it)
+            }.groupBy {
+                context.checker.check(
+                        !it.hasAllOf(Query::class, Insert::class), it,
+                        ProcessorErrors.CANNOT_USE_BOTH_QUERY_AND_INSERT
+                )
+                if (it.hasAnnotation(Query::class)) {
+                    Query::class
+                } else if (it.hasAnnotation(Insert::class)) {
+                    Insert::class
+                } else {
+                    Any::class
+                }
+            }
+        val queryMethods = methods[Query::class]?.map {
+            queryProcessor.parse(declaredType, it)
+        } ?: emptyList()
+
+        val insertionMethods = methods[Insert::class]?.map {
+            insertionProcessor.parse(declaredType, it)
+        } ?: emptyList()
+
+        context.checker.check(methods[Any::class] == null, element,
+                ProcessorErrors.ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION)
+
         val type = TypeName.get(declaredType)
         context.checker.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES)
-        return Dao(element = element, type = declaredType, queryMethods = methods)
+        return Dao(element = element,
+                type = declaredType,
+                queryMethods = queryMethods,
+                insertionMethods = insertionMethods)
     }
 }

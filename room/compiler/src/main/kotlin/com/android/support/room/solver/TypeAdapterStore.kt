@@ -24,8 +24,8 @@ import com.android.support.room.solver.query.parameter.BasicQueryParameterAdapte
 import com.android.support.room.solver.query.parameter.CollectionQueryParameterAdapter
 import com.android.support.room.solver.query.parameter.QueryParameterAdapter
 import com.android.support.room.solver.query.result.ArrayQueryResultAdapter
-import com.android.support.room.solver.query.result.ListQueryResultAdapter
 import com.android.support.room.solver.query.result.EntityRowAdapter
+import com.android.support.room.solver.query.result.ListQueryResultAdapter
 import com.android.support.room.solver.query.result.QueryResultAdapter
 import com.android.support.room.solver.query.result.RowAdapter
 import com.android.support.room.solver.query.result.SingleColumnRowAdapter
@@ -46,7 +46,7 @@ import com.android.support.room.solver.types.StringColumnTypeAdapter
 import com.android.support.room.solver.types.TypeConverter
 import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
-import java.util.*
+import java.util.LinkedList
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
@@ -161,7 +161,6 @@ class TypeAdapterStore(val context : Context,
             if (singleColumn != null) {
                 return SingleColumnRowAdapter(singleColumn)
             }
-
             // TODO we can allow any class actually but need a proper API for that to avoid false
             // positives
             return null
