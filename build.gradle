@@ -57,7 +57,8 @@ ext.usePrebuilts = "true"
 // Use the embedded SDK by default, which can be overridden by setting the 'sdk.dir' property
 // (e.g. local.properties) or the 'ANDROID_HOME' environment variable.
 final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
-System.setProperty('android.home', "${rootDir}/../../prebuilts/fullsdk-${platform}")
+ext.sdkDirectory = "${rootDir}/../../prebuilts/fullsdk-${platform}";
+System.setProperty('android.home', sdkDirectory)
 
 /*
  * With the build server you are given two env variables.
@@ -190,7 +191,7 @@ String getSha1(File inputFile) {
  * @return a file collection containing the Android prebuilt JAR
  */
 FileCollection getAndroidPrebuilt(apiLevel) {
-    files("${project.rootDir}/../../prebuilts/sdk/$apiLevel/android.jar")
+    files("${ext.sdkDirectory}/platforms/android-${apiLevel}/android.jar")
 }
 
 void registerForDocsTask(Task task, Project subProject, releaseVariant) {
@@ -230,8 +231,6 @@ task generateDocs(type: DoclavaTask, dependsOn: configurations.doclava) {
         addStringOption "templatedir",
                 "${project.rootDir}/../../build/tools/droiddoc/templates-sdk"
         addStringOption "federate Android", "http://developer.android.com"
-        addStringOption "federationapi Android",
-                "${project.rootDir}/../../prebuilts/sdk/api/24.txt"
         addStringOption "stubpackages", "android.support.*"
         addStringOption "samplesdir", "${project.rootDir}/samples"
         addOption hdfOption
@@ -256,8 +255,6 @@ task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
         addStringOption "templatedir",
                 "${project.rootDir}/../../build/tools/droiddoc/templates-sdk"
         addStringOption "federate Android", "http://developer.android.com"
-        addStringOption "federationapi Android",
-                "${project.rootDir}/../../prebuilts/sdk/api/24.txt"
         addStringOption "stubpackages", "android.support.*"
     }
     exclude '**/BuildConfig.java'
