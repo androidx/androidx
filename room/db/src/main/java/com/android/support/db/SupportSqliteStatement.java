@@ -16,57 +16,69 @@
 
 package com.android.support.db;
 
+import android.os.ParcelFileDescriptor;
+
 /**
  * An interface to map the behavior of {@link android.database.sqlite.SQLiteStatement}.
  */
 @SuppressWarnings("unused")
-public interface SupportSqliteStatement {
+public interface SupportSqliteStatement extends SupportSqliteProgram {
     /**
-     * Bind a NULL value to this statement. The value remains bound until
-     * {@link #clearBindings} is called.
+     * Execute this SQL statement, if it is not a SELECT / INSERT / DELETE / UPDATE, for example
+     * CREATE / DROP table, view, trigger, index etc.
      *
-     * @param index The 1-based index to the parameter to bind null to
+     * @throws android.database.SQLException If the SQL string is invalid for
+     *         some reason
      */
-    void bindNull(int index);
+    void execute();
 
     /**
-     * Bind a long value to this statement. The value remains bound until
-     * {@link #clearBindings} is called.
-     *addToBindArgs
-     * @param index The 1-based index to the parameter to bind
-     * @param value The value to bind
-     */
-    void bindLong(int index, long value);
-
-    /**
-     * Bind a double value to this statement. The value remains bound until
-     * {@link #clearBindings} is called.
+     * Execute this SQL statement, if the the number of rows affected by execution of this SQL
+     * statement is of any importance to the caller - for example, UPDATE / DELETE SQL statements.
      *
-     * @param index The 1-based index to the parameter to bind
-     * @param value The value to bind
+     * @return the number of rows affected by this SQL statement execution.
+     * @throws android.database.SQLException If the SQL string is invalid for
+     *         some reason
      */
-    void bindDouble(int index, double value);
+    int executeUpdateDelete();
 
     /**
-     * Bind a String value to this statement. The value remains bound until
-     * {@link #clearBindings} is called.
+     * Execute this SQL statement and return the ID of the row inserted due to this call.
+     * The SQL statement should be an INSERT for this to be a useful call.
      *
-     * @param index The 1-based index to the parameter to bind
-     * @param value The value to bind, must not be null
-     */
-    void bindString(int index, String value);
-
-    /**
-     * Bind a byte array value to this statement. The value remains bound until
-     * {@link #clearBindings} is called.
+     * @return the row ID of the last row inserted, if this insert is successful. -1 otherwise.
      *
-     * @param index The 1-based index to the parameter to bind
-     * @param value The value to bind, must not be null
+     * @throws android.database.SQLException If the SQL string is invalid for
+     *         some reason
      */
-    void bindBlob(int index, byte[] value);
+    long executeInsert();
 
     /**
-     * Clears all existing bindings. Unset bindings are treated as NULL.
+     * Execute a statement that returns a 1 by 1 table with a numeric value.
+     * For example, SELECT COUNT(*) FROM table;
+     *
+     * @return The result of the query.
+     *
+     * @throws android.database.sqlite.SQLiteDoneException if the query returns zero rows
      */
-    void clearBindings();
+    long simpleQueryForLong();
+    /**
+     * Execute a statement that returns a 1 by 1 table with a text value.
+     * For example, SELECT COUNT(*) FROM table;
+     *
+     * @return The result of the query.
+     *
+     * @throws android.database.sqlite.SQLiteDoneException if the query returns zero rows
+     */
+    String simpleQueryForString();
+
+    /**
+     * Executes a statement that returns a 1 by 1 table with a blob value.
+     *
+     * @return A read-only file descriptor for a copy of the blob value, or {@code null}
+     *         if the value is null or could not be read for some reason.
+     *
+     * @throws android.database.sqlite.SQLiteDoneException if the query returns zero rows
+     */
+    ParcelFileDescriptor simpleQueryForBlobFileDescriptor();
 }
