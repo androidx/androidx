@@ -26,6 +26,7 @@ import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.res.ResourcesCompat;
+
 import java.util.List;
 
 /**
@@ -91,10 +92,14 @@ public class MainActivity extends Activity {
                     R.string.browseerror_description);
             addAction(actions, BrowseErrorSupportActivity.class, R.string.browseerror_support,
                     R.string.browseerror_support_description);
-            addAction(actions, PlaybackOverlayActivity.class, R.string.playback,
+            addAction(actions, PlaybackActivity.class, R.string.playback,
                     R.string.playback_description);
-            addAction(actions, PlaybackOverlaySupportActivity.class, R.string.playback_support,
+            addAction(actions, PlaybackSupportActivity.class, R.string.playback_support,
                     R.string.playback_support_description);
+            addAction(actions, PlaybackOverlayActivity.class, R.string.playbackoverlay,
+                    R.string.playbackoverlay_description);
+            addAction(actions, PlaybackOverlaySupportActivity.class,
+                    R.string.playbackoverlay_support, R.string.playbackoverlay_support_description);
             addAction(actions, VideoActivity.class, R.string.video_playback,
                     R.string.playback_description);
             addAction(actions, VideoSupportActivity.class, R.string.video_playback_support,

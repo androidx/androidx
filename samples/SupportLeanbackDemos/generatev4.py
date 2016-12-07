@@ -300,16 +300,58 @@ for line in file:
 file.close()
 outfile.close()
 
+file = open('src/com/example/android/leanback/PlaybackFragment.java', 'r')
+outfile = open('src/com/example/android/leanback/PlaybackSupportFragment.java', 'w')
+write_java_head(outfile, "PlaybackFragment")
+for line in file:
+    line = line.replace('PlaybackFragment', 'PlaybackSupportFragment')
+    line = line.replace('PlaybackActivity', 'PlaybackSupportActivity')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+file = open('src/com/example/android/leanback/PlaybackActivity.java', 'r')
+outfile = open('src/com/example/android/leanback/PlaybackSupportActivity.java', 'w')
+write_java_head(outfile, "PlaybackActivity")
+for line in file:
+    line = line.replace('PlaybackActivity', 'PlaybackSupportActivity')
+    line = line.replace('extends Activity', 'extends FragmentActivity')
+    line = line.replace('R.layout.playback_activity', 'R.layout.playback_activity_support')
+    line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+file = open('res/layout/playback_activity.xml', 'r')
+outfile = open('res/layout/playback_activity_support.xml', 'w')
+for line in file:
+    line = replace_xml_head(line, "playback_controls")
+    line = line.replace('com.example.android.leanback.PlaybackFragment', 'com.example.android.leanback.PlaybackSupportFragment')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+
 
 file = open('src/com/example/android/leanback/PlaybackOverlayFragment.java', 'r')
 outfile = open('src/com/example/android/leanback/PlaybackOverlaySupportFragment.java', 'w')
 write_java_head(outfile, "PlaybackOverlayFragment")
 for line in file:
     line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
+    line = line.replace('PlaybackControlHelper', 'PlaybackControlSupportHelper')
     line = line.replace('PlaybackOverlayActivity', 'PlaybackOverlaySupportActivity')
-    line = line.replace('PlaybackFragmentGlueHost', 'PlaybackSupportFragmentGlueHost')
-    line = line.replace('VideoFragment', 'VideoSupportFragment')
-    line = line.replace('PlaybackFragment', 'PlaybackSupportFragment')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+
+file = open('src/com/example/android/leanback/PlaybackControlHelper.java', 'r')
+outfile = open('src/com/example/android/leanback/PlaybackControlSupportHelper.java', 'w')
+write_java_head(outfile, "PlaybackControlHelper")
+for line in file:
+    line = line.replace('PlaybackControlHelper', 'PlaybackControlSupportHelper')
+    line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue')
+    line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
     outfile.write(line)
 file.close()
 outfile.close()
