@@ -1,10 +1,19 @@
+import android.support.checkapi.CheckApiTask
+import android.support.checkapi.UpdateApiTask
 import android.support.doclava.DoclavaMultilineJavadocOptionFileOption
+import android.support.doclava.DoclavaTask
+
+import com.android.build.gradle.internal.coverage.JacocoPlugin
 import com.android.build.gradle.internal.coverage.JacocoReportTask
 import com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask
 
-import android.support.checkapi.CheckApiTask
-import android.support.checkapi.UpdateApiTask
-import android.support.doclava.DoclavaTask
+import com.google.common.base.Charsets
+import com.google.common.hash.HashCode
+import com.google.common.hash.HashFunction
+import com.google.common.hash.Hashing
+import com.google.common.io.Files
+
+import groovy.io.FileType
 
 buildscript {
     repositories {
@@ -109,11 +118,6 @@ task(prepareRepo) << {
 task(lint) << {
 }
 
-
-import com.google.common.io.Files
-import com.google.common.base.Charsets
-import com.android.build.gradle.internal.coverage.JacocoPlugin;
-
 task(createXml) << {
     def repoArchive = createRepository.archivePath
     def repoArchiveName = createRepository.archiveName
@@ -160,9 +164,6 @@ Extra.VendorId=android"
 createSourceProp.dependsOn unzipRepo
 prepareRepo.dependsOn createSourceProp
 
-import com.google.common.hash.HashCode
-import com.google.common.hash.HashFunction
-import com.google.common.hash.Hashing
 import java.nio.charset.Charset
 
 /**
@@ -273,12 +274,46 @@ task checkApi(type: CheckApiTask, dependsOn: generateApi) {
     checkApiTaskPath = name
     updateApiTaskPath = updateApi.name
 
+    // Check that the API we're building hasn't changed from the development
+    // version. These typed of changes require an explicit API file update.
+    checkApiErrors = (2..30)-[22]
+    checkApiWarnings = []
+    checkApiHidden = [22]
+
     newApiFile = new File(project.docsDir, 'release/current.txt')
     oldApiFile = new File(project.rootDir, 'api/current.txt')
     newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
     oldRemovedApiFile = new File(project.rootDir, 'api/removed.txt')
 }
 createArchive.dependsOn checkApi
+
+// Checks generated API files against current version.
+task checkApiStable(type: CheckApiTask, dependsOn: generateApi) {
+    doclavaClasspath = generateApi.docletpath
+
+    checkApiTaskPath = name
+    updateApiTaskPath = updateApi.name
+
+    // Check that the API we're building hasn't broken the last-released
+    // library version. These types of changes are forbidden.
+    checkApiErrors = (7..18)
+    checkApiWarnings = [23, 24]
+    checkApiHidden = (2..6) + (19..22) + (25..30)
+
+    def lastReleasedApiFile = null
+    def apiDir = new File(project.rootDir, 'api')
+    apiDir.eachFileMatch FileType.FILES, ~/(\d+\.){3}txt/, { File apiFile ->
+        if (lastReleasedApiFile == null || apiFile.name > lastReleasedApiFile.name) {
+            lastReleasedApiFile = apiFile;
+        }
+    }
+
+    newApiFile = new File(project.docsDir, 'release/current.txt')
+    oldApiFile = lastReleasedApiFile
+    newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
+    oldRemovedApiFile = new File(project.rootDir, 'api/removed.txt')
+}
+checkApi.dependsOn checkApiStable
 
 subprojects {
     // Only modify Android projects.

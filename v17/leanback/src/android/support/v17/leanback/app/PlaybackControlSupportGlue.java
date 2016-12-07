@@ -20,6 +20,88 @@ import android.view.View;
  */
 @Deprecated
 public abstract class PlaybackControlSupportGlue extends PlaybackControlGlue {
+    /**
+     * The adapter key for the first custom control on the left side
+     * of the predefined primary controls.
+     */
+    public static final int ACTION_CUSTOM_LEFT_FIRST = PlaybackControlGlue.ACTION_CUSTOM_LEFT_FIRST;
+
+    /**
+     * The adapter key for the skip to previous control.
+     */
+    public static final int ACTION_SKIP_TO_PREVIOUS = PlaybackControlGlue.ACTION_SKIP_TO_PREVIOUS;
+
+    /**
+     * The adapter key for the rewind control.
+     */
+    public static final int ACTION_REWIND = PlaybackControlGlue.ACTION_REWIND;
+
+    /**
+     * The adapter key for the play/pause control.
+     */
+    public static final int ACTION_PLAY_PAUSE = PlaybackControlGlue.ACTION_PLAY_PAUSE;
+
+    /**
+     * The adapter key for the fast forward control.
+     */
+    public static final int ACTION_FAST_FORWARD = PlaybackControlGlue.ACTION_FAST_FORWARD;
+
+    /**
+     * The adapter key for the skip to next control.
+     */
+    public static final int ACTION_SKIP_TO_NEXT = PlaybackControlGlue.ACTION_SKIP_TO_NEXT;
+
+    /**
+     * The adapter key for the first custom control on the right side
+     * of the predefined primary controls.
+     */
+    public static final int ACTION_CUSTOM_RIGHT_FIRST =
+            PlaybackControlGlue.ACTION_CUSTOM_RIGHT_FIRST;
+
+    /**
+     * Invalid playback speed.
+     */
+    public static final int PLAYBACK_SPEED_INVALID = PlaybackControlGlue.PLAYBACK_SPEED_INVALID;
+
+    /**
+     * Speed representing playback state that is paused.
+     */
+    public static final int PLAYBACK_SPEED_PAUSED = PlaybackControlGlue.PLAYBACK_SPEED_PAUSED;
+
+    /**
+     * Speed representing playback state that is playing normally.
+     */
+    public static final int PLAYBACK_SPEED_NORMAL = PlaybackControlGlue.PLAYBACK_SPEED_NORMAL;
+
+    /**
+     * The initial (level 0) fast forward playback speed.
+     * The negative of this value is for rewind at the same speed.
+     */
+    public static final int PLAYBACK_SPEED_FAST_L0 = PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0;
+
+    /**
+     * The level 1 fast forward playback speed.
+     * The negative of this value is for rewind at the same speed.
+     */
+    public static final int PLAYBACK_SPEED_FAST_L1 = PlaybackControlGlue.PLAYBACK_SPEED_FAST_L1;
+
+    /**
+     * The level 2 fast forward playback speed.
+     * The negative of this value is for rewind at the same speed.
+     */
+    public static final int PLAYBACK_SPEED_FAST_L2 = PlaybackControlGlue.PLAYBACK_SPEED_FAST_L2;
+
+    /**
+     * The level 3 fast forward playback speed.
+     * The negative of this value is for rewind at the same speed.
+     */
+    public static final int PLAYBACK_SPEED_FAST_L3 = PlaybackControlGlue.PLAYBACK_SPEED_FAST_L3;
+
+    /**
+     * The level 4 fast forward playback speed.
+     * The negative of this value is for rewind at the same speed.
+     */
+    public static final int PLAYBACK_SPEED_FAST_L4 = PlaybackControlGlue.PLAYBACK_SPEED_FAST_L4;
 
     public PlaybackControlSupportGlue(Context context, int[] seekSpeeds) {
         this(context, null, seekSpeeds, seekSpeeds);
