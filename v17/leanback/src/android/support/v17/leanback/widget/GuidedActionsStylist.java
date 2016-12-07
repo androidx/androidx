@@ -734,6 +734,17 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         }
     }
 
+    /**
+     * @deprecated This method is for internal library use only and should not
+     *             be called directly.
+     */
+    @Deprecated
+    public void setEditingMode(ViewHolder vh, GuidedAction action, boolean editing) {
+        if (editing != vh.isInEditing() && isInExpandTransition()) {
+            onEditingModeChange(vh, action, editing);
+        }
+    }
+
     void setEditingMode(ViewHolder vh, boolean editing) {
         setEditingMode(vh, editing, true /*withTransition*/);
     }
