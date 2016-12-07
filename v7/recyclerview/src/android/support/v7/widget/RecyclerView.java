@@ -8176,9 +8176,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         /**
          * Returns the number of items in the adapter bound to the parent RecyclerView.
          * <p>
-         * Note that this number is not necessarily equal to {@link State#getItemCount()}. In
-         * methods where State is available, you should use {@link State#getItemCount()} instead.
-         * For more details, check the documentation for {@link State#getItemCount()}.
+         * Note that this number is not necessarily equal to
+         * {@link State#getItemCount() State#getItemCount()}. In methods where {@link State} is
+         * available, you should use {@link State#getItemCount() State#getItemCount()} instead.
+         * For more details, check the documentation for
+         * {@link State#getItemCount() State#getItemCount()}.
          *
          * @return The number of items in the bound adapter
          * @see State#getItemCount()
