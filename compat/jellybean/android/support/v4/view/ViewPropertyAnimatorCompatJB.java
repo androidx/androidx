@@ -17,12 +17,10 @@ package android.support.v4.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.support.annotation.RequiresApi;
 import android.view.View;
 
 @RequiresApi(16)
-@TargetApi(16)
 class ViewPropertyAnimatorCompatJB {
 
     public static void withStartAction(View view, Runnable runnable) {

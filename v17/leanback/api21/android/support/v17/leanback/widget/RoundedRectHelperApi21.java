@@ -13,7 +13,6 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.annotation.TargetApi;
 import android.graphics.Outline;
 import android.support.annotation.RequiresApi;
 import android.util.SparseArray;
@@ -21,7 +20,6 @@ import android.view.View;
 import android.view.ViewOutlineProvider;
 
 @RequiresApi(21)
-@TargetApi(21)
 class RoundedRectHelperApi21 {
 
     private static SparseArray<ViewOutlineProvider> sRoundedRectProvider;

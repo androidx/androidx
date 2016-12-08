@@ -18,7 +18,6 @@ package android.support.v7.app;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -85,7 +84,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     @RequiresApi(24)
-    @TargetApi(24)
     private static void addStyleToBuilderApi24(NotificationBuilderWithBuilderAccessor builder,
             android.support.v4.app.NotificationCompat.Builder b) {
         if (b.mStyle instanceof DecoratedCustomViewStyle) {
@@ -98,7 +96,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     @RequiresApi(21)
-    @TargetApi(21)
     private static RemoteViews addStyleGetContentViewLollipop(
             NotificationBuilderWithBuilderAccessor builder,
             android.support.v4.app.NotificationCompat.Builder b) {
@@ -138,7 +135,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     @RequiresApi(16)
-    @TargetApi(16)
     private static RemoteViews addStyleGetContentViewJellybean(
             NotificationBuilderWithBuilderAccessor builder,
             android.support.v4.app.NotificationCompat.Builder b) {
@@ -226,7 +222,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     @RequiresApi(14)
-    @TargetApi(14)
     private static RemoteViews addStyleGetContentViewIcs(
             NotificationBuilderWithBuilderAccessor builder,
             android.support.v4.app.NotificationCompat.Builder b) {
@@ -251,7 +246,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     @RequiresApi(16)
-    @TargetApi(16)
     private static void addBigStyleToBuilderJellybean(Notification n,
             android.support.v4.app.NotificationCompat.Builder b) {
         if (b.mStyle instanceof MediaStyle) {
@@ -292,7 +286,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     @RequiresApi(16)
-    @TargetApi(16)
     private static void addDecoratedBigStyleToBuilderJellybean(Notification n,
             android.support.v4.app.NotificationCompat.Builder b) {
         RemoteViews bigContentView = b.getBigContentView();
@@ -311,7 +304,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     @RequiresApi(21)
-    @TargetApi(21)
     private static void addDecoratedHeadsUpToBuilderLollipop(Notification n,
             android.support.v4.app.NotificationCompat.Builder b) {
         RemoteViews headsUp = b.getHeadsUpContentView();
@@ -330,7 +322,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     @RequiresApi(21)
-    @TargetApi(21)
     private static void addBigStyleToBuilderLollipop(Notification n,
             android.support.v4.app.NotificationCompat.Builder b) {
         RemoteViews innerView = b.getBigContentView() != null
@@ -359,7 +350,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     @RequiresApi(21)
-    @TargetApi(21)
     private static void addHeadsUpToBuilderLollipop(Notification n,
             android.support.v4.app.NotificationCompat.Builder b) {
         RemoteViews innerView = b.getHeadsUpContentView() != null

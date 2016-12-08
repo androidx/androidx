@@ -18,11 +18,9 @@ package android.support.transition;
 
 import android.view.ViewGroup;
 
-import android.annotation.TargetApi;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(19)
-@TargetApi(19)
 class TransitionManagerStaticsKitKat extends TransitionManagerStaticsImpl {
 
     @Override

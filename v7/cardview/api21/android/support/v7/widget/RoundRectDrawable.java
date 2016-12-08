@@ -15,7 +15,6 @@
  */
 package android.support.v7.widget;
 
-import android.annotation.TargetApi;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -41,7 +40,6 @@ import static android.support.v7.widget.RoundRectDrawableWithShadow.calculateHor
  * Simpler and uses less resources compared to GradientDrawable or ShapeDrawable.
  */
 @RequiresApi(21)
-@TargetApi(21)
 class RoundRectDrawable extends Drawable {
     private float mRadius;
     private final Paint mPaint;

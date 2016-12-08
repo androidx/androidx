@@ -20,7 +20,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.TimeInterpolator;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
@@ -42,7 +41,6 @@ import android.view.animation.DecelerateInterpolator;
  * @hide
  */
 @RequiresApi(21)
-@TargetApi(21)
 @RestrictTo(LIBRARY_GROUP)
 public class FadeAndShortSlide extends Visibility {
 

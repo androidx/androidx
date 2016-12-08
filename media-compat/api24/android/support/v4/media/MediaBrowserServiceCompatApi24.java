@@ -16,7 +16,6 @@
 
 package android.support.v4.media;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;
@@ -30,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiresApi(24)
-@TargetApi(24)
 class MediaBrowserServiceCompatApi24 {
     private static final String TAG = "MBSCompatApi24";
 

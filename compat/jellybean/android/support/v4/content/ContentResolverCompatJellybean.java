@@ -21,10 +21,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.OperationCanceledException;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 
 @RequiresApi(16)
-@TargetApi(16)
 class ContentResolverCompatJellybean {
 
     public static Cursor query(ContentResolver resolver, Uri uri, String[] projection,

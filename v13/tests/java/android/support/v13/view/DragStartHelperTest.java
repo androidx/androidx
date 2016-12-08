@@ -26,7 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import android.annotation.TargetApi;
 import android.app.Instrumentation;
 import android.graphics.Point;
 import android.os.Build;
@@ -53,7 +52,6 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 
 @RequiresApi(13)
-@TargetApi(13)
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class DragStartHelperTest {

@@ -16,7 +16,6 @@
 
 package android.support.v7.app;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -38,7 +37,6 @@ import android.view.ActionMode;
 import android.view.Window;
 
 @RequiresApi(14)
-@TargetApi(14)
 class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
 
     private static final String KEY_LOCAL_NIGHT_MODE = "appcompat:local_night_mode";

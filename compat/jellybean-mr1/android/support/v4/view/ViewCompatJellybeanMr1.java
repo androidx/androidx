@@ -16,7 +16,6 @@
 
 package android.support.v4.view;
 
-import android.annotation.TargetApi;
 import android.graphics.Paint;
 import android.support.annotation.RequiresApi;
 import android.view.Display;
@@ -27,7 +26,6 @@ import android.view.View;
  */
 
 @RequiresApi(17)
-@TargetApi(17)
 class ViewCompatJellybeanMr1 {
 
     public static int getLabelFor(View view) {

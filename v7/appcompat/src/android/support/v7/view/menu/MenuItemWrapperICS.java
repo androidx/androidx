@@ -18,7 +18,6 @@ package android.support.v7.view.menu;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -42,7 +41,6 @@ import java.lang.reflect.Method;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@TargetApi(14)
 @RequiresApi(14)
 public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> implements MenuItem {
     static final String LOG_TAG = "MenuItemWrapper";

@@ -21,11 +21,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.widget.RemoteViews;
 
 @RequiresApi(14)
-@TargetApi(14)
 class NotificationCompatIceCreamSandwich {
 
     public static class Builder implements NotificationBuilderWithBuilderAccessor {

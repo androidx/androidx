@@ -16,7 +16,6 @@
 
 package android.support.v4.media;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,7 +30,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 @RequiresApi(18)
-@TargetApi(18)
 class TransportMediatorJellybeanMR2 {
     final Context mContext;
     final AudioManager mAudioManager;

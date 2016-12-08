@@ -16,7 +16,6 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Context;
@@ -27,7 +26,6 @@ import android.util.Pair;
 import android.view.View;
 
 @RequiresApi(21)
-@TargetApi(21)
 class ActivityOptionsCompat21 {
 
     private final ActivityOptions mActivityOptions;

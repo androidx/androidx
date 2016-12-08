@@ -16,7 +16,6 @@
 
 package android.support.v13.app;
 
-import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -34,7 +33,6 @@ import java.util.Arrays;
  * API level 13 in a backwards compatible fashion.
  */
 @RequiresApi(13)
-@TargetApi(13)
 public class FragmentCompat {
     interface FragmentCompatImpl {
         void setMenuVisibility(Fragment f, boolean visible);

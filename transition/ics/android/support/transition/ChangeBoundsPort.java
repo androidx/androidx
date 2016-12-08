@@ -20,7 +20,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -40,7 +39,6 @@ import java.util.Map;
  * attributes of {@link android.R.styleable#Transition}.</p>
  */
 @RequiresApi(14)
-@TargetApi(14)
 class ChangeBoundsPort extends TransitionPort {
 
     private static final String PROPNAME_BOUNDS = "android:changeBounds:bounds";

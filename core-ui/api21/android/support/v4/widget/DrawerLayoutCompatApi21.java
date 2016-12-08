@@ -17,7 +17,6 @@
 
 package android.support.v4.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -31,7 +30,6 @@ import android.view.WindowInsets;
  * Provides functionality for DrawerLayout unique to API 21
  */
 @RequiresApi(21)
-@TargetApi(21)
 class DrawerLayoutCompatApi21 {
 
     private static final int[] THEME_ATTRS = {

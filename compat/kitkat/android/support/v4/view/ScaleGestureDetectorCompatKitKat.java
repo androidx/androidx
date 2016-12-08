@@ -17,7 +17,6 @@
 package android.support.v4.view;
 
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.ScaleGestureDetector;
 
 /**
@@ -26,7 +25,6 @@ import android.view.ScaleGestureDetector;
  */
 
 @RequiresApi(19)
-@TargetApi(19)
 class ScaleGestureDetectorCompatKitKat {
 
     private ScaleGestureDetectorCompatKitKat() {

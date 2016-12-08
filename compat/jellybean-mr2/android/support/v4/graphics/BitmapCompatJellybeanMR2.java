@@ -17,10 +17,8 @@ package android.support.v4.graphics;
 
 import android.graphics.Bitmap;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 
 @RequiresApi(18)
-@TargetApi(18)
 class BitmapCompatJellybeanMR2 {
     public static boolean hasMipMap(Bitmap bitmap) {
         return bitmap.hasMipMap();

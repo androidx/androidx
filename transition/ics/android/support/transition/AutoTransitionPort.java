@@ -16,7 +16,6 @@
 
 package android.support.transition;
 
-import android.annotation.TargetApi;
 import android.support.annotation.RequiresApi;
 
 /**
@@ -28,7 +27,6 @@ import android.support.annotation.RequiresApi;
  * attributes of {@link android.R.styleable#Transition}.</p>
  */
 @RequiresApi(14)
-@TargetApi(14)
 class AutoTransitionPort extends TransitionSetPort {
 
     /**

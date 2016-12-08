@@ -16,7 +16,6 @@
 
 package android.support.v4.print;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.print.PrintAttributes;
 import android.support.annotation.RequiresApi;
@@ -25,7 +24,6 @@ import android.support.annotation.RequiresApi;
  * Api23 specific PrintManager API implementation.
  */
 @RequiresApi(23)
-@TargetApi(23)
 class PrintHelperApi23 extends PrintHelperApi20 {
     @Override
     protected PrintAttributes.Builder copyAttributes(PrintAttributes other) {

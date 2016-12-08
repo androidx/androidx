@@ -16,7 +16,6 @@
 
 package android.support.v13.view.inputmethod;
 
-import android.annotation.TargetApi;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.view.inputmethod.InputConnection;
@@ -24,7 +23,6 @@ import android.view.inputmethod.InputConnectionWrapper;
 import android.view.inputmethod.InputContentInfo;
 
 @RequiresApi(25)
-@TargetApi(25)
 final class InputConnectionCompatApi25 {
 
     public static boolean commitContent(InputConnection ic, Object inputContentInfo, int flags,

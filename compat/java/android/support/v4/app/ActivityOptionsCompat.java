@@ -16,7 +16,6 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -309,7 +308,6 @@ public class ActivityOptionsCompat {
     }
 
     @RequiresApi(16)
-    @TargetApi(16)
     private static class ActivityOptionsImplJB extends ActivityOptionsCompat {
         private final ActivityOptionsCompatJB mImpl;
 
@@ -332,7 +330,6 @@ public class ActivityOptionsCompat {
     }
 
     @RequiresApi(21)
-    @TargetApi(21)
     private static class ActivityOptionsImpl21 extends ActivityOptionsCompat {
         private final ActivityOptionsCompat21 mImpl;
 
@@ -356,7 +353,6 @@ public class ActivityOptionsCompat {
     }
 
     @RequiresApi(23)
-    @TargetApi(23)
     private static class ActivityOptionsImpl23 extends ActivityOptionsCompat {
         private final ActivityOptionsCompat23 mImpl;
 
@@ -385,7 +381,6 @@ public class ActivityOptionsCompat {
     }
 
     @RequiresApi(24)
-    @TargetApi(24)
     private static class ActivityOptionsImpl24 extends ActivityOptionsCompat {
         private final ActivityOptionsCompat24 mImpl;
 

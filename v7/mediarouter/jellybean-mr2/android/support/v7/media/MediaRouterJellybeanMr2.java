@@ -16,11 +16,9 @@
 
 package android.support.v7.media;
 
-import android.annotation.TargetApi;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(18)
-@TargetApi(18)
 final class MediaRouterJellybeanMr2 {
     public static Object getDefaultRoute(Object routerObj) {
         return ((android.media.MediaRouter)routerObj).getDefaultRoute();

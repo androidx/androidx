@@ -17,12 +17,10 @@
 package android.support.v4.view;
 
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.PointerIcon;
 import android.view.View;
 
 @RequiresApi(24)
-@TargetApi(24)
 class ViewCompatApi24 {
     public static void setPointerIcon(View view, Object pointerIcon) {
         view.setPointerIcon((PointerIcon)pointerIcon);

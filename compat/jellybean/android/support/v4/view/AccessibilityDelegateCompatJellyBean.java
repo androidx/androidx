@@ -18,7 +18,6 @@ package android.support.v4.view;
 
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
 import android.view.ViewGroup;
@@ -31,7 +30,6 @@ import android.view.accessibility.AccessibilityNodeProvider;
  */
 
 @RequiresApi(16)
-@TargetApi(16)
 class AccessibilityDelegateCompatJellyBean {
 
     public interface AccessibilityDelegateBridgeJellyBean {

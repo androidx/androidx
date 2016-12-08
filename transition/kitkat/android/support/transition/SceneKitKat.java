@@ -23,11 +23,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import android.annotation.TargetApi;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(19)
-@TargetApi(19)
 class SceneKitKat extends SceneWrapper {
 
     private static Field sEnterAction;

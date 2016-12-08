@@ -18,7 +18,6 @@ package android.support.v7.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.RequiresApi;
@@ -88,7 +87,6 @@ public abstract class ForwardingListener implements View.OnTouchListener {
     }
 
     @RequiresApi(12)
-    @TargetApi(12)
     private void addDetachListenerApi12(View src) {
         src.addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
             @Override

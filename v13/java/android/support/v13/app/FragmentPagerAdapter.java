@@ -16,7 +16,6 @@
 
 package android.support.v13.app;
 
-import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -65,7 +64,6 @@ import android.view.ViewGroup;
  *      complete}
  */
 @RequiresApi(13)
-@TargetApi(13)
 public abstract class FragmentPagerAdapter extends PagerAdapter {
     private static final String TAG = "FragmentPagerAdapter";
     private static final boolean DEBUG = false;

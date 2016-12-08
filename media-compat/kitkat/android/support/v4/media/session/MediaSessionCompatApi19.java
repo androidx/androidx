@@ -15,7 +15,6 @@
  */
 package android.support.v4.media.session;
 
-import android.annotation.TargetApi;
 import android.media.MediaMetadataEditor;
 import android.media.MediaMetadataRetriever;
 import android.media.Rating;
@@ -24,7 +23,6 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(19)
-@TargetApi(19)
 class MediaSessionCompatApi19 {
     /***** PlaybackState actions *****/
     private static final long ACTION_SET_RATING = 1 << 7;

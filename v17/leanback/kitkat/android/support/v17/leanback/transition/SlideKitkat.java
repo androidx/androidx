@@ -19,7 +19,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.RequiresApi;
@@ -40,7 +39,6 @@ import android.view.animation.DecelerateInterpolator;
  * This is a limited Slide implementation for KitKat without propagation support.
  */
 @RequiresApi(19)
-@TargetApi(19)
 class SlideKitkat extends Visibility {
     private static final String TAG = "SlideKitkat";
 

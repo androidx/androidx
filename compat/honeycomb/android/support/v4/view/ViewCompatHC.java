@@ -20,12 +20,10 @@ import android.animation.ValueAnimator;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.View;
 import android.view.ViewParent;
 
 @RequiresApi(11)
-@TargetApi(11)
 class ViewCompatHC {
     static long getFrameTime() {
         return ValueAnimator.getFrameDelay();

@@ -14,7 +14,6 @@
 package android.support.v17.leanback.transition;
 
 import android.R;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.annotation.RequiresApi;
@@ -27,7 +26,6 @@ import android.view.Window;
 import android.view.animation.AnimationUtils;
 
 @RequiresApi(21)
-@TargetApi(21)
 final class TransitionHelperApi21 {
 
     TransitionHelperApi21() {

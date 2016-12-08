@@ -15,7 +15,6 @@
  */
 package android.support.v7.widget;
 
-import android.annotation.TargetApi;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -38,7 +37,6 @@ import android.support.v7.cardview.R;
  * A rounded rectangle drawable which also includes a shadow around.
  */
 @RequiresApi(9)
-@TargetApi(9)
 class RoundRectDrawableWithShadow extends Drawable {
     // used to calculate content padding
     final static double COS_45 = Math.cos(Math.toRadians(45));

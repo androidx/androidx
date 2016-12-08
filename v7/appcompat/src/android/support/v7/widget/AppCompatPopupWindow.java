@@ -18,7 +18,6 @@ package android.support.v7.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.AttrRes;
@@ -50,7 +49,6 @@ class AppCompatPopupWindow extends PopupWindow {
         init(context, attrs, defStyleAttr, 0);
     }
 
-    @TargetApi(11)
     public AppCompatPopupWindow(@NonNull Context context, @Nullable AttributeSet attrs,
             @AttrRes int defStyleAttr, @StyleRes int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -95,7 +93,6 @@ class AppCompatPopupWindow extends PopupWindow {
         super.showAsDropDown(anchor, xoff, yoff);
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public void showAsDropDown(View anchor, int xoff, int yoff, int gravity) {
         if (COMPAT_OVERLAP_ANCHOR && mOverlapAnchor) {

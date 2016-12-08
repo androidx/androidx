@@ -16,13 +16,11 @@
 
 package android.support.v4.media.session;
 
-import android.annotation.TargetApi;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(23)
-@TargetApi(23)
 class MediaSessionCompatApi23 {
 
     public static Object createCallback(Callback callback) {

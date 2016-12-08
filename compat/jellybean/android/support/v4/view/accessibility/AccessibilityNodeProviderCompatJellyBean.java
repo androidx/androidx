@@ -18,7 +18,6 @@ package android.support.v4.view.accessibility;
 
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
@@ -29,7 +28,6 @@ import java.util.List;
  */
 
 @RequiresApi(16)
-@TargetApi(16)
 class AccessibilityNodeProviderCompatJellyBean {
     interface AccessibilityNodeInfoBridge {
         public Object createAccessibilityNodeInfo(int virtualViewId);

@@ -15,7 +15,6 @@
  */
 package android.support.v17.leanback.graphics;
 
-import android.annotation.TargetApi;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -34,7 +33,6 @@ import java.util.ArrayList;
  * for this class, it updates those of it's children.
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
     static class CompositeState extends Drawable.ConstantState {
@@ -235,7 +233,6 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
      * Wrapper class holding a drawable object and {@link BoundsRule} to update drawable bounds
      * when parent bound changes.
      */
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     public static final class ChildDrawable {
         private final BoundsRule mBoundsRule;
         private final Drawable mDrawable;

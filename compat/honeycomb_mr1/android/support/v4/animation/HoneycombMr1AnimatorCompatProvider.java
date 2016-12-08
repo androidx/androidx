@@ -20,7 +20,6 @@ import android.animation.Animator;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.View;
 
 /**
@@ -30,7 +29,6 @@ import android.view.View;
  */
 
 @RequiresApi(12)
-@TargetApi(12)
 class HoneycombMr1AnimatorCompatProvider implements AnimatorProvider {
 
     private TimeInterpolator mDefaultInterpolator;

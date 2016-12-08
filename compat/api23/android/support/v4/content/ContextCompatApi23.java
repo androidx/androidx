@@ -19,10 +19,8 @@ package android.support.v4.content;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 
 @RequiresApi(23)
-@TargetApi(23)
 class ContextCompatApi23 {
     public static ColorStateList getColorStateList(Context context, int id) {
         return context.getColorStateList(id);

@@ -17,7 +17,6 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -135,7 +134,6 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     @RequiresApi(11)
-    @TargetApi(11)
     private static class ActionBarDrawerToggleImplHC implements ActionBarDrawerToggleImpl {
         ActionBarDrawerToggleImplHC() {
         }
@@ -160,7 +158,6 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     @RequiresApi(18)
-    @TargetApi(18)
     private static class ActionBarDrawerToggleImplJellybeanMR2
             implements ActionBarDrawerToggleImpl {
         ActionBarDrawerToggleImplJellybeanMR2() {

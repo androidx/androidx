@@ -21,7 +21,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
-import android.annotation.TargetApi;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.util.ArrayMap;
@@ -36,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiresApi(14)
-@TargetApi(14)
 abstract class TransitionPort implements Cloneable {
 
     static final boolean DBG = false;

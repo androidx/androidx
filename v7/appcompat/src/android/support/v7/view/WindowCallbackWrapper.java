@@ -18,7 +18,6 @@ package android.support.v7.view;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.view.ActionMode;
@@ -60,7 +59,6 @@ public class WindowCallbackWrapper implements Window.Callback {
     }
 
     @RequiresApi(11)
-    @TargetApi(11)
     @Override
     public boolean dispatchKeyShortcutEvent(KeyEvent event) {
         return mWrapped.dispatchKeyShortcutEvent(event);
@@ -77,7 +75,6 @@ public class WindowCallbackWrapper implements Window.Callback {
     }
 
     @RequiresApi(12)
-    @TargetApi(12)
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
         return mWrapped.dispatchGenericMotionEvent(event);
@@ -144,7 +141,6 @@ public class WindowCallbackWrapper implements Window.Callback {
     }
 
     @RequiresApi(23)
-    @TargetApi(23)
     @Override
     public boolean onSearchRequested(SearchEvent searchEvent) {
         return mWrapped.onSearchRequested(searchEvent);
@@ -156,35 +152,30 @@ public class WindowCallbackWrapper implements Window.Callback {
     }
 
     @RequiresApi(11)
-    @TargetApi(11)
     @Override
     public ActionMode onWindowStartingActionMode(ActionMode.Callback callback) {
         return mWrapped.onWindowStartingActionMode(callback);
     }
 
     @RequiresApi(23)
-    @TargetApi(23)
     @Override
     public ActionMode onWindowStartingActionMode(ActionMode.Callback callback, int type) {
         return mWrapped.onWindowStartingActionMode(callback, type);
     }
 
     @RequiresApi(11)
-    @TargetApi(11)
     @Override
     public void onActionModeStarted(ActionMode mode) {
         mWrapped.onActionModeStarted(mode);
     }
 
     @RequiresApi(11)
-    @TargetApi(11)
     @Override
     public void onActionModeFinished(ActionMode mode) {
         mWrapped.onActionModeFinished(mode);
     }
 
     @RequiresApi(24)
-    @TargetApi(24)
     @Override
     public void onProvideKeyboardShortcuts(
             List<KeyboardShortcutGroup> data, Menu menu, int deviceId) {

@@ -16,7 +16,6 @@
 
 package android.support.v7.app;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -47,7 +46,6 @@ import java.util.List;
  * contentView and bigContentView of the notification.
  */
 @RequiresApi(9)
-@TargetApi(9)
 class NotificationCompatImplBase {
 
     static final int MAX_MEDIA_BUTTONS_IN_COMPACT = 3;
@@ -55,7 +53,6 @@ class NotificationCompatImplBase {
     private static final int MAX_ACTION_BUTTONS = 3;
 
     @RequiresApi(11)
-    @TargetApi(11)
     public static <T extends NotificationCompatBase.Action> RemoteViews overrideContentViewMedia(
             NotificationBuilderWithBuilderAccessor builder,
             Context context, CharSequence contentTitle, CharSequence contentText,
@@ -75,7 +72,6 @@ class NotificationCompatImplBase {
     }
 
     @RequiresApi(11)
-    @TargetApi(11)
     private static <T extends NotificationCompatBase.Action> RemoteViews generateContentViewMedia(
             Context context, CharSequence contentTitle, CharSequence contentText,
             CharSequence contentInfo, int number, Bitmap largeIcon, CharSequence subText,
@@ -121,7 +117,6 @@ class NotificationCompatImplBase {
     }
 
     @RequiresApi(16)
-    @TargetApi(16)
     public static <T extends NotificationCompatBase.Action> void overrideMediaBigContentView(
             Notification n, Context context, CharSequence contentTitle, CharSequence contentText,
             CharSequence contentInfo, int number, Bitmap largeIcon, CharSequence subText,
@@ -137,7 +132,6 @@ class NotificationCompatImplBase {
     }
 
     @RequiresApi(11)
-    @TargetApi(11)
     public static <T extends NotificationCompatBase.Action> RemoteViews generateMediaBigView(
             Context context, CharSequence contentTitle, CharSequence contentText,
             CharSequence contentInfo, int number, Bitmap largeIcon, CharSequence subText,
@@ -169,7 +163,6 @@ class NotificationCompatImplBase {
     }
 
     @RequiresApi(11)
-    @TargetApi(11)
     private static RemoteViews generateMediaActionButton(Context context,
             NotificationCompatBase.Action action) {
         final boolean tombstone = (action.getActionIntent() == null);
@@ -186,7 +179,6 @@ class NotificationCompatImplBase {
     }
 
     @RequiresApi(11)
-    @TargetApi(11)
     private static int getBigMediaLayoutResource(boolean decoratedCustomView, int actionCount) {
         if (actionCount <= 3) {
             return decoratedCustomView

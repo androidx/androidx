@@ -15,13 +15,11 @@
  */
 package android.support.v4.media;
 
-import android.annotation.TargetApi;
 import android.media.MediaDescription;
 import android.net.Uri;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(23)
-@TargetApi(23)
 class MediaDescriptionCompatApi23 extends MediaDescriptionCompatApi21 {
     public static Uri getMediaUri(Object descriptionObj) {
         return ((MediaDescription) descriptionObj).getMediaUri();

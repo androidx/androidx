@@ -16,7 +16,6 @@
 
 package android.support.v4.media.session;
 
-import android.annotation.TargetApi;
 import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,7 +26,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @RequiresApi(24)
-@TargetApi(24)
 class MediaSessionCompatApi24 {
     private static final String TAG = "MediaSessionCompatApi24";
 

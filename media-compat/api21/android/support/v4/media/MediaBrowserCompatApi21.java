@@ -16,7 +16,6 @@
 
 package android.support.v4.media;
 
-import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.media.browse.MediaBrowser;
@@ -27,7 +26,6 @@ import android.support.annotation.RequiresApi;
 import java.util.List;
 
 @RequiresApi(21)
-@TargetApi(21)
 class MediaBrowserCompatApi21 {
     static final String NULL_MEDIA_ITEM_ID =
             "android.support.v4.media.MediaBrowserCompat.NULL_MEDIA_ITEM";

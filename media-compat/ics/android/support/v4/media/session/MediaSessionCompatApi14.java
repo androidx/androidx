@@ -15,7 +15,6 @@
  */
 package android.support.v4.media.session;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -26,7 +25,6 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(14)
-@TargetApi(14)
 class MediaSessionCompatApi14 {
     /***** RemoteControlClient States, we only need none as the others were public *******/
     final static int RCC_PLAYSTATE_NONE = 0;

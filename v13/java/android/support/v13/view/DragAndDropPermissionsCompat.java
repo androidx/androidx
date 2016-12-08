@@ -18,7 +18,6 @@ package android.support.v13.view;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
@@ -30,7 +29,6 @@ import android.view.DragEvent;
  * introduced after API level 13 in a backwards compatible fashion.
  */
 @RequiresApi(13)
-@TargetApi(13)
 public final class DragAndDropPermissionsCompat {
 
     interface DragAndDropPermissionsCompatImpl {

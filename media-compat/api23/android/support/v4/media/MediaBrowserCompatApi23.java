@@ -16,14 +16,12 @@
 
 package android.support.v4.media;
 
-import android.annotation.TargetApi;
 import android.media.browse.MediaBrowser;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(23)
-@TargetApi(23)
 class MediaBrowserCompatApi23 {
 
     public static Object createItemCallback(ItemCallback callback) {

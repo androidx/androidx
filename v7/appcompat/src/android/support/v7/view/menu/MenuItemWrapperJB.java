@@ -18,7 +18,6 @@ package android.support.v7.view.menu;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
@@ -32,7 +31,6 @@ import android.view.View;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@TargetApi(16)
 @RequiresApi(16)
 class MenuItemWrapperJB extends MenuItemWrapperICS {
 

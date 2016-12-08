@@ -16,11 +16,9 @@
 
 package android.support.transition;
 
-import android.annotation.TargetApi;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(23)
-@TargetApi(23)
 class TransitionApi23 extends TransitionKitKat {
 
     @Override

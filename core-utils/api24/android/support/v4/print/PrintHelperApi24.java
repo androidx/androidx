@@ -16,7 +16,6 @@
 
 package android.support.v4.print;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.support.annotation.RequiresApi;
 
@@ -24,7 +23,6 @@ import android.support.annotation.RequiresApi;
  * Api24 specific PrintManager API implementation.
  */
 @RequiresApi(24)
-@TargetApi(24)
 class PrintHelperApi24 extends PrintHelperApi23 {
     PrintHelperApi24(Context context) {
         super(context);
