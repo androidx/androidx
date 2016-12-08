@@ -335,6 +335,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
         // Add secondary actions
         ArrayObjectAdapter secondaryActions = new ArrayObjectAdapter(
                 new ControlButtonPresenterSelector());
+        onCreateSecondaryActions(secondaryActions);
         getControlsRow().setSecondaryActionsAdapter(secondaryActions);
         updateControlsRow();
     }

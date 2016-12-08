@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from PlaybackControlHelper.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2015 The Android Open Source Project
  *
@@ -19,7 +22,7 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.support.v17.leanback.app.PlaybackControlGlue;
+import android.support.v17.leanback.app.PlaybackControlSupportGlue;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
@@ -31,7 +34,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
-abstract class PlaybackControlHelper extends PlaybackControlGlue {
+abstract class PlaybackControlSupportHelper extends PlaybackControlSupportGlue {
     /**
      * Change the location of the thumbs up/down controls
      */
@@ -45,7 +48,7 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     private static int[] sFastForwardSpeeds = { 2, 3, 4, 5 };
 
     private boolean mIsPlaying;
-    private int mSpeed = PlaybackControlGlue.PLAYBACK_SPEED_PAUSED;
+    private int mSpeed = PlaybackControlSupportGlue.PLAYBACK_SPEED_PAUSED;
     private long mStartTime;
     private long mStartPosition = 0;
 
@@ -63,7 +66,7 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
         }
     };
 
-    PlaybackControlHelper(Context context, PlaybackOverlayFragment fragment) {
+    PlaybackControlSupportHelper(Context context, PlaybackOverlaySupportFragment fragment) {
         super(context, fragment, sFastForwardSpeeds);
         mThumbsUpAction = new PlaybackControlsRow.ThumbsUpAction(context);
         mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsUpAction.OUTLINE);
@@ -98,8 +101,8 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
             PresenterSelector presenterSelector) {
         SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter(presenterSelector);
         if (THUMBS_PRIMARY) {
-            adapter.set(PlaybackControlGlue.ACTION_CUSTOM_LEFT_FIRST, mThumbsUpAction);
-            adapter.set(PlaybackControlGlue.ACTION_CUSTOM_RIGHT_FIRST, mThumbsDownAction);
+            adapter.set(PlaybackControlSupportGlue.ACTION_CUSTOM_LEFT_FIRST, mThumbsUpAction);
+            adapter.set(PlaybackControlSupportGlue.ACTION_CUSTOM_RIGHT_FIRST, mThumbsDownAction);
         }
         return adapter;
     }
@@ -189,9 +192,9 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
 
     @Override
     public long getSupportedActions() {
-        return PlaybackControlGlue.ACTION_PLAY_PAUSE |
-                PlaybackControlGlue.ACTION_FAST_FORWARD |
-                PlaybackControlGlue.ACTION_REWIND;
+        return PlaybackControlSupportGlue.ACTION_PLAY_PAUSE |
+                PlaybackControlSupportGlue.ACTION_FAST_FORWARD |
+                PlaybackControlSupportGlue.ACTION_REWIND;
     }
 
     @Override
@@ -202,15 +205,15 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     @Override
     public int getCurrentPosition() {
         int speed;
-        if (mSpeed == PlaybackControlGlue.PLAYBACK_SPEED_PAUSED) {
+        if (mSpeed == PlaybackControlSupportGlue.PLAYBACK_SPEED_PAUSED) {
             speed = 0;
-        } else if (mSpeed == PlaybackControlGlue.PLAYBACK_SPEED_NORMAL) {
+        } else if (mSpeed == PlaybackControlSupportGlue.PLAYBACK_SPEED_NORMAL) {
             speed = 1;
-        } else if (mSpeed >= PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0) {
-            int index = mSpeed - PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0;
+        } else if (mSpeed >= PlaybackControlSupportGlue.PLAYBACK_SPEED_FAST_L0) {
+            int index = mSpeed - PlaybackControlSupportGlue.PLAYBACK_SPEED_FAST_L0;
             speed = getFastForwardSpeeds()[index];
-        } else if (mSpeed <= -PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0) {
-            int index = -mSpeed - PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0;
+        } else if (mSpeed <= -PlaybackControlSupportGlue.PLAYBACK_SPEED_FAST_L0) {
+            int index = -mSpeed - PlaybackControlSupportGlue.PLAYBACK_SPEED_FAST_L0;
             speed = -getRewindSpeeds()[index];
         } else {
             return -1;
@@ -234,7 +237,7 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
                 if (mRepeatAction.getIndex() == PlaybackControlsRow.RepeatAction.NONE) {
                     pausePlayback();
                 } else {
-                    startPlayback(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL);
+                    startPlayback(PlaybackControlSupportGlue.PLAYBACK_SPEED_NORMAL);
                 }
                 mStartPosition = 0;
                 onStateChanged();
@@ -255,11 +258,11 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
 
     @Override
     protected void pausePlayback() {
-        if (mSpeed == PlaybackControlGlue.PLAYBACK_SPEED_PAUSED) {
+        if (mSpeed == PlaybackControlSupportGlue.PLAYBACK_SPEED_PAUSED) {
             return;
         }
         mStartPosition = getCurrentPosition();
-        mSpeed = PlaybackControlGlue.PLAYBACK_SPEED_PAUSED;
+        mSpeed = PlaybackControlSupportGlue.PLAYBACK_SPEED_PAUSED;
         mIsPlaying = false;
     }
 
