@@ -59,6 +59,22 @@
             android:theme="@style/Theme.Example.Leanback.Rows"
             android:exported="true" />
 
+        <activity android:name="PlaybackActivity"
+            android:configChanges=
+                "screenSize|smallestScreenSize|screenLayout|orientation"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
+            android:launchMode="singleTask"
+            android:exported="true" />
+
+        <activity android:name="PlaybackSupportActivity"
+            android:configChanges=
+                "screenSize|smallestScreenSize|screenLayout|orientation"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
+            android:launchMode="singleTask"
+            android:exported="true" />
+
         <activity android:name="PlaybackOverlayActivity"
             android:configChanges=
                 "screenSize|smallestScreenSize|screenLayout|orientation"

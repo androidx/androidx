@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package com.example.android.leanback;
@@ -19,19 +19,15 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.support.v17.leanback.app.PlaybackControlGlue;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
-import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
-abstract class PlaybackControlHelper extends PlaybackControlGlue {
+abstract class PlaybackControlGlue extends android.support.v17.leanback.media.PlaybackControlGlue {
     /**
      * Change the location of the thumbs up/down controls
      */
@@ -63,8 +59,8 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
         }
     };
 
-    PlaybackControlHelper(Context context, PlaybackOverlayFragment fragment) {
-        super(context, fragment, sFastForwardSpeeds);
+    PlaybackControlGlue(Context context) {
+        super(context, sFastForwardSpeeds);
         mThumbsUpAction = new PlaybackControlsRow.ThumbsUpAction(context);
         mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsUpAction.OUTLINE);
         mThumbsDownAction = new PlaybackControlsRow.ThumbsDownAction(context);
@@ -74,11 +70,7 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     }
 
     @Override
-    public PlaybackControlsRowPresenter createControlsRowAndPresenter() {
-        PlaybackControlsRowPresenter presenter = super.createControlsRowAndPresenter();
-
-        ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ControlButtonPresenterSelector());
-        getControlsRow().setSecondaryActionsAdapter(adapter);
+    protected void onCreateSecondaryActions(ArrayObjectAdapter adapter) {
         if (!THUMBS_PRIMARY) {
             adapter.add(mThumbsDownAction);
         }
@@ -89,19 +81,14 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
         if (!THUMBS_PRIMARY) {
             adapter.add(mThumbsUpAction);
         }
-
-        return presenter;
     }
 
     @Override
-    protected SparseArrayObjectAdapter createPrimaryActionsAdapter(
-            PresenterSelector presenterSelector) {
-        SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter(presenterSelector);
+    protected void onCreatePrimaryActions(SparseArrayObjectAdapter adapter) {
         if (THUMBS_PRIMARY) {
             adapter.set(PlaybackControlGlue.ACTION_CUSTOM_LEFT_FIRST, mThumbsUpAction);
             adapter.set(PlaybackControlGlue.ACTION_CUSTOM_RIGHT_FIRST, mThumbsDownAction);
         }
-        return adapter;
     }
 
     @Override
@@ -189,9 +176,9 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
 
     @Override
     public long getSupportedActions() {
-        return PlaybackControlGlue.ACTION_PLAY_PAUSE |
-                PlaybackControlGlue.ACTION_FAST_FORWARD |
-                PlaybackControlGlue.ACTION_REWIND;
+        return PlaybackControlGlue.ACTION_PLAY_PAUSE
+                | PlaybackControlGlue.ACTION_FAST_FORWARD
+                | PlaybackControlGlue.ACTION_REWIND;
     }
 
     @Override
@@ -215,8 +202,7 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
         } else {
             return -1;
         }
-        long position = mStartPosition +
-                (System.currentTimeMillis() - mStartTime) * speed;
+        long position = mStartPosition + (System.currentTimeMillis() - mStartTime) * speed;
         if (position > getMediaDuration()) {
             position = getMediaDuration();
             onPlaybackComplete(true);
@@ -232,9 +218,9 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
             @Override
             public void run() {
                 if (mRepeatAction.getIndex() == PlaybackControlsRow.RepeatAction.NONE) {
-                    pausePlayback();
+                    pause();
                 } else {
-                    startPlayback(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL);
+                    play(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL);
                 }
                 mStartPosition = 0;
                 onStateChanged();
@@ -243,7 +229,7 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     }
 
     @Override
-    protected void startPlayback(int speed) {
+    public void play(int speed) {
         if (speed == mSpeed) {
             return;
         }
@@ -254,7 +240,7 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     }
 
     @Override
-    protected void pausePlayback() {
+    public void pause() {
         if (mSpeed == PlaybackControlGlue.PLAYBACK_SPEED_PAUSED) {
             return;
         }
@@ -264,12 +250,12 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     }
 
     @Override
-    protected void skipToNext() {
+    public void next() {
         // Not supported
     }
 
     @Override
-    protected void skipToPrevious() {
+    public void previous() {
         // Not supported
     }
 
@@ -280,4 +266,4 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
             mUpdateProgressRunnable.run();
         }
     }
-};
+}
