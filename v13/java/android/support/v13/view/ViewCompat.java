@@ -16,7 +16,6 @@
 
 package android.support.v13.view;
 
-import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.support.annotation.RequiresApi;
 import android.support.v4.os.BuildCompat;
@@ -27,7 +26,6 @@ import android.view.View;
  * level 13 in a backwards compatible fashion.
  */
 @RequiresApi(13)
-@TargetApi(13)
 public class ViewCompat extends android.support.v4.view.ViewCompat {
     interface ViewCompatImpl {
         boolean startDragAndDrop(View v, ClipData data, View.DragShadowBuilder shadowBuilder,

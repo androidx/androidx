@@ -17,12 +17,10 @@
 package android.support.v4.view;
 
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.View;
 import android.view.ViewParent;
 
 @RequiresApi(19)
-@TargetApi(19)
 class ViewParentCompatKitKat {
     public static void notifySubtreeAccessibilityStateChanged(ViewParent parent, View child,
             View source, int changeType) {

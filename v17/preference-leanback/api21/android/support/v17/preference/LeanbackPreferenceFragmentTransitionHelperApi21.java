@@ -18,7 +18,6 @@ package android.support.v17.preference;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
@@ -30,7 +29,6 @@ import android.view.Gravity;
  * @hide
  */
 @RequiresApi(21)
-@TargetApi(21)
 @RestrictTo(LIBRARY_GROUP)
 public class LeanbackPreferenceFragmentTransitionHelperApi21 {
 

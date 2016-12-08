@@ -17,7 +17,6 @@
 package android.support.v4.animation;
 
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ import java.util.List;
  */
 
 @RequiresApi(9)
-@TargetApi(9)
 class GingerbreadAnimatorCompatProvider implements AnimatorProvider {
 
     @Override

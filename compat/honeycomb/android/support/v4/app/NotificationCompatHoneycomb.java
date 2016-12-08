@@ -21,11 +21,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.widget.RemoteViews;
 
 @RequiresApi(11)
-@TargetApi(11)
 class NotificationCompatHoneycomb {
     static Notification add(Context context, Notification n,
             CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,

@@ -16,7 +16,6 @@
 
 package android.support.transition;
 
-import android.annotation.TargetApi;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -30,7 +29,6 @@ import android.view.View;
  * wrap a window token and use it as an identifier.</p>
  */
 @RequiresApi(14)
-@TargetApi(14)
 class WindowIdPort {
 
     private final IBinder mToken;

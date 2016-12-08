@@ -16,7 +16,6 @@
 
 package android.support.v4.media.session;
 
-import android.annotation.TargetApi;
 import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -24,7 +23,6 @@ import android.support.annotation.RequiresApi;
 import java.util.List;
 
 @RequiresApi(21)
-@TargetApi(21)
 class PlaybackStateCompatApi21 {
     public static int getState(Object stateObj) {
         return ((PlaybackState)stateObj).getState();

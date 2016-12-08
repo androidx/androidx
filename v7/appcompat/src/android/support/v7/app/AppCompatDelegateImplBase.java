@@ -16,7 +16,6 @@
 
 package android.support.v7.app;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -39,7 +38,6 @@ import android.view.View;
 import android.view.Window;
 
 @RequiresApi(9)
-@TargetApi(9)
 abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
     static final boolean DEBUG = false;

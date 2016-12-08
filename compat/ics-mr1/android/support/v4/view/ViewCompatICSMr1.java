@@ -17,7 +17,6 @@
 package android.support.v4.view;
 
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.View;
 
 /**
@@ -25,7 +24,6 @@ import android.view.View;
  */
 
 @RequiresApi(15)
-@TargetApi(15)
 class ViewCompatICSMr1 {
     public static boolean hasOnClickListeners(View v) {
         return v.hasOnClickListeners();

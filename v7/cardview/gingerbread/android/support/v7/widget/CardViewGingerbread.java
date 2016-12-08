@@ -15,7 +15,6 @@
  */
 package android.support.v7.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
@@ -27,7 +26,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(9)
-@TargetApi(9)
 class CardViewGingerbread implements CardViewImpl {
 
     final RectF sCornerRect = new RectF();

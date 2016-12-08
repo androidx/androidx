@@ -18,7 +18,6 @@ package android.support.v4.hardware.fingerprint;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
@@ -36,7 +35,6 @@ import javax.crypto.Mac;
  * @hide
  */
 @RequiresApi(23)
-@TargetApi(23)
 @RestrictTo(LIBRARY_GROUP)
 public final class FingerprintManagerCompatApi23 {
 

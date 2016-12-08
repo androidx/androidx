@@ -16,7 +16,6 @@
 
 package android.support.v4.media.session;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -37,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiresApi(21)
-@TargetApi(21)
 class MediaControllerCompatApi21 {
     public static Object fromToken(Context context, Object sessionToken) {
         return new MediaController(context, (MediaSession.Token) sessionToken);

@@ -16,7 +16,6 @@
 
 package android.support.v7.view.menu;
 
-import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -30,7 +29,6 @@ import android.view.SubMenu;
 /**
  * Wraps a support {@link SupportMenu} as a framework {@link android.view.Menu}
  */
-@TargetApi(14)
 @RequiresApi(14)
 class MenuWrapperICS extends BaseMenuWrapper<SupportMenu> implements Menu {
 

@@ -15,7 +15,6 @@
  */
 package android.support.v7.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.support.annotation.Nullable;
@@ -23,7 +22,6 @@ import android.support.annotation.RequiresApi;
 import android.view.View;
 
 @RequiresApi(21)
-@TargetApi(21)
 class CardViewApi21 implements CardViewImpl {
 
     @Override

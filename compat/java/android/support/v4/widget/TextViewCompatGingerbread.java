@@ -24,10 +24,8 @@ import android.widget.TextView;
 import java.lang.reflect.Field;
 
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 
 @RequiresApi(9)
-@TargetApi(9)
 class TextViewCompatGingerbread {
 
     private static final String LOG_TAG = "TextViewCompatGingerbread";

@@ -16,7 +16,6 @@
 
 package android.support.v7.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -26,7 +25,6 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 @RequiresApi(17)
-@TargetApi(17)
 class AppCompatTextHelperV17 extends AppCompatTextHelper {
     private TintInfo mDrawableStartTint;
     private TintInfo mDrawableEndTint;

@@ -24,7 +24,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.InsetDrawable;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.util.AttributeSet;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -37,7 +36,6 @@ import java.io.IOException;
  */
 
 @RequiresApi(21)
-@TargetApi(21)
 class DrawableCompatLollipop {
 
     public static void setHotspot(Drawable drawable, float x, float y) {

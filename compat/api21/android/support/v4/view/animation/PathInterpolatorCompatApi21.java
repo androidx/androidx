@@ -18,7 +18,6 @@ package android.support.v4.view.animation;
 
 import android.graphics.Path;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
 
@@ -27,7 +26,6 @@ import android.view.animation.PathInterpolator;
  */
 
 @RequiresApi(21)
-@TargetApi(21)
 class PathInterpolatorCompatApi21  {
 
     private PathInterpolatorCompatApi21() {

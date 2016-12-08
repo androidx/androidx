@@ -17,7 +17,6 @@
 package android.support.v4.view;
 
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.KeyEvent;
 
 /**
@@ -25,7 +24,6 @@ import android.view.KeyEvent;
  */
 
 @RequiresApi(11)
-@TargetApi(11)
 class KeyEventCompatHoneycomb {
     public static int normalizeMetaState(int metaState) {
         return KeyEvent.normalizeMetaState(metaState);

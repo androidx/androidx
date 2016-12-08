@@ -24,13 +24,11 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 
 @RequiresApi(20)
-@TargetApi(20)
 class NotificationCompatApi20 {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {

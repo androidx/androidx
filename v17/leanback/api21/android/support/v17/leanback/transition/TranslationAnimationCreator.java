@@ -6,7 +6,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
-import android.annotation.TargetApi;
 import android.graphics.Path;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
@@ -23,7 +22,6 @@ import android.view.View;
  * @hide
  */
 @RequiresApi(21)
-@TargetApi(21)
 @RestrictTo(LIBRARY_GROUP)
 class TranslationAnimationCreator {
 

@@ -15,7 +15,6 @@ package android.support.v17.leanback.transition;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
@@ -26,7 +25,6 @@ import android.util.AttributeSet;
  * @hide
  */
 @RequiresApi(21)
-@TargetApi(21)
 @RestrictTo(LIBRARY_GROUP)
 public class SlideNoPropagation extends Slide {
 

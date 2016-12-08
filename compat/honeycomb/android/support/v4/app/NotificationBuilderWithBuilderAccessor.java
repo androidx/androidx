@@ -18,7 +18,6 @@ package android.support.v4.app;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
@@ -31,7 +30,6 @@ import android.support.annotation.RestrictTo;
  * @hide
  */
 @RequiresApi(11)
-@TargetApi(11)
 @RestrictTo(LIBRARY_GROUP)
 public interface NotificationBuilderWithBuilderAccessor {
     public Notification.Builder getBuilder();

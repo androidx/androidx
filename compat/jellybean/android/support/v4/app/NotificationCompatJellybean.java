@@ -23,7 +23,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.RemoteViews;
@@ -33,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiresApi(16)
-@TargetApi(16)
 class NotificationCompatJellybean {
     public static final String TAG = "NotificationCompat";
 

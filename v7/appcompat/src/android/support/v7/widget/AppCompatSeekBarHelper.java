@@ -16,7 +16,6 @@
 
 package android.support.v7.widget;
 
-import android.annotation.TargetApi;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.PorterDuff;
@@ -143,7 +142,6 @@ class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
     }
 
     @RequiresApi(11)
-    @TargetApi(11)
     void jumpDrawablesToCurrentState() {
         if (mTickMark != null) {
             mTickMark.jumpToCurrentState();

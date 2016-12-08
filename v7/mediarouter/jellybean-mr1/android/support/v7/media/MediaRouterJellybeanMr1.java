@@ -16,7 +16,6 @@
 
 package android.support.v7.media;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
@@ -30,7 +29,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @RequiresApi(17)
-@TargetApi(17)
 final class MediaRouterJellybeanMr1 {
     private static final String TAG = "MediaRouterJellybeanMr1";
 

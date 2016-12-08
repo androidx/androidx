@@ -27,7 +27,6 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 
 /**
  * Drawable which delegates all calls to it's wrapped {@link Drawable}.
@@ -37,7 +36,6 @@ import android.annotation.TargetApi;
  */
 
 @RequiresApi(9)
-@TargetApi(9)
 class DrawableWrapperGingerbread extends Drawable
         implements Drawable.Callback, DrawableWrapper, TintAwareDrawable {
 

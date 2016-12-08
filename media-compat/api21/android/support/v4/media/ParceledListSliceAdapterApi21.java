@@ -16,7 +16,6 @@
 
 package android.support.v4.media;
 
-import android.annotation.TargetApi;
 import android.media.browse.MediaBrowser;
 import android.support.annotation.RequiresApi;
 
@@ -28,7 +27,6 @@ import java.util.List;
  * An adapter class for accessing the hidden framework classes, ParceledListSlice using reflection.
  */
 @RequiresApi(21)
-@TargetApi(21)
 class ParceledListSliceAdapterApi21 {
     private static Constructor sConstructor;
     static {

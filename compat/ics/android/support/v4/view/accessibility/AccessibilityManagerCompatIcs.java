@@ -18,7 +18,6 @@ package android.support.v4.view.accessibility;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityManager.AccessibilityStateChangeListener;
 
@@ -29,7 +28,6 @@ import java.util.List;
  */
 
 @RequiresApi(14)
-@TargetApi(14)
 class AccessibilityManagerCompatIcs {
 
     public static class AccessibilityStateChangeListenerWrapper

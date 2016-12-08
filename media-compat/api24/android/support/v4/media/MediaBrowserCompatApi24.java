@@ -16,7 +16,6 @@
 
 package android.support.v4.media;
 
-import android.annotation.TargetApi;
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,7 +24,6 @@ import android.support.annotation.RequiresApi;
 import java.util.List;
 
 @RequiresApi(24)
-@TargetApi(24)
 class MediaBrowserCompatApi24 {
     public static Object createSubscriptionCallback(SubscriptionCallback callback) {
         return new SubscriptionCallbackProxy<>(callback);

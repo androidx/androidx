@@ -16,7 +16,6 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -25,7 +24,6 @@ import android.support.annotation.RequiresApi;
 import android.view.View;
 
 @RequiresApi(16)
-@TargetApi(16)
 class ActivityOptionsCompatJB {
 
     public static ActivityOptionsCompatJB makeCustomAnimation(Context context,

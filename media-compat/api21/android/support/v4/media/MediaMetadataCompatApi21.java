@@ -16,7 +16,6 @@
 
 package android.support.v4.media;
 
-import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.Rating;
@@ -26,7 +25,6 @@ import android.support.annotation.RequiresApi;
 import java.util.Set;
 
 @RequiresApi(21)
-@TargetApi(21)
 class MediaMetadataCompatApi21 {
     public static Set<String> keySet(Object metadataObj) {
         return ((MediaMetadata)metadataObj).keySet();

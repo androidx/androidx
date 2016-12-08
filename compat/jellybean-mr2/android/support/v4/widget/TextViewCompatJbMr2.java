@@ -16,7 +16,6 @@
 
 package android.support.v4.widget;
 
-import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -25,7 +24,6 @@ import android.support.annotation.RequiresApi;
 import android.widget.TextView;
 
 @RequiresApi(18)
-@TargetApi(18)
 class TextViewCompatJbMr2 {
 
     public static void setCompoundDrawablesRelative(@NonNull TextView textView,

@@ -16,7 +16,6 @@
 
 package android.support.v13.view.inputmethod;
 
-import android.annotation.TargetApi;
 import android.content.ClipDescription;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,7 +34,6 @@ import android.view.inputmethod.InputConnectionWrapper;
  * backwards compatible fashion.
  */
 @RequiresApi(13)
-@TargetApi(13)
 public final class InputConnectionCompat {
 
     private interface InputConnectionCompatImpl {

@@ -16,12 +16,10 @@
 
 package android.support.v4.media;
 
-import android.annotation.TargetApi;
 import android.media.VolumeProvider;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(21)
-@TargetApi(21)
 class VolumeProviderCompatApi21 {
     public static Object createVolumeProvider(int volumeControl, int maxVolume, int currentVolume,
             final Delegate delegate) {

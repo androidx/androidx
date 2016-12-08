@@ -19,11 +19,9 @@ package android.support.v4.content.res;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.util.DisplayMetrics;
 
 @RequiresApi(9)
-@TargetApi(9)
 class ConfigurationHelperGingerbread {
 
     static int getScreenHeightDp(@NonNull Resources resources) {

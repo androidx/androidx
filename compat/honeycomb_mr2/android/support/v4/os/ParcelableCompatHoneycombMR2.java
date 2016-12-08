@@ -19,10 +19,8 @@ package android.support.v4.os;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 
 @RequiresApi(13)
-@TargetApi(13)
 class ParcelableCompatCreatorHoneycombMR2Stub {
     static <T> Parcelable.Creator<T> instantiate(ParcelableCompatCreatorCallbacks<T> callbacks) {
         return new ParcelableCompatCreatorHoneycombMR2<T>(callbacks);
@@ -30,7 +28,6 @@ class ParcelableCompatCreatorHoneycombMR2Stub {
 }
 
 @RequiresApi(13)
-@TargetApi(13)
 class ParcelableCompatCreatorHoneycombMR2<T> implements Parcelable.ClassLoaderCreator<T> {
     private final ParcelableCompatCreatorCallbacks<T> mCallbacks;
 

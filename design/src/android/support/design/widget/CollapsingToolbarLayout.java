@@ -20,7 +20,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.design.widget.MathUtils.constrain;
 import static android.support.design.widget.ViewUtils.objectEquals;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -1185,7 +1184,6 @@ public class CollapsingToolbarLayout extends FrameLayout {
         }
 
         @RequiresApi(19)
-        @TargetApi(19)
         public LayoutParams(FrameLayout.LayoutParams source) {
             // The copy constructor called here only exists on API 19+.
             super(source);

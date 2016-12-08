@@ -16,7 +16,6 @@
 
 package android.support.percent;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.RequiresApi;
@@ -147,7 +146,6 @@ public class PercentFrameLayout extends FrameLayout {
         }
 
         @RequiresApi(19)
-        @TargetApi(19)
         public LayoutParams(LayoutParams source) {
             // The copy constructor used here is only supported on API 19+.
             this((FrameLayout.LayoutParams) source);

@@ -17,7 +17,6 @@
 package android.support.v4.view.accessibility;
 
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -26,7 +25,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
  */
 
 @RequiresApi(22)
-@TargetApi(22)
 class AccessibilityNodeInfoCompatApi22 {
 
     public static Object getTraversalBefore(Object info) {

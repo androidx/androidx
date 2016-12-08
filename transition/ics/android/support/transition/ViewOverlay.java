@@ -19,7 +19,6 @@ package android.support.transition;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.R;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -37,7 +36,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 @RequiresApi(14)
-@TargetApi(14)
 class ViewOverlay {
 
     /**

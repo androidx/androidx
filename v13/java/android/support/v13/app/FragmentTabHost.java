@@ -16,7 +16,6 @@
 
 package android.support.v13.app;
 
-import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -42,7 +41,6 @@ import java.util.ArrayList;
  * normally use this, instead using action bar tabs.
  */
 @RequiresApi(13)
-@TargetApi(13)
 public class FragmentTabHost extends TabHost
         implements TabHost.OnTabChangeListener {
     private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();

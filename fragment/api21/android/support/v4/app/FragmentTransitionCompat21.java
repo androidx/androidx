@@ -16,7 +16,6 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
 import android.graphics.Rect;
 import android.support.annotation.RequiresApi;
 import android.transition.Transition;
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 @RequiresApi(21)
-@TargetApi(21)
 class FragmentTransitionCompat21 {
 
     /**

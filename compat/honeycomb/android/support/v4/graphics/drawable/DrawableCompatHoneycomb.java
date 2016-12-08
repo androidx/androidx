@@ -18,14 +18,12 @@ package android.support.v4.graphics.drawable;
 
 import android.graphics.drawable.Drawable;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 
 /**
  * Implementation of drawable compatibility that can call Honeycomb APIs.
  */
 
 @RequiresApi(11)
-@TargetApi(11)
 class DrawableCompatHoneycomb {
 
     public static void jumpToCurrentState(Drawable drawable) {

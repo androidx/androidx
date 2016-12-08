@@ -16,13 +16,11 @@
 
 package android.support.transition;
 
-import android.annotation.TargetApi;
 import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.ViewGroup;
 
 @RequiresApi(14)
-@TargetApi(14)
 class SceneIcs extends SceneImpl {
 
     /* package */ ScenePort mScene;

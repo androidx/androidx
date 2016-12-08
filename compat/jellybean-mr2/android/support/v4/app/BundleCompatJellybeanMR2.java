@@ -19,13 +19,11 @@ package android.support.v4.app;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 
 /**
  * @hide
  */
 @RequiresApi(18)
-@TargetApi(18)
 class BundleCompatJellybeanMR2 {
     public static IBinder getBinder(Bundle bundle, String key) {
         return bundle.getBinder(key);

@@ -17,7 +17,6 @@
 package android.support.v4.view.accessibility;
 
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityRecord;
 
@@ -26,7 +25,6 @@ import android.view.accessibility.AccessibilityRecord;
  */
 
 @RequiresApi(14)
-@TargetApi(14)
 class AccessibilityEventCompatIcs {
 
     public static int getRecordCount(AccessibilityEvent event) {
