@@ -501,7 +501,6 @@ package android.support.design.widget {
     method public int getScrimColor(android.support.design.widget.CoordinatorLayout, V);
     method public float getScrimOpacity(android.support.design.widget.CoordinatorLayout, V);
     method public static java.lang.Object getTag(android.view.View);
-    method public deprecated boolean isDirty(android.support.design.widget.CoordinatorLayout, V);
     method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, V, android.view.View);
     method public android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.support.design.widget.CoordinatorLayout, V, android.support.v4.view.WindowInsetsCompat);
     method public void onAttachedToLayoutParams(android.support.design.widget.CoordinatorLayout.LayoutParams);
