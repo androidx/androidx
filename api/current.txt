@@ -10853,3 +10853,32 @@ package android.support.v7.widget.util {
 
 }
 
+package android.support.wearable.view {
+
+  public class BoxInsetLayout extends android.view.ViewGroup {
+    ctor public BoxInsetLayout(android.content.Context);
+    ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet);
+    ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet, int);
+    method protected void onLayout(boolean, int, int, int, int);
+  }
+
+  public static class BoxInsetLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams {
+    ctor public BoxInsetLayout.LayoutParams(android.content.Context, android.util.AttributeSet);
+    ctor public BoxInsetLayout.LayoutParams(int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int, int);
+    ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(android.widget.FrameLayout.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(android.support.wearable.view.BoxInsetLayout.LayoutParams);
+    field public static final int BOX_ALL = 15; // 0xf
+    field public static final int BOX_BOTTOM = 8; // 0x8
+    field public static final int BOX_LEFT = 1; // 0x1
+    field public static final int BOX_NONE = 0; // 0x0
+    field public static final int BOX_RIGHT = 4; // 0x4
+    field public static final int BOX_TOP = 2; // 0x2
+    field public int boxedEdges;
+  }
+
+}
+
