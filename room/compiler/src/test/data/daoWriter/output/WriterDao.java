@@ -16,7 +16,7 @@
 
 package foo.bar;
 
-import com.android.support.db.SupportSqliteStatement;
+import com.android.support.db.SupportSQLiteStatement;
 import com.android.support.room.EntityInsertionAdapter;
 import com.android.support.room.RoomDatabase;
 import java.lang.Override;
@@ -39,7 +39,7 @@ public class WriterDao_Impl implements WriterDao {
             }
 
             @Override
-            public void bind(SupportSqliteStatement stmt, User value) {
+            public void bind(SupportSQLiteStatement stmt, User value) {
                 stmt.bindLong(0, value.uid);
             }
         };
@@ -51,7 +51,7 @@ public class WriterDao_Impl implements WriterDao {
             }
 
             @Override
-            public void bind(SupportSqliteStatement stmt, User value) {
+            public void bind(SupportSQLiteStatement stmt, User value) {
                 stmt.bindLong(0, value.uid);
             }
         };

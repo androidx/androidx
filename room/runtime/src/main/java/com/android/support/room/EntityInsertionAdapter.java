@@ -16,8 +16,8 @@
 
 package com.android.support.room;
 
-import com.android.support.db.SupportDb;
-import com.android.support.db.SupportSqliteStatement;
+import com.android.support.db.SupportSQLiteDatabase;
+import com.android.support.db.SupportSQLiteStatement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,15 +35,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class EntityInsertionAdapter<T> {
     private final AtomicBoolean mStmtLock = new AtomicBoolean(false);
-    private final SupportDb mDatabase;
-    private volatile SupportSqliteStatement mStmt;
+    private final SupportSQLiteDatabase mDatabase;
+    private volatile SupportSQLiteStatement mStmt;
 
     /**
      * Creates an InsertionAdapter that can insert the entity type T into the given database.
      *
      * @param database The database to insert into.
      */
-    public EntityInsertionAdapter(SupportDb database) {
+    public EntityInsertionAdapter(SupportSQLiteDatabase database) {
         mDatabase = database;
     }
 
@@ -61,15 +61,15 @@ public abstract class EntityInsertionAdapter<T> {
      *                  createInsertQuery.
      * @param entity    The entity of type T.
      */
-    protected abstract void bind(SupportSqliteStatement statement, T entity);
+    protected abstract void bind(SupportSQLiteStatement statement, T entity);
 
-    private SupportSqliteStatement createNewStatement() {
+    private SupportSQLiteStatement createNewStatement() {
         String query = createInsertQuery();
         return mDatabase.compileStatement(query);
     }
 
-    private SupportSqliteStatement getStmt(boolean canUseCached) {
-        final SupportSqliteStatement stmt;
+    private SupportSQLiteStatement getStmt(boolean canUseCached) {
+        final SupportSQLiteStatement stmt;
         if (canUseCached) {
             if (mStmt == null) {
                 mStmt = createNewStatement();
@@ -90,7 +90,7 @@ public abstract class EntityInsertionAdapter<T> {
     public final void insert(T entity) {
         boolean useCached = !mStmtLock.getAndSet(true);
         try {
-            final SupportSqliteStatement stmt = getStmt(useCached);
+            final SupportSQLiteStatement stmt = getStmt(useCached);
             bind(stmt, entity);
             stmt.executeInsert();
         } finally {
@@ -108,7 +108,7 @@ public abstract class EntityInsertionAdapter<T> {
     public final void insert(T[] entities) {
         boolean useCached = !mStmtLock.getAndSet(true);
         try {
-            final SupportSqliteStatement stmt = getStmt(useCached);
+            final SupportSQLiteStatement stmt = getStmt(useCached);
             for (T entity : entities) {
                 bind(stmt, entity);
             }
@@ -127,7 +127,7 @@ public abstract class EntityInsertionAdapter<T> {
     public final void insert(List<T> entities) {
         boolean useCached = !mStmtLock.getAndSet(true);
         try {
-            final SupportSqliteStatement stmt = getStmt(useCached);
+            final SupportSQLiteStatement stmt = getStmt(useCached);
             for (T entity : entities) {
                 bind(stmt, entity);
             }
@@ -147,7 +147,7 @@ public abstract class EntityInsertionAdapter<T> {
     public final long insertAndReturnId(T entity) {
         boolean useCached = !mStmtLock.getAndSet(true);
         try {
-            final SupportSqliteStatement stmt = getStmt(useCached);
+            final SupportSQLiteStatement stmt = getStmt(useCached);
             bind(stmt, entity);
             return stmt.executeInsert();
         } finally {
@@ -167,7 +167,7 @@ public abstract class EntityInsertionAdapter<T> {
         boolean useCached = !mStmtLock.getAndSet(true);
         try {
             final long[] result = new long[entities.size()];
-            final SupportSqliteStatement stmt = getStmt(useCached);
+            final SupportSQLiteStatement stmt = getStmt(useCached);
             int index = 0;
             for (T entity : entities) {
                 bind(stmt, entity);
@@ -192,7 +192,7 @@ public abstract class EntityInsertionAdapter<T> {
         boolean useCached = !mStmtLock.getAndSet(true);
         try {
             final long[] result = new long[entities.length];
-            final SupportSqliteStatement stmt = getStmt(useCached);
+            final SupportSQLiteStatement stmt = getStmt(useCached);
             int index = 0;
             for (T entity : entities) {
                 bind(stmt, entity);
@@ -217,7 +217,7 @@ public abstract class EntityInsertionAdapter<T> {
         boolean useCached = !mStmtLock.getAndSet(true);
         try {
             final List<Long> result = new ArrayList<>(entities.length);
-            final SupportSqliteStatement stmt = getStmt(useCached);
+            final SupportSQLiteStatement stmt = getStmt(useCached);
             int index = 0;
             for (T entity : entities) {
                 bind(stmt, entity);
@@ -242,7 +242,7 @@ public abstract class EntityInsertionAdapter<T> {
         boolean useCached = !mStmtLock.getAndSet(true);
         try {
             final List<Long> result = new ArrayList<>(entities.size());
-            final SupportSqliteStatement stmt = getStmt(useCached);
+            final SupportSQLiteStatement stmt = getStmt(useCached);
             int index = 0;
             for (T entity : entities) {
                 bind(stmt, entity);

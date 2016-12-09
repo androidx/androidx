@@ -22,7 +22,7 @@ import android.os.ParcelFileDescriptor;
  * An interface to map the behavior of {@link android.database.sqlite.SQLiteStatement}.
  */
 @SuppressWarnings("unused")
-public interface SupportSqliteStatement extends SupportSqliteProgram {
+public interface SupportSQLiteStatement extends SupportSQLiteProgram {
     /**
      * Execute this SQL statement, if it is not a SELECT / INSERT / DELETE / UPDATE, for example
      * CREATE / DROP table, view, trigger, index etc.

@@ -16,6 +16,7 @@
 
 package com.android.support.room.processor
 
+import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.hasAnyOf
 import com.android.support.room.vo.DaoMethod
 import com.android.support.room.vo.Database
@@ -36,12 +37,21 @@ class DatabaseProcessor(val context: Context) {
     val entityParser = EntityProcessor(context)
     val daoParser = DaoProcessor(context)
 
+    val baseClassElement : TypeMirror by lazy {
+        context.processingEnv.elementUtils.getTypeElement(
+                RoomTypeNames.ROOM_DB.packageName() + "." + RoomTypeNames.ROOM_DB.simpleName())
+                .asType()
+    }
+
     fun parse(element: TypeElement): Database {
         val dbAnnotation = MoreElements
                 .getAnnotationMirror(element, com.android.support.room.Database::class.java)
                 .orNull()
-
         val entities = processEntities(dbAnnotation, element)
+
+        val extendsRoomDb = context.processingEnv.typeUtils.isAssignable(
+                MoreElements.asType(element).asType(), baseClassElement)
+        context.checker.check(extendsRoomDb, element, ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
 
         val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
         val daoMethods = allMembers.filter {
@@ -53,6 +63,7 @@ class DatabaseProcessor(val context: Context) {
             val dao = daoParser.parse(MoreTypes.asTypeElement(executable.returnType))
             DaoMethod(executable, executable.simpleName.toString(), dao)
         }
+
         return Database(element = element,
                 entities = entities,
                 daoMethods = daoMethods)

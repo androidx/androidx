@@ -37,6 +37,7 @@ class DatabaseProcessorTest {
         const val DATABASE_PREFIX = """
             package foo.bar;
             import com.android.support.room.*;
+            import com.android.support.db.SupportSQLiteDatabase;
             """
         val USER: JavaFileObject = JavaFileObjects.forSourceString("foo.bar.User",
                 """
@@ -84,8 +85,11 @@ class DatabaseProcessorTest {
     fun simple() {
         singleDb("""
             @Database(entities = {User.class})
-            public interface MyDb {
-                UserDao userDao();
+            public abstract class MyDb extends RoomDatabase {
+                public MyDb(SupportSQLiteDatabase supportDb) {
+                    super(supportDb);
+                }
+                abstract UserDao userDao();
             }
             """, USER, USER_DAO) { db, invocation ->
             assertThat(db.daoMethods.size, `is`(1))
@@ -97,7 +101,10 @@ class DatabaseProcessorTest {
     fun multiple() {
         singleDb("""
             @Database(entities = {User.class, Book.class})
-            public abstract class MyDb {
+            public abstract class MyDb extends RoomDatabase {
+                public MyDb(SupportSQLiteDatabase supportDb) {
+                    super(supportDb);
+                }
                 abstract UserDao userDao();
                 abstract BookDao bookDao();
             }
@@ -108,6 +115,16 @@ class DatabaseProcessorTest {
             assertThat(db.entities.map { it.type.toString() },
                     `is`(listOf("foo.bar.User", "foo.bar.Book")))
         }.compilesWithoutError()
+    }
+
+    @Test
+    fun detectMissingBaseClass() {
+        singleDb("""
+            @Database(entities = {User.class, Book.class})
+            public abstract class MyDb {
+            }
+            """, USER, BOOK) { db, invocation ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
     }
 
     fun singleDb(input: String, vararg otherFiles: JavaFileObject,

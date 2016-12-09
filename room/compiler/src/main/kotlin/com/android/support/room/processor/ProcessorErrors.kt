@@ -18,6 +18,7 @@ package com.android.support.room.processor
 
 import com.android.support.room.Insert
 import com.android.support.room.Query
+import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.vo.Field
 
 object ProcessorErrors {
@@ -73,6 +74,9 @@ object ProcessorErrors {
 
     val CANNOT_FIND_ENTITY_FOR_INSERT_PARAMETER = "Cannot find the entity type for the" +
             " insert parameter."
+
+    val DB_MUST_EXTEND_ROOM_DB = "Classes annotated with @Database should extend " +
+            RoomTypeNames.ROOM_DB
 
     private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."

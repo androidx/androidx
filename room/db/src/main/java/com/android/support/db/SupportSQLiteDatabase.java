@@ -23,8 +23,8 @@ import android.database.Cursor;
  * sql versions.
  */
 @SuppressWarnings("unused")
-public interface SupportDb {
-    // TODO override all and rename to SupportSqliteDatabase
+public interface SupportSQLiteDatabase {
+    // TODO override all methods
     /**
      * Runs the query with the given arguments and returns the result Cursor.
      *
@@ -42,7 +42,7 @@ public interface SupportDb {
      *
      * @return Compiled statement.
      */
-    SupportSqliteStatement compileStatement(String sql);
+    SupportSQLiteStatement compileStatement(String sql);
 
     /**
      * Begins a transaction in EXCLUSIVE mode.

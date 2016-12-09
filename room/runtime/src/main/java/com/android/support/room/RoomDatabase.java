@@ -18,23 +18,18 @@ package com.android.support.room;
 
 import android.database.Cursor;
 
-import com.android.support.db.SupportDb;
-import com.android.support.db.SupportSqliteStatement;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.android.support.db.SupportSQLiteDatabase;
+import com.android.support.db.SupportSQLiteStatement;
 
 /**
  * Base class for all Room databases.
  */
 @SuppressWarnings("unused")
-public abstract class RoomDatabase implements SupportDb {
-    private ThreadLocal<Map<String, SupportSqliteStatement>> mStatementCache;
-    private final SupportDb mDb;
+public abstract class RoomDatabase implements SupportSQLiteDatabase {
+    private final SupportSQLiteDatabase mDb;
 
-    public RoomDatabase(SupportDb supportDb) {
+    public RoomDatabase(SupportSQLiteDatabase supportDb) {
         mDb = supportDb;
-        mStatementCache = new ThreadLocal<>();
     }
 
     @Override
@@ -43,17 +38,22 @@ public abstract class RoomDatabase implements SupportDb {
     }
 
     @Override
-    public SupportSqliteStatement compileStatement(String sql) {
-        Map<String, SupportSqliteStatement> cache = mStatementCache.get();
-        if (cache == null) {
-            cache = new HashMap<>();
-            mStatementCache.set(cache);
-        }
-        SupportSqliteStatement cached = cache.get(sql);
-        if (cached == null) {
-            cached = mDb.compileStatement(sql);
-            cache.put(sql, cached);
-        }
-        return cached;
+    public SupportSQLiteStatement compileStatement(String sql) {
+        return mDb.compileStatement(sql);
+    }
+
+    @Override
+    public void beginTransaction() {
+        mDb.beginTransaction();
+    }
+
+    @Override
+    public void endTransaction() {
+        mDb.endTransaction();
+    }
+
+    @Override
+    public void setTransactionSuccessful() {
+        mDb.setTransactionSuccessful();
     }
 }

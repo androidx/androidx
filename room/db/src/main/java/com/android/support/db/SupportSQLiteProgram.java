@@ -21,7 +21,7 @@ package com.android.support.db;
  */
 
 @SuppressWarnings("unused")
-public interface SupportSqliteProgram {
+public interface SupportSQLiteProgram {
     /**
      * Bind a NULL value to this statement. The value remains bound until
      * {@link #clearBindings} is called.
