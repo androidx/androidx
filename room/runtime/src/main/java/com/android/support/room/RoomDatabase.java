@@ -19,6 +19,7 @@ package com.android.support.room;
 import android.database.Cursor;
 
 import com.android.support.db.SupportSQLiteDatabase;
+import com.android.support.db.SupportSQLiteOpenHelper;
 import com.android.support.db.SupportSQLiteStatement;
 
 /**
@@ -26,11 +27,38 @@ import com.android.support.db.SupportSQLiteStatement;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class RoomDatabase {
-    private final SupportSQLiteDatabase mDb;
+    private volatile SupportSQLiteDatabase mDatabase;
+    private final SupportSQLiteOpenHelper mOpenHelper;
 
-    public RoomDatabase(SupportSQLiteDatabase supportDb) {
-        mDb = supportDb;
+    /**
+     * Creates a RoomDatabase with the given configuration.
+     *
+     * @param configuration The configuration to setup the database.
+     */
+    public RoomDatabase(DatabaseConfiguration configuration) {
+        mOpenHelper = createOpenHelper(configuration);
     }
+
+    /**
+     * Returns the SQLite open helper used by this database.
+     *
+     * @return The SQLite open helper used by this database.
+     */
+    public SupportSQLiteOpenHelper getOpenHelper() {
+        return mOpenHelper;
+    }
+
+    /**
+     * Creates the open helper to access the database. Generated class already implements this
+     * method.
+     * Note that this method is called when the RoomDatabase is initialized.
+     *
+     * @param config The configuration of the Room database.
+     *
+     * @return A new SupportSQLiteOpenHelper to be used while connecting to the database.
+     */
+    protected abstract SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration config);
+
     // Below, there are wrapper methods for SupportSQLiteDatabase. This helps us track which
     // methods we are using and also helps unit tests to mock this class without mocking
     // all sqlite database methods.
@@ -43,7 +71,7 @@ public abstract class RoomDatabase {
      * @return Result of the query.
      */
     public Cursor query(String sql, String[] selectionArgs) {
-        return mDb.rawQuery(sql, selectionArgs);
+        return mOpenHelper.getWritableDatabase().rawQuery(sql, selectionArgs);
     }
 
     /**
@@ -54,27 +82,27 @@ public abstract class RoomDatabase {
      * @return The compiled query.
      */
     public SupportSQLiteStatement compileStatement(String sql) {
-        return mDb.compileStatement(sql);
+        return mOpenHelper.getWritableDatabase().compileStatement(sql);
     }
 
     /**
      * Wrapper for {@link SupportSQLiteDatabase#beginTransaction()}.
      */
     public void beginTransaction() {
-        mDb.beginTransaction();
+        mOpenHelper.getWritableDatabase().beginTransaction();
     }
 
     /**
      * Wrapper for {@link SupportSQLiteDatabase#endTransaction()}.
      */
     public void endTransaction() {
-        mDb.endTransaction();
+        mOpenHelper.getWritableDatabase().endTransaction();
     }
 
     /**
      * Wrapper for {@link SupportSQLiteDatabase#setTransactionSuccessful()}.
      */
     public void setTransactionSuccessful() {
-        mDb.setTransactionSuccessful();
+        mOpenHelper.getWritableDatabase().setTransactionSuccessful();
     }
 }

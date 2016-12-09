@@ -24,6 +24,7 @@ import com.android.support.room.vo.Entity
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import com.squareup.javapoet.TypeName
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.ElementKind
@@ -56,6 +57,11 @@ class DatabaseProcessor(val context: Context) {
         val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
         val daoMethods = allMembers.filter {
             it.hasAnyOf(Modifier.ABSTRACT) && it.kind == ElementKind.METHOD
+        }.filterNot {
+            // remove methods that belong to room
+            val containing = it.enclosingElement
+            MoreElements.isType(containing) &&
+                    TypeName.get(containing.asType()) == RoomTypeNames.ROOM_DB
         }.map {
             val executable = MoreElements.asExecutable(it)
             // TODO when we add support for non Dao return types (e.g. database), this code needs
@@ -65,6 +71,7 @@ class DatabaseProcessor(val context: Context) {
         }
 
         return Database(element = element,
+                type = MoreElements.asType(element).asType(),
                 entities = entities,
                 daoMethods = daoMethods)
     }

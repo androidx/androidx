@@ -37,7 +37,6 @@ class DatabaseProcessorTest {
         const val DATABASE_PREFIX = """
             package foo.bar;
             import com.android.support.room.*;
-            import com.android.support.db.SupportSQLiteDatabase;
             """
         val USER: JavaFileObject = JavaFileObjects.forSourceString("foo.bar.User",
                 """
@@ -86,8 +85,8 @@ class DatabaseProcessorTest {
         singleDb("""
             @Database(entities = {User.class})
             public abstract class MyDb extends RoomDatabase {
-                public MyDb(SupportSQLiteDatabase supportDb) {
-                    super(supportDb);
+                public MyDb(DatabaseConfiguration config) {
+                    super(config);
                 }
                 abstract UserDao userDao();
             }
@@ -102,8 +101,8 @@ class DatabaseProcessorTest {
         singleDb("""
             @Database(entities = {User.class, Book.class})
             public abstract class MyDb extends RoomDatabase {
-                public MyDb(SupportSQLiteDatabase supportDb) {
-                    super(supportDb);
+                public MyDb(DatabaseConfiguration config) {
+                    super(config);
                 }
                 abstract UserDao userDao();
                 abstract BookDao bookDao();

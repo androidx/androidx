@@ -16,10 +16,24 @@
 
 package com.android.support.room.vo
 
+import com.squareup.javapoet.ClassName
 import javax.lang.model.element.Element
+import javax.lang.model.type.TypeMirror
 
 /**
  * Holds information about a class annotated with Database.
  */
-data class Database(val element : Element, val entities : List<Entity>,
-                    val daoMethods : List<DaoMethod>)
+data class Database(val element : Element,
+                    val type : TypeMirror,
+                    val entities : List<Entity>,
+                    val daoMethods : List<DaoMethod>) {
+    val typeName by lazy { ClassName.get(type) as ClassName }
+
+    val implClassName by lazy {
+        "${typeName.simpleName()}_Impl"
+    }
+
+    val implTypeName by lazy {
+        ClassName.get(typeName.packageName(), implClassName)
+    }
+}

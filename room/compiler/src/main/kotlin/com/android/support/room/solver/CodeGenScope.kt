@@ -54,4 +54,13 @@ class CodeGenScope {
     }
 
     fun generate() = builder().build().toString()
+
+    /**
+     * copies all variable indices but excludes generated code.
+     */
+    fun fork() : CodeGenScope {
+        val forked = CodeGenScope()
+        forked.tmpVarIndices.putAll(tmpVarIndices)
+        return forked
+    }
 }

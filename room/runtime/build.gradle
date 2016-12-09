@@ -49,6 +49,7 @@ android {
 dependencies {
     compile project(":common")
     compile project(":db")
+    compile project(":db-impl")
     compile "com.android.support:support-core-utils:$support_lib_version"
 
     testCompile "junit:junit:$junit_version"

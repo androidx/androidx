@@ -34,6 +34,16 @@ fun TypeMirror.typeName() = TypeName.get(this)
 object SupportDbTypeNames {
     val DB: ClassName = ClassName.get("com.android.support.db", "SupportSQLiteDatabase")
     val SQLITE_STMT : ClassName = ClassName.get("com.android.support.db", "SupportSQLiteStatement")
+    val SQLITE_OPEN_HELPER : ClassName =
+            ClassName.get("com.android.support.db", "SupportSQLiteOpenHelper")
+    val SQLITE_OPEN_HELPER_CALLBACK : ClassName =
+            ClassName.get("com.android.support.db", "SupportSQLiteOpenHelper.Callback")
+    val SQLITE_OPEN_HELPER_FACTORY : ClassName =
+            ClassName.get("com.android.support.db", "SupportSQLiteOpenHelper.Factory")
+    val SQLITE_OPEN_HELPER_CONFIG : ClassName =
+            ClassName.get("com.android.support.db", "SupportSQLiteOpenHelper.Configuration")
+    val SQLITE_OPEN_HELPER_CONFIG_BUILDER : ClassName =
+            ClassName.get("com.android.support.db", "SupportSQLiteOpenHelper.Configuration.Builder")
 }
 
 object RoomTypeNames {
@@ -41,6 +51,8 @@ object RoomTypeNames {
     val CURSOR_CONVERTER : ClassName = ClassName.get("com.android.support.room", "CursorConverter")
     val ROOM : ClassName = ClassName.get("com.android.support.room", "Room")
     val ROOM_DB : ClassName = ClassName.get("com.android.support.room", "RoomDatabase")
+    val ROOM_DB_CONFIG : ClassName = ClassName.get("com.android.support.room",
+            "DatabaseConfiguration")
     val INSERTION_ADAPTER : ClassName =
             ClassName.get("com.android.support.room", "EntityInsertionAdapter")
 }
