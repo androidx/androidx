@@ -50,13 +50,14 @@ uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: rootProject.ext.localMavenRepo)
-            pom.artifactId = "support-db"
+            pom.artifactId = "support-db-impl"
         }
     }
 }
 
 dependencies {
     compile "com.android.support:support-annotations:$support_lib_version"
+    compile project(":db")
 }
 createAndroidCheckstyle(project)
 

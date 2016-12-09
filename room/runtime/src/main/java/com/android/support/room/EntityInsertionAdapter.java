@@ -16,7 +16,6 @@
 
 package com.android.support.room;
 
-import com.android.support.db.SupportSQLiteDatabase;
 import com.android.support.db.SupportSQLiteStatement;
 
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class EntityInsertionAdapter<T> {
     private final AtomicBoolean mStmtLock = new AtomicBoolean(false);
-    private final SupportSQLiteDatabase mDatabase;
+    private final RoomDatabase mDatabase;
     private volatile SupportSQLiteStatement mStmt;
 
     /**
@@ -43,7 +42,7 @@ public abstract class EntityInsertionAdapter<T> {
      *
      * @param database The database to insert into.
      */
-    public EntityInsertionAdapter(SupportSQLiteDatabase database) {
+    public EntityInsertionAdapter(RoomDatabase database) {
         mDatabase = database;
     }
 

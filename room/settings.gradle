@@ -17,4 +17,5 @@ include 'common'
 include 'runtime'
 include 'compiler'
 include 'db'
+include ':db-impl'
 

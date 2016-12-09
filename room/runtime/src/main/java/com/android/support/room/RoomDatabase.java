@@ -24,35 +24,56 @@ import com.android.support.db.SupportSQLiteStatement;
 /**
  * Base class for all Room databases.
  */
-@SuppressWarnings("unused")
-public abstract class RoomDatabase implements SupportSQLiteDatabase {
+@SuppressWarnings({"unused", "WeakerAccess"})
+public abstract class RoomDatabase {
     private final SupportSQLiteDatabase mDb;
 
     public RoomDatabase(SupportSQLiteDatabase supportDb) {
         mDb = supportDb;
     }
-
-    @Override
-    public Cursor query(String sql, String[] args) {
-        return mDb.query(sql, args);
+    // Below, there are wrapper methods for SupportSQLiteDatabase. This helps us track which
+    // methods we are using and also helps unit tests to mock this class without mocking
+    // all sqlite database methods.
+    /**
+     * Wrapper for {@link SupportSQLiteDatabase#rawQuery(String, String[])}.
+     *
+     * @param sql Sql query to run.
+     * @param selectionArgs Selection arguments.
+     *
+     * @return Result of the query.
+     */
+    public Cursor query(String sql, String[] selectionArgs) {
+        return mDb.rawQuery(sql, selectionArgs);
     }
 
-    @Override
+    /**
+     * Wrapper for {@link SupportSQLiteDatabase#compileStatement(String)}.
+     *
+     * @param sql The query to compile.
+     *
+     * @return The compiled query.
+     */
     public SupportSQLiteStatement compileStatement(String sql) {
         return mDb.compileStatement(sql);
     }
 
-    @Override
+    /**
+     * Wrapper for {@link SupportSQLiteDatabase#beginTransaction()}.
+     */
     public void beginTransaction() {
         mDb.beginTransaction();
     }
 
-    @Override
+    /**
+     * Wrapper for {@link SupportSQLiteDatabase#endTransaction()}.
+     */
     public void endTransaction() {
         mDb.endTransaction();
     }
 
-    @Override
+    /**
+     * Wrapper for {@link SupportSQLiteDatabase#setTransactionSuccessful()}.
+     */
     public void setTransactionSuccessful() {
         mDb.setTransactionSuccessful();
     }
