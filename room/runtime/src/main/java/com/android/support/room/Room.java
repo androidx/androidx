@@ -18,8 +18,6 @@ package com.android.support.room;
 
 import android.support.annotation.Nullable;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,23 +56,14 @@ public class Room {
             final Class<? extends CursorConverter<T>> aClass =
                     (Class<? extends CursorConverter<T>>) Class.forName(
                             fullPackage + "." + converterName);
-            Constructor<? extends CursorConverter<T>> constructor =
-                    aClass.getDeclaredConstructor(klass);
-            constructor.setAccessible(true);
-            return constructor.newInstance();
+            return aClass.newInstance();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("cannot find cursor converter for "
-                    + klass.getCanonicalName());
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("CursorConverters must have a no-arg constructor:"
                     + klass.getCanonicalName());
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Cannot access cursor converter constructor"
                     + klass.getCanonicalName());
         } catch (InstantiationException e) {
-            throw new RuntimeException("Failed to create an instance of the cursor converter"
-                    + klass.getCanonicalName());
-        } catch (InvocationTargetException e) {
             throw new RuntimeException("Failed to create an instance of the cursor converter"
                     + klass.getCanonicalName());
         }

@@ -22,8 +22,7 @@ import com.android.support.room.solver.TypeAdapterStore
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 
-data class Context(val roundEnv: RoundEnvironment,
-                   val processingEnv: ProcessingEnvironment) {
+data class Context(val processingEnv: ProcessingEnvironment) {
     val logger = RLog(processingEnv)
     val checker = Checks(logger)
     val COMMON_TYPES = CommonTypes(processingEnv)

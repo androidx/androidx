@@ -22,4 +22,5 @@ abstract class ComplexDatabase extends RoomDatabase {
     public ComplexDatabase(DatabaseConfiguration configuration) {
         super(configuration);
     }
+    abstract ComplexDao getComplexDao();
 }

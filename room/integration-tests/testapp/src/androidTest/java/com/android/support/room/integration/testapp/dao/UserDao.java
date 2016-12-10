@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
-package com.android.support.room.testing
+package com.android.support.room.integration.testapp.dao;
 
-import com.android.support.room.processor.Context
-import javax.annotation.processing.ProcessingEnvironment
-import javax.annotation.processing.RoundEnvironment
-import javax.lang.model.element.TypeElement
+import com.android.support.room.Dao;
+import com.android.support.room.Insert;
+import com.android.support.room.Query;
+import com.android.support.room.integration.testapp.vo.User;
 
-data class TestInvocation(val processingEnv: ProcessingEnvironment,
-                          val annotations: MutableSet<out TypeElement>,
-                          val roundEnv: RoundEnvironment) {
-    val context = Context(processingEnv)
+import java.util.List;
+
+@Dao
+public interface UserDao {
+    @Query("select * from user where mName like :name")
+    List<User> findUsersByName(String name);
+
+    @Query("select * from user where mId = ?")
+    User load(int id);
+
+    @Insert
+    void insert(User user);
+
+    @Insert(onConflict = Insert.REPLACE)
+    void insertOrReplace(User user);
 }

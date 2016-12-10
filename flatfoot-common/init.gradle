@@ -37,6 +37,7 @@ ext.target_sdk_version = 24
 ext.compile_sdk_version = 24
 ext.build_tools_version = "24.0.0"
 ext.intellij_annotation = "12.0"
+ext.espresso_version = "2.2.2"
 ext.release_version = "1.0-SNAPSHOT"
 ext.enablePublicRepos = System.getenv("ALLOW_PUBLIC_REPOS")
 

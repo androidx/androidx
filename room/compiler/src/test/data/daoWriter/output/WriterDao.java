@@ -42,18 +42,18 @@ public class WriterDao_Impl implements WriterDao {
 
             @Override
             public void bind(SupportSQLiteStatement stmt, User value) {
-                stmt.bindLong(0, value.uid);
+                stmt.bindLong(1, value.uid);
                 if (value.name == null) {
-                    stmt.bindNull(1);
-                } else {
-                    stmt.bindString(1, value.name);
-                }
-                if (value.getLastName() == null) {
                     stmt.bindNull(2);
                 } else {
-                    stmt.bindString(2, value.getLastName());
+                    stmt.bindString(2, value.name);
                 }
-                stmt.bindLong(3, value.age);
+                if (value.getLastName() == null) {
+                    stmt.bindNull(3);
+                } else {
+                    stmt.bindString(3, value.getLastName());
+                }
+                stmt.bindLong(4, value.age);
             }
         };
         this.__insertionAdapterOfUser_1 = new EntityInsertionAdapter<User>(__db) {
@@ -65,18 +65,18 @@ public class WriterDao_Impl implements WriterDao {
 
             @Override
             public void bind(SupportSQLiteStatement stmt, User value) {
-                stmt.bindLong(0, value.uid);
+                stmt.bindLong(1, value.uid);
                 if (value.name == null) {
-                    stmt.bindNull(1);
-                } else {
-                    stmt.bindString(1, value.name);
-                }
-                if (value.getLastName() == null) {
                     stmt.bindNull(2);
                 } else {
-                    stmt.bindString(2, value.getLastName());
+                    stmt.bindString(2, value.name);
                 }
-                stmt.bindLong(3, value.age);
+                if (value.getLastName() == null) {
+                    stmt.bindNull(3);
+                } else {
+                    stmt.bindString(3, value.getLastName());
+                }
+                stmt.bindLong(4, value.age);
             }
         };
     }

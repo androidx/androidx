@@ -46,7 +46,7 @@ class TypeAdapterStoreTest {
     @Test
     fun testDirect() {
         singleRun { invocation ->
-            val store = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv))
+            val store = TypeAdapterStore(Context(invocation.processingEnv))
             val primitiveType = invocation.processingEnv.typeUtils.getPrimitiveType(TypeKind.INT)
             val adapter = store.findColumnTypeAdapter(primitiveType)
             assertThat(adapter, notNullValue())
@@ -56,7 +56,7 @@ class TypeAdapterStoreTest {
     @Test
     fun testVia1TypeAdapter() {
         singleRun { invocation ->
-            val store = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv))
+            val store = TypeAdapterStore(Context(invocation.processingEnv))
             val booleanType = invocation.processingEnv.typeUtils
                     .getPrimitiveType(TypeKind.BOOLEAN)
             val adapter = store.findColumnTypeAdapter(booleanType)
@@ -83,7 +83,7 @@ class TypeAdapterStoreTest {
     @Test
     fun testVia2TypeAdapters() {
         singleRun { invocation ->
-            val store = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv),
+            val store = TypeAdapterStore(Context(invocation.processingEnv),
                     PointTypeConverter(invocation.processingEnv))
             val pointType = invocation.processingEnv.elementUtils
                     .getTypeElement("foo.bar.Point").asType()
@@ -116,7 +116,7 @@ class TypeAdapterStoreTest {
     @Test
     fun testIntList() {
         singleRun { invocation ->
-            val store = TypeAdapterStore(Context(invocation.roundEnv, invocation.processingEnv))
+            val store = TypeAdapterStore(Context(invocation.processingEnv))
             val intType = invocation.processingEnv.elementUtils
                     .getTypeElement(Integer::class.java.canonicalName)
                     .asType()

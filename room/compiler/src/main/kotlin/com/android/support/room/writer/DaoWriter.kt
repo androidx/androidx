@@ -50,7 +50,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
     }
 
     override fun createTypeSpec(): TypeSpec {
-        val builder = TypeSpec.classBuilder(dao.implClassName)
+        val builder = TypeSpec.classBuilder(dao.implTypeName)
         val scope = CodeGenScope()
 
         val insertionMethods = groupAndCreateInsertionMethods(scope)

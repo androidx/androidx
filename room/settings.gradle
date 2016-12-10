@@ -18,4 +18,5 @@ include 'runtime'
 include 'compiler'
 include 'db'
 include ':db-impl'
+include ':integration-tests:testapp'
 

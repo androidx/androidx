@@ -16,9 +16,8 @@
 
 package com.android.support.room.writer
 
-import com.android.support.room.processor.DatabaseProcessor
-import com.android.support.room.testing.TestProcessor
-import com.google.auto.common.MoreElements
+import COMMON
+import com.android.support.room.RoomProcessor
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaSourcesSubjectFactory
@@ -35,7 +34,9 @@ class DatabaseWriterTest {
     fun simpleDb() {
         singleDb(
                 loadJavaCode("databasewriter/input/ComplexDatabase.java",
-                        "foo.bar.ComplexDatabase")
+                        "foo.bar.ComplexDatabase"),
+                loadJavaCode("daoWriter/input/ComplexDao.java",
+                        "foo.bar.ComplexDao")
         ).compilesWithoutError().and().generatesSources(
                 loadJavaCode("databasewriter/output/ComplexDatabase.java",
                         "foo.bar.ComplexDatabase_Impl")
@@ -45,18 +46,6 @@ class DatabaseWriterTest {
     private fun singleDb(vararg jfo : JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(jfo.toList() + COMMON.USER)
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(com.android.support.room.Database::class)
-                        .nextRunHandler { invocation ->
-                            val dao = invocation.roundEnv
-                                    .getElementsAnnotatedWith(
-                                            com.android.support.room.Database::class.java)
-                                    .first()
-                            val processor = DatabaseProcessor(invocation.context)
-                            val db = processor.parse(MoreElements.asType(dao))
-                            DatabaseWriter(db).write(invocation.processingEnv)
-                            true
-                        }
-                        .build())
+                .processedWith(RoomProcessor())
     }
 }

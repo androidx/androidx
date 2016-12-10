@@ -5,8 +5,11 @@ import com.android.support.db.SupportSQLiteOpenHelper;
 import com.android.support.db.SupportSQLiteOpenHelper.Callback;
 import com.android.support.db.SupportSQLiteOpenHelper.Configuration;
 import com.android.support.room.DatabaseConfiguration;
+import java.lang.Override;
 
 public class ComplexDatabase_Impl extends ComplexDatabase {
+    private volatile ComplexDao _complexDao;
+
     public ComplexDatabase_Impl(DatabaseConfiguration configuration) {
         super(configuration);
     }
@@ -35,5 +38,19 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
                 .build();
         final SupportSQLiteOpenHelper _helper = configuration.sqliteOpenHelperFactory.create(_sqliteConfig);
         return _helper;
+    }
+
+    @Override
+    ComplexDao getComplexDao() {
+        if (_complexDao != null) {
+            return _complexDao;
+        } else {
+            synchronized(this) {
+                if(_complexDao == null) {
+                    _complexDao = new ComplexDao_Impl(this);
+                }
+                return _complexDao;
+            }
+        }
     }
 }

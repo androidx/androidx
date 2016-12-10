@@ -20,13 +20,21 @@ import com.android.support.room.ext.L
 import com.android.support.room.ext.N
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.SupportDbTypeNames
+import com.android.support.room.ext.T
 import com.android.support.room.solver.CodeGenScope
+import com.android.support.room.vo.DaoMethod
 import com.android.support.room.vo.Database
+import com.google.auto.common.MoreElements
+import com.google.auto.common.MoreTypes
+import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeSpec
+import stripNonJava
 import javax.lang.model.element.Modifier
+import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC
+import javax.lang.model.element.Modifier.VOLATILE
 
 /**
  * Writes implementation of classes that were annotated with @Database.
@@ -40,7 +48,41 @@ class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeNam
             addMethod(createConstructor())
             addMethod(createCreateOpenHelper())
         }
+        addDaoImpls(builder)
         return builder.build()
+    }
+
+    private fun  addDaoImpls(builder: TypeSpec.Builder) {
+        val scope = CodeGenScope()
+        builder.apply {
+            database.daoMethods.forEach { method ->
+                val name = method.dao.typeName.simpleName().decapitalize().stripNonJava()
+                var fieldName = scope.getTmpVar("_$name")
+                val field = FieldSpec.builder(method.dao.typeName, fieldName,
+                        PRIVATE, VOLATILE).build()
+                addField(field)
+                addMethod(createDaoGetter(field, method))
+            }
+        }
+    }
+
+    private fun createDaoGetter(field: FieldSpec, method: DaoMethod) : MethodSpec {
+        return MethodSpec.overriding(MoreElements.asExecutable(method.element)).apply {
+            beginControlFlow("if ($N != null)", field).apply {
+                addStatement("return $N", field)
+            }
+            nextControlFlow("else").apply {
+                beginControlFlow("synchronized(this)").apply {
+                    beginControlFlow("if($N == null)", field).apply {
+                        addStatement("$N = new $T(this)", field, method.dao.implTypeName)
+                    }
+                    endControlFlow()
+                    addStatement("return $N", field)
+                }
+                endControlFlow()
+            }
+            endControlFlow()
+        }.build()
     }
 
     private fun createConstructor(): MethodSpec {

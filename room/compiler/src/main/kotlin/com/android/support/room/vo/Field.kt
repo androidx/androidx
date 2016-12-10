@@ -25,7 +25,7 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
                  val primaryKey: Boolean, val columnName: String = name) {
     lateinit var getter: FieldGetter
     lateinit var setter: FieldSetter
-    val typeName by lazy { type.typeName() }
+    val typeName: TypeName by lazy { type.typeName() }
     /**
      * List of names that include variations.
      * e.g. if it is mUser, user is added to the list

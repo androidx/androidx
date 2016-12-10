@@ -28,4 +28,8 @@ data class Dao(val element : Element, val type : DeclaredType,
     val implClassName by lazy {
         "${typeName.simpleName()}_Impl"
     }
+
+    val implTypeName by lazy {
+        ClassName.get(typeName.packageName(), implClassName)
+    }
 }

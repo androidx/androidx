@@ -70,7 +70,7 @@ class EntityInsertionAdapterWriter(val entity: Entity, val onConflict: String) {
                         } else {
                             "$valueParam.${field.getter.name}()"
                         }
-                        adapter.bindToStmt(stmtParam, "$index", varName, bindScope)
+                        adapter.bindToStmt(stmtParam, "${index + 1}", varName, bindScope)
                     }
                 }
                 addCode(bindScope.builder().build())
