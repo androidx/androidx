@@ -20,4 +20,15 @@ import com.android.support.room.*;
 public class User {
     @PrimaryKey
     int uid;
+    String name;
+    private String lastName;
+    @ColumnName("ageColumn")
+    public int age;
+
+    public String getLastName() {
+        return lastName;
+    }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 }

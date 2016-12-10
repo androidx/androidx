@@ -16,6 +16,7 @@
 
 package com.android.support.room.solver.types
 
+import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.solver.CodeGenScope
 import com.squareup.javapoet.TypeName
 import javax.lang.model.type.TypeMirror
@@ -23,7 +24,7 @@ import javax.lang.model.type.TypeMirror
 /**
  * A code generator that can read a field from Cursor and write a field to a Statement
  */
-abstract class ColumnTypeAdapter(val out: TypeMirror) {
+abstract class ColumnTypeAdapter(val out: TypeMirror, val typeAffinity: SQLTypeAffinity) {
     val outTypeName by lazy { TypeName.get(out) }
     abstract fun readFromCursor(outVarName : String, cursorVarName: String, indexVarName: String,
                                 scope: CodeGenScope)

@@ -18,6 +18,8 @@ package com.android.support.room.solver.types
 
 import com.android.support.room.ext.L
 import com.android.support.room.ext.typeName
+import com.android.support.room.parser.SQLTypeAffinity
+import com.android.support.room.parser.SQLTypeAffinity.REAL
 import com.android.support.room.solver.CodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.PrimitiveType
@@ -35,7 +37,9 @@ import javax.lang.model.type.TypeKind.SHORT
  */
 open class PrimitiveColumnTypeAdapter(out: PrimitiveType,
                                       val cursorGetter: String,
-                                      val stmtSetter: String) : ColumnTypeAdapter(out) {
+                                      val stmtSetter: String,
+                                      typeAffinity : SQLTypeAffinity)
+        : ColumnTypeAdapter(out, typeAffinity) {
     val cast =  if (cursorGetter == "get${out.typeName().toString().capitalize()}")
                     ""
                 else
@@ -56,7 +60,12 @@ open class PrimitiveColumnTypeAdapter(out: PrimitiveType,
                 PrimitiveColumnTypeAdapter(
                         out = processingEnvironment.typeUtils.getPrimitiveType(it.first),
                         cursorGetter = it.second,
-                        stmtSetter = it.third
+                        stmtSetter = it.third,
+                        typeAffinity = when(it.first) {
+                            INT, SHORT, BYTE, LONG, CHAR -> SQLTypeAffinity.INTEGER
+                            FLOAT, DOUBLE -> REAL
+                            else -> throw IllegalArgumentException("invalid type")
+                        }
                 )
             }
         }

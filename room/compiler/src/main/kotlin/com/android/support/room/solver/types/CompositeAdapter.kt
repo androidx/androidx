@@ -19,7 +19,6 @@ package com.android.support.room.solver.types
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
 import com.android.support.room.solver.CodeGenScope
-import com.squareup.javapoet.TypeName
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -27,7 +26,8 @@ import javax.lang.model.type.TypeMirror
  * a composite one.
  */
 class CompositeAdapter(out: TypeMirror, val columnTypeAdapter: ColumnTypeAdapter,
-                       val typeConverter : TypeConverter) : ColumnTypeAdapter(out) {
+                       val typeConverter : TypeConverter)
+            : ColumnTypeAdapter(out, columnTypeAdapter.typeAffinity) {
     override fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,
                                 scope: CodeGenScope) {
         scope.builder().apply {

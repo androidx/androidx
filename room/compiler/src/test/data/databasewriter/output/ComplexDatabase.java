@@ -14,12 +14,18 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
     protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration configuration) {
         final SupportSQLiteOpenHelper.Callback _openCallback = new SupportSQLiteOpenHelper.Callback() {
             public void onCreate(SupportSQLiteDatabase _db) {
+                _db.execSQL("CREATE TABLE IF NOT EXISTS `User` (`uid` INTEGER, `name` TEXT,"
+                        + " `lastName` TEXT, `ageColumn` INTEGER, PRIMARY KEY(`uid`))");
             }
 
             public void onUpgrade(SupportSQLiteDatabase _db, int _oldVersion, int _newVersion) {
+                _db.execSQL("DROP TABLE IF EXISTS `User`");
+                _db.execSQL("CREATE TABLE IF NOT EXISTS `User` (`uid` INTEGER, `name` TEXT,"
+                        + " `lastName` TEXT, `ageColumn` INTEGER, PRIMARY KEY(`uid`))");
             }
 
             public void onDowngrade(SupportSQLiteDatabase _db, int _oldVersion, int _newVersion) {
+                onUpgrade(_db, _oldVersion, _newVersion);
             }
         };
         final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(configuration.context)

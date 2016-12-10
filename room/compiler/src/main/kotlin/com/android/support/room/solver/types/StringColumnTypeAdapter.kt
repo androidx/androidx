@@ -17,12 +17,13 @@
 package com.android.support.room.solver.types
 
 import com.android.support.room.ext.L
+import com.android.support.room.parser.SQLTypeAffinity.TEXT
 import com.android.support.room.solver.CodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
 
 class StringColumnTypeAdapter(processingEnvironment: ProcessingEnvironment)
     : ColumnTypeAdapter((processingEnvironment.elementUtils.getTypeElement(
-        String::class.java.canonicalName)).asType()) {
+        String::class.java.canonicalName)).asType(), TEXT) {
     override fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,
                                 scope: CodeGenScope) {
         scope.builder()

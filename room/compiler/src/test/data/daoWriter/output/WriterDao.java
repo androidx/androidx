@@ -19,6 +19,7 @@ package foo.bar;
 import com.android.support.db.SupportSQLiteStatement;
 import com.android.support.room.EntityInsertionAdapter;
 import com.android.support.room.RoomDatabase;
+
 import java.lang.Override;
 import java.lang.String;
 import java.util.List;
@@ -35,24 +36,47 @@ public class WriterDao_Impl implements WriterDao {
         this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
             @Override
             public String createInsertQuery() {
-                return "INSERT OR ABORT INTO `User`(`uid`) VALUES (?)";
+                return "INSERT OR ABORT INTO `User`(`uid`,`name`,`lastName`,`ageColumn`) VALUES"
+                        + " (?,?,?,?)";
             }
 
             @Override
             public void bind(SupportSQLiteStatement stmt, User value) {
                 stmt.bindLong(0, value.uid);
+                if (value.name == null) {
+                    stmt.bindNull(1);
+                } else {
+                    stmt.bindString(1, value.name);
+                }
+                if (value.getLastName() == null) {
+                    stmt.bindNull(2);
+                } else {
+                    stmt.bindString(2, value.getLastName());
+                }
+                stmt.bindLong(3, value.age);
             }
         };
-
         this.__insertionAdapterOfUser_1 = new EntityInsertionAdapter<User>(__db) {
             @Override
             public String createInsertQuery() {
-                return "INSERT OR REPLACE INTO `User`(`uid`) VALUES (?)";
+                return "INSERT OR REPLACE INTO `User`(`uid`,`name`,`lastName`,`ageColumn`) VALUES"
+                        + " (?,?,?,?)";
             }
 
             @Override
             public void bind(SupportSQLiteStatement stmt, User value) {
                 stmt.bindLong(0, value.uid);
+                if (value.name == null) {
+                    stmt.bindNull(1);
+                } else {
+                    stmt.bindString(1, value.name);
+                }
+                if (value.getLastName() == null) {
+                    stmt.bindNull(2);
+                } else {
+                    stmt.bindString(2, value.getLastName());
+                }
+                stmt.bindLong(3, value.age);
             }
         };
     }

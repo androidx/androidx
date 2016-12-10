@@ -37,8 +37,7 @@ abstract class BaseEntityParserTest {
     }
 
     fun singleEntity(input: String, attributes: Map<String, String> = mapOf(),
-                     handler: (Entity, TestInvocation) -> Unit):
-            CompileTester {
+                     handler: (Entity, TestInvocation) -> Unit): CompileTester {
         val attributesReplacement : String
         if (attributes.isEmpty()) {
             attributesReplacement = ""

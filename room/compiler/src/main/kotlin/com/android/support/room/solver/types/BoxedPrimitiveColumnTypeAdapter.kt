@@ -27,7 +27,7 @@ import javax.lang.model.type.TypeMirror
  */
 open class BoxedPrimitiveColumnTypeAdapter(boxed : TypeMirror,
                                            val primitiveAdapter : PrimitiveColumnTypeAdapter)
-            : ColumnTypeAdapter(boxed) {
+            : ColumnTypeAdapter(boxed, primitiveAdapter.typeAffinity) {
     companion object {
         fun createBoxedPrimitiveAdapters(processingEnvironment: ProcessingEnvironment,
                                     primitiveAdapters : List<PrimitiveColumnTypeAdapter>)

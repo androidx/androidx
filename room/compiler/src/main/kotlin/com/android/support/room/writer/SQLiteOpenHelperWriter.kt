@@ -16,13 +16,17 @@
 
 package com.android.support.room.writer
 
+import android.support.annotation.VisibleForTesting
 import com.android.support.room.ext.L
 import com.android.support.room.ext.N
+import com.android.support.room.ext.S
 import com.android.support.room.ext.SupportDbTypeNames
 import com.android.support.room.ext.T
+import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.vo.Database
-import com.squareup.javapoet.FieldSpec
+import com.android.support.room.vo.Entity
+import com.android.support.room.vo.Field
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
@@ -71,7 +75,10 @@ class SQLiteOpenHelperWriter(val database : Database) {
         return MethodSpec.methodBuilder("onCreate").apply {
             addModifiers(PUBLIC)
             addParameter(SupportDbTypeNames.DB, "_db")
-            // TODO
+            // this is already called in transaction so no need for a transaction
+            database.entities.forEach {
+                addStatement("_db.execSQL($S)", createQuery(it))
+            }
         }.build()
     }
 
@@ -81,7 +88,10 @@ class SQLiteOpenHelperWriter(val database : Database) {
             addParameter(SupportDbTypeNames.DB, "_db")
             addParameter(TypeName.INT, "_oldVersion")
             addParameter(TypeName.INT, "_newVersion")
-            // TODO
+            database.entities.forEach {
+                addStatement("_db.execSQL($S)", createDropTableQuery(it))
+                addStatement("_db.execSQL($S)", createQuery(it))
+            }
         }.build()
     }
 
@@ -91,7 +101,38 @@ class SQLiteOpenHelperWriter(val database : Database) {
             addParameter(SupportDbTypeNames.DB, "_db")
             addParameter(TypeName.INT, "_oldVersion")
             addParameter(TypeName.INT, "_newVersion")
-            // TODO
+            // TODO better handle this
+            addStatement("onUpgrade(_db, _oldVersion, _newVersion)")
         }.build()
+    }
+
+    private fun createDatabaseDefinition(field : Field) : String {
+        val affinity = field.let {
+            val adapter = it.getter.columnAdapter ?: it.setter.columnAdapter
+            adapter?.typeAffinity ?: SQLTypeAffinity.TEXT
+        }
+        return "`${field.columnName}` ${affinity.name}"
+    }
+
+    @VisibleForTesting
+    fun createQuery(entity : Entity) : String {
+        val definitions = entity.fields.map {
+            field -> createDatabaseDefinition(field)
+        } + createPrimaryKeyDefinition(entity)
+        return "CREATE TABLE IF NOT EXISTS `${entity.tableName}` " +
+                "(${definitions.joinToString(", ")})"
+    }
+
+    private fun createPrimaryKeyDefinition(entity: Entity): String {
+        val keys = entity.fields
+                .filter { it.primaryKey }
+                .map { "`${it.columnName}`" }
+                .joinToString(", ")
+        return "PRIMARY KEY($keys)"
+    }
+
+    @VisibleForTesting
+    fun createDropTableQuery(entity: Entity) : String {
+        return "DROP TABLE IF EXISTS `${entity.tableName}`"
     }
 }

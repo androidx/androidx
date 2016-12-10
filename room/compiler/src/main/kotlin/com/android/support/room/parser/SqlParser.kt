@@ -42,7 +42,6 @@ class BindingExtractor(val original: String) : SQLiteBaseVisitor<Void?>() {
 
 class SqlParser {
     companion object {
-        val BINDING_REGEX = "\\:[a-zA-Z_-][a-zA-Z0-9_-]+".toRegex()
         fun parse(input: String): ParsedQuery {
             val inputStream = ANTLRInputStream(input)
             val lexer = SQLiteLexer(inputStream)
@@ -61,4 +60,12 @@ class SqlParser {
             return extractor.createParsedQuery(syntaxErrors)
         }
     }
+}
+
+enum class SQLTypeAffinity {
+    TEXT,
+    NUMERIC,
+    INTEGER,
+    REAL,
+    BLOB
 }
