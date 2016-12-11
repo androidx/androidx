@@ -29,7 +29,7 @@ android {
 dependencies {
     compile project(":common")
     // using classes like Pair from support core allows Lifecycle to be compatible w/ junit tests
-    compile "com.android.support:support-core-utils:$support_lib_version"
+    compile "com.android.support:support-fragment:$support_lib_version"
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-core:$mockito_version"
 }
