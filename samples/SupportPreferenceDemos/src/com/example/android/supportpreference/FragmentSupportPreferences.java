@@ -34,8 +34,10 @@ public class FragmentSupportPreferences extends Activity
         super.onCreate(savedInstanceState);
 
         // Display the fragment as the main content.
-        getFragmentManager().beginTransaction().replace(android.R.id.content,
-                new PrefsFragment()).commit();
+        if (savedInstanceState == null) {
+            getFragmentManager().beginTransaction().replace(android.R.id.content,
+                    new PrefsFragment()).commit();
+        }
     }
 
     @Override

@@ -32,8 +32,10 @@ public class FragmentSupportPreferencesLeanback extends Activity {
         super.onCreate(savedInstanceState);
 
         // Display the fragment as the main content.
-        getFragmentManager().beginTransaction().replace(android.R.id.content,
-                new SettingsFragment()).commit();
+        if (savedInstanceState == null) {
+            getFragmentManager().beginTransaction().replace(android.R.id.content,
+                    new SettingsFragment()).commit();
+        }
     }
 
 //BEGIN_INCLUDE(support_fragment_leanback)
