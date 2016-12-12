@@ -74,7 +74,7 @@ class DatabaseProcessorTest {
                 import com.android.support.room.*;
                 @Dao
                 public interface BookDao {
-                    @Query("SELECT * FROM books")
+                    @Query("SELECT * FROM book")
                     public java.util.List<Book> loadAllBooks();
                 }
                 """)
@@ -124,6 +124,60 @@ class DatabaseProcessorTest {
             }
             """, USER, BOOK) { db, invocation ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
+    }
+
+    @Test
+    fun detectMissingTable() {
+        singleDb(
+                """
+                @Database(entities = {Book.class})
+                public abstract class MyDb extends RoomDatabase {
+                    public MyDb(DatabaseConfiguration config) {
+                        super(config);
+                    }
+                    abstract BookDao bookDao();
+                }
+                """, BOOK, JavaFileObjects.forSourceString("foo.bar.BookDao",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Dao
+                public interface BookDao {
+                    @Query("SELECT * FROM nonExistentTable")
+                    public java.util.List<Book> loadAllBooks();
+                }
+                """)){ db, invocation ->
+
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.missingTable("nonExistentTable", "foo.bar.BookDao", "loadAllBooks",
+                        "foo.bar.MyDb")
+        )
+    }
+
+    @Test
+    fun detectDuplicateTableNames() {
+        singleDb("""
+                @Database(entities = {User.class, AnotherClass.class})
+                public abstract class MyDb extends RoomDatabase {
+                    public MyDb(DatabaseConfiguration config) {
+                        super(config);
+                    }
+                    abstract UserDao userDao();
+                }
+                """, USER, USER_DAO, JavaFileObjects.forSourceString("foo.bar.AnotherClass",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(tableName="user")
+                public class AnotherClass {
+                    @PrimaryKey
+                    int uid;
+                }
+                """)) { db, invocation ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.duplicateTableNames("user",
+                        listOf("foo.bar.User", "foo.bar.AnotherClass"))
+        )
     }
 
     fun singleDb(input: String, vararg otherFiles: JavaFileObject,

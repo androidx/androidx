@@ -86,7 +86,7 @@ class EntityProcessor(val context: Context) {
         }
         context.checker.notBlank(tableName, element,
                 ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
-        val entity = Entity(tableName, declaredType, fields)
+        val entity = Entity(element, tableName, declaredType, fields)
         context.checker.check(entity.primaryKeys.isNotEmpty(), element,
                 ProcessorErrors.MISSING_PRIMARY_KEY)
         return entity

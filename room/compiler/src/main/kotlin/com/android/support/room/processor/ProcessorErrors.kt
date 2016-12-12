@@ -105,4 +105,16 @@ object ProcessorErrors {
                 if (unusedParams.size > 1) "s" else "",
                 unusedParams.joinToString(","))
     }
+
+    private val MISSING_TABLE = "Table \"%s\" is accessed in %s#%s but %s does not have any" +
+            " entity that declares the table \"%s\""
+    fun missingTable(tableName: String, daoName: String, methodName: String,
+                     databaseName : String): String {
+        return MISSING_TABLE.format(tableName, daoName, methodName, databaseName, tableName)
+    }
+
+    private val DUPLICATE_TABLES = "Table name \"%s\" is used by multiple entities: %s"
+    fun  duplicateTableNames(tableName: String, entityNames: List<String>): String {
+        return DUPLICATE_TABLES.format(tableName, entityNames.joinToString(", "))
+    }
 }

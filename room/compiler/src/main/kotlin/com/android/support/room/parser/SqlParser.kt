@@ -26,8 +26,10 @@ import java.util.*
 
 class BindingExtractor(val original: String) : SQLiteBaseVisitor<Void?>() {
     val bindingExpressions = arrayListOf<TerminalNode>()
-    override fun visitExpr(ctx: SQLiteParser.ExprContext?): Void? {
-        val bindParameter = ctx!!.BIND_PARAMETER()
+    // table name alias mappings
+    val tableNames = mutableSetOf<Table>()
+    override fun visitExpr(ctx: SQLiteParser.ExprContext): Void? {
+        val bindParameter = ctx.BIND_PARAMETER()
         if (bindParameter != null) {
             bindingExpressions.add(bindParameter)
         }
@@ -36,7 +38,18 @@ class BindingExtractor(val original: String) : SQLiteBaseVisitor<Void?>() {
 
     fun createParsedQuery(syntaxErrors: ArrayList<String>): ParsedQuery {
         return ParsedQuery(original,
-                bindingExpressions.sortedBy { it.sourceInterval.a }, syntaxErrors)
+                bindingExpressions.sortedBy { it.sourceInterval.a },
+                tableNames,
+                syntaxErrors)
+    }
+
+    override fun visitTable_or_subquery(ctx: SQLiteParser.Table_or_subqueryContext): Void? {
+        val tableName = ctx.table_name()?.text
+        if (tableName != null) {
+            val tableAlias = ctx.table_alias()?.text
+            tableNames.add(Table(tableName, tableAlias ?: tableName))
+        }
+        return super.visitTable_or_subquery(ctx)
     }
 }
 
@@ -56,7 +69,8 @@ class SqlParser {
                 }
             })
             val extractor = BindingExtractor(input)
-            parser.select_stmt().accept(extractor)
+            val selectStmt = parser.select_stmt()
+            selectStmt.accept(extractor)
             return extractor.createParsedQuery(syntaxErrors)
         }
     }

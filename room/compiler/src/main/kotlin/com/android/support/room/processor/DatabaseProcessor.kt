@@ -38,7 +38,7 @@ class DatabaseProcessor(val context: Context) {
     val entityParser = EntityProcessor(context)
     val daoParser = DaoProcessor(context)
 
-    val baseClassElement : TypeMirror by lazy {
+    val baseClassElement: TypeMirror by lazy {
         context.processingEnv.elementUtils.getTypeElement(
                 RoomTypeNames.ROOM_DB.packageName() + "." + RoomTypeNames.ROOM_DB.simpleName())
                 .asType()
@@ -70,13 +70,53 @@ class DatabaseProcessor(val context: Context) {
             DaoMethod(executable, executable.simpleName.toString(), dao)
         }
 
-        return Database(element = element,
+        val database = Database(element = element,
                 type = MoreElements.asType(element).asType(),
                 entities = entities,
                 daoMethods = daoMethods)
+        validateAccessedTables(database)
+        validateUniqueTableNames(database)
+        return database
     }
 
-    private fun processEntities(dbAnnotation: AnnotationMirror?, element: TypeElement) :
+    private fun validateUniqueTableNames(database: Database) {
+        database.entities
+                .groupBy {
+                    it.tableName.toLowerCase()
+                }.filter {
+            it.value.size > 1
+        }.forEach { byTableName ->
+            val error = ProcessorErrors.duplicateTableNames(byTableName.key,
+                    byTableName.value.map { it.typeName.toString() })
+            // report it for each of them and the database to make it easier
+            // for the developer
+            byTableName.value.forEach { entity ->
+                context.logger.e(entity.element, error)
+            }
+            context.logger.e(database.element, error)
+        }
+    }
+
+    private fun validateAccessedTables(database: Database) {
+        val definedTables = database.entities.mapTo(mutableSetOf()) { it.tableName.toLowerCase() }
+        database.daoMethods.forEach { daoMethod ->
+            daoMethod.dao.queryMethods.forEach { queryMethod ->
+                queryMethod.query.tables
+                        .filterNot {
+                            definedTables.contains(it.name.toLowerCase())
+                        }.forEach { table ->
+                    context.logger.e(queryMethod.element,
+                            ProcessorErrors.missingTable(
+                                    tableName = table.name,
+                                    daoName = daoMethod.dao.typeName.toString(),
+                                    methodName = queryMethod.name,
+                                    databaseName = database.typeName.toString()))
+                }
+            }
+        }
+    }
+
+    private fun processEntities(dbAnnotation: AnnotationMirror?, element: TypeElement):
             List<Entity> {
         if (!context.checker.check(dbAnnotation != null, element,
                 ProcessorErrors.DATABASE_MUST_BE_ANNOTATED_WITH_DATABASE)) {

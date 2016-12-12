@@ -35,11 +35,15 @@ data class Section(val text: String, val type: SectionType) {
     }
 }
 
+data class Table(val name : String, val alias : String)
+
 data class ParsedQuery(val original: String, val inputs: List<TerminalNode>,
+                       // pairs of table name and alias,
+                       val tables: Set<Table>,
                        val syntaxErrors: List<String>) {
     companion object {
         val STARTS_WITH_NUMBER = "^\\?[0-9]".toRegex()
-        val MISSING = ParsedQuery("missing query", emptyList(), emptyList())
+        val MISSING = ParsedQuery("missing query", emptyList(), emptySet(), emptyList())
     }
 
     val sections by lazy {

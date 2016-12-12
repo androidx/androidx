@@ -18,9 +18,12 @@ package com.android.support.room.vo
 
 import com.android.support.room.ext.typeName
 import com.squareup.javapoet.ClassName
+import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
-data class Entity(val tableName : String, val type: DeclaredType, val fields : List<Field>) {
+data class Entity(val element : TypeElement, val tableName : String, val type: DeclaredType,
+                  val fields : List<Field>) {
     val converterClassName by lazy {
         val typeName = this.typeName
         if (typeName is ClassName) {

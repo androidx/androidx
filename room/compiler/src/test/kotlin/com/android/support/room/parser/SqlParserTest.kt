@@ -24,6 +24,17 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SqlParserTest {
+    @Test
+    fun extractTableNames() {
+        assertThat(SqlParser.parse("select * from users").tables,
+                `is`(setOf(Table("users", "users"))))
+        assertThat(SqlParser.parse("select * from users as ux").tables,
+                `is`(setOf(Table("users", "ux"))))
+        assertThat(SqlParser.parse("select * from (select * from books)").tables,
+                `is`(setOf(Table("books", "books"))))
+        assertThat(SqlParser.parse("select x.id from (select * from books) as x").tables,
+                `is`(setOf(Table("books", "books"))))
+    }
 
     @Test
     fun findBindVariables() {
