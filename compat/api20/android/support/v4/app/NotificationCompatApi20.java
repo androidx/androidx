@@ -16,7 +16,6 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
@@ -147,7 +146,7 @@ class NotificationCompatApi20 {
         boolean allowGeneratedReplies = action.getExtras().getBoolean(
                 NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES);
         return actionFactory.build(action.icon, action.title, action.actionIntent,
-                action.getExtras(), remoteInputs, allowGeneratedReplies);
+                action.getExtras(), remoteInputs, null, allowGeneratedReplies);
     }
 
     private static Notification.Action getActionFromActionCompat(

@@ -19,6 +19,8 @@ package android.support.v4.app;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 
+import java.util.Set;
+
 @RequiresApi(9)
 class RemoteInputCompatBase {
 
@@ -28,10 +30,12 @@ class RemoteInputCompatBase {
         protected abstract CharSequence[] getChoices();
         protected abstract boolean getAllowFreeFormInput();
         protected abstract Bundle getExtras();
+        protected abstract Set<String> getAllowedDataTypes();
 
         public interface Factory {
             public RemoteInput build(String resultKey, CharSequence label,
-                    CharSequence[] choices, boolean allowFreeFormInput, Bundle extras);
+                    CharSequence[] choices, boolean allowFreeFormInput, Bundle extras,
+                    Set<String> allowedDataTypes);
             public RemoteInput[] newArray(int length);
         }
     }

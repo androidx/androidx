@@ -383,6 +383,32 @@ public class NotificationCompat {
     public static final String EXTRA_MESSAGES = "android.messages";
 
     /**
+     * Keys into the {@link #getExtras} Bundle: the audio contents of this notification.
+     *
+     * This is for use when rendering the notification on an audio-focused interface;
+     * the audio contents are a complete sound sample that contains the contents/body of the
+     * notification. This may be used in substitute of a Text-to-Speech reading of the
+     * notification. For example if the notification represents a voice message this should point
+     * to the audio of that message.
+     *
+     * The data stored under this key should be a String representation of a Uri that contains the
+     * audio contents in one of the following formats: WAV, PCM 16-bit, AMR-WB.
+     *
+     * This extra is unnecessary if you are using {@code MessagingStyle} since each {@code Message}
+     * has a field for holding data URI. That field can be used for audio.
+     * See {@code Message#setData}.
+     *
+     * Example usage:
+     * <pre>
+     * {@code
+     * NotificationCompat.Builder myBuilder = (build your Notification as normal);
+     * myBuilder.getExtras().putString(EXTRA_AUDIO_CONTENTS_URI, myAudioUri.toString());
+     * }
+     * </pre>
+     */
+    public static final String EXTRA_AUDIO_CONTENTS_URI = "android.audioContents";
+
+    /**
      * Value of {@link Notification#color} equal to 0 (also known as
      * {@link android.graphics.Color#TRANSPARENT Color.TRANSPARENT}),
      * telling the system not to decorate this notification with any special color but instead use
@@ -2480,6 +2506,19 @@ public class NotificationCompat {
     public static class Action extends NotificationCompatBase.Action {
         final Bundle mExtras;
         private final RemoteInput[] mRemoteInputs;
+
+        /**
+         * Holds {@link RemoteInput}s that only accept data, meaning
+         * {@link RemoteInput#getAllowFreeFormInput} is false, {@link RemoteInput#getChoices}
+         * is null or empty, and {@link RemoteInput#getAllowedDataTypes is non-null and not
+         * empty. These {@link RemoteInput}s will be ignored by devices that do not
+         * support non-text-based {@link RemoteInput}s. See {@link Builder#build}.
+         *
+         * You can test if a RemoteInput matches these constraints using
+         * {@link RemoteInput#isDataOnly}.
+         */
+        private final RemoteInput[] mDataOnlyRemoteInputs;
+
         private boolean mAllowGeneratedReplies;
 
         /**
@@ -2497,16 +2536,18 @@ public class NotificationCompat {
         public PendingIntent actionIntent;
 
         public Action(int icon, CharSequence title, PendingIntent intent) {
-            this(icon, title, intent, new Bundle(), null, true);
+            this(icon, title, intent, new Bundle(), null, null, true);
         }
 
         Action(int icon, CharSequence title, PendingIntent intent, Bundle extras,
-                RemoteInput[] remoteInputs, boolean allowGeneratedReplies) {
+                RemoteInput[] remoteInputs, RemoteInput[] dataOnlyRemoteInputs,
+                boolean allowGeneratedReplies) {
             this.icon = icon;
             this.title = NotificationCompat.Builder.limitCharSequenceLength(title);
             this.actionIntent = intent;
             this.mExtras = extras != null ? extras : new Bundle();
             this.mRemoteInputs = remoteInputs;
+            this.mDataOnlyRemoteInputs = dataOnlyRemoteInputs;
             this.mAllowGeneratedReplies = allowGeneratedReplies;
         }
 
@@ -2544,11 +2585,27 @@ public class NotificationCompat {
 
         /**
          * Get the list of inputs to be collected from the user when this action is sent.
-         * May return null if no remote inputs were added.
+         * May return null if no remote inputs were added. Only returns inputs which accept
+         * a text input. For inputs which only accept data use {@link #getDataOnlyRemoteInputs}.
          */
         @Override
         public RemoteInput[] getRemoteInputs() {
             return mRemoteInputs;
+        }
+
+        /**
+         * Get the list of inputs to be collected from the user that ONLY accept data when this
+         * action is sent. These remote inputs are guaranteed to return true on a call to
+         * {@link RemoteInput#isDataOnly}.
+         *
+         * <p>May return null if no data-only remote inputs were added.
+         *
+         * <p>This method exists so that legacy RemoteInput collectors that pre-date the addition
+         * of non-textual RemoteInputs do not access these remote inputs.
+         */
+        @Override
+        public RemoteInput[] getDataOnlyRemoteInputs() {
+            return mDataOnlyRemoteInputs;
         }
 
         /**
@@ -2660,10 +2717,23 @@ public class NotificationCompat {
              * @return the built action
              */
             public Action build() {
-                RemoteInput[] remoteInputs = mRemoteInputs != null
-                        ? mRemoteInputs.toArray(new RemoteInput[mRemoteInputs.size()]) : null;
-                return new Action(mIcon, mTitle, mIntent, mExtras, remoteInputs,
-                        mAllowGeneratedReplies);
+                List<RemoteInput> dataOnlyInputs = new ArrayList<>();
+                List<RemoteInput> textInputs = new ArrayList<>();
+                if (mRemoteInputs != null) {
+                    for (RemoteInput input : mRemoteInputs) {
+                        if (input.isDataOnly()) {
+                            dataOnlyInputs.add(input);
+                        } else {
+                            textInputs.add(input);
+                        }
+                    }
+                }
+                RemoteInput[] dataOnlyInputsArr = dataOnlyInputs.isEmpty()
+                        ? null : dataOnlyInputs.toArray(new RemoteInput[dataOnlyInputs.size()]);
+                RemoteInput[] textInputsArr = textInputs.isEmpty()
+                        ? null : textInputs.toArray(new RemoteInput[textInputs.size()]);
+                return new Action(mIcon, mTitle, mIntent, mExtras, textInputsArr,
+                        dataOnlyInputsArr, mAllowGeneratedReplies);
             }
         }
 
@@ -2931,9 +3001,11 @@ public class NotificationCompat {
             public NotificationCompatBase.Action build(int icon, CharSequence title,
                     PendingIntent actionIntent, Bundle extras,
                     RemoteInputCompatBase.RemoteInput[] remoteInputs,
+                    RemoteInputCompatBase.RemoteInput[] dataOnlyRemoteInputs,
                     boolean allowGeneratedReplies) {
                 return new Action(icon, title, actionIntent, extras,
-                        (RemoteInput[]) remoteInputs, allowGeneratedReplies);
+                        (RemoteInput[]) remoteInputs, (RemoteInput[]) dataOnlyRemoteInputs,
+                        allowGeneratedReplies);
             }
 
             @Override

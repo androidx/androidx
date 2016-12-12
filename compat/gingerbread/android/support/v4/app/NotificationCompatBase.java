@@ -42,11 +42,14 @@ public class NotificationCompatBase {
         public abstract PendingIntent getActionIntent();
         public abstract Bundle getExtras();
         public abstract RemoteInputCompatBase.RemoteInput[] getRemoteInputs();
+        /** Returns RemoteInputs that ONLY accept data results, not text. */
+        public abstract RemoteInputCompatBase.RemoteInput[] getDataOnlyRemoteInputs();
         public abstract boolean getAllowGeneratedReplies();
 
         public interface Factory {
             Action build(int icon, CharSequence title, PendingIntent actionIntent,
                     Bundle extras, RemoteInputCompatBase.RemoteInput[] remoteInputs,
+                    RemoteInputCompatBase.RemoteInput[] dataOnlyRemoteInputs,
                     boolean allowGeneratedReplies);
             public Action[] newArray(int length);
         }

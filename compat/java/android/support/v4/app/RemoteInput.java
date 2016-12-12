@@ -19,14 +19,18 @@ package android.support.v4.app;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
- * Helper for using the {@link android.app.RemoteInput} API
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for using the {@link android.app.RemoteInput} API in a backwards compatible fashion.
  */
 public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     private static final String TAG = "RemoteInput";
@@ -34,22 +38,28 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     /** Label used to denote the clip data type used for remote input transport */
     public static final String RESULTS_CLIP_LABEL = RemoteInputCompatJellybean.RESULTS_CLIP_LABEL;
 
-    /** Extra added to a clip data intent object to hold the results bundle. */
-    public static final String EXTRA_RESULTS_DATA = RemoteInputCompatJellybean.EXTRA_RESULTS_DATA;
+    /** Extra added to a clip data intent object to hold the text results bundle. */
+    public static final String EXTRA_RESULTS_DATA = "android.remoteinput.resultsData";
+
+    /** Extra added to a clip data intent object to hold the data results bundle. */
+    private static final String EXTRA_DATA_TYPE_RESULTS_DATA =
+            "android.remoteinput.dataTypeResultsData";
 
     private final String mResultKey;
     private final CharSequence mLabel;
     private final CharSequence[] mChoices;
-    private final boolean mAllowFreeFormInput;
+    private final boolean mAllowFreeFormTextInput;
     private final Bundle mExtras;
+    private final Set<String> mAllowedDataTypes;
 
     RemoteInput(String resultKey, CharSequence label, CharSequence[] choices,
-            boolean allowFreeFormInput, Bundle extras) {
+            boolean allowFreeFormTextInput, Bundle extras, Set<String> allowedDataTypes) {
         this.mResultKey = resultKey;
         this.mLabel = label;
         this.mChoices = choices;
-        this.mAllowFreeFormInput = allowFreeFormInput;
+        this.mAllowFreeFormTextInput = allowFreeFormTextInput;
         this.mExtras = extras;
+        this.mAllowedDataTypes = allowedDataTypes;
     }
 
     /**
@@ -77,6 +87,22 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         return mChoices;
     }
 
+    public Set<String> getAllowedDataTypes() {
+        return mAllowedDataTypes;
+    }
+
+    /**
+     * Returns true if the input only accepts data, meaning {@link #getAllowFreeFormInput}
+     * is false, {@link #getChoices} is null or empty, and {@link #getAllowedDataTypes is
+     * non-null and not empty.
+     */
+    public boolean isDataOnly() {
+        return !getAllowFreeFormInput()
+                && (getChoices() == null || getChoices().length == 0)
+                && getAllowedDataTypes() != null
+                && !getAllowedDataTypes().isEmpty();
+    }
+
     /**
      * Get whether or not users can provide an arbitrary value for
      * input. If you set this to {@code false}, users must select one of the
@@ -85,7 +111,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
      */
     @Override
     public boolean getAllowFreeFormInput() {
-        return mAllowFreeFormInput;
+        return mAllowFreeFormTextInput;
     }
 
     /**
@@ -103,8 +129,9 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         private final String mResultKey;
         private CharSequence mLabel;
         private CharSequence[] mChoices;
-        private boolean mAllowFreeFormInput = true;
+        private boolean mAllowFreeFormTextInput = true;
         private Bundle mExtras = new Bundle();
+        private final Set<String> mAllowedDataTypes = new HashSet<>();
 
         /**
          * Create a builder object for {@link android.support.v4.app.RemoteInput} objects.
@@ -142,14 +169,34 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         /**
          * Specifies whether the user can provide arbitrary values.
          *
-         * @param allowFreeFormInput The default is {@code true}.
-         *         If you specify {@code false}, you must provide a non-null
-         *         and non-empty array to {@link #setChoices} or an
+         * @param mimeType A mime type that results are allowed to come in.
+         *         Be aware that text results (see {@link #setAllowFreeFormInput}
+         *         are allowed by default. If you do not want text results you will have to
+         *         pass false to {@code setAllowFreeFormInput}.
+         * @param doAllow Whether the mime type should be allowed or not.
+         * @return this object for method chaining
+         */
+        public Builder setAllowDataType(String mimeType, boolean doAllow) {
+            if (doAllow) {
+                mAllowedDataTypes.add(mimeType);
+            } else {
+                mAllowedDataTypes.remove(mimeType);
+            }
+            return this;
+        }
+
+        /**
+         * Specifies whether the user can provide arbitrary text values.
+         *
+         * @param allowFreeFormTextInput The default is {@code true}.
+         *         If you specify {@code false}, you must either provide a non-null
+         *         and non-empty array to {@link #setChoices}, or enable a data result
+         *         in {@code setAllowDataType}. Otherwise an
          *         {@link IllegalArgumentException} is thrown.
          * @return this object for method chaining
          */
-        public Builder setAllowFreeFormInput(boolean allowFreeFormInput) {
-            mAllowFreeFormInput = allowFreeFormInput;
+        public Builder setAllowFreeFormInput(boolean allowFreeFormTextInput) {
+            mAllowFreeFormTextInput = allowFreeFormTextInput;
             return this;
         }
 
@@ -181,14 +228,42 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
          * {@link android.support.v4.app.RemoteInput} object.
          */
         public RemoteInput build() {
-            return new RemoteInput(mResultKey, mLabel, mChoices, mAllowFreeFormInput, mExtras);
+            return new RemoteInput(
+                    mResultKey,
+                    mLabel,
+                    mChoices,
+                    mAllowFreeFormTextInput,
+                    mExtras,
+                    mAllowedDataTypes);
         }
     }
 
     /**
-     * Get the remote input results bundle from an intent. The returned Bundle will
+     * Similar as {@link #getResultsFromIntent} but retrieves data results for a
+     * specific RemoteInput result. To retrieve a value use:
+     * <pre>
+     * {@code
+     * Map<String, Uri> results =
+     *     RemoteInput.getDataResultsFromIntent(intent, REMOTE_INPUT_KEY);
+     * if (results != null) {
+     *   Uri data = results.get(MIME_TYPE_OF_INTEREST);
+     * }
+     * }
+     * </pre>
+     * @param intent The intent object that fired in response to an action or content intent
+     *               which also had one or more remote input requested.
+     * @param remoteInputResultKey The result key for the RemoteInput you want results for.
+     */
+    public static Map<String, Uri> getDataResultsFromIntent(
+            Intent intent, String remoteInputResultKey) {
+        return IMPL.getDataResultsFromIntent(intent, remoteInputResultKey);
+    }
+
+    /**
+     * Get the remote input text results bundle from an intent. The returned Bundle will
      * contain a key/value for every result key populated by remote input collector.
-     * Use the {@link Bundle#getCharSequence(String)} method to retrieve a value.
+     * Use the {@link Bundle#getCharSequence(String)} method to retrieve a value. For data results
+     * use {@link #getDataResultsFromIntent}.
      * @param intent The intent object that fired in response to an action or content intent
      *               which also had one or more remote input requested.
      */
@@ -212,12 +287,28 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         IMPL.addResultsToIntent(remoteInputs, intent, results);
     }
 
+    /**
+     * Same as {@link #addResultsToIntent} but for setting data results.
+     * @param remoteInput The remote input for which results are being provided
+     * @param intent The intent to add remote input results to. The
+     *               {@link android.content.ClipData} field of the intent will be
+     *               modified to contain the results.
+     * @param results A map of mime type to the Uri result for that mime type.
+     */
+    public static void addDataResultToIntent(RemoteInput remoteInput, Intent intent,
+            Map<String, Uri> results) {
+        IMPL.addDataResultToIntent(remoteInput, intent, results);
+    }
+
     private static final Impl IMPL;
 
     interface Impl {
         Bundle getResultsFromIntent(Intent intent);
+        Map<String, Uri> getDataResultsFromIntent(Intent intent, String remoteInputResultKey);
         void addResultsToIntent(RemoteInput[] remoteInputs, Intent intent,
                 Bundle results);
+        void addDataResultToIntent(RemoteInput remoteInput, Intent intent,
+                Map<String, Uri> results);
     }
 
     static class ImplBase implements Impl {
@@ -228,7 +319,20 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         }
 
         @Override
+        public Map<String, Uri> getDataResultsFromIntent(
+                Intent intent, String remoteInputResultKey) {
+            Log.w(TAG, "RemoteInput is only supported from API Level 16");
+            return null;
+        }
+
+        @Override
         public void addResultsToIntent(RemoteInput[] remoteInputs, Intent intent, Bundle results) {
+            Log.w(TAG, "RemoteInput is only supported from API Level 16");
+        }
+
+        @Override
+        public void addDataResultToIntent(RemoteInput remoteInput, Intent intent,
+                Map<String, Uri> results) {
             Log.w(TAG, "RemoteInput is only supported from API Level 16");
         }
     }
@@ -240,8 +344,21 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         }
 
         @Override
+        public Map<String, Uri> getDataResultsFromIntent(
+                Intent intent, String remoteInputResultKey) {
+            return RemoteInputCompatJellybean.getDataResultsFromIntent(
+                    intent, remoteInputResultKey);
+        }
+
+        @Override
         public void addResultsToIntent(RemoteInput[] remoteInputs, Intent intent, Bundle results) {
             RemoteInputCompatJellybean.addResultsToIntent(remoteInputs, intent, results);
+        }
+
+        @Override
+        public void addDataResultToIntent(RemoteInput remoteInput, Intent intent,
+                Map<String, Uri> results) {
+            RemoteInputCompatJellybean.addDataResultToIntent(remoteInput, intent, results);
         }
     }
 
@@ -252,8 +369,20 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         }
 
         @Override
+        public Map<String, Uri> getDataResultsFromIntent(
+                Intent intent, String remoteInputResultKey) {
+            return RemoteInputCompatApi20.getDataResultsFromIntent(intent, remoteInputResultKey);
+        }
+
+        @Override
         public void addResultsToIntent(RemoteInput[] remoteInputs, Intent intent, Bundle results) {
             RemoteInputCompatApi20.addResultsToIntent(remoteInputs, intent, results);
+        }
+
+        @Override
+        public void addDataResultToIntent(RemoteInput remoteInput, Intent intent,
+                Map<String, Uri> results) {
+            RemoteInputCompatApi20.addDataResultToIntent(remoteInput, intent, results);
         }
     }
 
@@ -273,8 +402,9 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         @Override
         public RemoteInput build(String resultKey,
                 CharSequence label, CharSequence[] choices, boolean allowFreeFormInput,
-                Bundle extras) {
-            return new RemoteInput(resultKey, label, choices, allowFreeFormInput, extras);
+                Bundle extras, Set<String> allowedDataTypes) {
+            return new RemoteInput(
+                    resultKey, label, choices, allowFreeFormInput, extras, allowedDataTypes);
         }
 
         @Override
