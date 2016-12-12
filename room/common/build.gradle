@@ -23,7 +23,6 @@ dependencies {
     compile "com.android.support:support-annotations:$support_lib_version"
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-core:$mockito_version"
-
 }
 
 uploadArchives {

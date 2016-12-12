@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-group 'com.android.support.room'
-version '1.0-SNAPSHOT'
-
 buildscript {
-    ext.lifecyclesRootFolder = project.rootProject.rootDir
+    ext.projectRootFolder = project.rootProject.rootDir
     apply from: '../flatfoot-common/init.gradle'
     ext.addRepos(repositories)
     dependencies {
@@ -35,6 +32,8 @@ subprojects { project ->
             force "com.google.guava:guava-jdk5:17.0"
         }
     }
+    project.group = 'com.android.support.room'
+    project.version = release_version
     addRepos(project.repositories)
     if (enablePublicRepos) {
         apply plugin: 'com.android.databinding.localizemaven'

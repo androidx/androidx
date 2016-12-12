@@ -1,5 +1,5 @@
 buildscript {
-    ext.lifecyclesRootFolder = project.rootProject.rootDir
+    ext.projectRootFolder = project.rootProject.rootDir
     apply from: '../flatfoot-common/init.gradle'
     ext.addRepos(repositories)
     dependencies {

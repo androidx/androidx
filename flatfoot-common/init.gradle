@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-def root = ext.lifecyclesRootFolder
+def root = ext.projectRootFolder
 ext.prebuiltsRoot = "file://${root}/../../../prebuilts"
 ext.repoNames = ["$prebuiltsRoot/maven_repo",
                  "$prebuiltsRoot/gradle-plugin",
@@ -55,14 +55,14 @@ def addRepos(RepositoryHandler handler) {
 
 def createKotlinCheckstyle(Project project) {
     def kotlinCheckstyle = project.tasks.create(name : 'checkstyleKotlin', type: Checkstyle) {
-        configFile file("$lifecyclesRootFolder/../flatfoot-common/kotlin-checkstyle.xml")
+        configFile file("$projectRootFolder/../flatfoot-common/kotlin-checkstyle.xml")
         source project.sourceSets.main.allJava
         source project.sourceSets.test.allJava
         ignoreFailures false
         showViolations true
         include '**/*.kt'
         classpath = project.files()
-        checkstyleClasspath = files(file("$lifecyclesRootFolder../../../development/tools/checkstyle/checkstyle.jar").path)
+        checkstyleClasspath = files(file("$projectRootFolder../../../development/tools/checkstyle/checkstyle.jar").path)
    }
     project.tasks.findByName("check").dependsOn(kotlinCheckstyle)
     // poor man's line length check
@@ -83,7 +83,7 @@ def createKotlinCheckstyle(Project project) {
 
 def createAndroidCheckstyle(Project project) {
     def androidCheckstyle = project.tasks.create(name : 'checkstyleAndroid', type: Checkstyle) {
-        configFile file("$lifecyclesRootFolder/../../../development/tools/checkstyle/android-style.xml")
+        configFile file("$projectRootFolder/../../../development/tools/checkstyle/android-style.xml")
         if (project.hasProperty('android')) {
             source project.android.sourceSets.main.java.getSrcDirs()
         }
@@ -94,12 +94,18 @@ def createAndroidCheckstyle(Project project) {
         showViolations true
         include '**/*.java'
         classpath = project.files()
-        checkstyleClasspath = files(file("$lifecyclesRootFolder/../../../development/tools/checkstyle/checkstyle.jar").path)
+        checkstyleClasspath = files(file("$projectRootFolder/../../../development/tools/checkstyle/checkstyle.jar").path)
     }
     project.tasks.findByName("check").dependsOn(androidCheckstyle)
 }
 
-ext.localMavenRepo = "file://${new File(root, "maven-repo").absolutePath}"
+def buildDir
+if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
+    buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile()
+} else {
+    buildDir = file("${ext.prebuiltsRoot}/../out/host/gradle/frameworks/support/build")
+}
+ext.localMavenRepo = "file://${new File(buildDir, "flatfoot_repo").absolutePath}"
 ext.addRepos = this.&addRepos
 ext.createKotlinCheckstyle = this.&createKotlinCheckstyle
 ext.createAndroidCheckstyle = this.&createAndroidCheckstyle

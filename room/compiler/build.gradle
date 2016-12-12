@@ -56,7 +56,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: rootProject.ext.localMavenRepo)
-            pom.artifactId = 'lifecycle-compiler'
+            pom.artifactId = 'compiler'
         }
     }
 }

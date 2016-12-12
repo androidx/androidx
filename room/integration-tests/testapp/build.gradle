@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.android.builder.core.BuilderConstants
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
@@ -53,15 +52,6 @@ dependencies {
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-core:$mockito_version"
     compile project(path: ':runtime')
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: rootProject.ext.localMavenRepo)
-            pom.artifactId = "runtime"
-        }
-    }
 }
 
 createAndroidCheckstyle(project)
