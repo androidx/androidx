@@ -41,7 +41,7 @@ dependencies {
 }
 
 gradle.ext.currentSdk = 25
-ext.supportVersion = '25.1.0'
+ext.supportVersion = '25.2.0-SNAPSHOT'
 ext.extraVersion = 41
 ext.supportRepoOut = ''
 ext.buildToolsVersion = '24.0.1'
