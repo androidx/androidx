@@ -18,6 +18,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.graphics.Paint;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -125,6 +126,11 @@ public class RowHeaderPresenter extends Presenter {
         } else {
             vh.mTitleView.setText(headerItem.getName());
             if (vh.mDescriptionView != null) {
+                if (TextUtils.isEmpty(headerItem.getDescription())) {
+                    vh.mDescriptionView.setVisibility(View.GONE);
+                } else {
+                    vh.mDescriptionView.setVisibility(View.VISIBLE);
+                }
                 vh.mDescriptionView.setText(headerItem.getDescription());
             }
             viewHolder.view.setContentDescription(headerItem.getContentDescription());
