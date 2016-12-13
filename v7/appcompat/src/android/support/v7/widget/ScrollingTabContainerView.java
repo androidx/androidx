@@ -46,7 +46,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * This widget implements the dynamic action bar tab behavior that can change across different
@@ -377,7 +376,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         // no-op
     }
 
-    private class TabView extends LinearLayoutCompat implements OnLongClickListener {
+    private class TabView extends LinearLayoutCompat {
         private final int[] BG_ATTRS = {
                 android.R.attr.background
         };
@@ -511,34 +510,8 @@ public class ScrollingTabContainerView extends HorizontalScrollView
                 if (mIconView != null) {
                     mIconView.setContentDescription(tab.getContentDescription());
                 }
-
-                if (!hasText && !TextUtils.isEmpty(tab.getContentDescription())) {
-                    setOnLongClickListener(this);
-                } else {
-                    setOnLongClickListener(null);
-                    setLongClickable(false);
-                }
+                ViewCompat.setTooltip(this, hasText ? null : tab.getContentDescription());
             }
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-            final int[] screenPos = new int[2];
-            getLocationOnScreen(screenPos);
-
-            final Context context = getContext();
-            final int width = getWidth();
-            final int height = getHeight();
-            final int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
-
-            Toast cheatSheet = Toast.makeText(context, mTab.getContentDescription(),
-                    Toast.LENGTH_SHORT);
-            // Show under the tab
-            cheatSheet.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL,
-                    (screenPos[0] + width / 2) - screenWidth / 2, height);
-
-            cheatSheet.show();
-            return true;
         }
 
         public ActionBar.Tab getTab() {

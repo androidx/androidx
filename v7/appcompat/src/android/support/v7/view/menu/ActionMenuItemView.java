@@ -22,12 +22,10 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.ConfigurationHelper;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.widget.ActionMenuView;
@@ -35,18 +33,15 @@ import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.ForwardingListener;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 /**
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public class ActionMenuItemView extends AppCompatTextView
-        implements MenuView.ItemView, View.OnClickListener, View.OnLongClickListener,
-        ActionMenuView.ActionMenuChildView {
+        implements MenuView.ItemView, View.OnClickListener, ActionMenuView.ActionMenuChildView {
 
     private static final String TAG = "ActionMenuItemView";
 
@@ -87,7 +82,6 @@ public class ActionMenuItemView extends AppCompatTextView
         mMaxIconSize = (int) (MAX_ICON_SIZE * density + 0.5f);
 
         setOnClickListener(this);
-        setOnLongClickListener(this);
 
         mSavedPaddingLeft = -1;
         setSaveEnabled(false);
@@ -190,6 +184,9 @@ public class ActionMenuItemView extends AppCompatTextView
                 (mItemData.showsTextAsAction() && (mAllowTextWithIcon || mExpandedFormat));
 
         setText(visible ? mTitle : null);
+
+        // Show the tooltip for items that do not already show text.
+        ViewCompat.setTooltip(this, visible ? null : mTitle);
     }
 
     public void setIcon(Drawable icon) {
@@ -239,40 +236,6 @@ public class ActionMenuItemView extends AppCompatTextView
 
     public boolean needsDividerAfter() {
         return hasText();
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        if (hasText()) {
-            // Don't show the cheat sheet for items that already show text.
-            return false;
-        }
-
-        final int[] screenPos = new int[2];
-        final Rect displayFrame = new Rect();
-        getLocationOnScreen(screenPos);
-        getWindowVisibleDisplayFrame(displayFrame);
-
-        final Context context = getContext();
-        final int width = getWidth();
-        final int height = getHeight();
-        final int midy = screenPos[1] + height / 2;
-        int referenceX = screenPos[0] + width / 2;
-        if (ViewCompat.getLayoutDirection(v) == ViewCompat.LAYOUT_DIRECTION_LTR) {
-            final int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
-            referenceX = screenWidth - referenceX; // mirror
-        }
-        Toast cheatSheet = Toast.makeText(context, mItemData.getTitle(), Toast.LENGTH_SHORT);
-        if (midy < displayFrame.height()) {
-            // Show along the top; follow action buttons
-            cheatSheet.setGravity(Gravity.TOP | GravityCompat.END, referenceX,
-                    screenPos[1] + height - displayFrame.top);
-        } else {
-            // Show along the bottom center
-            cheatSheet.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, height);
-        }
-        cheatSheet.show();
-        return true;
     }
 
     @Override

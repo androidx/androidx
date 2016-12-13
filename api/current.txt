@@ -6866,6 +6866,7 @@ package android.support.v4.view {
     method public static void setScaleY(android.view.View, float);
     method public static void setScrollIndicators(android.view.View, int);
     method public static void setScrollIndicators(android.view.View, int, int);
+    method public static void setTooltip(android.view.View, java.lang.CharSequence);
     method public static void setTransitionName(android.view.View, java.lang.String);
     method public static void setTranslationX(android.view.View, float);
     method public static void setTranslationY(android.view.View, float);

@@ -22,24 +22,20 @@ import android.content.ContextWrapper;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.HapticFeedbackConstants;
 import android.view.SoundEffectConstants;
 import android.view.View;
-import android.widget.Toast;
 
 /**
  * The media route button allows the user to select routes and to control the
@@ -95,7 +91,6 @@ public class MediaRouteButton extends View {
 
     private Drawable mRemoteIndicator;
     private boolean mRemoteActive;
-    private boolean mCheatSheetEnabled;
     private boolean mIsConnecting;
 
     private ColorStateList mButtonTint;
@@ -141,7 +136,6 @@ public class MediaRouteButton extends View {
 
         updateContentDescription();
         setClickable(true);
-        setLongClickable(true);
     }
 
     /**
@@ -280,7 +274,8 @@ public class MediaRouteButton extends View {
      * button when the button is long pressed.
      */
     void setCheatSheetEnabled(boolean enable) {
-        mCheatSheetEnabled = enable;
+        ViewCompat.setTooltip(this,
+                enable ? getContext().getString(R.string.mr_button_content_description) : null);
     }
 
     @Override
@@ -291,42 +286,6 @@ public class MediaRouteButton extends View {
             playSoundEffect(SoundEffectConstants.CLICK);
         }
         return showDialog() || handled;
-    }
-
-    @Override
-    public boolean performLongClick() {
-        if (super.performLongClick()) {
-            return true;
-        }
-
-        if (!mCheatSheetEnabled) {
-            return false;
-        }
-
-        final int[] screenPos = new int[2];
-        final Rect displayFrame = new Rect();
-        getLocationOnScreen(screenPos);
-        getWindowVisibleDisplayFrame(displayFrame);
-
-        final Context context = getContext();
-        final int width = getWidth();
-        final int height = getHeight();
-        final int midy = screenPos[1] + height / 2;
-        final int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
-
-        Toast cheatSheet = Toast.makeText(context, R.string.mr_button_content_description,
-                Toast.LENGTH_SHORT);
-        if (midy < displayFrame.height()) {
-            // Show along the top; follow action buttons
-            cheatSheet.setGravity(Gravity.TOP | GravityCompat.END,
-                    screenWidth - screenPos[0] - width / 2, height);
-        } else {
-            // Show along the bottom center
-            cheatSheet.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, height);
-        }
-        cheatSheet.show();
-        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-        return true;
     }
 
     @Override
