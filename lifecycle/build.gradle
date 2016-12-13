@@ -1,29 +1,11 @@
 buildscript {
-    ext.projectRootFolder = project.rootProject.rootDir
-    apply from: '../flatfoot-common/init.gradle'
+    ext.supportRootFolder = new File(project.projectDir, "../")
+    apply from: '../app-toolkit/init.gradle'
     ext.addRepos(repositories)
     dependencies {
         classpath "com.android.tools.build:gradle:$android_gradle_plugin_version"
         if (enablePublicRepos) {
             classpath "com.android.databinding:localizemaven:${localize_maven_version}"
-        }
-    }
-}
-
-subprojects { project ->
-    configurations.all {
-        resolutionStrategy {
-            force "com.google.guava:guava-jdk5:17.0"
-        }
-    }
-    project.group = 'com.android.support.lifecycle'
-    project.version = release_version
-    addRepos(project.repositories)
-    if (enablePublicRepos) {
-        apply plugin: 'com.android.databinding.localizemaven'
-        project.localizeMaven {
-            localRepoDir = file("$prebuiltsRoot/tools/common/m2/repository")
-            otherRepoDirs = repoNames
         }
     }
 }

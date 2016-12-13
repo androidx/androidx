@@ -14,7 +14,7 @@ sourceSets {
 }
 
 dependencies {
-    compile project(":common")
+    compile project(":lifecycle:common")
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "com.google.auto:auto-common:$auto_common_version"
     compile "com.squareup:javapoet:$javapoet_version"

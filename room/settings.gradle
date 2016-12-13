@@ -1,22 +1,19 @@
-/*
- * Copyright (C) 2016 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-include 'common'
-include 'runtime'
-include 'compiler'
-include 'db'
-include ':db-impl'
-include ':integration-tests:testapp'
+// if you modify this file, you should modify ../app-toolkit/settings.gradle as well.
 
+include ':room:common'
+project(':room:common').projectDir = new File("common")
+
+include ':room:runtime'
+project(':room:runtime').projectDir = new File("runtime")
+
+include ':room:compiler'
+project(':room:compiler').projectDir = new File("compiler")
+
+include ':room:db'
+project(':room:db').projectDir = new File("db")
+
+include ":room:db-impl"
+project(':room:db-impl').projectDir = new File("db-impl")
+
+include ':room:integration-tests:testapp'
+project(':room:integration-tests:testapp').projectDir = new File("integration-tests/testapp")

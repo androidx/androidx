@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.android.builder.core.BuilderConstants
-apply plugin: 'com.android.library'
-apply plugin: 'maven'
+
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion compile_sdk_version
@@ -29,50 +28,30 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        jackOptions {
+            enabled true
         }
     }
 
     testOptions {
         unitTests.returnDefaultValues = true
     }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
-    compile project(":room:common")
-    compile project(":room:db")
-    compile project(":room:db-impl")
-    compile "com.android.support:support-core-utils:$support_lib_version"
-
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(":lifecycle:extensions")
+    androidTestCompile("com.android.support.test.espresso:espresso-core:$espresso_version", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
     testCompile "junit:junit:$junit_version"
-    testCompile "org.mockito:mockito-core:$mockito_version"
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: rootProject.ext.localMavenRepo)
-            pom.artifactId = "runtime"
-        }
-    }
 }
 
 createAndroidCheckstyle(project)
 
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-    def suffix = name.capitalize()
-    def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompile
-        from variant.javaCompile.destinationDir
-        destinationDir new File(project.buildDir, "libJar")
-    }
-}
+tasks['check'].dependsOn(tasks['connectedCheck'])

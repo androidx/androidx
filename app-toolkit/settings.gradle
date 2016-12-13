@@ -1,0 +1,50 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// If you change this file, you should also change the settings gradle inside
+// the sub project.
+include ':lifecycle:extensions'
+project(':lifecycle:extensions').projectDir = new File("../lifecycle/extensions")
+
+include ':lifecycle:runtime'
+project(':lifecycle:runtime').projectDir = new File("../lifecycle/runtime")
+
+include ':lifecycle:common'
+project(':lifecycle:common').projectDir = new File("../lifecycle/common")
+
+include ':lifecycle:compiler'
+project(':lifecycle:compiler').projectDir = new File("../lifecycle/compiler")
+
+include ':lifecycle:integration-tests:test-app'
+project(':lifecycle:integration-tests:test-app').projectDir = new File("../lifecycle/integration-tests/test-app")
+
+include ':room:common'
+project(':room:common').projectDir = new File("../room/common")
+
+include ':room:runtime'
+project(':room:runtime').projectDir = new File("../room/runtime")
+
+include ':room:compiler'
+project(':room:compiler').projectDir = new File("../room/compiler")
+
+include ':room:db'
+project(':room:db').projectDir = new File("../room/db")
+
+include ":room:db-impl"
+project(':room:db-impl').projectDir = new File("../room/db-impl")
+
+include ':room:integration-tests:testapp'
+project(':room:integration-tests:testapp').projectDir = new File("../room/integration-tests/testapp")

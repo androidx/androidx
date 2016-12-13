@@ -1,4 +1,16 @@
-include ':extensions'
-include ':runtime'
-include 'common'
-include 'compiler'
+// if you modify this file, you should modify ../app-toolkit/settings.gradle as well.
+
+include ':lifecycle:extensions'
+project(':lifecycle:extensions').projectDir = new File("extensions")
+
+include ':lifecycle:runtime'
+project(':lifecycle:runtime').projectDir = new File("runtime")
+
+include ':lifecycle:common'
+project(':lifecycle:common').projectDir = new File("common")
+
+include ':lifecycle:compiler'
+project(':lifecycle:compiler').projectDir = new File("compiler")
+
+include ':lifecycle:integration-tests:test-app'
+project(':lifecycle:integration-tests:test-app').projectDir = new File("integration-tests/test-app")

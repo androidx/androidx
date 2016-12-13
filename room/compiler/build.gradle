@@ -36,7 +36,7 @@ dependencies {
     def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)
     def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
 
-    compile project(":common")
+    compile project(":room:common")
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "com.google.auto:auto-common:$auto_common_version"
     compile "com.squareup:javapoet:$javapoet_version"
@@ -47,8 +47,10 @@ dependencies {
     testCompile "org.mockito:mockito-core:$mockito_version"
     testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$target_sdk_version/",
             include : "android.jar")
-    testCompile fileTree(dir: "${new File(project(":runtime").buildDir, "libJar")}", include : "*.jar")
-    testCompile fileTree(dir: "${new File(project(":db").buildDir, "libJar")}", include : "*.jar")
+    testCompile fileTree(dir: "${new File(project(":room:runtime").buildDir, "libJar")}",
+            include : "*.jar")
+    testCompile fileTree(dir: "${new File(project(":room:db").buildDir, "libJar")}",
+            include : "*.jar")
     testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
@@ -72,8 +74,8 @@ def generateAntlrTask = task('generateAntlrGrammar', type: JavaExec) {
 }
 
 tasks.findByName("compileKotlin").dependsOn(generateAntlrTask)
-tasks.findByName("compileKotlin").dependsOn(":runtime:jarDebug")
-tasks.findByName("compileKotlin").dependsOn(":db:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":room:runtime:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":room:db:jarDebug")
 
 createKotlinCheckstyle(project)
 

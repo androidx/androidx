@@ -26,7 +26,7 @@ android {
     }
 }
 dependencies {
-    compile project(":runtime")
+    compile project(":lifecycle:runtime")
     compile "com.android.support:support-fragment:$support_lib_version"
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-core:$mockito_version"

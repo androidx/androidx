@@ -15,9 +15,11 @@
  */
 import org.gradle.internal.os.OperatingSystem
 
-def root = ext.projectRootFolder
-def checkoutRoot = "${root}/../../../prebuilts"
-ext.prebuiltsRootUri = "file://${checkoutRoot}"
+def root = ext.supportRootFolder
+def checkoutRoot = "${root}/../.."
+ext.checkoutRoot = checkoutRoot
+ext.prebuiltsRoot = "$checkoutRoot/prebuilts"
+ext.prebuiltsRootUri = "file://${prebuiltsRoot}"
 
 
 final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
@@ -26,6 +28,19 @@ System.setProperty('android.home', "${checkoutRoot}/fullsdk-${platform}")
 File props = file("local.properties")
 props.write "sdk.dir=${fullSdkPath}"
 
+def buildDir
+def distDir
+if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
+    buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile()
+    distDir = new File(System.env.DIST_DIR).getCanonicalFile()
+} else {
+    buildDir = file("${checkoutRoot}/out/host/gradle/frameworks/support/build")
+    distDir = file("${project.rootDir}/../../out/dist")
+}
+println "dist dir: $distDir"
+def localMavenRepo = "file://${new File(buildDir, "flatfoot_repo").absolutePath}"
+ext.testApkDistOut = distDir
+ext.localMavenRepo = localMavenRepo
 
 ext.repoNames = ["$prebuiltsRootUri/maven_repo",
                  "$prebuiltsRootUri/gradle-plugin",
@@ -33,7 +48,8 @@ ext.repoNames = ["$prebuiltsRootUri/maven_repo",
                  "$prebuiltsRootUri/tools/common/m2/internal",
                  "$prebuiltsRootUri/tools/common/offline-m2",
                  "$prebuiltsRootUri/maven_repo/android",
-                 "$prebuiltsRootUri/../out/host/gradle/frameworks/support/build/support_repo/"]
+                 "file://$fullSdkPath/extras/android/m2repository",
+                 "file://${new File(buildDir, "support_repo").absolutePath}"]
 
 ext.kotlin_version = "1.0.5"
 ext.android_gradle_plugin_version = "2.2.1"
@@ -53,6 +69,63 @@ ext.espresso_version = "2.2.2"
 ext.release_version = "1.0-SNAPSHOT"
 ext.enablePublicRepos = System.getenv("ALLOW_PUBLIC_REPOS")
 
+// repository creation task
+def createRepoDistTask = rootProject.tasks.create(name : "createArchive", type: Zip) {
+    from localMavenRepo
+    destinationDir distDir
+    into 'appToolkitRepository'
+    baseName = String.format("sdk-repo-linux-appToolkitRepository-%s", rootProject.ext.release_version)
+}
+
+subprojects {
+    configurations.all {
+        resolutionStrategy {
+            force "com.google.guava:guava-jdk5:17.0"
+        }
+    }
+    def mavenGroup = project.getPath().split(":")[1]
+    project.group = "com.android.support.$mavenGroup"
+    project.version = release_version
+    addRepos(project.repositories)
+    
+    if (enablePublicRepos) {
+        apply plugin: 'com.android.databinding.localizemaven'
+        project.localizeMaven {
+            localRepoDir = file("$prebuiltsRoot/tools/common/m2/repository")
+            otherRepoDirs = repoNames
+        }
+    }
+
+    project.afterEvaluate {
+        // Copy instrumentation test APK into the dist dir
+        def assembleTestTask = project.tasks.findByPath('assembleAndroidTest')
+        if (assembleTestTask != null) {
+            assembleTestTask.doLast {
+                // If the project actually has some instrumentation tests, copy its APK
+                if (!project.android.sourceSets.androidTest.java.sourceFiles.isEmpty()) {
+                    def pkgTask = project.tasks.findByPath('packageDebugAndroidTest')
+                    copy {
+                        from(pkgTask.outputFile)
+                        into(rootProject.ext.testApkDistOut)
+                        rename { String fileName ->
+                            "${project.getPath().replace(':', '-').substring(1)}_${fileName}"
+                        }
+                    }
+                }
+            }
+        }
+
+        if (project.plugins.hasPlugin('maven')) {
+            def uploadArchivesTask = project.tasks.findByPath("uploadArchives")
+            if (uploadArchivesTask != null) {
+                createRepoDistTask.dependsOn(uploadArchivesTask)
+            }
+        }
+    }
+}
+
+
+
 def addRepos(RepositoryHandler handler) {
     repoNames.each { repo ->
         handler.maven {
@@ -67,14 +140,14 @@ def addRepos(RepositoryHandler handler) {
 
 def createKotlinCheckstyle(Project project) {
     def kotlinCheckstyle = project.tasks.create(name : 'checkstyleKotlin', type: Checkstyle) {
-        configFile file("$projectRootFolder/../flatfoot-common/kotlin-checkstyle.xml")
+        configFile file("${project.rootProject.ext.supportRootFolder}/app-toolkit/kotlin-checkstyle.xml")
         source project.sourceSets.main.allJava
         source project.sourceSets.test.allJava
         ignoreFailures false
         showViolations true
         include '**/*.kt'
         classpath = project.files()
-        checkstyleClasspath = files(file("$projectRootFolder../../../development/tools/checkstyle/checkstyle.jar").path)
+        checkstyleClasspath = files(file("${project.rootProject.ext.checkoutRoot}/development/tools/checkstyle/checkstyle.jar").path)
    }
     project.tasks.findByName("check").dependsOn(kotlinCheckstyle)
     // poor man's line length check
@@ -95,7 +168,7 @@ def createKotlinCheckstyle(Project project) {
 
 def createAndroidCheckstyle(Project project) {
     def androidCheckstyle = project.tasks.create(name : 'checkstyleAndroid', type: Checkstyle) {
-        configFile file("$projectRootFolder/../../../development/tools/checkstyle/android-style.xml")
+        configFile file("${project.rootProject.ext.checkoutRoot}/development/tools/checkstyle/android-style.xml")
         if (project.hasProperty('android')) {
             source project.android.sourceSets.main.java.getSrcDirs()
         }
@@ -106,7 +179,7 @@ def createAndroidCheckstyle(Project project) {
         showViolations true
         include '**/*.java'
         classpath = project.files()
-        checkstyleClasspath = files(file("$projectRootFolder/../../../development/tools/checkstyle/checkstyle.jar").path)
+        checkstyleClasspath = files(file("${project.rootProject.ext.checkoutRoot}/development/tools/checkstyle/checkstyle.jar").path)
     }
     project.tasks.findByName("check").dependsOn(androidCheckstyle)
 }

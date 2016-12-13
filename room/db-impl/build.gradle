@@ -57,7 +57,7 @@ uploadArchives {
 
 dependencies {
     compile "com.android.support:support-annotations:$support_lib_version"
-    compile project(":db")
+    compile project(":room:db")
 }
 createAndroidCheckstyle(project)
 

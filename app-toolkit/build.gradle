@@ -15,20 +15,13 @@
  */
 
 buildscript {
-    ext.projectRootFolder = new File(project.projectDir, "../..")
-    apply from: "${project.projectDir}/../../../flatfoot-common/init.gradle"
+    ext.supportRootFolder = new File(project.projectDir, "../")
+    apply from: 'init.gradle'
     ext.addRepos(repositories)
     dependencies {
         classpath "com.android.tools.build:gradle:$android_gradle_plugin_version"
         if (enablePublicRepos) {
             classpath "com.android.databinding:localizemaven:${localize_maven_version}"
         }
-    }
-}
-
-subprojects { project ->
-    addRepos(project.repositories)
-    project.repositories.maven {
-        url "${localMavenRepo}"
     }
 }
