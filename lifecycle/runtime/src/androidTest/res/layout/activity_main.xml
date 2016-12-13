@@ -15,12 +15,14 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.support.lifecycle">
-    <application>
-        <provider android:authorities="${applicationId}.lifecycle-trojan"
-                  android:multiprocess="true"
-                  android:exported="false"
-                  android:name="com.android.support.lifecycle.LifecycleRuntimeTrojanProvider"/>
-    </application>
-</manifest>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.android.support.lifecycle.activity.FragmentLifecycleActivity">
+    <FrameLayout android:id="@+id/fragment_container"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"></FrameLayout>
+</RelativeLayout>

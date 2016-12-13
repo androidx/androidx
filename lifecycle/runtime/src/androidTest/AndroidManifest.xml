@@ -16,11 +16,12 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.support.lifecycle">
+          package="com.android.support.lifecycle.test">
+
     <application>
-        <provider android:authorities="${applicationId}.lifecycle-trojan"
-                  android:multiprocess="true"
-                  android:exported="false"
-                  android:name="com.android.support.lifecycle.LifecycleRuntimeTrojanProvider"/>
+        <activity android:name="com.android.support.lifecycle.activity.FragmentLifecycleActivity"
+                  android:theme="@style/Base.Theme.AppCompat">
+        </activity>
     </application>
+
 </manifest>

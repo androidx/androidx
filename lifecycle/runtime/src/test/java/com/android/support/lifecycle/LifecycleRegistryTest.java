@@ -40,6 +40,7 @@ public class LifecycleRegistryTest {
     private LifecycleProvider mLifecycleProvider;
     private Lifecycle mLifecycle;
     private LifecycleRegistry mRegistry;
+
     @Before
     public void init() {
         mLifecycleProvider = mock(LifecycleProvider.class);

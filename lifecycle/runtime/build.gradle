@@ -30,8 +30,14 @@ dependencies {
     compile project(":lifecycle:common")
     // using classes like Pair from support core allows Lifecycle to be compatible w/ junit tests
     compile "com.android.support:support-fragment:$support_lib_version"
+
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-core:$mockito_version"
+
+    androidTestCompile "com.android.support:appcompat-v7:$support_lib_version"
+    androidTestCompile("com.android.support.test.espresso:espresso-core:$espresso_version", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
 }
 
 createAndroidCheckstyle(project)
@@ -39,7 +45,7 @@ createAndroidCheckstyle(project)
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url : rootProject.ext.localMavenRepo)
+            repository(url: rootProject.ext.localMavenRepo)
             pom.artifactId = "runtime"
         }
     }
