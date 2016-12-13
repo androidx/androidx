@@ -35,9 +35,23 @@ public class TestUtils {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         instrumentation.addMonitor(monitor);
         rule.runOnUiThread(() -> activity.recreate());
-        MainActivity result = (MainActivity) monitor.waitForActivityWithTimeout(TIMEOUT_MS);
-        if (result == null) {
-            throw new RuntimeException("Timeout. Failed to recreate an activity");
+        MainActivity result;
+
+        // this guarantee that we will reinstall monitor between notifications about onDestroy
+        // and onCreate
+        synchronized (monitor) {
+            do {
+                // the documetation says "Block until an Activity is created
+                // that matches this monitor." This statement is true, but there are some other
+                // true statements like: "Block until an Activity is destoyed" or
+                // "Block until an Activity is resumed"...
+
+                // this call will release synchronization monitor's monitor
+                result = (MainActivity) monitor.waitForActivityWithTimeout(TIMEOUT_MS);
+                if (result == null) {
+                    throw new RuntimeException("Timeout. Failed to recreate an activity");
+                }
+            } while (result == activity);
         }
         return result;
     }
