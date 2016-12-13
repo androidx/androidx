@@ -13,15 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import org.gradle.internal.os.OperatingSystem
+
 def root = ext.projectRootFolder
-ext.prebuiltsRoot = "file://${root}/../../../prebuilts"
-ext.repoNames = ["$prebuiltsRoot/maven_repo",
-                 "$prebuiltsRoot/gradle-plugin",
-                 "$prebuiltsRoot/tools/common/m2/repository",
-                 "$prebuiltsRoot/tools/common/m2/internal",
-                 "$prebuiltsRoot/tools/common/offline-m2",
-                 "$prebuiltsRoot/maven_repo/android",
-                 "$prebuiltsRoot/../out/host/gradle/frameworks/support/build/support_repo/"]
+def checkoutRoot = "${root}/../../../prebuilts"
+ext.prebuiltsRootUri = "file://${checkoutRoot}"
+
+
+final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
+final String fullSdkPath = "${checkoutRoot}/fullsdk-${platform}"
+System.setProperty('android.home', "${checkoutRoot}/fullsdk-${platform}")
+File props = file("local.properties")
+props.write "sdk.dir=${fullSdkPath}"
+
+
+ext.repoNames = ["$prebuiltsRootUri/maven_repo",
+                 "$prebuiltsRootUri/gradle-plugin",
+                 "$prebuiltsRootUri/tools/common/m2/repository",
+                 "$prebuiltsRootUri/tools/common/m2/internal",
+                 "$prebuiltsRootUri/tools/common/offline-m2",
+                 "$prebuiltsRootUri/maven_repo/android",
+                 "$prebuiltsRootUri/../out/host/gradle/frameworks/support/build/support_repo/"]
 
 ext.kotlin_version = "1.0.5"
 ext.android_gradle_plugin_version = "2.2.1"
@@ -33,9 +45,9 @@ ext.support_lib_version = "25.1.0-SNAPSHOT"
 ext.junit_version = "4.12"
 ext.mockito_version = "1.9.5"
 ext.min_sdk_version = 14
-ext.target_sdk_version = 24
-ext.compile_sdk_version = 24
-ext.build_tools_version = "24.0.0"
+ext.target_sdk_version = 26
+ext.compile_sdk_version = 26
+ext.build_tools_version = "26.0.0"
 ext.intellij_annotation = "12.0"
 ext.espresso_version = "2.2.2"
 ext.release_version = "1.0-SNAPSHOT"
@@ -103,7 +115,7 @@ def buildDir
 if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
     buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile()
 } else {
-    buildDir = file("${ext.prebuiltsRoot}/../out/host/gradle/frameworks/support/build")
+    buildDir = file("${ext.prebuiltsRootUri}/../out/host/gradle/frameworks/support/build")
 }
 ext.localMavenRepo = "file://${new File(buildDir, "flatfoot_repo").absolutePath}"
 ext.addRepos = this.&addRepos
