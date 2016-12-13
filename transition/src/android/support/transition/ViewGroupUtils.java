@@ -28,9 +28,7 @@ class ViewGroupUtils {
     private static final ViewGroupUtilsImpl IMPL;
 
     static {
-        if (Build.VERSION.SDK_INT >= 19) {
-            IMPL = new ViewGroupUtilsApi19();
-        } else if (Build.VERSION.SDK_INT >= 18) {
+        if (Build.VERSION.SDK_INT >= 18) {
             IMPL = new ViewGroupUtilsApi18();
         } else {
             IMPL = new ViewGroupUtilsApi14();
