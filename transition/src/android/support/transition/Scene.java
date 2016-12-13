@@ -17,11 +17,11 @@
 package android.support.transition;
 
 import android.content.Context;
-import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -34,53 +34,11 @@ import android.view.ViewGroup;
  */
 public class Scene {
 
-    private static SceneStaticsImpl sImpl;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 21) {
-            sImpl = new SceneStaticsApi21();
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            sImpl = new SceneStaticsKitKat();
-        } else {
-            sImpl = new SceneStaticsIcs();
-        }
-    }
-
-    /* package */ SceneImpl mImpl;
-
-    /**
-     * Constructs a Scene with no information about how values will change
-     * when this scene is applied. This constructor might be used when
-     * a Scene is created with the intention of being dynamically configured,
-     * through setting {@link #setEnterAction(Runnable)} and possibly
-     * {@link #setExitAction(Runnable)}.
-     *
-     * @param sceneRoot The root of the hierarchy in which scene changes
-     *                  and transitions will take place.
-     */
-    public Scene(@NonNull ViewGroup sceneRoot) {
-        mImpl = createSceneImpl();
-        mImpl.init(sceneRoot);
-    }
-
-    /**
-     * Constructs a Scene which, when entered, will remove any
-     * children from the sceneRoot container and add the layout
-     * object as a new child of that container.
-     *
-     * @param sceneRoot The root of the hierarchy in which scene changes
-     *                  and transitions will take place.
-     * @param layout    The view hierarchy of this scene, added as a child
-     *                  of sceneRoot when this scene is entered.
-     */
-    public Scene(@NonNull ViewGroup sceneRoot, @NonNull View layout) {
-        mImpl = createSceneImpl();
-        mImpl.init(sceneRoot, layout);
-    }
-
-    private Scene(SceneImpl scene) {
-        mImpl = scene;
-    }
+    private Context mContext;
+    private int mLayoutId = -1;
+    private ViewGroup mSceneRoot;
+    private View mLayout; // alternative to layoutId
+    private Runnable mEnterAction, mExitAction;
 
     /**
      * Returns a Scene described by the resource file associated with the given
@@ -111,20 +69,60 @@ public class Scene {
         if (scene != null) {
             return scene;
         } else {
-            scene = new Scene(sImpl.getSceneForLayout(sceneRoot, layoutId, context));
+            scene = new Scene(sceneRoot, layoutId, context);
             scenes.put(layoutId, scene);
             return scene;
         }
     }
 
-    private SceneImpl createSceneImpl() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return new SceneApi21();
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            return new SceneKitKat();
-        } else {
-            return new SceneIcs();
-        }
+    /**
+     * Constructs a Scene with no information about how values will change
+     * when this scene is applied. This constructor might be used when
+     * a Scene is created with the intention of being dynamically configured,
+     * through setting {@link #setEnterAction(Runnable)} and possibly
+     * {@link #setExitAction(Runnable)}.
+     *
+     * @param sceneRoot The root of the hierarchy in which scene changes
+     *                  and transitions will take place.
+     */
+    public Scene(@NonNull ViewGroup sceneRoot) {
+        mSceneRoot = sceneRoot;
+    }
+
+    /**
+     * Constructs a Scene which, when entered, will remove any
+     * children from the sceneRoot container and will inflate and add
+     * the hierarchy specified by the layoutId resource file.
+     *
+     * <p>This method is hidden because layoutId-based scenes should be
+     * created by the caching factory method {@link Scene#getCurrentScene(View)}.</p>
+     *
+     * @param sceneRoot The root of the hierarchy in which scene changes
+     *                  and transitions will take place.
+     * @param layoutId  The id of a resource file that defines the view
+     *                  hierarchy of this scene.
+     * @param context   The context used in the process of inflating
+     *                  the layout resource.
+     */
+    private Scene(ViewGroup sceneRoot, int layoutId, Context context) {
+        mContext = context;
+        mSceneRoot = sceneRoot;
+        mLayoutId = layoutId;
+    }
+
+    /**
+     * Constructs a Scene which, when entered, will remove any
+     * children from the sceneRoot container and add the layout
+     * object as a new child of that container.
+     *
+     * @param sceneRoot The root of the hierarchy in which scene changes
+     *                  and transitions will take place.
+     * @param layout    The view hierarchy of this scene, added as a child
+     *                  of sceneRoot when this scene is entered.
+     */
+    public Scene(@NonNull ViewGroup sceneRoot, @NonNull View layout) {
+        mSceneRoot = sceneRoot;
+        mLayout = layout;
     }
 
     /**
@@ -136,7 +134,7 @@ public class Scene {
      */
     @NonNull
     public ViewGroup getSceneRoot() {
-        return mImpl.getSceneRoot();
+        return mSceneRoot;
     }
 
     /**
@@ -147,7 +145,11 @@ public class Scene {
      * if there is one.
      */
     public void exit() {
-        mImpl.exit();
+        if (getCurrentScene(mSceneRoot) == this) {
+            if (mExitAction != null) {
+                mExitAction.run();
+            }
+        }
     }
 
     /**
@@ -161,7 +163,47 @@ public class Scene {
      * use one of the methods in {@link android.support.transition.TransitionManager} instead.
      */
     public void enter() {
-        mImpl.enter();
+        // Apply layout change, if any
+        if (mLayoutId > 0 || mLayout != null) {
+            // empty out parent container before adding to it
+            getSceneRoot().removeAllViews();
+
+            if (mLayoutId > 0) {
+                LayoutInflater.from(mContext).inflate(mLayoutId, mSceneRoot);
+            } else {
+                mSceneRoot.addView(mLayout);
+            }
+        }
+
+        // Notify next scene that it is entering. Subclasses may override to configure scene.
+        if (mEnterAction != null) {
+            mEnterAction.run();
+        }
+
+        setCurrentScene(mSceneRoot, this);
+    }
+
+    /**
+     * Set the scene that the given view is in. The current scene is set only
+     * on the root view of a scene, not for every view in that hierarchy. This
+     * information is used by Scene to determine whether there is a previous
+     * scene which should be exited before the new scene is entered.
+     *
+     * @param view The view on which the current scene is being set
+     */
+    static void setCurrentScene(View view, Scene scene) {
+        view.setTag(R.id.transition_current_scene, scene);
+    }
+
+    /**
+     * Gets the current {@link Scene} set on the given view. A scene is set on a view
+     * only if that view is the scene root.
+     *
+     * @return The current Scene set on this view. A value of null indicates that
+     * no Scene is currently set.
+     */
+    static Scene getCurrentScene(View view) {
+        return (Scene) view.getTag(R.id.transition_current_scene);
     }
 
     /**
@@ -182,7 +224,7 @@ public class Scene {
      * @see android.support.transition.Scene(android.view.ViewGroup, android.view.ViewGroup)
      */
     public void setEnterAction(@Nullable Runnable action) {
-        mImpl.setEnterAction(action);
+        mEnterAction = action;
     }
 
     /**
@@ -202,7 +244,16 @@ public class Scene {
      * @see android.support.transition.Scene(android.view.ViewGroup, android.view.ViewGroup)
      */
     public void setExitAction(@Nullable Runnable action) {
-        mImpl.setExitAction(action);
+        mExitAction = action;
+    }
+
+    /**
+     * Returns whether this Scene was created by a layout resource file, determined
+     * by the layoutId passed into
+     * {@link #getSceneForLayout(ViewGroup, int, Context)}.
+     */
+    boolean isCreatedFromLayoutResource() {
+        return (mLayoutId > 0);
     }
 
 }

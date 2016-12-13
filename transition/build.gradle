@@ -30,10 +30,9 @@ android {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDirs = [
                 'base',
-                'ics',
-                'kitkat',
-                'api21',
-                'api23',
+                'api14',
+                'api18',
+                'api19',
                 'src'
         ]
         main.res.srcDirs = [

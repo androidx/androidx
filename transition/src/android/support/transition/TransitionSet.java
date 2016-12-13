@@ -16,11 +16,18 @@
 
 package android.support.transition;
 
-import android.animation.Animator;
-import android.os.Build;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+import android.animation.TimeInterpolator;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
+import android.util.AndroidRuntimeException;
+import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
 
 /**
  * A TransitionSet is a parent of child transitions (including other
@@ -33,6 +40,11 @@ import android.view.ViewGroup;
  * <p>Unlike the platform version, this does not support declaration by XML resources.</p>
  */
 public class TransitionSet extends Transition {
+
+    private ArrayList<Transition> mTransitions = new ArrayList<>();
+    private boolean mPlayTogether = true;
+    private int mCurrentListeners;
+    private boolean mStarted = false;
 
     /**
      * A flag used to indicate that the child transitions of this set
@@ -55,24 +67,6 @@ public class TransitionSet extends Transition {
      * child transitions will play {@link #ORDERING_TOGETHER together}.
      */
     public TransitionSet() {
-        super(true);
-        if (Build.VERSION.SDK_INT < 19) {
-            mImpl = new TransitionSetIcs(this);
-        } else {
-            mImpl = new TransitionSetKitKat(this);
-        }
-    }
-
-    /**
-     * Returns the ordering of this TransitionSet. By default, the value is
-     * {@link #ORDERING_TOGETHER}.
-     *
-     * @return {@link #ORDERING_TOGETHER} if child transitions will play at the same
-     * time, {@link #ORDERING_SEQUENTIAL} if they will play in sequence.
-     * @see #setOrdering(int)
-     */
-    public int getOrdering() {
-        return ((TransitionSetImpl) mImpl).getOrdering();
     }
 
     /**
@@ -85,8 +79,30 @@ public class TransitionSet extends Transition {
      */
     @NonNull
     public TransitionSet setOrdering(int ordering) {
-        ((TransitionSetImpl) mImpl).setOrdering(ordering);
+        switch (ordering) {
+            case ORDERING_SEQUENTIAL:
+                mPlayTogether = false;
+                break;
+            case ORDERING_TOGETHER:
+                mPlayTogether = true;
+                break;
+            default:
+                throw new AndroidRuntimeException("Invalid parameter for TransitionSet "
+                        + "ordering: " + ordering);
+        }
         return this;
+    }
+
+    /**
+     * Returns the ordering of this TransitionSet. By default, the value is
+     * {@link #ORDERING_TOGETHER}.
+     *
+     * @return {@link #ORDERING_TOGETHER} if child transitions will play at the same
+     * time, {@link #ORDERING_SEQUENTIAL} if they will play in sequence.
+     * @see #setOrdering(int)
+     */
+    public int getOrdering() {
+        return mPlayTogether ? ORDERING_TOGETHER : ORDERING_SEQUENTIAL;
     }
 
     /**
@@ -104,8 +120,92 @@ public class TransitionSet extends Transition {
      */
     @NonNull
     public TransitionSet addTransition(@NonNull Transition transition) {
-        ((TransitionSetImpl) mImpl).addTransition(transition.mImpl);
+        mTransitions.add(transition);
+        transition.mParent = this;
+        if (mDuration >= 0) {
+            transition.setDuration(mDuration);
+        }
         return this;
+    }
+
+    /**
+     * Setting a non-negative duration on a TransitionSet causes all of the child
+     * transitions (current and future) to inherit this duration.
+     *
+     * @param duration The length of the animation, in milliseconds.
+     * @return This transitionSet object.
+     */
+    @NonNull
+    @Override
+    public TransitionSet setDuration(long duration) {
+        super.setDuration(duration);
+        if (mDuration >= 0) {
+            int numTransitions = mTransitions.size();
+            for (int i = 0; i < numTransitions; ++i) {
+                mTransitions.get(i).setDuration(duration);
+            }
+        }
+        return this;
+    }
+
+    @NonNull
+    @Override
+    public TransitionSet setStartDelay(long startDelay) {
+        return (TransitionSet) super.setStartDelay(startDelay);
+    }
+
+    @NonNull
+    @Override
+    public TransitionSet setInterpolator(@Nullable TimeInterpolator interpolator) {
+        return (TransitionSet) super.setInterpolator(interpolator);
+    }
+
+    @NonNull
+    @Override
+    public TransitionSet addTarget(@NonNull View target) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).addTarget(target);
+        }
+        return (TransitionSet) super.addTarget(target);
+    }
+
+    @NonNull
+    @Override
+    public TransitionSet addTarget(@IdRes int targetId) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).addTarget(targetId);
+        }
+        return (TransitionSet) super.addTarget(targetId);
+    }
+
+    @NonNull
+    @Override
+    public TransitionSet addListener(@NonNull TransitionListener listener) {
+        return (TransitionSet) super.addListener(listener);
+    }
+
+    @NonNull
+    @Override
+    public TransitionSet removeTarget(@IdRes int targetId) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).removeTarget(targetId);
+        }
+        return (TransitionSet) super.removeTarget(targetId);
+    }
+
+    @NonNull
+    @Override
+    public TransitionSet removeTarget(@NonNull View target) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).removeTarget(target);
+        }
+        return (TransitionSet) super.removeTarget(target);
+    }
+
+    @NonNull
+    @Override
+    public TransitionSet removeListener(@NonNull TransitionListener listener) {
+        return (TransitionSet) super.removeListener(listener);
     }
 
     /**
@@ -116,25 +216,200 @@ public class TransitionSet extends Transition {
      */
     @NonNull
     public TransitionSet removeTransition(@NonNull Transition transition) {
-        ((TransitionSetImpl) mImpl).removeTransition(transition.mImpl);
+        mTransitions.remove(transition);
+        transition.mParent = null;
         return this;
     }
 
+    /**
+     * Sets up listeners for each of the child transitions. This is used to
+     * determine when this transition set is finished (all child transitions
+     * must finish first).
+     */
+    private void setupStartEndListeners() {
+        TransitionSetListener listener = new TransitionSetListener(this);
+        for (Transition childTransition : mTransitions) {
+            childTransition.addListener(listener);
+        }
+        mCurrentListeners = mTransitions.size();
+    }
+
+    /**
+     * This listener is used to detect when all child transitions are done, at
+     * which point this transition set is also done.
+     */
+    static class TransitionSetListener extends TransitionListenerAdapter {
+
+        TransitionSet mTransitionSet;
+
+        TransitionSetListener(TransitionSet transitionSet) {
+            mTransitionSet = transitionSet;
+        }
+
+        @Override
+        public void onTransitionStart(@NonNull Transition transition) {
+            if (!mTransitionSet.mStarted) {
+                mTransitionSet.start();
+                mTransitionSet.mStarted = true;
+            }
+        }
+
+        @Override
+        public void onTransitionEnd(@NonNull Transition transition) {
+            --mTransitionSet.mCurrentListeners;
+            if (mTransitionSet.mCurrentListeners == 0) {
+                // All child trans
+                mTransitionSet.mStarted = false;
+                mTransitionSet.end();
+            }
+            transition.removeListener(this);
+        }
+
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
     @Override
-    public void captureEndValues(@NonNull TransitionValues transitionValues) {
-        mImpl.captureEndValues(transitionValues);
+    protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
+            TransitionValuesMaps endValues) {
+        for (Transition childTransition : mTransitions) {
+            childTransition.createAnimators(sceneRoot, startValues, endValues);
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    protected void runAnimators() {
+        if (mTransitions.isEmpty()) {
+            start();
+            end();
+            return;
+        }
+        setupStartEndListeners();
+        if (!mPlayTogether) {
+            // Setup sequence with listeners
+            // TODO: Need to add listeners in such a way that we can remove them later if canceled
+            for (int i = 1; i < mTransitions.size(); ++i) {
+                Transition previousTransition = mTransitions.get(i - 1);
+                final Transition nextTransition = mTransitions.get(i);
+                previousTransition.addListener(new TransitionListenerAdapter() {
+                    @Override
+                    public void onTransitionEnd(@NonNull Transition transition) {
+                        nextTransition.runAnimators();
+                        transition.removeListener(this);
+                    }
+                });
+            }
+            Transition firstTransition = mTransitions.get(0);
+            if (firstTransition != null) {
+                firstTransition.runAnimators();
+            }
+        } else {
+            for (Transition childTransition : mTransitions) {
+                childTransition.runAnimators();
+            }
+        }
     }
 
     @Override
     public void captureStartValues(@NonNull TransitionValues transitionValues) {
-        mImpl.captureStartValues(transitionValues);
+        int targetId = transitionValues.view.getId();
+        if (isValidTarget(transitionValues.view, targetId)) {
+            for (Transition childTransition : mTransitions) {
+                if (childTransition.isValidTarget(transitionValues.view, targetId)) {
+                    childTransition.captureStartValues(transitionValues);
+                }
+            }
+        }
     }
 
     @Override
-    @Nullable
-    public Animator createAnimator(@NonNull ViewGroup sceneRoot,
-            @NonNull TransitionValues startValues, @NonNull TransitionValues endValues) {
-        return mImpl.createAnimator(sceneRoot, startValues, endValues);
+    public void captureEndValues(@NonNull TransitionValues transitionValues) {
+        int targetId = transitionValues.view.getId();
+        if (isValidTarget(transitionValues.view, targetId)) {
+            for (Transition childTransition : mTransitions) {
+                if (childTransition.isValidTarget(transitionValues.view, targetId)) {
+                    childTransition.captureEndValues(transitionValues);
+                }
+            }
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public void pause(View sceneRoot) {
+        super.pause(sceneRoot);
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; ++i) {
+            mTransitions.get(i).pause(sceneRoot);
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public void resume(View sceneRoot) {
+        super.resume(sceneRoot);
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; ++i) {
+            mTransitions.get(i).resume(sceneRoot);
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    protected void cancel() {
+        super.cancel();
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; ++i) {
+            mTransitions.get(i).cancel();
+        }
+    }
+
+    @Override
+    TransitionSet setSceneRoot(ViewGroup sceneRoot) {
+        super.setSceneRoot(sceneRoot);
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; ++i) {
+            mTransitions.get(i).setSceneRoot(sceneRoot);
+        }
+        return this;
+    }
+
+    @Override
+    void setCanRemoveViews(boolean canRemoveViews) {
+        super.setCanRemoveViews(canRemoveViews);
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; ++i) {
+            mTransitions.get(i).setCanRemoveViews(canRemoveViews);
+        }
+    }
+
+    @Override
+    String toString(String indent) {
+        String result = super.toString(indent);
+        for (int i = 0; i < mTransitions.size(); ++i) {
+            result += "\n" + mTransitions.get(i).toString(indent + "  ");
+        }
+        return result;
+    }
+
+    @Override
+    public Transition clone() {
+        TransitionSet clone = (TransitionSet) super.clone();
+        clone.mTransitions = new ArrayList<>();
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; ++i) {
+            clone.addTransition(mTransitions.get(i).clone());
+        }
+        return clone;
     }
 
 }

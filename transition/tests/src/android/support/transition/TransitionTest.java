@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.sameInstance;
 
 import android.animation.Animator;
 import android.animation.TimeInterpolator;
+import android.support.annotation.NonNull;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.transition.test.R;
@@ -114,13 +115,13 @@ public class TransitionTest extends BaseTest {
 
     public static class EmptyTransition extends Transition {
 
-        public void captureEndValues(TransitionValues transitionValues) {
+        public void captureEndValues(@NonNull TransitionValues transitionValues) {
         }
 
-        public void captureStartValues(TransitionValues transitionValues) {
+        public void captureStartValues(@NonNull TransitionValues transitionValues) {
         }
 
-        public Animator createAnimator(ViewGroup sceneRoot, TransitionValues startValues,
+        public Animator createAnimator(@NonNull ViewGroup sceneRoot, TransitionValues startValues,
                 TransitionValues endValues) {
             return null;
         }
@@ -129,19 +130,19 @@ public class TransitionTest extends BaseTest {
 
     public static class EmptyTransitionListener implements Transition.TransitionListener {
 
-        public void onTransitionStart(Transition transition) {
+        public void onTransitionStart(@NonNull Transition transition) {
         }
 
-        public void onTransitionEnd(Transition transition) {
+        public void onTransitionEnd(@NonNull Transition transition) {
         }
 
-        public void onTransitionCancel(Transition transition) {
+        public void onTransitionCancel(@NonNull Transition transition) {
         }
 
-        public void onTransitionPause(Transition transition) {
+        public void onTransitionPause(@NonNull Transition transition) {
         }
 
-        public void onTransitionResume(Transition transition) {
+        public void onTransitionResume(@NonNull Transition transition) {
         }
 
     }
