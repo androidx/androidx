@@ -24,6 +24,7 @@ import static junit.framework.Assert.assertTrue;
 import android.support.annotation.Nullable;
 import android.support.test.filters.MediumTest;
 import android.view.View;
+import android.widget.TextView;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -144,7 +145,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         assertCenterAligned(view);
 
         // Velocity high enough to scroll beyond the current view.
-        int velocity = (int) (0.2 * mRecyclerView.getMaxFlingVelocity());
+        int velocity = (int) (0.25 * mRecyclerView.getMaxFlingVelocity());
         int velocityDir = mReverseScroll ? -velocity : velocity;
 
         mGlm.expectIdleState(1);
@@ -154,7 +155,8 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
 
         View viewAfterFling = findCenterView(mGlm);
 
-        assertNotSame("The view should have scrolled", view, viewAfterFling);
+        assertNotSame("The view should have scrolled!",
+                ((TextView) view).getText(),((TextView) viewAfterFling).getText());
         assertCenterAligned(viewAfterFling);
     }
 
@@ -204,12 +206,12 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
             assertEquals("The child should align with the center of the parent",
                     mRecyclerView.getWidth() / 2,
                     mGlm.getDecoratedLeft(view) +
-                            mGlm.getDecoratedMeasuredWidth(view) / 2);
+                            mGlm.getDecoratedMeasuredWidth(view) / 2, 1);
         } else {
             assertEquals("The child should align with the center of the parent",
                     mRecyclerView.getHeight() / 2,
                     mGlm.getDecoratedTop(view) +
-                            mGlm.getDecoratedMeasuredHeight(view) / 2);
+                            mGlm.getDecoratedMeasuredHeight(view) / 2, 1);
         }
     }
 
