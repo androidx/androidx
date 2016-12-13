@@ -234,16 +234,8 @@ public final class ViewParentCompat {
      * React to a descendant view initiating a nestable scroll operation, claiming the
      * nested scroll operation if appropriate.
      *
-     * <p>This method will be called in response to a descendant view invoking
-     * {@link ViewCompat#startNestedScroll(View, int)}. Each parent up the view hierarchy will be
-     * given an opportunity to respond and claim the nested scrolling operation by returning
-     * <code>true</code>.</p>
-     *
-     * <p>This method may be overridden by ViewParent implementations to indicate when the view
-     * is willing to support a nested scrolling operation that is about to begin. If it returns
-     * true, this ViewParent will become the target view's nested scrolling parent for the duration
-     * of the scroll operation in progress. When the nested scroll is finished this ViewParent
-     * will receive a call to {@link #onStopNestedScroll(ViewParent, View)}.
+     * <p>This version of the method just calls
+     * {@link #onStartNestedScroll(ViewParent, View, View, int, int)} using the touch input type.
      * </p>
      *
      * @param child Direct child of this ViewParent containing target
@@ -254,7 +246,108 @@ public final class ViewParentCompat {
      */
     public static boolean onStartNestedScroll(ViewParent parent, View child, View target,
             int nestedScrollAxes) {
-        return IMPL.onStartNestedScroll(parent, child, target, nestedScrollAxes);
+        return onStartNestedScroll(parent, child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+    }
+
+    /**
+     * React to the successful claiming of a nested scroll operation.
+     *
+     * <p>This version of the method just calls
+     * {@link #onNestedScrollAccepted(ViewParent, View, View, int, int)} using the touch input type.
+     * </p>
+     *
+     * @param child Direct child of this ViewParent containing target
+     * @param target View that initiated the nested scroll
+     * @param nestedScrollAxes Flags consisting of {@link ViewCompat#SCROLL_AXIS_HORIZONTAL},
+     *                         {@link ViewCompat#SCROLL_AXIS_VERTICAL} or both
+     */
+    public static void onNestedScrollAccepted(ViewParent parent, View child, View target,
+            int nestedScrollAxes) {
+        onNestedScrollAccepted(parent, child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+    }
+
+    /**
+     * React to a nested scroll operation ending.
+     *
+     * <p>This version of the method just calls {@link #onStopNestedScroll(ViewParent, View)}
+     * using the touch input type.</p>
+     *
+     * @param target View that initiated the nested scroll
+     */
+    public static void onStopNestedScroll(ViewParent parent, View target) {
+        onStopNestedScroll(parent, target, ViewCompat.TYPE_TOUCH);
+    }
+
+    /**
+     * React to a nested scroll in progress.
+     *
+     * <p>This version of the method just calls
+     * {@link #onNestedScroll(ViewParent, View, int, int, int, int, int)} using the touch input
+     * type.</p>
+     *
+     * @param target The descendent view controlling the nested scroll
+     * @param dxConsumed Horizontal scroll distance in pixels already consumed by target
+     * @param dyConsumed Vertical scroll distance in pixels already consumed by target
+     * @param dxUnconsumed Horizontal scroll distance in pixels not consumed by target
+     * @param dyUnconsumed Vertical scroll distance in pixels not consumed by target
+     */
+    public static void onNestedScroll(ViewParent parent, View target, int dxConsumed,
+            int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+        onNestedScroll(parent, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                ViewCompat.TYPE_TOUCH);
+    }
+
+    /**
+     * React to a nested scroll in progress before the target view consumes a portion of the scroll.
+     *
+     * <p>This version of the method just calls
+     * {@link #onNestedPreScroll(ViewParent, View, int, int, int[], int)} using the touch input
+     * type.</p>
+     *
+     * @param target View that initiated the nested scroll
+     * @param dx Horizontal scroll distance in pixels
+     * @param dy Vertical scroll distance in pixels
+     * @param consumed Output. The horizontal and vertical scroll distance consumed by this parent
+     */
+    public static void onNestedPreScroll(ViewParent parent, View target, int dx, int dy,
+            int[] consumed) {
+        onNestedPreScroll(parent, target, dx, dy, consumed, ViewCompat.TYPE_TOUCH);
+    }
+
+    /**
+     * React to a descendant view initiating a nestable scroll operation, claiming the
+     * nested scroll operation if appropriate.
+     *
+     * <p>This method will be called in response to a descendant view invoking
+     * {@link ViewCompat#startNestedScroll(View, int)}. Each parent up the view hierarchy will be
+     * given an opportunity to respond and claim the nested scrolling operation by returning
+     * <code>true</code>.</p>
+     *
+     * <p>This method may be overridden by ViewParent implementations to indicate when the view
+     * is willing to support a nested scrolling operation that is about to begin. If it returns
+     * true, this ViewParent will become the target view's nested scrolling parent for the duration
+     * of the scroll operation in progress. When the nested scroll is finished this ViewParent
+     * will receive a call to {@link #onStopNestedScroll(ViewParent, View, int)}.
+     * </p>
+     *
+     * @param child Direct child of this ViewParent containing target
+     * @param target View that initiated the nested scroll
+     * @param nestedScrollAxes Flags consisting of {@link ViewCompat#SCROLL_AXIS_HORIZONTAL},
+     *                         {@link ViewCompat#SCROLL_AXIS_VERTICAL} or both
+     * @param type the type of input which cause this scroll event
+     * @return true if this ViewParent accepts the nested scroll operation
+     */
+    public static boolean onStartNestedScroll(ViewParent parent, View child, View target,
+            int nestedScrollAxes, int type) {
+        if (parent instanceof NestedScrollingParent2) {
+            // First try the NestedScrollingParent2 API
+            return ((NestedScrollingParent2) parent).onStartNestedScroll(child, target,
+                    nestedScrollAxes, type);
+        } else if (type == ViewCompat.TYPE_TOUCH) {
+            // Else if the type is the default (touch), try the NestedScrollingParent API
+            return IMPL.onStartNestedScroll(parent, child, target, nestedScrollAxes);
+        }
+        return false;
     }
 
     /**
@@ -270,12 +363,20 @@ public final class ViewParentCompat {
      * @param target View that initiated the nested scroll
      * @param nestedScrollAxes Flags consisting of {@link ViewCompat#SCROLL_AXIS_HORIZONTAL},
      *                         {@link ViewCompat#SCROLL_AXIS_VERTICAL} or both
+     * @param type the type of input which cause this scroll event
      * @see #onStartNestedScroll(ViewParent, View, View, int)
-     * @see #onStopNestedScroll(ViewParent, View)
+     * @see #onStopNestedScroll(ViewParent, View, int)
      */
     public static void onNestedScrollAccepted(ViewParent parent, View child, View target,
-            int nestedScrollAxes) {
-        IMPL.onNestedScrollAccepted(parent, child, target, nestedScrollAxes);
+            int nestedScrollAxes, int type) {
+        if (parent instanceof NestedScrollingParent2) {
+            // First try the NestedScrollingParent2 API
+            ((NestedScrollingParent2) parent).onNestedScrollAccepted(child, target,
+                    nestedScrollAxes, type);
+        } else if (type == ViewCompat.TYPE_TOUCH) {
+            // Else if the type is the default (touch), try the NestedScrollingParent API
+            IMPL.onNestedScrollAccepted(parent, child, target, nestedScrollAxes);
+        }
     }
 
     /**
@@ -288,9 +389,16 @@ public final class ViewParentCompat {
      * method if one is present.</p>
      *
      * @param target View that initiated the nested scroll
+     * @param type the type of input which cause this scroll event
      */
-    public static void onStopNestedScroll(ViewParent parent, View target) {
-        IMPL.onStopNestedScroll(parent, target);
+    public static void onStopNestedScroll(ViewParent parent, View target, int type) {
+        if (parent instanceof NestedScrollingParent2) {
+            // First try the NestedScrollingParent2 API
+            ((NestedScrollingParent2) parent).onStopNestedScroll(target, type);
+        } else if (type == ViewCompat.TYPE_TOUCH) {
+            // Else if the type is the default (touch), try the NestedScrollingParent API
+            IMPL.onStopNestedScroll(parent, target);
+        }
     }
 
     /**
@@ -299,7 +407,7 @@ public final class ViewParentCompat {
      * <p>This method will be called when the ViewParent's current nested scrolling child view
      * dispatches a nested scroll event. To receive calls to this method the ViewParent must have
      * previously returned <code>true</code> for a call to
-     * {@link #onStartNestedScroll(ViewParent, View, View, int)}.</p>
+     * {@link #onStartNestedScroll(ViewParent, View, View, int, int)}.</p>
      *
      * <p>Both the consumed and unconsumed portions of the scroll distance are reported to the
      * ViewParent. An implementation may choose to use the consumed portion to match or chase scroll
@@ -313,10 +421,18 @@ public final class ViewParentCompat {
      * @param dyConsumed Vertical scroll distance in pixels already consumed by target
      * @param dxUnconsumed Horizontal scroll distance in pixels not consumed by target
      * @param dyUnconsumed Vertical scroll distance in pixels not consumed by target
+     * @param type the type of input which cause this scroll event
      */
     public static void onNestedScroll(ViewParent parent, View target, int dxConsumed,
-            int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
-        IMPL.onNestedScroll(parent, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+            int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type) {
+        if (parent instanceof NestedScrollingParent2) {
+            // First try the NestedScrollingParent2 API
+            ((NestedScrollingParent2) parent).onNestedScroll(target, dxConsumed, dyConsumed,
+                    dxUnconsumed, dyUnconsumed, type);
+        } else if (type == ViewCompat.TYPE_TOUCH) {
+            // Else if the type is the default (touch), try the NestedScrollingParent API
+            IMPL.onNestedScroll(parent, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+        }
     }
 
     /**
@@ -338,10 +454,17 @@ public final class ViewParentCompat {
      * @param dx Horizontal scroll distance in pixels
      * @param dy Vertical scroll distance in pixels
      * @param consumed Output. The horizontal and vertical scroll distance consumed by this parent
+     * @param type the type of input which cause this scroll event
      */
     public static void onNestedPreScroll(ViewParent parent, View target, int dx, int dy,
-            int[] consumed) {
-        IMPL.onNestedPreScroll(parent, target, dx, dy, consumed);
+            int[] consumed, int type) {
+        if (parent instanceof NestedScrollingParent2) {
+            // First try the NestedScrollingParent2 API
+            ((NestedScrollingParent2) parent).onNestedPreScroll(target, dx, dy, consumed, type);
+        } else if (type == ViewCompat.TYPE_TOUCH) {
+            // Else if the type is the default (touch), try the NestedScrollingParent API
+            IMPL.onNestedPreScroll(parent, target, dx, dy, consumed);
+        }
     }
 
     /**
@@ -412,5 +535,4 @@ public final class ViewParentCompat {
             View source, int changeType) {
         IMPL.notifySubtreeAccessibilityStateChanged(parent, child, source, changeType);
     }
-
 }

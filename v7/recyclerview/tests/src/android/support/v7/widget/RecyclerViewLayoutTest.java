@@ -36,6 +36,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -49,14 +50,17 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.view.NestedScrollingParent2;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.util.TouchUtils;
+import android.support.v7.widget.test.NestedScrollingParent2Adapter;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -1342,38 +1346,110 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         scrollInOtherOrientationTest(FLAG_VERTICAL | FLAG_FLING);
     }
 
+    @SuppressWarnings("WrongConstant")
     @Test
     public void nestedDragVertical() throws Throwable {
-        TestedFrameLayout tfl = getActivity().getContainer();
-        tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
-        tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
+        final NestedScrollingParent2 nsp = spy(new FullyConsumingNestedScroller());
+        getActivity().getContainer().setNestedScrollingDelegate(nsp);
+        // Scroll and expect the RV to not scroll
         scrollInOtherOrientationTest(FLAG_VERTICAL, 0);
+
+        // Verify that the touch nested scroll was started and finished
+        verify(nsp, atLeastOnce()).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_VERTICAL), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, atLeastOnce()).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_VERTICAL), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, atLeastOnce()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
+                any(int[].class), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, atLeastOnce()).onStopNestedScroll(eq(mRecyclerView), eq(ViewCompat.TYPE_TOUCH));
+
+        // Verify that the non-touch events were dispatched by the fling settle
+        verify(nsp, times(1)).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_VERTICAL), eq(ViewCompat.TYPE_NON_TOUCH));
+        verify(nsp, times(1)).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_VERTICAL), eq(ViewCompat.TYPE_NON_TOUCH));
+        verify(nsp, atLeastOnce()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
+                any(int[].class), eq(ViewCompat.TYPE_NON_TOUCH));
     }
 
+    @SuppressWarnings("WrongConstant")
     @Test
     public void nestedDragHorizontal() throws Throwable {
-        TestedFrameLayout tfl = getActivity().getContainer();
-        tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
-        tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
+        final NestedScrollingParent2 nsp = spy(new FullyConsumingNestedScroller());
+        getActivity().getContainer().setNestedScrollingDelegate(nsp);
+        // Scroll and expect the RV to not scroll
         scrollInOtherOrientationTest(FLAG_HORIZONTAL, 0);
+
+        // Verify that the touch nested scroll was started and finished
+        verify(nsp, atLeastOnce()).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_HORIZONTAL), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, atLeastOnce()).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_HORIZONTAL), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, atLeastOnce()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
+                any(int[].class), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, atLeastOnce()).onStopNestedScroll(eq(mRecyclerView), eq(ViewCompat.TYPE_TOUCH));
+
+        // Verify that the non-touch events were dispatched by the fling settle
+        verify(nsp, times(1)).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_HORIZONTAL), eq(ViewCompat.TYPE_NON_TOUCH));
+        verify(nsp, times(1)).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_HORIZONTAL), eq(ViewCompat.TYPE_NON_TOUCH));
+        verify(nsp, atLeastOnce()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
+                any(int[].class), eq(ViewCompat.TYPE_NON_TOUCH));
     }
 
+    @SuppressWarnings("WrongConstant")
     @Test
-    public void nestedDragHorizontalCallsStopNestedScroll() throws Throwable {
-        TestedFrameLayout tfl = getActivity().getContainer();
-        tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
-        tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
-        scrollInOtherOrientationTest(FLAG_HORIZONTAL, 0);
-        assertTrue("onStopNestedScroll called", tfl.stopNestedScrollCalled());
+    public void nestedFlingVertical() throws Throwable {
+        final NestedScrollingParent2 nsp = spy(new FullyConsumingNestedScroller());
+        getActivity().getContainer().setNestedScrollingDelegate(nsp);
+        // Fling and expect the RV to not scroll
+        scrollInOtherOrientationTest(FLAG_VERTICAL | FLAG_FLING, FLAG_FLING);
+
+        // Verify that the touch nested scroll was not started
+        verify(nsp, never()).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_VERTICAL), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, never()).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_VERTICAL), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, never()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
+                any(int[].class), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, never()).onStopNestedScroll(mRecyclerView, ViewCompat.TYPE_TOUCH);
+
+        // Verify that the non-touch nested scroll was started and finished
+        verify(nsp, times(1)).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_VERTICAL), eq(ViewCompat.TYPE_NON_TOUCH));
+        verify(nsp, times(1)).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_VERTICAL), eq(ViewCompat.TYPE_NON_TOUCH));
+        verify(nsp, atLeastOnce()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
+                any(int[].class), eq(ViewCompat.TYPE_NON_TOUCH));
+        verify(nsp, times(1)).onStopNestedScroll(mRecyclerView, ViewCompat.TYPE_NON_TOUCH);
     }
 
+    @SuppressWarnings("WrongConstant")
     @Test
-    public void nestedDragVerticalCallsStopNestedScroll() throws Throwable {
-        TestedFrameLayout tfl = getActivity().getContainer();
-        tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
-        tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
-        scrollInOtherOrientationTest(FLAG_VERTICAL, 0);
-        assertTrue("onStopNestedScroll called", tfl.stopNestedScrollCalled());
+    public void nestedFlingHorizontal() throws Throwable {
+        final NestedScrollingParent2 nsp = spy(new FullyConsumingNestedScroller());
+        getActivity().getContainer().setNestedScrollingDelegate(nsp);
+        // Fling and expect the RV to not scroll
+        scrollInOtherOrientationTest(FLAG_HORIZONTAL | FLAG_FLING, FLAG_FLING);
+
+        // Verify that the touch nested scroll was not started
+        verify(nsp, never()).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_HORIZONTAL), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, never()).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_HORIZONTAL), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, never()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
+                any(int[].class), eq(ViewCompat.TYPE_TOUCH));
+        verify(nsp, never()).onStopNestedScroll(mRecyclerView, ViewCompat.TYPE_TOUCH);
+
+        // Verify that the non-touch nested scroll was started and finished
+        verify(nsp, times(1)).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_HORIZONTAL), eq(ViewCompat.TYPE_NON_TOUCH));
+        verify(nsp, times(1)).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
+                eq(ViewCompat.SCROLL_AXIS_HORIZONTAL), eq(ViewCompat.TYPE_NON_TOUCH));
+        verify(nsp, atLeastOnce()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
+                any(int[].class), eq(ViewCompat.TYPE_NON_TOUCH));
+        verify(nsp, times(1)).onStopNestedScroll(mRecyclerView, ViewCompat.TYPE_NON_TOUCH);
     }
 
     private void scrollInOtherOrientationTest(int flags)
@@ -4461,4 +4537,38 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     private interface ViewRunnable {
         void run(View view) throws RuntimeException;
     }
+
+    public static class FullyConsumingNestedScroller extends NestedScrollingParent2Adapter {
+        @Override
+        public boolean onStartNestedScroll(@NonNull View child, @NonNull View target,
+                @ViewCompat.ScrollAxis int axes, @ViewCompat.NestedScrollType int type) {
+            // Always start regardless of type
+            return true;
+        }
+
+        @Override
+        public void onNestedPreScroll(@NonNull View target, int dx, int dy,
+                @Nullable int[] consumed, @ViewCompat.NestedScrollType int type) {
+            // Consume everything!
+            consumed[0] = dx;
+            consumed[1] = dy;
+        }
+
+        @Override
+        public int getNestedScrollAxes() {
+            return ViewCompat.SCROLL_AXIS_VERTICAL | ViewCompat.SCROLL_AXIS_HORIZONTAL;
+        }
+
+        @Override
+        public void onStopNestedScroll(View target) {
+            super.onStopNestedScroll(target);
+        }
+
+        @Override
+        public void onStopNestedScroll(@NonNull View target,
+                @ViewCompat.NestedScrollType int type) {
+            super.onStopNestedScroll(target, type);
+        }
+    }
+
 }
