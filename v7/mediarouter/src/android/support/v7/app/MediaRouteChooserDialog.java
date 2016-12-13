@@ -383,7 +383,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
 
         @Override
         public int compare(MediaRouter.RouteInfo lhs, MediaRouter.RouteInfo rhs) {
-            return lhs.getName().compareTo(rhs.getName());
+            return lhs.getName().compareToIgnoreCase(rhs.getName());
         }
     }
 }
