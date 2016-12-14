@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MovieBrowser</string>
+    <string name="director">director</string>
+    <string name="writer">writer(s)</string>
+    <string name="actors">actors</string>
+    <string name="hint_runtime">Runtime</string>
+    <string name="hint_rated">Rated</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+</resources>
