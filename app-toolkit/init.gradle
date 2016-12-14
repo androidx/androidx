@@ -23,8 +23,8 @@ ext.prebuiltsRootUri = "file://${prebuiltsRoot}"
 
 
 final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
-final String fullSdkPath = "${checkoutRoot}/fullsdk-${platform}"
-System.setProperty('android.home', "${checkoutRoot}/fullsdk-${platform}")
+final String fullSdkPath = new File("${checkoutRoot}/prebuilts/fullsdk-${platform}").getCanonicalPath()
+System.setProperty('android.home', fullSdkPath)
 File props = file("local.properties")
 props.write "sdk.dir=${fullSdkPath}"
 
