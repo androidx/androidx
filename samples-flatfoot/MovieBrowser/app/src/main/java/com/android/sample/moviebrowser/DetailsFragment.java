@@ -28,6 +28,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.sample.moviebrowser.db.MovieDataFullDatabase;
+import com.android.sample.moviebrowser.db.MovieDataFullDatabaseHelper;
+
 import com.bumptech.glide.Glide;
 
 import retrofit2.Call;
@@ -52,6 +55,8 @@ public class DetailsFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+        final MovieDataFullDatabase db = MovieDataFullDatabaseHelper.getDatabase(getContext());
+
         final MovieData initialData = getArguments().getParcelable(INITIAL);
         final View result = inflater.inflate(R.layout.fragment_details, container, false);
         // Use Glide for image loading
@@ -65,11 +70,9 @@ public class DetailsFragment extends Fragment {
 
         if (mFullData == null) {
             // Do we have it in local DB?
-            final MovieLocalDbHelper dbHelper =
-                    MovieLocalDbHelper.getInstance(container.getContext());
-            // TODO - since this is accessing local disk on the UI thread, should this be an
-            // AsyncTask?
-            mFullData = dbHelper.get(initialData.imdbID);
+            // TODO - if Room's DB is on disk, we'll be accessing local disk on the UI thread.
+            // Would need to be wrapped with AsyncTask.
+            mFullData = db.getMovieDataFullDao().load(initialData.imdbID);
             if (mFullData != null) {
                 Snackbar.make(container, "Got data from DB", Snackbar.LENGTH_SHORT).show();
                 updateWithFullData(result);
@@ -91,9 +94,9 @@ public class DetailsFragment extends Fragment {
                             Response<MovieDataFull> response) {
                         mFullData = response.body();
                         updateWithFullData(getView());
-                        // TODO - if this is on the UI thread, should this be wrapped on worker
-                        // thread?
-                        dbHelper.insert(mFullData);
+                        // TODO - if Room's DB is on disk, we'll be accessing local disk on the
+                        // UI thread. Would need to be wrapped with AsyncTask.
+                        db.getMovieDataFullDao().insert(mFullData);
                     }
 
                     @Override
@@ -200,9 +203,10 @@ public class DetailsFragment extends Fragment {
 
             Snackbar.make(getView(), "Saving edited data", Snackbar.LENGTH_SHORT).show();
 
-            // TODO: since this is accessing local disk on the UI thread, should this be an
-            // AsyncTask?
-            MovieLocalDbHelper.getInstance(getContext()).update(mFullData);
+            // TODO - if Room's DB is on disk, we'll be accessing local disk on the UI thread.
+            // Would need to be wrapped with AsyncTask.
+            final MovieDataFullDatabase db = MovieDataFullDatabaseHelper.getDatabase(getContext());
+            db.getMovieDataFullDao().insertOrReplace(mFullData);
         }
     }
 }

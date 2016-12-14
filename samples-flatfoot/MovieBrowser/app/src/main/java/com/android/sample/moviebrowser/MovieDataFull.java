@@ -18,13 +18,17 @@ package com.android.sample.moviebrowser;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.android.support.room.Entity;
+import com.android.support.room.PrimaryKey;
+
 /**
  * Full movie data object.
  */
+@Entity
 public class MovieDataFull implements Parcelable {
+    @PrimaryKey public String imdbID;
     public String Title;
     public String Year;
-    public String imdbID;
     public String Type;
     public String Poster;
     public String Rated;
