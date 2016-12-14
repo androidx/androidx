@@ -12,9 +12,18 @@ buildscript {
     }
 }
 
+ext.flatfootVersion = "1.0-SNAPSHOT"
+ext.supportLibVersion = "26.0.0-SNAPSHOT"
+
 allprojects {
     repositories {
         jcenter()
+        maven {
+            url "file://Volumes/android/ub-supportlib-flatfoot-master/out/host/gradle/frameworks/support/build/flatfoot_repo/"
+        }
+        maven {
+            url "file://Volumes/android/ub-supportlib-flatfoot-master/prebuilts/fullsdk-darwin/extras/android/m2repository/"
+        }
     }
 }
 
