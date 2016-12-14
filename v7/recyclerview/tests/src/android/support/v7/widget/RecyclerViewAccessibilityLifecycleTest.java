@@ -19,17 +19,30 @@ package android.support.v7.widget;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.os.Build;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
+import android.view.View;
 import android.view.ViewGroup;
+
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(AndroidJUnit4.class)
 public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInstrumentationTest {
@@ -84,6 +97,39 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)));
 
         assertThat(calledA11DuringLayout.get(), is(false));
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @Test
+    public void processAllViewHolders() {
+        RecyclerView rv = new RecyclerView(getActivity());
+        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+        View itemView1 = spy(new View(getActivity()));
+        View itemView2 = spy(new View(getActivity()));
+        View itemView3 = spy(new View(getActivity()));
+
+        rv.addView(itemView1);
+        // do not add 2
+        rv.addView(itemView3);
+
+        RecyclerView.ViewHolder vh1 = new RecyclerView.ViewHolder(itemView1) {};
+        vh1.mPendingAccessibilityState = View.IMPORTANT_FOR_ACCESSIBILITY_YES;
+        RecyclerView.ViewHolder vh2 = new RecyclerView.ViewHolder(itemView2) {};
+        vh2.mPendingAccessibilityState = View.IMPORTANT_FOR_ACCESSIBILITY_YES;
+        RecyclerView.ViewHolder vh3 = new RecyclerView.ViewHolder(itemView3) {};
+        vh3.mPendingAccessibilityState = View.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+
+        rv.mPendingAccessibilityImportanceChange.add(vh1);
+        rv.mPendingAccessibilityImportanceChange.add(vh2);
+        rv.mPendingAccessibilityImportanceChange.add(vh3);
+        rv.dispatchPendingImportantForAccessibilityChanges();
+
+        verify(itemView1).setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        //noinspection WrongConstant
+        verify(itemView2, never()).setImportantForAccessibility(anyInt());
+        verify(itemView3).setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+        assertThat(rv.mPendingAccessibilityImportanceChange.size(), is(0));
     }
 
     public class LayoutAllLayoutManager extends TestLayoutManager {
