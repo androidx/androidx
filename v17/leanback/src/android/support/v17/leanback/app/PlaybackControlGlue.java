@@ -211,9 +211,6 @@ public abstract class PlaybackControlGlue extends
      * containing this row should be notified.
      */
     protected void onRowChanged(PlaybackControlsRow row) {
-        if (getHost() != null) {
-            getHost().notifyPlaybackRowChanged();
-        }
     }
 
     /**
@@ -329,6 +326,11 @@ public abstract class PlaybackControlGlue extends
         @Override
         public void fadeOut() {
             mFragment.fadeOut();
+        }
+
+        @Override
+        public void notifyPlaybackRowChanged() {
+            mGlue.onRowChanged(mGlue.getControlsRow());
         }
     }
 }

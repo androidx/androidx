@@ -193,5 +193,10 @@ public abstract class PlaybackControlSupportGlue extends PlaybackControlGlue {
         public void fadeOut() {
             mFragment.fadeOut();
         }
+
+        @Override
+        public void notifyPlaybackRowChanged() {
+            mGlue.onRowChanged(mGlue.getControlsRow());
+        }
     }
 }
