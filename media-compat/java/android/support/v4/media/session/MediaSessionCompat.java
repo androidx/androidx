@@ -2302,7 +2302,9 @@ public class MediaSessionCompat {
         public void setCallback(Callback callback, Handler handler) {
             MediaSessionCompatApi21.setCallback(mSessionObj,
                     callback == null ? null : callback.mCallbackObj, handler);
-            callback.mSessionImpl = new WeakReference<MediaSessionImpl>(this);
+            if (callback != null) {
+                callback.mSessionImpl = new WeakReference<MediaSessionImpl>(this);
+            }
         }
 
         @Override
