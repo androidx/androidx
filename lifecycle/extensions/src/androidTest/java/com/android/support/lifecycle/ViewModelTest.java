@@ -23,6 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.FragmentActivity;
@@ -35,6 +36,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ViewModelTest {
     @Rule

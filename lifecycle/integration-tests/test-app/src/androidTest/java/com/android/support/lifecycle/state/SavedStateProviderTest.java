@@ -20,6 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import android.graphics.Point;
+import android.support.test.filters.MediumTest;
 import android.support.v4.app.Fragment;
 
 import com.android.support.lifecycle.testapp.MainActivity;
@@ -29,6 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+@MediumTest
 @RunWith(Parameterized.class)
 public class SavedStateProviderTest extends BaseStateProviderTest<SavedStateProvider> {
 

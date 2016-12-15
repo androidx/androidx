@@ -16,6 +16,7 @@
 
 package com.android.support.lifecycle.state;
 
+import android.support.test.filters.MediumTest;
 import android.support.v4.app.Fragment;
 
 import com.android.support.lifecycle.testapp.MainActivity;
@@ -28,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+@MediumTest
 @RunWith(Parameterized.class)
 public class RetainedStateProviderTest extends BaseStateProviderTest<RetainedStateProvider> {
 

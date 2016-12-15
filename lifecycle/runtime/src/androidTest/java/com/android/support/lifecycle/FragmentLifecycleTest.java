@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.Fragment;
 
@@ -38,6 +39,7 @@ import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 
+@MediumTest
 @RunWith(Parameterized.class)
 public class FragmentLifecycleTest {
     @Rule

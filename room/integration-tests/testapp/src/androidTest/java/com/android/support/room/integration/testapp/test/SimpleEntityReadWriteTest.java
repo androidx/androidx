@@ -19,6 +19,7 @@ package com.android.support.room.integration.testapp.test;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.android.support.room.DatabaseConfiguration;
@@ -35,6 +36,7 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class SimpleEntityReadWriteTest {
     TestDatabase mDb;

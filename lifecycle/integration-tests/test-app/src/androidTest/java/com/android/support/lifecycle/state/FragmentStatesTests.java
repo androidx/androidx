@@ -23,6 +23,7 @@ import static com.android.support.lifecycle.state.TestUtils.recreateActivity;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.Fragment;
@@ -36,6 +37,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class FragmentStatesTests {
 

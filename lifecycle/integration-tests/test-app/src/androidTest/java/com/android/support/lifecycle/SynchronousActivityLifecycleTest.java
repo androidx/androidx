@@ -27,6 +27,7 @@ import android.app.Instrumentation;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.support.test.filters.SmallTest;
 import android.support.test.rule.UiThreadTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -42,6 +43,7 @@ import java.lang.reflect.Method;
  * It tests that an event is dispatched immediately after a call of corresponding OnXXX method
  * during an execution of performXXX
  */
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class SynchronousActivityLifecycleTest {
 
