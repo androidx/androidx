@@ -88,6 +88,10 @@
         <activity
                 android:name="android.support.v7.app.AppCompatActivity"/>
 
+        <activity
+            android:name="android.support.design.widget.AppBarLayoutCollapsePinTestActivity"
+            android:theme="@style/Theme.TranslucentStatus"/>
+
     </application>
 
     <instrumentation
