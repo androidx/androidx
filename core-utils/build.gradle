@@ -51,7 +51,6 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
-        compileSdkVersion project.ext.currentSdk
     }
 }
 
@@ -68,16 +67,6 @@ android.libraryVariants.all { variant ->
         from variant.javaCompile.destinationDir
         from 'LICENSE.txt'
     }
-    def javadocTask = project.tasks.create(name: "javadoc${suffix}", type: Javadoc) {
-        source android.sourceSets.main.java
-        classpath = files(variant.javaCompile.classpath.files) + files(
-                "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
-    }
-
-    def javadocJarTask = project.tasks.create(name: "javadocJar${suffix}", type: Jar) {
-        classifier = 'javadoc'
-        from 'build/docs/javadoc'
-    }
 
     def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
         classifier = 'sources'
@@ -86,7 +75,6 @@ android.libraryVariants.all { variant ->
         exclude('android/service/media/**')
     }
 
-    artifacts.add('archives', javadocJarTask);
     artifacts.add('archives', sourcesJarTask);
 }
 
