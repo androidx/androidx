@@ -515,6 +515,50 @@ public class RecyclerViewCacheTest {
     }
 
     @Test
+    public void prefetchStaggeredPastBoundary() {
+        StaggeredGridLayoutManager sglm =
+                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(sglm);
+        mRecyclerView.setAdapter(new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                return new RecyclerView.ViewHolder(new View(getContext())) {};
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                holder.itemView.setMinimumWidth(100);
+                holder.itemView.setMinimumHeight(position == 0 ? 100 : 200);
+            }
+
+            @Override
+            public int getItemCount() {
+                return 2;
+            }
+        });
+
+        layout(200, 100);
+        mRecyclerView.scrollBy(0, 50);
+
+        /* Each row is 50 pixels:
+         * ------------- *
+         *___0___|___1___*
+         *   0   |   1   *
+         *_______|___1___*
+         *       |   1   *
+         */
+        assertEquals(2, mRecyclerView.getChildCount());
+        assertEquals(0, sglm.getFirstChildPosition());
+        assertEquals(1, sglm.getLastChildPosition());
+
+        // prefetch upward gets nothing
+        CacheUtils.verifyPositionsPrefetched(mRecyclerView, 0, -10);
+
+        // prefetch downward gets nothing (and doesn't crash...)
+        CacheUtils.verifyPositionsPrefetched(mRecyclerView, 0, 10);
+    }
+
+    @Test
     public void prefetchItemsSkipAnimations() {
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(llm);
