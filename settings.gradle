@@ -130,3 +130,6 @@ File externalRoot = new File(rootDir, '../../external')
 
 include ':doclava'
 project(':doclava').projectDir = new File(externalRoot, 'doclava')
+
+include ':jdiff'
+project(':jdiff').projectDir = new File(externalRoot, 'jdiff')
