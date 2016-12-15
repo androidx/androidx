@@ -62,7 +62,6 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
-        compileSdkVersion project.ext.currentSdk
     }
 }
 
