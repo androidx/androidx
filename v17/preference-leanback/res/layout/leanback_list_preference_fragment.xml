@@ -59,8 +59,10 @@
         android:paddingEnd="56dp"
         android:visibility="gone" />
 
-    <android.support.v17.leanback.widget.VerticalGridView android:id="@android:id/list"
+    <android.support.v17.leanback.widget.VerticalGridView
+        android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:transitionGroup="true"/>
 
 </LinearLayout>
