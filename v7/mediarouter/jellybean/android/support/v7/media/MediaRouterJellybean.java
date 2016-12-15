@@ -121,9 +121,9 @@ final class MediaRouterJellybean {
             Field globalRouterField = routerObj.getClass().getDeclaredField("sStatic");
             globalRouterField.setAccessible(true);
             Object globalRouterObj = globalRouterField.get(null);
-            Method method = globalRouterObj.getClass().getDeclaredMethod("isBluetoothA2dpOn", null);
+            Method method = globalRouterObj.getClass().getDeclaredMethod("isBluetoothA2dpOn");
             method.setAccessible(true);
-            Object result = method.invoke(globalRouterObj, null);
+            Object result = method.invoke(globalRouterObj);
             return (Boolean) result;
         } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException
                 | NoSuchMethodException | InvocationTargetException e) {
