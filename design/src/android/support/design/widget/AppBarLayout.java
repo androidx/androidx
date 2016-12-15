@@ -1095,6 +1095,11 @@ public class AppBarLayout extends LinearLayout {
             setTopAndBottomOffset(
                     MathUtils.constrain(getTopAndBottomOffset(), -abl.getTotalScrollRange(), 0));
 
+            // Update the AppBarLayout's drawable state for any elevation changes.
+            // This is needed so that the elevation is set in the first layout, so that
+            // we don't get a visual elevation jump pre-N (due to the draw dispatch skip)
+            updateAppBarLayoutDrawableState(parent, abl, getTopAndBottomOffset(), 0, true);
+
             // Make sure we dispatch the offset update
             abl.dispatchOffsetUpdates(getTopAndBottomOffset());
 
@@ -1171,7 +1176,7 @@ public class AppBarLayout extends LinearLayout {
 
                     // Update the AppBarLayout's drawable state (for any elevation changes)
                     updateAppBarLayoutDrawableState(coordinatorLayout, appBarLayout, newOffset,
-                            newOffset < curOffset ? -1 : 1);
+                            newOffset < curOffset ? -1 : 1, false);
                 }
             } else {
                 // Reset the offset delta
@@ -1234,7 +1239,8 @@ public class AppBarLayout extends LinearLayout {
         }
 
         private void updateAppBarLayoutDrawableState(final CoordinatorLayout parent,
-                final AppBarLayout layout, final int offset, final int direction) {
+                final AppBarLayout layout, final int offset, final int direction,
+                final boolean forceJump) {
             final View child = getAppBarChildOnOffset(layout, offset);
             if (child != null) {
                 final AppBarLayout.LayoutParams childLp = (LayoutParams) child.getLayoutParams();
@@ -1258,8 +1264,8 @@ public class AppBarLayout extends LinearLayout {
 
                 final boolean changed = layout.setCollapsedState(collapsed);
 
-                if (changed && Build.VERSION.SDK_INT >= 11
-                        && shouldJumpElevationState(parent, layout)) {
+                if (Build.VERSION.SDK_INT >= 11 && (forceJump
+                        || (changed && shouldJumpElevationState(parent, layout)))) {
                     // If the collapsed state changed, we may need to
                     // jump to the current state if we have an overlapping view
                     layout.jumpDrawablesToCurrentState();
