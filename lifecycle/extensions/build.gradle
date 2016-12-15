@@ -30,6 +30,11 @@ dependencies {
     compile "com.android.support:support-fragment:$support_lib_version"
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-core:$mockito_version"
+
+    androidTestCompile "com.android.support:appcompat-v7:$support_lib_version"
+    androidTestCompile("com.android.support.test.espresso:espresso-core:$espresso_version", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
 }
 
 createAndroidCheckstyle(project)

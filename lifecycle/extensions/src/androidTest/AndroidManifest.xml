@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2016 The Android Open Source Project
   ~
@@ -15,5 +16,12 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.support.lifecycle.extensions">
+          package="com.android.support.lifecycle.extensions.test">
+
+    <application>
+        <activity android:name="com.android.support.lifecycle.viewmodeltest.ViewModelActivity"
+                  android:theme="@style/Base.Theme.AppCompat">
+        </activity>
+    </application>
+
 </manifest>

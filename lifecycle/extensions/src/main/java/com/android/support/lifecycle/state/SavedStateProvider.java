@@ -21,6 +21,7 @@ import static com.android.support.lifecycle.state.StateMap.typeWarning;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 
 import java.util.Map;
 
@@ -49,10 +50,12 @@ public class SavedStateProvider {
      * @return {@link SavedStateValue} associated with given key
      */
     @MainThread
+    @NonNull
     public <T extends Parcelable> SavedStateValue<T> stateValue(String key) {
         Object o = mStateMap.mMap.get(key);
         SavedStateValue<T> stateValue;
         try {
+            //noinspection unchecked
             stateValue = (SavedStateValue<T>) o;
         } catch (ClassCastException e) {
             typeWarning(key, o, SavedStateValue.class.getName(), e);
@@ -87,6 +90,7 @@ public class SavedStateProvider {
      * @return {@link IntStateValue} associated with given key
      */
     @MainThread
+    @NonNull
     public IntStateValue intStateValue(String key) {
         return mStateMap.intValue(key, 0);
     }
@@ -110,6 +114,7 @@ public class SavedStateProvider {
      * @return {@link IntStateValue} associated with given key
      */
     @MainThread
+    @NonNull
     public IntStateValue intStateValue(String key, int defaultValue) {
         return mStateMap.intValue(key, defaultValue);
     }

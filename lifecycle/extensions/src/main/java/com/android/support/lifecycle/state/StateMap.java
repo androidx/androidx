@@ -17,6 +17,7 @@
 package com.android.support.lifecycle.state;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -28,6 +29,7 @@ class StateMap {
     Map<String, Object> mMap = new HashMap<>();
     Bundle mSavedState = null;
 
+    @NonNull
     IntStateValue intValue(String key, int defaultValue) {
         IntStateValue intStateValue;
         Object o = mMap.get(key);

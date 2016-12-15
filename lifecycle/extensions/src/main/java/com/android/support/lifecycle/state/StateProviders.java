@@ -16,10 +16,13 @@
 
 package com.android.support.lifecycle.state;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.MainThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+
+import com.android.support.lifecycle.LifecycleProvider;
 
 /**
  *  Factory and utility methods for {@link SavedStateProvider} and {@link RetainedStateProvider}
@@ -30,6 +33,7 @@ public class StateProviders {
     static final String HOLDER_TAG =
             "com.android.support.lifecycle.state.StateProviderHolderFragment";
 
+    @SuppressLint("CommitTransaction")
     private static HolderFragment holderFragmentFor(FragmentManager manager) {
         Fragment fragmentByTag = manager.findFragmentByTag(HOLDER_TAG);
         if (fragmentByTag != null && !(fragmentByTag instanceof HolderFragment)) {
@@ -45,7 +49,23 @@ public class StateProviders {
         return holder;
     }
 
-    //TODO: create getter from LifecycleProvider
+    //TODO: figure out how to handle LifecycleProvider
+    /**
+     * Returns {@link SavedStateProvider} associated with the given LifecycleProvider.
+     *
+     * @param provider The lifecycleProvider whose SavedStateProvider will be returned.
+     */
+    @MainThread
+    public static SavedStateProvider savedStateProvider(LifecycleProvider provider) {
+        if (provider instanceof Fragment) {
+            return savedStateProvider((Fragment) provider);
+        }
+        if (provider instanceof FragmentActivity) {
+            return savedStateProvider((FragmentActivity) provider);
+        }
+        throw new IllegalArgumentException("SavedStateProvider for " + provider.getClass()
+                + " is not implemented yet.");
+    }
 
     /**
      * Returns {@link SavedStateProvider} associated with the given fragment.
@@ -65,6 +85,24 @@ public class StateProviders {
     @MainThread
     public static SavedStateProvider savedStateProvider(FragmentActivity activity) {
         return holderFragmentFor(activity.getSupportFragmentManager()).getSavedStateProvider();
+    }
+
+    //TODO: figure out how to handle LifecycleProvider
+    /**
+     * Returns {@link RetainedStateProvider} associated with the given LifecycleProvider.
+     *
+     * @param provider The lifecycleProvider whose RetainedStateProvider will be returned.
+     */
+    @MainThread
+    public static RetainedStateProvider retainedStateProvider(LifecycleProvider provider) {
+        if (provider instanceof Fragment) {
+            return retainedStateProvider((Fragment) provider);
+        }
+        if (provider instanceof FragmentActivity) {
+            return retainedStateProvider((FragmentActivity) provider);
+        }
+        throw new IllegalArgumentException("RetainedStateProvider for " + provider.getClass()
+                + " is not implemented yet.");
     }
 
     /**

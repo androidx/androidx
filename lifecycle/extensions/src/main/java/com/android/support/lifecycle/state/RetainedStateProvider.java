@@ -17,6 +17,7 @@
 package com.android.support.lifecycle.state;
 
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 
 import static com.android.support.lifecycle.state.StateMap.typeWarning;
 
@@ -27,6 +28,7 @@ import static com.android.support.lifecycle.state.StateMap.typeWarning;
  * "Retained state" is state which is retained across Activity or Fragment
  * re-creation (such as from a configuration change).
  */
+@SuppressWarnings("WeakerAccess")
 public class RetainedStateProvider {
 
     private StateMap mStateMap = new StateMap();
@@ -43,10 +45,12 @@ public class RetainedStateProvider {
      * @return {@link StateValue} associated with given key
      */
     @MainThread
+    @NonNull
     public <T> StateValue<T> stateValue(String key) {
         Object o = mStateMap.mMap.get(key);
         StateValue<T> stateValue;
         try {
+            //noinspection unchecked
             stateValue = (StateValue<T>) o;
         } catch (ClassCastException e) {
             typeWarning(key, o, StateValue.class.getName(), e);
@@ -75,6 +79,7 @@ public class RetainedStateProvider {
      * @return {@link IntStateValue} associated with given key
      */
     @MainThread
+    @NonNull
     public IntStateValue intStateValue(String key) {
         return mStateMap.intValue(key, 0);
     }
@@ -94,6 +99,7 @@ public class RetainedStateProvider {
      * @return {@link IntStateValue} associated with given key
      */
     @MainThread
+    @NonNull
     public IntStateValue intStateValue(String key, int defaultValue) {
         return mStateMap.intValue(key, defaultValue);
     }
