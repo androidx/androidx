@@ -378,7 +378,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         }
     }
 
-    private static final class RouteComparator implements Comparator<MediaRouter.RouteInfo> {
+    static final class RouteComparator implements Comparator<MediaRouter.RouteInfo> {
         public static final RouteComparator sInstance = new RouteComparator();
 
         @Override
