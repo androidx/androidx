@@ -18,6 +18,7 @@ package com.example.android.leanback;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
@@ -59,6 +60,11 @@ public class PlaybackOverlaySupportFragment
     private PlaybackControlSupportHelper mGlue;
     private PlaybackControlsRowPresenter mPlaybackControlsRowPresenter;
     private ListRowPresenter mListRowPresenter;
+    final Handler mHandler = new Handler();
+
+    // Artificial delay to simulate a media being prepared. The onRowChanged callback should be
+    // called and the playback row UI should be updated after this delay.
+    private static final int MEDIA_PREPARATION_DELAY = 500;
 
     private OnItemViewClickedListener mOnItemViewClickedListener = new OnItemViewClickedListener() {
         @Override
@@ -126,6 +132,14 @@ public class PlaybackOverlaySupportFragment
                 super.onActionClicked(action);
             }
         };
+
+        mGlue.setInitialized(false);
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mGlue.setInitialized(true);
+            }
+        }, MEDIA_PREPARATION_DELAY);
 
         mGlue.setOnItemViewClickedListener(mOnItemViewClickedListener);
 

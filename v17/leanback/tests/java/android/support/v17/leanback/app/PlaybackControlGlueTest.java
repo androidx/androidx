@@ -50,6 +50,8 @@ public class PlaybackControlGlueTest {
 
     static class PlayControlGlueImpl extends PlaybackControlGlue {
         int mSpeedId = PLAYBACK_SPEED_PAUSED;
+        // number of times onRowChanged callback is called
+        int mOnRowChangedCallCount = 0;
 
         PlayControlGlueImpl(Context context, int[] seekSpeeds) {
             super(context, seekSpeeds);
@@ -57,6 +59,11 @@ public class PlaybackControlGlueTest {
 
         PlayControlGlueImpl(Context context, int[] ffSpeeds, int[] rwSpeeds) {
             super(context, ffSpeeds, rwSpeeds);
+        }
+
+        PlayControlGlueImpl(Context context, PlaybackOverlayFragment fragment,
+                                   int[] seekSpeeds) {
+            super(context, fragment, seekSpeeds);
         }
 
         @Override
@@ -124,6 +131,16 @@ public class PlaybackControlGlueTest {
 
         @Override
         protected void onRowChanged(PlaybackControlsRow row) {
+            mOnRowChangedCallCount++;
+        }
+
+        public void notifyMetaDataChanged() {
+            onMetadataChanged();
+            onStateChanged();
+        }
+
+        public int getOnRowChangedCallCount() {
+            return mOnRowChangedCallCount;
         }
     }
 
@@ -557,4 +574,32 @@ public class PlaybackControlGlueTest {
         assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
     }
 
+    @Test
+    public void testOnRowChangedCallback() throws Exception {
+        final PlaybackOverlayFragment[] fragmentResult = new
+                PlaybackOverlayFragment[1];
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragmentResult[0] = new PlaybackOverlayFragment();
+            }
+        });
+        PlaybackOverlayFragment fragment = fragmentResult[0];
+        PlayControlGlueImpl playbackGlue = new PlayControlGlueImpl(context, fragment,
+                new int[]{
+                        PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0,
+                        PlaybackControlGlue.PLAYBACK_SPEED_FAST_L1,
+                        PlaybackControlGlue.PLAYBACK_SPEED_FAST_L2
+                });
+
+        // before any controls row is created the count is zero
+        assertEquals(playbackGlue.getOnRowChangedCallCount(), 0);
+        playbackGlue.createControlsRowAndPresenter();
+        // after a controls row is created, onRowChanged() call back is called once
+        assertEquals(playbackGlue.getOnRowChangedCallCount(), 1);
+        playbackGlue.notifyMetaDataChanged();
+        // onMetaDataChanged() calls updateRowMetadata which ends up calling
+        // notifyPlaybackRowChanged on the old host and finally onRowChanged on the glue.
+        assertEquals(playbackGlue.getOnRowChangedCallCount(), 2);
+    }
 }
