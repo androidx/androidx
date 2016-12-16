@@ -28,7 +28,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v7.app.NotificationCompat;
@@ -49,8 +48,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     public static final String ACTION_STOP = "com.android.sample.musicplayer.action.STOP";
     public static final String ACTION_NEXT = "com.android.sample.musicplayer.action.NEXT";
     public static final String ACTION_PREV = "com.android.sample.musicplayer.action.PREV";
-
-    public static final String BROADCAST_ACTION = "com.android.sample.musicplayer.status.REPORT";
 
     private static final String RESOURCE_PREFIX =
             "android.resource://com.android.sample.musicplayer/";
@@ -168,7 +165,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     private void processInitializeRequest() {
         if (mMusicRepository.getCurrentlyActiveTrack() >= 0) {
-            sendBroadcast();
             return;
         }
         mMusicRepository.setCurrentlyActiveTrack(-1);
@@ -197,8 +193,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             updateNotification();
             //relaxResources(false); // while paused, we always retain the MediaPlayer
             // do not give up audio focus
-
-            sendBroadcast();
         }
     }
 
@@ -215,8 +209,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             relaxResources(true);
             // service is no longer necessary. Will be started again if needed.
             stopSelf();
-
-            sendBroadcast();
         }
     }
 
@@ -234,11 +226,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                 || currState == MusicRepository.STATE_PAUSED) {
             playPrevSong();
         }
-    }
-
-    private void sendBroadcast() {
-        Intent localIntent = new Intent(BROADCAST_ACTION);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 
     /**
@@ -271,7 +258,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         if (!mMediaPlayer.isPlaying()) {
             mMediaPlayer.start();
         }
-        sendBroadcast();
     }
 
     /**
@@ -393,6 +379,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     private void updateNotification() {
+        // TODO - once b/33690035 is fixed, convert to have the service observe the LiveData
+        // object in our repository for the currently active track and update the notification.
         TrackMetadata currTrack = mTracks.get(mMusicRepository.getCurrentlyActiveTrack());
         populateNotificationBuilderContent(currTrack.getTitle()
                 + " by " + currTrack.getArtist());

@@ -17,6 +17,8 @@ package com.android.sample.musicplayer;
 
 import android.support.annotation.RawRes;
 
+import com.android.support.lifecycle.LiveData;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,9 +62,8 @@ public class MusicRepository {
 
     private List<TrackMetadata> mTracks;
 
-    private int mCurrentlyActiveTrack = -1;
-
-    private int mState = STATE_STOPPED;
+    private LiveData<Integer> mCurrentlyActiveTrackData;
+    private LiveData<Integer> mStateData;
 
     /**
      * Gets the repository instance.
@@ -85,6 +86,12 @@ public class MusicRepository {
         mTracks.add(new TrackMetadata("Cheap Deals", "Skia", R.raw.track_07));
         mTracks.add(new TrackMetadata("Don't Stop the Drilling", "Dusty Oilfield", R.raw.track_08));
         mTracks.add(new TrackMetadata("Million Regressions", "Lady BreakBuild", R.raw.track_09));
+
+        mCurrentlyActiveTrackData = new LiveData<>();
+        mCurrentlyActiveTrackData.setValue(-1);
+
+        mStateData = new LiveData<>();
+        mStateData.setValue(STATE_STOPPED);
     }
 
     public List<TrackMetadata> getTracks() {
@@ -92,18 +99,26 @@ public class MusicRepository {
     }
 
     public int getCurrentlyActiveTrack() {
-        return mCurrentlyActiveTrack;
+        return mCurrentlyActiveTrackData.getValue();
     }
 
     public void setCurrentlyActiveTrack(int currentlyActiveTrack) {
-        mCurrentlyActiveTrack = currentlyActiveTrack;
+        mCurrentlyActiveTrackData.setValue(currentlyActiveTrack);
     }
 
     public int getState() {
-        return mState;
+        return mStateData.getValue();
     }
 
     public void setState(int state) {
-        mState = state;
+        mStateData.setValue(state);
+    }
+
+    public LiveData<Integer> getCurrentlyActiveTrackData() {
+        return this.mCurrentlyActiveTrackData;
+    }
+
+    public LiveData<Integer> getStateData() {
+        return mStateData;
     }
 }
