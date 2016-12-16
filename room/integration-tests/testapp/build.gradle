@@ -55,5 +55,4 @@ dependencies {
 }
 
 createAndroidCheckstyle(project)
-
 tasks['check'].dependsOn(tasks['connectedCheck'])

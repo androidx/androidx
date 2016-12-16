@@ -22,9 +22,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.android.support.room.DatabaseConfiguration;
+import com.android.support.room.Room;
 import com.android.support.room.integration.testapp.TestDatabase;
-import com.android.support.room.integration.testapp.TestDatabase_Impl;
 import com.android.support.room.integration.testapp.vo.User;
 
 import junit.framework.AssertionFailedError;
@@ -39,12 +38,11 @@ import java.util.List;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class SimpleEntityReadWriteTest {
-    TestDatabase mDb;
+    private TestDatabase mDb;
     @Before
     public void createDb() {
         Context context = InstrumentationRegistry.getTargetContext();
-        DatabaseConfiguration configuration = new DatabaseConfiguration.Builder(context).build();
-        mDb = new TestDatabase_Impl(configuration);
+        mDb = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
     }
     @Test
     public void writeUserAndReadInList() throws Exception {

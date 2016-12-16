@@ -10,10 +10,6 @@ import java.lang.Override;
 public class ComplexDatabase_Impl extends ComplexDatabase {
     private volatile ComplexDao _complexDao;
 
-    public ComplexDatabase_Impl(DatabaseConfiguration configuration) {
-        super(configuration);
-    }
-
     protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration configuration) {
         final SupportSQLiteOpenHelper.Callback _openCallback = new SupportSQLiteOpenHelper.Callback() {
             public void onCreate(SupportSQLiteDatabase _db) {

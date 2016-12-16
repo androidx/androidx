@@ -85,9 +85,6 @@ class DatabaseProcessorTest {
         singleDb("""
             @Database(entities = {User.class})
             public abstract class MyDb extends RoomDatabase {
-                public MyDb(DatabaseConfiguration config) {
-                    super(config);
-                }
                 abstract UserDao userDao();
             }
             """, USER, USER_DAO) { db, invocation ->
@@ -101,9 +98,6 @@ class DatabaseProcessorTest {
         singleDb("""
             @Database(entities = {User.class, Book.class})
             public abstract class MyDb extends RoomDatabase {
-                public MyDb(DatabaseConfiguration config) {
-                    super(config);
-                }
                 abstract UserDao userDao();
                 abstract BookDao bookDao();
             }
@@ -132,9 +126,6 @@ class DatabaseProcessorTest {
                 """
                 @Database(entities = {Book.class})
                 public abstract class MyDb extends RoomDatabase {
-                    public MyDb(DatabaseConfiguration config) {
-                        super(config);
-                    }
                     abstract BookDao bookDao();
                 }
                 """, BOOK, JavaFileObjects.forSourceString("foo.bar.BookDao",
@@ -159,9 +150,6 @@ class DatabaseProcessorTest {
         singleDb("""
                 @Database(entities = {User.class, AnotherClass.class})
                 public abstract class MyDb extends RoomDatabase {
-                    public MyDb(DatabaseConfiguration config) {
-                        super(config);
-                    }
                     abstract UserDao userDao();
                 }
                 """, USER, USER_DAO, JavaFileObjects.forSourceString("foo.bar.AnotherClass",

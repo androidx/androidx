@@ -25,7 +25,6 @@ import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.vo.DaoMethod
 import com.android.support.room.vo.Database
 import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -45,7 +44,6 @@ class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeNam
         builder.apply {
             addModifiers(PUBLIC)
             superclass(database.typeName)
-            addMethod(createConstructor())
             addMethod(createCreateOpenHelper())
         }
         addDaoImpls(builder)
@@ -57,7 +55,7 @@ class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeNam
         builder.apply {
             database.daoMethods.forEach { method ->
                 val name = method.dao.typeName.simpleName().decapitalize().stripNonJava()
-                var fieldName = scope.getTmpVar("_$name")
+                val fieldName = scope.getTmpVar("_$name")
                 val field = FieldSpec.builder(method.dao.typeName, fieldName,
                         PRIVATE, VOLATILE).build()
                 addField(field)
@@ -82,16 +80,6 @@ class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeNam
                 endControlFlow()
             }
             endControlFlow()
-        }.build()
-    }
-
-    private fun createConstructor(): MethodSpec {
-        return MethodSpec.constructorBuilder().apply {
-            addModifiers(Modifier.PUBLIC)
-            val configParam = ParameterSpec.builder(RoomTypeNames.ROOM_DB_CONFIG,
-                    "configuration").build()
-            addParameter(configParam)
-            addStatement("super($N)", configParam)
         }.build()
     }
 

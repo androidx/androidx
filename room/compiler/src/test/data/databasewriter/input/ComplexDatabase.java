@@ -19,8 +19,5 @@ import com.android.support.room.*;
 import java.util.List;
 @Database(entities = {User.class})
 abstract class ComplexDatabase extends RoomDatabase {
-    public ComplexDatabase(DatabaseConfiguration configuration) {
-        super(configuration);
-    }
     abstract ComplexDao getComplexDao();
 }

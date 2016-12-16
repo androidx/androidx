@@ -17,22 +17,11 @@
 package com.android.support.room.integration.testapp;
 
 import com.android.support.room.Database;
-import com.android.support.room.DatabaseConfiguration;
 import com.android.support.room.RoomDatabase;
 import com.android.support.room.integration.testapp.dao.UserDao;
 import com.android.support.room.integration.testapp.vo.User;
 
 @Database(entities = User.class)
 public abstract class TestDatabase extends RoomDatabase {
-    /**
-     * Creates a RoomDatabase with the given configuration.
-     *
-     * @param configuration The configuration to setup the database.
-     */
-    @SuppressWarnings("WeakerAccess")
-    public TestDatabase(DatabaseConfiguration configuration) {
-        super(configuration);
-    }
-
     public abstract UserDao getUserDao();
 }

@@ -46,9 +46,6 @@ class SQLiteOpenHelperWriterTest {
             import com.android.support.room.*;
             @Database(entities = {MyEntity.class})
             abstract public class MyDatabase extends RoomDatabase {
-                public MyDatabase(DatabaseConfiguration configuration) {
-                    super(configuration);
-                }
             }
             """
     }
