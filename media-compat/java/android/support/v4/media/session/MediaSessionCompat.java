@@ -2480,7 +2480,7 @@ public class MediaSessionCompat {
         public void setCallback(Callback callback, Handler handler) {
             MediaSessionCompatApi21.setCallback(mSessionObj,
                     callback == null ? null : callback.mCallbackObj, handler);
-            if (android.os.Build.VERSION.SDK_INT < 26) {
+            if (android.os.Build.VERSION.SDK_INT < 26 && callback != null) {
                 callback.mSessionImpl = new WeakReference<MediaSessionImpl>(this);
             }
         }
