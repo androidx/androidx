@@ -52,7 +52,7 @@ ext.repoNames = ["$prebuiltsRootUri/maven_repo",
                  "file://${new File(buildDir, "support_repo").absolutePath}"]
 
 ext.kotlin_version = "1.0.5"
-ext.android_gradle_plugin_version = "2.2.1"
+ext.android_gradle_plugin_version = "2.2.4"
 ext.auto_common_version = "0.6"
 ext.javapoet_version = "1.8.0"
 ext.compile_testing_version = "0.9"
@@ -171,7 +171,7 @@ def createKotlinCheckstyle(Project project) {
 
 def createAndroidCheckstyle(Project project) {
     def androidCheckstyle = project.tasks.create(name : 'checkstyleAndroid', type: Checkstyle) {
-        configFile file("${project.rootProject.ext.checkoutRoot}/development/tools/checkstyle/android-style.xml")
+        configFile file("${project.rootProject.ext.checkoutRoot}/prebuilts/checkstyle/android-style.xml")
         if (project.hasProperty('android')) {
             source project.android.sourceSets.main.java.getSrcDirs()
         }
