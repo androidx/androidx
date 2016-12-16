@@ -48,15 +48,12 @@ public class FragmentLifecycleTest {
 
     private Instrumentation mInstrumentation;
 
-    private boolean mNested;
+    @Parameterized.Parameter
+    public boolean mNested;
 
     @Parameterized.Parameters(name = "nested:{0}")
     public static Object[][] params() {
         return new Object[][]{new Object[]{false}, new Object[]{true}};
-    }
-
-    public FragmentLifecycleTest(boolean nested) {
-        mNested = nested;
     }
 
     @Before
