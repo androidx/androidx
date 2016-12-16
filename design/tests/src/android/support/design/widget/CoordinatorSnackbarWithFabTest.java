@@ -32,6 +32,7 @@ import android.support.design.testutils.SnackbarUtils;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,6 +100,8 @@ public class CoordinatorSnackbarWithFabTest extends BaseDynamicCoordinatorLayout
         }
     }
 
+    // Test is flaky on API 19
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void testBuiltInSliding() {
         onView(withId(R.id.coordinator_stub)).perform(
