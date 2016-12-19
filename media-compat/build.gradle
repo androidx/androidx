@@ -15,9 +15,6 @@ dependencies {
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
-
 android {
     compileSdkVersion project.ext.currentSdk
 
@@ -53,12 +50,6 @@ android.libraryVariants.all { variant ->
         return; // Skip debug builds.
     }
     def suffix = name.capitalize()
-
-    def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompile
-        from variant.javaCompile.destinationDir
-        from 'LICENSE.txt'
-    }
 
     def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
         classifier = 'sources'

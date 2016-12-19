@@ -42,10 +42,6 @@ android {
     aaptOptions {
         additionalParameters "--no-version-vectors"
     }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
 }
 
 android.libraryVariants.all { variant ->
@@ -55,12 +51,6 @@ android.libraryVariants.all { variant ->
         return; // Skip debug builds.
     }
     def suffix = name.capitalize()
-
-    def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar) {
-        dependsOn variant.javaCompile
-        from variant.javaCompile.destinationDir
-        from 'LICENSE.txt'
-    }
 
     def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
         classifier = 'sources'
