@@ -18,7 +18,6 @@ package com.android.sample.moviebrowser.db;
 
 import com.android.sample.moviebrowser.MovieDataFull;
 import com.android.support.room.Database;
-import com.android.support.room.DatabaseConfiguration;
 import com.android.support.room.RoomDatabase;
 
 /**
@@ -26,16 +25,6 @@ import com.android.support.room.RoomDatabase;
  */
 @Database(entities = MovieDataFull.class)
 public abstract class MovieDataFullDatabase extends RoomDatabase {
-    /**
-     * Creates a RoomDatabase with the given configuration.
-     *
-     * @param configuration The configuration to setup the database.
-     */
-    @SuppressWarnings("WeakerAccess")
-    public MovieDataFullDatabase(DatabaseConfiguration configuration) {
-        super(configuration);
-    }
-
     /**
      * Gets the data access object.
      */

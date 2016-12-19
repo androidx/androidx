@@ -17,7 +17,7 @@ package com.android.sample.moviebrowser.db;
 
 import android.content.Context;
 
-import com.android.support.room.DatabaseConfiguration;
+import com.android.support.room.Room;
 
 /**
  * Database helper.
@@ -30,9 +30,7 @@ public class MovieDataFullDatabaseHelper {
      */
     public static synchronized MovieDataFullDatabase getDatabase(Context context) {
         if (sInstance == null) {
-            final DatabaseConfiguration configuration =
-                    new DatabaseConfiguration.Builder(context).build();
-            sInstance = new MovieDataFullDatabase_Impl(configuration);
+            sInstance = Room.inMemoryDatabaseBuilder(context, MovieDataFullDatabase.class).build();
         }
         return sInstance;
     }

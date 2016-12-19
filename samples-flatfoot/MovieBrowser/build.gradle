@@ -19,10 +19,10 @@ allprojects {
     repositories {
         jcenter()
         maven {
-            url "file://Volumes/android/ub-supportlib-flatfoot-master/out/host/gradle/frameworks/support/build/flatfoot_repo/"
+            url "file://Volumes/android/appToolkitRepository/"
         }
         maven {
-            url "file://Volumes/android/ub-supportlib-flatfoot-master/prebuilts/fullsdk-darwin/extras/android/m2repository/"
+            url "file://Volumes/android/m2repository/"
         }
     }
 }
