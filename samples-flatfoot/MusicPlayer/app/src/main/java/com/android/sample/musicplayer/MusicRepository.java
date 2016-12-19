@@ -55,6 +55,7 @@ public class MusicRepository {
             return mArtist;
         }
 
+        @RawRes
         public int getTrackRes() {
             return mTrackRes;
         }
@@ -94,30 +95,52 @@ public class MusicRepository {
         mStateData.setValue(STATE_STOPPED);
     }
 
+    /**
+     * Returns the unmodifiable list of tracks in this repository.
+     */
     public List<TrackMetadata> getTracks() {
         return Collections.unmodifiableList(mTracks);
     }
 
-    public int getCurrentlyActiveTrack() {
-        return mCurrentlyActiveTrackData.getValue();
+    /**
+     * Goes to the next track.
+     */
+    public void goToNextTrack() {
+        int nextSourceIndex = mCurrentlyActiveTrackData.getValue() + 1;
+        if (nextSourceIndex == mTracks.size()) {
+            nextSourceIndex = 0;
+        }
+        mCurrentlyActiveTrackData.setValue(nextSourceIndex);
     }
 
-    public void setCurrentlyActiveTrack(int currentlyActiveTrack) {
-        mCurrentlyActiveTrackData.setValue(currentlyActiveTrack);
+    /**
+     * Goes to the previous track.
+     */
+    public void goToPreviousTrack() {
+        int prevSourceIndex = mCurrentlyActiveTrackData.getValue() - 1;
+        if (prevSourceIndex == -1) {
+            prevSourceIndex = mTracks.size() - 1;
+        }
+        mCurrentlyActiveTrackData.setValue(prevSourceIndex);
     }
 
-    public int getState() {
-        return mStateData.getValue();
-    }
-
+    /**
+     * Sets the new value for the playback state.
+     */
     public void setState(int state) {
         mStateData.setValue(state);
     }
 
+    /**
+     * Returns the {@link LiveData} object that wraps the currently active track index.
+     */
     public LiveData<Integer> getCurrentlyActiveTrackData() {
         return this.mCurrentlyActiveTrackData;
     }
 
+    /**
+     * Returns the {@link LiveData} object that wraps the playback state.
+     */
     public LiveData<Integer> getStateData() {
         return mStateData;
     }

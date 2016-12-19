@@ -16,7 +16,6 @@
 package com.android.sample.musicplayer;
 
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -27,12 +26,16 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.support.annotation.RawRes;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v7.app.NotificationCompat;
 
 import com.android.sample.musicplayer.MusicRepository.TrackMetadata;
+import com.android.support.lifecycle.LifecycleService;
+import com.android.support.lifecycle.LiveData;
+import com.android.support.lifecycle.Observer;
 
 import java.io.IOException;
 import java.util.List;
@@ -40,7 +43,8 @@ import java.util.List;
 /**
  * Music playback service.
  */
-public class MusicService extends Service implements OnCompletionListener, OnPreparedListener {
+public class MusicService extends LifecycleService implements OnCompletionListener,
+        OnPreparedListener {
     public static final String ACTION_INITIALIZE =
             "com.android.sample.musicplayer.action.INITIALIZE";
     public static final String ACTION_PLAY = "com.android.sample.musicplayer.action.PLAY";
@@ -65,6 +69,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     private NotificationCompat.Builder mNotificationBuilder = null;
 
     private MusicRepository mMusicRepository;
+    private int mCurrPlaybackState;
+    private int mCurrActiveTrackIndex;
     private List<TrackMetadata> mTracks;
 
     @Override
@@ -76,8 +82,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mMediaSession.setActive(true);
 
         mMusicRepository = MusicRepository.getInstance();
+
         mTracks = mMusicRepository.getTracks();
-        updateAudioMetadata();
 
         // Attach Callback to receive MediaSession updates
         mMediaSession.setCallback(new MediaSessionCompat.Callback() {
@@ -98,32 +104,71 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             public void onSkipToNext() {
                 super.onSkipToNext();
                 processNextRequest();
-                updateAudioMetadata();
             }
 
             @Override
             public void onSkipToPrevious() {
                 super.onSkipToPrevious();
                 processPreviousRequest();
-                updateAudioMetadata();
-                updateNotification();
             }
 
             @Override
             public void onStop() {
                 super.onStop();
-                mNotificationManager.cancel(NOTIFICATION_ID);
-                //Stop the service
-                stopSelf();
-            }
-
-            @Override
-            public void onSeekTo(long position) {
-                super.onSeekTo(position);
+                processStopRequest();
             }
         });
 
         mNotificationManager = NotificationManagerCompat.from(this);
+
+        // Register self as the observer on the LiveData object that wraps the currently
+        // active track index.
+        LiveData<Integer> currentlyActiveTrackData = mMusicRepository.getCurrentlyActiveTrackData();
+        mCurrActiveTrackIndex = currentlyActiveTrackData.getValue();
+        currentlyActiveTrackData.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer integer) {
+                mCurrActiveTrackIndex = integer;
+                if (mCurrActiveTrackIndex < 0) {
+                    return;
+                }
+
+                // Create the media player, sets its data to the current track and call
+                // prepare. Later we'll get a callback to our onPrepared() method which will
+                // transition into the PLAYING state.
+                createMediaPlayerIfNeeded();
+                try {
+                    @RawRes int trackRawRes = mTracks.get(mCurrActiveTrackIndex).getTrackRes();
+                    mMediaPlayer.setDataSource(getBaseContext(),
+                            Uri.parse(RESOURCE_PREFIX + trackRawRes));
+                    mMediaPlayer.prepare();
+                } catch (IOException ioe) {
+                }
+                // As the media player is preparing the track, update the media session and the
+                // notification with the metadata of that track.
+                updateAudioMetadata();
+                updateNotification();
+            }
+        });
+
+        // Register self as the observer on the LiveData object that wraps the playback state.
+        LiveData<Integer> stateData = mMusicRepository.getStateData();
+        mCurrPlaybackState = stateData.getValue();
+        stateData.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer integer) {
+                mCurrPlaybackState = integer;
+                if (mCurrPlaybackState == MusicRepository.STATE_PLAYING) {
+                    // If the current playback state is PLAYING, start the media player
+                    configAndStartMediaPlayer();
+                } else if (mCurrPlaybackState == MusicRepository.STATE_PAUSED) {
+                    // If we're in PAUSED state, pause the media player
+                    mMediaPlayer.pause();
+                }
+                // And update the notification to present the right controls
+                updateNotification();
+            }
+        });
     }
 
     void createMediaPlayerIfNeeded() {
@@ -146,6 +191,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+
         if (intent.getAction().equals(ACTION_INITIALIZE)) {
             processInitializeRequest();
         } else if (intent.getAction().equals(ACTION_PLAY)) {
@@ -164,35 +211,32 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     private void processInitializeRequest() {
-        if (mMusicRepository.getCurrentlyActiveTrack() >= 0) {
+        if (mCurrActiveTrackIndex >= 0) {
             return;
         }
-        mMusicRepository.setCurrentlyActiveTrack(-1);
         setUpAsForeground("Ready to play");
     }
 
     private void processPlayRequest() {
-        // actually play the song
-        int currState = mMusicRepository.getState();
-        if (currState == MusicRepository.STATE_STOPPED) {
-            // If we're stopped, just go ahead to the next song and start playing
+        // The logic here is different depending on our current state
+        if (mCurrPlaybackState == MusicRepository.STATE_STOPPED) {
+            // If we're stopped, just go ahead to the next song and start playing.
             playNextSong();
-        } else if (currState == MusicRepository.STATE_PAUSED) {
-            // If we're paused, just continue playback and restore the 'foreground service' state.
+        } else if (mCurrPlaybackState == MusicRepository.STATE_PAUSED) {
+            // If we're paused, just continue playback. We are registered to listen to the changes
+            // in LiveData that tracks the playback state, and that observer will update our ongoing
+            // notification and resume the playback.
             mMusicRepository.setState(MusicRepository.STATE_PLAYING);
-            updateNotification();
-            configAndStartMediaPlayer();
         }
     }
 
     private void processPauseRequest() {
-        if (mMusicRepository.getState() == MusicRepository.STATE_PLAYING) {
-            // Pause media player and cancel the 'foreground service' state.
+        if (mCurrPlaybackState == MusicRepository.STATE_PLAYING) {
+            // Move to the paused state. We are registered
+            // to listen to the changes in LiveData that tracks the playback state,
+            // and that observer will update our ongoing notification and pause the media
+            // player.
             mMusicRepository.setState(MusicRepository.STATE_PAUSED);
-            mMediaPlayer.pause();
-            updateNotification();
-            //relaxResources(false); // while paused, we always retain the MediaPlayer
-            // do not give up audio focus
         }
     }
 
@@ -201,29 +245,25 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     private void processStopRequest(boolean force) {
-        int currState = mMusicRepository.getState();
-        if (currState == MusicRepository.STATE_PLAYING || currState == MusicRepository.STATE_PAUSED
-                || force) {
+        if (mCurrPlaybackState != MusicRepository.STATE_STOPPED || force) {
             mMusicRepository.setState(MusicRepository.STATE_STOPPED);
             // let go of all resources...
             relaxResources(true);
+            // cancel the notification
+            mNotificationManager.cancel(NOTIFICATION_ID);
             // service is no longer necessary. Will be started again if needed.
             stopSelf();
         }
     }
 
     private void processNextRequest() {
-        int currState = mMusicRepository.getState();
-        if (currState == MusicRepository.STATE_PLAYING
-                || currState == MusicRepository.STATE_PAUSED) {
+        if (mCurrPlaybackState != MusicRepository.STATE_STOPPED) {
             playNextSong();
         }
     }
 
     private void processPreviousRequest() {
-        int currState = mMusicRepository.getState();
-        if (currState == MusicRepository.STATE_PLAYING
-                || currState == MusicRepository.STATE_PAUSED) {
+        if (mCurrPlaybackState != MusicRepository.STATE_STOPPED) {
             playPrevSong();
         }
     }
@@ -261,53 +301,29 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     /**
-     * Starts playing the next song. If manualUrl is null, the next song will be randomly selected
-     * from our Media Retriever (that is, it will be a random song in the user's device). If
-     * manualUrl is non-null, then it specifies the URL or path to the song that will be played
-     * next.
+     * Starts playing the next song in our repository.
      */
     private void playNextSong() {
         mMusicRepository.setState(MusicRepository.STATE_STOPPED);
         relaxResources(false); // release everything except MediaPlayer
-        try {
-            // set the source of the media player to a manual URL or path
-            createMediaPlayerIfNeeded();
 
-            int nextSourceIndex = mMusicRepository.getCurrentlyActiveTrack() + 1;
-            if (nextSourceIndex == mTracks.size()) {
-                nextSourceIndex = 0;
-            }
-            mMusicRepository.setCurrentlyActiveTrack(nextSourceIndex);
-            mMediaPlayer.setDataSource(getBaseContext(),
-                    Uri.parse(RESOURCE_PREFIX + mTracks.get(nextSourceIndex).getTrackRes()));
-            mMediaPlayer.prepare();
-        } catch (IOException ioe) {
-        }
+        // Ask the repository to go to the next track. We are registered to listen to the
+        // changes in LiveData that tracks the current track, and that observer will point the
+        // media player to the right URI
+        mMusicRepository.goToNextTrack();
     }
 
     /**
-     * Starts playing the previous song. If manualUrl is null, the next song will be randomly
-     * selected from our Media Retriever (that is, it will be a random song in the user's device).
-     * If manualUrl is non-null, then it specifies the URL or path to the song that will be played
-     * next.
+     * Starts playing the previous song in our repository.
      */
     private void playPrevSong() {
         mMusicRepository.setState(MusicRepository.STATE_STOPPED);
         relaxResources(false); // release everything except MediaPlayer
-        try {
-            // set the source of the media player to a manual URL or path
-            createMediaPlayerIfNeeded();
 
-            int prevSourceIndex = mMusicRepository.getCurrentlyActiveTrack() - 1;
-            if (prevSourceIndex == -1) {
-                prevSourceIndex = mTracks.size() - 1;
-            }
-            mMusicRepository.setCurrentlyActiveTrack(prevSourceIndex);
-            mMediaPlayer.setDataSource(getBaseContext(),
-                    Uri.parse(RESOURCE_PREFIX + mTracks.get(prevSourceIndex).getTrackRes()));
-            mMediaPlayer.prepare();
-        } catch (IOException ioe) {
-        }
+        // Ask the repository to go to the next track. We are registered to listen to the
+        // changes in LiveData that tracks the current track, and that observer will point the
+        // media player to the right URI
+        mMusicRepository.goToPreviousTrack();
     }
 
     /**
@@ -321,9 +337,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     /** Called when media player is done preparing. */
     public void onPrepared(MediaPlayer player) {
         // The media player is done preparing. That means we can start playing!
+        // We are registered to listen to the changes in LiveData that tracks the playback state,
+        // and that observer will update our ongoing notification
         mMusicRepository.setState(MusicRepository.STATE_PLAYING);
-        updateNotification();
-        configAndStartMediaPlayer();
     }
 
     /**
@@ -338,7 +354,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                         .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        boolean isPlaying = mMusicRepository.getState() == MusicRepository.STATE_PLAYING;
+        boolean isPlaying = (mCurrPlaybackState == MusicRepository.STATE_PLAYING);
 
         // Build the notification object.
         mNotificationBuilder = new NotificationCompat.Builder(getApplicationContext());
@@ -379,21 +395,23 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     private void updateNotification() {
-        // TODO - once b/33690035 is fixed, convert to have the service observe the LiveData
-        // object in our repository for the currently active track and update the notification.
-        TrackMetadata currTrack = mTracks.get(mMusicRepository.getCurrentlyActiveTrack());
+        if (mCurrActiveTrackIndex < 0) {
+            return;
+        }
+
+        TrackMetadata currTrack = mTracks.get(mCurrActiveTrackIndex);
         populateNotificationBuilderContent(currTrack.getTitle()
                 + " by " + currTrack.getArtist());
         mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
     }
 
     private void updateAudioMetadata() {
-        if (mMusicRepository.getCurrentlyActiveTrack() < 0) {
+        if (mCurrActiveTrackIndex < 0) {
             return;
         }
         Bitmap albumArt = BitmapFactory.decodeResource(getResources(), R.drawable.nougat_bg_2x);
         // Update the current metadata
-        TrackMetadata current = mTracks.get(mMusicRepository.getCurrentlyActiveTrack());
+        TrackMetadata current = mTracks.get(mCurrActiveTrackIndex);
         mMediaSession.setMetadata(new MediaMetadataCompat.Builder()
                 .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, current.getArtist())
@@ -404,6 +422,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        super.onBind(intent);
         return null;
     }
 
@@ -414,5 +433,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             mNotificationManager.cancel(NOTIFICATION_ID);
             stopForeground(true);
         }
+        super.onDestroy();
     }
 }
