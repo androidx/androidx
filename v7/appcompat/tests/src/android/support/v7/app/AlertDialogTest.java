@@ -74,6 +74,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import org.hamcrest.Matcher;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -89,9 +90,9 @@ import org.mockito.ArgumentCaptor;
  *     <li>Testing <code>setIcon</code> API assumes that the icon is displayed by a separate
  *     <code>ImageView</code> which is a sibling of a title view.</li>
  *     <li>Testing <code>setMultiChoiceItems</code> API assumes that each item in the list
- *     is rendered by a single <code></code>CheckedTextView</code>.</li>
+ *     is rendered by a single <code>CheckedTextView</code>.</li>
  *     <li>Testing <code>setSingleChoiceItems</code> API assumes that each item in the list
- *     is rendered by a single <code></code>CheckedTextView</code>.</li>
+ *     is rendered by a single <code>CheckedTextView</code>.</li>
  * </ul>
  */
 public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTestActivity> {
@@ -107,6 +108,18 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     public void setUp() {
         final AlertDialogTestActivity activity = mActivityTestRule.getActivity();
         mButton = (Button) activity.findViewById(R.id.test_button);
+    }
+
+    @After
+    public void tearDown() throws Throwable {
+        if ((mAlertDialog != null) && mAlertDialog.isShowing()) {
+            mActivityTestRule.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mAlertDialog.hide();
+                }
+            });
+        }
     }
 
     private void wireBuilder(final AlertDialog.Builder builder) {
