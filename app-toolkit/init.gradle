@@ -30,10 +30,13 @@ props.write "sdk.dir=${fullSdkPath}"
 
 def buildDir
 def distDir
+def supportLibBuildDir
 if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
-    buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile()
+    supportLibBuildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile();
+    buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/app-toolkit/build').getCanonicalFile()
     distDir = new File(System.env.DIST_DIR).getCanonicalFile()
 } else {
+    supportLibBuildDir = file("${checkoutRoot}/out/host/gradle/frameworks/support/build")
     buildDir = file("${checkoutRoot}/out/host/gradle/frameworks/app-toolkit/build")
     distDir = file("${project.rootDir}/../../out/dist")
 }
@@ -49,7 +52,7 @@ ext.repoNames = ["$prebuiltsRootUri/maven_repo",
                  "$prebuiltsRootUri/tools/common/offline-m2",
                  "$prebuiltsRootUri/maven_repo/android",
                  "file://$fullSdkPath/extras/android/m2repository",
-                 "file://${new File(buildDir, "support_repo").absolutePath}"]
+                 "file://${new File(supportLibBuildDir, "support_repo").absolutePath}"]
 
 ext.kotlin_version = "1.0.5"
 ext.android_gradle_plugin_version = "2.2.4"
