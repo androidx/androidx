@@ -94,7 +94,7 @@ public class NavigationViewTest
 
     private DrawerLayout mDrawerLayout;
 
-    private NavigationView mNavigationView;
+    private NavigationTestView mNavigationView;
 
     public NavigationViewTest() {
         super(NavigationViewActivity.class);
@@ -104,7 +104,7 @@ public class NavigationViewTest
     public void setUp() throws Exception {
         final NavigationViewActivity activity = mActivityTestRule.getActivity();
         mDrawerLayout = (DrawerLayout) activity.findViewById(R.id.drawer_layout);
-        mNavigationView = (NavigationView) mDrawerLayout.findViewById(R.id.start_drawer);
+        mNavigationView = (NavigationTestView) mDrawerLayout.findViewById(R.id.start_drawer);
 
         // Close the drawer to reset the state for the next test
         onView(withId(R.id.drawer_layout)).perform(closeDrawer(GravityCompat.START));
@@ -146,7 +146,11 @@ public class NavigationViewTest
         onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START));
 
         if (Build.VERSION.SDK_INT >= 21) {
-            assertFalse(mNavigationView.willNotDraw());
+            if (mNavigationView.hasSystemWindowInsets()) {
+                assertFalse(mNavigationView.willNotDraw());
+            } else {
+                assertTrue(mNavigationView.willNotDraw());
+            }
         } else {
             assertTrue(mNavigationView.willNotDraw());
         }
