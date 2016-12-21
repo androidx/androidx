@@ -1,16 +1,19 @@
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package android.support.v17.leanback.widget;
 
 import static android.support.v7.widget.RecyclerView.LayoutManager;
@@ -22,36 +25,31 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 /**
- * Implementation of {@link ParallaxSource} class for {@link RecyclerView}. This class
+ * Implementation of {@link Parallax} class for {@link RecyclerView}. This class
  * allows users to track position of specific views inside {@link RecyclerView} relative to
  * itself. @see {@link ChildPositionProperty} for details.
- * @hide
  */
-public class ParallaxRecyclerViewSource extends
-        ParallaxSource.IntSource<ParallaxRecyclerViewSource.ChildPositionProperty> {
+public class RecyclerViewParallax extends
+        Parallax.IntParallax<RecyclerViewParallax.ChildPositionProperty> {
     RecyclerView mRecylerView;
-    Listener mListener;
     boolean mIsVertical;
 
     OnScrollListener mOnScrollListener = new OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            for (ChildPositionProperty prop: getProperties()) {
-                prop.updateValue(ParallaxRecyclerViewSource.this);
-            }
-            mListener.onPropertiesChanged(ParallaxRecyclerViewSource.this);
+            updateValues();
         }
     };
 
     /**
-     * Subclass of {@link ParallaxSource.IntProperty}. Using this Property, users can track a
+     * Subclass of {@link Parallax.IntProperty}. Using this Property, users can track a
      * RecylerView child's position inside recyclerview. i.e.
      *
      * tracking_pos = view.top + fraction * view.height() + offset
      *
      * This way we can track top using fraction 0 and bottom using fraction 1.
      */
-    public static final class ChildPositionProperty extends ParallaxSource.IntProperty {
+    public static final class ChildPositionProperty extends Parallax.IntProperty {
         int mAdapterPosition;
         int mViewId;
         int mOffset;
@@ -137,7 +135,7 @@ public class ParallaxRecyclerViewSource extends
             return mFraction;
         }
 
-        void updateValue(ParallaxRecyclerViewSource source) {
+        void updateValue(RecyclerViewParallax source) {
             RecyclerView recyclerView = source.mRecylerView;
             ViewHolder viewHolder = recyclerView == null ? null
                     : recyclerView.findViewHolderForAdapterPosition(mAdapterPosition);
@@ -190,12 +188,7 @@ public class ParallaxRecyclerViewSource extends
     }
 
     @Override
-    public void setListener(Listener listener) {
-        mListener = listener;
-    }
-
-    @Override
-    public int getMaxParentVisibleSize() {
+    public int getMaxValue() {
         if (mRecylerView == null) {
             return 0;
         }
@@ -203,7 +196,7 @@ public class ParallaxRecyclerViewSource extends
     }
 
     /**
-     * Set RecyclerView that this ParallaxSource will register onScrollListener.
+     * Set RecyclerView that this Parallax will register onScrollListener.
      * @param recyclerView RecyclerView to register onScrollListener.
      */
     public void setRecyclerView(RecyclerView recyclerView) {
@@ -229,11 +222,9 @@ public class ParallaxRecyclerViewSource extends
     @Override
     public void updateValues() {
         for (ChildPositionProperty prop: getProperties()) {
-            prop.updateValue(ParallaxRecyclerViewSource.this);
+            prop.updateValue(RecyclerViewParallax.this);
         }
-        if (mListener != null) {
-            mListener.onPropertiesChanged(ParallaxRecyclerViewSource.this);
-        }
+        super.updateValues();
     }
 
     /**

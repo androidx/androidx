@@ -16,14 +16,14 @@
  */
 package android.support.v17.leanback.app;
 
+import android.support.v17.leanback.media.PlaybackGlue;
 import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.media.SurfaceHolderGlueHost;
 import android.view.SurfaceHolder;
 
 /**
  * {@link PlaybackGlueHost} implementation
- * the interaction between this class and {@link VideoSupportFragment}.
- * @hide
+ * the interaction between {@link PlaybackGlue} and {@link VideoSupportFragment}.
  */
 public class VideoSupportFragmentGlueHost extends PlaybackSupportFragmentGlueHost
         implements SurfaceHolderGlueHost {
