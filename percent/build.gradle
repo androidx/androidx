@@ -1,4 +1,4 @@
-apply plugin: 'com.android.library'
+apply plugin: android.support.SupportLibraryPlugin
 archivesBaseName = 'percent'
 
 dependencies {
@@ -18,29 +18,13 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
-        main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDirs = ['src']
         main.res.srcDir 'res'
         main.assets.srcDir 'assets'
         main.resources.srcDir 'src'
-
-        // this moves src/instrumentTest to tests so all folders follow:
-        // tests/java, tests/res, tests/assets, ...
-        // This is a *reset* so it replaces the default paths
-        androidTest.setRoot('tests')
-        androidTest.java.srcDir 'tests/java'
-        androidTest.res.srcDir 'tests/res'
-        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 
