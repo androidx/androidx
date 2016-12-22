@@ -1,4 +1,4 @@
-apply plugin: 'com.android.library'
+apply plugin: android.support.SupportLibraryPlugin
 archivesBaseName = 'wearable'
 
 dependencies {
@@ -25,23 +25,11 @@ android {
 
     defaultConfig {
         minSdkVersion 20
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
-        main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDir 'src'
         main.res.srcDirs 'res', 'res-public'
-
-        androidTest.setRoot('tests')
-        androidTest.java.srcDir 'tests/src'
-        androidTest.res.srcDir 'tests/res'
-        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
     }
 
     buildTypes.all {
