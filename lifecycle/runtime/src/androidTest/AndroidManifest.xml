@@ -19,7 +19,8 @@
           package="com.android.support.lifecycle.test">
 
     <application>
-        <activity android:name="com.android.support.lifecycle.activity.FragmentLifecycleActivity"/>
+        <activity android:name="com.android.support.lifecycle.activity.FragmentLifecycleActivity"
+            android:theme="@style/Base.Theme.AppCompat"/>
         <service android:name="com.android.support.lifecycle.service.TestService"/>
     </application>
 
