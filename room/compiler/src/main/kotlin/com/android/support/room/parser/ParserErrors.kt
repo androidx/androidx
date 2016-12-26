@@ -20,6 +20,13 @@ object ParserErrors {
     val TOO_MANY_UNNAMED_VARIABLES = "Unnamed bind variables can only be used if it is the only" +
             " parameter. Use named parameters (e..g :name)"
 
+    val NOT_ONE_QUERY = "Must have exactly 1 query in @Query value"
+
+    fun invalidQueryType(type: QueryType): String {
+        return "$type query type is not supported yet. You can use:" +
+                QueryType.SUPPORTED.joinToString(", ") { it.name }
+    }
+
     fun cannotUseVariableIndices(name: String, position: Int) = "Cannot use variable indices." +
             " Use named parameters instead (e.g. WHERE name LIKE :nameArg and lastName LIKE " +
             ":lastName). Problem: $name at $position"

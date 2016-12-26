@@ -21,6 +21,7 @@ import com.android.support.room.ext.L
 import com.android.support.room.ext.N
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.T
+import com.android.support.room.parser.QueryType
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.vo.Dao
 import com.android.support.room.vo.InsertionMethod
@@ -73,8 +74,8 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
                 }
             }
 
-            dao.queryMethods.forEach { method ->
-                builder.addMethod(createQueryMethod(method))
+            dao.queryMethods.filter { it.query.queryType == QueryType.SELECT }.forEach { method ->
+                builder.addMethod(createSelectMethod(method))
             }
         }
         return builder.build()
@@ -94,7 +95,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
         }.build()
     }
 
-    private fun createQueryMethod(method : QueryMethod) : MethodSpec {
+    private fun createSelectMethod(method : QueryMethod) : MethodSpec {
         return overrideWithoutAnnotations(method.element).apply {
             addCode(createQueryMethodBody(method))
         }.build()

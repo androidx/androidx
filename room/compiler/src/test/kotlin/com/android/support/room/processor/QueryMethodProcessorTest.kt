@@ -249,7 +249,7 @@ class QueryMethodProcessorTest {
                 """) { parsedQuery, invocation ->
             // do nothing
         }.failsToCompile()
-                .withErrorContaining("mismatched input")
+                .withErrorContaining("UNEXPECTED_CHAR=:")
     }
 
     @Test

@@ -35,15 +35,17 @@ data class Section(val text: String, val type: SectionType) {
     }
 }
 
-data class Table(val name : String, val alias : String)
+data class Table(val name: String, val alias: String)
 
-data class ParsedQuery(val original: String, val inputs: List<TerminalNode>,
+data class ParsedQuery(val original: String, val queryType: QueryType,
+                       val inputs: List<TerminalNode>,
                        // pairs of table name and alias,
                        val tables: Set<Table>,
                        val syntaxErrors: List<String>) {
     companion object {
         val STARTS_WITH_NUMBER = "^\\?[0-9]".toRegex()
-        val MISSING = ParsedQuery("missing query", emptyList(), emptySet(), emptyList())
+        val MISSING = ParsedQuery("missing query", QueryType.UNKNOWN, emptyList(), emptySet(),
+                emptyList())
     }
 
     val sections by lazy {
@@ -70,21 +72,38 @@ data class ParsedQuery(val original: String, val inputs: List<TerminalNode>,
         sections
     }
 
-    val bindSections by lazy { sections.filter { it.type == BIND_VAR }}
+    val bindSections by lazy { sections.filter { it.type == BIND_VAR } }
 
-    val errors by lazy {
+    private fun unnamedVariableErrors(): List<String> {
         val hasUnnamed = inputs.any { it.text == "?" }
-        inputs.filter {
+        return inputs.filter {
             it.text.matches(STARTS_WITH_NUMBER)
         }.map {
             ParserErrors.cannotUseVariableIndices(it.text, it.symbol.charPositionInLine)
         } + (if (hasUnnamed && inputs.size > 1) arrayListOf(ParserErrors.TOO_MANY_UNNAMED_VARIABLES)
-        else emptyList<String>()) + syntaxErrors
+        else emptyList<String>())
+    }
+
+    private fun unknownQueryTypeErrors(): List<String> {
+        return if (QueryType.SUPPORTED.contains(queryType)) {
+            emptyList()
+        } else {
+            listOf(ParserErrors.invalidQueryType(queryType))
+        }
+    }
+
+    val errors by lazy {
+        if (syntaxErrors.isNotEmpty()) {
+            // if there is a syntax error, don't report others since they might be misleading.
+            syntaxErrors
+        } else {
+            unnamedVariableErrors() + unknownQueryTypeErrors()
+        }
     }
 
     val queryWithReplacedBindParams by lazy {
         sections.joinToString("") {
-            when(it.type) {
+            when (it.type) {
                 TEXT -> it.text
                 BIND_VAR -> "?"
                 NEWLINE -> "\n"

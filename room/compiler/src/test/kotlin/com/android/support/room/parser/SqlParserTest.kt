@@ -24,6 +24,30 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SqlParserTest {
+
+    @Test
+    fun multipleQueries() {
+        assertErrors("SELECT * FROM users; SELECT * FROM books;",
+                ParserErrors.NOT_ONE_QUERY)
+    }
+
+    @Test
+    fun empty() {
+        assertErrors("", ParserErrors.NOT_ONE_QUERY)
+    }
+
+    @Test
+    fun deleteQuery() {
+        assertErrors("DELETE FROM users where id > 3",
+                ParserErrors.invalidQueryType(QueryType.DELETE))
+    }
+
+    @Test
+    fun explain() {
+        assertErrors("EXPLAIN QUERY PLAN SELECT * FROM users",
+                ParserErrors.invalidQueryType(QueryType.EXPLAIN))
+    }
+
     @Test
     fun extractTableNames() {
         assertThat(SqlParser.parse("select * from users").tables,

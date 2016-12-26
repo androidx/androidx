@@ -21,13 +21,50 @@ import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
+import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
 import java.util.*
 
-class BindingExtractor(val original: String) : SQLiteBaseVisitor<Void?>() {
+class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
+                   statement: ParseTree) : SQLiteBaseVisitor<Void?>() {
     val bindingExpressions = arrayListOf<TerminalNode>()
     // table name alias mappings
     val tableNames = mutableSetOf<Table>()
+    val queryType: QueryType
+
+    init {
+        queryType = (0..statement.childCount - 1).map {
+            findQueryType(statement.getChild(it))
+        }.filterNot { it == QueryType.UNKNOWN }.first()
+
+        statement.accept(this)
+    }
+
+    private fun findQueryType(statement: ParseTree): QueryType {
+        return when (statement) {
+            is SQLiteParser.Factored_select_stmtContext,
+            is SQLiteParser.Compound_select_stmtContext,
+            is SQLiteParser.Select_stmtContext,
+            is SQLiteParser.Simple_select_stmtContext ->
+                QueryType.SELECT
+
+            is SQLiteParser.Delete_stmt_limitedContext,
+            is SQLiteParser.Delete_stmtContext ->
+                QueryType.DELETE
+
+            is SQLiteParser.Insert_stmtContext ->
+                QueryType.INSERT
+            is SQLiteParser.Update_stmtContext,
+            is SQLiteParser.Update_stmt_limitedContext ->
+                QueryType.UPDATE
+            is TerminalNode -> when (statement.text) {
+                "EXPLAIN" -> QueryType.EXPLAIN
+                else -> QueryType.UNKNOWN
+            }
+            else -> QueryType.UNKNOWN
+        }
+    }
+
     override fun visitExpr(ctx: SQLiteParser.ExprContext): Void? {
         val bindParameter = ctx.BIND_PARAMETER()
         if (bindParameter != null) {
@@ -36,8 +73,9 @@ class BindingExtractor(val original: String) : SQLiteBaseVisitor<Void?>() {
         return super.visitExpr(ctx)
     }
 
-    fun createParsedQuery(syntaxErrors: ArrayList<String>): ParsedQuery {
+    fun createParsedQuery(): ParsedQuery {
         return ParsedQuery(original,
+                queryType,
                 bindingExpressions.sortedBy { it.sourceInterval.a },
                 tableNames,
                 syntaxErrors)
@@ -64,15 +102,43 @@ class SqlParser {
             parser.addErrorListener(object : BaseErrorListener() {
                 override fun syntaxError(recognizer: Recognizer<*, *>, offendingSymbol: Any,
                                          line: Int, charPositionInLine: Int, msg: String,
-                                         e: RecognitionException) {
+                                         e: RecognitionException?) {
                     syntaxErrors.add(msg)
                 }
             })
-            val extractor = BindingExtractor(input)
-            val selectStmt = parser.select_stmt()
-            selectStmt.accept(extractor)
-            return extractor.createParsedQuery(syntaxErrors)
+            try {
+                val parsed = parser.parse()
+                val statementList = parsed.sql_stmt_list()
+                if (statementList.isEmpty()) {
+                    syntaxErrors.add(ParserErrors.NOT_ONE_QUERY)
+                    return ParsedQuery(input, QueryType.UNKNOWN, emptyList(), emptySet(),
+                            listOf(ParserErrors.NOT_ONE_QUERY))
+                }
+                val statements = statementList.first().children
+                        .filter { it is SQLiteParser.Sql_stmtContext }
+                if (statements.size != 1) {
+                    syntaxErrors.add(ParserErrors.NOT_ONE_QUERY)
+                }
+                val statement = statements.first()
+                return QueryVisitor(input, syntaxErrors, statement).createParsedQuery()
+            } catch (antlrError: RuntimeException) {
+                return ParsedQuery(input, QueryType.UNKNOWN, emptyList(), emptySet(),
+                        listOf(antlrError.message ?: "unknown error while parsing $input"))
+            }
         }
+    }
+}
+
+enum class QueryType {
+    UNKNOWN,
+    SELECT,
+    DELETE,
+    UPDATE,
+    EXPLAIN,
+    INSERT;
+
+    companion object {
+        val SUPPORTED = hashSetOf(SELECT)
     }
 }
 

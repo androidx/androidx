@@ -14,28 +14,41 @@
  * limitations under the License.
  */
 
+@file:Suppress("unused")
+
 package com.android.support.room.log
 
+import java.util.UnknownFormatConversionException
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.tools.Diagnostic.Kind.ERROR
 import javax.tools.Diagnostic.Kind.NOTE
 import javax.tools.Diagnostic.Kind.WARNING
 
-class RLog(val processingEnv : ProcessingEnvironment) {
-    fun d(element : Element, msg : String, vararg args : Any) {
-        processingEnv.messager.printMessage(NOTE, msg.format(args), element)
+class RLog(val processingEnv: ProcessingEnvironment) {
+    private fun String.safeFormat(vararg args: Any): String {
+        try {
+            return format(args)
+        } catch (ex: UnknownFormatConversionException) {
+            // the input string might be from random source in which case we rather print the
+            // msg as is instead of crashing while reporting an error.
+            return this
+        }
     }
 
-    fun d(msg : String, vararg args : Any) {
-        processingEnv.messager.printMessage(NOTE, msg.format(args))
+    fun d(element: Element, msg: String, vararg args: Any) {
+        processingEnv.messager.printMessage(NOTE, msg.safeFormat(args), element)
     }
 
-    fun e(element : Element, msg : String, vararg args : Any) {
-        processingEnv.messager.printMessage(ERROR, msg.format(args), element)
+    fun d(msg: String, vararg args: Any) {
+        processingEnv.messager.printMessage(NOTE, msg.safeFormat(args))
     }
 
-    fun w(element : Element, msg : String, vararg args : Any) {
-        processingEnv.messager.printMessage(WARNING, msg.format(args), element)
+    fun e(element: Element, msg: String, vararg args: Any) {
+        processingEnv.messager.printMessage(ERROR, msg.safeFormat(args), element)
+    }
+
+    fun w(element: Element, msg: String, vararg args: Any) {
+        processingEnv.messager.printMessage(WARNING, msg.safeFormat(args), element)
     }
 }
