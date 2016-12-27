@@ -31,6 +31,7 @@ import static android.support.design.testutils.TextInputLayoutActions
 import static android.support.design.testutils.TextInputLayoutActions.setTypeface;
 import static android.support.design.testutils.TextInputLayoutMatchers
         .hasPasswordToggleContentDescription;
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.typeText;
@@ -38,6 +39,7 @@ import static android.support.test.espresso.assertion.ViewAssertions.doesNotExis
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.AccessibilityChecks.accessibilityAssertion;
 import static android.support.test.espresso.matcher.ViewMatchers.hasContentDescription;
+import static android.support.test.espresso.matcher.ViewMatchers.hasFocus;
 import static android.support.test.espresso.matcher.ViewMatchers.isChecked;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
@@ -66,6 +68,7 @@ import android.support.test.filters.SmallTest;
 import android.support.v4.widget.TextViewCompat;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -454,6 +457,21 @@ public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLa
 
         onView(withText(ERROR_MESSAGE_1))
                 .check(matches(withTextColor(textColor)));
+    }
+
+    @Test
+    public void testFocusMovesToEditTextWithPasswordEnabled() {
+        // Focus the preceding EditText
+        onView(withId(R.id.textinput_edittext))
+                .perform(click())
+                .check(matches(hasFocus()));
+
+        // Then send a TAB to focus the next view
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_TAB);
+
+        // And check that the EditText is focused
+        onView(withId(R.id.textinput_edittext_pwd))
+                .check(matches(hasFocus()));
     }
 
     static ViewAssertion isHintExpanded(final boolean expanded) {
