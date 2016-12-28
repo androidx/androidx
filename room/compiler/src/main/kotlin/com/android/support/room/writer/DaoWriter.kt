@@ -24,6 +24,7 @@ import com.android.support.room.ext.T
 import com.android.support.room.parser.QueryType
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.vo.Dao
+import com.android.support.room.vo.DeletionMethod
 import com.android.support.room.vo.InsertionMethod
 import com.android.support.room.vo.QueryMethod
 import com.squareup.javapoet.ClassName
@@ -54,7 +55,8 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
         val builder = TypeSpec.classBuilder(dao.implTypeName)
         val scope = CodeGenScope()
 
-        val insertionMethods = groupAndCreateInsertionMethods(scope)
+        val shortcutMethods = groupAndCreateInsertionMethods(scope) +
+                groupAndCreateDeletionMethods(scope)
         builder.apply {
             addModifiers(PUBLIC)
             if (dao.element.kind == ElementKind.INTERFACE) {
@@ -65,12 +67,12 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
             addField(dbField)
             val dbParam = ParameterSpec.builder(dbField.type, dbField.name).build()
 
-            addMethod(createConstructor(dbParam, insertionMethods))
+            addMethod(createConstructor(dbParam, shortcutMethods))
 
-            insertionMethods.forEach {
-                addMethods(it.insertionMethodImpls)
-                if (it.insertionField != null) {
-                    addField(it.insertionField)
+            shortcutMethods.forEach {
+                addMethods(it.methodImpls)
+                if (it.field != null) {
+                    addField(it.field)
                 }
             }
 
@@ -82,15 +84,15 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
     }
 
     private fun createConstructor(dbParam: ParameterSpec,
-                                  insertionMethods: List<GroupedInsertion>): MethodSpec {
+                                  shortcutMethods: List<GroupedShortcut>): MethodSpec {
         return MethodSpec.constructorBuilder().apply {
             addParameter(dbParam)
             addModifiers(PUBLIC)
             addStatement("this.$N = $N", dbField, dbParam)
-            insertionMethods.filterNot {
-                it.insertionField == null || it.insertionFieldImpl == null
+            shortcutMethods.filterNot {
+                it.field == null || it.fieldImpl == null
             }.forEach {
-                addStatement("this.$N = $L", it.insertionField, it.insertionFieldImpl)
+                addStatement("this.$N = $L", it.field, it.fieldImpl)
             }
         }.build()
     }
@@ -105,18 +107,18 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
      * Groups all insertion methods based on the insert statement they will use then creates all
      * field specs, EntityInsertionAdapterWriter and actual insert methods.
      */
-    private fun groupAndCreateInsertionMethods(scope : CodeGenScope): List<GroupedInsertion> {
+    private fun groupAndCreateInsertionMethods(scope : CodeGenScope): List<GroupedShortcut> {
         return dao.insertionMethods
                 .groupBy {
                     Pair(it.entity?.typeName, it.onConflictText)
                 }.map { entry ->
             val onConflict = entry.key.second
             val methods = entry.value
-            val entity = methods.first().entity!!
+            val entity = methods.first().entity
 
             val fieldSpec : FieldSpec?
             val implSpec : TypeSpec?
-            if (entry.key.first == null) {
+            if (entity == null) {
                 fieldSpec = null
                 implSpec = null
             } else {
@@ -132,7 +134,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
                     addCode(createInsertionMethodBody(method, fieldSpec))
                 }.build()
             }
-            GroupedInsertion(fieldSpec, implSpec, insertionMethodImpls)
+            GroupedShortcut(fieldSpec, implSpec, insertionMethodImpls)
         }
     }
 
@@ -154,6 +156,74 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
                             param.name)
                 }
                 addStatement("$N.setTransactionSuccessful()", dbField)
+            }
+            nextControlFlow("finally").apply {
+                addStatement("$N.endTransaction()", dbField)
+            }
+            endControlFlow()
+        }.build()
+    }
+
+    /**
+     * Groups all deletion methods based on the delete statement they will use then creates all
+     * field specs, EntityDeletionAdapterWriter and actual deletion methods.
+     */
+    private fun groupAndCreateDeletionMethods(scope : CodeGenScope): List<GroupedShortcut> {
+        return dao.deletionMethods
+                .groupBy {
+                    it.entity?.typeName
+                }.map { entry ->
+            val methods = entry.value
+            val entity = methods.first().entity
+
+            val fieldSpec : FieldSpec?
+            val implSpec : TypeSpec?
+            if (entity == null) {
+                fieldSpec = null
+                implSpec = null
+            } else {
+                val fieldName = scope
+                        .getTmpVar("__deletionAdapterOf${typeNameToFieldName(entity.typeName)}")
+                fieldSpec = FieldSpec.builder(RoomTypeNames.DELETE_OR_UPDATE_ADAPTER, fieldName,
+                        FINAL, PRIVATE).build()
+                implSpec = EntityDeletionAdapterWriter(entity)
+                        .createAnonymous(dbField.name)
+            }
+            val deletionMethodImpls = methods.map { method ->
+                overrideWithoutAnnotations(method.element).apply {
+                    addCode(createDeletionMethodBody(method, fieldSpec))
+                }.build()
+            }
+            GroupedShortcut(fieldSpec, implSpec, deletionMethodImpls)
+        }
+    }
+
+    private fun createDeletionMethodBody(method: DeletionMethod,
+                                          deletionAdapter: FieldSpec?): CodeBlock {
+        if (deletionAdapter == null) {
+            return CodeBlock.builder().build()
+        }
+        val scope = CodeGenScope()
+        val resultVar = if (method.returnCount) {
+            scope.getTmpVar("_total")
+        } else {
+            null
+        }
+        return scope.builder().apply {
+            if (resultVar != null) {
+                addStatement("$T $L = 0", TypeName.INT, resultVar)
+            }
+            addStatement("$N.beginTransaction()", dbField)
+            beginControlFlow("try").apply {
+                method.parameters.forEach { param ->
+                    addStatement("$L$N.$L($L)",
+                            if (resultVar == null) "" else "$resultVar +=",
+                            deletionAdapter, method.deletionMethodFor(param), param.name)
+                }
+                addStatement("$N.setTransactionSuccessful()", dbField)
+                if (resultVar != null) {
+                    addStatement("return $L", resultVar)
+                }
             }
             nextControlFlow("finally").apply {
                 addStatement("$N.endTransaction()", dbField)
@@ -202,7 +272,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
         }
     }
 
-    data class GroupedInsertion(val insertionField: FieldSpec?,
-                                val insertionFieldImpl: TypeSpec?,
-                                val insertionMethodImpls: List<MethodSpec>)
+    data class GroupedShortcut(val field: FieldSpec?,
+                               val fieldImpl: TypeSpec?,
+                               val methodImpls: List<MethodSpec>)
 }

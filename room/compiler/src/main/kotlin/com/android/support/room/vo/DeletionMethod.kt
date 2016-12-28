@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.android.support.room.vo
 
-import com.squareup.javapoet.ClassName
-import javax.lang.model.element.Element
-import javax.lang.model.type.DeclaredType
+import javax.lang.model.element.ExecutableElement
 
-data class Dao(val element : Element, val type : DeclaredType,
-               val queryMethods: List<QueryMethod>,
-               val insertionMethods : List<InsertionMethod>,
-               val deletionMethods : List<DeletionMethod>) {
-    val typeName by lazy { ClassName.get(type) as ClassName }
-
-    val implClassName by lazy {
-        "${typeName.simpleName()}_Impl"
-    }
-
-    val implTypeName by lazy {
-        ClassName.get(typeName.packageName(), implClassName)
+data class DeletionMethod(val element: ExecutableElement, val name: String,
+                          val entity: Entity?, val returnCount : Boolean,
+                          val parameters: List<ShortcutQueryParameter>) {
+    fun deletionMethodFor(param : ShortcutQueryParameter) : String {
+        return if (param.isMultiple) {
+            "handleMultiple"
+        } else {
+            "handle"
+        }
     }
 }

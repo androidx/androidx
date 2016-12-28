@@ -17,6 +17,7 @@
 package com.android.support.room.integration.testapp.dao;
 
 import com.android.support.room.Dao;
+import com.android.support.room.Delete;
 import com.android.support.room.Insert;
 import com.android.support.room.Query;
 import com.android.support.room.integration.testapp.vo.User;
@@ -31,9 +32,21 @@ public interface UserDao {
     @Query("select * from user where mId = ?")
     User load(int id);
 
+    @Query("select * from user where mId IN(?)")
+    User[] loadByIds(int... ids);
+
     @Insert
     void insert(User user);
 
     @Insert(onConflict = Insert.REPLACE)
     void insertOrReplace(User user);
+
+    @Delete
+    int delete(User user);
+
+    @Delete
+    int deleteAll(User[] users);
+
+    @Insert
+    void insertAll(User[] users);
 }

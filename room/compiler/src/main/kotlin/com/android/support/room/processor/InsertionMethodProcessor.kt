@@ -20,11 +20,9 @@ package com.android.support.room.processor
 
 import com.android.support.room.Insert
 import com.android.support.room.Insert.REPLACE
-import com.android.support.room.ext.typeName
 import com.android.support.room.vo.InsertionMethod
 import com.android.support.room.vo.InsertionMethod.Type
 import com.google.auto.common.AnnotationMirrors
-import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
 import java.util.List
@@ -36,50 +34,39 @@ import javax.lang.model.type.TypeKind.VOID
 import javax.lang.model.type.TypeMirror
 
 class InsertionMethodProcessor(val context: Context) {
-    val parameterProcessor = InsertionParameterProcessor(context)
     val entityProcessor = EntityProcessor(context)
     fun parse(containing: DeclaredType, executableElement: ExecutableElement): InsertionMethod {
-        val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
-        val executableType = MoreTypes.asExecutable(asMember)
-
-        val annotation = MoreElements.getAnnotationMirror(executableElement,
-                Insert::class.java).orNull()
-        context.checker.check(annotation != null, executableElement,
+        val delegate = ShortcutMethodProcessor(context, containing, executableElement,
+                entityProcessor)
+        val annotation = delegate.extractAnnotation(Insert::class,
                 ProcessorErrors.MISSING_INSERT_ANNOTATION)
 
-        val onConflictValue = AnnotationMirrors
-                .getAnnotationValue(annotation, "onConflict")
-                .value
-        val onConflict = try {
-            onConflictValue.toString().toInt()
-        } catch (ex : NumberFormatException) {
-            -1
+        val onConflict = if (annotation == null) {
+            InsertionMethod.INVALID_ON_CONFLICT
+        } else {
+            try {
+                val onConflictValue = AnnotationMirrors
+                        .getAnnotationValue(annotation, "onConflict")
+                        .value
+                onConflictValue.toString().toInt()
+            } catch (ex : NumberFormatException) {
+                InsertionMethod.INVALID_ON_CONFLICT
+            }
         }
         context.checker.check(onConflict <= Insert.IGNORE && onConflict >= REPLACE,
                 executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
-
-        val returnTypeName = TypeName.get(executableType.returnType)
+        val returnType = delegate.extractReturnType()
+        val returnTypeName = TypeName.get(returnType)
         context.checker.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS)
 
-        val params = executableElement.parameters
-                .map { parameterProcessor.parse(containing, it) }
-        context.checker.check(params.isNotEmpty(), executableElement,
-                ProcessorErrors.INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT)
+        val (entity, params) = delegate.extractParams(
+                missingParamError = ProcessorErrors
+                        .INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT,
+                multipleEntitiesError = ProcessorErrors
+                        .INSERTION_METHOD_PARAMETERS_MUST_HAVE_THE_SAME_ENTITY_TYPE
+        )
 
-        val distinctTypes = params
-                .map { it.entityType }
-                .filterNotNull()
-                .distinctBy { it.typeName() } // TypeName implement equals
-        context.checker.check(distinctTypes.size < 2, executableElement,
-                ProcessorErrors.INSERTION_METHOD_PARAMETERS_MUST_HAVE_THE_SAME_ENTITY_TYPE)
-        val entityTypeMirror = distinctTypes.firstOrNull()
-        val entity = if (entityTypeMirror == null) {
-            null
-        } else {
-            entityProcessor.parse(MoreTypes.asTypeElement(entityTypeMirror))
-        }
-        val returnType = executableType.returnType
         // TODO we can support more types
         val insertionType = getInsertionType(returnType)
         context.checker.check(insertionType != null, executableElement,

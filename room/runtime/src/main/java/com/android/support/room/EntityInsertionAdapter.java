@@ -16,9 +16,12 @@
 
 package com.android.support.room;
 
+import android.support.annotation.RestrictTo;
+
 import com.android.support.db.SupportSQLiteStatement;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,8 +33,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @param <T> The type parameter of the entity to be inserted
  * @hide
  */
-
 @SuppressWarnings({"WeakerAccess", "unused"})
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class EntityInsertionAdapter<T> {
     private final AtomicBoolean mStmtLock = new AtomicBoolean(false);
     private final RoomDatabase mDatabase;
@@ -56,7 +59,7 @@ public abstract class EntityInsertionAdapter<T> {
     /**
      * Binds the entity into the given statement.
      *
-     * @param statement The sqlite statement that prepared for the query returned from
+     * @param statement The SQLite statement that prepared for the query returned from
      *                  createInsertQuery.
      * @param entity    The entity of type T.
      */
@@ -110,6 +113,7 @@ public abstract class EntityInsertionAdapter<T> {
             final SupportSQLiteStatement stmt = getStmt(useCached);
             for (T entity : entities) {
                 bind(stmt, entity);
+                stmt.executeInsert();
             }
         } finally {
             if (useCached) {
@@ -123,12 +127,13 @@ public abstract class EntityInsertionAdapter<T> {
      *
      * @param entities Entities to insert
      */
-    public final void insert(List<T> entities) {
+    public final void insert(Collection<T> entities) {
         boolean useCached = !mStmtLock.getAndSet(true);
         try {
             final SupportSQLiteStatement stmt = getStmt(useCached);
             for (T entity : entities) {
                 bind(stmt, entity);
+                stmt.executeInsert();
             }
         } finally {
             if (useCached) {
@@ -141,7 +146,7 @@ public abstract class EntityInsertionAdapter<T> {
      * Inserts the given entity into the database and returns the row id.
      *
      * @param entity The entity to insert
-     * @return The Sqlite row id
+     * @return The SQLite row id
      */
     public final long insertAndReturnId(T entity) {
         boolean useCached = !mStmtLock.getAndSet(true);
@@ -160,9 +165,9 @@ public abstract class EntityInsertionAdapter<T> {
      * Inserts the given entities into the database and returns the row ids.
      *
      * @param entities Entities to insert
-     * @return The Sqlite row ids
+     * @return The SQLite row ids
      */
-    public final long[] insertAndReturnIdsArray(List<T> entities) {
+    public final long[] insertAndReturnIdsArray(Collection<T> entities) {
         boolean useCached = !mStmtLock.getAndSet(true);
         try {
             final long[] result = new long[entities.size()];
@@ -185,7 +190,7 @@ public abstract class EntityInsertionAdapter<T> {
      * Inserts the given entities into the database and returns the row ids.
      *
      * @param entities Entities to insert
-     * @return The Sqlite row ids
+     * @return The SQLite row ids
      */
     public final long[] insertAndReturnIdsArray(T[] entities) {
         boolean useCached = !mStmtLock.getAndSet(true);
@@ -210,7 +215,7 @@ public abstract class EntityInsertionAdapter<T> {
      * Inserts the given entities into the database and returns the row ids.
      *
      * @param entities Entities to insert
-     * @return The Sqlite row ids
+     * @return The SQLite row ids
      */
     public final List<Long> insertAndReturnIdsList(T[] entities) {
         boolean useCached = !mStmtLock.getAndSet(true);
@@ -235,9 +240,9 @@ public abstract class EntityInsertionAdapter<T> {
      * Inserts the given entities into the database and returns the row ids.
      *
      * @param entities Entities to insert
-     * @return The Sqlite row ids
+     * @return The SQLite row ids
      */
-    public final List<Long> insertAndReturnIdsList(List<T> entities) {
+    public final List<Long> insertAndReturnIdsList(Collection<T> entities) {
         boolean useCached = !mStmtLock.getAndSet(true);
         try {
             final List<Long> result = new ArrayList<>(entities.size());

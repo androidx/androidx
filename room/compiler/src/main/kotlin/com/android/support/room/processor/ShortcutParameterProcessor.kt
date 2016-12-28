@@ -18,15 +18,18 @@ package com.android.support.room.processor
 
 import com.android.support.room.Entity
 import com.android.support.room.ext.hasAnnotation
-import com.android.support.room.vo.InsertionParameter
+import com.android.support.room.vo.ShortcutQueryParameter
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
-class InsertionParameterProcessor(val context : Context) {
-    fun parse(containing: DeclaredType, element: VariableElement): InsertionParameter {
+/**
+ * Processes parameters of methods that are annotated with Insert, Delete.
+ */
+class ShortcutParameterProcessor(val context : Context) {
+    fun parse(containing: DeclaredType, element: VariableElement): ShortcutQueryParameter {
         val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
         val name = element.simpleName.toString()
         context.checker.check(!name.startsWith("_"), element,
@@ -34,9 +37,9 @@ class InsertionParameterProcessor(val context : Context) {
 
         val (entityType, isMultiple) = extractEntityType(asMember)
         context.checker.check(entityType != null, element,
-                ProcessorErrors.CANNOT_FIND_ENTITY_FOR_INSERT_PARAMETER)
+                ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER)
 
-        return InsertionParameter(
+        return ShortcutQueryParameter(
                 name = name,
                 type = asMember,
                 entityType = entityType,

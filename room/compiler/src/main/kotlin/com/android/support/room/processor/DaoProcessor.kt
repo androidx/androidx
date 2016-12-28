@@ -16,9 +16,9 @@
 
 package com.android.support.room.processor
 
+import com.android.support.room.Delete
 import com.android.support.room.Insert
 import com.android.support.room.Query
-import com.android.support.room.ext.hasAllOf
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
 import com.android.support.room.vo.Dao
@@ -33,6 +33,12 @@ class DaoProcessor(val context : Context) {
     // TODO we should start injecting these to avoid parsing the same class multiple times
     val queryProcessor = QueryMethodProcessor(context)
     val insertionProcessor = InsertionMethodProcessor(context)
+    val deletionProcessor = DeletionMethodProcessor(context)
+
+    companion object {
+        val PROCESSED_ANNOTATIONS = listOf(Insert::class, Delete::class, Query::class)
+    }
+
     fun parse(element: TypeElement) : Dao {
         context.checker.hasAnnotation(element, com.android.support.room.Dao::class,
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO)
@@ -45,15 +51,17 @@ class DaoProcessor(val context : Context) {
                 it.hasAnyOf(ABSTRACT) && it.kind == ElementKind.METHOD
             }.map {
                 MoreElements.asExecutable(it)
-            }.groupBy {
+            }.groupBy { method ->
                 context.checker.check(
-                        !it.hasAllOf(Query::class, Insert::class), it,
-                        ProcessorErrors.CANNOT_USE_BOTH_QUERY_AND_INSERT
+                        PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } == 1, method,
+                        ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_DAO_METHOD_ANNOTATION
                 )
-                if (it.hasAnnotation(Query::class)) {
+                if (method.hasAnnotation(Query::class)) {
                     Query::class
-                } else if (it.hasAnnotation(Insert::class)) {
+                } else if (method.hasAnnotation(Insert::class)) {
                     Insert::class
+                } else if (method.hasAnnotation(Delete::class)) {
+                    Delete::class
                 } else {
                     Any::class
                 }
@@ -66,6 +74,10 @@ class DaoProcessor(val context : Context) {
             insertionProcessor.parse(declaredType, it)
         } ?: emptyList()
 
+        val deletionMethods = methods[Delete::class]?.map {
+            deletionProcessor.parse(declaredType, it)
+        } ?: emptyList()
+
         context.checker.check(methods[Any::class] == null, element,
                 ProcessorErrors.ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION)
 
@@ -75,6 +87,7 @@ class DaoProcessor(val context : Context) {
         return Dao(element = element,
                 type = declaredType,
                 queryMethods = queryMethods,
-                insertionMethods = insertionMethods)
+                insertionMethods = insertionMethods,
+                deletionMethods = deletionMethods)
     }
 }

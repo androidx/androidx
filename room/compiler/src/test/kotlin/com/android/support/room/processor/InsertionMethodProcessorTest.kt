@@ -101,7 +101,7 @@ class InsertionMethodProcessorTest {
             assertThat(param.entityType, `is`(nullValue()))
             assertThat(insertion.entity, `is`(nullValue()))
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.CANNOT_FIND_ENTITY_FOR_INSERT_PARAMETER
+                ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER
         )
     }
 

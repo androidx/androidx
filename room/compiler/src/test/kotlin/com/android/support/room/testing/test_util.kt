@@ -35,15 +35,11 @@ object COMMON {
     val BOOK by lazy {
         loadJavaCode("common/input/Book.java", "foo.bar.Book")
     }
-    val BOOK_TYPE_NAME by lazy {
-        ClassName.get("foo.bar", "Book")
-    }
-
     val NOT_AN_ENTITY by lazy {
         loadJavaCode("common/input/NotAnEntity.java", "foo.bar.NotAnEntity")
     }
-    val NOT_AN_ENITITY_TYPE_NAME by lazy {
-        ClassName.get("foo.bar", "NotAnEntity")
+    val MULTI_PKEY_ENTITY by lazy {
+        loadJavaCode("common/input/MultiPKeyEntity.java", "MultiPKeyEntity")
     }
 }
 fun simpleRun(f: (TestInvocation) -> Unit): CompileTester {

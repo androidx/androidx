@@ -67,8 +67,8 @@ class DaoProcessorTest {
                     int getFoo(int x);
                 }
         """) { dao, invocation ->
-
-        }.failsToCompile().withErrorContaining(ProcessorErrors.CANNOT_USE_BOTH_QUERY_AND_INSERT)
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_DAO_METHOD_ANNOTATION)
     }
 
     @Test

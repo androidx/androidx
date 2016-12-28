@@ -55,6 +55,8 @@ object RoomTypeNames {
             "DatabaseConfiguration")
     val INSERTION_ADAPTER : ClassName =
             ClassName.get("com.android.support.room", "EntityInsertionAdapter")
+    val DELETE_OR_UPDATE_ADAPTER : ClassName =
+            ClassName.get("com.android.support.room", "EntityDeletionOrUpdateAdapter")
 }
 
 object AndroidTypeNames {

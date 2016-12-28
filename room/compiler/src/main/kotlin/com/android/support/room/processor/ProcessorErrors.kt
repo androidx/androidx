@@ -16,6 +16,7 @@
 
 package com.android.support.room.processor
 
+import com.android.support.room.Delete
 import com.android.support.room.Insert
 import com.android.support.room.Query
 import com.android.support.room.ext.RoomTypeNames
@@ -24,13 +25,16 @@ import com.android.support.room.vo.Field
 object ProcessorErrors {
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
+    val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of Insert.OnConflict values."
     val INVALID_INSERTION_METHOD_RETURN_TYPE = "Methods annotated with @Insert can return either" +
             " void, long, long[] or List<Long>."
     val ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION = "Abstract method in DAO must be annotated" +
             " with ${Query::class.java} AND ${Insert::class.java}"
-    val CANNOT_USE_BOTH_QUERY_AND_INSERT = "A method cannot be annotated with both " +
-            " ${Query::class.java} AND ${Insert::class.java}"
+    val CANNOT_USE_MORE_THAN_ONE_DAO_METHOD_ANNOTATION = "A DAO method can be annotated with only" +
+            " one of the following:" + DaoProcessor.PROCESSED_ANNOTATIONS.joinToString(",") {
+        it.java.simpleName
+    }
     val CANNOT_RESOLVE_RETURN_TYPE = "Cannot resolve return type for %s"
     val CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS = "Cannot use unbound generics in query" +
             " methods. It must be bound to a type through base Dao class."
@@ -72,8 +76,15 @@ object ProcessorErrors {
             "insertion methods must be the same type. If you want to insert entities from " +
             "different types atomically, use a transaction."
 
-    val CANNOT_FIND_ENTITY_FOR_INSERT_PARAMETER = "Cannot find the entity type for the" +
-            " insert parameter."
+    val DELETION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_DELETE = "Method annotated with" +
+            " @Delete but does not have any parameters to delete."
+
+    val DELETION_METHOD_PARAMETERS_MUST_HAVE_THE_SAME_ENTITY_TYPE = "Parameter types in " +
+            "deletion methods must be the same type. If you want to delete entities from " +
+            "different types atomically, use a transaction."
+
+    val CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER = "Type of the parameter must be a class " +
+            "annotated with @Entity or a collection/array of it."
 
     val DB_MUST_EXTEND_ROOM_DB = "Classes annotated with @Database should extend " +
             RoomTypeNames.ROOM_DB
@@ -117,4 +128,7 @@ object ProcessorErrors {
     fun  duplicateTableNames(tableName: String, entityNames: List<String>): String {
         return DUPLICATE_TABLES.format(tableName, entityNames.joinToString(", "))
     }
+
+    val DELETION_METHODS_MUST_RETURN_VOID_OR_INT = "Deletion methods must either return void or" +
+            " return int (the number of deleted rows)."
 }

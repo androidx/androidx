@@ -16,21 +16,10 @@
 
 package com.android.support.room.vo
 
-import com.squareup.javapoet.ClassName
-import javax.lang.model.element.Element
-import javax.lang.model.type.DeclaredType
+import javax.lang.model.type.TypeMirror
 
-data class Dao(val element : Element, val type : DeclaredType,
-               val queryMethods: List<QueryMethod>,
-               val insertionMethods : List<InsertionMethod>,
-               val deletionMethods : List<DeletionMethod>) {
-    val typeName by lazy { ClassName.get(type) as ClassName }
-
-    val implClassName by lazy {
-        "${typeName.simpleName()}_Impl"
-    }
-
-    val implTypeName by lazy {
-        ClassName.get(typeName.packageName(), implClassName)
-    }
-}
+/**
+ * Parameters used in DAO methods that are annoated with Insert, Delete
+ */
+data class ShortcutQueryParameter(val name: String, val type: TypeMirror,
+                                  val entityType: TypeMirror?, val isMultiple: Boolean)

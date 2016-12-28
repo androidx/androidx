@@ -24,8 +24,10 @@ data class InsertionMethod(val element: ExecutableElement, val name: String,
                            @Insert.OnConflict val onConflict: Int,
                            val entity: Entity?, val returnType: TypeMirror,
                            val insertionType: Type?,
-                           val parameters: List<InsertionParameter>) {
-
+                           val parameters: List<ShortcutQueryParameter>) {
+    companion object {
+        val INVALID_ON_CONFLICT = 1
+    }
     val onConflictText by lazy {
         when(onConflict) {
             Insert.REPLACE -> "REPLACE"
@@ -37,7 +39,7 @@ data class InsertionMethod(val element: ExecutableElement, val name: String,
         }
     }
 
-    fun insertMethodTypeFor(param : InsertionParameter) : Type {
+    fun insertMethodTypeFor(param : ShortcutQueryParameter) : Type {
         return if (insertionType == Type.INSERT_VOID || insertionType == null) {
             Type.INSERT_VOID
         } else if (!param.isMultiple) {

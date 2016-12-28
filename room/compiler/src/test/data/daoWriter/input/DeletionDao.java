@@ -14,9 +14,26 @@
  * limitations under the License.
  */
 
-package com.android.support.room.vo
+package foo.bar;
+import com.android.support.room.*;
+import java.util.List;
 
-import javax.lang.model.type.TypeMirror
+@Dao
+abstract interface DeletionDao {
+    @Delete
+    void deleteUser(User user);
+    @Delete
+    void deleteUsers(User user1, List<User> others);
+    @Delete
+    void deleteArrayOfUsers(User[] users);
 
-data class InsertionParameter(val name: String, val type: TypeMirror,
-                              val entityType: TypeMirror?, val isMultiple: Boolean)
+    @Delete
+    int deleteUserAndReturnCount(User user);
+    @Delete
+    int deleteUserAndReturnCount(User user1, List<User> others);
+    @Delete
+    int deleteUserAndReturnCount(User[] users);
+
+    @Delete
+    int multiPKey(MultiPKeyEntity entity);
+}

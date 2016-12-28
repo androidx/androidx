@@ -48,9 +48,18 @@ class DaoWriterTest {
         )
     }
 
+    @Test
+    fun deletionDao() {
+        singleDao(
+                loadJavaCode("daoWriter/input/DeletionDao.java", "foo.bar.DeletionDao")
+        ).compilesWithoutError().and().generatesSources(
+                loadJavaCode("daoWriter/output/DeletionDao.java", "foo.bar.DeletionDao_Impl")
+        )
+    }
+
     fun singleDao(vararg jfo : JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(jfo.toList() + COMMON.USER)
+                .that(jfo.toList() + COMMON.USER + COMMON.MULTI_PKEY_ENTITY)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(com.android.support.room.Dao::class)
                         .nextRunHandler { invocation ->

@@ -16,6 +16,12 @@
 
 package com.android.support.room.integration.testapp.test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.support.test.InstrumentationRegistry;
@@ -24,11 +30,11 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.android.support.room.Room;
 import com.android.support.room.integration.testapp.TestDatabase;
+import com.android.support.room.integration.testapp.dao.UserDao;
 import com.android.support.room.integration.testapp.vo.User;
 
 import junit.framework.AssertionFailedError;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,40 +44,31 @@ import java.util.List;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class SimpleEntityReadWriteTest {
-    private TestDatabase mDb;
+    private UserDao mUserDao;
     @Before
     public void createDb() {
         Context context = InstrumentationRegistry.getTargetContext();
-        mDb = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
+        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
+        mUserDao = db.getUserDao();
     }
+
     @Test
     public void writeUserAndReadInList() throws Exception {
-        User user = new User();
-        user.setId(3);
-        user.setAge(99);
+        User user = TestUtil.createUser(3);
         user.setName("george");
-        user.setLastName("kloony");
-        mDb.getUserDao().insert(user);
-        List<User> byName = mDb.getUserDao().findUsersByName("george");
-        Assert.assertEquals(user, byName.get(0));
+        mUserDao.insert(user);
+        List<User> byName = mUserDao.findUsersByName("george");
+        assertThat(byName.get(0), equalTo(user));
     }
 
     @Test
     public void throwExceptionOnConflict() {
-        User user = new User();
-        user.setId(3);
-        user.setAge(99);
-        user.setName("george");
-        user.setLastName("kloony");
-        mDb.getUserDao().insert(user);
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
 
-        User user2 = new User();
-        user2.setId(3);
-        user2.setAge(22);
-        user2.setName("michael");
-        user2.setLastName("jordo");
+        User user2 = TestUtil.createUser(3);
         try {
-            mDb.getUserDao().insert(user2);
+            mUserDao.insert(user2);
             throw new AssertionFailedError("didn't throw in conflicting insertion");
         } catch (SQLiteException ignored) {
         }
@@ -79,19 +76,35 @@ public class SimpleEntityReadWriteTest {
 
     @Test
     public void replaceOnConflict() {
-        User user = new User();
-        user.setId(3);
-        user.setAge(99);
-        user.setName("george");
-        user.setLastName("kloony");
-        mDb.getUserDao().insert(user);
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
 
-        User user2 = new User();
-        user2.setId(3);
-        user2.setAge(22);
-        user2.setName("michael");
-        user2.setLastName("jordo");
-        mDb.getUserDao().insertOrReplace(user2);
-        Assert.assertEquals(user2, mDb.getUserDao().load(3));
+        User user2 = TestUtil.createUser(3);
+        mUserDao.insertOrReplace(user2);
+
+        assertThat(mUserDao.load(3), equalTo(user2));
+        assertThat(mUserDao.load(3), not(equalTo(user)));
+    }
+
+    @Test
+    public void delete() {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        assertThat(mUserDao.delete(user), is(1));
+        assertThat(mUserDao.delete(user), is(0));
+        assertThat(mUserDao.load(3), is(nullValue()));
+    }
+
+    @Test
+    public void deleteAll() {
+        User[] users = TestUtil.createUsersArray(3, 5, 7, 9);
+        mUserDao.insertAll(users);
+        // there is actually no guarantee for this order by works fine since they are ordered for
+        // the test and it is a new database (no pages to recycle etc)
+        assertThat(mUserDao.loadByIds(3, 5, 7, 9), is(users));
+        int deleteCount = mUserDao.deleteAll(new User[]{users[0], users[3],
+                TestUtil.createUser(9)});
+        assertThat(deleteCount, is(2));
+        assertThat(mUserDao.loadByIds(3, 5, 7, 9), is(new User[]{users[1], users[2]}));
     }
 }
