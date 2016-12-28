@@ -20,7 +20,7 @@
       android:focusable="true"
       android:focusableInTouchMode="true"
       android:background="#00ffff"
-      android_horizontalSpacing="12dip"
+      android:horizontalSpacing="12dip"
       android:verticalSpacing="4dip"
       lb:numberOfColumns="1"
       android:paddingBottom="12dip"
