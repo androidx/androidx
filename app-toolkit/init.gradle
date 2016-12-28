@@ -31,7 +31,8 @@ props.write "sdk.dir=${fullSdkPath}"
 def buildDir
 def distDir
 def supportLibBuildDir
-if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
+ext.runningInBuildServer = System.env.DIST_DIR != null && System.env.OUT_DIR != null
+if (ext.runningInBuildServer) {
     supportLibBuildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile();
     buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/app-toolkit/build').getCanonicalFile()
     distDir = new File(System.env.DIST_DIR).getCanonicalFile()
@@ -43,6 +44,7 @@ if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
 
 def localMavenRepo = "file://${new File(buildDir, "flatfoot_repo").absolutePath}"
 ext.testApkDistOut = distDir
+ext.testResultsDistDir = new File(distDir, "host-test-reports")
 ext.localMavenRepo = localMavenRepo
 
 ext.repoNames = ["$prebuiltsRootUri/maven_repo",
@@ -99,28 +101,49 @@ subprojects {
         }
     }
 
-    project.afterEvaluate {
-        // Copy instrumentation test APKs and app APKs into the dist dir
-        // For test apks, they are uploaded only if we have java test sources.
-        // For regular app apks, they are uploaded only if they have java sources.
-        project.tasks.whenTaskAdded { task ->
-            if (task.name.startsWith("packageDebug")) {
-                def testApk = task.name.contains("AndroidTest")
-                task.doLast {
-                    def source = testApk ? project.android.sourceSets.androidTest
-                                         : project.android.sourceSets.main
-                    if (task.hasProperty("outputFile") && !source.java.sourceFiles.isEmpty()) {
-                        copy {
-                            from(task.outputFile)
-                            into(rootProject.ext.testApkDistOut)
-                            rename { String fileName ->
-                                "${project.getPath().replace(':', '-').substring(1)}_${fileName}"
-                            }
+    // copy test results to DIST
+    project.tasks.whenTaskAdded { task ->
+        if (task instanceof org.gradle.api.tasks.testing.Test) {
+            def junitReport = task.reports.junitXml
+            if (junitReport.enabled) {
+                def zipTask = project.tasks.create(name : "zipResultsOf${task.name.capitalize()}", type : Zip) {
+                    destinationDir(testResultsDistDir)
+                    archiveName("${project.name}.zip")
+                }
+                if (project.rootProject.ext.runningInBuildServer) {
+                    task.ignoreFailures = true
+                }
+                task.finalizedBy zipTask
+                task.doFirst {
+                    zipTask.from(junitReport.destination)
+                }
+            }
+        }
+    }
+
+    // Copy instrumentation test APKs and app APKs into the dist dir
+    // For test apks, they are uploaded only if we have java test sources.
+    // For regular app apks, they are uploaded only if they have java sources.
+    project.tasks.whenTaskAdded { task ->
+        if (task.name.startsWith("packageDebug")) {
+            def testApk = task.name.contains("AndroidTest")
+            task.doLast {
+                def source = testApk ? project.android.sourceSets.androidTest
+                                     : project.android.sourceSets.main
+                if (task.hasProperty("outputFile") && !source.java.sourceFiles.isEmpty()) {
+                    copy {
+                        from(task.outputFile)
+                        into(rootProject.ext.testApkDistOut)
+                        rename { String fileName ->
+                            "${project.getPath().replace(':', '-').substring(1)}_${fileName}"
                         }
                     }
                 }
             }
         }
+    }
+
+    project.afterEvaluate {
         if (project.plugins.hasPlugin('maven')) {
             def uploadArchivesTask = project.tasks.findByPath("uploadArchives")
             if (uploadArchivesTask != null) {
