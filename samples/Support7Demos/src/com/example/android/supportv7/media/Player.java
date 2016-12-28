@@ -16,8 +16,10 @@
 
 package com.example.android.supportv7.media;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -72,7 +74,10 @@ public abstract class Player {
     public void takeSnapshot() {}
     public Bitmap getSnapshot() { return null; }
 
-    // presentation display
+    /**
+     * presentation display
+     */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void updatePresentation() {}
 
     public void setCallback(Callback callback) {
