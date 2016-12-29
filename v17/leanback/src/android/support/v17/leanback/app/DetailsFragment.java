@@ -191,6 +191,7 @@ public class DetailsFragment extends BaseFragment {
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.details_rows_dock, mRowsFragment).commit();
         }
+        installTitleView(inflater, mRootView, savedInstanceState);
         mRowsFragment.setAdapter(mAdapter);
         mRowsFragment.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
         mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
@@ -378,8 +379,11 @@ public class DetailsFragment extends BaseFragment {
 
     void onRowSelected(int selectedPosition, int selectedSubPosition) {
         ObjectAdapter adapter = getAdapter();
-        if (adapter == null || adapter.size() == 0
-                || (selectedPosition == 0 && selectedSubPosition == 0)) {
+        if (( mRowsFragment != null && mRowsFragment.getView() != null
+                && mRowsFragment.getView().hasFocus())
+                && (adapter == null || adapter.size() == 0
+                || (getVerticalGridView().getSelectedPosition() == 0
+                && getVerticalGridView().getSelectedSubPosition() == 0))) {
             showTitle(true);
         } else {
             showTitle(false);
@@ -548,20 +552,31 @@ public class DetailsFragment extends BaseFragment {
         mRootView.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
             @Override
             public View onFocusSearch(View focused, int direction) {
-                if (mVideoFragment == null) {
-                    return null;
-                }
                 if (mRowsFragment.getVerticalGridView() != null
                         && mRowsFragment.getVerticalGridView().hasFocus()) {
                     if (direction == View.FOCUS_UP) {
-                        slideOutGridView();
-                        return mVideoFragment.getView();
+                        if (mVideoFragment != null && mVideoFragment.getView() != null) {
+                            slideOutGridView();
+                            showTitle(false);
+                            return mVideoFragment.getView();
+                        } else if (getTitleView() != null) {
+                            return getTitleView();
+                        }
                     }
-                } else if (mVideoFragment.getView() != null
+                } else if (mVideoFragment != null && mVideoFragment.getView() != null
                         && mVideoFragment.getView().hasFocus()) {
                     if (direction == View.FOCUS_DOWN) {
-                        slideInGridView();
-                        return mRowsFragment.getVerticalGridView();
+                        if (mRowsFragment.getVerticalGridView() != null) {
+                            showTitle(true);
+                            slideInGridView();
+                            return mRowsFragment.getVerticalGridView();
+                        }
+                    }
+                } else if (getTitleView() != null && getTitleView().hasFocus()) {
+                    if (direction == View.FOCUS_DOWN) {
+                        if (mRowsFragment.getVerticalGridView() != null) {
+                            return mRowsFragment.getVerticalGridView();
+                        }
                     }
                 }
                 return focused;
@@ -579,6 +594,7 @@ public class DetailsFragment extends BaseFragment {
                 if (mVideoFragment != null && mVideoFragment.getView() != null
                         && mVideoFragment.getView().hasFocus()) {
                     if (keyCode == KeyEvent.KEYCODE_BACK) {
+                        showTitle(true);
                         slideInGridView();
                         getVerticalGridView().requestFocus();
                         return true;

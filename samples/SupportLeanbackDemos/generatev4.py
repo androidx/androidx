@@ -134,34 +134,12 @@ for line in file:
     line = line.replace('DetailsActivity', 'DetailsSupportActivity')
     line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
     line = line.replace('extends Activity', 'extends FragmentActivity')
-    line = line.replace('R.layout.details', 'R.layout.details_support')
-    line = line.replace('R.layout.legacy_details', 'R.layout.legacy_details_support')
     line = line.replace('getFragmentManager()', 'getSupportFragmentManager()')
     line = line.replace('DetailsFragment', 'DetailsSupportFragment')
     line = line.replace('NewDetailsFragment', 'NewDetailsSupportFragment')
     outfile.write(line)
 file.close()
 outfile.close()
-
-file = open('res/layout/details.xml', 'r')
-outfile = open('res/layout/details_support.xml', 'w')
-for line in file:
-    line = replace_xml_head(line, "details")
-    line = line.replace('com.example.android.leanback.NewDetailsFragment', 'com.example.android.leanback.NewDetailsSupportFragment')
-    outfile.write(line)
-file.close()
-outfile.close()
-
-
-file = open('res/layout/legacy_details.xml', 'r')
-outfile = open('res/layout/legacy_details_support.xml', 'w')
-for line in file:
-    line = replace_xml_head(line, "legacy_details")
-    line = line.replace('com.example.android.leanback.DetailsFragment', 'com.example.android.leanback.DetailsSupportFragment')
-    outfile.write(line)
-file.close()
-outfile.close()
-
 
 file = open('src/com/example/android/leanback/SearchDetailsActivity.java', 'r')
 outfile = open('src/com/example/android/leanback/SearchDetailsSupportActivity.java', 'w')
