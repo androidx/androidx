@@ -26,7 +26,6 @@ import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.AnnotationUtility;
 import com.puppycrawl.tools.checkstyle.utils.CommonUtils;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -54,24 +53,6 @@ import java.util.regex.Pattern;
  *                          and {@literal @}hide Javadoc tag." /&gt;
  *     &lt;/module&gt;
  * </pre>
- * <p>
- * Additionally, you can configure this check with skipNoJavadoc option to
- * ignore cases when JavaDoc is missing and the annotation is present::
- * <pre>
- *     &lt;property name="skipNoJavadoc" value="true" /&gt;
- * </pre>
- * <p>
- * Examples of validating source code with skipNoJavadoc:
- * <pre>
- * <code>
- * {@literal @}RestrictTo
- * public static final int MY_CONST = 123456; // no violation
- *
- * &#47;** This javadoc is missing hide tag. *&#47;
- * {@literal @}RestrictTo
- * public static final int COUNTER = 10; // violation as javadoc exists
- * </code>
- * </pre>
  */
 @SuppressWarnings("unused")
 public final class MismatchedAnnotationCheck extends AbstractCheck {
@@ -82,24 +63,11 @@ public final class MismatchedAnnotationCheck extends AbstractCheck {
     /** Key for the warning message text by check properties. */
     private static final String MSG_KEY_JAVADOC_MISSING = "javadoc.missing";
 
-    /** Compiled regexp to look for a continuation of the comment. */
-    private static final Pattern MATCH_HIDE_MULTILINE_CONT =
-            CommonUtils.createPattern("(\\*/|@|[^\\s\\*])");
-
-    /** Multiline finished at end of comment. */
-    private static final String END_JAVADOC = "*/";
-
-    /** Multiline finished at next Javadoc. */
-    private static final String NEXT_TAG = "@";
-
     /** Javadoc tag. */
     private String mTag;
 
-    /** Compiled regexp to match Javadoc tag with no argument. */
+    /** Pattern for matching javadoc tag. */
     private Pattern mMatchTag;
-
-    /** Compiled regexp to match first part of multilineJavadoc tags. */
-    private Pattern mMatchTagMultilineStart;
 
     /** Simple annotation name. */
     private String mAnnotationSimpleName;
@@ -109,19 +77,6 @@ public final class MismatchedAnnotationCheck extends AbstractCheck {
 
     /** Key for the warning message text specified by check properties. */
     private String mMessageKey;
-
-    /** Is tagged element valid without javadoc? */
-    private boolean mSkipNoJavadoc;
-
-    /**
-     * Sets skipJavadoc value.
-     *
-     * @param skipNoJavadoc user's value of skipJavadoc
-     */
-    @SuppressWarnings("unused")
-    public void setSkipNoJavadoc(boolean skipNoJavadoc) {
-        mSkipNoJavadoc = skipNoJavadoc;
-    }
 
     @Override
     public int[] getDefaultTokens() {
@@ -136,9 +91,7 @@ public final class MismatchedAnnotationCheck extends AbstractCheck {
     @SuppressWarnings("unused")
     public void setTag(String tag) {
         mTag = tag;
-
-        mMatchTag = CommonUtils.createPattern("@(" + tag + ")\\s+\\S");
-        mMatchTagMultilineStart = CommonUtils.createPattern("@(" + tag + ")\\s*$");
+        mMatchTag = CommonUtils.createPattern("@" + tag + "\\s");
     }
 
     /**
@@ -153,7 +106,7 @@ public final class MismatchedAnnotationCheck extends AbstractCheck {
         // Extract the simple class name.
         final int lastDollar = annotation.lastIndexOf('$');
         final int lastSep = lastDollar >= 0 ? lastDollar : annotation.lastIndexOf('.');
-        mAnnotationSimpleName = annotation.substring(lastSep);
+        mAnnotationSimpleName = annotation.substring(lastSep + 1);
     }
 
 
@@ -189,15 +142,11 @@ public final class MismatchedAnnotationCheck extends AbstractCheck {
 
     @Override
     public void visitToken(final DetailAST ast) {
-        final TextBlock javadoc = getFileContents().getJavadocBefore(ast.getLineNo());
-
         final boolean containsAnnotation =
                 AnnotationUtility.containsAnnotation(ast, mAnnotationSimpleName)
                         || AnnotationUtility.containsAnnotation(ast, mAnnotation);
-
-        final boolean containsJavadocTag = containsJavadocTag(javadoc);
-
-        if (containsAnnotation ^ containsJavadocTag && !(mSkipNoJavadoc && javadoc == null)) {
+        final boolean containsJavadocTag = containsJavadocTag(ast);
+        if (containsAnnotation ^ containsJavadocTag) {
             log(ast.getLineNo(), mMessageKey);
         }
     }
@@ -205,74 +154,27 @@ public final class MismatchedAnnotationCheck extends AbstractCheck {
     /**
      * Checks to see if the text block contains the tag.
      *
-     * @param javadoc the javadoc of the AST
+     * @param ast the AST being visited
      * @return true if contains the tag
      */
-    private boolean containsJavadocTag(final TextBlock javadoc) {
+    private boolean containsJavadocTag(final DetailAST ast) {
+        final TextBlock javadoc = getFileContents().getJavadocBefore(ast.getLineNo());
         if (javadoc == null) {
             return false;
         }
 
-        final String[] lines = javadoc.getText();
         int currentLine = javadoc.getStartLineNo();
-
         boolean found = false;
 
-        for (int i = 0; i < lines.length; i++) {
-            final String line = lines[i];
-            final Matcher javadocNoArgMatcher = mMatchTag.matcher(line);
-            if (javadocNoArgMatcher.find()) {
+        final String[] lines = javadoc.getText();
+        for (String line : lines) {
+            if (mMatchTag.matcher(line).find()) {
                 if (found) {
                     log(currentLine, MSG_KEY_JAVADOC_DUPLICATE_TAG, mTag);
                 }
                 found = true;
-            } else {
-                final Matcher noArgMultilineStart = mMatchTagMultilineStart.matcher(line);
-                if (noArgMultilineStart.find()) {
-                    found = checkTagAtTheRestOfComment(lines, found, currentLine, i);
-                }
             }
             currentLine++;
-        }
-
-        return found;
-    }
-
-    /**
-     * Looks for the rest of the comment if all we saw was the tag and the
-     * name. Stops when we see '*' (end of Javadoc), '{@literal @}' (start of
-     * next tag), or anything that's not whitespace or '*' characters.
-     *
-     * @param lines all lines
-     * @param foundBefore flag from parent method
-     * @param currentLine current line
-     * @param index som index
-     * @return true if Tag is found
-     */
-    private boolean checkTagAtTheRestOfComment(String[] lines, boolean foundBefore, int currentLine,
-            int index) {
-        boolean found = false;
-
-        for (int reindex = index + 1; reindex < lines.length;) {
-            final Matcher multilineCont = MATCH_HIDE_MULTILINE_CONT.matcher(lines[reindex]);
-            if (multilineCont.find()) {
-                reindex = lines.length;
-
-                final String lFin = multilineCont.group(1);
-                if (lFin.equals(NEXT_TAG) || lFin.equals(END_JAVADOC)) {
-                    log(currentLine, MSG_KEY_JAVADOC_MISSING);
-                    if (foundBefore) {
-                        log(currentLine, MSG_KEY_JAVADOC_DUPLICATE_TAG, mTag);
-                    }
-                    found = true;
-                } else {
-                    if (foundBefore) {
-                        log(currentLine, MSG_KEY_JAVADOC_DUPLICATE_TAG, mTag);
-                    }
-                    found = true;
-                }
-            }
-            reindex++;
         }
 
         return found;
