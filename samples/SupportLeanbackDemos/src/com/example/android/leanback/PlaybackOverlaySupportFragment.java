@@ -140,7 +140,6 @@ public class PlaybackOverlaySupportFragment
                 mGlue.setInitialized(true);
             }
         }, MEDIA_PREPARATION_DELAY);
-
         mGlue.setOnItemViewClickedListener(mOnItemViewClickedListener);
 
         mPlaybackControlsRowPresenter = mGlue.createControlsRowAndPresenter();
