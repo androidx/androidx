@@ -31,6 +31,7 @@ import android.support.v17.leanback.animation.LogDecelerateInterpolator;
 import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
+import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
@@ -111,25 +112,43 @@ public class PlaybackFragment extends Fragment {
     private ObjectAdapter mAdapter;
     private PlaybackRowPresenter mPresenter;
     private Row mRow;
+    private BaseOnItemViewSelectedListener mExternalItemSelectedListener;
     private BaseOnItemViewClickedListener mExternalItemClickedListener;
     private BaseOnItemViewClickedListener mPlaybackItemClickedListener;
-    private BaseOnItemViewClickedListener mOnItemViewClickedListener = new BaseOnItemViewClickedListener() {
-        @Override
-        public void onItemClicked(Presenter.ViewHolder itemViewHolder,
-                                  Object item,
-                                  RowPresenter.ViewHolder rowViewHolder,
-                                  Object row) {
-            if (mPlaybackItemClickedListener != null
-                    && rowViewHolder instanceof PlaybackRowPresenter.ViewHolder) {
-                mPlaybackItemClickedListener.onItemClicked(
-                        itemViewHolder, item, rowViewHolder, row);
-            }
-            if (mExternalItemClickedListener != null) {
-                mExternalItemClickedListener.onItemClicked(
-                        itemViewHolder, item, rowViewHolder, row);
-            }
-        }
-    };
+
+    private final BaseOnItemViewClickedListener mOnItemViewClickedListener =
+            new BaseOnItemViewClickedListener() {
+                @Override
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder,
+                                          Object item,
+                                          RowPresenter.ViewHolder rowViewHolder,
+                                          Object row) {
+                    if (mPlaybackItemClickedListener != null
+                            && rowViewHolder instanceof PlaybackRowPresenter.ViewHolder) {
+                        mPlaybackItemClickedListener.onItemClicked(
+                                itemViewHolder, item, rowViewHolder, row);
+                    }
+                    if (mExternalItemClickedListener != null) {
+                        mExternalItemClickedListener.onItemClicked(
+                                itemViewHolder, item, rowViewHolder, row);
+                    }
+                }
+            };
+
+    private final BaseOnItemViewSelectedListener mOnItemViewSelectedListener =
+            new BaseOnItemViewSelectedListener() {
+                @Override
+                public void onItemSelected(Presenter.ViewHolder itemViewHolder,
+                                           Object item,
+                                           RowPresenter.ViewHolder rowViewHolder,
+                                           Object row) {
+                    if (mExternalItemSelectedListener != null) {
+                        mExternalItemSelectedListener.onItemSelected(
+                                itemViewHolder, item, rowViewHolder, row);
+                    }
+                }
+            };
+
     private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
 
     public ObjectAdapter getAdapter() {
@@ -743,6 +762,7 @@ public class PlaybackFragment extends Fragment {
         } else {
             mRowsFragment.setAdapter(mAdapter);
         }
+        mRowsFragment.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
         mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
 
         mBgAlpha = 255;
@@ -783,6 +803,15 @@ public class PlaybackFragment extends Fragment {
             mHostCallback.onHostPause();
         }
         super.onPause();
+    }
+
+    /**
+     * This listener is called every time there is a selection in {@link RowsFragment}. This can
+     * be used by users to take additional actions such as animations.
+     * @hide
+     */
+    public void setOnItemViewSelectedListener(final BaseOnItemViewSelectedListener listener) {
+        mExternalItemSelectedListener = listener;
     }
 
     /**
