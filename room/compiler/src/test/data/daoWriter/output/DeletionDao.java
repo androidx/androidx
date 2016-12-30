@@ -3,8 +3,11 @@ package foo.bar;
 import com.android.support.db.SupportSQLiteStatement;
 import com.android.support.room.EntityDeletionOrUpdateAdapter;
 import com.android.support.room.RoomDatabase;
+import com.android.support.room.SharedSQLiteStatement;
+import com.android.support.room.util.StringUtil;
 import java.lang.Override;
 import java.lang.String;
+import java.lang.StringBuilder;
 import java.util.List;
 
 public class DeletionDao_Impl implements DeletionDao {
@@ -13,6 +16,8 @@ public class DeletionDao_Impl implements DeletionDao {
   private final EntityDeletionOrUpdateAdapter __deletionAdapterOfUser;
 
   private final EntityDeletionOrUpdateAdapter __deletionAdapterOfMultiPKeyEntity;
+
+  private final SharedSQLiteStatement _preparedStmtOfDeleteByUid;
 
   public DeletionDao_Impl(RoomDatabase __db) {
     this.__db = __db;
@@ -45,6 +50,13 @@ public class DeletionDao_Impl implements DeletionDao {
         } else {
           stmt.bindString(2, value.lastName);
         }
+      }
+    };
+    this._preparedStmtOfDeleteByUid = new SharedSQLiteStatement(__db) {
+      @Override
+      public String createQuery() {
+        String _query = "DELETE FROM user where uid = ?";
+        return _query;
       }
     };
   }
@@ -134,5 +146,34 @@ public class DeletionDao_Impl implements DeletionDao {
     } finally {
       __db.endTransaction();
     }
+  }
+
+  @Override
+  public int deleteByUid(int uid) {
+    final SupportSQLiteStatement _stmt = _preparedStmtOfDeleteByUid.acquire();
+    try {
+      int _argIndex = 1;
+      _stmt.bindLong(_argIndex, uid);
+      return _stmt.executeUpdateDelete();
+    } finally {
+      _preparedStmtOfDeleteByUid.release(_stmt);
+    }
+  }
+
+  @Override
+  public int deleteByUidList(int... uid) {
+    StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    _stringBuilder.append("DELETE FROM user where uid IN(");
+    final int _inputSize = uid.length;
+    StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+    _stringBuilder.append(")");
+    String _sql = _stringBuilder.toString();
+    SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
+    int _argIndex = 1;
+    for (int _item : uid) {
+      _stmt.bindLong(_argIndex, _item);
+      _argIndex ++;
+    }
+    return _stmt.executeUpdateDelete();
   }
 }

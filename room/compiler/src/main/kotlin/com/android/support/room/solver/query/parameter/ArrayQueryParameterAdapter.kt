@@ -19,14 +19,31 @@ package com.android.support.room.solver.query.parameter
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
+import com.android.support.room.processor.Context
 import com.android.support.room.solver.CodeGenScope
+import com.android.support.room.solver.types.ColumnTypeAdapter
 import com.android.support.room.solver.types.TypeConverter
 import com.squareup.javapoet.TypeName
 
 /**
  * Binds ARRAY(T) (e.g. int[]) into String[] args of a query.
  */
-class ArrayQueryParameterAdapter(val converter : TypeConverter) : QueryParameterAdapter(true) {
+class ArrayQueryParameterAdapter(val converter : TypeConverter,
+                                 val bindAdapter : ColumnTypeAdapter)
+            : QueryParameterAdapter(true) {
+    override fun bindToStmt(inputVarName: String, stmtVarName: String, startIndexVarName: String,
+                            scope: CodeGenScope) {
+        scope.builder().apply {
+            val itrVar = scope.getTmpVar("_item")
+            beginControlFlow("for ($T $L : $L)", converter.from.typeName(), itrVar, inputVarName)
+                    .apply {
+                        bindAdapter.bindToStmt(stmtVarName, startIndexVarName, itrVar, scope)
+                        addStatement("$L ++", startIndexVarName)
+            }
+            endControlFlow()
+        }
+    }
+
     override fun getArgCount(inputVarName: String, outputVarName : String, scope: CodeGenScope) {
         scope.builder()
                 .addStatement("final $T $L = $L.length", TypeName.INT, outputVarName, inputVarName)

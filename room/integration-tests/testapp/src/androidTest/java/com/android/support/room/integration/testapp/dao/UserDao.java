@@ -49,4 +49,16 @@ public interface UserDao {
 
     @Insert
     void insertAll(User[] users);
+
+    @Query("select * from user where mAdmin = ?")
+    List<User> findByAdmin(boolean isAdmin);
+
+    @Query("delete from user where mAge > ?")
+    int deleteAgeGreaterThan(int age);
+
+    @Query("delete from user where mId IN(?)")
+    int deleteByUids(int... uids);
+
+    @Query("delete from user where mAge >= :min AND mAge <= :max")
+    int deleteByAgeRange(int min, int max);
 }

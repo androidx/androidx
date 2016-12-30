@@ -37,7 +37,7 @@ data class Section(val text: String, val type: SectionType) {
 
 data class Table(val name: String, val alias: String)
 
-data class ParsedQuery(val original: String, val queryType: QueryType,
+data class ParsedQuery(val original: String, val type: QueryType,
                        val inputs: List<TerminalNode>,
                        // pairs of table name and alias,
                        val tables: Set<Table>,
@@ -85,10 +85,10 @@ data class ParsedQuery(val original: String, val queryType: QueryType,
     }
 
     private fun unknownQueryTypeErrors(): List<String> {
-        return if (QueryType.SUPPORTED.contains(queryType)) {
+        return if (QueryType.SUPPORTED.contains(type)) {
             emptyList()
         } else {
-            listOf(ParserErrors.invalidQueryType(queryType))
+            listOf(ParserErrors.invalidQueryType(type))
         }
     }
 

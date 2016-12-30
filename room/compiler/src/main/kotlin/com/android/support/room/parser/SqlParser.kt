@@ -35,7 +35,7 @@ class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
     init {
         queryType = (0..statement.childCount - 1).map {
             findQueryType(statement.getChild(it))
-        }.filterNot { it == QueryType.UNKNOWN }.first()
+        }.filterNot { it == QueryType.UNKNOWN }.firstOrNull() ?: QueryType.UNKNOWN
 
         statement.accept(this)
     }
@@ -123,7 +123,7 @@ class SqlParser {
                 return QueryVisitor(input, syntaxErrors, statement).createParsedQuery()
             } catch (antlrError: RuntimeException) {
                 return ParsedQuery(input, QueryType.UNKNOWN, emptyList(), emptySet(),
-                        listOf(antlrError.message ?: "unknown error while parsing $input"))
+                        listOf("unknown error while parsing $input : ${antlrError.message}"))
             }
         }
     }
@@ -138,7 +138,7 @@ enum class QueryType {
     INSERT;
 
     companion object {
-        val SUPPORTED = hashSetOf(SELECT)
+        val SUPPORTED = hashSetOf(SELECT, DELETE)
     }
 }
 

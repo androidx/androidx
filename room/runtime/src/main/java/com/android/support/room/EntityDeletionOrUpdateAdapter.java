@@ -21,7 +21,6 @@ import android.support.annotation.RestrictTo;
 import com.android.support.db.SupportSQLiteStatement;
 
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Implementations of this class knows how to delete or update a particular entity.
@@ -33,11 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings({"WeakerAccess", "unused"})
-public abstract class EntityDeletionOrUpdateAdapter<T> {
-    private final AtomicBoolean mStmtLock = new AtomicBoolean(false);
-    private final RoomDatabase mDatabase;
-    private volatile SupportSQLiteStatement mStmt;
-
+public abstract class EntityDeletionOrUpdateAdapter<T> extends SharedSQLiteStatement {
     /**
      * Creates a DeletionOrUpdateAdapter that can delete or update the entity type T on the given
      * database.
@@ -45,7 +40,7 @@ public abstract class EntityDeletionOrUpdateAdapter<T> {
      * @param database The database to delete / update the item in.
      */
     public EntityDeletionOrUpdateAdapter(RoomDatabase database) {
-        mDatabase = database;
+        super(database);
     }
 
     /**
@@ -64,25 +59,6 @@ public abstract class EntityDeletionOrUpdateAdapter<T> {
      */
     protected abstract void bind(SupportSQLiteStatement statement, T entity);
 
-    private SupportSQLiteStatement createNewStatement() {
-        String query = createQuery();
-        return mDatabase.compileStatement(query);
-    }
-
-    private SupportSQLiteStatement getStmt(boolean canUseCached) {
-        final SupportSQLiteStatement stmt;
-        if (canUseCached) {
-            if (mStmt == null) {
-                mStmt = createNewStatement();
-            }
-            stmt = mStmt;
-        } else {
-            // it is in use, create a one off statement
-            stmt = createNewStatement();
-        }
-        return stmt;
-    }
-
     /**
      * Deletes or updates the given entities in the database and returns the affected row count.
      *
@@ -90,15 +66,12 @@ public abstract class EntityDeletionOrUpdateAdapter<T> {
      * @return The number of affected rows
      */
     public final int handle(T entity) {
-        boolean useCached = !mStmtLock.getAndSet(true);
+        final SupportSQLiteStatement stmt = acquire();
         try {
-            final SupportSQLiteStatement stmt = getStmt(useCached);
             bind(stmt, entity);
             return stmt.executeUpdateDelete();
         } finally {
-            if (useCached) {
-                mStmtLock.set(false);
-            }
+            release(stmt);
         }
     }
 
@@ -109,19 +82,16 @@ public abstract class EntityDeletionOrUpdateAdapter<T> {
      * @return The number of affected rows
      */
     public final int handleMultiple(Collection<T> entities) {
-        boolean useCached = !mStmtLock.getAndSet(true);
+        final SupportSQLiteStatement stmt = acquire();
         try {
             int total = 0;
-            final SupportSQLiteStatement stmt = getStmt(useCached);
             for (T entity : entities) {
                 bind(stmt, entity);
                 total += stmt.executeUpdateDelete();
             }
             return total;
         } finally {
-            if (useCached) {
-                mStmtLock.set(false);
-            }
+            release(stmt);
         }
     }
 
@@ -132,19 +102,16 @@ public abstract class EntityDeletionOrUpdateAdapter<T> {
      * @return The number of affected rows
      */
     public final int handleMultiple(T[] entities) {
-        boolean useCached = !mStmtLock.getAndSet(true);
+        final SupportSQLiteStatement stmt = acquire();
         try {
             int total = 0;
-            final SupportSQLiteStatement stmt = getStmt(useCached);
             for (T entity : entities) {
                 bind(stmt, entity);
                 total += stmt.executeUpdateDelete();
             }
             return total;
         } finally {
-            if (useCached) {
-                mStmtLock.set(false);
-            }
+            release(stmt);
         }
     }
 }

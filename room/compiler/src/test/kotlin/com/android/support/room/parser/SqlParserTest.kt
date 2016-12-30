@@ -38,8 +38,15 @@ class SqlParserTest {
 
     @Test
     fun deleteQuery() {
-        assertErrors("DELETE FROM users where id > 3",
-                ParserErrors.invalidQueryType(QueryType.DELETE))
+        val parsed = SqlParser.parse("DELETE FROM users where id > 3")
+        assertThat(parsed.errors, `is`(emptyList()))
+        assertThat(parsed.type, `is`(QueryType.DELETE))
+    }
+
+    @Test
+    fun badDeleteQuery() {
+        assertErrors("delete from user where mAge >= :min && mAge <= :max",
+                "no viable alternative at input 'delete from user where mAge >= :min &&'")
     }
 
     @Test

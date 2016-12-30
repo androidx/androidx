@@ -22,6 +22,7 @@ import com.android.support.room.ext.S
 import com.android.support.room.ext.T
 import com.android.support.room.ext.arrayTypeName
 import com.android.support.room.ext.typeName
+import com.android.support.room.parser.QueryType
 import com.android.support.room.parser.SectionType.BIND_VAR
 import com.android.support.room.parser.SectionType.NEWLINE
 import com.android.support.room.parser.SectionType.TEXT
@@ -35,17 +36,16 @@ import com.squareup.javapoet.TypeName
  * Writes the SQL query and arguments for a QueryMethod.
  */
 class QueryWriter(val queryMethod: QueryMethod) {
-    fun prepareReadQuery(outSqlQueryName: String, outArgsName: String, scope: CodeGenScope) {
-        scope.builder().apply {
-            // mapping from parameters to the variables created for their sizes
-            // it is a list of pairs instead of a map because same parameter might be bound to
-            // multiple bind args
-            val listSizeVars = createSqlQueryAndArgs(outSqlQueryName, outArgsName, scope)
-            bindArgs(outArgsName, listSizeVars, scope)
-        }
+    fun prepareReadAndBind(outSqlQueryName: String, outArgsName: String, scope: CodeGenScope) {
+        val listSizeVars = createSqlQueryAndArgs(outSqlQueryName, outArgsName, scope)
+        bindArgs(outArgsName, listSizeVars, scope)
     }
 
-    private fun createSqlQueryAndArgs(outSqlQueryName: String, outArgsName: String,
+    fun prepareQuery(outSqlQueryName: String, scope: CodeGenScope) {
+        createSqlQueryAndArgs(outSqlQueryName, null, scope)
+    }
+
+    private fun createSqlQueryAndArgs(outSqlQueryName: String, outArgsName: String?,
                                       scope: CodeGenScope): List<Pair<QueryParameter, String>> {
         val listSizeVars = arrayListOf<Pair<QueryParameter, String>>()
         val varargParams = queryMethod.parameters
@@ -87,30 +87,34 @@ class QueryWriter(val queryMethod: QueryMethod) {
 
                 addStatement("$T $L = $L.toString()", String::class.typeName(),
                         outSqlQueryName, stringBuilderVar)
-                val argCount = scope.getTmpVar("_argCount")
-
-                addStatement("final $T $L = $L$L", TypeName.INT, argCount, knownQueryArgsCount,
-                        listSizeVars.joinToString("") { " + ${it.second}" })
-                addStatement("$T $L = new String[$L]",
-                        String::class.arrayTypeName(), outArgsName, argCount)
+                if (outArgsName != null) {
+                    val argCount = scope.getTmpVar("_argCount")
+                    addStatement("final $T $L = $L$L", TypeName.INT, argCount, knownQueryArgsCount,
+                            listSizeVars.joinToString("") { " + ${it.second}" })
+                    addStatement("$T $L = new String[$L]",
+                            String::class.arrayTypeName(), outArgsName, argCount)
+                }
             } else {
                 addStatement("$T $L = $S", String::class.typeName(),
                         outSqlQueryName, queryMethod.query.queryWithReplacedBindParams)
-                addStatement("$T $L = new String[$L]",
-                        String::class.arrayTypeName(), outArgsName, knownQueryArgsCount)
+                if (outArgsName != null) {
+                    addStatement("$T $L = new String[$L]",
+                            String::class.arrayTypeName(), outArgsName, knownQueryArgsCount)
+                }
             }
         }
         return listSizeVars
     }
 
-    private fun bindArgs(outArgsName: String, listSizeVars : List<Pair<QueryParameter, String>>
-                         ,scope: CodeGenScope) {
+    fun bindArgs(outArgsName: String, listSizeVars : List<Pair<QueryParameter, String>>,
+                         scope: CodeGenScope) {
         if (queryMethod.parameters.isEmpty()) {
             return
         }
         scope.builder().apply {
             val argIndex = scope.getTmpVar("_argIndex")
-            addStatement("$T $L = 0", TypeName.INT, argIndex)
+            val startIndex = if (queryMethod.query.type == QueryType.SELECT) 0 else 1
+            addStatement("$T $L = $L", TypeName.INT, argIndex, startIndex)
             // # of bindings with 1 placeholder
             var constInputs = 0
             // variable names for size of the bindings that have multiple  args
@@ -118,19 +122,25 @@ class QueryWriter(val queryMethod: QueryMethod) {
             queryMethod.sectionToParamMapping.forEach { pair ->
                 // reset the argIndex to the correct start index
                 if (constInputs > 0 || varInputs.isNotEmpty()) {
-                    addStatement("$L = $L$L$L", argIndex,
+                    addStatement("$L = $L$L$L$L", argIndex,
+                            if (startIndex > 0) "$startIndex + " else "",
                             if (constInputs > 0) constInputs else "",
                             if (constInputs > 0 && varInputs.isNotEmpty()) " + " else "",
                             varInputs.joinToString(" + "))
                 }
                 val param = pair.second
                 param?.let {
-                    param.queryParamAdapter?.convert(param.name, outArgsName, argIndex, scope)
+                    if (queryMethod.query.type == QueryType.SELECT) {
+                        param.queryParamAdapter?.convert(param.name, outArgsName, argIndex, scope)
+                    } else {
+                        param.queryParamAdapter?.bindToStmt(param.name, outArgsName, argIndex,
+                                scope)
+                    }
                 }
                 // add these to the list so that we can use them to calculate the next count.
                 val sizeVar = listSizeVars.firstOrNull { it.first == param }
                 if (sizeVar == null) {
-                    constInputs++
+                    constInputs ++
                 } else {
                     varInputs.add(sizeVar.second)
                 }

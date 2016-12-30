@@ -18,6 +18,7 @@ package com.android.support.room.processor
 
 import com.android.support.room.Query
 import com.android.support.room.parser.ParsedQuery
+import com.android.support.room.parser.QueryType
 import com.android.support.room.parser.SqlParser
 import com.android.support.room.vo.QueryMethod
 import com.google.auto.common.AnnotationMirrors
@@ -55,6 +56,14 @@ class QueryMethodProcessor(val context: Context) {
         val returnTypeName = TypeName.get(executableType.returnType)
         context.checker.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
+
+        if (query.type == QueryType.DELETE) {
+            context.checker.check(
+                    returnTypeName == TypeName.VOID || returnTypeName == TypeName.INT,
+                    executableElement,
+                    ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
+            )
+        }
 
         val resultAdapter = context.typeAdapterStore
                 .findQueryResultAdapter(executableType.returnType)

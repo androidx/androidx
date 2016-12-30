@@ -18,6 +18,7 @@ package com.android.support.room.processor
 
 import com.android.support.room.Dao
 import com.android.support.room.Query
+import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.typeName
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
@@ -287,6 +288,31 @@ class QueryMethodProcessorTest {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun testReadDeleteWithBadReturnType() {
+        singleQueryMethod(
+                """
+                @Query("DELETE FROM users where id = ?")
+                abstract public float foo(int id);
+                """) { parsedQuery, invocation ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
+        )
+    }
+
+    @Test
+    fun testSimpleDelete() {
+        singleQueryMethod(
+                """
+                @Query("DELETE FROM users where id = ?")
+                abstract public int foo(int id);
+                """) { parsedQuery, invocation ->
+            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.parameters.size, `is`(1))
+            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.INT))
+        }.compilesWithoutError()
+    }
+
     fun singleQueryMethod(vararg input: String,
                           handler: (QueryMethod, TestInvocation) -> Unit):
             CompileTester {
@@ -304,8 +330,7 @@ class QueryMethodProcessorTest {
                                                 invocation.processingEnv.elementUtils
                                                         .getAllMembers(MoreElements.asType(it))
                                                         .filter {
-                                                            MoreElements.isAnnotationPresent(it,
-                                                                    Query::class.java)
+                                                            it.hasAnnotation(Query::class)
                                                         }
                                         )
                                     }.filter { it.second.isNotEmpty() }.first()

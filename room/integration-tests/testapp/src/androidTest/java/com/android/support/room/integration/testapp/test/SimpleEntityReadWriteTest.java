@@ -39,12 +39,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class SimpleEntityReadWriteTest {
     private UserDao mUserDao;
+
     @Before
     public void createDb() {
         Context context = InstrumentationRegistry.getTargetContext();
@@ -106,5 +109,55 @@ public class SimpleEntityReadWriteTest {
                 TestUtil.createUser(9)});
         assertThat(deleteCount, is(2));
         assertThat(mUserDao.loadByIds(3, 5, 7, 9), is(new User[]{users[1], users[2]}));
+    }
+
+    @Test
+    public void findByBoolean() {
+        User user1 = TestUtil.createUser(3);
+        user1.setAdmin(true);
+        User user2 = TestUtil.createUser(5);
+        user2.setAdmin(false);
+        mUserDao.insert(user1);
+        mUserDao.insert(user2);
+        assertThat(mUserDao.findByAdmin(true), is(Arrays.asList(user1)));
+        assertThat(mUserDao.findByAdmin(false), is(Arrays.asList(user2)));
+    }
+
+    @Test
+    public void deleteByAge() {
+        User user1 = TestUtil.createUser(3);
+        user1.setAge(30);
+        User user2 = TestUtil.createUser(5);
+        user2.setAge(45);
+        mUserDao.insert(user1);
+        mUserDao.insert(user2);
+        assertThat(mUserDao.deleteAgeGreaterThan(60), is(0));
+        assertThat(mUserDao.deleteAgeGreaterThan(45), is(0));
+        assertThat(mUserDao.deleteAgeGreaterThan(35), is(1));
+        assertThat(mUserDao.loadByIds(3, 5), is(new User[]{user1}));
+    }
+
+    @Test
+    public void deleteByAgeRange() {
+        User user1 = TestUtil.createUser(3);
+        user1.setAge(30);
+        User user2 = TestUtil.createUser(5);
+        user2.setAge(45);
+        mUserDao.insert(user1);
+        mUserDao.insert(user2);
+        assertThat(mUserDao.deleteByAgeRange(35, 40), is(0));
+        assertThat(mUserDao.deleteByAgeRange(25, 30), is(1));
+        assertThat(mUserDao.loadByIds(3, 5), is(new User[]{user2}));
+    }
+
+    @Test
+    public void deleteByUIds() {
+        User[] users = TestUtil.createUsersArray(3, 5, 7, 9, 11);
+        mUserDao.insertAll(users);
+        assertThat(mUserDao.deleteByUids(2, 4, 6), is(0));
+        assertThat(mUserDao.deleteByUids(3, 11), is(2));
+        assertThat(mUserDao.loadByIds(3, 5, 7, 9, 11), is(new User[]{
+                users[1], users[2], users[3]
+        }));
     }
 }

@@ -54,7 +54,14 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
     }
 
     val getterNameWithVariations by lazy {
-        nameWithVariations.map { "get${it.capitalize()}" }
+        nameWithVariations.map { "get${it.capitalize()}" } +
+                if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
+                    nameWithVariations.flatMap {
+                        listOf("is${it.capitalize()}", "has${it.capitalize()}")
+                    }
+                } else {
+                    emptyList()
+                }
     }
 
     val setterNameWithVariations by lazy {

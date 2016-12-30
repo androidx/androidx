@@ -35,7 +35,7 @@ public class WriterDao_Impl implements WriterDao {
         this.__db = __db;
         this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
             @Override
-            public String createInsertQuery() {
+            public String createQuery() {
                 return "INSERT OR ABORT INTO `User`(`uid`,`name`,`lastName`,`ageColumn`) VALUES"
                         + " (?,?,?,?)";
             }
@@ -58,7 +58,7 @@ public class WriterDao_Impl implements WriterDao {
         };
         this.__insertionAdapterOfUser_1 = new EntityInsertionAdapter<User>(__db) {
             @Override
-            public String createInsertQuery() {
+            public String createQuery() {
                 return "INSERT OR REPLACE INTO `User`(`uid`,`name`,`lastName`,`ageColumn`) VALUES"
                         + " (?,?,?,?)";
             }

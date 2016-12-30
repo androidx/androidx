@@ -57,6 +57,8 @@ object RoomTypeNames {
             ClassName.get("com.android.support.room", "EntityInsertionAdapter")
     val DELETE_OR_UPDATE_ADAPTER : ClassName =
             ClassName.get("com.android.support.room", "EntityDeletionOrUpdateAdapter")
+    val SHARED_SQLITE_STMT : ClassName =
+            ClassName.get("com.android.support.room", "SharedSQLiteStatement")
 }
 
 object AndroidTypeNames {

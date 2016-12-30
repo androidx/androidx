@@ -26,6 +26,7 @@ public class User {
     private String mName;
     private String mLastName;
     private int mAge;
+    private boolean mAdmin;
 
     public int getId() {
         return mId;
@@ -59,6 +60,14 @@ public class User {
         this.mAge = age;
     }
 
+    public boolean isAdmin() {
+        return mAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        mAdmin = admin;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -68,6 +77,7 @@ public class User {
 
         if (mId != user.mId) return false;
         if (mAge != user.mAge) return false;
+        if (mAdmin != user.mAdmin) return false;
         if (mName != null ? !mName.equals(user.mName) : user.mName != null) return false;
         return mLastName != null ? mLastName.equals(user.mLastName) : user.mLastName == null;
     }
@@ -78,6 +88,7 @@ public class User {
         result = 31 * result + (mName != null ? mName.hashCode() : 0);
         result = 31 * result + (mLastName != null ? mLastName.hashCode() : 0);
         result = 31 * result + mAge;
+        result = 31 * result + (mAdmin ? 1 : 0);
         return result;
     }
 }

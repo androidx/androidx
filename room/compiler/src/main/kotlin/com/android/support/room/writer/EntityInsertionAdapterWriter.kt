@@ -17,7 +17,6 @@
 package com.android.support.room.writer
 
 import com.android.support.room.ext.L
-import com.android.support.room.ext.N
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.S
 import com.android.support.room.ext.SupportDbTypeNames
@@ -39,7 +38,7 @@ class EntityInsertionAdapterWriter(val entity: Entity, val onConflict: String) {
             superclass(
                     ParameterizedTypeName.get(RoomTypeNames.INSERTION_ADAPTER, entity.typeName)
             )
-            addMethod(MethodSpec.methodBuilder("createInsertQuery").apply {
+            addMethod(MethodSpec.methodBuilder("createQuery").apply {
                 addAnnotation(Override::class.java)
                 returns(ClassName.get("java.lang", "String"))
                 addModifiers(PUBLIC)

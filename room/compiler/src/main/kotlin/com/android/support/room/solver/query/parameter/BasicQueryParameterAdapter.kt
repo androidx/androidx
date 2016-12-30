@@ -18,12 +18,23 @@ package com.android.support.room.solver.query.parameter
 
 import com.android.support.room.ext.L
 import com.android.support.room.solver.CodeGenScope
+import com.android.support.room.solver.types.ColumnTypeAdapter
 import com.android.support.room.solver.types.TypeConverter
+import com.squareup.javapoet.TypeName
 
 /**
  * Knows how to convert a query parameter into arguments
  */
-class BasicQueryParameterAdapter(val converter : TypeConverter) : QueryParameterAdapter(false) {
+class BasicQueryParameterAdapter(val converter : TypeConverter,
+                                 val bindAdapter : ColumnTypeAdapter)
+            : QueryParameterAdapter(false) {
+    override fun bindToStmt(inputVarName: String, stmtVarName: String, startIndexVarName: String,
+                            scope: CodeGenScope) {
+        scope.builder().apply {
+            bindAdapter.bindToStmt(stmtVarName, startIndexVarName, inputVarName, scope)
+        }
+    }
+
     override fun getArgCount(inputVarName: String, outputVarName : String, scope: CodeGenScope) {
         throw UnsupportedOperationException("should not call getArgCount on basic adapters." +
                 "It is always one.")

@@ -55,7 +55,7 @@ class QueryWriterTest {
                 abstract java.util.List<Integer> selectAllIds();
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadQuery("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
                     java.lang.String _sql = "SELECT id FROM users";
@@ -71,7 +71,7 @@ class QueryWriterTest {
                 abstract java.util.List<Integer> selectAllIds(String name);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadQuery("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
                     java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
@@ -89,7 +89,7 @@ class QueryWriterTest {
                 abstract java.util.List<Integer> selectAllIds(int id1, int id2);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadQuery("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
                     java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
@@ -109,7 +109,7 @@ class QueryWriterTest {
                 abstract java.util.List<Integer> selectAllIds(long time, int... ids);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadQuery("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
@@ -158,7 +158,7 @@ class QueryWriterTest {
                 abstract List<Integer> selectAllIds(long time, List<Integer> ids);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadQuery("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`(collectionOut))
         }.compilesWithoutError()
     }
@@ -170,7 +170,7 @@ class QueryWriterTest {
                 abstract List<Integer> selectAllIds(long time, Set<Integer> ids);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadQuery("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`(collectionOut))
         }.compilesWithoutError()
     }
@@ -182,7 +182,7 @@ class QueryWriterTest {
                 abstract List<Integer> selectAllIds(int age);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadQuery("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`("""
                     java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
                     java.lang.String[] _args = new String[2];
@@ -201,7 +201,7 @@ class QueryWriterTest {
                 abstract List<Integer> selectAllIds(int age, int... ages);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadQuery("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`("""
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
                     _stringBuilder.append("SELECT id FROM users WHERE age > ");
@@ -235,7 +235,7 @@ class QueryWriterTest {
                 abstract List<Integer> selectAllIds(int age, int... ages);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadQuery("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`("""
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
                     _stringBuilder.append("SELECT id FROM users WHERE age IN (");
