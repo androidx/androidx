@@ -15,29 +15,31 @@
  */
 
 package com.example.android.supportv7.media;
-import com.example.android.supportv7.R;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
-import android.view.View;
-import android.view.Surface;
-import android.view.WindowManager;
 import android.view.TextureView.SurfaceTextureListener;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
+
+import com.example.android.supportv7.R;
 
 /**
  * Manages an overlay display window, used for simulating remote playback.
@@ -177,6 +179,7 @@ public abstract class OverlayDisplayWindow {
     /**
      * Implementation for API version 17+.
      */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     private static final class JellybeanMr1Impl extends OverlayDisplayWindow {
         // When true, disables support for moving and resizing the overlay.
         // The window is made non-touchable, which makes it possible to

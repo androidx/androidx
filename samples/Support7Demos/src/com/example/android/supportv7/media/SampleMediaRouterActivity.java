@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -132,7 +133,9 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             Log.d(TAG, "onRouteSelected: route=" + route);
 
             mPlayer = Player.create(SampleMediaRouterActivity.this, route, mMediaSession);
-            mPlayer.updatePresentation();
+            if (isPresentationApiSupported()) {
+                mPlayer.updatePresentation();
+            }
             mSessionManager.setPlayer(mPlayer);
             mSessionManager.unsuspend();
 
@@ -150,7 +153,9 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                         0 : (SystemClock.elapsedRealtime() - item.getTimestamp()));
                 mSessionManager.suspend(pos);
             }
-            mPlayer.updatePresentation();
+            if (isPresentationApiSupported()) {
+                mPlayer.updatePresentation();
+            }
             mPlayer.release();
         }
 
@@ -163,7 +168,9 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         public void onRoutePresentationDisplayChanged(
                 MediaRouter router, RouteInfo route) {
             Log.d(TAG, "onRoutePresentationDisplayChanged: route=" + route);
-            mPlayer.updatePresentation();
+            if (isPresentationApiSupported()) {
+                mPlayer.updatePresentation();
+            }
         }
 
         @Override
@@ -179,6 +186,10 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         @Override
         public void onProviderChanged(MediaRouter router, ProviderInfo provider) {
             Log.d(TAG, "onRouteProviderChanged: provider=" + provider);
+        }
+
+        private boolean isPresentationApiSupported() {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
         }
     };
 
