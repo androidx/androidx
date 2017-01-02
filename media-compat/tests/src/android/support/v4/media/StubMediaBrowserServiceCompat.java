@@ -1,0 +1,127 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package android.support.v4.media;
+
+import android.os.Bundle;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.session.MediaSessionCompat;
+
+import junit.framework.Assert;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Stub implementation of {@link android.support.v4.media.MediaBrowserServiceCompat}.
+ */
+public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
+    static final String EXTRAS_KEY = "test_extras_key";
+    static final String EXTRAS_VALUE = "test_extras_value";
+
+    static final String MEDIA_ID_INVALID = "test_media_id_invalid";
+    static final String MEDIA_ID_ROOT = "test_media_id_root";
+    static final String MEDIA_ID_CHILDREN_DELAYED = "test_media_id_children_delayed";
+
+    static final String[] MEDIA_ID_CHILDREN = new String[]{
+            "test_media_id_children_0", "test_media_id_children_1",
+            "test_media_id_children_2", "test_media_id_children_3",
+            MEDIA_ID_CHILDREN_DELAYED
+    };
+
+    static StubMediaBrowserServiceCompat sInstance;
+
+    /* package private */ static MediaSessionCompat sSession;
+    private Bundle mExtras;
+    private Result<List<MediaItem>> mPendingLoadChildrenResult;
+    private Result<MediaItem> mPendingLoadItemResult;
+    private Bundle mPendingRootHints;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        sInstance = this;
+        sSession = new MediaSessionCompat(this, "StubMediaBrowserServiceCompat");
+        setSessionToken(sSession.getSessionToken());
+    }
+
+    @Override
+    public BrowserRoot onGetRoot(String clientPackageName, int clientUid, Bundle rootHints) {
+        mExtras = new Bundle();
+        mExtras.putString(EXTRAS_KEY, EXTRAS_VALUE);
+        return new BrowserRoot(MEDIA_ID_ROOT, mExtras);
+    }
+
+    @Override
+    public void onLoadChildren(final String parentMediaId, final Result<List<MediaItem>> result) {
+        List<MediaItem> mediaItems = new ArrayList<>();
+        if (MEDIA_ID_ROOT.equals(parentMediaId)) {
+            Bundle rootHints = getBrowserRootHints();
+            for (String id : MEDIA_ID_CHILDREN) {
+                mediaItems.add(new MediaItem(new MediaDescriptionCompat.Builder()
+                        .setMediaId(id).setExtras(rootHints).build(), MediaItem.FLAG_BROWSABLE));
+            }
+            result.sendResult(mediaItems);
+        } else if (MEDIA_ID_CHILDREN_DELAYED.equals(parentMediaId)) {
+            Assert.assertNull(mPendingLoadChildrenResult);
+            mPendingLoadChildrenResult = result;
+            mPendingRootHints = getBrowserRootHints();
+            result.detach();
+        } else if (MEDIA_ID_INVALID.equals(parentMediaId)) {
+            result.sendResult(null);
+        }
+    }
+
+    @Override
+    public void onLoadItem(String itemId, Result<MediaItem> result) {
+        if (MEDIA_ID_CHILDREN_DELAYED.equals(itemId)) {
+            mPendingLoadItemResult = result;
+            mPendingRootHints = getBrowserRootHints();
+            result.detach();
+            return;
+        }
+
+        for (String id : MEDIA_ID_CHILDREN) {
+            if (id.equals(itemId)) {
+                result.sendResult(new MediaItem(new MediaDescriptionCompat.Builder()
+                        .setMediaId(id).setExtras(getBrowserRootHints()).build(),
+                        MediaItem.FLAG_BROWSABLE));
+                return;
+            }
+        }
+
+        super.onLoadItem(itemId, result);
+    }
+
+    public void sendDelayedNotifyChildrenChanged() {
+        if (mPendingLoadChildrenResult != null) {
+            mPendingLoadChildrenResult.sendResult(Collections.<MediaItem>emptyList());
+            mPendingRootHints = null;
+            mPendingLoadChildrenResult = null;
+        }
+    }
+
+    public void sendDelayedItemLoaded() {
+        if (mPendingLoadItemResult != null) {
+            mPendingLoadItemResult.sendResult(new MediaItem(new MediaDescriptionCompat.Builder()
+                    .setMediaId(MEDIA_ID_CHILDREN_DELAYED).setExtras(mPendingRootHints).build(),
+                    MediaItem.FLAG_BROWSABLE));
+            mPendingRootHints = null;
+            mPendingLoadItemResult = null;
+        }
+    }
+}
