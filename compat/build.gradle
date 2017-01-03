@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: 'com.android.library'
 archivesBaseName = 'support-compat'
 
 dependencies {
@@ -20,9 +20,11 @@ android {
 
     defaultConfig {
         minSdkVersion 9
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDirs = [
                 'gingerbread',
                 'honeycomb',
@@ -43,6 +45,16 @@ android {
                 'java'
         ]
         main.aidl.srcDirs = ['java']
+
+        androidTest.setRoot('tests')
+        androidTest.java.srcDir 'tests/java'
+        androidTest.res.srcDir 'tests/res'
+        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 

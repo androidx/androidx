@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: 'com.android.library'
 archivesBaseName = 'exifinterface'
 
 dependencies {
@@ -13,8 +13,14 @@ android {
     }
 
     sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDirs = ['src']
         main.res.srcDir 'res'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 

@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: 'com.android.library'
 archivesBaseName = 'leanback-v17'
 
 dependencies {
@@ -24,9 +24,11 @@ android {
 
     defaultConfig {
         minSdkVersion 17
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDirs = [
                 'common',
                 'jbmr2',
@@ -36,11 +38,21 @@ android {
                 'src'
         ]
         main.res.srcDir 'res'
+
+        androidTest.setRoot('tests')
+        androidTest.java.srcDir 'tests/java'
+        androidTest.res.srcDir 'tests/res'
+        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
     lintOptions {
         // Remove this once all NewApi breakages have been fixed.
         disable "NewApi"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 

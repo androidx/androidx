@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: 'com.android.library'
 archivesBaseName = 'palette-v7'
 
 dependencies {
@@ -16,6 +16,12 @@ android {
 
     defaultConfig {
         minSdkVersion 9
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 
