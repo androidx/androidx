@@ -250,6 +250,16 @@ public class BottomNavigationViewTest
         }
     }
 
+    @UiThreadTest
+    @Test
+    @SmallTest
+    public void testClearingMenu() throws Throwable {
+        mBottomNavigation.getMenu().clear();
+        assertEquals(0, mBottomNavigation.getMenu().size());
+        mBottomNavigation.inflateMenu(R.menu.bottom_navigation_view_content);
+        assertEquals(3, mBottomNavigation.getMenu().size());
+    }
+
     private void checkAndVerifyExclusiveItem(final Menu menu, final int id) throws Throwable {
         menu.findItem(id).setChecked(true);
         for (int i = 0; i < menu.size(); i++) {
