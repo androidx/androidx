@@ -305,6 +305,7 @@ public class ViewCompat {
     public static final int SCROLL_AXIS_VERTICAL = 1 << 1;
 
     /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true,
             value = {
