@@ -1,4 +1,4 @@
-apply plugin: 'com.android.library'
+apply plugin: android.support.SupportLibraryPlugin
 archivesBaseName = 'animated-vector-drawable'
 
 dependencies {
@@ -14,9 +14,9 @@ dependencies {
 
 android {
     compileSdkVersion project.ext.currentSdk
+
     defaultConfig {
         minSdkVersion 11
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
     }
@@ -24,16 +24,6 @@ android {
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDir 'src'
-
-        androidTest.setRoot('tests')
-        androidTest.java.srcDir 'tests/src'
-        androidTest.res.srcDir 'tests/res'
-        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
     }
 
     aaptOptions {
