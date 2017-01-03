@@ -31,6 +31,7 @@ import java.io.PrintWriter;
 @RestrictTo(LIBRARY_GROUP)
 public final class TimeUtils {
     /** @hide Field length that can hold 999 days of time */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int HUNDRED_DAY_FIELD_LEN = 19;
 
     private static final int SECONDS_PER_MINUTE = 60;
@@ -149,6 +150,7 @@ public final class TimeUtils {
     }
 
     /** @hide Just for debugging; not internationalized. */
+    @RestrictTo(LIBRARY_GROUP)
     public static void formatDuration(long duration, StringBuilder builder) {
         synchronized (sFormatSync) {
             int len = formatDurationLocked(duration, 0);
@@ -157,6 +159,7 @@ public final class TimeUtils {
     }
 
     /** @hide Just for debugging; not internationalized. */
+    @RestrictTo(LIBRARY_GROUP)
     public static void formatDuration(long duration, PrintWriter pw, int fieldLen) {
         synchronized (sFormatSync) {
             int len = formatDurationLocked(duration, fieldLen);
@@ -165,11 +168,13 @@ public final class TimeUtils {
     }
 
     /** @hide Just for debugging; not internationalized. */
+    @RestrictTo(LIBRARY_GROUP)
     public static void formatDuration(long duration, PrintWriter pw) {
         formatDuration(duration, pw, 0);
     }
 
     /** @hide Just for debugging; not internationalized. */
+    @RestrictTo(LIBRARY_GROUP)
     public static void formatDuration(long time, long now, PrintWriter pw) {
         if (time == 0) {
             pw.print("--");

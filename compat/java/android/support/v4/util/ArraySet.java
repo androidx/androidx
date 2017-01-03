@@ -16,6 +16,9 @@
 
 package android.support.v4.util;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.lang.reflect.Array;
@@ -405,6 +408,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * The array must already be large enough to contain the item.
      * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void append(E value) {
         final int index = mSize;
         final int hash = value == null ? 0

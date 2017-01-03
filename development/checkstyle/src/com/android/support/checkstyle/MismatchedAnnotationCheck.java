@@ -91,7 +91,9 @@ public final class MismatchedAnnotationCheck extends AbstractCheck {
     @SuppressWarnings("unused")
     public void setTag(String tag) {
         mTag = tag;
-        mMatchTag = CommonUtils.createPattern("@" + tag + "\\s");
+
+        // Tag may either have a description or be on a line by itself.
+        mMatchTag = CommonUtils.createPattern("@" + tag + "(?:\\s|$)");
     }
 
     /**

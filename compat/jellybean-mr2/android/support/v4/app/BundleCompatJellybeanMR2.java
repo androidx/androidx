@@ -16,13 +16,17 @@
 
 package android.support.v4.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
 
 /**
  * @hide
  */
+@RestrictTo(LIBRARY_GROUP)
 @RequiresApi(18)
 class BundleCompatJellybeanMR2 {
     public static IBinder getBinder(Bundle bundle, String key) {
