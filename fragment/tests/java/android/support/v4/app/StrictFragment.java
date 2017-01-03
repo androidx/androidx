@@ -98,8 +98,8 @@ public class StrictFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (mCalledOnCreate) {
-            throw new IllegalStateException("onCreate called more than once");
+        if (mCalledOnCreate && !mCalledOnDestroy) {
+            throw new IllegalStateException("onCreate called more than once with no onDestroy");
         }
         mCalledOnCreate = true;
         checkState("onCreate", ATTACHED);

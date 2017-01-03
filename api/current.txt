@@ -4393,6 +4393,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentManager.BackStackEntry getBackStackEntryAt(int);
     method public abstract int getBackStackEntryCount();
     method public abstract android.support.v4.app.Fragment getFragment(android.os.Bundle, java.lang.String);
+    method public abstract android.support.v4.app.Fragment getPrimaryNavigationFragment();
     method public abstract boolean isDestroyed();
     method public abstract void popBackStack();
     method public abstract void popBackStack(java.lang.String, int);
@@ -4490,6 +4491,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbTitle(java.lang.CharSequence);
     method public abstract android.support.v4.app.FragmentTransaction setCustomAnimations(int, int);
     method public abstract android.support.v4.app.FragmentTransaction setCustomAnimations(int, int, int, int);
+    method public abstract android.support.v4.app.FragmentTransaction setPrimaryNavigationFragment(android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction setTransition(int);
     method public abstract android.support.v4.app.FragmentTransaction setTransitionStyle(int);
     method public abstract android.support.v4.app.FragmentTransaction show(android.support.v4.app.Fragment);
