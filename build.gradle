@@ -497,6 +497,8 @@ subprojects {
                             name: "package${v.name.capitalize()}ClassFilesForCoverageReport",
                             type: Jar) {
                         from v.testedVariant.javaCompile.destinationDir
+                        exclude "**/R.class"
+                        exclude "**/R\$*.class"
                         destinationDir file(project.distDir)
                         archiveName "${project.archivesBaseName}-${v.baseName}-allclasses.jar"
                     }
