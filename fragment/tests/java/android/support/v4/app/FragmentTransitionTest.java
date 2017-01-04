@@ -19,6 +19,7 @@ import static junit.framework.Assert.assertNull;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -590,6 +591,70 @@ public class FragmentTransitionTest {
 
         verifyAndClearTransition(fragment2.returnTransition, null, endGreen, endBlue);
         verifyNoOtherTransitions(fragment2);
+    }
+
+    // Ensure that shared element without matching transition name doesn't error out
+    @Test
+    public void sharedElementMismatch() throws Throwable {
+        final TransitionFragment fragment1 = setupInitialFragment();
+
+        // Now do a transition to scene2
+        TransitionFragment fragment2 = new TransitionFragment();
+        fragment2.setLayoutId(R.layout.scene2);
+
+        final View startBlue = findBlue();
+        final View startGreen = findGreen();
+        final Rect startBlueBounds = getBoundsOnScreen(startBlue);
+
+        mFragmentManager.beginTransaction()
+                .addSharedElement(startBlue, "fooSquare")
+                .replace(R.id.fragmentContainer, fragment2)
+                .setAllowOptimization(mOptimize)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        fragment1.waitForTransition();
+        fragment2.waitForTransition();
+
+        final View endBlue = findBlue();
+        final View endGreen = findGreen();
+
+        if (mOptimize) {
+            verifyAndClearTransition(fragment1.exitTransition, null, startGreen, startBlue);
+        } else {
+            verifyAndClearTransition(fragment1.exitTransition, startBlueBounds, startGreen);
+            verifyAndClearTransition(fragment2.sharedElementEnter, startBlueBounds, startBlue);
+        }
+        verifyNoOtherTransitions(fragment1);
+
+        verifyAndClearTransition(fragment2.enterTransition, null, endGreen, endBlue);
+        verifyNoOtherTransitions(fragment2);
+    }
+
+    // Ensure that using the same source or target shared element results in an exception.
+    @Test
+    public void sharedDuplicateTargetNames() throws Throwable {
+        setupInitialFragment();
+
+        final View startBlue = findBlue();
+        final View startGreen = findGreen();
+
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.addSharedElement(startBlue, "blueSquare");
+        try {
+            ft.addSharedElement(startGreen, "blueSquare");
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+
+        try {
+            ft.addSharedElement(startBlue, "greenSquare");
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
     }
 
     private TransitionFragment setupInitialFragment() throws Throwable {
