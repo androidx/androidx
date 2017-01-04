@@ -442,6 +442,7 @@ public class FragmentTransitionTest {
                 .addSharedElement(startGreen, "greenSquare")
                 .replace(R.id.fragmentContainer, fragment2)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 

@@ -216,7 +216,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
     ArrayList<String> mSharedElementSourceNames;
     ArrayList<String> mSharedElementTargetNames;
-    boolean mAllowOptimization = true;
+    boolean mAllowOptimization = false;
 
     @Override
     public String toString() {
