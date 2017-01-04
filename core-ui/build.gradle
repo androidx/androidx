@@ -42,22 +42,6 @@ android {
     }
 }
 
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-
-    if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
-        return; // Skip debug builds.
-    }
-    def suffix = name.capitalize()
-
-    def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
-        classifier = 'sources'
-        from android.sourceSets.main.java.srcDirs
-    }
-
-    artifacts.add('archives', sourcesJarTask);
-}
-
 uploadArchives {
     repositories {
         mavenDeployer {
