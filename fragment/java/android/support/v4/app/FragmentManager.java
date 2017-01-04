@@ -32,6 +32,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StringRes;
 import android.support.v4.os.BuildCompat;
+import android.support.v4.util.ArraySet;
 import android.support.v4.util.DebugUtils;
 import android.support.v4.util.LogWriter;
 import android.support.v4.util.Pair;
@@ -1382,10 +1383,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         if (f.mView != null && f.mContainer != null) {
                             Animation anim = null;
                             if (mCurState > Fragment.INITIALIZING && !mDestroyed
-                                    && f.mView.getVisibility() == View.VISIBLE) {
+                                    && f.mView.getVisibility() == View.VISIBLE
+                                    && f.mPostponedAlpha >= 0) {
                                 anim = loadAnimation(f, transit, false,
                                         transitionStyle);
                             }
+                            f.mPostponedAlpha = 0;
                             if (anim != null) {
                                 final Fragment fragment = f;
                                 f.setAnimatingAway(f.mView);
@@ -1540,7 +1543,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             }
             if (f.mIsNewlyAdded && f.mContainer != null) {
                 // Make it visible and run the animations
-                f.mView.setVisibility(View.VISIBLE);
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                    f.mView.setVisibility(View.VISIBLE);
+                } else if (f.mPostponedAlpha > 0f) {
+                    f.mView.setAlpha(f.mPostponedAlpha);
+                }
+                f.mPostponedAlpha = 0f;
                 f.mIsNewlyAdded = false;
                 // run animations:
                 Animation anim = loadAnimation(f, f.getNextTransition(), true,
@@ -2135,9 +2143,11 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
         int postponeIndex = endIndex;
         if (allowOptimization) {
-            moveFragmentsToInvisible();
+            ArraySet<Fragment> addedFragments = new ArraySet<>();
+            addAddedFragments(addedFragments);
             postponeIndex = postponePostponableTransactions(records, isRecordPop,
-                    startIndex, endIndex);
+                    startIndex, endIndex, addedFragments);
+            makeRemovedFragmentsInvisible(addedFragments);
         }
 
         if (postponeIndex != startIndex && allowOptimization) {
@@ -2161,6 +2171,30 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     /**
+     * Any fragments that were removed because they have been postponed should have their views
+     * made invisible by setting their alpha to 0 on API >= 11 or setting visibility to INVISIBLE
+     * on API < 11.
+     *
+     * @param fragments The fragments that were added during operation execution. Only the ones
+     *                  that are no longer added will have their alpha changed.
+     */
+    private void makeRemovedFragmentsInvisible(ArraySet<Fragment> fragments) {
+        final int numAdded = fragments.size();
+        for (int i = 0; i < numAdded; i++) {
+            final Fragment fragment = fragments.valueAt(i);
+            if (!fragment.mAdded) {
+                final View view = fragment.getView();
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                    fragment.getView().setVisibility(View.INVISIBLE);
+                } else {
+                    fragment.mPostponedAlpha = view.getAlpha();
+                    view.setAlpha(0f);
+                }
+            }
+        }
+    }
+
+    /**
      * Examine all transactions and determine which ones are marked as postponed. Those will
      * have their operations rolled back and moved to the end of the record list (up to endIndex).
      * It will also add the postponed transaction to the queue.
@@ -2173,7 +2207,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      * postponed.
      */
     private int postponePostponableTransactions(ArrayList<BackStackRecord> records,
-            ArrayList<Boolean> isRecordPop, int startIndex, int endIndex) {
+            ArrayList<Boolean> isRecordPop, int startIndex, int endIndex,
+            ArraySet<Fragment> added) {
         int postponeIndex = endIndex;
         for (int i = endIndex - 1; i >= startIndex; i--) {
             final BackStackRecord record = records.get(i);
@@ -2204,7 +2239,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 }
 
                 // different views may be visible now
-                moveFragmentsToInvisible();
+                addAddedFragments(added);
             }
         }
         return postponeIndex;
@@ -2237,15 +2272,26 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
         if (moveToState) {
             moveToState(mCurState, true);
-        } else if (mActive != null) {
+        }
+
+        if (mActive != null) {
             final int numActive = mActive.size();
             for (int i = 0; i < numActive; i++) {
                 // Allow added fragments to be removed during the pop since we aren't going
                 // to move them to the final state with moveToState(mCurState).
                 Fragment fragment = mActive.get(i);
-                if (fragment.mView != null && fragment.mIsNewlyAdded
+                if (fragment != null && fragment.mView != null && fragment.mIsNewlyAdded
                         && record.interactsWith(fragment.mContainerId)) {
-                    fragment.mIsNewlyAdded = false;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+                            && fragment.mPostponedAlpha > 0) {
+                        fragment.mView.setAlpha(fragment.mPostponedAlpha);
+                    }
+                    if (moveToState) {
+                        fragment.mPostponedAlpha = 0;
+                    } else {
+                        fragment.mPostponedAlpha = -1;
+                        fragment.mIsNewlyAdded = false;
+                    }
                 }
             }
         }
@@ -2309,10 +2355,11 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     /**
      * Ensure that fragments that are added are moved to at least the CREATED state.
-     * Any newly-added Views are made INVISIBLE so that the Transaction can be postponed
-     * with {@link Fragment#postponeEnterTransition()}.
+     * Any newly-added Views are inserted into {@code added} so that the Transaction can be
+     * postponed with {@link Fragment#postponeEnterTransition()}. They will later be made
+     * invisible (by setting their alpha to 0) if they have been removed when postponed.
      */
-    private void moveFragmentsToInvisible() {
+    private void addAddedFragments(ArraySet<Fragment> added) {
         if (mCurState < Fragment.CREATED) {
             return;
         }
@@ -2325,7 +2372,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 moveToState(fragment, state, fragment.getNextAnim(), fragment.getNextTransition(),
                         false);
                 if (fragment.mView != null && !fragment.mHidden && fragment.mIsNewlyAdded) {
-                    fragment.mView.setVisibility(View.INVISIBLE);
+                    added.add(fragment);
                 }
             }
         }
