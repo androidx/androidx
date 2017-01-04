@@ -37,35 +37,16 @@ android {
     }
 }
 
+supportLibrary {
+    name 'Android Wear Support UI'
+    inceptionYear '2016'
+    description 'Android Wear Support UI'
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: uri(rootProject.ext.supportRepoOut)) {
-            }
-
-            pom.project {
-                name 'Android Wear Support UI'
-                description "Android Wear Support UI"
-                url 'http://developer.android.com/tools/extras/support-library.html'
-                inceptionYear '2016'
-
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-
-                scm {
-                    url "http://source.android.com"
-                    connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
-                }
-                developers {
-                    developer {
-                        name 'The Android Open Source Project'
-                    }
-                }
             }
         }
     }

@@ -20,3 +20,18 @@ android {
     }
 
 }
+
+supportLibrary {
+    name 'Android Support Recommendation'
+    inceptionYear '2015'
+    description 'Android Support Recommendation'
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri(rootProject.ext.supportRepoOut)) {
+            }
+        }
+    }
+}
