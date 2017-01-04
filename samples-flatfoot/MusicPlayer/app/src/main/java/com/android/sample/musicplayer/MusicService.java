@@ -428,11 +428,11 @@ public class MusicService extends LifecycleService implements OnCompletionListen
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         if (mMediaPlayer != null) {
             mMediaPlayer.release();
             mNotificationManager.cancel(NOTIFICATION_ID);
             stopForeground(true);
         }
-        super.onDestroy();
     }
 }
