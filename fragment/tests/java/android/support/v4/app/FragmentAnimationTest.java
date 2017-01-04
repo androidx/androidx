@@ -234,6 +234,7 @@ public class FragmentAnimationTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .add(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -258,6 +259,7 @@ public class FragmentAnimationTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .remove(fragment)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -274,6 +276,7 @@ public class FragmentAnimationTest {
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -284,6 +287,7 @@ public class FragmentAnimationTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .replace(R.id.fragmentContainer, fragment2)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -307,6 +311,7 @@ public class FragmentAnimationTest {
         final AnimatorFragment fragment1 = new AnimatorFragment();
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         assertEquals(0, fragment1.numAnimators);
@@ -318,6 +323,7 @@ public class FragmentAnimationTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .replace(R.id.fragmentContainer, fragment2)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
