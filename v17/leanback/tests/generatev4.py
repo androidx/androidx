@@ -19,11 +19,11 @@ import sys
 
 print "Generate v4 fragment related code for leanback"
 
-files = ['BrowseTest', 'GuidedStepTest']
+files = ['BrowseTest', 'GuidedStepTest', 'RowsTest']
 
 cls = ['BrowseTest', 'Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Error', 'Headers',
       'PlaybackOverlay', 'Rows', 'Search', 'VerticalGrid', 'Branded',
-      'GuidedStepTest', 'GuidedStep']
+      'GuidedStepTest', 'GuidedStep', 'RowsTest']
 
 for w in files:
     print "copy {}Fragment to {}SupportFragment".format(w, w)
@@ -68,7 +68,7 @@ for w in testcls:
     file.close()
     outfile.close()
 
-testcls = ['Browse', 'GuidedStep', 'VerticalGrid']
+testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Rows']
 
 for w in testcls:
     print "copy {}FrgamentTest to {}SupportFragmentTest".format(w, w)
@@ -95,7 +95,7 @@ for w in testcls:
     file.close()
     outfile.close()
 
-testcls = ['Browse', 'GuidedStep']
+testcls = ['Browse', 'GuidedStep', 'Rows']
 
 for w in testcls:
     print "copy {}FragmentTestActivity to {}SupportFragmentTestActivity".format(w, w)
