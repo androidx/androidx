@@ -54,6 +54,12 @@ public class LifecycleService extends Service implements LifecycleProvider {
 
     @CallSuper
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @CallSuper
+    @Override
     public void onDestroy() {
         mDispatcher.onServicePreSuperOnDestroy();
         super.onDestroy();
