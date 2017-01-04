@@ -270,10 +270,17 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
             // specified, so it should have its height reduced by the height of the system status
             // bar.
 
+            final int[] contentViewLocationOnScreen = new int[2];
+            mContentView.getLocationOnScreen(contentViewLocationOnScreen);
+            final int statusBarHeight = contentViewLocationOnScreen[1];
             // Get the system window top inset that was propagated to the top-level DrawerLayout
             // during its layout.
             int drawerTopInset = mDrawerLayout.getSystemWindowInsetTop();
-            assertTrue("Drawer top inset is positive on L+", drawerTopInset > 0);
+            if (statusBarHeight > 0) {
+                assertEquals("Drawer top inset is positive on L+", statusBarHeight, drawerTopInset);
+            } else {
+                assertEquals("Drawer top inset 0 due to no status bar", 0, drawerTopInset);
+            }
             assertEquals("Drawer layout and drawer heights on L+",
                     drawerLayoutHeight - drawerTopInset, contentHeight);
         }
