@@ -45,13 +45,15 @@ import java.util.List;
  */
 public class MusicService extends LifecycleService implements OnCompletionListener,
         OnPreparedListener {
-    public static final String ACTION_PLAY = "com.android.sample.musicplayer.action.PLAY";
-    public static final String ACTION_PAUSE = "com.android.sample.musicplayer.action.PAUSE";
-    public static final String ACTION_STOP = "com.android.sample.musicplayer.action.STOP";
-    public static final String ACTION_NEXT = "com.android.sample.musicplayer.action.NEXT";
-    public static final String ACTION_PREV = "com.android.sample.musicplayer.action.PREV";
-
-    public static final String KEY_TRACK_INDEX = "com.android.sample.musicplayer.key.TRACKINDEX";
+    // Note that only START action is an entry point "exposed" to the rest of the
+    // application. The rest are actions set on the notification intents fired off
+    // by this service itself.
+    public static final String ACTION_START = "com.android.sample.musicplayer.action.START";
+    private static final String ACTION_PLAY = "com.android.sample.musicplayer.action.PLAY";
+    private static final String ACTION_PAUSE = "com.android.sample.musicplayer.action.PAUSE";
+    private static final String ACTION_STOP = "com.android.sample.musicplayer.action.STOP";
+    private static final String ACTION_NEXT = "com.android.sample.musicplayer.action.NEXT";
+    private static final String ACTION_PREV = "com.android.sample.musicplayer.action.PREV";
 
     private static final String RESOURCE_PREFIX =
             "android.resource://com.android.sample.musicplayer/";
@@ -61,12 +63,11 @@ public class MusicService extends LifecycleService implements OnCompletionListen
     // notification area).
     private static final int NOTIFICATION_ID = 1;
 
-
     private MediaSessionCompat mMediaSession;
 
     private MediaPlayer mMediaPlayer = null;
     private NotificationManagerCompat mNotificationManager;
-    private NotificationCompat.Builder mNotificationBuilder = null;
+    private NotificationCompat.Builder mNotificationBuilder;
 
     private MusicRepository mMusicRepository;
     private int mCurrPlaybackState;
@@ -133,11 +134,12 @@ public class MusicService extends LifecycleService implements OnCompletionListen
                     return;
                 }
 
-                // Create the media player, sets its data to the current track and call
-                // prepare. Later we'll get a callback to our onPrepared() method which will
-                // transition into the PLAYING state.
+                // Create the media player if necessary, set its data to the currently active track
+                // and call prepare(). This will eventually result in an asynchronous call to
+                // our onPrepared() method which will transition from PREPARING into PLAYING state.
                 createMediaPlayerIfNeeded();
                 try {
+                    mMusicRepository.setState(MusicRepository.STATE_PREPARING);
                     @RawRes int trackRawRes = mTracks.get(mCurrActiveTrackIndex).getTrackRes();
                     mMediaPlayer.setDataSource(getBaseContext(),
                             Uri.parse(RESOURCE_PREFIX + trackRawRes));
@@ -158,20 +160,25 @@ public class MusicService extends LifecycleService implements OnCompletionListen
             @Override
             public void onChanged(@Nullable Integer integer) {
                 mCurrPlaybackState = integer;
-                if (mCurrPlaybackState == MusicRepository.STATE_PLAYING) {
-                    // If the current playback state is PLAYING, start the media player
-                    configAndStartMediaPlayer();
-                } else if (mCurrPlaybackState == MusicRepository.STATE_PAUSED) {
-                    // If we're in PAUSED state, pause the media player
-                    mMediaPlayer.pause();
+                switch (mCurrPlaybackState) {
+                    case MusicRepository.STATE_INITIAL:
+                        createMediaPlayerIfNeeded();
+                        break;
+                    case MusicRepository.STATE_PLAYING:
+                        // Start the media player and update the ongoing notification
+                        configAndStartMediaPlayer();
+                        updateNotification();
+                        break;
+                    case MusicRepository.STATE_PAUSED:
+                        // Pause the media player and update the ongoing notification
+                        mMediaPlayer.pause();
+                        updateNotification();
                 }
-                // And update the notification to present the right controls
-                updateNotification();
             }
         });
     }
 
-    void createMediaPlayerIfNeeded() {
+    private void createMediaPlayerIfNeeded() {
         if (mMediaPlayer == null) {
             mMediaPlayer = new MediaPlayer();
             // Make sure the media player will acquire a wake-lock while playing. If we don't do
@@ -193,12 +200,13 @@ public class MusicService extends LifecycleService implements OnCompletionListen
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
+        // Note that we don't do anything for the START action. The purpose of that action
+        // is to start the service. As the service registers itself to observe changes to
+        // playback state and current track, it will start the matching flows as a response
+        // to those changes.
+        // Here we handle service-internal actions that are registered on notification intents.
         if (intent.getAction().equals(ACTION_PLAY)) {
-            if (intent.hasExtra(KEY_TRACK_INDEX)) {
-                playSong(intent.getIntExtra(KEY_TRACK_INDEX, 0));
-            } else {
-                processPlayRequest();
-            }
+            processPlayRequest();
         } else if (intent.getAction().equals(ACTION_PAUSE)) {
             processPauseRequest();
         } else if (intent.getAction().equals(ACTION_STOP)) {
@@ -295,15 +303,6 @@ public class MusicService extends LifecycleService implements OnCompletionListen
         }
     }
 
-    private void playSong(int trackIndex) {
-        relaxResources(false);
-
-        // Ask the repository to go to the specific track. We are registered to listen to the
-        // changes in LiveData that tracks the current track, and that observer will point the
-        // media player to the right URI
-        mMusicRepository.setTrack(trackIndex);
-    }
-
     /**
      * Starts playing the next song in our repository.
      */
@@ -392,7 +391,13 @@ public class MusicService extends LifecycleService implements OnCompletionListen
     }
 
     private void updateNotification() {
+        if (mCurrPlaybackState == MusicRepository.STATE_INITIAL) {
+            return;
+        }
+
         if (mNotificationBuilder == null) {
+            // This is the very first time we're creating our ongoing notification, and marking
+            // the service to be in the foreground.
             populateNotificationBuilderContent("Initializing...");
             startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
             return;
@@ -405,7 +410,7 @@ public class MusicService extends LifecycleService implements OnCompletionListen
     }
 
     private void updateAudioMetadata() {
-        if (mCurrActiveTrackIndex < 0) {
+        if (mCurrPlaybackState == MusicRepository.STATE_INITIAL) {
             return;
         }
         Bitmap albumArt = BitmapFactory.decodeResource(getResources(), R.drawable.nougat_bg_2x);

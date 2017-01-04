@@ -27,9 +27,11 @@ import java.util.List;
  * Music track / state repository.
  */
 public class MusicRepository {
-    public static final int STATE_PLAYING = 0;
-    public static final int STATE_PAUSED = 1;
-    public static final int STATE_STOPPED = 2;
+    public static final int STATE_INITIAL = 0;
+    public static final int STATE_PLAYING = 1;
+    public static final int STATE_PAUSED = 2;
+    public static final int STATE_PREPARING = 3;
+    public static final int STATE_STOPPED = 4;
 
     private static MusicRepository sInstance;
 
@@ -92,7 +94,7 @@ public class MusicRepository {
         mCurrentlyActiveTrackData.setValue(-1);
 
         mStateData = new LiveData<>();
-        mStateData.setValue(STATE_STOPPED);
+        mStateData.setValue(STATE_INITIAL);
     }
 
     /**
@@ -106,7 +108,6 @@ public class MusicRepository {
      * Goes to the specific track.
      */
     public void setTrack(int trackIndex) {
-        setState(MusicRepository.STATE_STOPPED);
         mCurrentlyActiveTrackData.setValue(trackIndex);
     }
 

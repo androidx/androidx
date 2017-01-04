@@ -23,7 +23,7 @@
 
         <service android:exported="false" android:name=".MusicService">
             <intent-filter>
-                <action android:name="com.android.sample.musicplayer.action.INITIALIZE" />
+                <action android:name="com.android.sample.musicplayer.action.START" />
                 <action android:name="com.android.sample.musicplayer.action.PLAY" />
                 <action android:name="com.android.sample.musicplayer.action.PAUSE" />
                 <action android:name="com.android.sample.musicplayer.action.NEXT" />

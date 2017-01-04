@@ -61,7 +61,13 @@ public class MainActivity extends BaseActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        MusicRepository musicRepository = MusicRepository.getInstance();
+        // Start the service. From this point on there is no direct communication between the
+        // activity and the service. Everything is done by updating LiveData objects in the
+        // repository and observing / reacting to those changes.
+        startService(new Intent(MusicService.ACTION_START).setPackage(
+                "com.android.sample.musicplayer"));
+
+        final MusicRepository musicRepository = MusicRepository.getInstance();
         LiveData<Integer> currentlyActiveTrackData = musicRepository.getCurrentlyActiveTrackData();
         currentlyActiveTrackData.observe(this, new Observer<Integer>() {
             @Override
@@ -86,16 +92,15 @@ public class MainActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                switch (mCurrPlaybackState) {
-                    case MusicRepository.STATE_STOPPED:
-                    case MusicRepository.STATE_PAUSED:
-                        startService(new Intent(MusicService.ACTION_PLAY).setPackage(
-                                "com.android.sample.musicplayer"));
-                        break;
-                    case MusicRepository.STATE_PLAYING:
-                        startService(new Intent(MusicService.ACTION_PAUSE).setPackage(
-                                "com.android.sample.musicplayer"));
-                        break;
+                if (mCurrPlaybackState == MusicRepository.STATE_INITIAL) {
+                    // If the FAB is clicked in the initial state, start the playback from the
+                    // first track
+                    musicRepository.setTrack(0);
+                } else {
+                    // Otherwise we're past the initial state. Set the state to playing or
+                    // paused based on the current state
+                    musicRepository.setState((mCurrPlaybackState == MusicRepository.STATE_PLAYING)
+                            ? MusicRepository.STATE_PAUSED : MusicRepository.STATE_PLAYING);
                 }
             }
         });
