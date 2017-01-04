@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.app.Instrumentation;
+import android.os.Bundle;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
@@ -873,6 +874,34 @@ public class FragmentViewTests {
         assertNotNull(findViewById(R.id.textC));
     }
 
+    // Test that adding a fragment with invisible or gone views does not end up with the view
+    // being visible
+    @Test
+    public void addInvisibleAndGoneFragments() throws Throwable {
+        FragmentTestUtil.setContentView(mActivityRule, R.layout.simple_container);
+        ViewGroup container = (ViewGroup)
+                mActivityRule.getActivity().findViewById(R.id.fragmentContainer);
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        final StrictViewFragment fragment1 = new InvisibleFragment();
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment1).addToBackStack(null).commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        FragmentTestUtil.assertChildren(container, fragment1);
+
+        assertEquals(View.INVISIBLE, fragment1.getView().getVisibility());
+
+        final InvisibleFragment fragment2 = new InvisibleFragment();
+        fragment2.visibility = View.GONE;
+        fm.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        FragmentTestUtil.assertChildren(container, fragment2);
+
+        assertEquals(View.GONE, fragment2.getView().getVisibility());
+    }
+
     private View findViewById(int viewId) {
         return mActivityRule.getActivity().findViewById(viewId);
     }
@@ -884,6 +913,16 @@ public class FragmentViewTests {
         for (int i = 0; i < numFragments; i++) {
             assertEquals("Wrong Fragment View order for [" + i + "]", container.getChildAt(i),
                     fragments[i].getView());
+        }
+    }
+
+    public static class InvisibleFragment extends StrictViewFragment {
+        public int visibility = View.INVISIBLE;
+
+        @Override
+        public void onViewCreated(View view, Bundle savedInstanceState) {
+            view.setVisibility(visibility);
+            super.onViewCreated(view, savedInstanceState);
         }
     }
 }
