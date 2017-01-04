@@ -809,8 +809,8 @@ public class PlaybackSupportFragment extends Fragment {
     }
 
     /**
-     * This listener is called every time there is a selection in {@link RowsSupportFragment}.
-     * This can be used by users to take additional actions such as animations.
+     * This listener is called every time there is a selection in {@link RowsSupportFragment}. This can
+     * be used by users to take additional actions such as animations.
      * @hide
      */
     public void setOnItemViewSelectedListener(final BaseOnItemViewSelectedListener listener) {
