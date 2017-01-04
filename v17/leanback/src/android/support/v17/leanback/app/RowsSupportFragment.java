@@ -136,12 +136,13 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
 
     static final String TAG = "RowsSupportFragment";
     static final boolean DEBUG = false;
+    static final int ALIGN_TOP_NOT_SET = Integer.MIN_VALUE;
 
     ItemBridgeAdapter.ViewHolder mSelectedViewHolder;
     private int mSubPosition;
     boolean mExpand = true;
     boolean mViewsCreated;
-    private int mAlignedTop;
+    private int mAlignedTop = ALIGN_TOP_NOT_SET;
     boolean mAfterEntranceTransition = true;
 
     BaseOnItemViewSelectedListener mOnItemViewSelectedListener;
@@ -543,6 +544,9 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
 
     @Override
     public void setAlignment(int windowAlignOffsetFromTop) {
+        if (windowAlignOffsetFromTop == ALIGN_TOP_NOT_SET) {
+            return;
+        }
         mAlignedTop = windowAlignOffsetFromTop;
         final VerticalGridView gridView = getVerticalGridView();
 
