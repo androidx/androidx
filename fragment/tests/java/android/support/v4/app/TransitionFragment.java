@@ -51,9 +51,11 @@ public class TransitionFragment extends StrictViewFragment {
         setSharedElementEnterTransition(sharedElementEnter);
         setSharedElementReturnTransition(sharedElementReturn);
         enterTransition.addListener(mListener);
+        sharedElementEnter.addListener(mListener);
         reenterTransition.addListener(mListener);
         exitTransition.addListener(mListener);
         returnTransition.addListener(mListener);
+        sharedElementReturn.addListener(mListener);
     }
 
     @Override
