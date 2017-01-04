@@ -15,6 +15,7 @@
  */
 package com.android.sample.musicplayer.adapter;
 
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.android.sample.musicplayer.MusicRepository.TrackMetadata;
+import com.android.sample.musicplayer.MusicService;
 import com.android.sample.musicplayer.R;
 
 import java.util.List;
@@ -67,6 +69,18 @@ public class MusicTrackListAdapter extends Adapter<MusicTrackListAdapter.CustomV
         holder.mIndexView.setText(Integer.toString(position + 1));
         holder.mTextView.setText(mTracks.get(position).getTitle());
         holder.mArtistView.setText(mTracks.get(position).getArtist());
+        holder.mContainerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Note that updating LiveData-wrapped current track index directly
+                // on the repository is not enough since the service might not have been
+                // started yet. This is why here we're going through the service, in much
+                // the same way as the click listener on the main FAB.
+                v.getContext().startService(new Intent(MusicService.ACTION_PLAY)
+                        .setPackage("com.android.sample.musicplayer")
+                        .putExtra(MusicService.KEY_TRACK_INDEX, position));
+            }
+        });
     }
 
     @Override

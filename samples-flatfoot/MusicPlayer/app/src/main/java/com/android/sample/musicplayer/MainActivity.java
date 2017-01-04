@@ -80,9 +80,6 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        startService(new Intent(MusicService.ACTION_INITIALIZE)
-                .setPackage("com.android.sample.musicplayer"));
-
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         updateFab();
 

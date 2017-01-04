@@ -103,6 +103,14 @@ public class MusicRepository {
     }
 
     /**
+     * Goes to the specific track.
+     */
+    public void setTrack(int trackIndex) {
+        setState(MusicRepository.STATE_STOPPED);
+        mCurrentlyActiveTrackData.setValue(trackIndex);
+    }
+
+    /**
      * Goes to the next track.
      */
     public void goToNextTrack() {
@@ -110,7 +118,7 @@ public class MusicRepository {
         if (nextSourceIndex == mTracks.size()) {
             nextSourceIndex = 0;
         }
-        mCurrentlyActiveTrackData.setValue(nextSourceIndex);
+        setTrack(nextSourceIndex);
     }
 
     /**
@@ -121,7 +129,7 @@ public class MusicRepository {
         if (prevSourceIndex == -1) {
             prevSourceIndex = mTracks.size() - 1;
         }
-        mCurrentlyActiveTrackData.setValue(prevSourceIndex);
+        setTrack(prevSourceIndex);
     }
 
     /**

@@ -45,13 +45,13 @@ import java.util.List;
  */
 public class MusicService extends LifecycleService implements OnCompletionListener,
         OnPreparedListener {
-    public static final String ACTION_INITIALIZE =
-            "com.android.sample.musicplayer.action.INITIALIZE";
     public static final String ACTION_PLAY = "com.android.sample.musicplayer.action.PLAY";
     public static final String ACTION_PAUSE = "com.android.sample.musicplayer.action.PAUSE";
     public static final String ACTION_STOP = "com.android.sample.musicplayer.action.STOP";
     public static final String ACTION_NEXT = "com.android.sample.musicplayer.action.NEXT";
     public static final String ACTION_PREV = "com.android.sample.musicplayer.action.PREV";
+
+    public static final String KEY_TRACK_INDEX = "com.android.sample.musicplayer.key.TRACKINDEX";
 
     private static final String RESOURCE_PREFIX =
             "android.resource://com.android.sample.musicplayer/";
@@ -193,10 +193,12 @@ public class MusicService extends LifecycleService implements OnCompletionListen
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        if (intent.getAction().equals(ACTION_INITIALIZE)) {
-            processInitializeRequest();
-        } else if (intent.getAction().equals(ACTION_PLAY)) {
-            processPlayRequest();
+        if (intent.getAction().equals(ACTION_PLAY)) {
+            if (intent.hasExtra(KEY_TRACK_INDEX)) {
+                playSong(intent.getIntExtra(KEY_TRACK_INDEX, 0));
+            } else {
+                processPlayRequest();
+            }
         } else if (intent.getAction().equals(ACTION_PAUSE)) {
             processPauseRequest();
         } else if (intent.getAction().equals(ACTION_STOP)) {
@@ -208,13 +210,6 @@ public class MusicService extends LifecycleService implements OnCompletionListen
         }
 
         return START_NOT_STICKY;
-    }
-
-    private void processInitializeRequest() {
-        if (mCurrActiveTrackIndex >= 0) {
-            return;
-        }
-        setUpAsForeground("Ready to play");
     }
 
     private void processPlayRequest() {
@@ -300,11 +295,19 @@ public class MusicService extends LifecycleService implements OnCompletionListen
         }
     }
 
+    private void playSong(int trackIndex) {
+        relaxResources(false);
+
+        // Ask the repository to go to the specific track. We are registered to listen to the
+        // changes in LiveData that tracks the current track, and that observer will point the
+        // media player to the right URI
+        mMusicRepository.setTrack(trackIndex);
+    }
+
     /**
      * Starts playing the next song in our repository.
      */
     private void playNextSong() {
-        mMusicRepository.setState(MusicRepository.STATE_STOPPED);
         relaxResources(false); // release everything except MediaPlayer
 
         // Ask the repository to go to the next track. We are registered to listen to the
@@ -317,7 +320,6 @@ public class MusicService extends LifecycleService implements OnCompletionListen
      * Starts playing the previous song in our repository.
      */
     private void playPrevSong() {
-        mMusicRepository.setState(MusicRepository.STATE_STOPPED);
         relaxResources(false); // release everything except MediaPlayer
 
         // Ask the repository to go to the next track. We are registered to listen to the
@@ -389,13 +391,10 @@ public class MusicService extends LifecycleService implements OnCompletionListen
                 .setMediaSession(mMediaSession.getSessionToken()));
     }
 
-    private void setUpAsForeground(String text) {
-        populateNotificationBuilderContent(text);
-        startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
-    }
-
     private void updateNotification() {
-        if (mCurrActiveTrackIndex < 0) {
+        if (mNotificationBuilder == null) {
+            populateNotificationBuilderContent("Initializing...");
+            startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
             return;
         }
 
