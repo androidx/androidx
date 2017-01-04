@@ -52,6 +52,10 @@ public class LifecycleService extends Service implements LifecycleProvider {
         super.onStart(intent, startId);
     }
 
+    // this method is added only to annotate it with @CallSuper.
+    // In usual service super.onStartCommand is no-op, but in LifecycleService
+    // it results in mDispatcher.onServicePreSuperOnStart() call, because
+    // super.onStartCommand calls onStart().
     @CallSuper
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
