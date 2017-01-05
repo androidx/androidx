@@ -313,6 +313,34 @@ class QueryMethodProcessorTest {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun testVoidDeleteQuery() {
+        singleQueryMethod(
+                """
+                @Query("DELETE FROM users where id = ?")
+                abstract public void foo(int id);
+                """) { parsedQuery, invocation ->
+            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.parameters.size, `is`(1))
+            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.VOID))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testVoidUpdateQuery() {
+        singleQueryMethod(
+                """
+                @Query("update users set name = :name")
+                abstract public void updateAllNames(String name);
+                """) { parsedQuery, invocation ->
+            assertThat(parsedQuery.name, `is`("updateAllNames"))
+            assertThat(parsedQuery.parameters.size, `is`(1))
+            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.VOID))
+            assertThat(parsedQuery.parameters.first().type.typeName(),
+                    `is`(invocation.context.COMMON_TYPES.STRING.typeName()))
+        }.compilesWithoutError()
+    }
+
     fun singleQueryMethod(vararg input: String,
                           handler: (QueryMethod, TestInvocation) -> Unit):
             CompileTester {

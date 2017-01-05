@@ -160,4 +160,22 @@ public class SimpleEntityReadWriteTest {
                 users[1], users[2], users[3]
         }));
     }
+
+    @Test
+    public void updateNameById() {
+        User[] usersArray = TestUtil.createUsersArray(3, 5, 7);
+        mUserDao.insertAll(usersArray);
+        assertThat("test sanity", usersArray[1].getName(), not(equalTo("updated name")));
+        int changed = mUserDao.updateById(5, "updated name");
+        assertThat(changed, is(1));
+        assertThat(mUserDao.load(5).getName(), is("updated name"));
+    }
+
+    @Test
+    public void incrementIds() {
+        User[] usersArr = TestUtil.createUsersArray(2, 4, 6);
+        mUserDao.insertAll(usersArr);
+        mUserDao.incrementIds(1);
+        assertThat(mUserDao.loadIds(), is(Arrays.asList(3, 5, 7)));
+    }
 }

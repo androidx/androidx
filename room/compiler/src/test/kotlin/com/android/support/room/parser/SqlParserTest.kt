@@ -50,6 +50,13 @@ class SqlParserTest {
     }
 
     @Test
+    fun updateQuery() {
+        val parsed = SqlParser.parse("UPDATE users set name = :name where id = :id")
+        assertThat(parsed.errors, `is`(emptyList()))
+        assertThat(parsed.type, `is`(QueryType.UPDATE))
+    }
+
+    @Test
     fun explain() {
         assertErrors("EXPLAIN QUERY PLAN SELECT * FROM users",
                 ParserErrors.invalidQueryType(QueryType.EXPLAIN))

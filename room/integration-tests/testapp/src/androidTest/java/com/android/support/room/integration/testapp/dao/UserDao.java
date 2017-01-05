@@ -61,4 +61,13 @@ public interface UserDao {
 
     @Query("delete from user where mAge >= :min AND mAge <= :max")
     int deleteByAgeRange(int min, int max);
+
+    @Query("update user set mName = :name where mId = :id")
+    int updateById(int id, String name);
+
+    @Query("update user set mId = mId + :amount")
+    void incrementIds(int amount);
+
+    @Query("select mId from user order by mId ASC")
+    List<Integer> loadIds();
 }

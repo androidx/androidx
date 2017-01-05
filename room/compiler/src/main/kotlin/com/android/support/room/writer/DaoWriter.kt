@@ -55,20 +55,20 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
         val scope = CodeGenScope()
 
         /**
-         * if delete methods wants to return modified rows, we need prepared query.
+         * if delete / update query method wants to return modified rows, we need prepared query.
          * in that case, if args are dynamic, we cannot re-use the query, if not, we should re-use
          * it. this requires more work but creates good performance.
          */
-        val groupedDeletions = dao.queryMethods
-                .filter { it.query.type == QueryType.DELETE }
+        val groupedDeleteUpdate = dao.queryMethods
+                .filter { it.query.type == QueryType.DELETE || it.query.type == QueryType.UPDATE }
                 .groupBy { it.parameters.any { it.queryParamAdapter?.isMultiple ?: true } }
         // delete queries that can be prepared ahead of time
-        val preparedDeleteQueries = groupedDeletions[false] ?: emptyList()
+        val preparedDeleteOrUpdateQueries = groupedDeleteUpdate[false] ?: emptyList()
         // delete queries that must be rebuild every single time
-        val oneOffDeleteQueries = groupedDeletions[true] ?: emptyList()
+        val oneOffDeleteOrUpdateQueries = groupedDeleteUpdate[true] ?: emptyList()
         val shortcutMethods = groupAndCreateInsertionMethods(scope) +
                 groupAndCreateDeletionMethods(scope) +
-                createPreparedDeleteQueries(preparedDeleteQueries, scope)
+                createPreparedDeleteOrUpdateQueries(preparedDeleteOrUpdateQueries, scope)
 
         builder.apply {
             addModifiers(PUBLIC)
@@ -92,15 +92,15 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
             dao.queryMethods.filter { it.query.type == QueryType.SELECT }.forEach { method ->
                 addMethod(createSelectMethod(method))
             }
-            oneOffDeleteQueries.forEach {
-                addMethod(createDeleteQueryMethod(it))
+            oneOffDeleteOrUpdateQueries.forEach {
+                addMethod(createDeleteOrUpdateQueryMethod(it))
             }
         }
         return builder.build()
     }
 
-    private fun createPreparedDeleteQueries(preparedDeleteQueries: List<QueryMethod>,
-                                            scope: CodeGenScope): List<PreparedStmtQuery> {
+    private fun createPreparedDeleteOrUpdateQueries(preparedDeleteQueries: List<QueryMethod>,
+                                                    scope: CodeGenScope): List<PreparedStmtQuery> {
         return preparedDeleteQueries.map { method ->
             val fieldName = scope.getTmpVar("_preparedStmtOf${method.name.capitalize()}")
             val fieldSpec =  FieldSpec.builder(RoomTypeNames.SHARED_SQLITE_STMT, fieldName,
@@ -156,9 +156,9 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
         }.build()
     }
 
-    private fun createDeleteQueryMethod(method : QueryMethod) : MethodSpec {
+    private fun createDeleteOrUpdateQueryMethod(method : QueryMethod) : MethodSpec {
         return overrideWithoutAnnotations(method.element).apply {
-            addCode(createDeleteQueryMethodBody(method))
+            addCode(createDeleteOrUpdateQueryMethodBody(method))
         }.build()
     }
 
@@ -294,7 +294,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
     /**
      * @Query with delete action
      */
-    private fun createDeleteQueryMethodBody(method: QueryMethod): CodeBlock {
+    private fun createDeleteOrUpdateQueryMethodBody(method: QueryMethod): CodeBlock {
         val queryWriter = QueryWriter(method)
         val scope = CodeGenScope()
         val sqlVar = scope.getTmpVar("_sql")

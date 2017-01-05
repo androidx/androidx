@@ -67,8 +67,8 @@ class QueryMethodProcessor(val context: Context) {
 
         val resultAdapter = context.typeAdapterStore
                 .findQueryResultAdapter(executableType.returnType)
-        context.checker.check(resultAdapter != null, executableElement,
-                ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
+        context.checker.check(resultAdapter != null || query.type != QueryType.SELECT,
+                executableElement, ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
         val queryMethod = QueryMethod(
                 element = executableElement,
                 query = query,
