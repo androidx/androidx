@@ -2355,7 +2355,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 final int stateAfterAnimating = fragment.getStateAfterAnimating();
                 final View animatingAway = fragment.getAnimatingAway();
                 fragment.setAnimatingAway(null);
-                animatingAway.clearAnimation();
+                Animation animation = animatingAway.getAnimation();
+                if (animation != null) {
+                    animation.cancel();
+                }
                 moveToState(fragment, stateAfterAnimating, 0, 0, false);
             }
         }
