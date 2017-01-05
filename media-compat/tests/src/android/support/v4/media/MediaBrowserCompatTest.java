@@ -392,9 +392,8 @@ public class MediaBrowserCompatTest {
         }
     }
 
-    // TODO(hdmoon): Uncomment after fixing failing tests. (Fails on API >= 24)
-    // @Test
-    // @SmallTest
+    @Test
+    @SmallTest
     public void testGetItem() {
         resetCallbacks();
         createMediaBrowser(TEST_BROWSER_SERVICE);
