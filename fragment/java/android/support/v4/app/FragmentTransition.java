@@ -1042,7 +1042,8 @@ class FragmentTransition {
             case BackStackRecord.OP_DETACH:
                 if (isOptimizedTransaction) {
                     setFirstOut = !fragment.mAdded && fragment.mView != null
-                            && fragment.mView.getVisibility() == View.VISIBLE;
+                            && fragment.mView.getVisibility() == View.VISIBLE
+                            && fragment.mPostponedAlpha >= 0;
                 } else {
                     setFirstOut = fragment.mAdded && !fragment.mHidden;
                 }

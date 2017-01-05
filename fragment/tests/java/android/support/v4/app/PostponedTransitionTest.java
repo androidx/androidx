@@ -664,6 +664,9 @@ public class PostponedTransitionTest {
         assertNull(fragment.getView());
         assertNotNull(mBeginningFragment.getView());
         assertEquals(View.VISIBLE, mBeginningFragment.getView().getVisibility());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(1f, mBeginningFragment.getView().getAlpha(), 0f);
+        }
         assertTrue(mBeginningFragment.getView().isAttachedToWindow());
     }
 
@@ -695,6 +698,9 @@ public class PostponedTransitionTest {
         assertNotNull(fragment2);
         assertNotNull(fragment2.getView());
         assertEquals(View.VISIBLE, fragment2.getView().getVisibility());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(1f, fragment2.getView().getAlpha(), 0f);
+        }
         assertTrue(fragment2.isResumed());
         assertTrue(fragment2.isAdded());
         assertTrue(fragment2.getView().isAttachedToWindow());
@@ -726,7 +732,12 @@ public class PostponedTransitionTest {
         assertTrue(fromFragment.getView().isAttachedToWindow());
         assertTrue(toFragment.getView().isAttachedToWindow());
         assertEquals(View.VISIBLE, fromFragment.getView().getVisibility());
-        assertEquals(View.INVISIBLE, toFragment.getView().getVisibility());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(View.VISIBLE, toFragment.getView().getVisibility());
+            assertEquals(0f, toFragment.getView().getAlpha(), 0f);
+        } else {
+            assertEquals(View.INVISIBLE, toFragment.getView().getVisibility());
+        }
         assureNoTransition(fromFragment);
         assureNoTransition(toFragment);
         assertTrue(fromFragment.isResumed());
