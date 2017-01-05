@@ -8,7 +8,7 @@ android {
     compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
-        minSdkVersion 13
+        minSdkVersion 14
     }
 
     sourceSets {
