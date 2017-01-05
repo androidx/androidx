@@ -102,6 +102,9 @@ project(':support-design-demos').projectDir = new File(samplesRoot, 'SupportDesi
 include ':support-leanback-demos'
 project(':support-leanback-demos').projectDir = new File(samplesRoot, 'SupportLeanbackDemos')
 
+include ':support-leanback-jank'
+project(':support-leanback-jank').projectDir = new File(samplesRoot, 'SupportLeanbackJank')
+
 include ':support-percent-demos'
 project(':support-percent-demos').projectDir = new File(samplesRoot, 'SupportPercentDemos')
 
