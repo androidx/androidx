@@ -71,6 +71,7 @@ class MediaBrowserServiceCompatApi21 {
                 mResultObj.sendResult(parcelListToItemList((List<Parcel>)result));
             } else if (result instanceof Parcel) {
                 Parcel parcel = (Parcel) result;
+                parcel.setDataPosition(0);
                 mResultObj.sendResult(MediaBrowser.MediaItem.CREATOR.createFromParcel(parcel));
                 parcel.recycle();
             } else {
