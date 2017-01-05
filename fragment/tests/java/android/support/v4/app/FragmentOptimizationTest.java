@@ -24,7 +24,9 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -644,4 +646,42 @@ public class FragmentOptimizationTest {
         assertEquals(1, fragment1.onCreateViewCount);
     }
 
+    // Test that a fragment view that is created with focus has focus after the transaction
+    // completes.
+    @Test
+    public void focusedView() throws Throwable {
+        FragmentTestUtil.setContentView(mActivityRule, R.layout.double_container);
+        mContainer = (ViewGroup) mActivityRule.getActivity().findViewById(R.id.fragmentContainer1);
+        final EditText firstEditText = new EditText(mContainer.getContext());
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mContainer.addView(firstEditText);
+                firstEditText.requestFocus();
+            }
+        });
+        assertTrue(firstEditText.isFocused());
+        final CountCallsFragment fragment1 = new CountCallsFragment();
+        final CountCallsFragment fragment2 = new CountCallsFragment();
+        fragment2.setLayoutId(R.layout.with_edit_text);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mFM.beginTransaction()
+                        .add(R.id.fragmentContainer2, fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .replace(R.id.fragmentContainer2, fragment2)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.executePendingTransactions();
+            }
+        });
+        final View editText = fragment2.getView().findViewById(R.id.editText);
+        assertTrue(editText.isFocused());
+        assertFalse(firstEditText.isFocused());
+    }
 }

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
+import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.AnimRes;
 import android.support.fragment.test.R;
@@ -295,6 +296,9 @@ public class FragmentAnimationTest {
         assertPostponed(fragment2, 0);
         assertNotNull(fragment1.getView());
         assertEquals(View.VISIBLE, fragment1.getView().getVisibility());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(1f, fragment1.getView().getAlpha(), 0f);
+        }
         assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
 
         fragment2.startPostponedEnterTransition();
@@ -335,6 +339,9 @@ public class FragmentAnimationTest {
 
         assertNotNull(fragment1.getView());
         assertEquals(View.VISIBLE, fragment1.getView().getVisibility());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(1f, fragment1.getView().getAlpha(), 0f);
+        }
         assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
         assertTrue(fragment1.isAdded());
 
@@ -456,7 +463,12 @@ public class FragmentAnimationTest {
     private void assertPostponed(AnimatorFragment fragment, int expectedAnimators)
             throws InterruptedException {
         assertTrue(fragment.mOnCreateViewCalled);
-        assertEquals(View.INVISIBLE, fragment.getView().getVisibility());
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(View.INVISIBLE, fragment.getView().getVisibility());
+        } else {
+            assertEquals(View.VISIBLE, fragment.getView().getVisibility());
+            assertEquals(0f, fragment.getView().getAlpha(), 0f);
+        }
         assertEquals(expectedAnimators, fragment.numAnimators);
     }
 
