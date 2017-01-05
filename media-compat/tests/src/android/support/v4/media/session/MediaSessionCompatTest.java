@@ -16,23 +16,24 @@
 
 package android.support.v4.media.session;
 
-import android.app.Activity;
+import static junit.framework.Assert.fail;
+
 import android.content.Context;
-import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import static junit.framework.Assert.fail;
-
+@RunWith(AndroidJUnit4.class)
 public class MediaSessionCompatTest {
     @Rule
     public ActivityTestRule<TestActivity> mActivityRule =
