@@ -22,7 +22,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.os.BuildCompat;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputConnection;
 
 /**
  * Helper for accessing features in {@link EditorInfo} introduced after API level 13 in a backwards
@@ -30,6 +29,26 @@ import android.view.inputmethod.InputConnection;
  */
 @RequiresApi(13)
 public final class EditorInfoCompat {
+
+    /**
+     * Flag of {@link EditorInfo#imeOptions}: used to request that the IME does not update any
+     * personalized data such as typing history and personalized language model based on what the
+     * user typed on this text editing object.  Typical use cases are:
+     * <ul>
+     *     <li>When the application is in a special mode, where user's activities are expected to be
+     *     not recorded in the application's history.  Some web browsers and chat applications may
+     *     have this kind of modes.</li>
+     *     <li>When storing typing history does not make much sense.  Specifying this flag in typing
+     *     games may help to avoid typing history from being filled up with words that the user is
+     *     less likely to type in their daily life.  Another example is that when the application
+     *     already knows that the expected input is not a valid word (e.g. a promotion code that is
+     *     not a valid word in any natural language).</li>
+     * </ul>
+     *
+     * <p>Applications need to be aware that the flag is not a guarantee, and some IMEs may not
+     * respect it.</p>
+     */
+    public static final int IME_FLAG_NO_PERSONALIZED_LEARNING = 0x1000000;
 
     private interface EditorInfoCompatImpl {
         void setContentMimeTypes(@NonNull EditorInfo editorInfo,
