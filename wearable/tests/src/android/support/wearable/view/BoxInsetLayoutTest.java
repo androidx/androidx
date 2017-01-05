@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.is;
 
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.wearable.test.R;
@@ -46,6 +47,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class BoxInsetLayoutTest {
     private static final float FACTOR = 0.146467f; //(1 - sqrt(2)/2)/2
