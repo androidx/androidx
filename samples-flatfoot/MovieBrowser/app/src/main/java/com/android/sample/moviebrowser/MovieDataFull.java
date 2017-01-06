@@ -50,6 +50,29 @@ public class MovieDataFull implements Parcelable {
     public MovieDataFull() {
     }
 
+    public MovieDataFull(MovieDataFull copyFrom) {
+        this.imdbID = copyFrom.imdbID;
+        this.Title = copyFrom.Title;
+        this.Year = copyFrom.Year;
+        this.Type = copyFrom.Type;
+        this.Poster = copyFrom.Poster;
+        this.Rated = copyFrom.Rated;
+        this.Released = copyFrom.Released;
+        this.Runtime = copyFrom.Runtime;
+        this.Genre = copyFrom.Genre;
+        this.Director = copyFrom.Director;
+        this.Writer = copyFrom.Writer;
+        this.Actors = copyFrom.Actors;
+        this.Plot = copyFrom.Plot;
+        this.Language = copyFrom.Language;
+        this.Country = copyFrom.Country;
+        this.Awards = copyFrom.Awards;
+        this.Metascore = copyFrom.Metascore;
+        this.imdbRating = copyFrom.imdbRating;
+        this.imdbVotes = copyFrom.imdbVotes;
+        this.Response = copyFrom.Response;
+    }
+
     @Override
     public int describeContents() {
         return 0;

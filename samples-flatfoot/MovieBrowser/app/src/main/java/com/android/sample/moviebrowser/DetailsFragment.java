@@ -28,8 +28,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.sample.moviebrowser.db.MovieDataFullDatabase;
-import com.android.sample.moviebrowser.db.MovieDataFullDatabaseHelper;
 import com.android.sample.moviebrowser.model.MovieDataFullModel;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.Observer;
@@ -42,7 +40,6 @@ import com.bumptech.glide.Glide;
  */
 public class DetailsFragment extends LifecycleFragment {
     public static final String INITIAL = "details.INITIAL";
-    public static final String KEY_FULL = "details.FULL";
     public static final int CODE_EDIT = 1;
 
     private String mImdbId;
@@ -55,6 +52,7 @@ public class DetailsFragment extends LifecycleFragment {
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         final View result = inflater.inflate(R.layout.fragment_details, container, false);
+
         final MovieData initialData = getArguments().getParcelable(INITIAL);
         mImdbId = initialData.imdbID;
 
@@ -64,22 +62,29 @@ public class DetailsFragment extends LifecycleFragment {
         String combinedTitle = initialData.Title + " (" + initialData.Year + ")";
         ((TextView) result.findViewById(R.id.title)).setText(combinedTitle);
 
+        // Get our view model instance and register ourselves to observe change to the
+        // movie data. When a change is reported, update all UI elements based on the new
+        // data.
         mMovieDataFullModel = ViewModelStore.get(this, mImdbId + ".full", MovieDataFullModel.class);
+        mMovieDataFullModel.getMovieData().observe(this, new Observer<MovieDataFull>() {
+            @Override
+            public void onChanged(@Nullable MovieDataFull movieDataFull) {
+                if (movieDataFull != null) {
+                    updateWithFullData(result, movieDataFull);
+                }
+            }
+        });
+
         final MovieDataFull fullData = mMovieDataFullModel.getMovieData().getValue();
         if (fullData == null) {
-            // Ask the model to load the data for this movie, and register ourselves as the
-            // observer so that we update the UI when the data is loaded.
+            // Ask the model to load the data for this movie. When the data is loaded, we will be
+            // notified since this fragment registered itself as an observer on the matching
+            // live data object.
             // TODO - switch UI population to use data binding.
-            mMovieDataFullModel.getMovieData().observe(this, new Observer<MovieDataFull>() {
-                @Override
-                public void onChanged(@Nullable MovieDataFull movieDataFull) {
-                    if (movieDataFull != null) {
-                        updateWithFullData(result, movieDataFull);
-                    }
-                }
-            });
             mMovieDataFullModel.setImdbId(getContext(), mImdbId);
         } else {
+            // If we're here, our data is already available
+            android.util.Log.e("MovieBrowser", "Got data from saved state");
             updateWithFullData(result, fullData);
         }
 
@@ -154,7 +159,7 @@ public class DetailsFragment extends LifecycleFragment {
                 EditDetailsFragment editDetailsFragment = new EditDetailsFragment();
                 Bundle editDetailsFragmentArgs = new Bundle();
                 MovieDataFull fullData = mMovieDataFullModel.getMovieData().getValue();
-                editDetailsFragmentArgs.putParcelable(EditDetailsFragment.FULL, fullData);
+                editDetailsFragmentArgs.putString(EditDetailsFragment.IMDB_ID, fullData.imdbID);
                 editDetailsFragment.setArguments(editDetailsFragmentArgs);
                 editDetailsFragment.setTargetFragment(DetailsFragment.this, CODE_EDIT);
                 editDetailsFragment.show(getFragmentManager(), "tag");
@@ -164,20 +169,15 @@ public class DetailsFragment extends LifecycleFragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // If the result matches the requested edit code, ask the view model to update itself
+        // with the new data. As this fragment already registered itself as to observe changes
+        // to the underlying data, we will update the UI as the side-result of the .update()
+        // call.
         if ((requestCode == CODE_EDIT) && (resultCode == Activity.RESULT_OK)) {
-            // TODO - this part will be addressed in the next CL to not "reach" into an object
-            // wrapped with LiveData
-            MovieDataFull fullData = mMovieDataFullModel.getMovieData().getValue();
-            fullData.Runtime = data.getStringExtra(EditDetailsFragment.KEY_RUNTIME);
-            fullData.Rated = data.getStringExtra(EditDetailsFragment.KEY_RATED);
-            updateWithFullData(getView(), fullData);
-
-            Snackbar.make(getView(), "Saving edited data", Snackbar.LENGTH_SHORT).show();
-
-            // TODO - if Room's DB is on disk, we'll be accessing local disk on the UI thread.
-            // Would need to be wrapped with AsyncTask.
-            final MovieDataFullDatabase db = MovieDataFullDatabaseHelper.getDatabase(getContext());
-            db.getMovieDataFullDao().insertOrReplace(fullData);
+            Snackbar.make(getView(), "Updating after edit", Snackbar.LENGTH_SHORT).show();
+            mMovieDataFullModel.update(getContext(),
+                    data.getStringExtra(EditDetailsFragment.KEY_RUNTIME),
+                    data.getStringExtra(EditDetailsFragment.KEY_RATED));
         }
     }
 }

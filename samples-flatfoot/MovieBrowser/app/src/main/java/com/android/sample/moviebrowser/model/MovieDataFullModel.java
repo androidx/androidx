@@ -88,4 +88,25 @@ public class MovieDataFullModel implements ViewModel {
             });
         }
     }
+
+    /**
+     * Updates the data wrapped by this model.
+     */
+    public void update(Context context, String runtime, String rated) {
+        // Create a copy of the currently wrapped data
+        MovieDataFull newData = new MovieDataFull(mMovieData.getValue());
+        // Update the relevant fields
+        newData.Runtime = runtime;
+        newData.Rated = rated;
+        // And set the new data as our wrapper's value. At this point the observer(s) registered
+        // on this live data will get notified of the underlying changes, updating their state
+        mMovieData.setValue(newData);
+
+        // And finally update the entry for this movie in our database so that it's reflected
+        // in the UI the next time it's fetched and displayed
+        final MovieDataFullDatabase db = MovieDataFullDatabaseHelper.getDatabase(context);
+        // TODO - if Room's DB is on disk, we'll be accessing local disk on the UI thread.
+        // Would need to be wrapped with AsyncTask.
+        db.getMovieDataFullDao().insertOrReplace(newData);
+    }
 }
