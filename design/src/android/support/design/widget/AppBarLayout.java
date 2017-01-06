@@ -19,6 +19,7 @@ package android.support.design.widget;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.design.widget.ViewUtils.objectEquals;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
@@ -791,7 +792,7 @@ public class AppBarLayout extends LinearLayout {
         private boolean mSkipNestedPreScroll;
         private boolean mWasNestedFlung;
 
-        private ValueAnimatorCompat mOffsetAnimator;
+        private ValueAnimator mOffsetAnimator;
 
         private int mOffsetToChildIndexOnLayout = INVALID_POSITION;
         private boolean mOffsetToChildIndexOnLayoutIsMinHeight;
@@ -951,13 +952,13 @@ public class AppBarLayout extends LinearLayout {
             }
 
             if (mOffsetAnimator == null) {
-                mOffsetAnimator = ViewUtils.createAnimator();
+                mOffsetAnimator = new ValueAnimator();
                 mOffsetAnimator.setInterpolator(AnimationUtils.DECELERATE_INTERPOLATOR);
-                mOffsetAnimator.addUpdateListener(new ValueAnimatorCompat.AnimatorUpdateListener() {
+                mOffsetAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
-                    public void onAnimationUpdate(ValueAnimatorCompat animator) {
+                    public void onAnimationUpdate(ValueAnimator animation) {
                         setHeaderTopBottomOffset(coordinatorLayout, child,
-                                animator.getAnimatedIntValue());
+                                (int) animation.getAnimatedValue());
                     }
                 });
             } else {
