@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.view.GravityCompat;
@@ -508,6 +509,7 @@ public class NotificationCompat {
         NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
                 Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
                 RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory);
+        String getChannel(Notification n);
     }
 
     /**
@@ -604,6 +606,11 @@ public class NotificationCompat {
                 RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
             return null;
         }
+
+        @Override
+        public String getChannel(Notification n) {
+            return null;
+        }
     }
 
     static class NotificationCompatImplHoneycomb extends NotificationCompatImplBase {
@@ -631,6 +638,7 @@ public class NotificationCompat {
         }
     }
 
+    @RequiresApi(16)
     static class NotificationCompatImplJellybean extends NotificationCompatImplBase {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
@@ -702,6 +710,7 @@ public class NotificationCompat {
         }
     }
 
+    @RequiresApi(19)
     static class NotificationCompatImplKitKat extends NotificationCompatImplJellybean {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
@@ -754,6 +763,7 @@ public class NotificationCompat {
         }
     }
 
+    @RequiresApi(20)
     static class NotificationCompatImplApi20 extends NotificationCompatImplKitKat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
@@ -812,6 +822,7 @@ public class NotificationCompat {
         }
     }
 
+    @RequiresApi(21)
     static class NotificationCompatImplApi21 extends NotificationCompatImplApi20 {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
@@ -851,6 +862,7 @@ public class NotificationCompat {
         }
     }
 
+    @RequiresApi(24)
     static class NotificationCompatImplApi24 extends NotificationCompatImplApi21 {
         @Override
         public Notification build(Builder b,
@@ -873,6 +885,34 @@ public class NotificationCompat {
         }
     }
 
+    @RequiresApi(26)
+    static class NotificationCompatImplApi26 extends NotificationCompatImplApi24 {
+        @Override
+        public Notification build(Builder b,
+                                  BuilderExtender extender) {
+            NotificationCompatApi26.Builder builder = new NotificationCompatApi26.Builder(
+                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
+                    b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
+                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
+                    b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mRemoteInputHistory, b.mContentView,
+                    b.mBigContentView, b.mHeadsUpContentView, b.mChannelId);
+            addActionsToBuilder(builder, b.mActions);
+            addStyleToBuilderApi24(builder, b.mStyle);
+            Notification notification = extender.build(b, builder);
+            if (b.mStyle != null) {
+                b.mStyle.addCompatExtras(getExtras(notification));
+            }
+            return notification;
+        }
+
+        @Override
+        public String getChannel(Notification n) {
+            return NotificationCompatApi26.getChannel(n);
+        }
+    }
+
     static void addActionsToBuilder(NotificationBuilderWithActions builder,
             ArrayList<Action> actions) {
         for (Action action : actions) {
@@ -880,6 +920,7 @@ public class NotificationCompat {
         }
     }
 
+    @RequiresApi(16)
     static void addStyleToBuilderJellybean(NotificationBuilderWithBuilderAccessor builder,
             Style style) {
         if (style != null) {
@@ -910,6 +951,7 @@ public class NotificationCompat {
         }
     }
 
+    @RequiresApi(24)
     static void addStyleToBuilderApi24(NotificationBuilderWithBuilderAccessor builder,
             Style style) {
         if (style != null) {
@@ -938,7 +980,9 @@ public class NotificationCompat {
     }
 
     static {
-        if (BuildCompat.isAtLeastN()) {
+        if (BuildCompat.isAtLeastO()) {
+            IMPL = new NotificationCompatImplApi26();
+        } else if (Build.VERSION.SDK_INT >= 24) {
             IMPL = new NotificationCompatImplApi24();
         } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new NotificationCompatImplApi21();
@@ -1043,6 +1087,7 @@ public class NotificationCompat {
         RemoteViews mContentView;
         RemoteViews mBigContentView;
         RemoteViews mHeadsUpContentView;
+        String mChannelId;
 
         /** @hide */
         @RestrictTo(LIBRARY_GROUP)
@@ -1717,6 +1762,16 @@ public class NotificationCompat {
          */
         public Builder setCustomHeadsUpContentView(RemoteViews contentView) {
             mHeadsUpContentView = contentView;
+            return this;
+        }
+
+        /**
+         * Specifies the channel the notification should be delivered on.
+         *
+         * No-op on versions prior to {@link android.os.Build.VERSION_CODES#O} .
+         */
+        public Builder setChannel(String channelId) {
+            mChannelId = channelId;
             return this;
         }
 
@@ -4167,5 +4222,12 @@ public class NotificationCompat {
      */
     public static String getSortKey(Notification notif) {
         return IMPL.getSortKey(notif);
+    }
+
+    /**
+     * @return the ID of the channel this notification posts to.
+     */
+    public static String getChannel(Notification n) {
+        return IMPL.getChannel(n);
     }
 }

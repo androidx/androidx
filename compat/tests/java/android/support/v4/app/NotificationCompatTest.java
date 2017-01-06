@@ -18,20 +18,40 @@ package android.support.v4.app;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import android.app.Notification;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.support.v4.BaseInstrumentationTestCase;
+import android.support.v4.os.BuildCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
 @RunWith(AndroidJUnit4.class)
-public class NotificationCompatTest {
+@SmallTest
+public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupportActivity> {
 
-    @SmallTest
+    public NotificationCompatTest() {
+        super(TestSupportActivity.class);
+    }
+
+    @Test
+    public void testNotificationChannel() throws Throwable {
+        String channelId = "new ID";
+        Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setChannel(channelId)
+                .build();
+        if (BuildCompat.isAtLeastO()) {
+            assertEquals(channelId, NotificationCompat.getChannel(n));
+        } else {
+            assertNull(NotificationCompat.getChannel(n));
+        }
+    }
+
     @Test
     public void testNotificationActionBuilder_copiesRemoteInputs() throws Throwable {
         NotificationCompat.Action a = newActionBuilder()
@@ -42,7 +62,6 @@ public class NotificationCompatTest {
         assertSame(a.getRemoteInputs()[0], aCopy.getRemoteInputs()[0]);
     }
 
-    @SmallTest
     @Test
     public void testNotificationActionBuilder_copiesAllowGeneratedReplies() throws Throwable {
         NotificationCompat.Action a = newActionBuilder()
@@ -53,7 +72,6 @@ public class NotificationCompatTest {
         assertEquals(a.getAllowGeneratedReplies(), aCopy.getAllowGeneratedReplies());
     }
 
-    @SmallTest
     @Test
     public void testNotificationActionBuilder_defaultAllowGeneratedRepliesTrue() throws Throwable {
         NotificationCompat.Action a = newActionBuilder().build();
@@ -61,7 +79,6 @@ public class NotificationCompatTest {
         assertTrue(a.getAllowGeneratedReplies());
     }
 
-    @SmallTest
     @Test
     public void testNotificationAction_defaultAllowGeneratedRepliesTrue() throws Throwable {
         NotificationCompat.Action a = new NotificationCompat.Action(0, null, null);
@@ -69,7 +86,6 @@ public class NotificationCompatTest {
         assertTrue(a.getAllowGeneratedReplies());
     }
 
-    @SmallTest
     @Test
     public void testNotificationActionBuilder_setAllowGeneratedRepliesFalse() throws Throwable {
         NotificationCompat.Action a = newActionBuilder()

@@ -4553,6 +4553,7 @@ package android.support.v4.app {
     method public static android.support.v4.app.NotificationCompat.Action getAction(android.app.Notification, int);
     method public static int getActionCount(android.app.Notification);
     method public static java.lang.String getCategory(android.app.Notification);
+    method public static java.lang.String getChannel(android.app.Notification);
     method public static android.os.Bundle getExtras(android.app.Notification);
     method public static java.lang.String getGroup(android.app.Notification);
     method public static boolean getLocalOnly(android.app.Notification);
@@ -4702,6 +4703,7 @@ package android.support.v4.app {
     method protected static java.lang.CharSequence limitCharSequenceLength(java.lang.CharSequence);
     method public android.support.v4.app.NotificationCompat.Builder setAutoCancel(boolean);
     method public android.support.v4.app.NotificationCompat.Builder setCategory(java.lang.String);
+    method public android.support.v4.app.NotificationCompat.Builder setChannel(java.lang.String);
     method public android.support.v4.app.NotificationCompat.Builder setColor(int);
     method public android.support.v4.app.NotificationCompat.Builder setContent(android.widget.RemoteViews);
     method public android.support.v4.app.NotificationCompat.Builder setContentInfo(java.lang.CharSequence);
