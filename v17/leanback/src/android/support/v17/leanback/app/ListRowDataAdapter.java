@@ -41,6 +41,7 @@ class ListRowDataAdapter extends ObjectAdapter {
     }
 
     void initialize() {
+        mLastVisibleRowIndex = -1;
         int i = mAdapter.size() - 1;
         while (i >= 0) {
             Row item = (Row) mAdapter.get(i);
