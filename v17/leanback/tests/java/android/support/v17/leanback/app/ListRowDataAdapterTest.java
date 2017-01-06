@@ -197,6 +197,26 @@ public class ListRowDataAdapterTest {
     }
 
     @Test
+    public void adapterSize_rowsRemoveAll() {
+        ArrayObjectAdapter adapter = new ArrayObjectAdapter(presenterSelector);
+        adapter.add(new SectionRow("section 1"));
+        for (int i = 0; i < 4; i++) {
+            HeaderItem headerItem = new HeaderItem(i, "header "+i);
+            adapter.add(new ListRow(headerItem, createListRowAdapter()));
+        }
+
+        ListRowDataAdapter listRowDataAdapter = new ListRowDataAdapter(adapter);
+        assertEquals(5, listRowDataAdapter.size());
+
+        adapter.clear();
+        assertEquals(0, listRowDataAdapter.size());
+
+        HeaderItem headerItem = new HeaderItem(10, "header "+10);
+        adapter.add(new ListRow(headerItem, createListRowAdapter()));
+        assertEquals(1, listRowDataAdapter.size());
+    }
+
+    @Test
     public void adapterSize_rowsRemoved() {
         int itemCount = 4;
         ArrayObjectAdapter adapter = new ArrayObjectAdapter(presenterSelector);
