@@ -217,6 +217,28 @@ public class ListRowDataAdapterTest {
     }
 
     @Test
+    public void changeRemove_revealInvisibleItems() {
+        ArrayObjectAdapter adapter = new ArrayObjectAdapter(presenterSelector);
+        for (int i = 0; i < 4; i++) {
+            HeaderItem headerItem = new HeaderItem(i, "header "+i);
+            adapter.add(new ListRow(headerItem, createListRowAdapter()));
+        }
+        adapter.add(new SectionRow("section"));
+        for (int i = 4; i < 8; i++) {
+            HeaderItem headerItem = new HeaderItem(i, "header "+i);
+            adapter.add(new ListRow(headerItem, createListRowAdapter()));
+        }
+
+        ListRowDataAdapter listRowDataAdapter = new ListRowDataAdapter(adapter);
+        assertEquals(9, listRowDataAdapter.size());
+
+        listRowDataAdapter.registerObserver(dataObserver);
+        adapter.removeItems(5, 4);
+        verify(dataObserver, times(1)).onItemRangeRemoved(4, 5);
+        assertEquals(4, listRowDataAdapter.size());
+    }
+
+    @Test
     public void adapterSize_rowsRemoved() {
         int itemCount = 4;
         ArrayObjectAdapter adapter = new ArrayObjectAdapter(presenterSelector);
