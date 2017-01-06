@@ -18,8 +18,8 @@ package com.android.sample.moviebrowser;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,24 +30,23 @@ import android.widget.TextView;
 
 import com.android.sample.moviebrowser.db.MovieDataFullDatabase;
 import com.android.sample.moviebrowser.db.MovieDataFullDatabaseHelper;
+import com.android.sample.moviebrowser.model.MovieDataFullModel;
+import com.android.support.lifecycle.LifecycleFragment;
+import com.android.support.lifecycle.Observer;
+import com.android.support.lifecycle.ViewModelStore;
 
 import com.bumptech.glide.Glide;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Details fragment.
  */
-public class DetailsFragment extends Fragment {
+public class DetailsFragment extends LifecycleFragment {
     public static final String INITIAL = "details.INITIAL";
     public static final String KEY_FULL = "details.FULL";
     public static final int CODE_EDIT = 1;
 
-    private MovieDataFull mFullData;
+    private String mImdbId;
+    private MovieDataFullModel mMovieDataFullModel;
 
     public DetailsFragment() {
     }
@@ -55,129 +54,97 @@ public class DetailsFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        final MovieDataFullDatabase db = MovieDataFullDatabaseHelper.getDatabase(getContext());
-
-        final MovieData initialData = getArguments().getParcelable(INITIAL);
         final View result = inflater.inflate(R.layout.fragment_details, container, false);
-        // Use Glide for image loading
+        final MovieData initialData = getArguments().getParcelable(INITIAL);
+        mImdbId = initialData.imdbID;
+
+        // Use Glide for image loading (of the poster)
         Glide.with(DetailsFragment.this).load(initialData.Poster).fitCenter().crossFade()
                 .into((ImageView) result.findViewById(R.id.poster));
         String combinedTitle = initialData.Title + " (" + initialData.Year + ")";
         ((TextView) result.findViewById(R.id.title)).setText(combinedTitle);
 
-        mFullData = (savedInstanceState != null)
-                ? (MovieDataFull) savedInstanceState.getParcelable(KEY_FULL) : null;
-
-        if (mFullData == null) {
-            // Do we have it in local DB?
-            // TODO - if Room's DB is on disk, we'll be accessing local disk on the UI thread.
-            // Would need to be wrapped with AsyncTask.
-            mFullData = db.getMovieDataFullDao().load(initialData.imdbID);
-            if (mFullData != null) {
-                Snackbar.make(container, "Got data from DB", Snackbar.LENGTH_SHORT).show();
-                updateWithFullData(result);
-            } else {
-                Snackbar.make(container, "Fetching data from network", Snackbar.LENGTH_SHORT)
-                        .show();
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl("http://www.omdbapi.com")
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                OpenMdbService openMdbService = retrofit.create(OpenMdbService.class);
-
-                Call<MovieDataFull> fullDataCall = openMdbService.movieDetails(initialData.imdbID);
-                // Fetch content asynchronously
-                fullDataCall.enqueue(new Callback<MovieDataFull>() {
-                    @Override
-                    public void onResponse(Call<MovieDataFull> call,
-                            Response<MovieDataFull> response) {
-                        mFullData = response.body();
-                        updateWithFullData(getView());
-                        // TODO - if Room's DB is on disk, we'll be accessing local disk on the
-                        // UI thread. Would need to be wrapped with AsyncTask.
-                        db.getMovieDataFullDao().insert(mFullData);
+        mMovieDataFullModel = ViewModelStore.get(this, mImdbId + ".full", MovieDataFullModel.class);
+        final MovieDataFull fullData = mMovieDataFullModel.getMovieData().getValue();
+        if (fullData == null) {
+            // Ask the model to load the data for this movie, and register ourselves as the
+            // observer so that we update the UI when the data is loaded.
+            // TODO - switch UI population to use data binding.
+            mMovieDataFullModel.getMovieData().observe(this, new Observer<MovieDataFull>() {
+                @Override
+                public void onChanged(@Nullable MovieDataFull movieDataFull) {
+                    if (movieDataFull != null) {
+                        updateWithFullData(result, movieDataFull);
                     }
-
-                    @Override
-                    public void onFailure(Call<MovieDataFull> call, Throwable t) {
-                        android.util.Log.e("MovieBrowser", "Call = " + call.toString(), t);
-                    }
-                });
-            }
+                }
+            });
+            mMovieDataFullModel.setImdbId(getContext(), mImdbId);
         } else {
-            Snackbar.make(container, "Using saved data", Snackbar.LENGTH_SHORT).show();
-            updateWithFullData(result);
+            updateWithFullData(result, fullData);
         }
 
         return result;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        // Store our full data in the bundle so that we get it next time in onCreateView
-        outState.putParcelable(KEY_FULL, mFullData);
-        super.onSaveInstanceState(outState);
-    }
-
-    private void updateWithFullData(View mainView) {
+    private void updateWithFullData(View mainView, MovieDataFull fullData) {
+        // TODO - replace this method with data binding
         TextView release = (TextView) mainView.findViewById(R.id.release);
-        if (!TextUtils.isEmpty(mFullData.Released)) {
+        if (!TextUtils.isEmpty(fullData.Released)) {
             release.setVisibility(View.VISIBLE);
-            release.setText(mFullData.Released);
+            release.setText(fullData.Released);
         }
 
         TextView runtime = (TextView) mainView.findViewById(R.id.runtime);
-        if (!TextUtils.isEmpty(mFullData.Runtime)) {
+        if (!TextUtils.isEmpty(fullData.Runtime)) {
             runtime.setVisibility(View.VISIBLE);
-            runtime.setText(mFullData.Runtime);
+            runtime.setText(fullData.Runtime);
         }
 
         TextView rated = (TextView) mainView.findViewById(R.id.rated);
-        if (!TextUtils.isEmpty(mFullData.Rated)) {
+        if (!TextUtils.isEmpty(fullData.Rated)) {
             rated.setVisibility(View.VISIBLE);
-            if (!TextUtils.isEmpty(mFullData.Runtime)) {
-                rated.setText("\u2022  " + mFullData.Rated);
+            if (!TextUtils.isEmpty(fullData.Runtime)) {
+                rated.setText("\u2022  " + fullData.Rated);
             } else {
-                rated.setText(mFullData.Rated);
+                rated.setText(fullData.Rated);
             }
         }
 
         TextView plot = (TextView) mainView.findViewById(R.id.plot);
-        if (!TextUtils.isEmpty(mFullData.Plot)) {
+        if (!TextUtils.isEmpty(fullData.Plot)) {
             plot.setVisibility(View.VISIBLE);
-            plot.setText(mFullData.Plot);
+            plot.setText(fullData.Plot);
         }
 
         TextView directorHeader = (TextView) mainView.findViewById(R.id.director_header);
         TextView director = (TextView) mainView.findViewById(R.id.director);
-        if (!TextUtils.isEmpty(mFullData.Director)) {
+        if (!TextUtils.isEmpty(fullData.Director)) {
             directorHeader.setVisibility(View.VISIBLE);
             director.setVisibility(View.VISIBLE);
-            director.setText(mFullData.Director);
+            director.setText(fullData.Director);
         }
 
         TextView writerHeader = (TextView) mainView.findViewById(R.id.writer_header);
         TextView writer = (TextView) mainView.findViewById(R.id.writer);
-        if (!TextUtils.isEmpty(mFullData.Writer)) {
+        if (!TextUtils.isEmpty(fullData.Writer)) {
             writerHeader.setVisibility(View.VISIBLE);
             writer.setVisibility(View.VISIBLE);
-            writer.setText(mFullData.Writer);
+            writer.setText(fullData.Writer);
         }
 
         TextView actorsHeader = (TextView) mainView.findViewById(R.id.actors_header);
         TextView actors = (TextView) mainView.findViewById(R.id.actors);
-        if (!TextUtils.isEmpty(mFullData.Actors)) {
+        if (!TextUtils.isEmpty(fullData.Actors)) {
             actorsHeader.setVisibility(View.VISIBLE);
             actors.setVisibility(View.VISIBLE);
-            actors.setText(mFullData.Actors);
+            actors.setText(fullData.Actors);
         }
 
         TextView imdbRating = (TextView) mainView.findViewById(R.id.imdbRating);
-        if (!TextUtils.isEmpty(mFullData.imdbRating) && !TextUtils.isEmpty(mFullData.imdbVotes)) {
+        if (!TextUtils.isEmpty(fullData.imdbRating) && !TextUtils.isEmpty(fullData.imdbVotes)) {
             imdbRating.setVisibility(View.VISIBLE);
-            imdbRating.setText("Rated " + mFullData.imdbRating + "/10 by "
-                    + mFullData.imdbVotes + " people");
+            imdbRating.setText("Rated " + fullData.imdbRating + "/10 by "
+                    + fullData.imdbVotes + " people");
         }
 
         ImageButton editButton = (ImageButton) mainView.findViewById(R.id.edit);
@@ -186,7 +153,8 @@ public class DetailsFragment extends Fragment {
             public void onClick(View view) {
                 EditDetailsFragment editDetailsFragment = new EditDetailsFragment();
                 Bundle editDetailsFragmentArgs = new Bundle();
-                editDetailsFragmentArgs.putParcelable(EditDetailsFragment.FULL, mFullData);
+                MovieDataFull fullData = mMovieDataFullModel.getMovieData().getValue();
+                editDetailsFragmentArgs.putParcelable(EditDetailsFragment.FULL, fullData);
                 editDetailsFragment.setArguments(editDetailsFragmentArgs);
                 editDetailsFragment.setTargetFragment(DetailsFragment.this, CODE_EDIT);
                 editDetailsFragment.show(getFragmentManager(), "tag");
@@ -197,16 +165,19 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if ((requestCode == CODE_EDIT) && (resultCode == Activity.RESULT_OK)) {
-            mFullData.Runtime = data.getStringExtra(EditDetailsFragment.KEY_RUNTIME);
-            mFullData.Rated = data.getStringExtra(EditDetailsFragment.KEY_RATED);
-            updateWithFullData(getView());
+            // TODO - this part will be addressed in the next CL to not "reach" into an object
+            // wrapped with LiveData
+            MovieDataFull fullData = mMovieDataFullModel.getMovieData().getValue();
+            fullData.Runtime = data.getStringExtra(EditDetailsFragment.KEY_RUNTIME);
+            fullData.Rated = data.getStringExtra(EditDetailsFragment.KEY_RATED);
+            updateWithFullData(getView(), fullData);
 
             Snackbar.make(getView(), "Saving edited data", Snackbar.LENGTH_SHORT).show();
 
             // TODO - if Room's DB is on disk, we'll be accessing local disk on the UI thread.
             // Would need to be wrapped with AsyncTask.
             final MovieDataFullDatabase db = MovieDataFullDatabaseHelper.getDatabase(getContext());
-            db.getMovieDataFullDao().insertOrReplace(mFullData);
+            db.getMovieDataFullDao().insertOrReplace(fullData);
         }
     }
 }
