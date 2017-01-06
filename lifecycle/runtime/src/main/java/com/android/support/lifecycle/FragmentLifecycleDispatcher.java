@@ -119,8 +119,8 @@ class FragmentLifecycleDispatcher {
 
         private void dispatchIfLifecycleFragment(Fragment fragment,
                 @Lifecycle.Event int event) {
-            if (fragment instanceof LifecycleFragment) {
-                ((LifecycleFragment) fragment).mLifecycleRegistry.handleLifecycleEvent(event);
+            if (fragment instanceof LifecycleRegistryProvider) {
+                ((LifecycleRegistryProvider) fragment).getLifecycle().handleLifecycleEvent(event);
             }
         }
     }

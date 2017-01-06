@@ -16,17 +16,12 @@
 
 package com.android.support.lifecycle;
 
-import android.support.v4.app.Fragment;
-
 /**
- * A fragment that is also a {@link LifecycleProvider}.
+ * Specialization of {@link LifecycleProvider} that explicitly returns {@link LifecycleRegistry}
+ * This method may be used if an object which updates state of {@link Lifecycle} doesn't own it.
  */
-// This class will be removed once we integrate with Fragment library.
-public class LifecycleFragment extends Fragment implements LifecycleRegistryProvider {
-    LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
-
+@SuppressWarnings({"WeakerAccess", "unused"})
+public interface LifecycleRegistryProvider extends LifecycleProvider {
     @Override
-    public LifecycleRegistry getLifecycle() {
-        return mLifecycleRegistry;
-    }
+    LifecycleRegistry getLifecycle();
 }
