@@ -124,7 +124,7 @@ class ListRowDataAdapter extends ObjectAdapter {
             int totalItems = lastVisibleRowIndex - mLastVisibleRowIndex;
             if (totalItems > 0) {
                 onEventFired(ON_ITEM_RANGE_REMOVED,
-                        Math.min(lastVisibleRowIndex + 1, positionStart),
+                        Math.min(mLastVisibleRowIndex + 1, positionStart),
                         totalItems);
             }
         }
