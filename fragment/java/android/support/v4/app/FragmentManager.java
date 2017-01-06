@@ -2128,6 +2128,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             final boolean isPop = isRecordPop.get(recordNum);
             if (!isPop) {
                 record.expandReplaceOps(mTmpAddedFragments);
+            } else {
+                record.trackAddedFragmentsInPop(mTmpAddedFragments);
             }
             final int bumpAmount = isPop ? -1 : 1;
             record.bumpBackStackNesting(bumpAmount);

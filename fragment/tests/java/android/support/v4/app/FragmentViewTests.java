@@ -902,6 +902,43 @@ public class FragmentViewTests {
         assertEquals(View.GONE, fragment2.getView().getVisibility());
     }
 
+    // Test to ensure that popping and adding a fragment properly track the fragments added
+    // and removed.
+    @Test
+    public void popAdd() throws Throwable {
+        FragmentTestUtil.setContentView(mActivityRule, R.layout.simple_container);
+        ViewGroup container = (ViewGroup)
+                mActivityRule.getActivity().findViewById(R.id.fragmentContainer);
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        // One fragment with a view
+        final StrictViewFragment fragment1 = new StrictViewFragment();
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment1).addToBackStack(null).commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        FragmentTestUtil.assertChildren(container, fragment1);
+
+        final StrictViewFragment fragment2 = new StrictViewFragment();
+        final StrictViewFragment fragment3 = new StrictViewFragment();
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fm.popBackStack();
+                fm.beginTransaction()
+                        .replace(R.id.fragmentContainer, fragment2)
+                        .addToBackStack(null)
+                        .commit();
+                fm.executePendingTransactions();
+                fm.popBackStack();
+                fm.beginTransaction()
+                        .replace(R.id.fragmentContainer, fragment3)
+                        .addToBackStack(null)
+                        .commit();
+                fm.executePendingTransactions();
+            }
+        });
+        FragmentTestUtil.assertChildren(container, fragment3);
+    }
+
     private View findViewById(int viewId) {
         return mActivityRule.getActivity().findViewById(viewId);
     }
