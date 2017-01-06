@@ -16,15 +16,13 @@
 
 package android.support.v7.widget.helper;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.Nullable;
-import android.support.v4.animation.AnimatorCompatHelper;
-import android.support.v4.animation.AnimatorListenerCompat;
-import android.support.v4.animation.AnimatorUpdateListenerCompat;
-import android.support.v4.animation.ValueAnimatorCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
@@ -609,7 +607,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                         prevActionState, currentTranslateX, currentTranslateY,
                         targetTranslateX, targetTranslateY) {
                     @Override
-                    public void onAnimationEnd(ValueAnimatorCompat animation) {
+                    public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
                         if (this.mOverridden) {
                             return;
@@ -2297,7 +2295,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         }
     }
 
-    private class RecoverAnimation implements AnimatorListenerCompat {
+    private class RecoverAnimation implements Animator.AnimatorListener {
 
         final float mStartDx;
 
@@ -2311,7 +2309,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
         final int mActionState;
 
-        private final ValueAnimatorCompat mValueAnimator;
+        private final ValueAnimator mValueAnimator;
 
         final int mAnimationType;
 
@@ -2338,11 +2336,11 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             mStartDy = startDy;
             mTargetX = targetX;
             mTargetY = targetY;
-            mValueAnimator = AnimatorCompatHelper.emptyValueAnimator();
+            mValueAnimator = ValueAnimator.ofFloat(0f, 1f);
             mValueAnimator.addUpdateListener(
-                    new AnimatorUpdateListenerCompat() {
+                    new ValueAnimator.AnimatorUpdateListener() {
                         @Override
-                        public void onAnimationUpdate(ValueAnimatorCompat animation) {
+                        public void onAnimationUpdate(ValueAnimator animation) {
                             setFraction(animation.getAnimatedFraction());
                         }
                     });
@@ -2386,12 +2384,12 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         }
 
         @Override
-        public void onAnimationStart(ValueAnimatorCompat animation) {
+        public void onAnimationStart(Animator animation) {
 
         }
 
         @Override
-        public void onAnimationEnd(ValueAnimatorCompat animation) {
+        public void onAnimationEnd(Animator animation) {
             if (!mEnded) {
                 mViewHolder.setIsRecyclable(true);
             }
@@ -2399,12 +2397,12 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         }
 
         @Override
-        public void onAnimationCancel(ValueAnimatorCompat animation) {
+        public void onAnimationCancel(Animator animation) {
             setFraction(1f); //make sure we recover the view's state.
         }
 
         @Override
-        public void onAnimationRepeat(ValueAnimatorCompat animation) {
+        public void onAnimationRepeat(Animator animation) {
 
         }
     }

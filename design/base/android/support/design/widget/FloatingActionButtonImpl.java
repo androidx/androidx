@@ -51,8 +51,8 @@ abstract class FloatingActionButtonImpl {
     float mPressedTranslationZ;
 
     interface InternalVisibilityChangedListener {
-        public void onShown();
-        public void onHidden();
+        void onShown();
+        void onHidden();
     }
 
     static final int SHOW_HIDE_ANIM_DURATION = 200;
@@ -66,16 +66,14 @@ abstract class FloatingActionButtonImpl {
 
     final VisibilityAwareImageButton mView;
     final ShadowViewDelegate mShadowViewDelegate;
-    final ValueAnimatorCompat.Creator mAnimatorCreator;
 
     private final Rect mTmpRect = new Rect();
     private ViewTreeObserver.OnPreDrawListener mPreDrawListener;
 
     FloatingActionButtonImpl(VisibilityAwareImageButton view,
-            ShadowViewDelegate shadowViewDelegate, ValueAnimatorCompat.Creator animatorCreator) {
+            ShadowViewDelegate shadowViewDelegate) {
         mView = view;
         mShadowViewDelegate = shadowViewDelegate;
-        mAnimatorCreator = animatorCreator;
     }
 
     abstract void setBackgroundDrawable(ColorStateList backgroundTint,
