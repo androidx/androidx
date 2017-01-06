@@ -42,12 +42,3 @@ supportLibrary {
     inceptionYear '2016'
     description 'Android Wear Support UI'
 }
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri(rootProject.ext.supportRepoOut)) {
-            }
-        }
-    }
-}

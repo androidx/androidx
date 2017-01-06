@@ -49,12 +49,3 @@ supportLibrary {
     inceptionYear '2014'
     description 'Android Support Leanback v17'
 }
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri(rootProject.ext.supportRepoOut)) {
-            }
-        }
-    }
-}

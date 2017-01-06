@@ -29,12 +29,3 @@ supportLibrary {
     inceptionYear '2011'
     description 'Android Support CardView v7'
 }
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri(rootProject.ext.supportRepoOut)) {
-            }
-        }
-    }
-}

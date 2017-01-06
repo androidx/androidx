@@ -35,12 +35,3 @@ supportLibrary {
     inceptionYear '2015'
     description 'Android Support Custom Tabs'
 }
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri(rootProject.ext.supportRepoOut)) {
-            }
-        }
-    }
-}
