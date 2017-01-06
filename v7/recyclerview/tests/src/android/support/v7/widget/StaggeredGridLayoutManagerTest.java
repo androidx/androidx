@@ -279,7 +279,10 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                                 item.mText + " (" + item.mId + ")");
                     }
                 });
-        waitFirstLayout();
+        mLayoutManager.expectLayouts(1);
+        setRecyclerView(mRecyclerView);
+        mLayoutManager.waitForLayout(10);
+        getInstrumentation().waitForIdleSync();
         ViewGroup lastChild = (ViewGroup) mRecyclerView.getChildAt(
                 mRecyclerView.getChildCount() - 1);
         RecyclerView.ViewHolder lastViewHolder = mRecyclerView.getChildViewHolder(lastChild);
