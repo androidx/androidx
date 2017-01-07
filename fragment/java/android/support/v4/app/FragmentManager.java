@@ -2853,6 +2853,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     LogWriter logw = new LogWriter(TAG);
                     PrintWriter pw = new PrintWriter(logw);
                     bse.dump("  ", pw, false);
+                    pw.close();
                 }
                 mBackStack.add(bse);
                 if (bse.mIndex >= 0) {

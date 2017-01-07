@@ -298,21 +298,24 @@ class NotificationCompatJellybean {
             RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
         synchronized (sActionsLock) {
             try {
-                Object actionObject = getActionObjectsLocked(notif)[actionIndex];
-                Bundle actionExtras = null;
-                Bundle extras = getExtras(notif);
-                if (extras != null) {
-                    SparseArray<Bundle> actionExtrasMap = extras.getSparseParcelableArray(
-                            EXTRA_ACTION_EXTRAS);
-                    if (actionExtrasMap != null) {
-                        actionExtras = actionExtrasMap.get(actionIndex);
+                Object[] actionObjects = getActionObjectsLocked(notif);
+                if (actionObjects != null) {
+                    Object actionObject = actionObjects[actionIndex];
+                    Bundle actionExtras = null;
+                    Bundle extras = getExtras(notif);
+                    if (extras != null) {
+                        SparseArray<Bundle> actionExtrasMap = extras.getSparseParcelableArray(
+                                EXTRA_ACTION_EXTRAS);
+                        if (actionExtrasMap != null) {
+                            actionExtras = actionExtrasMap.get(actionIndex);
+                        }
                     }
+                    return readAction(factory, remoteInputFactory,
+                            sActionIconField.getInt(actionObject),
+                            (CharSequence) sActionTitleField.get(actionObject),
+                            (PendingIntent) sActionIntentField.get(actionObject),
+                            actionExtras);
                 }
-                return readAction(factory, remoteInputFactory,
-                        sActionIconField.getInt(actionObject),
-                        (CharSequence) sActionTitleField.get(actionObject),
-                        (PendingIntent) sActionIntentField.get(actionObject),
-                        actionExtras);
             } catch (IllegalAccessException e) {
                 Log.e(TAG, "Unable to access notification actions", e);
                 sActionsAccessFailed = true;
