@@ -30,31 +30,31 @@ public class LifecycleActivity extends FragmentActivity implements LifecycleProv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDispatcher.onCreate();
+        mDispatcher.onActivityPostSuperOnCreate();
     }
 
     @Override
     protected void onResume() {
-        mDispatcher.onResume();
+        mDispatcher.onActivityPreSuperOnResume();
         super.onResume();
     }
 
     @Override
     protected void onPause() {
-        mDispatcher.onPause();
+        mDispatcher.onActivityPreSuperOnPause();
         super.onPause();
     }
 
     @Override
     protected void onStop() {
-        mDispatcher.onStop();
+        mDispatcher.onActivityPreSuperOnStop();
         super.onStop();
     }
 
 
     @Override
     protected void onDestroy() {
-        mDispatcher.onDestroy();
+        mDispatcher.onActivityPreSuperOnDestroy();
         super.onDestroy();
     }
 

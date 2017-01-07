@@ -25,6 +25,7 @@ import android.content.Loader;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.RestrictTo;
+import android.util.Log;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -35,12 +36,13 @@ import java.lang.reflect.Proxy;
  * Helper class to dispatch lifecycle events for an activity. Use it only if it is impossible
  * to use {@link LifecycleActivity}.
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class ActivityLifecycleDispatcher {
     private static final String FRAGMENT_TAG = "com.android.support.lifecycle.ReportFragment";
-
+    private static final String LOG_TAG = "ActivityLfDispatcher";
     private static final int LOADER_ID = 26130239;
 
-    private static Class sActivityThreadClass;
+    private static Class<?> sActivityThreadClass;
     private static Class sPauseListenerClass;
     private static Method sCurrentActivityThreadMethod;
     private static Method sRegisterPauseListenerMethod;
@@ -51,20 +53,22 @@ public class ActivityLifecycleDispatcher {
     }
 
     private static void loadClassesAndMethods() {
+        //noinspection TryWithIdenticalCatches
         try {
             sActivityThreadClass = Class.forName("android.app.ActivityThread");
+            sCurrentActivityThreadMethod = sActivityThreadClass.getMethod("currentActivityThread");
+            sCurrentActivityThreadMethod.setAccessible(true);
+
             sPauseListenerClass = Class.forName("android.app.OnActivityPausedListener");
             sRegisterPauseListenerMethod = sActivityThreadClass.getMethod(
                     "registerOnActivityPausedListener", Activity.class, sPauseListenerClass);
             sUnregisterPauseListenerMethod = sActivityThreadClass.getMethod(
                     "unregisterOnActivityPausedListener", Activity.class, sPauseListenerClass);
             sRegisterPauseListenerMethod.setAccessible(true);
-            sCurrentActivityThreadMethod = sActivityThreadClass.getMethod("currentActivityThread");
-            sCurrentActivityThreadMethod.setAccessible(true);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            Log.w(LOG_TAG, "Failed to find a class", e);
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            Log.w(LOG_TAG, "Failed to find a method", e);
         }
     }
 
@@ -74,6 +78,7 @@ public class ActivityLifecycleDispatcher {
     // deliverNewIntents, start in paused state and etc, however, for most straightforward
     // case it is called synchronously after onPause() call.
     private final Object mPauseListener = createPauseListener();
+    private Handler mPauseHandler;
     private final EmptyCursor mReportStopCursor = new EmptyCursor() {
         @Override
         public void deactivate() {
@@ -93,8 +98,8 @@ public class ActivityLifecycleDispatcher {
 
     /**
      *
-     * @param activity - activity, lifecycle of which should be dispatched
-     * @param provider - {@link LifecycleProvider} for this activity
+     * @param activity activity, lifecycle of which should be dispatched
+     * @param provider {@link LifecycleProvider} for this activity
      */
     public ActivityLifecycleDispatcher(Activity activity, LifecycleProvider provider) {
         mActivity = activity;
@@ -104,7 +109,7 @@ public class ActivityLifecycleDispatcher {
     /**
      * Must be called right after super.onCreate call in {@link Activity#onCreate(Bundle)}.
      */
-    public void onCreate() {
+    public void onActivityPostSuperOnCreate() {
         // loader might have been retained - kill it, kill it!
         mActivity.getLoaderManager().destroyLoader(LOADER_ID);
         FragmentManager manager = mActivity.getFragmentManager();
@@ -118,6 +123,112 @@ public class ActivityLifecycleDispatcher {
             manager.executePendingTransactions();
         }
         fragment.setRegistry(mRegistry);
+    }
+
+    /**
+     * Must be the first call in {@link Activity#onResume()} method,
+     * even before super.onResume call.
+     */
+    public void onActivityPreSuperOnResume() {
+        dispatchPauseIfNeeded();
+        // this listener is called once and then it is removed, so we should set it on every resume.
+        registerPauseListener();
+    }
+
+    private Object createPauseListener() {
+        InvocationHandler handler = new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                dispatchPauseIfNeeded();
+                return null;
+            }
+        };
+
+        return Proxy.newProxyInstance(LifecycleActivity.class.getClassLoader(),
+                new Class[]{sPauseListenerClass}, handler);
+    }
+
+    private void invokePauseListenerLifecycleMethod(Method method) {
+        //noinspection TryWithIdenticalCatches
+        try {
+            Object activityThread = sCurrentActivityThreadMethod.invoke(sActivityThreadClass);
+            method.invoke(activityThread, mActivity, mPauseListener);
+        } catch (IllegalAccessException e) {
+            Log.w(LOG_TAG, "Failed to register a pause listener", e);
+        } catch (InvocationTargetException e) {
+            Log.w(LOG_TAG, "Failed to register a pause listener", e);
+        }
+    }
+
+    private void registerPauseListener() {
+        invokePauseListenerLifecycleMethod(sRegisterPauseListenerMethod);
+    }
+
+    private void unregisterPauseListener() {
+        invokePauseListenerLifecycleMethod(sUnregisterPauseListenerMethod);
+    }
+
+    void dispatchPauseIfNeeded() {
+        if (mNeedToDispatchPause) {
+            mRegistry.handleLifecycleEvent(Lifecycle.ON_PAUSE);
+            // not sure how we ended up here, so make sure to clean up our listener.
+            unregisterPauseListener();
+            mNeedToDispatchPause = false;
+        }
+    }
+
+    /**
+     * Must be the first call in {@link Activity#onPause()} method, even before super.onPause call.
+     */
+    public void onActivityPreSuperOnPause() {
+        mNeedToDispatchPause = true;
+        if (mPauseHandler == null) {
+            mPauseHandler = new Handler();
+        }
+        mPauseHandler.postAtFrontOfQueue(mPauseRunnable);
+    }
+
+    /**
+     * Must be the first call in {@link Activity#onStop()} method, even before super.onStop call.
+     */
+    @SuppressWarnings("deprecation")
+    public void onActivityPreSuperOnStop() {
+        dispatchPauseIfNeeded();
+        // clean up internal state associated with that cursor
+        mActivity.stopManagingCursor(mReportStopCursor);
+        // add it back
+        mActivity.startManagingCursor(mReportStopCursor);
+    }
+
+    /**
+     * Must be the first call in {@link Activity#onDestroy()} method,
+     * even before super.OnDestroy call.
+     */
+    public void onActivityPreSuperOnDestroy() {
+        mActivity.getLoaderManager().destroyLoader(LOADER_ID);
+        // Create two loaders on the same ID, so first one will be come inactive.
+        // After onDestroy method, inactive loaders will be 100% destroyed.
+        mActivity.getLoaderManager().initLoader(LOADER_ID, null,
+                new EmptyLoaderCallbacks() {
+                    @Override
+                    public Loader onCreateLoader(int id, Bundle args) {
+                        return new ReportOnDestroyLoader(mRegistry, mActivity);
+                    }
+                });
+
+        mActivity.getLoaderManager().restartLoader(LOADER_ID, null, new EmptyLoaderCallbacks() {
+            @Override
+            public Loader onCreateLoader(int id, Bundle args) {
+                return new Loader(mActivity.getApplicationContext());
+            }
+        });
+    }
+
+    /**
+     * @return {@link Lifecycle} for the given activity
+     */
+    public Lifecycle getLifecycle() {
+        return mRegistry;
     }
 
     /**
@@ -157,77 +268,6 @@ public class ActivityLifecycleDispatcher {
         }
     }
 
-    /**
-     * Must be a first call in {@link Activity#onResume()} method, even before super.onResume call.
-     */
-    public void onResume() {
-        dispatchPauseIfNeeded();
-        // this listener is called once and then it is removed, so we should set it on every resume.
-        registerPauseListener();
-    }
-
-    private Object createPauseListener() {
-        InvocationHandler handler = new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                dispatchPauseIfNeeded();
-                return null;
-            }
-        };
-
-        return Proxy.newProxyInstance(LifecycleActivity.class.getClassLoader(),
-                new Class[]{sPauseListenerClass}, handler);
-    }
-
-    private void invokePauseListenerLifecycleMethod(Method method) {
-        try {
-            Object activityThread = sCurrentActivityThreadMethod.invoke(sActivityThreadClass);
-            method.invoke(activityThread, mActivity, mPauseListener);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void registerPauseListener() {
-        invokePauseListenerLifecycleMethod(sRegisterPauseListenerMethod);
-    }
-
-    private void unregisterPauseListener() {
-        invokePauseListenerLifecycleMethod(sUnregisterPauseListenerMethod);
-    }
-
-    void dispatchPauseIfNeeded() {
-        if (mNeedToDispatchPause) {
-            mRegistry.handleLifecycleEvent(Lifecycle.ON_PAUSE);
-            // not sure how we ended up here, so make sure to clean up our listener.
-            unregisterPauseListener();
-            mNeedToDispatchPause = false;
-        }
-    }
-
-
-    /**
-     * Must be a first call in {@link Activity#onPause()} method, even before super.onPause call.
-     */
-    public void onPause() {
-        mNeedToDispatchPause = true;
-        Handler h = new Handler();
-        h.postAtFrontOfQueue(mPauseRunnable);
-    }
-
-    /**
-     * Must be a first call in {@link Activity#onStop()} method, even before super.onPause call.
-     */
-    public void onStop() {
-        dispatchPauseIfNeeded();
-        // clean up internal state associated with that cursor
-        mActivity.stopManagingCursor(mReportStopCursor);
-        // add it back
-        mActivity.startManagingCursor(mReportStopCursor);
-    }
-
     abstract static class EmptyLoaderCallbacks implements LoaderManager.LoaderCallbacks {
         @Override
         public void onLoadFinished(Loader loader, Object data) {
@@ -255,36 +295,5 @@ public class ActivityLifecycleDispatcher {
                 mRegistry = null;
             }
         }
-    }
-
-    /**
-     * Must be a first call in {@link Activity#onDestroy()} method,
-     * even before super.OnDestroy call.
-     */
-    public void onDestroy() {
-        mActivity.getLoaderManager().destroyLoader(LOADER_ID);
-        // Create two loaders on the same ID, so first one will be come inactive.
-        // After onDestroy method, inactive loaders will be 100% destroyed.
-        mActivity.getLoaderManager().initLoader(LOADER_ID, null,
-                new EmptyLoaderCallbacks() {
-                    @Override
-                    public Loader onCreateLoader(int id, Bundle args) {
-                        return new ReportOnDestroyLoader(mRegistry, mActivity);
-                    }
-                });
-
-        mActivity.getLoaderManager().restartLoader(LOADER_ID, null, new EmptyLoaderCallbacks() {
-            @Override
-            public Loader onCreateLoader(int id, Bundle args) {
-                return new Loader(mActivity.getApplicationContext());
-            }
-        });
-    }
-
-    /**
-     * @return {@link Lifecycle} for the given activity
-     */
-    public Lifecycle getLifecycle() {
-        return mRegistry;
     }
 }
