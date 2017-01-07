@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,13 @@ package android.support.v4.app;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.os.Build;
-import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.View;
 
-/**
- * Base class for {@code FragmentActivity} to be able to use Gingerbread APIs.
- *
- * @hide
- */
-@RequiresApi(9)
-abstract class BaseFragmentActivityGingerbread extends SupportActivity {
+@RequiresApi(14)
+abstract class BaseFragmentActivityApi14 extends SupportActivity {
 
     // We need to keep track of whether startIntentSenderForResult originated from a Fragment, so we
     // can conditionally check whether the requestCode collides with our reserved ID space for the
@@ -42,14 +35,12 @@ abstract class BaseFragmentActivityGingerbread extends SupportActivity {
     boolean mStartedIntentSenderFromFragment;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        if (Build.VERSION.SDK_INT < 11 && getLayoutInflater().getFactory() == null) {
-            // On pre-HC devices we need to manually install ourselves as a Factory.
-            // On HC and above, we are automatically installed as a private factory
-            getLayoutInflater().setFactory(this);
+    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        final View v = dispatchFragmentsOnCreateView(parent, name, context, attrs);
+        if (v == null) {
+            return super.onCreateView(parent, name, context, attrs);
         }
-
-        super.onCreate(savedInstanceState);
+        return v;
     }
 
     @Override
@@ -63,7 +54,6 @@ abstract class BaseFragmentActivityGingerbread extends SupportActivity {
 
     abstract View dispatchFragmentsOnCreateView(View parent, String name,
             Context context, AttributeSet attrs);
-
 
     @Override
     public void startIntentSenderForResult(IntentSender intent, int requestCode,
