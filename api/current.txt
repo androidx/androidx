@@ -1276,6 +1276,7 @@ package android.support.v13.view.inputmethod {
     ctor public EditorInfoCompat();
     method public static java.lang.String[] getContentMimeTypes(android.view.inputmethod.EditorInfo);
     method public static void setContentMimeTypes(android.view.inputmethod.EditorInfo, java.lang.String[]);
+    field public static final int IME_FLAG_FORCE_ASCII = -2147483648; // 0x80000000
     field public static final int IME_FLAG_NO_PERSONALIZED_LEARNING = 16777216; // 0x1000000
   }
 
