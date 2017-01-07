@@ -25,4 +25,12 @@ class ViewCompatApi24 {
     public static void setPointerIcon(View view, Object pointerIcon) {
         view.setPointerIcon((PointerIcon)pointerIcon);
     }
+
+    public static void dispatchStartTemporaryDetach(View view) {
+        view.dispatchStartTemporaryDetach();
+    }
+
+    public static void dispatchFinishTemporaryDetach(View view) {
+        view.dispatchFinishTemporaryDetach();
+    }
 }
