@@ -99,18 +99,11 @@ public class EditDetailsFragment extends DialogFragment implements LifecycleRegi
             }
         });
 
-        // Get the data from our view model
-        final MovieDataFull fullData = movieDataFullModel.getMovieData().getValue();
-        if (fullData == null) {
-            // Ask the model to load the data for this movie. When the data is loaded, we will be
-            // notified since this fragment registered itself as an observer on the matching
-            // live data object.
-            movieDataFullModel.setImdbId(getContext(), imdbId);
-        } else {
-            android.util.Log.e("MovieBrowser", "Got data for editing from saved state");
-            result.setTitle(fullData.Title);
-            showEditableFields(editor, fullData.Runtime, fullData.Rated);
-        }
+        // Ask the model to load the data for this movie. When the data becomes available (either
+        // immediately from the previous load or later on when it's fetched from remote API call),
+        // we will be notified since this fragment registered itself as an observer on the matching
+        // live data object.
+        movieDataFullModel.setImdbId(getContext(), imdbId);
 
         return result;
     }

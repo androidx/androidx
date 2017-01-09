@@ -44,7 +44,17 @@ public class MovieDataFullModel implements ViewModel {
     /**
      * Sets the IMDB ID for fetching the full movie data.
      */
-    public void setImdbId(Context context, String imdbID) {
+    public synchronized void setImdbId(Context context, String imdbID) {
+        // Note that the usage of this view model class guarantees that we're always calling
+        // with the same IMDB ID. So checking the value of fetching field is enough to prevent
+        // multiple concurrent remote / local DB fetches.
+        boolean isFetching = (mFetching.getValue() != null)
+                && mFetching.getValue().booleanValue();
+        if (isFetching || mMovieData.getValue() != null) {
+            // We are either fetching the data or have the data already
+            return;
+        }
+
         mFetching.setValue(true);
 
         final MovieDataFullDatabase db = MovieDataFullDatabaseHelper.getDatabase(context);

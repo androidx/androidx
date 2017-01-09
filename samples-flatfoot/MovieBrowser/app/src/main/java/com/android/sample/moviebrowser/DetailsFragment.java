@@ -75,18 +75,12 @@ public class DetailsFragment extends LifecycleFragment {
             }
         });
 
-        final MovieDataFull fullData = mMovieDataFullModel.getMovieData().getValue();
-        if (fullData == null) {
-            // Ask the model to load the data for this movie. When the data is loaded, we will be
-            // notified since this fragment registered itself as an observer on the matching
-            // live data object.
-            // TODO - switch UI population to use data binding.
-            mMovieDataFullModel.setImdbId(getContext(), mImdbId);
-        } else {
-            // If we're here, our data is already available
-            android.util.Log.e("MovieBrowser", "Got data from saved state");
-            updateWithFullData(result, fullData);
-        }
+        // Ask the model to load the data for this movie. When the data becomes available (either
+        // immediately from the previous load or later on when it's fetched from remote API call),
+        // we will be notified since this fragment registered itself as an observer on the matching
+        // live data object.
+        // TODO - switch UI population to use data binding.
+        mMovieDataFullModel.setImdbId(getContext(), mImdbId);
 
         return result;
     }
