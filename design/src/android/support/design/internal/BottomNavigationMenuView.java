@@ -16,6 +16,8 @@
 
 package android.support.design.internal;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -32,12 +34,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * @hide For internal use only.
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class BottomNavigationMenuView extends ViewGroup implements MenuView {
     private final int mInactiveItemMaxWidth;
     private final int mInactiveItemMinWidth;
@@ -55,6 +55,7 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
     private ColorStateList mItemIconTint;
     private ColorStateList mItemTextColor;
     private int mItemBackgroundRes;
+    private int[] mTempChildWidths;
 
     private BottomNavigationPresenter mPresenter;
     private MenuBuilder mMenu;
@@ -85,19 +86,17 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
             public void onClick(View v) {
                 final BottomNavigationItemView itemView = (BottomNavigationItemView) v;
                 final int itemPosition = itemView.getItemPosition();
-                activateNewButton(itemPosition);
-                mMenu.performItemAction(itemView.getItemData(), mPresenter, 0);
+                if (!mMenu.performItemAction(itemView.getItemData(), mPresenter, 0)) {
+                    activateNewButton(itemPosition);
+                }
             }
         };
+        mTempChildWidths = new int[BottomNavigationMenu.MAX_ITEM_COUNT];
     }
 
     @Override
     public void initialize(MenuBuilder menu) {
         mMenu = menu;
-        if (mMenu == null) return;
-        if (mMenu.size() > mActiveButton) {
-            mMenu.getItem(mActiveButton).setChecked(true);
-        }
     }
 
     @Override
@@ -105,10 +104,8 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
         final int width = MeasureSpec.getSize(widthMeasureSpec);
         final int count = getChildCount();
 
-        final int childState = 0;
         final int heightSpec = MeasureSpec.makeMeasureSpec(mItemHeight, MeasureSpec.EXACTLY);
 
-        final int[] childWidths = new int[count];
         if (mShiftingMode) {
             final int inactiveCount = count - 1;
             final int activeMaxAvailable = width - inactiveCount * mInactiveItemMinWidth;
@@ -117,20 +114,20 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
             final int inactiveWidth = Math.min(inactiveMaxAvailable, mInactiveItemMaxWidth);
             int extra = width - activeWidth - inactiveWidth * inactiveCount;
             for (int i = 0; i < count; i++) {
-                childWidths[i] = (i == mActiveButton) ? activeWidth : inactiveWidth;
+                mTempChildWidths[i] = (i == mActiveButton) ? activeWidth : inactiveWidth;
                 if (extra > 0) {
-                    childWidths[i]++;
+                    mTempChildWidths[i]++;
                     extra--;
                 }
             }
         } else {
-            final int maxAvailable = width / count;
+            final int maxAvailable = width / (count == 0 ? 1 : count);
             final int childWidth = Math.min(maxAvailable, mActiveItemMaxWidth);
             int extra = width - childWidth * count;
             for (int i = 0; i < count; i++) {
-                childWidths[i] = childWidth;
+                mTempChildWidths[i] = childWidth;
                 if (extra > 0) {
-                    childWidths[i]++;
+                    mTempChildWidths[i]++;
                     extra--;
                 }
             }
@@ -142,7 +139,7 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
             if (child.getVisibility() == GONE) {
                 continue;
             }
-            child.measure(MeasureSpec.makeMeasureSpec(childWidths[i], MeasureSpec.EXACTLY),
+            child.measure(MeasureSpec.makeMeasureSpec(mTempChildWidths[i], MeasureSpec.EXACTLY),
                     heightSpec);
             ViewGroup.LayoutParams params = child.getLayoutParams();
             params.width = child.getMeasuredWidth();
@@ -150,9 +147,8 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
         }
         setMeasuredDimension(
                 ViewCompat.resolveSizeAndState(totalWidth,
-                        MeasureSpec.makeMeasureSpec(totalWidth, MeasureSpec.EXACTLY), childState),
-                ViewCompat.resolveSizeAndState(mItemHeight, heightSpec,
-                        childState << MEASURED_HEIGHT_STATE_SHIFT));
+                        MeasureSpec.makeMeasureSpec(totalWidth, MeasureSpec.EXACTLY), 0),
+                ViewCompat.resolveSizeAndState(mItemHeight, heightSpec, 0));
     }
 
     @Override
@@ -180,19 +176,34 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
         return 0;
     }
 
-    public void setIconTintList(ColorStateList color) {
-        mItemIconTint = color;
+    /**
+     * Sets the tint which is applied to the menu items' icons.
+     *
+     * @param tint the tint to apply
+     */
+    public void setIconTintList(ColorStateList tint) {
+        mItemIconTint = tint;
         if (mButtons == null) return;
         for (BottomNavigationItemView item : mButtons) {
-            item.setIconTintList(color);
+            item.setIconTintList(tint);
         }
     }
 
+    /**
+     * Returns the tint which is applied to menu items' icons.
+     *
+     * @return the ColorStateList that is used to tint menu items' icons
+     */
     @Nullable
     public ColorStateList getIconTintList() {
         return mItemIconTint;
     }
 
+    /**
+     * Sets the text color to be used on menu items.
+     *
+     * @param color the ColorStateList used for menu items' text.
+     */
     public void setItemTextColor(ColorStateList color) {
         mItemTextColor = color;
         if (mButtons == null) return;
@@ -201,10 +212,20 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
         }
     }
 
+    /**
+     * Returns the text color used on menu items.
+     *
+     * @return the ColorStateList used for menu items' text
+     */
     public ColorStateList getItemTextColor() {
         return mItemTextColor;
     }
 
+    /**
+     * Sets the resource ID to be used for item background.
+     *
+     * @param background the resource ID of the background
+     */
     public void setItemBackgroundRes(int background) {
         mItemBackgroundRes = background;
         if (mButtons == null) return;
@@ -213,6 +234,11 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
         }
     }
 
+    /**
+     * Returns the resource ID for the background of the menu items.
+     *
+     * @return the resource ID for the background
+     */
     public int getItemBackgroundRes() {
         return mItemBackgroundRes;
     }
@@ -228,6 +254,9 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
             }
         }
         removeAllViews();
+        if (mMenu.size() == 0) {
+            return;
+        }
         mButtons = new BottomNavigationItemView[mMenu.size()];
         mShiftingMode = mMenu.size() > 3;
         for (int i = 0; i < mMenu.size(); i++) {
@@ -245,6 +274,8 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
             child.setOnClickListener(mOnClickListener);
             addView(child);
         }
+        mActiveButton = Math.min(mMenu.size() - 1, mActiveButton);
+        mMenu.getItem(mActiveButton).setChecked(true);
     }
 
     public void updateMenuView() {
@@ -256,6 +287,9 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
         }
         for (int i = 0; i < menuSize; i++) {
             mPresenter.setUpdateSuspended(true);
+            if (mMenu.getItem(i).isChecked()) {
+                mActiveButton = i;
+            }
             mButtons[i].initialize((MenuItemImpl) mMenu.getItem(i), 0);
             mPresenter.setUpdateSuspended(false);
         }
@@ -266,10 +300,7 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
 
         mAnimationHelper.beginDelayedTransition(this);
 
-        mPresenter.setUpdateSuspended(true);
-        mButtons[mActiveButton].setChecked(false);
-        mButtons[newButton].setChecked(true);
-        mPresenter.setUpdateSuspended(false);
+        mMenu.getItem(newButton).setChecked(true);
 
         mActiveButton = newButton;
     }

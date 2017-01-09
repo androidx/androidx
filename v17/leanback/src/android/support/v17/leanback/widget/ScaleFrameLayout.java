@@ -13,6 +13,8 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.RestrictTo;
@@ -22,13 +24,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Subclass of FrameLayout that support scale layout area size for children.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class ScaleFrameLayout extends FrameLayout {
 
     private static final int DEFAULT_CHILD_GRAVITY = Gravity.TOP | Gravity.START;
@@ -99,9 +99,9 @@ public class ScaleFrameLayout extends FrameLayout {
 
         final int parentLeft, parentRight;
         final int layoutDirection = getLayoutDirection();
-        final float pivotX = (layoutDirection == View.LAYOUT_DIRECTION_RTL) ?
-                getWidth() - getPivotX() :
-                getPivotX();
+        final float pivotX = (layoutDirection == View.LAYOUT_DIRECTION_RTL)
+                ? getWidth() - getPivotX()
+                : getPivotX();
         if (mLayoutScaleX != 1f) {
             parentLeft = getPaddingLeft() + (int)(pivotX - pivotX / mLayoutScaleX + 0.5f);
             parentRight = (int)(pivotX + (right - left - pivotX) / mLayoutScaleX + 0.5f)
@@ -143,8 +143,8 @@ public class ScaleFrameLayout extends FrameLayout {
 
                 switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
                     case Gravity.CENTER_HORIZONTAL:
-                        childLeft = parentLeft + (parentRight - parentLeft - width) / 2 +
-                                lp.leftMargin - lp.rightMargin;
+                        childLeft = parentLeft + (parentRight - parentLeft - width) / 2
+                                + lp.leftMargin - lp.rightMargin;
                         break;
                     case Gravity.RIGHT:
                         childLeft = parentRight - width - lp.rightMargin;
@@ -159,8 +159,8 @@ public class ScaleFrameLayout extends FrameLayout {
                         childTop = parentTop + lp.topMargin;
                         break;
                     case Gravity.CENTER_VERTICAL:
-                        childTop = parentTop + (parentBottom - parentTop - height) / 2 +
-                                lp.topMargin - lp.bottomMargin;
+                        childTop = parentTop + (parentBottom - parentTop - height) / 2
+                                + lp.topMargin - lp.bottomMargin;
                         break;
                     case Gravity.BOTTOM:
                         childTop = parentBottom - height - lp.bottomMargin;

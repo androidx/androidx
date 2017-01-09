@@ -14,6 +14,7 @@
 package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.util.MathUtil;
 import android.util.TypedValue;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -622,9 +623,9 @@ public class PlaybackControlsRow extends Row {
     private Drawable mImageDrawable;
     private ObjectAdapter mPrimaryActionsAdapter;
     private ObjectAdapter mSecondaryActionsAdapter;
-    private int mTotalTimeMs;
-    private int mCurrentTimeMs;
-    private int mBufferedProgressMs;
+    private long mTotalTimeMs;
+    private long mCurrentTimeMs;
+    private long mBufferedProgressMs;
     private OnPlaybackStateChangedListener mListener;
 
     /**
@@ -721,13 +722,29 @@ public class PlaybackControlsRow extends Row {
      * this row has changed.</p>
      */
     public void setTotalTime(int ms) {
+        setTotalTimeLong((long) ms);
+    }
+
+    /**
+     * Sets the total time in milliseconds (long type) for the playback controls row.
+     * @param ms Total time in milliseconds of long type.
+     */
+    public void setTotalTimeLong(long ms) {
         mTotalTimeMs = ms;
     }
 
     /**
      * Returns the total time in milliseconds for the playback controls row.
+     * @throws ArithmeticException If total time in milliseconds overflows int.
      */
     public int getTotalTime() {
+        return MathUtil.safeLongToInt(getTotalTimeLong());
+    }
+
+    /**
+     * Returns the total time in milliseconds of long type for the playback controls row.
+     */
+    public long getTotalTimeLong() {
         return mTotalTimeMs;
     }
 
@@ -737,6 +754,14 @@ public class PlaybackControlsRow extends Row {
      * be updated to reflect the new value.
      */
     public void setCurrentTime(int ms) {
+        setCurrentTimeLong((long) ms);
+    }
+
+    /**
+     * Sets the current time in milliseconds for playback controls row in long type.
+     * @param ms Current time in milliseconds of long type.
+     */
+    public void setCurrentTimeLong(long ms) {
         if (mCurrentTimeMs != ms) {
             mCurrentTimeMs = ms;
             currentTimeChanged();
@@ -745,8 +770,16 @@ public class PlaybackControlsRow extends Row {
 
     /**
      * Returns the current time in milliseconds for the playback controls row.
+     * @throws ArithmeticException If current time in milliseconds overflows int.
      */
     public int getCurrentTime() {
+        return MathUtil.safeLongToInt(getCurrentTimeLong());
+    }
+
+    /**
+     * Returns the current time in milliseconds of long type for playback controls row.
+     */
+    public long getCurrentTimeLong() {
         return mCurrentTimeMs;
     }
 
@@ -756,6 +789,14 @@ public class PlaybackControlsRow extends Row {
      * be updated to reflect the new value.
      */
     public void setBufferedProgress(int ms) {
+        setBufferedProgressLong((long) ms);
+    }
+
+    /**
+     * Sets the buffered progress for the playback controls row.
+     * @param ms Buffered progress in milliseconds of long type.
+     */
+    public void setBufferedProgressLong(long ms) {
         if (mBufferedProgressMs != ms) {
             mBufferedProgressMs = ms;
             bufferedProgressChanged();
@@ -764,8 +805,16 @@ public class PlaybackControlsRow extends Row {
 
     /**
      * Returns the buffered progress for the playback controls row.
+     * @throws ArithmeticException If buffered progress in milliseconds overflows int.
      */
     public int getBufferedProgress() {
+        return MathUtil.safeLongToInt(getBufferedProgressLong());
+    }
+
+    /**
+     * Returns the buffered progress of long type for the playback controls row.
+     */
+    public long getBufferedProgressLong() {
         return mBufferedProgressMs;
     }
 
@@ -798,8 +847,8 @@ public class PlaybackControlsRow extends Row {
     }
 
     interface OnPlaybackStateChangedListener {
-        public void onCurrentTimeChanged(int currentTimeMs);
-        public void onBufferedProgressChanged(int bufferedProgressMs);
+        public void onCurrentTimeChanged(long currentTimeMs);
+        public void onBufferedProgressChanged(long bufferedProgressMs);
     }
 
     /**

@@ -1,9 +1,9 @@
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 package android.support.v7.preference.internal;
 
-import android.support.annotation.RestrictTo;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import android.support.annotation.RestrictTo;

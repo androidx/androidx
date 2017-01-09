@@ -219,7 +219,7 @@ abstract class BaseRowFragment extends Fragment {
         }
     }
 
-    final VerticalGridView getVerticalGridView() {
+    public final VerticalGridView getVerticalGridView() {
         return mVerticalGridView;
     }
 

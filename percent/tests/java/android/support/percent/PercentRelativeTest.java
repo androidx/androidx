@@ -16,9 +16,9 @@
 package android.support.percent;
 
 import android.support.percent.test.R;
-import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.support.test.filters.SmallTest;
 import android.view.View;
+
 import org.junit.Before;
 import org.junit.Test;
 

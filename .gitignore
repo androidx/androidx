@@ -4,6 +4,7 @@
 .project
 .settings/
 project.properties
+local.properties
 **/bin
 **/gen
 *.iml

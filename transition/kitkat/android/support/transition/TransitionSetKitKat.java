@@ -16,6 +16,11 @@
 
 package android.support.transition;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
+
+@RequiresApi(19)
+@TargetApi(19)
 class TransitionSetKitKat extends TransitionKitKat implements TransitionSetImpl {
 
     private android.transition.TransitionSet mTransitionSet;

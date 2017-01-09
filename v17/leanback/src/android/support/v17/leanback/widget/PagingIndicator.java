@@ -16,6 +16,8 @@
 
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -39,21 +41,19 @@ import android.util.Property;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * A page indicator with dots.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class PagingIndicator extends View {
     private static final long DURATION_ALPHA = 167;
     private static final long DURATION_DIAMETER = 417;
     private static final long DURATION_TRANSLATION_X = DURATION_DIAMETER;
     private static final TimeInterpolator DECELERATE_INTERPOLATOR = new DecelerateInterpolator();
 
-    private static final Property<Dot, Float> DOT_ALPHA
-            = new Property<Dot, Float>(Float.class, "alpha") {
+    private static final Property<Dot, Float> DOT_ALPHA =
+            new Property<Dot, Float>(Float.class, "alpha") {
         @Override
         public Float get(Dot dot) {
             return dot.getAlpha();
@@ -65,8 +65,8 @@ public class PagingIndicator extends View {
         }
     };
 
-    private static final Property<Dot, Float> DOT_DIAMETER
-            = new Property<Dot, Float>(Float.class, "diameter") {
+    private static final Property<Dot, Float> DOT_DIAMETER =
+            new Property<Dot, Float>(Float.class, "diameter") {
         @Override
         public Float get(Dot dot) {
             return dot.getDiameter();
@@ -78,8 +78,8 @@ public class PagingIndicator extends View {
         }
     };
 
-    private static final Property<Dot, Float> DOT_TRANSLATION_X
-            = new Property<Dot, Float>(Float.class, "translation_x") {
+    private static final Property<Dot, Float> DOT_TRANSLATION_X =
+            new Property<Dot, Float>(Float.class, "translation_x") {
         @Override
         public Float get(Dot dot) {
             return dot.getTranslationX();

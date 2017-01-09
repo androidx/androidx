@@ -55,7 +55,8 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     private boolean mLoadersStarted;
 
     public FragmentHostCallback(Context context, Handler handler, int windowAnimations) {
-        this(null /*activity*/, context, handler, windowAnimations);
+        this(context instanceof Activity ? (Activity) context : null, context, handler,
+                windowAnimations);
     }
 
     FragmentHostCallback(FragmentActivity activity) {

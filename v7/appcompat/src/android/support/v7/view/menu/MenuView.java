@@ -16,10 +16,10 @@
 
 package android.support.v7.view.menu;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.drawable.Drawable;
 import android.support.annotation.RestrictTo;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Minimal interface for a menu view.  {@link #initialize(MenuBuilder)} must be called for the
@@ -27,7 +27,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public interface MenuView {
     /**
      * Initializes the menu to the given menu. This should be called after the

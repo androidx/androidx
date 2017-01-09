@@ -16,13 +16,14 @@
 
 package android.support.v4.app;
 
-import android.app.Activity;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -31,7 +32,9 @@ import android.view.View;
  *
  * @hide
  */
-abstract class BaseFragmentActivityGingerbread extends Activity {
+@RequiresApi(9)
+@TargetApi(9)
+abstract class BaseFragmentActivityGingerbread extends SupportActivity {
 
     // We need to keep track of whether startIntentSenderForResult originated from a Fragment, so we
     // can conditionally check whether the requestCode collides with our reserved ID space for the

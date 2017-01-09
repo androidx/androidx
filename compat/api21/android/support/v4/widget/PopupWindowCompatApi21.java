@@ -16,11 +16,15 @@
 
 package android.support.v4.widget;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.util.Log;
 import android.widget.PopupWindow;
 
 import java.lang.reflect.Field;
 
+@RequiresApi(21)
+@TargetApi(21)
 class PopupWindowCompatApi21 {
 
     private static final String TAG = "PopupWindowCompatApi21";

@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -28,8 +30,6 @@ import android.support.v7.appcompat.R;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.widget.MultiAutoCompleteTextView;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A {@link MultiAutoCompleteTextView} which supports compatible features on older version of the
@@ -109,7 +109,7 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
         if (mBackgroundTintHelper != null) {
@@ -123,7 +123,7 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     @Nullable
     public ColorStateList getSupportBackgroundTintList() {
@@ -137,7 +137,7 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mBackgroundTintHelper != null) {
@@ -151,7 +151,7 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     @Nullable
     public PorterDuff.Mode getSupportBackgroundTintMode() {

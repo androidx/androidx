@@ -16,15 +16,14 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
           android:id="@+id/mr_expandable_area"
-          android:background="@android:color/transparent"
           android:layout_width="fill_parent"
           android:layout_height="fill_parent">
     <LinearLayout android:id="@+id/mr_dialog_area"
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
-                  android:background="?attr/MediaRouteControllerWindowBackground"
                   android:layout_gravity="center"
-                  android:orientation="vertical">
+                  android:orientation="vertical"
+                  android:background="?attr/colorBackgroundFloating">
         <LinearLayout android:id="@+id/mr_title_bar"
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"
@@ -38,7 +37,7 @@
                       android:gravity="center_vertical"
                       android:singleLine="true"
                       android:ellipsize="end"
-                      android:textAppearance="?attr/mediaRouteControllerTitleTextStyle" />
+                      android:textAppearance="@style/TextAppearance.MediaRouter.Title" />
             <ImageButton android:id="@+id/mr_close"
                          android:layout_width="48dp"
                          android:layout_height="48dp"
@@ -74,7 +73,8 @@
                               android:orientation="vertical"
                               android:paddingTop="16dp"
                               android:paddingBottom="16dp"
-                              android:layout_gravity="bottom">
+                              android:layout_gravity="bottom"
+                              android:theme="?attr/mediaRouteControlPanelThemeOverlay">
                     <include android:id="@+id/mr_playback_control"
                              layout="@layout/mr_playback_control" />
                     <View android:id="@+id/mr_control_divider"
@@ -92,7 +92,8 @@
                         android:scrollbarStyle="outsideOverlay"
                         android:clipToPadding="false"
                         android:visibility="gone"
-                        android:splitMotionEvents="false" />
+                        android:splitMotionEvents="false"
+                        android:theme="?attr/mediaRouteControlPanelThemeOverlay" />
             </LinearLayout>
         </FrameLayout>
         <include layout="@layout/abc_alert_dialog_button_bar_material" />

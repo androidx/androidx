@@ -24,6 +24,7 @@
         <item name="preferenceInformationStyle">@style/Preference.Information</item>
         <item name="checkBoxPreferenceStyle">@style/Preference.CheckBoxPreference</item>
         <item name="switchPreferenceCompatStyle">@style/Preference.SwitchPreferenceCompat</item>
+        <item name="seekBarPreferenceStyle">@style/Preference.SeekBarPreference</item>
         <item name="dialogPreferenceStyle">@style/Preference.DialogPreference</item>
         <item name="editTextPreferenceStyle">@style/Preference.DialogPreference.EditTextPreference</item>
         <item name="preferenceFragmentListStyle">@style/PreferenceFragmentList</item>

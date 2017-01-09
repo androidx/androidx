@@ -28,10 +28,14 @@
         <!-- Allow DPAD key to navigate out of last row, for HorizontalGridView, it's the
              bottom edge, for VerticalGridView it's the "end" edge.  Default value is true.  -->
         <attr name="focusOutSideEnd" format="boolean" />
-        <!-- Defining margin between two items horizontally -->
+        <!-- Deprecated, use android:horizontalSpacing -->
         <attr name="horizontalMargin" format="dimension" />
-        <!-- Defining margin between two items vertically -->
+        <!-- Deprecated, use android:verticalSpacing -->
         <attr name="verticalMargin" format="dimension" />
+        <!-- Defining space between two items horizontally -->
+        <attr name="android:horizontalSpacing" />
+        <!-- Defining space between two items vertically -->
+        <attr name="android:verticalSpacing" />
         <!-- Defining gravity of child view -->
         <attr name="android:gravity" />
     </declare-styleable>
@@ -249,6 +253,10 @@
         <attr name="rowHorizontalGridStyle" format="reference" />
         <!-- header style inside a row -->
         <attr name="rowHeaderStyle" format="reference" />
+
+        <!-- header description style inside a row -->
+        <attr name="rowHeaderDescriptionStyle" format="reference" />
+
         <!-- style for the layout that hosting Header inside a row -->
         <attr name="rowHeaderDockStyle" format="reference" />
 

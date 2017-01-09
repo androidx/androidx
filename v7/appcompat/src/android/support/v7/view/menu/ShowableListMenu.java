@@ -16,17 +16,17 @@
 
 package android.support.v7.view.menu;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.RestrictTo;
 import android.widget.ListView;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A list menu which can be shown and hidden and which is internally represented by a ListView.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public interface ShowableListMenu {
     void show();
 

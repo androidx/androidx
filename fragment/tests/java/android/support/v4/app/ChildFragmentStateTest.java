@@ -17,27 +17,31 @@
 
 package android.support.v4.app;
 
+import static org.junit.Assert.assertTrue;
+
+import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.FragmentTestActivity.ParentFragment;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.SmallTest;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class ChildFragmentStateTest extends ActivityInstrumentationTestCase2<FragmentTestActivity> {
-    public ChildFragmentStateTest() {
-        super(FragmentTestActivity.class);
-    }
+public class ChildFragmentStateTest {
+    @Rule
+    public ActivityTestRule<FragmentTestActivity> mActivityRule =
+            new ActivityTestRule<FragmentTestActivity>(FragmentTestActivity.class);
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
+    @Test
     @UiThreadTest
     public void testChildFragmentOrdering() throws Throwable {
         FragmentTestActivity.ParentFragment parent = new ParentFragment();
-        FragmentManager fm = getActivity().getSupportFragmentManager();
+        FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
         fm.beginTransaction().add(parent, "parent").commit();
         fm.executePendingTransactions();
         assertTrue(parent.wasAttachedInTime);

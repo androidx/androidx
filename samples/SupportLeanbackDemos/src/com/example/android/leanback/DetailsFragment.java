@@ -13,11 +13,10 @@
  */
 package com.example.android.leanback;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
@@ -34,6 +33,8 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -46,7 +47,7 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
     private ArrayObjectAdapter mRowsAdapter;
     private PhotoItem mPhotoItem;
     final CardPresenter cardPresenter = new CardPresenter();
-    private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
+    private BackgroundHelper mBackgroundHelper;
 
     private static final int ACTION_PLAY = 1;
     private static final int ACTION_RENT = 2;
@@ -67,7 +68,12 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
+        mBackgroundHelper = new BackgroundHelper(getActivity());
+        mBackgroundHelper.attachToWindow();
+
+        Context context = getActivity();
+        setBadgeDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                R.drawable.ic_title, context.getTheme()));
         setTitle("Leanback Sample App");
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
@@ -78,17 +84,19 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
         });
 
         mActionPlay = new Action(ACTION_PLAY, "Play");
-        mActionRent = new Action(ACTION_RENT, "Rent", "$3.99",
-                getResources().getDrawable(R.drawable.ic_action_a));
+        mActionRent = new Action(ACTION_RENT, "Rent", "$3.99", ResourcesCompat.getDrawable(
+                context.getResources(), R.drawable.ic_action_a, context.getTheme()));
         mActionBuy = new Action(ACTION_BUY, "Buy $9.99");
 
         ClassPresenterSelector ps = new ClassPresenterSelector();
+        @SuppressWarnings("deprecation")
         DetailsOverviewRowPresenter dorPresenter =
                 new DetailsOverviewRowPresenter(new DetailsDescriptionPresenter());
         dorPresenter.setOnActionClickedListener(new OnActionClickedListener() {
             @Override
             public void onActionClicked(Action action) {
-                Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
+                final Context context = getActivity();
+                Toast.makeText(context, action.toString(), Toast.LENGTH_SHORT).show();
                 DetailsOverviewRow dor = (DetailsOverviewRow) mRowsAdapter.get(0);
                 if (action.getId() == ACTION_BUY) {
                     // on the UI thread, we can modify actions adapter directly
@@ -98,7 +106,8 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
                     actions.clear(ACTION_RENT);
                     actions.clear(ACTION_BUY);
                     dor.setItem(mPhotoItem.getTitle() + "(Owned)");
-                    dor.setImageDrawable(getResources().getDrawable(R.drawable.details_img_16x9));
+                    dor.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                            R.drawable.details_img_16x9, context.getTheme()));
                 } else if (action.getId() == ACTION_RENT) {
                     // on the UI thread, we can modify actions adapter directly
                     SparseArrayObjectAdapter actions = (SparseArrayObjectAdapter)
@@ -107,7 +116,7 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
                     actions.clear(ACTION_RENT);
                     dor.setItem(mPhotoItem.getTitle() + "(Rented)");
                 } else if (action.getId() == ACTION_PLAY) {
-                    Intent intent = new Intent(getActivity(), PlaybackOverlayActivity.class);
+                    Intent intent = new Intent(context, PlaybackOverlayActivity.class);
                     getActivity().startActivity(intent);
                 }
             }
@@ -161,6 +170,7 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
         }
     }
 
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -173,9 +183,10 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
         mRowsAdapter.clear();
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                Resources res = getActivity().getResources();
+                final Context context = getActivity();
                 DetailsOverviewRow dor = new DetailsOverviewRow(mPhotoItem.getTitle());
-                dor.setImageDrawable(res.getDrawable(mPhotoItem.getImageResourceId()));
+                dor.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                        mPhotoItem.getImageResourceId(), context.getTheme()));
                 SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter();
                 adapter.set(ACTION_RENT, mActionRent);
                 adapter.set(ACTION_BUY, mActionBuy);
@@ -208,9 +219,7 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
     public void onStart() {
         super.onStart();
         if (mPhotoItem != null) {
-            mBackgroundHelper.setBackground(
-                    getActivity(), mPhotoItem.getImageResourceId());
+            mBackgroundHelper.setBackground(mPhotoItem.getImageResourceId());
         }
     }
-
 }

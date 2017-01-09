@@ -19,7 +19,11 @@ package android.support.v4.app;
 import android.app.RemoteInput;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(20)
+@TargetApi(20)
 class RemoteInputCompatApi20 {
     static RemoteInputCompatBase.RemoteInput[] toCompat(RemoteInput[] srcArray,
             RemoteInputCompatBase.RemoteInput.Factory factory) {

@@ -18,6 +18,8 @@ package android.support.v4.net;
 
 import android.net.TrafficStats;
 import android.os.ParcelFileDescriptor;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 import java.net.DatagramSocket;
 import java.net.Socket;
@@ -26,6 +28,9 @@ import java.net.SocketException;
 /**
  * Implementation of TrafficStatsCompat that can call ICS APIs.
  */
+
+@RequiresApi(14)
+@TargetApi(14)
 class TrafficStatsCompatIcs {
     public static void clearThreadStatsTag() {
         TrafficStats.clearThreadStatsTag();

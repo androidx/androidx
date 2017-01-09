@@ -6,8 +6,15 @@
 ##
 ##############################################################################
 
+# Pick the correct fullsdk for this OS.
+if [ "$os" = "Darwin" ]; then
+    plat="darwin"
+else
+    plat="linux"
+fi
+DEFAULT_JVM_OPTS="-DLINT_API_DATABASE=../../prebuilts/fullsdk-$plat/platform-tools/api/api-versions.xml"
+
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
-DEFAULT_JVM_OPTS=""
 
 APP_NAME="Gradle"
 APP_BASE_NAME=`basename "$0"`

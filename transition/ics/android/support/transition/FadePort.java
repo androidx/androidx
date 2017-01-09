@@ -19,7 +19,8 @@ package android.support.transition;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.View;
@@ -55,6 +56,8 @@ import android.view.ViewGroup;
  * attributes of {@link android.R.styleable#Fade} and
  * {@link android.R.styleable#Transition}.</p>
  */
+@RequiresApi(14)
+@TargetApi(14)
 class FadePort extends VisibilityPort {
 
     /**

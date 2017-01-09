@@ -16,6 +16,8 @@
 
 package android.support.customtabs;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -32,8 +34,6 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Class to communicate with a {@link CustomTabsService} and create
  * {@link CustomTabsSession} from it.
@@ -43,7 +43,7 @@ public class CustomTabsClient {
     private final ComponentName mServiceComponentName;
 
     /**@hide*/
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     CustomTabsClient(ICustomTabsService service, ComponentName componentName) {
         mService = service;
         mServiceComponentName = componentName;

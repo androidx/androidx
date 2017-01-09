@@ -31,9 +31,8 @@ import static org.junit.Assert.fail;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.view.View;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -481,12 +480,12 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         notifyDataSetChangedWithAppearing(true);
     }
 
-    public void notifyDataSetChangedWithAppearing(final boolean notifyBoth) throws Throwable {
+    private void notifyDataSetChangedWithAppearing(final boolean notifyBoth) throws Throwable {
         final TestAdapter adapter = new TestAdapter(10);
         adapter.setHasStableIds(true);
         setupBasic(10, 0, 10, adapter);
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -520,12 +519,12 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         notifyDataSetChangedWithDispappearing(true);
     }
 
-    public void notifyDataSetChangedWithDispappearing(final boolean notifyBoth) throws Throwable {
+    private void notifyDataSetChangedWithDispappearing(final boolean notifyBoth) throws Throwable {
         final TestAdapter adapter = new TestAdapter(10);
         adapter.setHasStableIds(true);
         setupBasic(10, 0, 10, adapter);
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {

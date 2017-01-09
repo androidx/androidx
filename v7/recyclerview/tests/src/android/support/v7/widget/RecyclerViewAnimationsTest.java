@@ -16,19 +16,30 @@
 
 package android.support.v7.widget;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import android.graphics.Rect;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.view.ViewCompat;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.graphics.Rect;
-import android.support.annotation.NonNull;
-import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.view.ViewCompat;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +49,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import static org.junit.Assert.*;
 
 /**
  * Tests for {@link SimpleItemAnimator} API.
@@ -63,7 +73,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
         final RecyclerView.ViewHolder oldVh = mRecyclerView.findViewHolderForAdapterPosition(3);
         assertNotNull("test sanity", oldVh);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 oldVh.itemView.requestFocus();
@@ -118,7 +128,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mRecyclerView.setItemAnimator(animator);
         mLayoutManager.expectLayouts(2);
         final RecyclerView.ViewHolder[] updatedVH = new RecyclerView.ViewHolder[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 adapter.notifyItemChanged(0);
@@ -422,6 +432,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         });
     }
 
+    // Disable this test on ICS because it causes testing devices to freeze.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void dontReuseHiddenViewOnInvalidate() throws Throwable {
         reuseHiddenViewTest(new ReuseTestCallback() {
@@ -540,7 +552,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         waitForAnimations(2);
         final View[] targetChild = new View[1];
         final LoggingItemAnimator animator = new LoggingItemAnimator();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.setItemAnimator(animator);
@@ -550,7 +562,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
         assertNotNull("test sanity", targetChild);
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
@@ -601,7 +613,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         final View[] targetChild = new View[1];
         final LoggingItemAnimator animator = new LoggingItemAnimator();
         animator.setRemoveDuration(500);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.setItemAnimator(animator);
@@ -620,7 +632,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
         mLayoutManager.waitForLayout(2);
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // The view is still a child of mRecyclerView, and is invisible for accessibility.
@@ -634,7 +646,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         waitForAnimations(2);
 
         // Delete animation is now complete.
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // The view is in recycled state, and back to the expected accessibility.
@@ -650,7 +662,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mTestAdapter.addAndNotify(1);
         mLayoutManager.waitForLayout(2);
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // The view should be reused, and have the expected accessibility.
@@ -664,6 +676,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingAuto() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO,
@@ -671,6 +684,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingNo() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO,
@@ -678,6 +692,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingNoHideDescandants() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
@@ -685,6 +700,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingYes() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES,
@@ -899,7 +915,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             changedIndexNewType.set(defaultType + 1);
         }
         if (deleteSomeItems) {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -969,7 +985,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 expectedPayloads.add(expectedPayloadsInOnBind[i][j]);
             }
             final Object[] payloadsToSend = notifyPayloads[i];
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     for (int j = 0; j < payloadsToSend.length; j++) {
@@ -1091,7 +1107,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         setupBasic(10, 3, 4);
         int layoutCount = mLayoutManager.mTotalLayoutCount;
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -1301,7 +1317,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 super.onScroll(dx, recycler, state);
             }
         });
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mTestAdapter.mItems.remove(5);
@@ -1336,7 +1352,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 super.onScroll(dx, recycler, state);
             }
         });
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mTestAdapter.mItems.remove(5);
@@ -1378,6 +1394,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.waitForLayout(2);
     }
 
+    // Run this test on Jelly Bean and newer because hasTransientState was introduced in API 16.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void appCancelAnimationInDetach() throws Throwable {
         final View[] addedView = new View[2];
@@ -1404,7 +1422,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         int limit = 200;
         while (addedView[0] == null || addedView[1] == null) {
             Thread.sleep(100);
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if (mRecyclerView.getChildCount() == 3) {
@@ -1463,7 +1481,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         TestRecyclerView testRecyclerView = getTestRecyclerView();
         mLayoutManager.expectLayouts(1);
         testRecyclerView.expectDraw(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mTestAdapter.mItems.clear();
@@ -1498,7 +1516,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 assertEquals("offset check", 2, mAdapterHelper.findPositionOffset(4));
             }
         };
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {

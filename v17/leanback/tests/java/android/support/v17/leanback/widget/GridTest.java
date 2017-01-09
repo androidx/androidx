@@ -15,8 +15,6 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.test.AndroidTestCase;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 

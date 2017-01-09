@@ -29,10 +29,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.support.test.filters.SmallTest;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
 import android.support.v7.view.ActionMode;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;

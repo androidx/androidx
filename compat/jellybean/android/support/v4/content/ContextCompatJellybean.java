@@ -19,7 +19,11 @@ package android.support.v4.content;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(16)
+@TargetApi(16)
 class ContextCompatJellybean {
 
     public static void startActivities(Context context, Intent[] intents, Bundle options) {

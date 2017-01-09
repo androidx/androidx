@@ -51,8 +51,8 @@ class GuidedStepRootLayout extends LinearLayout {
             if (Util.isDescendant(this, newFocus)) {
                 return newFocus;
             }
-            if (getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_LTR ?
-                    direction == FOCUS_LEFT : direction == FOCUS_RIGHT) {
+            if (getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_LTR
+                    ? direction == FOCUS_LEFT : direction == FOCUS_RIGHT) {
                 if (!mFocusOutStart) {
                     return focused;
                 }

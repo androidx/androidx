@@ -99,6 +99,10 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         public MediaRouter.RouteInfo getSystemRouteByDescriptorId(String id);
     }
 
+    protected Object getDefaultRoute() {
+        return null;
+    }
+
     /**
      * Legacy implementation for platform versions prior to Jellybean.
      */
@@ -652,6 +656,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                     MediaRouterJellybean.ALL_ROUTE_TYPES, routeObj);
         }
 
+        @Override
         protected Object getDefaultRoute() {
             if (mGetDefaultRouteWorkaround == null) {
                 mGetDefaultRouteWorkaround = new MediaRouterJellybean.GetDefaultRouteWorkaround();

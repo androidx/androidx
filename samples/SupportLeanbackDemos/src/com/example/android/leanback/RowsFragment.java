@@ -37,7 +37,6 @@ public class RowsFragment extends android.support.v17.leanback.app.RowsFragment 
     // Row heights default to wrap content
     private static final boolean USE_FIXED_ROW_HEIGHT = false;
 
-    private ArrayObjectAdapter mRowsAdapter;
     private TitleHelper mTitleHelper;
 
     public void setTitleHelper(TitleHelper titleHelper) {
@@ -76,7 +75,7 @@ public class RowsFragment extends android.support.v17.leanback.app.RowsFragment 
             lrp.setExpandedRowHeight(cardPresenter.getExpandedRowHeight(getActivity()));
         }
 
-        mRowsAdapter = new ArrayObjectAdapter(lrp);
+        ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(lrp);
 
         for (int i = 0; i < NUM_ROWS; ++i) {
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
@@ -89,10 +88,10 @@ public class RowsFragment extends android.support.v17.leanback.app.RowsFragment 
             listRowAdapter.add(new PhotoItem("Android TV", R.drawable.gallery_photo_7));
             listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_8));
             HeaderItem header = new HeaderItem(i, "Row " + i);
-            mRowsAdapter.add(new ListRow(header, listRowAdapter));
+            rowsAdapter.add(new ListRow(header, listRowAdapter));
         }
 
-        setAdapter(mRowsAdapter);
+        setAdapter(rowsAdapter);
     }
 
     private final class ItemViewClickedListener implements OnItemViewClickedListener {

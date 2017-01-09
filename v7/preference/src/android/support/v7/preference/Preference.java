@@ -16,6 +16,8 @@
 
 package android.support.v7.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,8 +43,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Represents the basic Preference UI building
@@ -140,6 +140,7 @@ public class Preference implements Comparable<Preference> {
 
     private List<Preference> mDependents;
 
+    private boolean mWasDetached;
     private boolean mBaseMethodCalled;
 
     private final View.OnClickListener mClickListener = new View.OnClickListener() {
@@ -246,10 +247,10 @@ public class Preference implements Comparable<Preference> {
         mKey = TypedArrayUtils.getString(a, R.styleable.Preference_key,
                 R.styleable.Preference_android_key);
 
-        mTitle = TypedArrayUtils.getString(a, R.styleable.Preference_title,
+        mTitle = TypedArrayUtils.getText(a, R.styleable.Preference_title,
                 R.styleable.Preference_android_title);
 
-        mSummary = TypedArrayUtils.getString(a, R.styleable.Preference_summary,
+        mSummary = TypedArrayUtils.getText(a, R.styleable.Preference_summary,
                 R.styleable.Preference_android_summary);
 
         mOrder = TypedArrayUtils.getInt(a, R.styleable.Preference_order,
@@ -668,6 +669,9 @@ public class Preference implements Comparable<Preference> {
      * @see #setIcon(Drawable)
      */
     public Drawable getIcon() {
+        if (mIcon == null && mIconResId != 0) {
+            mIcon = ContextCompat.getDrawable(mContext, mIconResId);
+        }
         return mIcon;
     }
 
@@ -956,7 +960,7 @@ public class Preference implements Comparable<Preference> {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void performClick(View view) {
         performClick();
     }
@@ -966,7 +970,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void performClick() {
 
         if (!isEnabled()) {
@@ -1107,7 +1111,7 @@ public class Preference implements Comparable<Preference> {
      * Called from {@link PreferenceGroup} to pass in an ID for reuse
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected void onAttachedToHierarchy(PreferenceManager preferenceManager, long id) {
         mId = id;
         mHasId = true;
@@ -1138,6 +1142,24 @@ public class Preference implements Comparable<Preference> {
      */
     public void onDetached() {
         unregisterDependency();
+        mWasDetached = true;
+    }
+
+    /**
+     * Returns true if {@link #onDetached()} was called. Used for handling the case when a
+     * preference was removed, modified, and re-added to a {@link PreferenceGroup}
+     * @hide
+     */
+    public final boolean wasDetached() {
+        return mWasDetached;
+    }
+
+    /**
+     * Clears the {@link #wasDetached()} status
+     * @hide
+     */
+    public final void clearWasDetached() {
+        mWasDetached = false;
     }
 
     private void registerDependency() {

@@ -17,8 +17,12 @@
 
 package android.support.v4.view;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.ViewGroup;
 
+@RequiresApi(17)
+@TargetApi(17)
 class MarginLayoutParamsCompatJellybeanMr1 {
     public static int getMarginStart(ViewGroup.MarginLayoutParams lp) {
         return lp.getMarginStart();

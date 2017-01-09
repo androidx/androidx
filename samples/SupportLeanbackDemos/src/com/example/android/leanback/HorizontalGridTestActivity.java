@@ -16,29 +16,19 @@
 
 package com.example.android.leanback;
 
-import android.support.v7.widget.RecyclerView;
-import android.support.v17.leanback.widget.HorizontalGridView;
-import android.support.v17.leanback.widget.OnChildSelectedListener;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.v17.leanback.widget.HorizontalGridView;
+import android.support.v17.leanback.widget.OnChildViewHolderSelectedListener;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.SparseArray;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.io.File;
 
 public class HorizontalGridTestActivity extends Activity {
     private static final String TAG = "HorizontalGridTestActivity";
@@ -48,7 +38,6 @@ public class HorizontalGridTestActivity extends Activity {
     private static final boolean STAGGERED = true;
 
     private HorizontalGridView mHorizontalGridView;
-    private int mScrollState = RecyclerView.SCROLL_STATE_IDLE;
 
     private RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -58,7 +47,6 @@ public class HorizontalGridTestActivity extends Activity {
                 Log.v(TAG, "onScrollStateChanged "
                         + (newState < stateNames.length ? stateNames[newState] : newState));
             }
-            mScrollState = newState;
         }
     };
 
@@ -68,12 +56,16 @@ public class HorizontalGridTestActivity extends Activity {
 
         mHorizontalGridView.setWindowAlignment(HorizontalGridView.WINDOW_ALIGN_BOTH_EDGE);
         mHorizontalGridView.setWindowAlignmentOffsetPercent(35);
-        mHorizontalGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
-            @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
-                if (DEBUG) Log.d(TAG, "onChildSelected position=" + position +  " id="+id);
-            }
-        });
+        mHorizontalGridView.setOnChildViewHolderSelectedListener(
+                new OnChildViewHolderSelectedListener() {
+                    @Override
+                    public void onChildViewHolderSelected(RecyclerView parent,
+                                                          RecyclerView.ViewHolder child,
+                                                          int position, int subposition) {
+                        if (DEBUG) Log.d(TAG, "onChildSelected position=" + position);
+                    }
+
+                });
         return view;
     }
 
@@ -90,7 +82,7 @@ public class HorizontalGridTestActivity extends Activity {
         mHorizontalGridView.setAdapter(new MyAdapter());
         setContentView(view);
 
-        mHorizontalGridView.setOnScrollListener(mScrollListener);
+        mHorizontalGridView.addOnScrollListener(mScrollListener);
     }
 
     @Override

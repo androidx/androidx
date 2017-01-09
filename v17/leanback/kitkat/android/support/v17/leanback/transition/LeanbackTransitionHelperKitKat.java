@@ -13,13 +13,15 @@
  */
 package android.support.v17.leanback.transition;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.support.annotation.RequiresApi;
 import android.support.v17.leanback.R;
 import android.view.Gravity;
 import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
 
+@RequiresApi(19)
+@TargetApi(19)
 class LeanbackTransitionHelperKitKat {
 
     static public Object loadTitleInTransition(Context context) {

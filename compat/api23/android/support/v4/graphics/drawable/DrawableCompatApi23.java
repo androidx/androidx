@@ -17,10 +17,15 @@
 package android.support.v4.graphics.drawable;
 
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 /**
  * Implementation of drawable compatibility that can call M APIs.
  */
+
+@RequiresApi(23)
+@TargetApi(23)
 class DrawableCompatApi23 {
     public static boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
         return drawable.setLayoutDirection(layoutDirection);

@@ -20,16 +20,19 @@
     This layout file is inflated and used as the ListView to display the items.
     Assign an ID so its state will be saved/restored.
 -->
-<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+<view xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
       android:id="@+id/select_dialog_listview"
+      style="@style/Widget.AppCompat.ListView"
+      class="android.support.v7.app.AlertController$RecycleListView"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:cacheColorHint="@null"
-      android:divider="?attr/listDividerAlertDialog"
-      android:scrollbars="vertical"
-      android:overScrollMode="ifContentScrolls"
-      android:fadingEdge="none"
-      android:paddingTop="@dimen/abc_dialog_list_padding_vertical_material"
-      android:paddingBottom="@dimen/abc_dialog_list_padding_vertical_material"
       android:clipToPadding="false"
-      style="@style/Widget.AppCompat.ListView" />
+      android:divider="?attr/listDividerAlertDialog"
+      android:fadingEdge="none"
+      android:overScrollMode="ifContentScrolls"
+      android:scrollbars="vertical"
+      android:textAlignment="viewStart"
+      app:paddingBottomNoButtons="@dimen/abc_dialog_list_padding_bottom_no_buttons"
+      app:paddingTopNoTitle="@dimen/abc_dialog_list_padding_top_no_title"/>

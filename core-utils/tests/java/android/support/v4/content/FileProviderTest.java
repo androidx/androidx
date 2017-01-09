@@ -19,16 +19,25 @@ package android.support.v4.content;
 import static android.provider.OpenableColumns.DISPLAY_NAME;
 import static android.provider.OpenableColumns.SIZE;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.content.FileProvider.SimplePathStrategy;
-import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -39,7 +48,9 @@ import java.io.OutputStream;
 /**
  * Tests for {@link FileProvider}
  */
-public class FileProviderTest extends AndroidTestCase {
+@SmallTest
+@RunWith(AndroidJUnit4.class)
+public class FileProviderTest {
     private static final String TEST_AUTHORITY = "moocow";
 
     private static final String TEST_FILE = "file.test";
@@ -47,14 +58,15 @@ public class FileProviderTest extends AndroidTestCase {
     private static final byte[] TEST_DATA_ALT = new byte[] { (byte) 0x33, 0x66 };
 
     private ContentResolver mResolver;
+    private Context mContext;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        mResolver = getContext().getContentResolver();
+    @Before
+    public void setup() throws Exception {
+        mContext = InstrumentationRegistry.getTargetContext();
+        mResolver = mContext.getContentResolver();
     }
 
+    @Test
     public void testStrategyUriSimple() throws Exception {
         final SimplePathStrategy strat = new SimplePathStrategy("authority");
         strat.addRoot("tag", mContext.getFilesDir());
@@ -75,6 +87,7 @@ public class FileProviderTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testStrategyUriJumpOutside() throws Exception {
         final SimplePathStrategy strat = new SimplePathStrategy("authority");
         strat.addRoot("tag", mContext.getFilesDir());
@@ -87,6 +100,7 @@ public class FileProviderTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testStrategyUriShortestRoot() throws Exception {
         SimplePathStrategy strat = new SimplePathStrategy("authority");
         strat.addRoot("tag1", mContext.getFilesDir());
@@ -105,6 +119,7 @@ public class FileProviderTest extends AndroidTestCase {
                 strat.getUriForFile(file).toString());
     }
 
+    @Test
     public void testStrategyFileSimple() throws Exception {
         final SimplePathStrategy strat = new SimplePathStrategy("authority");
         strat.addRoot("tag", mContext.getFilesDir());
@@ -119,6 +134,7 @@ public class FileProviderTest extends AndroidTestCase {
                 Uri.parse("content://authority/tag/subdir/file.test")).getPath());
     }
 
+    @Test
     public void testStrategyFileJumpOutside() throws Exception {
         final SimplePathStrategy strat = new SimplePathStrategy("authority");
         strat.addRoot("tag", mContext.getFilesDir());
@@ -130,6 +146,7 @@ public class FileProviderTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testStrategyEscaping() throws Exception {
         final SimplePathStrategy strat = new SimplePathStrategy("authority");
         strat.addRoot("t/g", mContext.getFilesDir());
@@ -144,6 +161,7 @@ public class FileProviderTest extends AndroidTestCase {
                 strat.getFileForUri(Uri.parse(expected)).getPath());
     }
 
+    @Test
     public void testStrategyExtraParams() throws Exception {
         final SimplePathStrategy strat = new SimplePathStrategy("authority");
         strat.addRoot("tag", mContext.getFilesDir());
@@ -154,6 +172,7 @@ public class FileProviderTest extends AndroidTestCase {
                 Uri.parse("content://authority/tag/file.txt?extra=foo")).getPath());
     }
 
+    @Test
     public void testStrategyExtraSeparators() throws Exception {
         final SimplePathStrategy strat = new SimplePathStrategy("authority");
         strat.addRoot("tag", mContext.getFilesDir());
@@ -170,6 +189,7 @@ public class FileProviderTest extends AndroidTestCase {
                 strat.getFileForUri(Uri.parse(expected)).getPath());
     }
 
+    @Test
     public void testQueryProjectionNull() throws Exception {
         final File file = new File(mContext.getFilesDir(), TEST_FILE);
         final Uri uri = stageFileAndGetUri(file, TEST_DATA);
@@ -186,6 +206,7 @@ public class FileProviderTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testQueryProjectionOrder() throws Exception {
         final File file = new File(mContext.getFilesDir(), TEST_FILE);
         final Uri uri = stageFileAndGetUri(file, TEST_DATA);
@@ -214,6 +235,7 @@ public class FileProviderTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testQueryExtraColumn() throws Exception {
         final File file = new File(mContext.getFilesDir(), TEST_FILE);
         final Uri uri = stageFileAndGetUri(file, TEST_DATA);
@@ -231,6 +253,7 @@ public class FileProviderTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testReadFile() throws Exception {
         final File file = new File(mContext.getFilesDir(), TEST_FILE);
         final Uri uri = stageFileAndGetUri(file, TEST_DATA);
@@ -238,6 +261,7 @@ public class FileProviderTest extends AndroidTestCase {
         assertContentsEquals(TEST_DATA, uri);
     }
 
+    @Test
     public void testWriteFile() throws Exception {
         final File file = new File(mContext.getFilesDir(), TEST_FILE);
         final Uri uri = stageFileAndGetUri(file, TEST_DATA);
@@ -254,6 +278,7 @@ public class FileProviderTest extends AndroidTestCase {
         assertContentsEquals(TEST_DATA_ALT, uri);
     }
 
+    @Test
     public void testWriteMissingFile() throws Exception {
         final File file = new File(mContext.getFilesDir(), TEST_FILE);
         final Uri uri = stageFileAndGetUri(file, null);
@@ -274,6 +299,7 @@ public class FileProviderTest extends AndroidTestCase {
         assertContentsEquals(TEST_DATA_ALT, uri);
     }
 
+    @Test
     public void testDelete() throws Exception {
         final File file = new File(mContext.getFilesDir(), TEST_FILE);
         final Uri uri = stageFileAndGetUri(file, TEST_DATA);
@@ -290,6 +316,7 @@ public class FileProviderTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testMetaDataTargets() {
         Uri actual;
 

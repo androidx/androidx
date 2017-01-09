@@ -22,9 +22,9 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v17.leanback.app.GuidedStepFragment;
-import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 
 import java.util.List;
@@ -52,7 +52,9 @@ public class GuidedStepHalfScreenActivity extends Activity {
             String title = getString(R.string.guidedstep_first_title);
             String breadcrumb = getString(R.string.guidedstep_first_breadcrumb);
             String description = getString(R.string.guidedstep_first_description);
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -107,7 +109,9 @@ public class GuidedStepHalfScreenActivity extends Activity {
             String title = getString(R.string.guidedstep_second_title);
             String breadcrumb = getString(R.string.guidedstep_second_breadcrumb);
             String description = getString(R.string.guidedstep_second_description);
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 

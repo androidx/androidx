@@ -30,12 +30,12 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.SparseIntArray;
 import android.util.StateSet;
 import android.view.View;
@@ -181,7 +181,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
     public void scrollWithoutLayoutAfterInvalidate() throws Throwable {
         final RecyclerView recyclerView = setupBasic(new Config(3, 100));
         waitForFirstLayout(recyclerView);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mGlm.setSpanCount(5);
@@ -306,7 +306,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
         final View chosen = recyclerView.getChildAt(recyclerView.getChildCount() - 2);
         final int position = recyclerView.getChildLayoutPosition(chosen);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 delegateCompat.onInitializeAccessibilityNodeInfo(chosen, info);
@@ -773,7 +773,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         waitForFirstLayout(rv);
         assertTrue(mGlm.supportsPredictiveItemAnimations());
         mGlm.expectLayout(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mGlm.setSpanCount(5);

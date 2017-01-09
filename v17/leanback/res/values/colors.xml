@@ -20,6 +20,7 @@
 
     <color name="lb_browse_title_color">#EEEEEE</color>
     <color name="lb_browse_header_color">#FFFFFF</color>
+    <color name="lb_browse_header_description_color">#AAFFFFFF</color>
 
     <color name="lb_list_item_unselected_text_color">#FFF1F1F1</color>
     <color name="lb_background_protection">#99000000</color>

@@ -101,9 +101,9 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
             mPreDrawListener = new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    if (mSubtitle.getVisibility() == View.VISIBLE &&
-                            mSubtitle.getTop() > view.getHeight() &&
-                            mTitle.getLineCount() > 1) {
+                    if (mSubtitle.getVisibility() == View.VISIBLE
+                            && mSubtitle.getTop() > view.getHeight()
+                            && mTitle.getLineCount() > 1) {
                         mTitle.setMaxLines(mTitle.getLineCount() - 1);
                         return false;
                     }
@@ -166,8 +166,8 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
             hasTitle = false;
         } else {
             vh.mTitle.setVisibility(View.VISIBLE);
-            vh.mTitle.setLineSpacing(vh.mTitleLineSpacing - vh.mTitle.getLineHeight() +
-                    vh.mTitle.getLineSpacingExtra(), vh.mTitle.getLineSpacingMultiplier());
+            vh.mTitle.setLineSpacing(vh.mTitleLineSpacing - vh.mTitle.getLineHeight()
+                    + vh.mTitle.getLineSpacingExtra(), vh.mTitle.getLineSpacingMultiplier());
             vh.mTitle.setMaxLines(vh.mTitleMaxLines);
         }
         setTopMargin(vh.mTitle, vh.mTitleMargin);
@@ -179,8 +179,8 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
         } else {
             vh.mSubtitle.setVisibility(View.VISIBLE);
             if (hasTitle) {
-                setTopMargin(vh.mSubtitle, vh.mUnderTitleBaselineMargin +
-                        vh.mSubtitleFontMetricsInt.ascent - vh.mTitleFontMetricsInt.descent);
+                setTopMargin(vh.mSubtitle, vh.mUnderTitleBaselineMargin
+                        + vh.mSubtitleFontMetricsInt.ascent - vh.mTitleFontMetricsInt.descent);
             } else {
                 setTopMargin(vh.mSubtitle, 0);
             }
@@ -190,15 +190,15 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
             vh.mBody.setVisibility(View.GONE);
         } else {
             vh.mBody.setVisibility(View.VISIBLE);
-            vh.mBody.setLineSpacing(vh.mBodyLineSpacing - vh.mBody.getLineHeight() +
-                    vh.mBody.getLineSpacingExtra(), vh.mBody.getLineSpacingMultiplier());
+            vh.mBody.setLineSpacing(vh.mBodyLineSpacing - vh.mBody.getLineHeight()
+                    + vh.mBody.getLineSpacingExtra(), vh.mBody.getLineSpacingMultiplier());
 
             if (hasSubtitle) {
-                setTopMargin(vh.mBody, vh.mUnderSubtitleBaselineMargin +
-                        vh.mBodyFontMetricsInt.ascent - vh.mSubtitleFontMetricsInt.descent);
+                setTopMargin(vh.mBody, vh.mUnderSubtitleBaselineMargin
+                        + vh.mBodyFontMetricsInt.ascent - vh.mSubtitleFontMetricsInt.descent);
             } else if (hasTitle) {
-                setTopMargin(vh.mBody, vh.mUnderTitleBaselineMargin +
-                        vh.mBodyFontMetricsInt.ascent - vh.mTitleFontMetricsInt.descent);
+                setTopMargin(vh.mBody, vh.mUnderTitleBaselineMargin
+                        + vh.mBodyFontMetricsInt.ascent - vh.mTitleFontMetricsInt.descent);
             } else {
                 setTopMargin(vh.mBody, 0);
             }

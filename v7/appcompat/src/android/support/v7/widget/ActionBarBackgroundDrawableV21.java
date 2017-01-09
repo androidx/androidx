@@ -16,9 +16,13 @@
 
 package android.support.v7.widget;
 
+import android.annotation.TargetApi;
 import android.graphics.Outline;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 
+@RequiresApi(21)
+@TargetApi(21)
 class ActionBarBackgroundDrawableV21 extends ActionBarBackgroundDrawable {
 
     public ActionBarBackgroundDrawableV21(ActionBarContainer container) {

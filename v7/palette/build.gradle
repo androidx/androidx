@@ -13,16 +13,11 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 9
+    compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
         minSdkVersion 9
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-
-    lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
     }
 
     compileOptions {

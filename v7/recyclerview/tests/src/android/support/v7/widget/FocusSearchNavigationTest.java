@@ -21,10 +21,16 @@ import static android.support.v7.widget.RecyclerView.HORIZONTAL;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.VERTICAL;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import android.app.Activity;
 import android.content.Context;
-import android.os.Looper;
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.recyclerview.test.R;
@@ -34,11 +40,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.LinearLayout;
-
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.CoreMatchers;
@@ -56,11 +57,12 @@ import java.util.concurrent.TimeUnit;
 /**
  * This class tests RecyclerView focus search failure handling by using a real LayoutManager.
  */
+@MediumTest
 @RunWith(Parameterized.class)
 public class FocusSearchNavigationTest {
     @Rule
-    public ActivityTestRule<RecyclerViewTestActivity> mActivityRule
-            = new ActivityTestRule<>(RecyclerViewTestActivity.class);
+    public ActivityTestRule<RecyclerViewTestActivity> mActivityRule =
+            new ActivityTestRule<>(RecyclerViewTestActivity.class);
 
     private final int mOrientation;
     private final int mLayoutDir;
@@ -70,13 +72,21 @@ public class FocusSearchNavigationTest {
         mLayoutDir = layoutDir;
     }
 
-    @Parameterized.Parameters(name = "orientation:{0} layoutDir:{1}")
+    @Parameterized.Parameters(name = "orientation:{0},layoutDir:{1}")
     public static List<Object[]> params() {
-        return Arrays.asList(
-                new Object[]{VERTICAL, ViewCompat.LAYOUT_DIRECTION_LTR},
-                new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_LTR},
-                new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_RTL}
-        );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return Arrays.asList(
+                    new Object[]{VERTICAL, ViewCompat.LAYOUT_DIRECTION_LTR},
+                    new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_LTR},
+                    new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_RTL}
+            );
+        } else {
+            // Do not test RTL before API 17
+            return Arrays.asList(
+                    new Object[]{VERTICAL, ViewCompat.LAYOUT_DIRECTION_LTR},
+                    new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_LTR}
+            );
+        }
     }
 
     private Activity mActivity;
@@ -86,15 +96,15 @@ public class FocusSearchNavigationTest {
 
     private void setup(final int itemCount) throws Throwable {
         mActivity = mActivityRule.getActivity();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mActivity.setContentView(R.layout.focus_search_activity);
-                mActivity.getWindow().getDecorView().setLayoutDirection(mLayoutDir);
+                ViewCompat.setLayoutDirection(mActivity.getWindow().getDecorView(), mLayoutDir);
                 LinearLayout linearLayout = (LinearLayout) mActivity.findViewById(R.id.root);
                 linearLayout.setOrientation(mOrientation);
                 mRecyclerView = (RecyclerView) mActivity.findViewById(R.id.recycler_view);
-                mRecyclerView.setLayoutDirection(mLayoutDir);
+                ViewCompat.setLayoutDirection(mRecyclerView, mLayoutDir);
                 LinearLayoutManager layout = new LinearLayoutManager(mActivity.getBaseContext());
                 layout.setOrientation(mOrientation);
                 mRecyclerView.setLayoutManager(layout);
@@ -114,7 +124,7 @@ public class FocusSearchNavigationTest {
         waitForIdleSync();
         assertThat("test sanity", mRecyclerView.getLayoutManager().getLayoutDirection(),
                 is(mLayoutDir));
-        assertThat("test sanity", mRecyclerView.getLayoutDirection(), is(mLayoutDir));
+        assertThat("test sanity", ViewCompat.getLayoutDirection(mRecyclerView), is(mLayoutDir));
     }
 
     @Test
@@ -176,7 +186,7 @@ public class FocusSearchNavigationTest {
 
     private View focusSearch(final View view, final int focusDir) throws Throwable {
         final View[] result = new View[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 result[0] = view.focusSearch(focusDir);
@@ -192,7 +202,7 @@ public class FocusSearchNavigationTest {
     }
 
     private void requestFocus(final View view) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 view.requestFocus();
@@ -203,7 +213,7 @@ public class FocusSearchNavigationTest {
 
     public void waitForIdleScroll(final RecyclerView recyclerView) throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 RecyclerView.OnScrollListener listener = new RecyclerView.OnScrollListener() {
@@ -223,14 +233,6 @@ public class FocusSearchNavigationTest {
             }
         });
         assertTrue("should go idle in 10 seconds", latch.await(10, TimeUnit.SECONDS));
-    }
-
-    private void runTestOnUiThread(Runnable r) throws Throwable {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            r.run();
-        } else {
-            InstrumentationRegistry.getInstrumentation().runOnMainSync(r);
-        }
     }
 
     static class FocusSearchAdapter extends RecyclerView.Adapter {

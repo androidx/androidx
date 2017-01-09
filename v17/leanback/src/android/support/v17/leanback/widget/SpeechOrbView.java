@@ -11,8 +11,8 @@ import android.util.AttributeSet;
  */
 public class SpeechOrbView extends SearchOrbView {
     private final float mSoundLevelMaxZoom;
-    private final Colors mListeningOrbColors;
-    private final Colors mNotListeningOrbColors;
+    private Colors mListeningOrbColors;
+    private Colors mNotListeningOrbColors;
 
     private int mCurrentLevel = 0;
     private boolean mListening = false;
@@ -45,6 +45,24 @@ public class SpeechOrbView extends SearchOrbView {
     @Override
     int getLayoutResourceId() {
         return R.layout.lb_speech_orb;
+    }
+
+    /**
+     * Sets default listening state orb color.
+     *
+     * @param colors SearchOrbView.Colors.
+     */
+    public void setListeningOrbColors(Colors colors) {
+        mListeningOrbColors = colors;
+    }
+
+    /**
+     * Sets default not-listening state orb color.
+     *
+     * @param colors SearchOrbView.Colors.
+     */
+    public void setNotListeningOrbColors(Colors colors) {
+        mNotListeningOrbColors = colors;
     }
 
     /**

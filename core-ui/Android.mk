@@ -14,63 +14,29 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# A helper sub-library that makes direct use of Honeycomb APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-core-ui-honeycomb
-LOCAL_SDK_VERSION := 11
-LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb)
-LOCAL_STATIC_JAVA_LIBRARIES := \
-    android-support-annotations \
-    android-support-compat
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of Ice Cream Sandwich APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-core-ui-ics
-LOCAL_SDK_VERSION := 14
-LOCAL_SRC_FILES := $(call all-java-files-under, ics)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-core-ui-honeycomb
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of JellyBean MR2 APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-core-ui-jellybean-mr2
-LOCAL_SDK_VERSION := 18
-LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr2)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-core-ui-ics
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of Lollipop APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-core-ui-api21
-LOCAL_SDK_VERSION := 21
-LOCAL_SRC_FILES := $(call all-java-files-under, api21)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-core-ui-jellybean-mr2
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
 # Here is the final static library that apps can link against.
+# Applications that use this library must specify
+#
+#   LOCAL_STATIC_ANDROID_LIBRARIES := \
+#       android-support-core-ui \
+#       android-support-compat
+#
+# in their makefiles to include the resources and their dependencies in their package.
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-core-ui
-LOCAL_SDK_VERSION := 9
-LOCAL_SRC_FILES := $(call all-java-files-under, java)
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
+LOCAL_SRC_FILES := \
+    $(call all-java-files-under,honeycomb) \
+    $(call all-java-files-under,ics) \
+    $(call all-java-files-under,jellybean-mr2) \
+    $(call all-java-files-under,api21) \
+    $(call all-java-files-under,java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-core-ui-api21
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-compat \
     android-support-annotations
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
 include $(BUILD_STATIC_JAVA_LIBRARY)

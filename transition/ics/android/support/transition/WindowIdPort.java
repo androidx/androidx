@@ -16,8 +16,10 @@
 
 package android.support.transition;
 
+import android.annotation.TargetApi;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 
 
@@ -27,6 +29,8 @@ import android.view.View;
  * <p>Since the use of WindowId in Transition API is limited to identifying windows, we can just
  * wrap a window token and use it as an identifier.</p>
  */
+@RequiresApi(14)
+@TargetApi(14)
 class WindowIdPort {
 
     private final IBinder mToken;

@@ -1,10 +1,7 @@
 package android.support.v17.leanback.app;
 
-import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.CursorObjectAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 
 /**
  * Wrapper class for {@link ObjectAdapter} used by {@link BrowseFragment} to initialize
@@ -78,6 +75,7 @@ class ListRowDataAdapter extends ObjectAdapter {
                 break;
             case ON_CHANGED:
                 notifyChanged();
+                break;
             default:
                 throw new IllegalArgumentException("Invalid event type " + eventType);
         }

@@ -17,6 +17,7 @@
 package android.support.v7.preference;
 
 import android.support.annotation.IdRes;
+import android.support.annotation.RestrictTo;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.View;
@@ -31,7 +32,9 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
     private boolean mDividerAllowedAbove;
     private boolean mDividerAllowedBelow;
 
-    /* package */ PreferenceViewHolder(View itemView) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public PreferenceViewHolder(View itemView) {
         super(itemView);
 
         // Pre-cache the views that we know in advance we'll want to find

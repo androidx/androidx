@@ -20,6 +20,8 @@
      <item type="id" name="lb_slide_transition_value" />
      <item type="id" name="transitionPosition" />
 
+     <item type="id" name="lb_parallax_source" />
+
      <item type="id" name="lb_guidedstep_background" />
 
      <item type="id" name="lb_control_play_pause" />

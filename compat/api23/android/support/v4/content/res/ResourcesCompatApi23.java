@@ -20,7 +20,11 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.content.res.Resources.Theme;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(23)
+@TargetApi(23)
 class ResourcesCompatApi23 {
     public static int getColor(Resources res, int id, Theme theme) throws NotFoundException {
         return res.getColor(id, theme);

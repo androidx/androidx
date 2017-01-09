@@ -19,6 +19,11 @@ package android.support.transition;
 import android.animation.Animator;
 import android.view.ViewGroup;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
+
+@RequiresApi(19)
+@TargetApi(19)
 class FadeKitKat extends TransitionKitKat implements VisibilityImpl {
 
     public FadeKitKat(TransitionInterface transition) {

@@ -21,8 +21,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.os.Build;
 import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,15 +57,10 @@ public class RecyclerViewPrefetchTest extends BaseRecyclerViewInstrumentationTes
         }
 
         @Override
-        int getItemPrefetchCount() {
-            return 1;
-        }
-
-        @Override
-        int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+        public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
+                LayoutPrefetchRegistry layoutPrefetchRegistry) {
             prefetchLatch.countDown();
-            outIndices[0] = 6;
-            return 1;
+            layoutPrefetchRegistry.addPosition(6, 0);
         }
 
         void waitForPrefetch(int time) throws InterruptedException {

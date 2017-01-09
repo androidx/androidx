@@ -14,17 +14,16 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
-import android.support.annotation.ColorInt;
-import android.support.v17.leanback.R;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.support.annotation.ColorInt;
+import android.support.v17.leanback.R;
+import android.util.AttributeSet;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 /**
  * Provides an SDK version-independent wrapper to support shadows, color overlays, and rounded
@@ -288,10 +287,10 @@ public class ShadowOverlayContainer extends FrameLayout {
             ViewGroup.LayoutParams wrapped_lp = new FrameLayout.LayoutParams(lp.width, lp.height);
             // Uses MATCH_PARENT for MATCH_PARENT, WRAP_CONTENT for WRAP_CONTENT and fixed size,
             // App can still change wrapped view fixed width/height afterwards.
-            lp.width = lp.width == LayoutParams.MATCH_PARENT ?
-                    LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
-            lp.height = lp.height == LayoutParams.MATCH_PARENT ?
-                    LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
+            lp.width = lp.width == LayoutParams.MATCH_PARENT
+                    ? LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
+            lp.height = lp.height == LayoutParams.MATCH_PARENT
+                    ? LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
             this.setLayoutParams(lp);
             addView(view, wrapped_lp);
         } else {

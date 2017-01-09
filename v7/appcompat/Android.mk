@@ -31,7 +31,8 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_STATIC_JAVA_LIBRARIES := \
     android-support-vectordrawable \
     android-support-animatedvectordrawable
-LOCAL_JAVA_LIBRARIES := android-support-v4
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-v4
 LOCAL_AAPT_FLAGS := --no-version-vectors
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7

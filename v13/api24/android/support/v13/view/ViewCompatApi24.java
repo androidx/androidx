@@ -16,9 +16,13 @@
 
 package android.support.v13.view;
 
+import android.annotation.TargetApi;
 import android.content.ClipData;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 
+@RequiresApi(24)
+@TargetApi(24)
 class ViewCompatApi24 {
     public static boolean startDragAndDrop(View v, ClipData data,
            View.DragShadowBuilder shadowBuilder, Object localState, int flags) {

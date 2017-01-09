@@ -16,6 +16,8 @@
 
 package android.support.provider;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
@@ -42,12 +44,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.lang.IllegalArgumentException;
-import java.lang.IllegalStateException;
-import java.lang.UnsupportedOperationException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -56,9 +54,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Provides basic implementation for creating, extracting and accessing
@@ -70,7 +65,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class DocumentArchive implements Closeable {
     private static final String TAG = "DocumentArchive";
 

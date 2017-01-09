@@ -17,18 +17,15 @@
 package android.support.v7.app;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import android.os.SystemClock;
+import android.support.test.filters.SmallTest;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MenuItem;
-import android.view.View;
 
 import org.junit.Test;
 

@@ -15,16 +15,13 @@
  */
 package android.support.v17.leanback.widget;
 
-import org.junit.Assert;
-import org.junit.runner.RunWith;
-import org.junit.Test;
-
-import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Testing SingleRow algorithm
@@ -40,7 +37,7 @@ public class SingleRowTest extends GridTest {
         mProvider = new Provider(new int[]{80, 80, 30, 100, 40, 10});
 
         mSingleRow = new SingleRow();
-        mSingleRow.setMargin(20);
+        mSingleRow.setSpacing(20);
         mSingleRow.setProvider(mProvider);
         mSingleRow.appendVisibleItems(200);
         assertEquals(dump(mSingleRow) + " Should filled 2 items", 1, mSingleRow.mLastVisibleIndex);
@@ -84,7 +81,7 @@ public class SingleRowTest extends GridTest {
         mProvider = new Provider(new int[]{80, 80, 30, 100, 40, 10});
 
         mSingleRow = new SingleRow();
-        mSingleRow.setMargin(20);
+        mSingleRow.setSpacing(20);
         mSingleRow.setProvider(mProvider);
         mSingleRow.setReversedFlow(true);
         mSingleRow.appendVisibleItems(-200);
@@ -126,7 +123,7 @@ public class SingleRowTest extends GridTest {
         mProvider = new Provider(new int[]{80, 80, 30, 100, 40, 10});
 
         mSingleRow = new SingleRow();
-        mSingleRow.setMargin(20);
+        mSingleRow.setSpacing(20);
         mSingleRow.setProvider(mProvider);
         mSingleRow.appendVisibleItems(200);
         assertEquals(dump(mSingleRow) + " Should filled 2 items", 1, mSingleRow.mLastVisibleIndex);
@@ -148,7 +145,7 @@ public class SingleRowTest extends GridTest {
         mProvider = new Provider(new int[]{80, 80, 30, 100, 40, 10});
 
         mSingleRow = new SingleRow();
-        mSingleRow.setMargin(20);
+        mSingleRow.setSpacing(20);
         mSingleRow.setProvider(mProvider);
         mSingleRow.setReversedFlow(true);
         mSingleRow.appendVisibleItems(-200);

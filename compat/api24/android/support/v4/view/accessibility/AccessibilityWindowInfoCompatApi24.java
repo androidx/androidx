@@ -16,11 +16,16 @@
 
 package android.support.v4.view.accessibility;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.accessibility.AccessibilityWindowInfo;
 
 /**
  * Api24-specific AccessibilityWindowInfo API implementation.
  */
+
+@RequiresApi(24)
+@TargetApi(24)
 class AccessibilityWindowInfoCompatApi24 {
     public static CharSequence getTitle(Object info) {
         return ((AccessibilityWindowInfo) info).getTitle();

@@ -14,16 +14,25 @@
      limitations under the License.
 -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="fill_parent"
-             android:layout_height="wrap_content" >
-
+             android:layout_height="wrap_content"
+             android:orientation="vertical">
+    <TextView android:id="@+id/mr_chooser_title"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:paddingLeft="24dp"
+              android:paddingRight="24dp"
+              android:paddingTop="24dp"
+              android:text="@string/mr_chooser_title"
+              android:singleLine="true"
+              android:ellipsize="end"
+              android:textAppearance="@style/TextAppearance.MediaRouter.Title" />
     <ListView android:id="@+id/mr_chooser_list"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:divider="@android:color/transparent"
               android:dividerHeight="0dp" />
-
     <LinearLayout android:id="@android:id/empty"
               android:layout_width="fill_parent"
               android:layout_height="240dp"
@@ -35,11 +44,12 @@
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_gravity="center"
-                  android:text="@string/mr_chooser_searching" />
+                  android:text="@string/mr_chooser_searching"
+                  android:textAppearance="@style/TextAppearance.MediaRouter.SecondaryText" />
         <ProgressBar android:layout_width="150dp"
                      android:layout_height="wrap_content"
                      android:layout_gravity="center"
                      android:indeterminate="true"
                      style="?android:attr/progressBarStyleHorizontal" />
     </LinearLayout>
-</FrameLayout>
+</LinearLayout>

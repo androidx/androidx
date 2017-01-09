@@ -218,9 +218,9 @@ abstract class StaggeredGrid extends Grid {
         }
         // Assuming the cachedIndex is next to item on the same row, so the
         // sum of offset of [cachedIndex + 1, itemIndex] should be size of the
-        // cached item plus margin.
-        int offset = isReversedFlow() ?  -getLocation(cachedIndex).size - mMargin:
-                getLocation(cachedIndex).size + mMargin;
+        // cached item plus spacing.
+        int offset = isReversedFlow() ?  -getLocation(cachedIndex).size - mSpacing:
+                getLocation(cachedIndex).size + mSpacing;
         for (int i = cachedIndex + 1; i <= getLastIndex(); i++) {
             offset -= getLocation(i).offset;
         }

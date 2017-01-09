@@ -16,11 +16,14 @@
 
 package android.support.v13.view.inputmethod;
 
+import android.annotation.TargetApi;
 import android.content.ClipDescription;
 import android.net.Uri;
-import android.os.Parcel;
+import android.support.annotation.RequiresApi;
 import android.view.inputmethod.InputContentInfo;
 
+@RequiresApi(25)
+@TargetApi(25)
 final class InputContentInfoCompatApi25 {
 
     public static Object create(Uri contentUri, ClipDescription description, Uri linkUri) {
@@ -44,6 +47,6 @@ final class InputContentInfoCompatApi25 {
     }
 
     public static void releasePermission(Object inputContentInfo) {
-        ((InputContentInfo) inputContentInfo).requestPermission();
+        ((InputContentInfo) inputContentInfo).releasePermission();
     }
 }

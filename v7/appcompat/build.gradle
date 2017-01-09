@@ -3,6 +3,7 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'appcompat-v7'
 
 dependencies {
+    compile project(':support-annotations')
     compile project(':support-v4')
     compile project(':support-vector-drawable')
     compile project(':support-animated-vector-drawable')
@@ -49,11 +50,6 @@ android {
 
     aaptOptions {
         additionalParameters "--no-version-vectors"
-    }
-
-    lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
     }
 }
 

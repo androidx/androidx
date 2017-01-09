@@ -57,10 +57,7 @@ class PlaybackControlsRowView extends LinearLayout {
         if (super.dispatchKeyEvent(event)) {
             return true;
         }
-        if (mOnUnhandledKeyListener != null && mOnUnhandledKeyListener.onUnhandledKey(event)) {
-            return true;
-        }
-        return false;
+        return mOnUnhandledKeyListener != null && mOnUnhandledKeyListener.onUnhandledKey(event);
     }
 
     @Override

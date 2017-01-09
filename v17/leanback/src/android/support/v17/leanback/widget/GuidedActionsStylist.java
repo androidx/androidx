@@ -13,15 +13,24 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_ACTIVATOR_VIEW;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_DESCRIPTION;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_NONE;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_TITLE;
+
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.transition.TransitionEpicenterCallback;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.GuidedActionAdapter.EditListener;
@@ -31,6 +40,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
@@ -47,12 +57,6 @@ import android.widget.TextView;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-import static android.support.v17.leanback.widget.GuidedAction.EDITING_ACTIVATOR_VIEW;
-import static android.support.v17.leanback.widget.GuidedAction.EDITING_DESCRIPTION;
-import static android.support.v17.leanback.widget.GuidedAction.EDITING_NONE;
-import static android.support.v17.leanback.widget.GuidedAction.EDITING_TITLE;
 
 /**
  * GuidedActionsStylist is used within a {@link android.support.v17.leanback.app.GuidedStepFragment}
@@ -389,6 +393,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
 
     private GuidedAction mExpandedAction = null;
     Object mExpandTransition;
+    private boolean mBackToCollapseSubActions = true;
+    private boolean mBackToCollapseActivatorView = true;
+
+    private float mKeyLinePercent;
 
     /**
      * Creates a view appropriate for displaying a list of GuidedActions, using the provided
@@ -414,8 +422,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         if (mMainView instanceof VerticalGridView) {
             mActionsGridView = (VerticalGridView) mMainView;
         } else {
-            mActionsGridView = (VerticalGridView) mMainView.findViewById(mButtonActions ?
-                    R.id.guidedactions_list2 : R.id.guidedactions_list);
+            mActionsGridView = (VerticalGridView) mMainView.findViewById(mButtonActions
+                    ? R.id.guidedactions_list2 : R.id.guidedactions_list);
             if (mActionsGridView == null) {
                 throw new IllegalStateException("No ListView exists.");
             }
@@ -451,6 +459,29 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 .lb_guidedactions_item_unselected_description_text_alpha));
         mDisabledDescriptionAlpha = Float.valueOf(ctx.getResources().getString(R.string
                 .lb_guidedactions_item_disabled_description_text_alpha));
+
+        mKeyLinePercent = GuidanceStylingRelativeLayout.getKeyLinePercent(ctx);
+        if (mContentView instanceof GuidedActionsRelativeLayout) {
+            ((GuidedActionsRelativeLayout) mContentView).setInterceptKeyEventListener(
+                    new GuidedActionsRelativeLayout.InterceptKeyEventListener() {
+                        @Override
+                        public boolean onInterceptKeyEvent(KeyEvent event) {
+                            if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
+                                    && event.getAction() == KeyEvent.ACTION_UP
+                                    && mExpandedAction != null) {
+                                if ((mExpandedAction.hasSubActions()
+                                        && isBackKeyToCollapseSubActions())
+                                        || (mExpandedAction.hasEditableActivatorView()
+                                        && isBackKeyToCollapseActivatorView())) {
+                                    collapseAction(true);
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }
+                    }
+            );
+        }
         return mMainView;
     }
 
@@ -571,8 +602,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         } else if (viewType == VIEW_TYPE_DATE_PICKER) {
             return R.layout.lb_guidedactions_datepicker_item;
         } else {
-            throw new RuntimeException("ViewType " + viewType +
-                    " not supported in GuidedActionsStylist");
+            throw new RuntimeException("ViewType " + viewType
+                    + " not supported in GuidedActionsStylist");
         }
     }
 
@@ -629,8 +660,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         }
         if (vh.mDescriptionView != null) {
             vh.mDescriptionView.setText(action.getDescription());
-            vh.mDescriptionView.setVisibility(TextUtils.isEmpty(action.getDescription()) ?
-                    View.GONE : View.VISIBLE);
+            vh.mDescriptionView.setVisibility(TextUtils.isEmpty(action.getDescription())
+                    ? View.GONE : View.VISIBLE);
             vh.mDescriptionView.setAlpha(action.isEnabled() ? mEnabledDescriptionAlpha :
                 mDisabledDescriptionAlpha);
             vh.mDescriptionView.setFocusable(false);
@@ -662,7 +693,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         if (vh.mActivatorView != null) {
             onBindActivatorView(vh, action);
         }
-        setEditingMode(vh, action, false);
+        setEditingMode(vh, false /*editing*/, false /*withTransition*/);
         if (action.isFocusable()) {
             vh.itemView.setFocusable(true);
             ((ViewGroup) vh.itemView).setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
@@ -703,14 +734,45 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         }
     }
 
+    /**
+     * @deprecated This method is for internal library use only and should not
+     *             be called directly.
+     */
+    @Deprecated
     public void setEditingMode(ViewHolder vh, GuidedAction action, boolean editing) {
-        if (editing != vh.isInEditing() && !isInExpandTransition()) {
+        if (editing != vh.isInEditing() && isInExpandTransition()) {
             onEditingModeChange(vh, action, editing);
         }
     }
 
+    void setEditingMode(ViewHolder vh, boolean editing) {
+        setEditingMode(vh, editing, true /*withTransition*/);
+    }
+
+    void setEditingMode(ViewHolder vh, boolean editing, boolean withTransition) {
+        if (editing != vh.isInEditing() && !isInExpandTransition()) {
+            onEditingModeChange(vh, editing, withTransition);
+        }
+    }
+
+    /**
+     * @deprecated Use {@link #onEditingModeChange(ViewHolder, boolean, boolean)}.
+     */
+    @Deprecated
     protected void onEditingModeChange(ViewHolder vh, GuidedAction action, boolean editing) {
-        action = vh.getAction();
+    }
+
+    /**
+     * Called when editing mode of an ViewHolder is changed.  Subclass must call
+     * <code>super.onEditingModeChange(vh,editing,withTransition)</code>.
+     *
+     * @param vh                ViewHolder to change editing mode.
+     * @param editing           True to enable editing, false to stop editing
+     * @param withTransition    True to run expand transiiton, false otherwise.
+     */
+    @CallSuper
+    protected void onEditingModeChange(ViewHolder vh, boolean editing, boolean withTransition) {
+        GuidedAction action = vh.getAction();
         TextView titleView = vh.getTitleView();
         TextView descriptionView = vh.getDescriptionView();
         if (editing) {
@@ -734,7 +796,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 }
                 vh.mEditingMode = EDITING_TITLE;
             } else if (vh.mActivatorView != null) {
-                onEditActivatorView(vh, action, editing);
+                onEditActivatorView(vh, editing, withTransition);
                 vh.mEditingMode = EDITING_ACTIVATOR_VIEW;
             }
         } else {
@@ -746,8 +808,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             }
             if (vh.mEditingMode == EDITING_DESCRIPTION) {
                 if (descriptionView != null) {
-                    descriptionView.setVisibility(TextUtils.isEmpty(action.getDescription()) ?
-                            View.GONE : View.VISIBLE);
+                    descriptionView.setVisibility(TextUtils.isEmpty(action.getDescription())
+                            ? View.GONE : View.VISIBLE);
                     descriptionView.setInputType(action.getDescriptionInputType());
                 }
             } else if (vh.mEditingMode == EDITING_TITLE) {
@@ -756,11 +818,13 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 }
             } else if (vh.mEditingMode == EDITING_ACTIVATOR_VIEW) {
                 if (vh.mActivatorView != null) {
-                    onEditActivatorView(vh, action, editing);
+                    onEditActivatorView(vh, editing, withTransition);
                 }
             }
             vh.mEditingMode = EDITING_NONE;
         }
+        // call deprecated method for backward compatible
+        onEditingModeChange(vh, action, editing);
     }
 
     /**
@@ -827,9 +891,9 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public void onBindCheckMarkView(ViewHolder vh, GuidedAction action) {
         if (action.getCheckSetId() != GuidedAction.NO_CHECK_SET) {
             vh.mCheckmarkView.setVisibility(View.VISIBLE);
-            int attrId = action.getCheckSetId() == GuidedAction.CHECKBOX_CHECK_SET_ID ?
-                    android.R.attr.listChoiceIndicatorMultiple :
-                    android.R.attr.listChoiceIndicatorSingle;
+            int attrId = action.getCheckSetId() == GuidedAction.CHECKBOX_CHECK_SET_ID
+                    ? android.R.attr.listChoiceIndicatorMultiple
+                    : android.R.attr.listChoiceIndicatorSingle;
             final Context context = vh.mCheckmarkView.getContext();
             Drawable drawable = null;
             TypedValue typedValue = new TypedValue();
@@ -892,34 +956,34 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * Sets listener for reporting view being edited.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void setEditListener(EditListener listener) {
         mEditListener = listener;
     }
 
-    void onEditActivatorView(final ViewHolder vh, final GuidedAction action,
-            boolean editing) {
+    void onEditActivatorView(final ViewHolder vh, boolean editing, final boolean withTransition) {
         if (editing) {
             vh.itemView.setFocusable(false);
             vh.mActivatorView.requestFocus();
-            setExpandedViewHolder(vh);
+            startExpanded(vh, withTransition);
             vh.mActivatorView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (!isInExpandTransition()) {
-                        setEditingMode(vh, action, false);
+                        ((GuidedActionAdapter) getActionsGridView().getAdapter())
+                                .performOnActionClick(vh);
                     }
                 }
             });
         } else {
-            if (onUpdateActivatorView(vh, action)) {
+            if (onUpdateActivatorView(vh, vh.getAction())) {
                 if (mEditListener != null) {
-                    mEditListener.onGuidedActionEditedAndProceed(action);
+                    mEditListener.onGuidedActionEditedAndProceed(vh.getAction());
                 }
             }
             vh.itemView.setFocusable(true);
             vh.itemView.requestFocus();
-            setExpandedViewHolder(null);
+            startExpanded(null, withTransition);
             vh.mActivatorView.setOnClickListener(null);
             vh.mActivatorView.setClickable(false);
         }
@@ -955,19 +1019,15 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     /**
-     * Expands or collapse the sub actions list view.
+     * Expands or collapse the sub actions list view with transition animation
      * @param avh When not null, fill sub actions list of this ViewHolder into sub actions list and
      * hide the other items in main list.  When null, collapse the sub actions list.
+     * @deprecated use {@link #expandAction(GuidedAction, boolean)} and
+     * {@link #collapseAction(boolean)}
      */
+    @Deprecated
     public void setExpandedViewHolder(ViewHolder avh) {
-        if (isInExpandTransition()) {
-            return;
-        }
-        if (isExpandTransitionSupported()) {
-            startExpandedTransition(avh);
-        } else {
-            onUpdateExpandedViewHolder(avh);
-        }
+        expandAction(avh == null ? null : avh.getAction(), isExpandTransitionSupported());
     }
 
     /**
@@ -992,8 +1052,144 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * Start transition to expand or collapse GuidedActionStylist.
      * @param avh When not null, the GuidedActionStylist expands the sub actions of avh.  When null
      * the GuidedActionStylist will collapse sub actions.
+     * @deprecated use {@link #expandAction(GuidedAction, boolean)} and
+     * {@link #collapseAction(boolean)}
      */
+    @Deprecated
     public void startExpandedTransition(ViewHolder avh) {
+        expandAction(avh == null ? null : avh.getAction(), isExpandTransitionSupported());
+    }
+
+    /**
+     * Enable or disable using BACK key to collapse sub actions list. Default is enabled.
+     *
+     * @param backToCollapse True to enable using BACK key to collapse sub actions list, false
+     *                       to disable.
+     * @see GuidedAction#hasSubActions
+     * @see GuidedAction#getSubActions
+     */
+    public final void setBackKeyToCollapseSubActions(boolean backToCollapse) {
+        mBackToCollapseSubActions = backToCollapse;
+    }
+
+    /**
+     * @return True if using BACK key to collapse sub actions list, false otherwise. Default value
+     * is true.
+     *
+     * @see GuidedAction#hasSubActions
+     * @see GuidedAction#getSubActions
+     */
+    public final boolean isBackKeyToCollapseSubActions() {
+        return mBackToCollapseSubActions;
+    }
+
+    /**
+     * Enable or disable using BACK key to collapse {@link GuidedAction} with editable activator
+     * view. Default is enabled.
+     *
+     * @param backToCollapse True to enable using BACK key to collapse {@link GuidedAction} with
+     *                       editable activator view.
+     * @see GuidedAction#hasEditableActivatorView
+     */
+    public final void setBackKeyToCollapseActivatorView(boolean backToCollapse) {
+        mBackToCollapseActivatorView = backToCollapse;
+    }
+
+    /**
+     * @return True if using BACK key to collapse {@link GuidedAction} with editable activator
+     * view, false otherwise. Default value is true.
+     *
+     * @see GuidedAction#hasEditableActivatorView
+     */
+    public final boolean isBackKeyToCollapseActivatorView() {
+        return mBackToCollapseActivatorView;
+    }
+
+    /**
+     * Expand an action. Do nothing if it is in animation or there is action expanded.
+     *
+     * @param action         Action to expand.
+     * @param withTransition True to run transition animation, false otherwsie.
+     */
+    public void expandAction(GuidedAction action, final boolean withTransition) {
+        if (isInExpandTransition() || mExpandedAction != null) {
+            return;
+        }
+        int actionPosition =
+                ((GuidedActionAdapter) getActionsGridView().getAdapter()).indexOf(action);
+        if (actionPosition < 0) {
+            return;
+        }
+        boolean runTransition = isExpandTransitionSupported() && withTransition;
+        if (!runTransition) {
+            getActionsGridView().setSelectedPosition(actionPosition,
+                    new ViewHolderTask() {
+                        @Override
+                        public void run(RecyclerView.ViewHolder vh) {
+                            GuidedActionsStylist.ViewHolder avh =
+                                    (GuidedActionsStylist.ViewHolder)vh;
+                            if (avh.getAction().hasEditableActivatorView()) {
+                                setEditingMode(avh, true /*editing*/, false /*withTransition*/);
+                            } else {
+                                onUpdateExpandedViewHolder(avh);
+                            }
+                        }
+                    });
+            if (action.hasSubActions()) {
+                onUpdateSubActionsGridView(action, true);
+            }
+        } else {
+            getActionsGridView().setSelectedPosition(actionPosition,
+                    new ViewHolderTask() {
+                        @Override
+                        public void run(RecyclerView.ViewHolder vh) {
+                            GuidedActionsStylist.ViewHolder avh =
+                                    (GuidedActionsStylist.ViewHolder)vh;
+                            if (avh.getAction().hasEditableActivatorView()) {
+                                setEditingMode(avh, true /*editing*/, true /*withTransition*/);
+                            } else {
+                                startExpanded(avh, true);
+                            }
+                        }
+                    });
+        }
+
+    }
+
+    /**
+     * Collapse expanded action. Do nothing if it is in animation or there is no action expanded.
+     *
+     * @param withTransition True to run transition animation, false otherwsie.
+     */
+    public void collapseAction(boolean withTransition) {
+        if (isInExpandTransition() || mExpandedAction == null) {
+            return;
+        }
+        boolean runTransition = isExpandTransitionSupported() && withTransition;
+        int actionPosition =
+                ((GuidedActionAdapter) getActionsGridView().getAdapter()).indexOf(mExpandedAction);
+        if (actionPosition < 0) {
+            return;
+        }
+        if (mExpandedAction.hasEditableActivatorView()) {
+            setEditingMode(
+                    ((ViewHolder) getActionsGridView().findViewHolderForPosition(actionPosition)),
+                    false /*editing*/,
+                    runTransition);
+        } else {
+            startExpanded(null, runTransition);
+        }
+    }
+
+    int getKeyLine() {
+        return (int) (mKeyLinePercent * mActionsGridView.getHeight() / 100);
+    }
+
+    /**
+     * Internal method with assumption we already scroll to the new ViewHolder or is currently
+     * expanded.
+     */
+    void startExpanded(ViewHolder avh, final boolean withTransition) {
         ViewHolder focusAvh = null; // expand / collapse view holder
         final int count = mActionsGridView.getChildCount();
         for (int i = 0; i < count; i++) {
@@ -1011,102 +1207,101 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         }
         if (focusAvh == null) {
             // huh?
-            onUpdateExpandedViewHolder(avh);
             return;
         }
+        boolean isExpand = avh != null;
         boolean isSubActionTransition = focusAvh.getAction().hasSubActions();
-        Object set = TransitionHelper.createTransitionSet(false);
-        float slideDistance = isSubActionTransition ? focusAvh.itemView.getHeight() :
-                focusAvh.itemView.getHeight() * 0.5f;
-        Object slideAndFade = TransitionHelper.createFadeAndShortSlide(Gravity.TOP | Gravity.BOTTOM,
-                slideDistance);
-        Object changeFocusItemTransform = TransitionHelper.createChangeTransform();
-        Object changeFocusItemBounds = TransitionHelper.createChangeBounds(false);
-        Object fade = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN |
-                TransitionHelper.FADE_OUT);
-        Object changeGridBounds = TransitionHelper.createChangeBounds(false);
-        if (avh == null) {
-            TransitionHelper.setStartDelay(slideAndFade, 150);
-            TransitionHelper.setStartDelay(changeFocusItemTransform, 100);
-            TransitionHelper.setStartDelay(changeFocusItemBounds, 100);
-        } else {
-            TransitionHelper.setStartDelay(fade, 100);
-            TransitionHelper.setStartDelay(changeGridBounds, 100);
-            TransitionHelper.setStartDelay(changeFocusItemTransform, 50);
-            TransitionHelper.setStartDelay(changeFocusItemBounds, 50);
-        }
-        for (int i = 0; i < count; i++) {
-            ViewHolder vh = (ViewHolder) mActionsGridView
-                    .getChildViewHolder(mActionsGridView.getChildAt(i));
-            if (vh == focusAvh) {
-                // going to expand/collapse this one.
-                if (isSubActionTransition) {
-                    TransitionHelper.include(changeFocusItemTransform, vh.itemView);
-                    TransitionHelper.include(changeFocusItemBounds, vh.itemView);
-                }
-            } else {
-                // going to slide this item to top / bottom.
-                TransitionHelper.include(slideAndFade, vh.itemView);
-                TransitionHelper.exclude(fade, vh.itemView, true);
-            }
-        }
-        TransitionHelper.include(changeGridBounds, mSubActionsGridView);
-        TransitionHelper.include(changeGridBounds, mSubActionsBackground);
-        TransitionHelper.addTransition(set, slideAndFade);
-        // note that we don't run ChangeBounds for activating view due to the rounding problem
-        // of multiple level views ChangeBounds animation causing vertical jittering.
-        if (isSubActionTransition) {
-            TransitionHelper.addTransition(set, changeFocusItemTransform);
-            TransitionHelper.addTransition(set, changeFocusItemBounds);
-        }
-        TransitionHelper.addTransition(set, fade);
-        TransitionHelper.addTransition(set, changeGridBounds);
-        mExpandTransition = set;
-        TransitionHelper.addTransitionListener(mExpandTransition, new TransitionListener() {
-            @Override
-            public void onTransitionEnd(Object transition) {
-                mExpandTransition = null;
-            }
-        });
-        if (avh != null && mSubActionsGridView.getTop() != avh.itemView.getTop()) {
-            // For expanding, set the initial position of subActionsGridView before running
-            // a ChangeBounds on it.
-            final ViewHolder toUpdate = avh;
-            mSubActionsGridView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+        if (withTransition) {
+            Object set = TransitionHelper.createTransitionSet(false);
+            float slideDistance = isSubActionTransition ? focusAvh.itemView.getHeight()
+                    : focusAvh.itemView.getHeight() * 0.5f;
+            Object slideAndFade = TransitionHelper.createFadeAndShortSlide(
+                    Gravity.TOP | Gravity.BOTTOM,
+                    slideDistance);
+            TransitionHelper.setEpicenterCallback(slideAndFade, new TransitionEpicenterCallback() {
+                Rect mRect = new Rect();
                 @Override
-                public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                        int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    if (mSubActionsGridView == null) {
-                        return;
-                    }
-                    mSubActionsGridView.removeOnLayoutChangeListener(this);
-                    mMainView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mMainView == null) {
-                                return;
-                            }
-                            TransitionHelper.beginDelayedTransition(mMainView, mExpandTransition);
-                            onUpdateExpandedViewHolder(toUpdate);
-                        }
-                    });
+                public Rect onGetEpicenter(Object transition) {
+                    int centerY = getKeyLine();
+                    int centerX = 0;
+                    mRect.set(centerX, centerY, centerX, centerY);
+                    return mRect;
                 }
             });
-            ViewGroup.MarginLayoutParams lp =
-                    (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
-            lp.topMargin = avh.itemView.getTop();
-            lp.height = 0;
-            mSubActionsGridView.setLayoutParams(lp);
-            return;
+            Object changeFocusItemTransform = TransitionHelper.createChangeTransform();
+            Object changeFocusItemBounds = TransitionHelper.createChangeBounds(false);
+            Object fade = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN
+                    | TransitionHelper.FADE_OUT);
+            Object changeGridBounds = TransitionHelper.createChangeBounds(false);
+            if (avh == null) {
+                TransitionHelper.setStartDelay(slideAndFade, 150);
+                TransitionHelper.setStartDelay(changeFocusItemTransform, 100);
+                TransitionHelper.setStartDelay(changeFocusItemBounds, 100);
+                TransitionHelper.setStartDelay(changeGridBounds, 100);
+            } else {
+                TransitionHelper.setStartDelay(fade, 100);
+                TransitionHelper.setStartDelay(changeGridBounds, 50);
+                TransitionHelper.setStartDelay(changeFocusItemTransform, 50);
+                TransitionHelper.setStartDelay(changeFocusItemBounds, 50);
+            }
+            for (int i = 0; i < count; i++) {
+                ViewHolder vh = (ViewHolder) mActionsGridView
+                        .getChildViewHolder(mActionsGridView.getChildAt(i));
+                if (vh == focusAvh) {
+                    // going to expand/collapse this one.
+                    if (isSubActionTransition) {
+                        TransitionHelper.include(changeFocusItemTransform, vh.itemView);
+                        TransitionHelper.include(changeFocusItemBounds, vh.itemView);
+                    }
+                } else {
+                    // going to slide this item to top / bottom.
+                    TransitionHelper.include(slideAndFade, vh.itemView);
+                    TransitionHelper.exclude(fade, vh.itemView, true);
+                }
+            }
+            TransitionHelper.include(changeGridBounds, mSubActionsGridView);
+            TransitionHelper.include(changeGridBounds, mSubActionsBackground);
+            TransitionHelper.addTransition(set, slideAndFade);
+            // note that we don't run ChangeBounds for activating view due to the rounding problem
+            // of multiple level views ChangeBounds animation causing vertical jittering.
+            if (isSubActionTransition) {
+                TransitionHelper.addTransition(set, changeFocusItemTransform);
+                TransitionHelper.addTransition(set, changeFocusItemBounds);
+            }
+            TransitionHelper.addTransition(set, fade);
+            TransitionHelper.addTransition(set, changeGridBounds);
+            mExpandTransition = set;
+            TransitionHelper.addTransitionListener(mExpandTransition, new TransitionListener() {
+                @Override
+                public void onTransitionEnd(Object transition) {
+                    mExpandTransition = null;
+                }
+            });
+            if (isExpand && isSubActionTransition) {
+                // To expand sub actions, move original position of sub actions to bottom of item
+                int startY = avh.itemView.getBottom();
+                mSubActionsGridView.offsetTopAndBottom(startY - mSubActionsGridView.getTop());
+                mSubActionsBackground.offsetTopAndBottom(startY - mSubActionsBackground.getTop());
+            }
+            TransitionHelper.beginDelayedTransition(mMainView, mExpandTransition);
         }
-        TransitionHelper.beginDelayedTransition(mMainView, mExpandTransition);
         onUpdateExpandedViewHolder(avh);
+        if (isSubActionTransition) {
+            onUpdateSubActionsGridView(focusAvh.getAction(), isExpand);
+        }
     }
 
     /**
      * @return True if sub actions list is expanded.
      */
     public boolean isSubActionsExpanded() {
+        return mExpandedAction != null && mExpandedAction.hasSubActions();
+    }
+
+    /**
+     * @return True if there is {@link #getExpandedAction()} is not null, false otherwise.
+     */
+    public boolean isExpanded() {
         return mExpandedAction != null;
     }
 
@@ -1147,28 +1342,35 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                     .getChildViewHolder(mActionsGridView.getChildAt(i));
             updateChevronAndVisibility(vh);
         }
+    }
+
+    void onUpdateSubActionsGridView(GuidedAction action, boolean expand) {
         if (mSubActionsGridView != null) {
-            if (avh != null && avh.getAction().hasSubActions()) {
-                ViewGroup.MarginLayoutParams lp =
-                        (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
-                lp.topMargin = avh.itemView.getTop();
+            ViewGroup.MarginLayoutParams lp =
+                    (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
+            GuidedActionAdapter adapter = (GuidedActionAdapter) mSubActionsGridView.getAdapter();
+            if (expand) {
+                // set to negative value so GuidedActionRelativeLayout will override with
+                // keyLine percentage.
+                lp.topMargin = -2;
                 lp.height = ViewGroup.MarginLayoutParams.MATCH_PARENT;
                 mSubActionsGridView.setLayoutParams(lp);
                 mSubActionsGridView.setVisibility(View.VISIBLE);
                 mSubActionsBackground.setVisibility(View.VISIBLE);
                 mSubActionsGridView.requestFocus();
-                mSubActionsGridView.setSelectedPosition(0);
-                ((GuidedActionAdapter) mSubActionsGridView.getAdapter())
-                        .setActions(avh.getAction().getSubActions());
-            } else if (mSubActionsGridView.getVisibility() == View.VISIBLE) {
+                adapter.setActions(action.getSubActions());
+            } else {
+                // set to explicit value, which will disable the keyLine percentage calculation
+                // in GuidedRelativeLayout.
+                int actionPosition = ((GuidedActionAdapter) mActionsGridView.getAdapter())
+                        .indexOf(action);
+                lp.topMargin = mActionsGridView.getLayoutManager()
+                        .findViewByPosition(actionPosition).getBottom();
+                lp.height = 0;
                 mSubActionsGridView.setVisibility(View.INVISIBLE);
                 mSubActionsBackground.setVisibility(View.INVISIBLE);
-                ViewGroup.MarginLayoutParams lp =
-                        (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
-                lp.height = 0;
                 mSubActionsGridView.setLayoutParams(lp);
-                ((GuidedActionAdapter) mSubActionsGridView.getAdapter())
-                        .setActions(Collections.EMPTY_LIST);
+                adapter.setActions(Collections.EMPTY_LIST);
                 mActionsGridView.requestFocus();
             }
         }
@@ -1185,7 +1387,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             } else if (vh.getAction() == mExpandedAction) {
                 vh.itemView.setVisibility(View.VISIBLE);
                 if (vh.getAction().hasSubActions()) {
-                    vh.itemView.setTranslationY(- vh.itemView.getHeight());
+                    vh.itemView.setTranslationY(getKeyLine() - vh.itemView.getBottom());
                 } else if (vh.mActivatorView != null) {
                     vh.itemView.setTranslationY(0);
                     vh.setActivated(true);

@@ -16,6 +16,8 @@
 
 package android.support.v7.media;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -57,8 +59,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
@@ -293,6 +293,16 @@ public final class MediaRouter {
     public RouteInfo getDefaultRoute() {
         checkCallingThread();
         return sGlobal.getDefaultRoute();
+    }
+
+    /**
+     * Gets a bluetooth route for playing media content on the system.
+     *
+     * @return A bluetooth route, if exist, otherwise null.
+     */
+    public RouteInfo getBluetoothRoute() {
+        checkCallingThread();
+        return sGlobal.getBluetoothRoute();
     }
 
     /**
@@ -865,7 +875,7 @@ public final class MediaRouter {
          * @see #getDeviceType
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public static final int DEVICE_TYPE_UNKNOWN = 0;
 
         /**
@@ -891,7 +901,7 @@ public final class MediaRouter {
          * @see #getDeviceType
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public static final int DEVICE_TYPE_BLUETOOTH = 3;
 
         @IntDef({PLAYBACK_VOLUME_FIXED,PLAYBACK_VOLUME_VARIABLE})
@@ -921,7 +931,7 @@ public final class MediaRouter {
          * with the route.
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public static final int PRESENTATION_DISPLAY_ID_NONE = -1;
 
         static final int CHANGE_GENERAL = 1 << 0;
@@ -1051,6 +1061,30 @@ public final class MediaRouter {
         public boolean isDefault() {
             checkCallingThread();
             return sGlobal.getDefaultRoute() == this;
+        }
+
+        /**
+         * Returns true if this route is a bluetooth route.
+         *
+         * @return True if this route is a bluetooth route.
+         *
+         * @see MediaRouter#getBluetoothRoute
+         */
+        public boolean isBluetooth() {
+            checkCallingThread();
+            return sGlobal.getBluetoothRoute() == this;
+        }
+
+        /**
+         * Returns true if this route is the default route and the device speaker.
+         *
+         * @return True if this route is the default route and the device speaker.
+         */
+        public boolean isDeviceSpeaker() {
+            int defaultAudioRouteNameResourceId = Resources.getSystem().getIdentifier(
+                    "default_audio_route_name", "string", "android");
+            return isDefault()
+                    && Resources.getSystem().getText(defaultAudioRouteNameResourceId).equals(mName);
         }
 
         /**
@@ -1248,7 +1282,7 @@ public final class MediaRouter {
         /**
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public boolean isDefaultOrBluetooth() {
             if (isDefault() || mDeviceType == DEVICE_TYPE_BLUETOOTH) {
                 return true;
@@ -1379,7 +1413,7 @@ public final class MediaRouter {
          * Gets the route's presentation display id, or -1 if none.
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public int getPresentationDisplayId() {
             return mPresentationDisplayId;
         }
@@ -1524,7 +1558,7 @@ public final class MediaRouter {
         }
 
         /** @hide */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public MediaRouteProvider getProviderInstance() {
             return mProvider.getProviderInstance();
         }
@@ -1534,7 +1568,7 @@ public final class MediaRouter {
      * Information about a route that consists of multiple other routes in a group.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static class RouteGroup extends RouteInfo {
         private List<RouteInfo> mRoutes = new ArrayList<>();
 
@@ -1904,6 +1938,7 @@ public final class MediaRouter {
 
         private RegisteredMediaRouteProviderWatcher mRegisteredProviderWatcher;
         private RouteInfo mDefaultRoute;
+        private RouteInfo mBluetoothRoute;
         RouteInfo mSelectedRoute;
         private RouteController mSelectedRouteController;
         // A map from route descriptor ID to RouteController for the member routes in the currently
@@ -2041,6 +2076,10 @@ public final class MediaRouter {
             return mDefaultRoute;
         }
 
+        public RouteInfo getBluetoothRoute() {
+            return mBluetoothRoute;
+        }
+
         public RouteInfo getSelectedRoute() {
             if (mSelectedRoute == null) {
                 // This should never happen once the media router has been fully
@@ -2048,6 +2087,11 @@ public final class MediaRouter {
                 // is a bug in provider initialization.
                 throw new IllegalStateException("There is no currently selected route.  "
                         + "The media router has not yet been fully initialized.");
+            }
+            // A workaround for making this method work properly.
+            if (android.os.Build.VERSION.SDK_INT >= 16 && android.os.Build.VERSION.SDK_INT < 25
+                    && RouteInfo.isSystemMediaRouteProvider(mSelectedRoute)) {
+                syncSystemRoutes();
             }
             return mSelectedRoute;
         }
@@ -2066,6 +2110,11 @@ public final class MediaRouter {
                 return;
             }
 
+            // A workaround for making this method work properly.
+            if (android.os.Build.VERSION.SDK_INT >= 16 && android.os.Build.VERSION.SDK_INT < 25
+                    && RouteInfo.isSystemMediaRouteProvider(route)) {
+                syncSystemRoutes();
+            }
             setSelectedRouteInternal(route, unselectReason);
         }
 
@@ -2197,6 +2246,35 @@ public final class MediaRouter {
                 }
                 mCallbackHandler.post(CallbackHandler.MSG_PROVIDER_REMOVED, provider);
                 mProviders.remove(index);
+            }
+        }
+
+        void syncSystemRoutes() {
+            Object routerObj = MediaRouterJellybean.getMediaRouter(mApplicationContext);
+            // If a2dp is enabled, this means a BT route is the selected route, otherwise
+            // the default route is the selected one.
+            boolean a2dpEnabled = MediaRouterJellybean.isBluetoothA2dpOn(routerObj);
+            Object selectedRouteObj = MediaRouterJellybean.getSelectedRoute(
+                    routerObj, MediaRouterJellybean.ALL_ROUTE_TYPES);
+            Object defaultRouteObj = mSystemProvider.getDefaultRoute();
+
+            if (a2dpEnabled && selectedRouteObj == defaultRouteObj) {
+                // A BT route is the currently selected route, but MediaRouter think the default
+                // route is the selected one. By selecting the BT route via framework MediaRouter,
+                // MediaRouter could correct its selected route information.
+                for (Object routeObj : MediaRouterJellybean.getRoutes(routerObj)) {
+                    if (routeObj != defaultRouteObj) {
+                        MediaRouterJellybean.selectRoute(routerObj,
+                                MediaRouterJellybean.ALL_ROUTE_TYPES, routeObj);
+                        break;
+                    }
+                }
+            } else if (!a2dpEnabled && selectedRouteObj != defaultRouteObj) {
+                // The default route is the currently selected route, but MediaRouter think a BT
+                // route is the selected one. By selecting the default route via framework
+                // MediaRouter, MediaRouter could correct its selected route information.
+                MediaRouterJellybean.selectRoute(routerObj,
+                        MediaRouterJellybean.ALL_ROUTE_TYPES, defaultRouteObj);
             }
         }
 
@@ -2421,6 +2499,22 @@ public final class MediaRouter {
                 }
             }
 
+            // Update bluetooth route.
+            if (mBluetoothRoute != null && !isRouteSelectable(mBluetoothRoute)) {
+                Log.i(TAG, "Clearing the bluetooth route because it "
+                        + "is no longer selectable: " + mBluetoothRoute);
+                mBluetoothRoute = null;
+            }
+            if (mBluetoothRoute == null && !mRoutes.isEmpty()) {
+                for (RouteInfo route : mRoutes) {
+                    if (isSystemBluetoothRoute(route) && isRouteSelectable(route)) {
+                        mBluetoothRoute = route;
+                        Log.i(TAG, "Found bluetooth route: " + mBluetoothRoute);
+                        break;
+                    }
+                }
+            }
+
             // Update selected route.
             if (mSelectedRoute != null && !isRouteSelectable(mSelectedRoute)) {
                 Log.i(TAG, "Unselecting the current route because it "
@@ -2502,6 +2596,12 @@ public final class MediaRouter {
         private boolean isSystemDefaultRoute(RouteInfo route) {
             return route.getProviderInstance() == mSystemProvider
                     && route.mDescriptorId.equals(
+                            SystemMediaRouteProvider.DEFAULT_ROUTE_ID);
+        }
+
+        private boolean isSystemBluetoothRoute(RouteInfo route) {
+            return route.getProviderInstance() == mSystemProvider
+                    && !route.mDescriptorId.equals(
                             SystemMediaRouteProvider.DEFAULT_ROUTE_ID);
         }
 
@@ -2740,7 +2840,6 @@ public final class MediaRouter {
             public MediaSessionCompat.Token getToken() {
                 return mMsCompat.getSessionToken();
             }
-
         }
 
         private final class RemoteControlClientRecord

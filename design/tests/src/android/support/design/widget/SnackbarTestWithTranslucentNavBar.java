@@ -21,9 +21,9 @@ import static org.junit.Assert.assertNotNull;
 
 import android.support.design.test.R;
 import android.support.design.testutils.SnackbarUtils;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.v4.view.WindowInsetsCompat;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class SnackbarTestWithTranslucentNavBar
         // Show a simple Snackbar and wait for it to be shown
         final Snackbar snackbar = Snackbar.make(mCoordinatorLayout, MESSAGE_TEXT,
                 Snackbar.LENGTH_SHORT);
-        SnackbarUtils.showSnackbarAndWaitUntilFullyShown(snackbar);
+        SnackbarUtils.showTransientBottomBarAndWaitUntilFullyShown(snackbar);
 
         final WindowInsetsCompat colLastInsets = mCoordinatorLayout.getLastWindowInsets();
         assertNotNull(colLastInsets);

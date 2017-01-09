@@ -15,20 +15,19 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.RestrictTo;
-import android.support.v17.leanback.widget.BackgroundHelperKitkat;
 import android.view.View;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 
 /**
  * Helper for view backgrounds.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public final class BackgroundHelper {
 
     final static BackgroundHelperVersionImpl sImpl;

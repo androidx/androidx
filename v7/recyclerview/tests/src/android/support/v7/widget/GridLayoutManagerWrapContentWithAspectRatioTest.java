@@ -16,36 +16,37 @@
 
 package android.support.v7.widget;
 
+import static android.support.v7.widget.BaseWrapContentTest.WrapContentConfig;
+import static android.support.v7.widget.GridLayoutManagerTest.Config;
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.view.View.MeasureSpec.AT_MOST;
+import static android.view.View.MeasureSpec.EXACTLY;
+import static android.view.View.MeasureSpec.UNSPECIFIED;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import android.graphics.Color;
+import android.support.test.filters.MediumTest;
+import android.view.View;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import android.graphics.Color;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.view.View;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static android.support.v7.widget.BaseWrapContentTest.WrapContentConfig;
-import static android.support.v7.widget.GridLayoutManagerTest.Config;
-import static org.hamcrest.CoreMatchers.*;
-import static android.view.View.MeasureSpec.UNSPECIFIED;
-import static android.view.View.MeasureSpec.AT_MOST;
-import static android.view.View.MeasureSpec.EXACTLY;
 
 @RunWith(Parameterized.class)
 @MediumTest
 public class GridLayoutManagerWrapContentWithAspectRatioTest
         extends BaseWrapContentWithAspectRatioTest {
 
-    @Parameterized.Parameters(name = "{0} {1} {2}")
+    @Parameterized.Parameters(name = "{0},{1},{2}")
     public static List<Object[]> params() {
         List<Object[]> params = new ArrayList<>();
         for (int orientation : new int[]{VERTICAL, HORIZONTAL}) {

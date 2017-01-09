@@ -15,7 +15,9 @@ package android.support.v17.leanback.transition;
 
 import android.animation.Animator;
 import android.animation.TimeInterpolator;
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.support.annotation.RequiresApi;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
 import android.transition.Fade;
@@ -33,6 +35,8 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+@RequiresApi(19)
+@TargetApi(19)
 final class TransitionHelperKitkat {
 
     TransitionHelperKitkat() {

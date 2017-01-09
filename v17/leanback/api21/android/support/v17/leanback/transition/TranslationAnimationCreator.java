@@ -1,19 +1,20 @@
 package android.support.v17.leanback.transition;
 
-import android.support.annotation.RestrictTo;
-import android.support.v17.leanback.R;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
+import android.annotation.TargetApi;
 import android.graphics.Path;
+import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
+import android.support.v17.leanback.R;
 import android.transition.Transition;
-import android.transition.TransitionValues;
 import android.transition.Transition.TransitionListener;
+import android.transition.TransitionValues;
 import android.view.View;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * This class is used by Slide and Explode to create an animator that goes from the start
@@ -21,7 +22,9 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * will not blink out or shift suddenly when the transition is interrupted.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RequiresApi(21)
+@TargetApi(21)
+@RestrictTo(LIBRARY_GROUP)
 class TranslationAnimationCreator {
 
     /**

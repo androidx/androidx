@@ -14,44 +14,6 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# Android libraries referenced by this module's resources.
-resource_libs := \
-    android-support-v17-leanback \
-    android-support-v14-preference \
-    android-support-v7-preference \
-    android-support-v7-appcompat \
-    android-support-v7-recyclerview \
-    android-support-annotations
-
-# Build the resources using the latest applicable SDK version.
-# We do this here because the final static library must be compiled with an older
-# SDK version than the resources.  The resources library and the R class that it
-# contains will not be linked into the final static library.
-include $(CLEAR_VARS)
-LOCAL_USE_AAPT2 := true
-LOCAL_MODULE := android-support-v17-preference-leanback-res
-LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_SHARED_ANDROID_LIBRARIES := $(resource_libs)
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-LOCAL_JAR_EXCLUDE_FILES := none
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
-#  A helper sub-library that makes direct use of API 21.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v17-preference-leanback-api21
-LOCAL_SDK_VERSION := 21
-LOCAL_SRC_FILES := $(call all-java-files-under, api21)
-LOCAL_JAVA_LIBRARIES := \
-    android-support-v17-preference-leanback-res \
-    android-support-v17-leanback
-LOCAL_SHARED_ANDROID_LIBRARIES := \
-    android-support-annotations
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
 # Here is the final static library that apps can link against.
 # Applications that use this library must specify
 #
@@ -62,23 +24,25 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 #       android-support-v7-preference \
 #       android-support-v7-appcompat \
 #       android-support-v7-recyclerview \
-#       android-support-v4 \
-#       android-support-annotations
+#       android-support-v4
 #
 # in their makefiles to include the resources in their package.
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v17-preference-leanback
-LOCAL_SDK_VERSION := 17
-LOCAL_SDK_RES_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
-LOCAL_SRC_FILES := $(call all-java-files-under,src)
-LOCAL_STATIC_JAVA_LIBRARIES := \
-    android-support-v17-preference-leanback-api21
-LOCAL_STATIC_ANDROID_LIBRARIES := \
-    android-support-v17-preference-leanback-res
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
+LOCAL_SRC_FILES := \
+    $(call all-java-files-under,api21) \
+    $(call all-java-files-under,src)
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SHARED_ANDROID_LIBRARIES := \
-    $(resource_libs) \
-    android-support-v4
+    android-support-v17-leanback \
+    android-support-v14-preference \
+    android-support-v7-preference \
+    android-support-v7-appcompat \
+    android-support-v7-recyclerview \
+    android-support-v4 \
+    android-support-annotations
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly

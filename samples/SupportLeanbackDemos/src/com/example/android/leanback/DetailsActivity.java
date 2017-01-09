@@ -31,6 +31,7 @@ public class DetailsActivity extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        getFragmentManager().enableDebugLogging(true);
         setContentView(useLegacyFragment() ? R.layout.legacy_details : R.layout.details);
         if (savedInstanceState == null) {
             // Only pass object to fragment when activity is first time created,
@@ -43,17 +44,5 @@ public class DetailsActivity extends Activity
                     .setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
             }
         }
-    }
-
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        BackgroundHelper.attach(this);
-    }
-
-    @Override
-    public void onStop() {
-        BackgroundHelper.release(this);
-        super.onStop();
     }
 }

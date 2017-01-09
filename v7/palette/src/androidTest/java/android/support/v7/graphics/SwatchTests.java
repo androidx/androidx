@@ -16,20 +16,21 @@
 
 package android.support.v7.graphics;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import android.graphics.Color;
-import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
-
 import static android.support.v4.graphics.ColorUtils.HSLToColor;
 import static android.support.v4.graphics.ColorUtils.calculateContrast;
 import static android.support.v7.graphics.TestUtils.loadSampleBitmap;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import android.graphics.Color;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class SwatchTests {

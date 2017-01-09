@@ -15,7 +15,7 @@
   ~ limitations under the License
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Preference.SwitchPreference">
         <item name="android:widgetLayout">@layout/preference_widget_switch</item>
         <item name="android:switchTextOn">@string/v7_preference_on</item>
@@ -66,14 +66,14 @@
 
     <style name="Preference_TextAppearanceMaterialBody2">
         <item name="android:textSize">14sp</item>
-        <item name="android:fontFamily">sans-serif</item>
+        <item tools:ignore="NewApi" name="android:fontFamily">sans-serif</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textStyle">normal</item>
     </style>
 
     <style name="Preference_TextAppearanceMaterialSubhead">
         <item name="android:textSize">16sp</item>
-        <item name="android:fontFamily">sans-serif</item>
+        <item tools:ignore="NewApi" name="android:fontFamily">sans-serif</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textStyle">normal</item>
     </style>

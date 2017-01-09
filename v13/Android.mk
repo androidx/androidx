@@ -14,63 +14,34 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# Note: the source code is in java/, not src/, because this code is also part of
-# the framework library, and build/core/pathmap.mk expects a java/ subdirectory.
-
-# A helper sub-library that makes direct use of Ice Cream Sandwich APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v13-ics
-LOCAL_SDK_VERSION := 14
-LOCAL_SRC_FILES := $(call all-java-files-under, ics)
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# A helper sub-library that makes direct use of Ice Cream Sandwich APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v13-ics-mr1
-LOCAL_SDK_VERSION := 15
-LOCAL_SRC_FILES := $(call all-java-files-under, ics-mr1)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-ics
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# A helper sub-library that makes direct use of MNC APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v13-mnc
-LOCAL_SDK_VERSION := 23
-LOCAL_SRC_FILES := $(call all-java-files-under, api23)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-ics-mr1
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# A helper sub-library that makes direct use of NYC APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v13-nyc
-LOCAL_SDK_VERSION := current
-LOCAL_SRC_FILES := $(call all-java-files-under, api24)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-mnc
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# A helper sub-library that makes direct use of NYC MR-1 APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v13-nyc-mr1
-LOCAL_SDK_VERSION := current
-LOCAL_SRC_FILES := $(call all-java-files-under, api25)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-nyc
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
+# Here is the final static library that apps can link against.
+# Applications that use this library must specify
+#
+#   LOCAL_STATIC_ANDROID_LIBRARIES := \
+#       android-support-v13 \
+#       android-support-v4
+#
+# in their makefiles to include the resources and their dependencies in their package.
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v13
-LOCAL_SDK_VERSION := 13
-LOCAL_SRC_FILES := $(call all-java-files-under, java)
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
+LOCAL_SRC_FILES := \
+        $(call all-java-files-under, ics) \
+        $(call all-java-files-under, ics-mr1) \
+        $(call all-java-files-under, api23) \
+        $(call all-java-files-under, api24) \
+        $(call all-java-files-under, api25) \
+        $(call all-java-files-under, java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
-        android-support-v13-nyc-mr1
+# Some projects expect to inherit android-support-v4 from
+# android-support-v13, so we need to keep it static until they can be fixed.
+LOCAL_STATIC_ANDROID_LIBRARIES := \
+        android-support-v4
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+        android-support-v4 \
+        android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
