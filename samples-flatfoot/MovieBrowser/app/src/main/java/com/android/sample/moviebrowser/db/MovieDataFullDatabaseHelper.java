@@ -30,7 +30,8 @@ public class MovieDataFullDatabaseHelper {
      */
     public static synchronized MovieDataFullDatabase getDatabase(Context context) {
         if (sInstance == null) {
-            sInstance = Room.inMemoryDatabaseBuilder(context, MovieDataFullDatabase.class).build();
+            sInstance = Room.databaseBuilder(context, MovieDataFullDatabase.class, "movies.db")
+                    .build();
         }
         return sInstance;
     }

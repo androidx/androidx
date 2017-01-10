@@ -65,7 +65,8 @@ public class DetailsFragment extends LifecycleFragment {
         // Get our view model instance and register ourselves to observe change to the
         // movie data. When a change is reported, update all UI elements based on the new
         // data.
-        mMovieDataFullModel = ViewModelStore.get(this, mImdbId + ".full", MovieDataFullModel.class);
+        mMovieDataFullModel = ViewModelStore.get(this, mImdbId + ".full",
+                MovieDataFullModel.class);
         mMovieDataFullModel.getMovieData().observe(this, new Observer<MovieDataFull>() {
             @Override
             public void onChanged(@Nullable MovieDataFull movieDataFull) {
@@ -80,7 +81,7 @@ public class DetailsFragment extends LifecycleFragment {
         // we will be notified since this fragment registered itself as an observer on the matching
         // live data object.
         // TODO - switch UI population to use data binding.
-        mMovieDataFullModel.setImdbId(getContext(), mImdbId);
+        mMovieDataFullModel.loadData(getContext(), mImdbId);
 
         return result;
     }

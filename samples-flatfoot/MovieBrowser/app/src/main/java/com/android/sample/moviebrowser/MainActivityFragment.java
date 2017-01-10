@@ -16,7 +16,7 @@
 package com.android.sample.moviebrowser;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.GridLayoutManager;
@@ -28,6 +28,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.sample.moviebrowser.network.NetworkManager;
+import com.android.sample.moviebrowser.network.NetworkManager.Cancelable;
+import com.android.sample.moviebrowser.network.NetworkManager.NetworkCallListener;
+import com.android.support.lifecycle.LifecycleFragment;
+import com.android.support.lifecycle.LiveData;
+import com.android.support.lifecycle.Observer;
+
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
@@ -35,16 +42,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 /**
  * Main fragment.
  */
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends LifecycleFragment {
     public static final String KEY_QUERY = "main.keyQuery";
 
     static class CustomViewHolder extends RecyclerView.ViewHolder {
@@ -64,25 +65,20 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-    private List<MovieData> mSource = new ArrayList<MovieData>();
+    private LiveData<List<MovieData>> mMovieListLiveData;
     private int mTotalSearchResults;
     private AtomicInteger mLastRequestedPage;
     private AtomicBoolean mHasRequestPending;
-    private Call<SearchData> mCurrentCall;
+    private Cancelable mCurrentCall;
 
-    private OpenMdbService mOpenMdbService;
     private String mSearchQuery;
     private RecyclerView mRecyclerView;
 
     public MainActivityFragment() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://www.omdbapi.com")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        mOpenMdbService = retrofit.create(OpenMdbService.class);
         mLastRequestedPage = new AtomicInteger(0);
         mHasRequestPending = new AtomicBoolean(false);
+        mMovieListLiveData = new LiveData<>();
+        mMovieListLiveData.setValue(new ArrayList<MovieData>());
     }
 
     @Override
@@ -94,7 +90,6 @@ public class MainActivityFragment extends Fragment {
         final int columnCount = getContext().getResources().getInteger(R.integer.column_count);
 
         mRecyclerView.setAdapter(new Adapter<CustomViewHolder>() {
-
             @Override
             public CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 View inflated = inflater.inflate(R.layout.movie_card, parent, false);
@@ -103,7 +98,8 @@ public class MainActivityFragment extends Fragment {
 
             @Override
             public void onBindViewHolder(CustomViewHolder holder, final int position) {
-                final MovieData data = mSource.get(position);
+                List<MovieData> movieDataList = mMovieListLiveData.getValue();
+                final MovieData data = movieDataList.get(position);
                 holder.mFullView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -128,12 +124,12 @@ public class MainActivityFragment extends Fragment {
                         .into(holder.mPosterView);
 
                 // Do we need to request another page?
-                if (mSource.size() - position <= 2) {
+                if (movieDataList.size() - position <= 2) {
                     // We are not close to the end of our data
                     return;
                 }
 
-                if (mHasRequestPending.get() || (mSource.size() == mTotalSearchResults)) {
+                if (mHasRequestPending.get() || (movieDataList.size() == mTotalSearchResults)) {
                     // Previous request still processing or no more results
                     return;
                 }
@@ -148,10 +144,19 @@ public class MainActivityFragment extends Fragment {
 
             @Override
             public int getItemCount() {
-                return mSource.size();
+                return mMovieListLiveData.getValue().size();
             }
         });
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), columnCount));
+
+        // Register an observer on the LiveData that wraps the list of movies to update the
+        // adapter on every change
+        mMovieListLiveData.observe(this, new Observer<List<MovieData>>() {
+            @Override
+            public void onChanged(@Nullable List<MovieData> movieDatas) {
+                mRecyclerView.getAdapter().notifyDataSetChanged();
+            }
+        });
 
         fetchNextPage();
 
@@ -166,7 +171,7 @@ public class MainActivityFragment extends Fragment {
     public void updateQuery(String newQuery) {
         mCurrentCall.cancel();
         mSearchQuery = newQuery;
-        mSource.clear();
+        mMovieListLiveData.setValue(new ArrayList<MovieData>());
         mHasRequestPending.set(false);
         mLastRequestedPage.set(0);
 
@@ -176,29 +181,33 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void fetchNextPage() {
-        mCurrentCall = mOpenMdbService.listMovies(mSearchQuery,
-                (mLastRequestedPage.get() + 1));
-        // Fetch initial content asynchronously
         mHasRequestPending.set(true);
-        mCurrentCall.enqueue(new Callback<SearchData>() {
-            @Override
-            public void onResponse(Call<SearchData> call, Response<SearchData> response) {
-                int prevDataCount = mSource.size();
-                List<MovieData> newData = response.body().Search;
-                int newDataCount = newData.size();
+        mCurrentCall = NetworkManager.getInstance().fetchSearchResults(mSearchQuery,
+                mLastRequestedPage.get() + 1,
+                new NetworkCallListener<SearchData>() {
+                    @Override
+                    public void onLoadSuccess(SearchData data) {
+                        // Get the list of movies in this page
+                        List<MovieData> newData = data.Search;
+                        int newDataCount = newData.size();
 
-                mSource.addAll(newData);
-                mTotalSearchResults = response.body().totalResults;
-                mLastRequestedPage.incrementAndGet();
-                mHasRequestPending.set(false);
+                        // Create a new list that will contain the previous pages and the new one
+                        int prevDataCount = mMovieListLiveData.getValue().size();
+                        ArrayList<MovieData> newList =
+                                new ArrayList<>(prevDataCount + newDataCount);
+                        newList.addAll(mMovieListLiveData.getValue());
+                        newList.addAll(newData);
+                        // Set it on our LiveData object - our observer will update the adapter
+                        mMovieListLiveData.setValue(newList);
 
-                mRecyclerView.getAdapter().notifyItemRangeInserted(prevDataCount, newDataCount);
-            }
+                        mTotalSearchResults = data.totalResults;
+                        mLastRequestedPage.incrementAndGet();
+                        mHasRequestPending.set(false);
+                    }
 
-            @Override
-            public void onFailure(Call<SearchData> call, Throwable t) {
-                android.util.Log.e("MovieBrowser", "Call = " + call.toString(), t);
-            }
-        });
+                    @Override
+                    public void onLoadFailure() {
+                    }
+                });
     }
 }

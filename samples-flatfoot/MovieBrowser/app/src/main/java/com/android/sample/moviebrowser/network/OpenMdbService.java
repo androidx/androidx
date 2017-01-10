@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.moviebrowser;
+package com.android.sample.moviebrowser.network;
+
+import com.android.sample.moviebrowser.MovieDataFull;
+import com.android.sample.moviebrowser.SearchData;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

@@ -43,6 +43,7 @@ public class EditDetailsFragment extends DialogFragment implements LifecycleRegi
     public static final String KEY_RATED = "edit.rated";
 
     private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
+    private MovieDataFullModel mMovieDataFullModel;
 
     public EditDetailsFragment() {
     }
@@ -86,9 +87,8 @@ public class EditDetailsFragment extends DialogFragment implements LifecycleRegi
         // Get our view model instance and register ourselves to observe change to the
         // movie data. When a change is reported, update all UI elements based on the new
         // data.
-        final MovieDataFullModel movieDataFullModel = ViewModelStore.get(this,
-                imdbId + ".full", MovieDataFullModel.class);
-        movieDataFullModel.getMovieData().observe(this, new Observer<MovieDataFull>() {
+        mMovieDataFullModel = ViewModelStore.get(this, imdbId + ".full", MovieDataFullModel.class);
+        mMovieDataFullModel.getMovieData().observe(this, new Observer<MovieDataFull>() {
             @Override
             public void onChanged(@Nullable MovieDataFull movieDataFull) {
                 if (movieDataFull != null) {
@@ -103,7 +103,7 @@ public class EditDetailsFragment extends DialogFragment implements LifecycleRegi
         // immediately from the previous load or later on when it's fetched from remote API call),
         // we will be notified since this fragment registered itself as an observer on the matching
         // live data object.
-        movieDataFullModel.setImdbId(getContext(), imdbId);
+        mMovieDataFullModel.loadData(getContext(), imdbId);
 
         return result;
     }

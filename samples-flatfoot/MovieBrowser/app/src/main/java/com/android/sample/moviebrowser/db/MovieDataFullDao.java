@@ -33,12 +33,6 @@ public interface MovieDataFullDao {
     MovieDataFull load(String imdbID);
 
     /**
-     * Insert full data for a movie.
-     */
-    @Insert
-    void insert(MovieDataFull movieDataFull);
-
-    /**
      * Insert or update full data for a movie.
      */
     @Insert(onConflict = Insert.REPLACE)

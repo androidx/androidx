@@ -16,19 +16,16 @@
 package com.android.sample.moviebrowser.model;
 
 import android.content.Context;
+import android.os.AsyncTask;
+import android.support.annotation.MainThread;
 
 import com.android.sample.moviebrowser.MovieDataFull;
-import com.android.sample.moviebrowser.OpenMdbService;
 import com.android.sample.moviebrowser.db.MovieDataFullDatabase;
 import com.android.sample.moviebrowser.db.MovieDataFullDatabaseHelper;
+import com.android.sample.moviebrowser.network.NetworkManager;
+import com.android.sample.moviebrowser.network.NetworkManager.NetworkCallListener;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * View model for the full movie data.
@@ -44,7 +41,8 @@ public class MovieDataFullModel implements ViewModel {
     /**
      * Sets the IMDB ID for fetching the full movie data.
      */
-    public synchronized void setImdbId(Context context, String imdbID) {
+    @MainThread
+    public synchronized void loadData(final Context context, final String imdbID) {
         // Note that the usage of this view model class guarantees that we're always calling
         // with the same IMDB ID. So checking the value of fetching field is enough to prevent
         // multiple concurrent remote / local DB fetches.
@@ -58,50 +56,58 @@ public class MovieDataFullModel implements ViewModel {
         mFetching.setValue(true);
 
         final MovieDataFullDatabase db = MovieDataFullDatabaseHelper.getDatabase(context);
-        // TODO - if Room's DB is on disk, we'll be accessing local disk on the UI thread.
-        // Would need to be wrapped with AsyncTask.
-        MovieDataFull movieData = db.getMovieDataFullDao().load(imdbID);
+        // Wrap a DB query call in an AsyncTask. Otherwise we'd be doing a disk IO operation on
+        // the UI thread.
+        new AsyncTask<String, Void, MovieDataFull>() {
+            @Override
+            protected MovieDataFull doInBackground(String... params) {
+                return db.getMovieDataFullDao().load(params[0]);
+            }
 
-        if (movieData != null) {
-            android.util.Log.e("MovieBrowser", "Got data from local DB");
-            mMovieData.setValue(movieData);
-            mFetching.setValue(false);
-        } else {
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("http://www.omdbapi.com")
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-
-            OpenMdbService openMdbService = retrofit.create(OpenMdbService.class);
-
-            Call<MovieDataFull> fullDataCall = openMdbService.movieDetails(imdbID);
-            // Fetch content asynchronously
-            fullDataCall.enqueue(new Callback<MovieDataFull>() {
-                @Override
-                public void onResponse(Call<MovieDataFull> call,
-                        Response<MovieDataFull> response) {
-                    android.util.Log.e("MovieBrowser", "Got data from network");
-                    MovieDataFull movieData = response.body();
-                    mMovieData.setValue(movieData);
+            @Override
+            protected void onPostExecute(MovieDataFull movieDataFull) {
+                if (movieDataFull != null) {
+                    android.util.Log.e("MovieBrowser", "Got data from local DB");
+                    mMovieData.setValue(movieDataFull);
                     mFetching.setValue(false);
+                } else {
+                    NetworkManager.getInstance().fetchFullDetails(imdbID,
+                            new NetworkCallListener<MovieDataFull>() {
+                                @Override
+                                public void onLoadSuccess(MovieDataFull data) {
+                                    onDataLoadedFromNetwork(data, db);
+                                }
 
-                    // TODO - if Room's DB is on disk, we'll be accessing local disk on the
-                    // UI thread. Would need to be wrapped with AsyncTask.
-                    db.getMovieDataFullDao().insert(movieData);
+                                @Override
+                                public void onLoadFailure() {
+                                    mFetching.setValue(false);
+                                }
+                            });
                 }
+            }
+        }.execute(imdbID);
+    }
 
-                @Override
-                public void onFailure(Call<MovieDataFull> call, Throwable t) {
-                    mFetching.setValue(false);
-                    android.util.Log.e("MovieBrowser", "Call = " + call.toString(), t);
-                }
-            });
-        }
+    @MainThread
+    private void onDataLoadedFromNetwork(MovieDataFull data, final MovieDataFullDatabase db) {
+        mMovieData.setValue(data);
+        mFetching.setValue(false);
+
+        // Wrap a DB insert call with another AsyncTask. Otherwise we'd
+        // be doing a disk IO operation on the UI thread.
+        new AsyncTask<MovieDataFull, Void, Void>() {
+            @Override
+            protected Void doInBackground(MovieDataFull... params) {
+                db.getMovieDataFullDao().insertOrReplace(params[0]);
+                return null;
+            }
+        }.execute(data);
     }
 
     /**
      * Updates the data wrapped by this model.
      */
+    @MainThread
     public void update(Context context, String runtime, String rated) {
         // Create a copy of the currently wrapped data
         MovieDataFull newData = new MovieDataFull(mMovieData.getValue());
@@ -115,8 +121,14 @@ public class MovieDataFullModel implements ViewModel {
         // And finally update the entry for this movie in our database so that it's reflected
         // in the UI the next time it's fetched and displayed
         final MovieDataFullDatabase db = MovieDataFullDatabaseHelper.getDatabase(context);
-        // TODO - if Room's DB is on disk, we'll be accessing local disk on the UI thread.
-        // Would need to be wrapped with AsyncTask.
-        db.getMovieDataFullDao().insertOrReplace(newData);
+        // Wrap a DB update call with an AsyncTask. Otherwise we'd be doing a disk IO operation on
+        // the UI thread.
+        new AsyncTask<MovieDataFull, Void, Void>() {
+            @Override
+            protected Void doInBackground(MovieDataFull... params) {
+                db.getMovieDataFullDao().insertOrReplace(params[0]);
+                return null;
+            }
+        }.execute(newData);
     }
 }
