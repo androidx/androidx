@@ -231,9 +231,8 @@ public class MediaBrowserCompatTest {
         assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
     }
 
-    // TODO(hdmoon): Uncomment after fixing failing tests. (Fails on API <= 23)
-    // @Test
-    // @SmallTest
+    @Test
+    @SmallTest
     public void testSubscribeInvalidItem() {
         resetCallbacks();
         createMediaBrowser(TEST_BROWSER_SERVICE);
@@ -251,9 +250,8 @@ public class MediaBrowserCompatTest {
                 mSubscriptionCallback.mLastErrorId);
     }
 
-    // TODO(hdmoon): Uncomment after fixing failing tests. (Fails on API <= 23)
-    // @Test
-    // @SmallTest
+    @Test
+    @SmallTest
     public void testSubscribeInvalidItemWithOptions() {
         resetCallbacks();
         createMediaBrowser(TEST_BROWSER_SERVICE);
