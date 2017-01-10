@@ -939,6 +939,40 @@ public class FragmentViewTests {
         FragmentTestUtil.assertChildren(container, fragment3);
     }
 
+    // Ensure that non-optimized transactions are executed individually rather than together.
+    // This forces references from one fragment to another that should be executed earlier
+    // to work.
+    public void nonOptimizeTogether() throws Throwable {
+        FragmentTestUtil.setContentView(mActivityRule, R.layout.simple_container);
+        ViewGroup container = (ViewGroup)
+                mActivityRule.getActivity().findViewById(R.id.fragmentContainer);
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        final StrictViewFragment fragment1 = new StrictViewFragment();
+        fragment1.setLayoutId(R.layout.scene1);
+        final StrictViewFragment fragment2 = new StrictViewFragment();
+        fragment2.setLayoutId(R.layout.fragment_a);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fm.beginTransaction()
+                        .add(R.id.fragmentContainer, fragment1)
+                        .setAllowOptimization(false)
+                        .addToBackStack(null)
+                        .commit();
+                fm.beginTransaction()
+                        .add(R.id.squareContainer, fragment2)
+                        .setAllowOptimization(false)
+                        .addToBackStack(null)
+                        .commit();
+                fm.executePendingTransactions();
+            }
+        });
+        FragmentTestUtil.assertChildren(container, fragment1);
+        assertNotNull(findViewById(R.id.textA));
+    }
+
     private View findViewById(int viewId) {
         return mActivityRule.getActivity().findViewById(viewId);
     }
