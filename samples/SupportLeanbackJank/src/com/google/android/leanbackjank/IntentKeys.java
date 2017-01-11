@@ -23,8 +23,14 @@ public final class IntentKeys {
     public static final String CARD_WIDTH = "CARD_WIDTH";
     public static final String CARD_HEIGHT = "CARD_HEIGHT";
     public static final String DISABLE_SHADOWS = "ENABLE_SHADOWS";
-    public static final String PLAY_VIDEO = "PLAY_VIDEO";
+    public static final String WHICH_VIDEO = "WHICH_VIDEO";
     public static final String USE_SINGLE_BITMAP = "USE_SINGLE_BITMAP";
+
+    // Define values for WHICH_VIDEO.
+    public static final int NO_VIDEO = 0;
+    public static final int VIDEO_480P_60FPS = 1;
+    public static final int VIDEO_1080P_60FPS = 2;
+    public static final int VIDEO_2160P_60FPS = 3;
 
     private IntentKeys() {
     }
