@@ -979,13 +979,14 @@ public final class MediaBrowserCompat {
                 sub = new Subscription();
                 mSubscriptions.put(parentId, sub);
             }
-            sub.putCallback(options, callback);
+            Bundle copiedOptions = options == null ? null : new Bundle(options);
+            sub.putCallback(copiedOptions, callback);
 
             // If we are connected, tell the service that we are watching. If we aren't
             // connected, the service will be told when we connect.
             if (mState == CONNECT_STATE_CONNECTED) {
                 try {
-                    mServiceBinderWrapper.addSubscription(parentId, callback.mToken, options,
+                    mServiceBinderWrapper.addSubscription(parentId, callback.mToken, copiedOptions,
                             mCallbacksMessenger);
                 } catch (RemoteException e) {
                     // Process is crashing. We will disconnect, and upon reconnect we will
@@ -1410,7 +1411,8 @@ public final class MediaBrowserCompat {
                 mSubscriptions.put(parentId, sub);
             }
             callback.setSubscription(sub);
-            sub.putCallback(options, callback);
+            Bundle copiedOptions = options == null ? null : new Bundle(options);
+            sub.putCallback(copiedOptions, callback);
 
             if (mServiceBinderWrapper == null) {
                 MediaBrowserCompatApi21.subscribe(
@@ -1418,7 +1420,7 @@ public final class MediaBrowserCompat {
             } else {
                 try {
                     mServiceBinderWrapper.addSubscription(
-                            parentId, callback.mToken, options, mCallbacksMessenger);
+                            parentId, callback.mToken, copiedOptions, mCallbacksMessenger);
                 } catch (RemoteException e) {
                     // Process is crashing. We will disconnect, and upon reconnect we will
                     // automatically reregister. So nothing to do here.
