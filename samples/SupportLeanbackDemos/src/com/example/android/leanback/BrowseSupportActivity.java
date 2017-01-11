@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from BrowseActivity.java.  DO NOT MODIFY. */
 
 /*
@@ -26,15 +27,4 @@ public class BrowseSupportActivity extends FragmentActivity {
         setContentView(R.layout.browse_support);
     }
 
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        BackgroundHelper.attach(this);
-    }
-
-    @Override
-    public void onStop() {
-        BackgroundHelper.release(this);
-        super.onStop();
-    }
 }

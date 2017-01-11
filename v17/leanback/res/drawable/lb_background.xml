@@ -15,11 +15,8 @@
      limitations under the License.
 -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@color/lb_grey" android:id="@+id/background_theme"/>
-    <item android:drawable="@color/lb_grey" android:id="@+id/background_color"/>
     <!-- Replaced at runtime with image to fade out -->
     <item android:drawable="@color/lb_grey" android:id="@+id/background_imageout"/>
     <!-- Replaced at runtime with image to fade in -->
     <item android:drawable="@color/lb_grey" android:id="@+id/background_imagein"/>
-    <item android:drawable="@color/lb_background_protection" android:id="@+id/background_dim" />
 </layer-list>

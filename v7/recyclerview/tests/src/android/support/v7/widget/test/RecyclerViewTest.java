@@ -16,14 +16,16 @@
 
 package android.support.v7.widget.test;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.recyclerview.test.CustomLayoutManager;
@@ -32,26 +34,24 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class RecyclerViewTest {
 
     @Rule
-    public ActivityTestRule<RecyclerViewTestActivity> mActivityRule
-            = new ActivityTestRule<>(RecyclerViewTestActivity.class);
+    public ActivityTestRule<RecyclerViewTestActivity> mActivityRule =
+            new ActivityTestRule<>(RecyclerViewTestActivity.class);
 
     private void setContentView(final int layoutId) throws Throwable {
         final Activity activity = mActivityRule.getActivity();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 activity.setContentView(layoutId);

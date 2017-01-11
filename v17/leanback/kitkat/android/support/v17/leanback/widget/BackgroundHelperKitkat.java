@@ -15,9 +15,13 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 
+@RequiresApi(19)
+@TargetApi(19)
 class BackgroundHelperKitkat {
 
     public static void setBackgroundPreservingAlpha(View view, Drawable drawable) {

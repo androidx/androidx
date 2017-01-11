@@ -17,26 +17,6 @@
 package android.support.v7.widget;
 
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import android.graphics.Rect;
-import android.os.Looper;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.support.v4.view.ViewCompat;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewParent;
-
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import static android.support.v7.widget.LayoutState.LAYOUT_START;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
@@ -49,6 +29,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
+import android.graphics.Rect;
+import android.os.Looper;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.test.filters.MediumTest;
+import android.support.v4.view.ViewCompat;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewParent;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @RunWith(Parameterized.class)
 @MediumTest
@@ -170,7 +170,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
                 * (mConfig.mReverseLayout ? -1 : 1);
 
         final int[] globalPos = new int[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 int globalScrollPosition = 0;
@@ -205,7 +205,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
         }
 
         checkForMainThreadException();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 int globalScrollPosition = globalPos[0];
@@ -245,7 +245,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
     }
 
     private void saveRestore(final Config config) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -326,11 +326,11 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
                 );
             }
         };
-        runTestOnUiThread(viewInBoundsTest);
+        mActivityRule.runOnUiThread(viewInBoundsTest);
         // smooth scroll to end of the list and keep testing meanwhile. This will test pre-caching
         // case
         final int scrollPosition = mAdapter.getItemCount();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.smoothScrollToPosition(scrollPosition);
@@ -338,7 +338,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
         });
         while (mLayoutManager.isSmoothScrolling() ||
                 mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
-            runTestOnUiThread(viewInBoundsTest);
+            mActivityRule.runOnUiThread(viewInBoundsTest);
             checkForMainThreadException();
             Thread.sleep(400);
         }
@@ -347,7 +347,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
         mAdapter.deleteAndNotify(0, mAdapter.getItemCount());
         mLayoutManager.waitForLayout(2);
         // test empty case
-        runTestOnUiThread(viewInBoundsTest);
+        mActivityRule.runOnUiThread(viewInBoundsTest);
         // set a new adapter with huge items to test full bounds check
         mLayoutManager.expectLayouts(1);
         final int totalSpace = mLayoutManager.mPrimaryOrientation.getTotalSpace();
@@ -363,19 +363,19 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
                 }
             }
         };
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.setAdapter(newAdapter);
             }
         });
         mLayoutManager.waitForLayout(2);
-        runTestOnUiThread(viewInBoundsTest);
+        mActivityRule.runOnUiThread(viewInBoundsTest);
         checkForMainThreadException();
 
         // smooth scroll to end of the list and keep testing meanwhile. This will test pre-caching
         // case
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final int diff;
@@ -392,7 +392,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
                 }
             }
         });
-        runTestOnUiThread(viewInBoundsTest);
+        mActivityRule.runOnUiThread(viewInBoundsTest);
         checkForMainThreadException();
     }
 
@@ -598,7 +598,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
                     );
                 }
                 mLayoutManager.expectLayouts(1);
-                runTestOnUiThread(new Runnable() {
+                mActivityRule.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mLayoutManager.scrollToPosition(position);
@@ -756,7 +756,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
 
         final int size = helper.getDecoratedMeasurement(vh.itemView);
         AttachDetachCollector collector = new AttachDetachCollector(mRecyclerView);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (mConfig.mOrientation == HORIZONTAL) {
@@ -793,7 +793,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
 
         final int size = helper.getDecoratedMeasurement(vh.itemView);
         AttachDetachCollector collector = new AttachDetachCollector(mRecyclerView);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (mConfig.mOrientation == HORIZONTAL) {

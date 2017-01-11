@@ -17,11 +17,16 @@
 package android.support.v4.view.animation;
 
 import android.graphics.Path;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.animation.Interpolator;
 
 /**
  * Base implementation for path interpolator compatibility.
  */
+
+@RequiresApi(9)
+@TargetApi(9)
 class PathInterpolatorCompatBase  {
 
     private PathInterpolatorCompatBase() {

@@ -17,9 +17,13 @@ package android.support.v4.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.View;
 import android.view.animation.Interpolator;
 
+@RequiresApi(14)
+@TargetApi(14)
 class ViewPropertyAnimatorCompatICS {
 
     public static void setDuration(View view, long value) {

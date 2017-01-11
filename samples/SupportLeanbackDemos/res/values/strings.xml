@@ -36,6 +36,8 @@
     <string name="search_details_support">Search Details(support version)</string>
     <string name="search_details_support_description">Search style DetailsSupportFragment test</string>
     <string name="playback">Playback</string>
+    <string name="video_playback">Video Playback</string>
+    <string name="video_playback_support">Video Playback(support version)</string>
     <string name="playback_description">PlaybackOverlayFragment test</string>
     <string name="playback_support">Playback(support version)</string>
     <string name="playback_support_description">PlaybackOverlaySupportFragment test</string>
@@ -59,6 +61,8 @@
     <string name="detail_presenter_options_description">Choose Presenter for Details</string>
     <string name="legacydetails_off">Use New DetailsPresenter</string>
     <string name="legacydetails_on">Use Legacy DetailsPresenter</string>
+    <string name="settings">Settings</string>
+    <string name="settings_description">Settings and Preferences.</string>
     <string name="onboarding">Onboarding</string>
     <string name="onboarding_description">Show onboarding activity.</string>
     <string name="onboarding_support">Onboarding(support version)</string>

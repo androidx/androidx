@@ -17,6 +17,7 @@
 
 package android.support.v7.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -105,6 +106,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         }
     }
 
+    @SuppressLint("NewApi")
     private void drawVertical(Canvas canvas, RecyclerView parent) {
         canvas.save();
         final int left;
@@ -131,6 +133,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         canvas.restore();
     }
 
+    @SuppressLint("NewApi")
     private void drawHorizontal(Canvas canvas, RecyclerView parent) {
         canvas.save();
         final int top;

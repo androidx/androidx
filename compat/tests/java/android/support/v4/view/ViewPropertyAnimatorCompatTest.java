@@ -16,20 +16,19 @@
 
 package android.support.v4.view;
 
+import static org.junit.Assert.assertTrue;
+
 import android.app.Activity;
 import android.support.compat.test.R;
-import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.v4.BaseInstrumentationTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @MediumTest
 public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<VpaActivity> {
@@ -52,7 +51,7 @@ public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<
     @Test
     public void testWithEndAction() throws Throwable {
         final CountDownLatch latch1 = new CountDownLatch(1);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 ViewCompat.animate(mView).alpha(0).setDuration(100).withEndAction(new Runnable() {
@@ -68,7 +67,7 @@ public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<
         // This test ensures that the endAction listener will be called exactly once
         mNumListenerCalls = 0;
         final CountDownLatch latch2 = new CountDownLatch(1);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 ViewCompat.animate(mView).alpha(0).setDuration(50).withEndAction(new Runnable() {
@@ -88,7 +87,7 @@ public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<
     @Test
     public void testWithStartAction() throws Throwable {
         final CountDownLatch latch1 = new CountDownLatch(1);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 ViewCompat.animate(mView).alpha(0).setDuration(100).withStartAction(new Runnable() {
@@ -104,7 +103,7 @@ public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<
         // This test ensures that the startAction listener will be called exactly once
         mNumListenerCalls = 0;
         final CountDownLatch latch2 = new CountDownLatch(1);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 ViewCompat.animate(mView).alpha(0).setDuration(50).withStartAction(new Runnable() {

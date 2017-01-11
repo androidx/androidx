@@ -20,13 +20,17 @@ LOCAL_PATH := $(call my-dir)
 #
 # ---------------------------------------------
 include $(CLEAR_VARS)
+LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-vectordrawable
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, static/src)
-
-LOCAL_JAVA_LIBRARIES := android-support-compat
-
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/static/res
+LOCAL_MANIFEST_FILE := static/AndroidManifest.xml
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-compat \
+    android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # ---------------------------------------------
@@ -35,12 +39,16 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 #
 # ---------------------------------------------
 include $(CLEAR_VARS)
+LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-animatedvectordrawable
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, animated/src)
-
-LOCAL_JAVA_LIBRARIES := android-support-compat android-support-vectordrawable
-
-LOCAL_AAPT_FLAGS := --no-version-vectors
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/animated/res
+LOCAL_MANIFEST_FILE := animated/AndroidManifest.xml
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-compat \
+    android-support-vectordrawable \
+    android-support-annotations
+LOCAL_AAPT_FLAGS := --no-version-vectors --add-javadoc-annotation doconly
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)

@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -23,21 +25,18 @@ import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
-import android.support.v7.view.ActionMode;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * This class acts as a container for the action bar view and action mode context views.
  * It applies special styles as needed to help handle animated transitions between them.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class ActionBarContainer extends FrameLayout {
     private boolean mIsTransitioning;
     private View mTabContainer;

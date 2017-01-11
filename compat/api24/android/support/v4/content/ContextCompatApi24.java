@@ -17,9 +17,13 @@
 package android.support.v4.content;
 
 import android.content.Context;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 import java.io.File;
 
+@RequiresApi(24)
+@TargetApi(24)
 class ContextCompatApi24 {
     public static File getDataDir(Context context) {
         return context.getDataDir();

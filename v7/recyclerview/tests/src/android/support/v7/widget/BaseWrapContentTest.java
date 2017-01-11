@@ -15,8 +15,6 @@
  */
 package android.support.v7.widget;
 
-import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -24,7 +22,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
@@ -37,16 +34,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Class to test any generic wrap content behavior.
@@ -540,8 +531,8 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
         public String toString() {
             return "WrapContentConfig{"
                     + "unlimitedWidth=" + unlimitedWidth
-                    + ", unlimitedHeight=" + unlimitedHeight
-                    + ", padding=" + padding
+                    + ",unlimitedHeight=" + unlimitedHeight
+                    + ",padding=" + padding
                     + '}';
         }
 

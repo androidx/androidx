@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from SearchActivity.java.  DO NOT MODIFY. */
 
 /*
@@ -28,7 +29,7 @@ public class SearchSupportActivity extends FragmentActivity
     private static boolean DEBUG = true;
 
     /** If using internal speech recognizer, you must have RECORD_AUDIO permission */
-    private static boolean USE_INTERNAL_SPEECH_RECOGNIZER = true;
+    private static final boolean USE_INTERNAL_SPEECH_RECOGNIZER = true;
     private static final int REQUEST_SPEECH = 1;
 
     private SearchSupportFragment mFragment;

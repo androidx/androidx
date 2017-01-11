@@ -18,10 +18,15 @@ package android.support.v4.app;
 
 import android.app.AppOpsManager;
 import android.content.Context;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 /**
  * AppOpsManager implementations for API 23.
  */
+
+@RequiresApi(23)
+@TargetApi(23)
 class AppOpsManagerCompat23 {
     public static String permissionToOp(String permission) {
         return AppOpsManager.permissionToOp(permission);

@@ -17,4 +17,5 @@
     <color name="icon_background">#4A4F51</color>
     <color name="icon_alt_background">#2A2F51</color>
     <color name="page_indicator_dot">#80FFFFFF</color>
+    <color name="settings_background">#00695C</color>
 </resources>

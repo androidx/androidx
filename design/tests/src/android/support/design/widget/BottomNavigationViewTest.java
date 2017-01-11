@@ -43,8 +43,8 @@ import android.support.design.test.R;
 import android.support.design.testutils.TestDrawable;
 import android.support.design.testutils.TestUtilsMatchers;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.SmallTest;
 import android.support.v4.content.res.ResourcesCompat;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.Menu;
 import android.view.MenuItem;
 

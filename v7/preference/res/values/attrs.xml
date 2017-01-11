@@ -254,4 +254,23 @@
         <attr name="selectableItemBackground" />
     </declare-styleable>
 
+    <declare-styleable name="SeekBarPreference">
+        <attr name="min" format="integer"/>
+        <attr name="android:max"/>
+        <attr name="android:layout" />
+        <!--Attribute controlling the amount to increment or decrement the seekbar when the user
+        presses the arrow keys-->
+        <attr name="seekBarIncrement" format="integer" />
+        <!-- Attribute indicating whether the slider within this preference can be adjusted, that is
+        pressing left/right keys when this preference is focused will move the slider accordingly
+        (e.g. inline adjustable preferences). False, if the slider within the preference is
+        read-only and cannot be adjusted. By default, the seekbar is adjustable. -->
+        <attr name="adjustable" format="boolean" />
+        <!-- Flag indicating whether the TextView next to the seekbar that shows the current seekbar
+        value will be displayed. If true, the view is VISIBLE; if false, the view will be GONE.
+        By default, this view is VISIBLE. -->
+        <attr name="showSeekBarValue" format="boolean" />
+    </declare-styleable>
+
+
 </resources>

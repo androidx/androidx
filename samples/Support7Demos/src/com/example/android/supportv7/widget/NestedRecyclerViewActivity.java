@@ -17,6 +17,7 @@
 package com.example.android.supportv7.widget;
 
 import android.graphics.Color;
+import android.os.Parcelable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -47,7 +48,7 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
 
     static class InnerAdapter extends RecyclerView.Adapter<InnerAdapter.ViewHolder> {
         public static class ViewHolder extends RecyclerView.ViewHolder {
-            public TextView mTextView;
+            TextView mTextView;
 
             public ViewHolder(TextView itemView) {
                 super(itemView);
@@ -57,7 +58,7 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
 
         private String[] mData;
 
-        public InnerAdapter(String[] data) {
+        InnerAdapter(String[] data) {
             mData = data;
         }
 
@@ -93,15 +94,17 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
         }
 
         ArrayList<InnerAdapter> mAdapters = new ArrayList<>();
+        ArrayList<Parcelable> mSavedStates = new ArrayList<>();
         RecyclerView.RecycledViewPool mSharedPool = new RecyclerView.RecycledViewPool();
 
-        public OuterAdapter(String[] data) {
+        OuterAdapter(String[] data) {
             int currentCharIndex = 0;
             char currentChar = data[0].charAt(0);
             for (int i = 1; i <= data.length; i++) {
                 if (i == data.length || data[i].charAt(0) != currentChar) {
                     mAdapters.add(new InnerAdapter(
                             Arrays.copyOfRange(data, currentCharIndex, i - 1)));
+                    mSavedStates.add(null);
                     if (i < data.length) {
                         currentChar = data[i].charAt(0);
                         currentCharIndex = i;
@@ -121,7 +124,20 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.mRecyclerView.setAdapter(mAdapters.get(position));
+            // Note: would be equally valid to replace adapter content instead of swapping adapter
+            holder.mRecyclerView.swapAdapter(mAdapters.get(position), true);
+
+            Parcelable savedState = mSavedStates.get(position);
+            if (savedState != null) {
+                holder.mRecyclerView.getLayoutManager().onRestoreInstanceState(savedState);
+                mSavedStates.set(position, null);
+            }
+        }
+
+        @Override
+        public void onViewRecycled(ViewHolder holder) {
+            mSavedStates.set(holder.getAdapterPosition(),
+                    holder.mRecyclerView.getLayoutManager().onSaveInstanceState());
         }
 
         @Override

@@ -19,6 +19,11 @@ package android.support.transition;
 import android.content.Context;
 import android.view.ViewGroup;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
+
+@RequiresApi(19)
+@TargetApi(19)
 class SceneStaticsKitKat extends SceneStaticsImpl {
 
     @Override

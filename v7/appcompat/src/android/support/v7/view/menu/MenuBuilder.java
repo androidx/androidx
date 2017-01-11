@@ -16,7 +16,7 @@
 
 package android.support.v7.view.menu;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -55,7 +55,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class MenuBuilder implements SupportMenu {
 
     private static final String TAG = "MenuBuilder";
@@ -191,7 +191,7 @@ public class MenuBuilder implements SupportMenu {
      * @hide
      */
 
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public interface Callback {
 
         /**
@@ -215,7 +215,7 @@ public class MenuBuilder implements SupportMenu {
      * Called by menu items to execute their associated action
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public interface ItemInvoker {
         boolean invokeItem(MenuItemImpl item);
     }

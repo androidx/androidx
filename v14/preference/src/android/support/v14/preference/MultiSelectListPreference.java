@@ -16,6 +16,8 @@
 
 package android.support.v14.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
@@ -32,8 +34,6 @@ import android.util.AttributeSet;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A {@link android.support.v7.preference.Preference} that displays a list of entries as
@@ -99,7 +99,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected boolean persistStringSet(Set<String> values) {
         if (shouldPersist()) {
             // Shouldn't store null
@@ -132,7 +132,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected Set<String> getPersistedStringSet(Set<String> defaultReturnValue) {
         if (!shouldPersist()) {
             return defaultReturnValue;

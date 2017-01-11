@@ -17,6 +17,7 @@
 
 package android.support.v4.app;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -27,6 +28,7 @@ import android.graphics.drawable.InsetDrawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -132,6 +134,8 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         }
     }
 
+    @RequiresApi(11)
+    @TargetApi(11)
     private static class ActionBarDrawerToggleImplHC implements ActionBarDrawerToggleImpl {
         ActionBarDrawerToggleImplHC() {
         }
@@ -155,6 +159,8 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         }
     }
 
+    @RequiresApi(18)
+    @TargetApi(18)
     private static class ActionBarDrawerToggleImplJellybeanMR2
             implements ActionBarDrawerToggleImpl {
         ActionBarDrawerToggleImplJellybeanMR2() {

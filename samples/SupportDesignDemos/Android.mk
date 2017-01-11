@@ -18,30 +18,19 @@ LOCAL_PATH:= $(call my-dir)
 # We need to add some special AAPT flags to generate R classes
 # for resources that are included from the libraries.
 include $(CLEAR_VARS)
+LOCAL_USE_AAPT2 := true
 LOCAL_PACKAGE_NAME := SupportDesignDemos
 LOCAL_MODULE_TAGS := samples
 LOCAL_SDK_VERSION := current
 LOCAL_MIN_SDK_VERSION := 7
 LOCAL_DEX_PREOPT := false
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
-LOCAL_STATIC_JAVA_LIBRARIES := \
+LOCAL_STATIC_ANDROID_LIBRARIES := \
         android-support-v4 \
         android-support-v7-appcompat \
         android-support-v7-recyclerview \
         android-support-transition \
         android-support-design
-LOCAL_RESOURCE_DIR = \
-        $(LOCAL_PATH)/res \
-        frameworks/support/v7/appcompat/res \
-        frameworks/support/v7/recyclerview/res \
-        frameworks/support/transition/res \
-        frameworks/support/design/res
-LOCAL_AAPT_FLAGS := \
-        --auto-add-overlay \
-        --extra-packages android.support.v7.appcompat \
-        --extra-packages android.support.v7.recyclerview \
-        --extra-packages android.support.transition \
-        --extra-packages android.support.design \
-        --no-version-vectors
+LOCAL_AAPT_FLAGS := --no-version-vectors
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 include $(BUILD_PACKAGE)

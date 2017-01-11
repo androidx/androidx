@@ -21,9 +21,9 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.support.test.filters.SmallTest;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.BaseInstrumentationTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
 

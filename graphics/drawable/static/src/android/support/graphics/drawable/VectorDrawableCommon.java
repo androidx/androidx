@@ -14,7 +14,6 @@
 
 package android.support.graphics.drawable;
 
-import android.annotation.TargetApi;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.ColorFilter;
@@ -30,13 +29,14 @@ import android.util.AttributeSet;
 /**
  * Internal common delegation shared by VectorDrawableCompat and AnimatedVectorDrawableCompat
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 abstract class VectorDrawableCommon extends Drawable implements TintAwareDrawable {
     /**
      * Obtains styled attributes from the theme, if available, or unstyled
      * resources if the theme is null.
+     *
+     * @hide
      */
-    static TypedArray obtainAttributes(
+    protected static TypedArray obtainAttributes(
             Resources res, Resources.Theme theme, AttributeSet set, int[] attrs) {
         if (theme == null) {
             return res.obtainAttributes(set, attrs);

@@ -24,8 +24,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.test.filters.MediumTest;
 import android.support.v7.recyclerview.test.R;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,24 +49,36 @@ import java.util.concurrent.atomic.AtomicLong;
 public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentationTest {
     TestLayoutManager mLayoutManager;
     TestAdapter mAdapter;
+    int mChildCount = 10;
 
+    // Parameter indicating whether RV's children are simple views (false) or ViewGroups (true).
     private final boolean mFocusOnChild;
+    // Parameter indicating whether RV recovers focus after layout is finished.
     private final boolean mDisableRecovery;
+    // Parameter indicating whether animation is enabled for the ViewHolder items.
+    private final boolean mDisableAnimation;
 
-    @Parameterized.Parameters(name = "focusSubChild:{0}, disable:{1}")
+    @Parameterized.Parameters(name = "focusSubChild:{0},disableRecovery:{1},"
+            + "disableAnimation:{2}")
     public static List<Object[]> getParams() {
         return Arrays.asList(
-                new Object[]{false, false},
-                new Object[]{true, false},
-                new Object[]{false, true},
-                new Object[]{true, true}
+                new Object[]{false, false, true},
+                new Object[]{true, false, true},
+                new Object[]{false, true, true},
+                new Object[]{true, true, true},
+                new Object[]{false, false, false},
+                new Object[]{true, false, false},
+                new Object[]{false, true, false},
+                new Object[]{true, true, false}
         );
     }
 
-    public RecyclerViewFocusRecoveryTest(boolean focusOnChild, boolean disableRecovery) {
+    public RecyclerViewFocusRecoveryTest(boolean focusOnChild, boolean disableRecovery,
+                                         boolean disableAnimation) {
         super(false);
         mFocusOnChild = focusOnChild;
         mDisableRecovery = disableRecovery;
+        mDisableAnimation = disableAnimation;
     }
 
     void setupBasic() throws Throwable {
@@ -74,7 +86,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
     }
 
     void setupBasic(boolean hasStableIds) throws Throwable {
-        TestAdapter adapter = new FocusTestAdapter(10);
+        TestAdapter adapter = new FocusTestAdapter(mChildCount);
         adapter.setHasStableIds(hasStableIds);
         setupBasic(adapter, null);
     }
@@ -95,13 +107,16 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         }
 
         if (adapter == null) {
-            adapter = new FocusTestAdapter(10);
+            adapter = new FocusTestAdapter(mChildCount);
         }
         mLayoutManager = layoutManager;
         mAdapter = adapter;
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setPreserveFocusAfterLayout(!mDisableRecovery);
+        if (mDisableAnimation) {
+            recyclerView.setItemAnimator(null);
+        }
         mLayoutManager.expectLayouts(1);
         setRecyclerView(recyclerView);
         mLayoutManager.waitForLayout(1);
@@ -110,34 +125,384 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
     @Test
     public void testFocusRecoveryInChange() throws Throwable {
         setupBasic();
-        ((SimpleItemAnimator) (mRecyclerView.getItemAnimator())).setSupportsChangeAnimations(true);
         mLayoutManager.setSupportsPredictive(true);
         final RecyclerView.ViewHolder oldVh = focusVh(3);
 
-        mLayoutManager.expectLayouts(2);
+        mLayoutManager.expectLayouts(mDisableAnimation ? 1 : 2);
         mAdapter.changeAndNotify(3, 1);
         mLayoutManager.waitForLayout(2);
+        if (!mDisableAnimation) {
+            // waiting for RV's ItemAnimator to finish the animation of the removed item
+            waitForAnimations(2);
+        }
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 RecyclerView.ViewHolder newVh = mRecyclerView.findViewHolderForAdapterPosition(3);
-                assertFocusTransition(oldVh, newVh);
+                assertFocusTransition(oldVh, newVh, false);
 
             }
         });
+    }
+
+    @Test
+    public void testFocusRecoveryAfterRemovingFocusedChild() throws Throwable {
+        setupBasic(true);
+        FocusViewHolder fvh = cast(focusVh(4));
+
+        assertThat("test sanity", fvh, notNullValue());
+        assertThat("RV should have focus", mRecyclerView.hasFocus(), is(true));
+
+        assertThat("RV should pass the focus down to its children",
+                mRecyclerView.isFocused(), is(false));
+        assertThat("Viewholder did not receive focus", fvh.itemView.hasFocus(),
+                is(true));
+        assertThat("Viewholder is not focused", fvh.getViewToFocus().isFocused(),
+                is(true));
+
         mLayoutManager.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // removing focused child
+                mAdapter.mItems.remove(4);
+                mAdapter.notifyItemRemoved(4);
+            }
+        });
+        mLayoutManager.waitForLayout(1);
+        if (!mDisableAnimation) {
+            // waiting for RV's ItemAnimator to finish the animation of the removed item
+            waitForAnimations(2);
+        }
+        assertThat("RV should have " + (mChildCount - 1) + " instead of "
+                        + mRecyclerView.getChildCount() + " children",
+                mChildCount - 1, is(mRecyclerView.getChildCount()));
+        assertFocusAfterLayout(4, 0);
+    }
+
+    @Test
+    public void testFocusRecoveryAfterMovingFocusedChild() throws Throwable {
+        setupBasic(true);
+        FocusViewHolder fvh = cast(focusVh(3));
+
+        assertThat("test sanity", fvh, notNullValue());
+        assertThat("RV should have focus", mRecyclerView.hasFocus(), is(true));
+
+        assertThat("RV should pass the focus down to its children",
+                mRecyclerView.isFocused(), is(false));
+        assertThat("Viewholder did not receive focus", fvh.itemView.hasFocus(),
+                is(true));
+        assertThat("Viewholder is not focused", fvh.getViewToFocus().isFocused(),
+                is(true));
+
+        mLayoutManager.expectLayouts(1);
+        mAdapter.moveAndNotify(3, 1);
+        mLayoutManager.waitForLayout(1);
+        if (!mDisableAnimation) {
+            // waiting for RV's ItemAnimator to finish the animation of the removed item
+            waitForAnimations(2);
+        }
+        assertFocusAfterLayout(1, 1);
+    }
+
+    @Test
+    public void testFocusRecoveryAfterRemovingLastChild() throws Throwable {
+        mChildCount = 1;
+        setupBasic(true);
+        FocusViewHolder fvh = cast(focusVh(0));
+
+        assertThat("test sanity", fvh, notNullValue());
+        assertThat("RV should have focus", mRecyclerView.hasFocus(), is(true));
+
+        assertThat("RV should pass the focus down to its children",
+                mRecyclerView.isFocused(), is(false));
+        assertThat("Viewholder did not receive focus", fvh.itemView.hasFocus(),
+                is(true));
+        assertThat("Viewholder is not focused", fvh.getViewToFocus().isFocused(),
+                is(true));
+
+        mLayoutManager.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // removing focused child
+                mAdapter.mItems.remove(0);
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+        mLayoutManager.waitForLayout(1);
+        if (!mDisableAnimation) {
+            // waiting for RV's ItemAnimator to finish the animation of the removed item
+            waitForAnimations(2);
+        }
+        assertThat("RV should have " + (mChildCount - 1) + " instead of "
+                        + mRecyclerView.getChildCount() + " children",
+                mChildCount - 1, is(mRecyclerView.getChildCount()));
+        assertFocusAfterLayout(-1, -1);
+    }
+
+    @Test
+    public void testFocusRecoveryAfterAddingFirstChild() throws Throwable {
+        mChildCount = 0;
+        setupBasic(true);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                requestFocusOnRV();
+            }
+        });
+
+        mLayoutManager.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // adding first child
+                mAdapter.mItems.add(0, new Item(0, TestAdapter.DEFAULT_ITEM_PREFIX));
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+        mLayoutManager.waitForLayout(1);
+        if (!mDisableAnimation) {
+            // waiting for RV's ItemAnimator to finish the animation of the removed item
+            waitForAnimations(2);
+        }
+        assertFocusAfterLayout(0, -1);
+    }
+
+    @Test
+    public void testFocusRecoveryAfterChangingFocusableFlag() throws Throwable {
+        setupBasic(true);
+        FocusViewHolder fvh = cast(focusVh(6));
+
+        assertThat("test sanity", fvh, notNullValue());
+        assertThat("RV should have focus", mRecyclerView.hasFocus(), is(true));
+
+        assertThat("RV should pass the focus down to its children",
+                mRecyclerView.isFocused(), is(false));
+        assertThat("Viewholder did not receive focus", fvh.itemView.hasFocus(),
+                is(true));
+        assertThat("Viewholder is not focused", fvh.getViewToFocus().isFocused(),
+                is(true));
+
+        mLayoutManager.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Item item = mAdapter.mItems.get(6);
+                item.setFocusable(false);
+                mAdapter.notifyItemChanged(6);
+            }
+        });
+        mLayoutManager.waitForLayout(1);
+        if (!mDisableAnimation) {
+            waitForAnimations(2);
+        }
+        FocusViewHolder newVh = cast(mRecyclerView.findViewHolderForAdapterPosition(6));
+        assertThat("VH should no longer be focusable", newVh.getViewToFocus().isFocusable(),
+                is(false));
+        assertFocusAfterLayout(7, 0);
+    }
+
+    @Test
+    public void testFocusRecoveryBeforeLayoutWithFocusBefore() throws Throwable {
+        testFocusRecoveryBeforeLayout(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+    }
+
+    @Test
+    public void testFocusRecoveryBeforeLayoutWithFocusAfter() throws Throwable {
+        testFocusRecoveryBeforeLayout(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+    }
+
+    @Test
+    public void testFocusRecoveryBeforeLayoutWithFocusBlocked() throws Throwable {
+        testFocusRecoveryBeforeLayout(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+    }
+
+    @Test
+    public void testFocusRecoveryDuringLayoutWithFocusBefore() throws Throwable {
+        testFocusRecoveryDuringLayout(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+    }
+
+    @Test
+    public void testFocusRecoveryDuringLayoutWithFocusAfter() throws Throwable {
+        testFocusRecoveryDuringLayout(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+    }
+
+    @Test
+    public void testFocusRecoveryDuringLayoutWithFocusBlocked() throws Throwable {
+        testFocusRecoveryDuringLayout(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+    }
+
+    /**
+     * Tests whether the focus is correctly recovered when requestFocus on RV is called before
+     * laying out the children.
+     * @throws Throwable
+     */
+    private void testFocusRecoveryBeforeLayout(int descendantFocusability) throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setDescendantFocusability(descendantFocusability);
+        mLayoutManager = new FocusLayoutManager();
+        mAdapter = new FocusTestAdapter(10);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setPreserveFocusAfterLayout(!mDisableRecovery);
+        if (mDisableAnimation) {
+            recyclerView.setItemAnimator(null);
+        }
+        setRecyclerView(recyclerView);
+        assertThat("RV should always be focusable", mRecyclerView.isFocusable(), is(true));
+
+        mLayoutManager.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                requestFocusOnRV();
+                mRecyclerView.setAdapter(mAdapter);
+            }
+        });
+        mLayoutManager.waitForLayout(1);
+        assertFocusAfterLayout(0, -1);
+    }
+
+    /**
+     * Tests whether the focus is correctly recovered when requestFocus on RV is called during
+     * laying out the children.
+     * @throws Throwable
+     */
+    private void testFocusRecoveryDuringLayout(int descendantFocusability) throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setDescendantFocusability(descendantFocusability);
+        mLayoutManager = new FocusLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                requestFocusOnRV();
+            }
+        };
+        mAdapter = new FocusTestAdapter(10);
+        recyclerView.setAdapter(mAdapter);
+        recyclerView.setLayoutManager(mLayoutManager);
+        if (mDisableAnimation) {
+            recyclerView.setItemAnimator(null);
+        }
+        recyclerView.setPreserveFocusAfterLayout(!mDisableRecovery);
+        mLayoutManager.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        mLayoutManager.waitForLayout(1);
+        assertFocusAfterLayout(0, -1);
+    }
+
+    private void requestFocusOnRV() {
+        assertThat("RV initially has no focus", mRecyclerView.hasFocus(), is(false));
+        assertThat("RV initially is not focused", mRecyclerView.isFocused(), is(false));
+        mRecyclerView.requestFocus();
+        String msg = !mRecyclerView.isComputingLayout() ? " before laying out the children"
+                : " during laying out the children";
+        assertThat("RV should have focus after calling requestFocus()" + msg,
+                mRecyclerView.hasFocus(), is(true));
+        assertThat("RV after calling requestFocus() should become focused" + msg,
+                mRecyclerView.isFocused(), is(true));
+    }
+
+    /**
+     * Asserts whether RV and one of its children have the correct focus flags after the layout is
+     * complete. This is normally called once the RV layout is complete after initiating
+     * notifyItemChanged.
+     * @param focusedChildIndexWhenRecoveryEnabled
+     * This index is relevant when mDisableRecovery is false. In that case, it refers to the index
+     * of the child that should have focus if the ancestors allow passing down the focus. -1
+     * indicates none of the children can receive focus even if the ancestors don't block focus, in
+     * which case RV holds and becomes focused.
+     * @param focusedChildIndexWhenRecoveryDisabled
+     * This index is relevant when mDisableRecovery is true. In that case, it refers to the index
+     * of the child that should have focus if the ancestors allow passing down the focus. -1
+     * indicates none of the children can receive focus even if the ancestors don't block focus, in
+     * which case RV holds and becomes focused.
+     */
+    private void assertFocusAfterLayout(int focusedChildIndexWhenRecoveryEnabled,
+                                        int focusedChildIndexWhenRecoveryDisabled) {
+        if (mRecyclerView.getChildCount() == 0) {
+            assertThat("RV should have focus when it has no children",
+                    mRecyclerView.hasFocus(), is(true));
+            assertThat("RV should be focused when it has no children",
+                    mRecyclerView.isFocused(), is(true));
+            return;
+        }
+        if (mDisableAnimation && mDisableRecovery) {
+            // This case is not quite handled properly at the moment. For now, RV may become focused
+            // without re-delivering the focus down to the children. Skip the checks for now.
+            return;
+        }
+
+        assertThat("RV should still have focus after layout", mRecyclerView.hasFocus(), is(true));
+        if ((mDisableRecovery && focusedChildIndexWhenRecoveryDisabled == -1)
+                || (!mDisableRecovery && focusedChildIndexWhenRecoveryEnabled == -1)
+                || mRecyclerView.getDescendantFocusability() == ViewGroup.FOCUS_BLOCK_DESCENDANTS
+                || mRecyclerView.getDescendantFocusability()
+                == ViewGroup.FOCUS_BEFORE_DESCENDANTS) {
+            FocusViewHolder fvh = cast(mRecyclerView.findViewHolderForAdapterPosition(0));
+            String msg1 = " when focus recovery is disabled";
+            String msg2 = " when descendant focusability is FOCUS_BLOCK_DESCENDANTS";
+            String msg3 = " when descendant focusability is FOCUS_BEFORE_DESCENDANTS";
+
+            assertThat("RV should not pass the focus down to its children"
+                            + (mDisableRecovery ? msg1 : (mRecyclerView.getDescendantFocusability()
+                                    == ViewGroup.FOCUS_BLOCK_DESCENDANTS ? msg2 : msg3)),
+                    mRecyclerView.isFocused(), is(true));
+            assertThat("RV's first child should not have focus"
+                            + (mDisableRecovery ? msg1 : (mRecyclerView.getDescendantFocusability()
+                                    == ViewGroup.FOCUS_BLOCK_DESCENDANTS ? msg2 : msg3)),
+                    fvh.itemView.hasFocus(), is(false));
+            assertThat("RV's first child should not be focused"
+                            + (mDisableRecovery ? msg1 : (mRecyclerView.getDescendantFocusability()
+                                    == ViewGroup.FOCUS_BLOCK_DESCENDANTS ? msg2 : msg3)),
+                    fvh.getViewToFocus().isFocused(), is(false));
+        } else {
+            FocusViewHolder fvh = mDisableRecovery
+                    ? cast(mRecyclerView.findViewHolderForAdapterPosition(
+                            focusedChildIndexWhenRecoveryDisabled)) :
+                    (focusedChildIndexWhenRecoveryEnabled != -1
+                            ? cast(mRecyclerView.findViewHolderForAdapterPosition(
+                                    focusedChildIndexWhenRecoveryEnabled)) :
+                    cast(mRecyclerView.findViewHolderForAdapterPosition(0)));
+
+            assertThat("test sanity", fvh, notNullValue());
+            assertThat("RV's first child should be focusable", fvh.getViewToFocus().isFocusable(),
+                    is(true));
+            String msg = " when descendant focusability is FOCUS_AFTER_DESCENDANTS";
+            assertThat("RV should pass the focus down to its children after layout" + msg,
+                    mRecyclerView.isFocused(), is(false));
+            assertThat("RV's child #" + focusedChildIndexWhenRecoveryEnabled + " should have focus"
+                            + " after layout" + msg,
+                    fvh.itemView.hasFocus(), is(true));
+            if (mFocusOnChild) {
+                assertThat("Either the ViewGroup or the TextView within the first child of RV"
+                                + "should be focused after layout" + msg,
+                        fvh.itemView.isFocused() || fvh.getViewToFocus().isFocused(), is(true));
+            } else {
+                assertThat("RV's first child should be focused after layout" + msg,
+                        fvh.getViewToFocus().isFocused(), is(true));
+            }
+
+        }
     }
 
     private void assertFocusTransition(RecyclerView.ViewHolder oldVh,
-            RecyclerView.ViewHolder newVh) {
+            RecyclerView.ViewHolder newVh, boolean typeChanged) {
         if (mDisableRecovery) {
+            if (mDisableAnimation) {
+                return;
+            }
             assertFocus(newVh, false);
             return;
         }
         assertThat("test sanity", newVh, notNullValue());
-        assertThat(oldVh, not(sameInstance(newVh)));
-        assertFocus(oldVh, false);
+        if (!typeChanged && mDisableAnimation) {
+            assertThat(oldVh, sameInstance(newVh));
+        } else {
+            assertThat(oldVh, not(sameInstance(newVh)));
+            assertFocus(oldVh, false);
+        }
         assertFocus(newVh, true);
     }
 
@@ -153,11 +518,14 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
 
     private void testFocusRecoveryInTypeChange(boolean withAnimation) throws Throwable {
         setupBasic();
-        ((SimpleItemAnimator) (mRecyclerView.getItemAnimator())).setSupportsChangeAnimations(true);
+        if (!mDisableAnimation) {
+            ((SimpleItemAnimator) (mRecyclerView.getItemAnimator()))
+                    .setSupportsChangeAnimations(true);
+        }
         mLayoutManager.setSupportsPredictive(withAnimation);
         final RecyclerView.ViewHolder oldVh = focusVh(3);
-        mLayoutManager.expectLayouts(withAnimation ? 2 : 1);
-        runTestOnUiThread(new Runnable() {
+        mLayoutManager.expectLayouts(!mDisableAnimation && withAnimation ? 2 : 1);
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Item item = mAdapter.mItems.get(3);
@@ -168,7 +536,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         mLayoutManager.waitForLayout(2);
 
         RecyclerView.ViewHolder newVh = mRecyclerView.findViewHolderForAdapterPosition(3);
-        assertFocusTransition(oldVh, newVh);
+        assertFocusTransition(oldVh, newVh, true);
         assertThat("test sanity", oldVh.getItemViewType(), not(newVh.getItemViewType()));
     }
 
@@ -200,7 +568,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         long itemId = oldVh.getItemId();
 
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Item item = mAdapter.mItems.get(4);
@@ -220,10 +588,13 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
             }
         });
         mLayoutManager.waitForLayout(1);
+        if (!mDisableAnimation) {
+            waitForAnimations(2);
+        }
 
         RecyclerView.ViewHolder newVh = mRecyclerView.findViewHolderForItemId(itemId);
         if (changeType) {
-            assertFocusTransition(oldVh, newVh);
+            assertFocusTransition(oldVh, newVh, true);
         } else {
             // in this case we should use the same VH because we have stable ids
             assertThat(oldVh, sameInstance(newVh));
@@ -267,7 +638,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         assertThat("test sanity", mAdapter.hasStableIds(), is(false));
         focusVh(4);
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -304,7 +675,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         RecyclerView.ViewHolder oldVh = focusVh(3);
         final long itemId = oldVh.getItemId();
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAdapter.mItems.get(3).mType = TYPE_NO_FOCUS;
@@ -312,6 +683,9 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
             }
         });
         mLayoutManager.waitForLayout(2);
+        if (!mDisableAnimation) {
+            waitForAnimations(2);
+        }
         RecyclerView.ViewHolder newVh = mRecyclerView.findViewHolderForItemId(itemId);
         assertFocus(newVh, false);
     }
@@ -352,7 +726,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         assertFocus(oldVh, true);
         toFocusId.set(mAdapter.mItems.get(5).mId);
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAdapter.mItems.get(3).mType += 2;
@@ -361,6 +735,9 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
             }
         });
         mLayoutManager.waitForLayout(2);
+        if (!mDisableAnimation) {
+            waitForAnimations(2);
+        }
         RecyclerView.ViewHolder requested = mRecyclerView.findViewHolderForItemId(toFocusId.get());
         assertFocus(oldVh, false);
         assertFocus(requested, true);
@@ -549,6 +926,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
 
         final void bindTo(Item item) {
             mBoundItem = item;
+            setFocusable(item.isFocusable());
             onBind(item);
         }
     }

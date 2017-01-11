@@ -16,8 +16,12 @@
 
 package android.support.v4.view;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.WindowInsets;
 
+@RequiresApi(20)
+@TargetApi(20)
 class WindowInsetsCompatApi20 {
     public static Object consumeSystemWindowInsets(Object insets) {
         return ((WindowInsets) insets).consumeSystemWindowInsets();

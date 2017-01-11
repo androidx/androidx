@@ -25,8 +25,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.graphics.Rect;
+import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 
 import org.junit.Test;
@@ -68,7 +68,7 @@ public class ScrollToPositionWithAutoMeasure extends BaseRecyclerViewInstrumenta
         setRecyclerView(recyclerView);
         getInstrumentation().waitForIdleSync();
         assertThat("Test sanity", recyclerView.getChildCount() > 0, is(true));
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 View lastChild = llm.getChildAt(llm.getChildCount() - 1);

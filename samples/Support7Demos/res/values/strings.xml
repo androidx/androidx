@@ -132,6 +132,7 @@
     <string name="sample_media_route_activity_presentation">Local Playback on Presentation Display</string>
 
     <string name="recycler_view">RecyclerView/RecyclerViewActivity</string>
+    <string name="pager_recycler_view">RecyclerView/PagerRecyclerViewActivity</string>
     <string name="animated_recycler_view">RecyclerView/Animated RecyclerView</string>
     <string name="nested_recycler_view">RecyclerView/Nested RecyclerView</string>
     <string name="linear_layout_manager">RecyclerView/Linear Layout Manager</string>
@@ -143,6 +144,7 @@
     <string name="checkbox_reverse">Rev.</string>
     <string name="checkbox_layout_dir">Layout Dir</string>
     <string name="checkbox_stack_from_end">Stack From End</string>
+    <string name="checkbox_snap">Snap</string>
     <string name="enableAnimations">Animate</string>
     <string name="enablePredictiveAnimations">Predictive</string>
     <string name="enableInPlaceChange">In Place Change</string>
@@ -222,5 +224,7 @@
 
     <string name="appcompat_vector_disabled">AnimatedVectorDrawableCompat does not work on devices running API v10 or below</string>
     <string name="appcompat_vector_title">AppCompat/Integrations/AnimatedVectorDrawable</string>
+
+    <string name="night_mode">DAY</string>
 </resources>
 

@@ -36,6 +36,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
+
 import com.example.android.supportv4.R;
 
 import java.util.ArrayList;
@@ -78,7 +79,20 @@ public class ExploreByTouchHelperActivity extends Activity {
         customView.addItem(getString(R.string.sample_item_a), 0, 0, 0.5f, 0.5f);
 
         // Adds an item at the bottom-right quarter of the custom view.
-        customView.addItem(getString(R.string.sample_item_b), 0.5f, 0.5f, 1, 1);
+        CustomView.CustomItem itemB =
+                customView.addItem(getString(R.string.sample_item_b), 0.5f, 0.5f, 1, 1);
+
+        // Add an item at the bottom quarter of Item B.
+        CustomView.CustomItem itemC =
+                customView.addItem(getString(R.string.sample_item_c), 0, 0.75f, 1, 1);
+        customView.setParentItem(itemC, itemB);
+
+        // Add an item at the left quarter of Item C.
+        CustomView.CustomItem itemD =
+                customView.addItem(getString(R.string.sample_item_d), 0, 0f, 0.25f, 1);
+        customView.setParentItem(itemD, itemC);
+
+        customView.layoutItems();
     }
 
     /**
@@ -142,12 +156,48 @@ public class ExploreByTouchHelperActivity extends Activity {
          * @param right Right coordinate as a fraction of the parent width,
          *            range is [0,1].
          */
-        public void addItem(String description, float top, float left, float bottom, float right) {
+        public CustomItem addItem(String description, float left, float top, float right,
+                                  float bottom) {
             final CustomItem item = new CustomItem();
-            item.bounds = new RectF(top, left, bottom, right);
-            item.description = description;
-            item.checked = false;
+            item.mId = mItems.size();
+            item.mBounds = new RectF(left, top, right, bottom);
+            item.mDescription = description;
+            item.mChecked = false;
             mItems.add(item);
+            return item;
+        }
+
+        /**
+         * Sets the parent of an CustomItem.  This adjusts the bounds so that they are relative to
+         * the specified view, and initializes the parent and child info to point to each either.
+         * @param item CustomItem that will become a child node.
+         * @param parent CustomItem that will become the parent node.
+         */
+        public void setParentItem(CustomItem item, CustomItem parent) {
+            item.mParent = parent;
+            parent.mChildren.add(item.mId);
+        }
+
+        /**
+         * Walk the view hierarchy of each item and calculate mBoundsInRoot.
+         */
+        public void layoutItems() {
+            for (CustomItem item : mItems) {
+                layoutItem(item);
+            }
+        }
+
+        void layoutItem(CustomItem item) {
+            item.mBoundsInRoot = new RectF(item.mBounds);
+            CustomItem parent = item.mParent;
+            while (parent != null) {
+                RectF bounds = item.mBoundsInRoot;
+                item.mBoundsInRoot.set(parent.mBounds.left + bounds.left * parent.mBounds.width(),
+                        parent.mBounds.top + bounds.top * parent.mBounds.height(),
+                        parent.mBounds.left + bounds.right * parent.mBounds.width(),
+                        parent.mBounds.top + bounds.bottom * parent.mBounds.height());
+                parent = parent.mParent;
+            }
         }
 
         @Override
@@ -160,13 +210,17 @@ public class ExploreByTouchHelperActivity extends Activity {
             final int width = getWidth();
 
             for (CustomItem item : mItems) {
-                paint.setColor(item.checked ? Color.RED : Color.BLUE);
+                if (item.mParent == null) {
+                    paint.setColor(item.mChecked ? Color.RED : Color.BLUE);
+                } else {
+                    paint.setColor(item.mChecked ? Color.MAGENTA : Color.GREEN);
+                }
                 paint.setStyle(Style.FILL);
-                scaleRectF(item.bounds, bounds, width, height);
+                scaleRectF(item.mBoundsInRoot, bounds, width, height);
                 canvas.drawRect(bounds, paint);
                 paint.setColor(Color.WHITE);
                 paint.setTextAlign(Align.CENTER);
-                canvas.drawText(item.description, bounds.centerX(), bounds.centerY(), paint);
+                canvas.drawText(item.mDescription, bounds.centerX(), bounds.centerY(), paint);
             }
         }
 
@@ -176,7 +230,7 @@ public class ExploreByTouchHelperActivity extends Activity {
                 return false;
             }
 
-            item.checked = !item.checked;
+            item.mChecked = !item.mChecked;
             invalidate();
 
             // Since the item's checked state is exposed to accessibility
@@ -198,9 +252,10 @@ public class ExploreByTouchHelperActivity extends Activity {
             final float scaledY = (y / getHeight());
             final int n = mItems.size();
 
-            for (int i = 0; i < n; i++) {
+            // Search in reverse order, so that topmost items are selected first.
+            for (int i = n - 1; i >= 0; i--) {
                 final CustomItem item = mItems.get(i);
-                if (item.bounds.contains(scaledX, scaledY)) {
+                if (item.mBoundsInRoot.contains(scaledX, scaledY)) {
                     return i;
                 }
             }
@@ -246,11 +301,13 @@ public class ExploreByTouchHelperActivity extends Activity {
             @Override
             protected void getVisibleVirtualViews(List<Integer> virtualViewIds) {
                 // Since every item should be visible, and since we're mapping
-                // directly from item index to virtual view id, we can just add
-                // every available index in the item list.
+                // directly from item index to virtual view id, we can add
+                // the index of every view that doesn't have a parent.
                 final int n = mItems.size();
                 for (int i = 0; i < n; i++) {
-                    virtualViewIds.add(i);
+                    if (mItems.get(i).mParent == null) {
+                        virtualViewIds.add(i);
+                    }
                 }
             }
 
@@ -267,7 +324,7 @@ public class ExploreByTouchHelperActivity extends Activity {
                 // description is displayed visually, we'll add it to the event
                 // text. If it was only used for accessibility, we would use
                 // setContentDescription().
-                event.getText().add(item.description);
+                event.getText().add(item.mDescription);
             }
 
             @Override
@@ -280,16 +337,20 @@ public class ExploreByTouchHelperActivity extends Activity {
 
                 // Node and event text and content descriptions are usually
                 // identical, so we'll use the exact same string as before.
-                node.setText(item.description);
+                node.setText(item.mDescription);
 
                 // Reported bounds should be consistent with those used to draw
                 // the item in onDraw(). They should also be consistent with the
                 // hit detection performed in getVirtualViewAt() and
                 // onTouchEvent().
                 final Rect bounds = mTempRect;
-                final int height = getHeight();
-                final int width = getWidth();
-                scaleRectF(item.bounds, bounds, width, height);
+                int height = getHeight();
+                int width = getWidth();
+                if (item.mParent != null) {
+                    width = (int) (width * item.mParent.mBoundsInRoot.width());
+                    height = (int) (height * item.mParent.mBoundsInRoot.height());
+                }
+                scaleRectF(item.mBounds, bounds, width, height);
                 node.setBoundsInParent(bounds);
 
                 // Since the user can tap an item, add the CLICK action. We'll
@@ -298,7 +359,15 @@ public class ExploreByTouchHelperActivity extends Activity {
 
                 // This item has a checked state.
                 node.setCheckable(true);
-                node.setChecked(item.checked);
+                node.setChecked(item.mChecked);
+
+                // Setup the hierarchy.
+                if (item.mParent != null) {
+                    node.setParent(CustomView.this, item.mParent.mId);
+                }
+                for (Integer id : item.mChildren) {
+                    node.addChild(CustomView.this, id);
+                }
             }
 
             @Override
@@ -318,9 +387,13 @@ public class ExploreByTouchHelperActivity extends Activity {
         }
 
         public static class CustomItem {
-            private String description;
-            private RectF bounds;
-            private boolean checked;
+            private int mId;
+            private CustomItem mParent;
+            private List<Integer> mChildren = new ArrayList<>();
+            private String mDescription;
+            private RectF mBounds;
+            private RectF mBoundsInRoot;
+            private boolean mChecked;
         }
     }
 }

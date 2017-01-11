@@ -16,9 +16,13 @@
 
 package android.support.v4.hardware.display;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.support.annotation.RequiresApi;
 import android.view.Display;
 
+@RequiresApi(17)
+@TargetApi(17)
 final class DisplayManagerJellybeanMr1 {
     public static Object getDisplayManager(Context context) {
         return context.getSystemService(Context.DISPLAY_SERVICE);

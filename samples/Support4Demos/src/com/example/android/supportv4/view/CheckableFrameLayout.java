@@ -18,6 +18,7 @@ package com.example.android.supportv4.view;
 
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.FrameLayout;
@@ -35,7 +36,7 @@ public class CheckableFrameLayout extends FrameLayout implements Checkable {
 
     public void setChecked(boolean checked) {
         mChecked = checked;
-        setBackgroundDrawable(checked ? new ColorDrawable(0xff0000a0) : null);
+        ViewCompat.setBackground(this, checked ? new ColorDrawable(0xff0000a0) : null);
     }
 
     public boolean isChecked() {

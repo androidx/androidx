@@ -14,17 +14,25 @@
 
 package android.support.v17.leanback.app.wizard;
 
-import android.app.Instrumentation;
+import static org.junit.Assert.assertTrue;
+
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidedAction;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
 import android.view.KeyEvent;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,23 +40,20 @@ import java.util.Collections;
 import java.util.List;
 
 @MediumTest
-public class GuidedStepAttributesTest extends
-        ActivityInstrumentationTestCase2<GuidedStepAttributesTestActivity> {
+@RunWith(AndroidJUnit4.class)
+public class GuidedStepAttributesTest {
     static final long TRANSITION_LENGTH = 1000;
 
     static final String TAG = "GuidedStepAttributesTest";
 
-    Instrumentation mInstrumentation;
+    @Rule
+    public ActivityTestRule<GuidedStepAttributesTestActivity> activityTestRule =
+            new ActivityTestRule<>(GuidedStepAttributesTestActivity.class, false, false);
+
     GuidedStepAttributesTestActivity mActivity;
 
-    public GuidedStepAttributesTest() {
-        super(GuidedStepAttributesTestActivity.class);
-    }
-
     private void initActivity(Intent intent) {
-
-        setActivityIntent(intent);
-        mActivity = getActivity();
+        mActivity = activityTestRule.launchActivity(intent);
         try {
             Thread.sleep(2000);
         } catch(InterruptedException e) {
@@ -56,12 +61,21 @@ public class GuidedStepAttributesTest extends
         }
     }
 
+    Context mContext;
+    @Before
+    public void setUp() {
+        mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();;
+    }
+
+    public static void sendKey(int keyCode) {
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keyCode);
+    }
+
+    @Test
     public void testFocusDisabledOnActions() throws Throwable {
 
-        mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(),
-                GuidedStepAttributesTestActivity.class);
-        Resources res = mInstrumentation.getContext().getResources();
+        Intent intent = new Intent();
+        Resources res = mContext.getResources();
 
         final int NUM_SEARCH_ACTIONS = 10;
         final List<Integer> ACTIONS_WITH_DISABLED_FOCUS = new ArrayList<>(
@@ -87,7 +101,7 @@ public class GuidedStepAttributesTest extends
 
         List<GuidedAction> actionList = new ArrayList<>();
         for (int i = 0; i < NUM_SEARCH_ACTIONS; i++ ) {
-            actionList.add(new GuidedAction.Builder(mInstrumentation.getContext())
+            actionList.add(new GuidedAction.Builder(mContext)
                     .id(ACTION_ID_SEARCH)
                     .title(res.getString(R.string.search) + "" + i)
                     .description(res.getString(R.string.search_description) + i)
@@ -113,7 +127,7 @@ public class GuidedStepAttributesTest extends
                     actionList.get(lastSelectedActionId).getTitle()),
                     lastSelectedActionId == EXPECTED_ACTIONS_ID_AFTER_EACH_SELECT.get(selectIndex));
             selectIndex++;
-            sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+            sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
             prevSelectedActionPosition = nextSelectedActionPosition;
             nextSelectedActionPosition = mFragment.getSelectedActionPosition();
             Thread.sleep(TRANSITION_LENGTH);
@@ -126,7 +140,7 @@ public class GuidedStepAttributesTest extends
                     actionList.get(lastSelectedActionId).getTitle()),
                     lastSelectedActionId == EXPECTED_ACTIONS_ID_AFTER_EACH_SELECT.get(selectIndex));
             selectIndex++;
-            sendKeys(KeyEvent.KEYCODE_DPAD_UP);
+            sendKey(KeyEvent.KEYCODE_DPAD_UP);
             prevSelectedActionPosition = nextSelectedActionPosition;
             nextSelectedActionPosition = mFragment.getSelectedActionPosition();
             Thread.sleep(TRANSITION_LENGTH);
@@ -148,12 +162,16 @@ public class GuidedStepAttributesTest extends
         }
     };
 
+    /**
+     * Creates a number of enabled and disable actions and tests whether the flag is correctly set
+     * by clicking on each individual action and checking whether the click event is triggered.
+     * @throws Throwable
+     */
+    @Test
     public void testDisabledActions() throws Throwable {
 
-        mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(),
-                GuidedStepAttributesTestActivity.class);
-        Resources res = mInstrumentation.getContext().getResources();
+        Intent intent = new Intent();
+        Resources res = mContext.getResources();
 
         final int NUM_SEARCH_ACTIONS = 10;
         final List<Integer> DISABLED_ACTIONS = new ArrayList<>(
@@ -193,7 +211,7 @@ public class GuidedStepAttributesTest extends
                 breadcrumb, null);
 
         List<GuidedAction> actionList = new ArrayList<>();
-        actionList.add(new GuidedAction.Builder(mInstrumentation.getContext())
+        actionList.add(new GuidedAction.Builder(mContext)
                 .id(ACTION_ID_REVERT_BUTTON)
                 .title(res.getString(R.string.invert_title))
                 .description(res.getString(R.string.revert_description))
@@ -201,7 +219,7 @@ public class GuidedStepAttributesTest extends
         );
 
         for (int i = 0; i < NUM_SEARCH_ACTIONS; i++ ) {
-            actionList.add(new GuidedAction.Builder(mInstrumentation.getContext())
+            actionList.add(new GuidedAction.Builder(mContext)
                     .id(ACTION_ID_SEARCH_END++)
                     .title(res.getString(R.string.search) + "" + i)
                     .description(res.getString(R.string.search_description) + i)
@@ -223,32 +241,102 @@ public class GuidedStepAttributesTest extends
 
         initActivity(intent);
 
+        examineEnabledAndDisabledActions(actionList, CLICK_SEQUENCE, EXPECTED_FOCUSED_SEQUENCE,
+                EXPECTED_CLICKED_SEQUENCE);
+    }
+
+    /**
+     * Toggles Enabled flags in oll the actions of the prior test, and tests whether they are
+     * correctly reverted.
+     */
+    @Test
+    public void testToggleEnabledFlags() throws Throwable {
+
+        Intent intent = new Intent();
+        Resources res = mContext.getResources();
+
+        final int NUM_SEARCH_ACTIONS = 10;
+        final List<Integer> DISABLED_ACTIONS = new ArrayList<>(
+                Arrays.asList(1, 3, 5, 7));
+        final int ACTION_ID_REVERT_BUTTON = 0;
+        final int ACTION_ID_SEARCH_BEGIN = ACTION_ID_REVERT_BUTTON + 1;
+        int ACTION_ID_SEARCH_END = ACTION_ID_SEARCH_BEGIN;
+
+        // sequence of clicked actions simulated in the test
+        List<Integer> CLICK_SEQUENCE = new ArrayList<>();
+
+        // Expected Clicked sequence can be different from focused ones since some of the actions
+        // are disabled hence not clickable
+        List<Integer> EXPECTED_FOCUSED_SEQUENCE = new ArrayList<>();
+        List<Integer> EXPECTED_CLICKED_SEQUENCE = new ArrayList<>();
+        // Expected actions state according to list of DISABLED_ACTIONS: false for disabled actions
+        List<Boolean> EXPECTED_ACTIONS_STATE = new ArrayList<>(
+                Arrays.asList(new Boolean[NUM_SEARCH_ACTIONS])
+        );
+        Collections.fill(EXPECTED_ACTIONS_STATE, Boolean.FALSE);
+
+        for(int i = 0; i < NUM_SEARCH_ACTIONS; i++) {
+            CLICK_SEQUENCE.add(i + 1);
+        }
+        for(int clickedActionId : CLICK_SEQUENCE) {
+            EXPECTED_FOCUSED_SEQUENCE.add(clickedActionId);
+            if (DISABLED_ACTIONS.contains(clickedActionId - 1))
+                EXPECTED_CLICKED_SEQUENCE.add(clickedActionId);
+            else
+                EXPECTED_CLICKED_SEQUENCE.add(-1);
+        }
+
+        String title = "Guided Actions Enabled Test";
+        String breadcrumb = "Toggle Enabled Flag Test Demo";
+        String description = "";
+        GuidanceStylist.Guidance guidance = new GuidanceStylist.Guidance(title, description,
+                breadcrumb, null);
+
+        List<GuidedAction> actionList = new ArrayList<>();
+        actionList.add(new GuidedAction.Builder(mContext)
+                .id(ACTION_ID_REVERT_BUTTON)
+                .title(res.getString(R.string.invert_title))
+                .description(res.getString(R.string.revert_description))
+                .build()
+        );
+
+        for (int i = 0; i < NUM_SEARCH_ACTIONS; i++ ) {
+            actionList.add(new GuidedAction.Builder(mContext)
+                    .id(ACTION_ID_SEARCH_END++)
+                    .title(res.getString(R.string.search) + "" + i)
+                    .description(res.getString(R.string.search_description) + i)
+                    .build()
+            );
+        }
+        for(int action_id : DISABLED_ACTIONS ) {
+            if ( action_id >= 0 && action_id < NUM_SEARCH_ACTIONS ) {
+                actionList.get(action_id + 1).setEnabled(false);
+                EXPECTED_ACTIONS_STATE.set(action_id, Boolean.TRUE);
+            }
+        }
+
+        GuidedStepAttributesTestFragment.clear();
+        GuidedStepAttributesTestFragment.GUIDANCE = guidance;
+        GuidedStepAttributesTestFragment.ACTION_LIST = actionList;
+        GuidedStepAttributesTestFragment.setActionClickCallback(ACTION_ID_REVERT_BUTTON,
+                sRevertCallback);
+
+        initActivity(intent);
+
         final GuidedStepFragment mFragment = (GuidedStepFragment)
                 mActivity.getGuidedStepTestFragment();
 
-        examineEnabledAndDisabledActions(actionList, CLICK_SEQUENCE, EXPECTED_FOCUSED_SEQUENCE,
-                EXPECTED_CLICKED_SEQUENCE);
-        // now toggling all enabled/disabled actions to disabled/enabled and running the test again
-        Log.d(TAG, "Toggling actions...");
-        runTestOnUiThread(new Runnable() {
+        mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mFragment.setSelectedActionPosition(0);
             }
         });
         Thread.sleep(TRANSITION_LENGTH);
-        sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
+        sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
         Thread.sleep(TRANSITION_LENGTH);
-        for(int i = 0; i < EXPECTED_CLICKED_SEQUENCE.size(); i++) {
-            if (EXPECTED_CLICKED_SEQUENCE.get(i) == -1)
-                EXPECTED_CLICKED_SEQUENCE.set(i, CLICK_SEQUENCE.get(i));
-            else
-                EXPECTED_CLICKED_SEQUENCE.set(i, -1);
-        }
-
         examineEnabledAndDisabledActions(actionList, CLICK_SEQUENCE, EXPECTED_FOCUSED_SEQUENCE,
                 EXPECTED_CLICKED_SEQUENCE);
-
     }
 
     private void examineEnabledAndDisabledActions(
@@ -264,7 +352,7 @@ public class GuidedStepAttributesTest extends
             GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID =
                     GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID = -1;
             final int id = CLICK_SEQUENCE.get(i);
-            runTestOnUiThread(new Runnable() {
+            mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     mFragment.setSelectedActionPosition(id);
@@ -272,34 +360,33 @@ public class GuidedStepAttributesTest extends
             });
             Thread.sleep(TRANSITION_LENGTH);
 
-            sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
+            sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
             Thread.sleep(TRANSITION_LENGTH);
 
-            assertTrue(mInstrumentation.getContext().getResources().getString(
+            assertTrue(mContext.getResources().getString(
                     R.string.enabled_test_wrong_focus_error_message),
-                    GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                            EXPECTED_FOCUSED_SEQUENCE.get(i)
+                    GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                            == EXPECTED_FOCUSED_SEQUENCE.get(i)
             );
-            assertTrue(mInstrumentation.getContext().getResources().getString(
+            assertTrue(mContext.getResources().getString(
                     R.string.enabled_test_wrong_click_error_message),
-                    GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID ==
-                            EXPECTED_CLICKED_SEQUENCE.get(i)
+                    GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID
+                            == EXPECTED_CLICKED_SEQUENCE.get(i)
             );
-            assertTrue(mInstrumentation.getContext().getResources().getString(
+            assertTrue(mContext.getResources().getString(
                     R.string.enabled_test_wrong_flag_error_message),
-                    (GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID == -1) ?
-                            !actionList.get(id).isEnabled() :
-                            actionList.get(id).isEnabled()
+                    (GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID == -1)
+                            ? !actionList.get(id).isEnabled()
+                            : actionList.get(id).isEnabled()
             );
         }
     }
 
+    @Test
     public void testCheckedActions() throws Throwable {
 
-        mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(),
-                GuidedStepAttributesTestActivity.class);
-        Resources res = mInstrumentation.getContext().getResources();
+        Intent intent = new Intent();
+        Resources res = mContext.getResources();
 
         final int NUM_RADIO_ACTIONS = 3;
         final int NUM_CHECK_BOX_ACTIONS = 3;
@@ -331,7 +418,7 @@ public class GuidedStepAttributesTest extends
                 breadcrumb, null);
 
         List<GuidedAction> actionList = new ArrayList<>();
-        actionList.add(new GuidedAction.Builder(mInstrumentation.getContext())
+        actionList.add(new GuidedAction.Builder(mContext)
                 .title(res.getString(R.string.radio_actions_info_title))
                 .description(res.getString(R.string.radio_actions_info_desc))
                 .infoOnly(true)
@@ -342,7 +429,7 @@ public class GuidedStepAttributesTest extends
 
         int firstRadioActionIndex = actionList.size();
         for(int i = 0; i < NUM_RADIO_ACTIONS; i++) {
-            actionList.add(new GuidedAction.Builder(mInstrumentation.getContext())
+            actionList.add(new GuidedAction.Builder(mContext)
                     .title(res.getString(R.string.checkbox_title) + i)
                     .description(res.getString(R.string.checkbox_desc) + i)
                     .checkSetId(GuidedAction.DEFAULT_CHECK_SET_ID)
@@ -352,7 +439,7 @@ public class GuidedStepAttributesTest extends
                 actionList.get(firstRadioActionIndex + i).setChecked(true);
         }
 
-        actionList.add(new GuidedAction.Builder(mInstrumentation.getContext())
+        actionList.add(new GuidedAction.Builder(mContext)
                 .title(res.getString(R.string.checkbox_actions_info_title))
                 .description(res.getString(R.string.checkbox_actions_info_desc))
                 .infoOnly(true)
@@ -362,7 +449,7 @@ public class GuidedStepAttributesTest extends
         );
         int firstCheckBoxActionIndex = actionList.size();
         for(int i = 0; i < NUM_CHECK_BOX_ACTIONS; i++) {
-            actionList.add(new GuidedAction.Builder(mInstrumentation.getContext())
+            actionList.add(new GuidedAction.Builder(mContext)
                     .title(res.getString(R.string.checkbox_title) + i)
                     .description(res.getString(R.string.checkbox_desc) + i)
                     .checkSetId(GuidedAction.CHECKBOX_CHECK_SET_ID)
@@ -404,11 +491,9 @@ public class GuidedStepAttributesTest extends
         for(GuidedAction checkAction : actionList) {
             if (checkAction.infoOnly())
                 continue;
-            assertTrue("Action " + actionIndex + " is " +
-                            (!checkAction.isChecked() ? "un-" : "") +
-                    "checked while it shouldn't be!",
-                    checkAction.isChecked() ==
-                            EXPECTED_ACTIONS_STATE_AFTER_EACH_CLICK.get(actionIndex));
+            assertTrue("Action " + actionIndex + " is " + (!checkAction.isChecked() ? "un-" : "")
+                    + "checked while it shouldn't be!", checkAction.isChecked()
+                            == EXPECTED_ACTIONS_STATE_AFTER_EACH_CLICK.get(actionIndex));
             actionIndex++;
         }
     }
@@ -424,7 +509,7 @@ public class GuidedStepAttributesTest extends
         final int firstCheckBoxActionIndex = firstRadioActionIndex + NUM_RADIO_ACTIONS + 1;
         for(int actionId = 0; actionId < NUM_RADIO_ACTIONS; actionId++) {
             final int id = actionId;
-            runTestOnUiThread(new Runnable() {
+            mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     guidedStepCheckedFragment
@@ -433,7 +518,7 @@ public class GuidedStepAttributesTest extends
             });
             Thread.sleep(TRANSITION_LENGTH);
 
-            sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
+            sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
             Thread.sleep(TRANSITION_LENGTH);
             updateExpectedActionsStateAfterClick(EXPECTED_ACTIONS_STATE_AFTER_EACH_CLICK,
                     NUM_RADIO_ACTIONS, NUM_CHECK_BOX_ACTIONS, actionId);
@@ -442,7 +527,7 @@ public class GuidedStepAttributesTest extends
 
         for(int actionId = 0; actionId < NUM_CHECK_BOX_ACTIONS; actionId++) {
             final int id = actionId;
-            runTestOnUiThread(new Runnable() {
+            mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     guidedStepCheckedFragment
@@ -451,7 +536,7 @@ public class GuidedStepAttributesTest extends
             });
             Thread.sleep(TRANSITION_LENGTH);
 
-            sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
+            sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
             Thread.sleep(TRANSITION_LENGTH);
             updateExpectedActionsStateAfterClick(EXPECTED_ACTIONS_STATE_AFTER_EACH_CLICK,
                     NUM_RADIO_ACTIONS, NUM_CHECK_BOX_ACTIONS, NUM_RADIO_ACTIONS + actionId);
@@ -459,20 +544,185 @@ public class GuidedStepAttributesTest extends
         }
     }
 
-    public void testSubActions() throws Throwable {
+    @Test
+    public void testActionWithTwoSubActions() throws Throwable {
+        ExpectedSubActionResult result = setUpActionsForSubActionsTest();
 
-        mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(),
-                GuidedStepAttributesTestActivity.class);
-        Resources res = mInstrumentation.getContext().getResources();
+        final int actionPos = 0;
+        final GuidedAction selectedAction = result.actionList.get(actionPos);
+        List<Integer> expectedFocusedSeq = result.expectedFocusedSeq.get(actionPos);
+        List<Integer> expectedClickedSeq = result.expectedClickedSeq.get(actionPos);
 
-        String TAG = "testSubActions";
+        traverseSubActionsAndVerifyFocusAndClickEvents(selectedAction, actionPos, expectedFocusedSeq,
+                expectedClickedSeq);
+    }
+
+    @Test
+    public void testActionWithOneSubAction() throws Throwable {
+        ExpectedSubActionResult result = setUpActionsForSubActionsTest();
+
+        final int actionPos = 1;
+        final GuidedAction selectedAction = result.actionList.get(actionPos);
+        List<Integer> expectedFocusedSeq = result.expectedFocusedSeq.get(actionPos);
+        List<Integer> expectedClickedSeq = result.expectedClickedSeq.get(actionPos);
+
+        traverseSubActionsAndVerifyFocusAndClickEvents(selectedAction, actionPos, expectedFocusedSeq,
+                expectedClickedSeq);
+    }
+
+    @Test
+    public void testActionWithZeroSubActions() throws Throwable {
+        ExpectedSubActionResult result = setUpActionsForSubActionsTest();
+
+        final int actionPos = 2;
+        final GuidedAction selectedAction = result.actionList.get(actionPos);
+        List<Integer> expectedFocusedSeq = result.expectedFocusedSeq.get(actionPos);
+        List<Integer> expectedClickedSeq = result.expectedClickedSeq.get(actionPos);
+
+        traverseSubActionsAndVerifyFocusAndClickEvents(selectedAction, actionPos, expectedFocusedSeq,
+                expectedClickedSeq);
+    }
+
+    @Test
+    public void testActionWithThreeSubActions() throws Throwable {
+        ExpectedSubActionResult result = setUpActionsForSubActionsTest();
+
+        final int actionPos = 3;
+        final GuidedAction selectedAction = result.actionList.get(actionPos);
+        List<Integer> expectedFocusedSeq = result.expectedFocusedSeq.get(actionPos);
+        List<Integer> expectedClickedSeq = result.expectedClickedSeq.get(actionPos);
+
+        traverseSubActionsAndVerifyFocusAndClickEvents(selectedAction, actionPos, expectedFocusedSeq,
+                expectedClickedSeq);
+    }
+
+    /**
+     * Traverses the list of sub actions of a gudied action. It also verifies the correct action
+     * or sub action is focused or clicked as the traversal is performed.
+     * @param selectedAction The action of interest
+     * @param actionPos The position of selectedAction within the array of guidedactions
+     * @param expectedFocusedSeq The actual actions IDs used as a reference to verify focused actions
+     * @param expectedClickedSeq The actual action IDs used as a reference to verify clicked actions
+     * @throws Throwable
+     */
+    private void traverseSubActionsAndVerifyFocusAndClickEvents(GuidedAction selectedAction,
+                                                                int actionPos,
+                                                                List<Integer> expectedFocusedSeq,
+                                                                List<Integer> expectedClickedSeq)
+            throws Throwable{
+
+        final GuidedStepFragment mFragment =
+                (GuidedStepFragment) mActivity.getGuidedStepTestFragment();
+        int focusStep = 0, clickStep = 0;
+        GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID =
+                GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID = -1;
+
+
+        final int pos = actionPos;
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mFragment.setSelectedActionPosition(pos);
+            }
+        });
+        Thread.sleep(TRANSITION_LENGTH);
+
+        if (mFragment.getSelectedActionPosition() != actionPos) {
+            assertTrue(mContext.getResources().getString(
+                    R.string.subaction_test_wrong_focus_error_message),
+                    GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                            == expectedFocusedSeq.get(focusStep++)
+            );
+        } else {
+            // If the currently focused position is the same as the position of the action of interest,
+            // then GuidedStepFragment won't received onGuidedActionFocused callback. Since the first
+            // element in the expectedFocusSeq is always the id of this action, we need to move focusStep
+            // one step forward.
+            focusStep++;
+        }
+        if (selectedAction.hasSubActions()) {
+            // Following for loop clicks on a specific action and scrolls & clicks through
+            // all its subactions
+            for (int j = 0; j < selectedAction.getSubActions().size(); j++) {
+                sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
+                Thread.sleep(TRANSITION_LENGTH);
+                assertTrue(mContext.getResources().getString(
+                        R.string.subaction_test_wrong_focus_error_message),
+                        GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                                == expectedFocusedSeq.get(focusStep++)
+                );
+                assertTrue(mContext.getResources().getString(
+                        R.string.subaction_test_wrong_click_error_message),
+                        GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID
+                                == expectedClickedSeq.get(clickStep++)
+                );
+
+                for (int k = 0; k < j; k++) {
+                    sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
+                    Thread.sleep(TRANSITION_LENGTH);
+                    assertTrue(mContext.getResources().getString(
+                            R.string.subaction_test_wrong_focus_error_message),
+                            GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                                    == expectedFocusedSeq.get(focusStep++)
+                    );
+                }
+                sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
+                Thread.sleep(TRANSITION_LENGTH);
+
+                assertTrue(mContext.getResources().getString(
+                        R.string.subaction_test_wrong_focus_error_message),
+                        GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                                == expectedFocusedSeq.get(focusStep++)
+                );
+                assertTrue(mContext.getResources().getString(
+                        R.string.subaction_test_wrong_click_error_message),
+                        GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID
+                                == expectedClickedSeq.get(clickStep++)
+                );
+            }
+        } else {
+            sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
+            Thread.sleep(TRANSITION_LENGTH);
+            assertTrue(mContext.getResources().getString(
+                    R.string.subaction_test_wrong_focus_error_message),
+                    GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID
+                            == expectedFocusedSeq.get(focusStep++)
+            );
+            assertTrue(mContext.getResources().getString(
+                    R.string.subaction_test_wrong_click_error_message),
+                    GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID
+                            == expectedClickedSeq.get(clickStep++)
+            );
+        }
+    }
+
+    static class ExpectedSubActionResult {
+        List<List<Integer>> expectedFocusedSeq; // Expected sequence of action (or subaction) ids to receive focus events;
+        // Each entry corresponds to an action item in the guidedactions pane
+        List<List<Integer>> expectedClickedSeq; // Expected sequence of action (or subaction) ids to receive click events;
+        // Each entry corresponds to an action item in the guidedactions pane
+        List<GuidedAction> actionList;          // List of GuidedActions in the guidedactions pane
+    }
+
+    /**
+     * Populates a sample list of actions and subactions in the guidedactions pane.
+     * @return  An object holding the expected sequence of action and subactions IDs that receive
+     * focus and click events as well as the list of GuidedActions.
+     */
+    private ExpectedSubActionResult setUpActionsForSubActionsTest() {
+        Intent intent = new Intent();
+        Resources res = mContext.getResources();
+
+        ExpectedSubActionResult result = new ExpectedSubActionResult();
+        result.expectedFocusedSeq = new ArrayList<>();
+        result.expectedClickedSeq = new ArrayList<>();
+
         final int NUM_REGULAR_ACTIONS = 4;
         final int[] NUM_SUBACTIONS_PER_ACTION = {2, 1, 0, 3};
         final int[] REGULAR_ACTIONS_INDEX =  new int[NUM_REGULAR_ACTIONS];
         final int[] BEGIN_SUBACTION_INDEX_PER_ACTION = new int[NUM_REGULAR_ACTIONS];
         final int[] END_SUBACTION_INDEX_PER_ACTION = new int[NUM_REGULAR_ACTIONS];
-        // Actions and Subactions are assigned unique sequential IDs
+        // Actions and SubActions are assigned unique sequential IDs
         int lastIndex = 0;
         for(int i = 0; i < NUM_REGULAR_ACTIONS; i++) {
             REGULAR_ACTIONS_INDEX[i] = lastIndex;
@@ -481,29 +731,27 @@ public class GuidedStepAttributesTest extends
             END_SUBACTION_INDEX_PER_ACTION[i] = (lastIndex += NUM_SUBACTIONS_PER_ACTION[i]);
         }
 
-        // Sample click sequence for the main action list (not subactions)
-        List<Integer> ACTION_CLICK_SEQUENCE = new ArrayList<>(Arrays.asList(
-                3, 2, 1, 0
-        ));
-        List<Integer> EXPECTED_FOCUSED_SEQUENCE = new ArrayList<>();
-        List<Integer> EXPECTED_CLICKED_SEQUENCE = new ArrayList<>();
+        for (int i = 0; i < NUM_REGULAR_ACTIONS; i++) {
+            List<Integer> expectedFocusSeqForEachAction = new ArrayList<>();
+            List<Integer> expectedClickedSeqForEachAction = new ArrayList<>();
+            expectedFocusSeqForEachAction.add(REGULAR_ACTIONS_INDEX[i]);
 
-        for(int clickedActionId : ACTION_CLICK_SEQUENCE) {
-            EXPECTED_FOCUSED_SEQUENCE.add(REGULAR_ACTIONS_INDEX[clickedActionId]);
-            if (NUM_SUBACTIONS_PER_ACTION[clickedActionId] > 0) {
-                for (int i = BEGIN_SUBACTION_INDEX_PER_ACTION[clickedActionId]; i <
-                        END_SUBACTION_INDEX_PER_ACTION[clickedActionId]; i++) {
-                    EXPECTED_CLICKED_SEQUENCE.add(REGULAR_ACTIONS_INDEX[clickedActionId]);
-                    for (int j = BEGIN_SUBACTION_INDEX_PER_ACTION[clickedActionId]; j <= i; j++) {
-                        EXPECTED_FOCUSED_SEQUENCE.add(j);
+            if (NUM_SUBACTIONS_PER_ACTION[i] > 0) {
+                for (int j = BEGIN_SUBACTION_INDEX_PER_ACTION[i];
+                        j < END_SUBACTION_INDEX_PER_ACTION[i]; j++) {
+                    expectedClickedSeqForEachAction.add(REGULAR_ACTIONS_INDEX[i]);
+                    for (int k = BEGIN_SUBACTION_INDEX_PER_ACTION[i]; k <= j; k++) {
+                        expectedFocusSeqForEachAction.add(k);
                     }
-                    EXPECTED_CLICKED_SEQUENCE.add(i);
-                    EXPECTED_FOCUSED_SEQUENCE.add(REGULAR_ACTIONS_INDEX[clickedActionId]);
+                    expectedClickedSeqForEachAction.add(j);
+                    expectedFocusSeqForEachAction.add(REGULAR_ACTIONS_INDEX[i]);
                 }
             } else {
-                EXPECTED_CLICKED_SEQUENCE.add(REGULAR_ACTIONS_INDEX[clickedActionId]);
-                EXPECTED_FOCUSED_SEQUENCE.add(REGULAR_ACTIONS_INDEX[clickedActionId]);
+                expectedClickedSeqForEachAction.add(REGULAR_ACTIONS_INDEX[i]);
+                expectedFocusSeqForEachAction.add(REGULAR_ACTIONS_INDEX[i]);
             }
+            result.expectedFocusedSeq.add(expectedFocusSeqForEachAction);
+            result.expectedClickedSeq.add(expectedClickedSeqForEachAction);
         }
 
         String title = "Guided SubActions Test";
@@ -516,7 +764,7 @@ public class GuidedStepAttributesTest extends
 
         lastIndex = 0;
         for (int i = 0; i < NUM_REGULAR_ACTIONS; i++ ) {
-            GuidedAction action = new GuidedAction.Builder(mInstrumentation.getContext())
+            GuidedAction action = new GuidedAction.Builder(mContext)
                     .id(lastIndex++)
                     .title(res.getString(R.string.dropdown_action_title, i))
                     .description(res.getString(R.string.dropdown_action_desc, i))
@@ -525,7 +773,7 @@ public class GuidedStepAttributesTest extends
                 List<GuidedAction> subActions = new ArrayList<>();
                 action.setSubActions(subActions);
                 for(int j = 0; j < NUM_SUBACTIONS_PER_ACTION[i]; j++) {
-                    subActions.add(new GuidedAction.Builder(mInstrumentation.getContext())
+                    subActions.add(new GuidedAction.Builder(mContext)
                             .id(lastIndex++)
                             .title(res.getString(R.string.subaction_title, j))
                             .description("")
@@ -535,90 +783,13 @@ public class GuidedStepAttributesTest extends
             }
             actionList.add(action);
         }
+        result.actionList = actionList;
 
         GuidedStepAttributesTestFragment.clear();
         GuidedStepAttributesTestFragment.GUIDANCE = guidance;
         GuidedStepAttributesTestFragment.ACTION_LIST = actionList;
 
         initActivity(intent);
-
-        final GuidedStepFragment mFragment = (GuidedStepFragment) mActivity.
-                getGuidedStepTestFragment();
-
-        int focusStep = 0, clickStep = 0;
-        for(int i = 0; i < ACTION_CLICK_SEQUENCE.size(); i++) {
-            GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID =
-                    GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID = -1;
-            final int id = ACTION_CLICK_SEQUENCE.get(i);
-            final GuidedAction selectedAction = actionList.get(id);
-            runTestOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mFragment.setSelectedActionPosition(id);
-                }
-            });
-            Thread.sleep(TRANSITION_LENGTH);
-
-            assertTrue(mInstrumentation.getContext().getResources().getString(
-                    R.string.subaction_test_wrong_focus_error_message),
-                    GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                            EXPECTED_FOCUSED_SEQUENCE.get(focusStep++)
-            );
-
-            if (selectedAction.hasSubActions()) {
-                // Following for loop clicks on a specific action and scrolls & clicks through
-                // all its subactions
-                for (int j = 0; j < selectedAction.getSubActions().size(); j++) {
-                    sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
-                    Thread.sleep(TRANSITION_LENGTH);
-                    assertTrue(mInstrumentation.getContext().getResources().getString(
-                            R.string.subaction_test_wrong_focus_error_message),
-                            GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                                    EXPECTED_FOCUSED_SEQUENCE.get(focusStep++)
-                    );
-                    assertTrue(mInstrumentation.getContext().getResources().getString(
-                            R.string.subaction_test_wrong_click_error_message),
-                            GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID ==
-                                    EXPECTED_CLICKED_SEQUENCE.get(clickStep++)
-                    );
-                    for (int k = 0; k < j; k++) {
-                        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
-                        Thread.sleep(TRANSITION_LENGTH);
-                        assertTrue(mInstrumentation.getContext().getResources().getString(
-                                R.string.subaction_test_wrong_focus_error_message),
-                                GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                                        EXPECTED_FOCUSED_SEQUENCE.get(focusStep++)
-                        );
-                    }
-                    sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
-                    Thread.sleep(TRANSITION_LENGTH);
-
-                    assertTrue(mInstrumentation.getContext().getResources().getString(
-                            R.string.subaction_test_wrong_focus_error_message),
-                            GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                                    EXPECTED_FOCUSED_SEQUENCE.get(focusStep++)
-                    );
-                    assertTrue(mInstrumentation.getContext().getResources().getString(
-                            R.string.subaction_test_wrong_click_error_message),
-                            GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID ==
-                                    EXPECTED_CLICKED_SEQUENCE.get(clickStep++)
-                    );
-                }
-            } else {
-                sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
-                Thread.sleep(TRANSITION_LENGTH);
-                assertTrue(mInstrumentation.getContext().getResources().getString(
-                        R.string.subaction_test_wrong_focus_error_message),
-                        GuidedStepAttributesTestFragment.LAST_SELECTED_ACTION_ID ==
-                                EXPECTED_FOCUSED_SEQUENCE.get(focusStep++)
-                );
-                assertTrue(mInstrumentation.getContext().getResources().getString(
-                        R.string.subaction_test_wrong_click_error_message),
-                        GuidedStepAttributesTestFragment.LAST_CLICKED_ACTION_ID ==
-                                EXPECTED_CLICKED_SEQUENCE.get(clickStep++)
-                );
-            }
-        }
-
+        return result;
     }
 }

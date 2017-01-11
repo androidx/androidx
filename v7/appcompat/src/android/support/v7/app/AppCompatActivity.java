@@ -16,6 +16,8 @@
 
 package android.support.v7.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -42,8 +44,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Base class for activities that use the
@@ -245,7 +245,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void invalidateOptionsMenu() {
         getDelegate().invalidateOptionsMenu();
     }

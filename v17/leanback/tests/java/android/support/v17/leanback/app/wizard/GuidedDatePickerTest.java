@@ -14,9 +14,15 @@
 
 package android.support.v17.leanback.app.wizard;
 
-import android.app.Instrumentation;
+import static org.junit.Assert.assertTrue;
+
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.widget.GuidanceStylist;
@@ -24,13 +30,14 @@ import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidedDatePickerAction;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.picker.DatePicker;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,43 +46,48 @@ import java.util.Date;
 import java.util.List;
 
 @MediumTest
-public class GuidedDatePickerTest extends
-        ActivityInstrumentationTestCase2<GuidedStepAttributesTestActivity> {
+@RunWith(AndroidJUnit4.class)
+public class GuidedDatePickerTest {
 
     static final long TRANSITION_LENGTH = 1000;
     static long VERTICAL_SCROLL_WAIT = 500;
     static long HORIZONTAL_SCROLL_WAIT = 500;
-    static final long FINAL_WAIT = 3000;
+    static final long FINAL_WAIT = 1000;
 
     static final String TAG = "GuidedDatePickerTest";
 
     private static final int DAY_INDEX = 0;
     private static final int MONTH_INDEX = 1;
     private static final int YEAR_INDEX = 2;
-    Instrumentation mInstrumentation;
+
+    @Rule
+    public ActivityTestRule<GuidedStepAttributesTestActivity> activityTestRule =
+            new ActivityTestRule<>(GuidedStepAttributesTestActivity.class, false, false);
+
     GuidedStepAttributesTestActivity mActivity;
 
-    public GuidedDatePickerTest() {
-        super(GuidedStepAttributesTestActivity.class);
-    }
 
     private void initActivity(Intent intent) {
-
-        setActivityIntent(intent);
-        mActivity = getActivity();
+        mActivity = activityTestRule.launchActivity(intent);
         try {
             Thread.sleep(2000);
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
+
     }
 
-    private void scrollOnField(int field, int[] columnIndices, DatePicker mPickerView,
-                               int SCROLL_DIR) throws Throwable {
+    Context mContext;
+    @Before
+    public void setUp() {
+        mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();;
+    }
 
-        final GuidedStepFragment mFragment = (GuidedStepFragment)
-                mActivity.getGuidedStepTestFragment();
+    public static void sendKey(int keyCode) {
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keyCode);
+    }
 
+    private int getColumnIndexForDateField(int field, int[] columnIndices) {
         int mColDayIndex = columnIndices[0];
         int mColMonthIndex = columnIndices[1];
         int mColYearIndex = columnIndices[2];
@@ -90,13 +102,18 @@ public class GuidedDatePickerTest extends
             case Calendar.YEAR:
                 columnIndex = mColYearIndex;
         }
+        return columnIndex;
+    }
 
+    private void horizontalScrollToDateField(int field, int[] columnIndices,
+                                             DatePicker pickerView) throws Throwable{
+        int columnIndex = getColumnIndexForDateField(field, columnIndices);
 
-        LinearLayout columnsLayout = (LinearLayout) mPickerView.getChildAt(0);
+        LinearLayout columnsLayout = (LinearLayout) pickerView.getChildAt(0);
 
         int focusedFieldPos = columnsLayout.indexOfChild(columnsLayout.getFocusedChild());
         if (focusedFieldPos == -1) {
-            sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
+            sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
             Thread.sleep(TRANSITION_LENGTH);
         }
         focusedFieldPos = columnsLayout.indexOfChild(columnsLayout.getFocusedChild());
@@ -124,45 +141,67 @@ public class GuidedDatePickerTest extends
             horizontalScrollDir = KeyEvent.KEYCODE_DPAD_LEFT;
         }
         for(int i = 0; i < horizontalScrollOffset; i++) {
-            sendKeys(horizontalScrollDir);
+            sendKey(horizontalScrollDir);
             Thread.sleep(HORIZONTAL_SCROLL_WAIT);
         }
 
+    }
+
+    /**
+     * Scrolls vertically all the way up or down (depending on the provided scrollDir parameter)
+     * to fieldValue if it's not equal to -1; otherwise, the scrolling goes all the way to the end.
+     * @param field The date field over which the scrolling is performed
+     * @param fieldValue The field value to scroll to or -1 if the scrolling should go all the way.
+     * @param columnIndices The date field indices corresponding to day, month, and the year
+     * @param pickerView The DatePicker view.
+     * @param scrollDir The direction of scrolling to reach the desired field value.
+     * @throws Throwable
+     */
+    private void verticalScrollToFieldValue(int field, int fieldValue, int[] columnIndices,
+                                                 DatePicker pickerView, int scrollDir)
+            throws Throwable {
+
+        int columnIndex = getColumnIndexForDateField(field, columnIndices);
+        int colDayIndex = columnIndices[0];
+        int colMonthIndex = columnIndices[1];
+        int colYearIndex = columnIndices[2];
+
+        horizontalScrollToDateField(field, columnIndices, pickerView);
 
         Calendar currentActionCal = Calendar.getInstance();
-        currentActionCal.setTimeInMillis(mPickerView.getDate());
+        currentActionCal.setTimeInMillis(pickerView.getDate());
 
         Calendar minCal = Calendar.getInstance();
-        minCal.setTimeInMillis(mPickerView.getMinDate());
+        minCal.setTimeInMillis(pickerView.getMinDate());
 
         Calendar maxCal = Calendar.getInstance();
-        maxCal.setTimeInMillis(mPickerView.getMaxDate());
+        maxCal.setTimeInMillis(pickerView.getMaxDate());
 
 
         int prevColumnVal = -1;
-        int currentColumnVal = mPickerView.getColumnAt(columnIndex).getCurrentValue();
-        while( currentColumnVal != prevColumnVal ){
-            assertTrue(getActivity().getString(R.string.datepicker_test_wrong_day_value),
-                    mPickerView.getColumnAt(mColDayIndex).getCurrentValue() ==
-                            currentActionCal.get(Calendar.DAY_OF_MONTH)
+        int currentColumnVal = pickerView.getColumnAt(columnIndex).getCurrentValue();
+        while( currentColumnVal != prevColumnVal && currentColumnVal != fieldValue){
+            assertTrue(mContext.getString(R.string.datepicker_test_wrong_day_value),
+                    pickerView.getColumnAt(colDayIndex).getCurrentValue()
+                            == currentActionCal.get(Calendar.DAY_OF_MONTH)
             );
-            assertTrue(getActivity().getString(R.string.datepicker_test_wrong_month_value),
-                    mPickerView.getColumnAt(mColMonthIndex).getCurrentValue() ==
-                            currentActionCal.get(Calendar.MONTH)
+            assertTrue(mContext.getString(R.string.datepicker_test_wrong_month_value),
+                    pickerView.getColumnAt(colMonthIndex).getCurrentValue()
+                            == currentActionCal.get(Calendar.MONTH)
             );
-            assertTrue(getActivity().getString(R.string.datepicker_test_wrong_year_value),
-                    mPickerView.getColumnAt(mColYearIndex).getCurrentValue() ==
-                            currentActionCal.get(Calendar.YEAR)
+            assertTrue(mContext.getString(R.string.datepicker_test_wrong_year_value),
+                    pickerView.getColumnAt(colYearIndex).getCurrentValue()
+                            == currentActionCal.get(Calendar.YEAR)
             );
 
-            int offset = SCROLL_DIR == KeyEvent.KEYCODE_DPAD_DOWN ? 1 : -1;
+            int offset = scrollDir == KeyEvent.KEYCODE_DPAD_DOWN ? 1 : -1;
             addDate(currentActionCal, field, offset, minCal, maxCal);
 
-            sendKeys(SCROLL_DIR);
+            sendKey(scrollDir);
             Thread.sleep(VERTICAL_SCROLL_WAIT);
 
             prevColumnVal = currentColumnVal;
-            currentColumnVal = mPickerView.getColumnAt(columnIndex).getCurrentValue();
+            currentColumnVal = pickerView.getColumnAt(columnIndex).getCurrentValue();
         }
     }
 
@@ -196,18 +235,14 @@ public class GuidedDatePickerTest extends
         }
     }
 
-    public void testDifferentMonthLengths() throws Throwable {
-
-        mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(),
-                GuidedStepAttributesTestActivity.class);
-        Resources res = mInstrumentation.getContext().getResources();
-
-        final int NUM_DATE_ACTIONS = 1;
+    @Test
+    public void testJanuaryToFebruaryTransitionForLeapYear() throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Intent intent = new Intent();
 
         String title = "Date Picker Transition Test";
         String breadcrumb = "Month Transition Test Demo";
-        String description = "Testing the transition between longer to shorter months";
+        String description = "Testing the transition from Jan to Feb (leap year)";
         GuidanceStylist.Guidance guidance = new GuidanceStylist.Guidance(title, description,
                 breadcrumb, null);
 
@@ -215,13 +250,13 @@ public class GuidedDatePickerTest extends
 
         Calendar cal = Calendar.getInstance();
 
-        cal.set(Calendar.YEAR, 2016);
+        cal.set(Calendar.YEAR, 2016);   // 2016 is a leap year
         cal.set(Calendar.MONTH, Calendar.JANUARY);
-        cal.set(Calendar.DAY_OF_MONTH, 30);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
         Date initialDate = cal.getTime();
 
         GuidedDatePickerAction action = new GuidedDatePickerAction.Builder(
-                mInstrumentation.getContext())
+                mContext)
                 .id(0)
                 .title("Date")
                 .date(initialDate.getTime())
@@ -239,14 +274,337 @@ public class GuidedDatePickerTest extends
         DatePicker mPickerView = (DatePicker) mActivity.findViewById(
                 R.id.guidedactions_activator_item);
 
-        final GuidedStepFragment mFragment = (GuidedStepFragment) mActivity.
-                getGuidedStepTestFragment();
-        traverseMonths(mPickerView, (GuidedDatePickerAction) actionList.get(0));
+        verticalScrollToFieldValue(Calendar.MONTH, Calendar.FEBRUARY, new int[] {0, 1, 2},
+                mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testJanuaryToFebruaryTransitionForLeapYear() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    @Test
+    public void testFebruaryToMarchTransitionForLeapYear() throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Intent intent = new Intent();
+
+        String title = "Date Picker Transition Test";
+        String breadcrumb = "Month Transition Test Demo";
+        String description = "Testing the transition from Feb to Mar (leap year)";
+        GuidanceStylist.Guidance guidance = new GuidanceStylist.Guidance(title, description,
+                breadcrumb, null);
+
+        List<GuidedAction> actionList = new ArrayList<>();
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.set(Calendar.YEAR, 2016);
+        cal.set(Calendar.MONTH, Calendar.FEBRUARY);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date initialDate = cal.getTime();
+
+        GuidedDatePickerAction action = new GuidedDatePickerAction.Builder(
+                mContext)
+                .id(0)
+                .title("Date")
+                .date(initialDate.getTime())
+                .datePickerFormat("DMY")
+                .build();
+
+        actionList.add(action);
+
+        GuidedStepAttributesTestFragment.clear();
+        GuidedStepAttributesTestFragment.GUIDANCE = guidance;
+        GuidedStepAttributesTestFragment.ACTION_LIST = actionList;
+
+        initActivity(intent);
+
+        DatePicker mPickerView = (DatePicker) mActivity.findViewById(
+                R.id.guidedactions_activator_item);
+
+        verticalScrollToFieldValue(Calendar.MONTH, Calendar.MARCH, new int[] {0, 1, 2},
+                mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testFebruaryToMarchTransition() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    @Test
+    public void testJanuaryToFebruaryTransitionForNonLeapYear() throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Intent intent = new Intent();
+
+        String title = "Date Picker Transition Test";
+        String breadcrumb = "Month Transition Test Demo";
+        String description = "Testing the transition from Jan to Feb (nonleap year)";
+        GuidanceStylist.Guidance guidance = new GuidanceStylist.Guidance(title, description,
+                breadcrumb, null);
+
+        List<GuidedAction> actionList = new ArrayList<>();
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.set(Calendar.YEAR, 2017);   // 2017 is a leap year
+        cal.set(Calendar.MONTH, Calendar.JANUARY);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date initialDate = cal.getTime();
+
+        GuidedDatePickerAction action = new GuidedDatePickerAction.Builder(
+                mContext)
+                .id(0)
+                .title("Date")
+                .date(initialDate.getTime())
+                .datePickerFormat("DMY")
+                .build();
+
+        actionList.add(action);
+
+        GuidedStepAttributesTestFragment.clear();
+        GuidedStepAttributesTestFragment.GUIDANCE = guidance;
+        GuidedStepAttributesTestFragment.ACTION_LIST = actionList;
+
+        initActivity(intent);
+
+        DatePicker mPickerView = (DatePicker) mActivity.findViewById(
+                R.id.guidedactions_activator_item);
+
+        verticalScrollToFieldValue(Calendar.MONTH, Calendar.FEBRUARY, new int[] {0, 1, 2},
+                mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testJanuaryToFebruaryTransition() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    @Test
+    public void testFebruaryToMarchTransitionForNonLeapYear() throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Intent intent = new Intent();
+
+        String title = "Date Picker Transition Test";
+        String breadcrumb = "Month Transition Test Demo";
+        String description = "Testing the transition from Feb to Mar (nonleap year)";
+        GuidanceStylist.Guidance guidance = new GuidanceStylist.Guidance(title, description,
+                breadcrumb, null);
+
+        List<GuidedAction> actionList = new ArrayList<>();
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.set(Calendar.YEAR, 2017);
+        cal.set(Calendar.MONTH, Calendar.FEBRUARY);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date initialDate = cal.getTime();
+
+        GuidedDatePickerAction action = new GuidedDatePickerAction.Builder(
+                mContext)
+                .id(0)
+                .title("Date")
+                .date(initialDate.getTime())
+                .datePickerFormat("DMY")
+                .build();
+
+        actionList.add(action);
+
+        GuidedStepAttributesTestFragment.clear();
+        GuidedStepAttributesTestFragment.GUIDANCE = guidance;
+        GuidedStepAttributesTestFragment.ACTION_LIST = actionList;
+
+        initActivity(intent);
+
+        DatePicker mPickerView = (DatePicker) mActivity.findViewById(
+                R.id.guidedactions_activator_item);
+
+        verticalScrollToFieldValue(Calendar.MONTH, Calendar.MARCH, new int[] {0, 1, 2},
+                mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testFebruaryToMarchTransition() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    @Test
+    public void testDecemberToNovemberTransition() throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Intent intent = new Intent();
+
+        String title = "Date Picker Transition Test";
+        String breadcrumb = "Month Transition Test Demo";
+        String description = "Testing the transition from Dec to Nov";
+        GuidanceStylist.Guidance guidance = new GuidanceStylist.Guidance(title, description,
+                breadcrumb, null);
+
+        List<GuidedAction> actionList = new ArrayList<>();
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.set(Calendar.YEAR, 2016);
+        cal.set(Calendar.MONTH, Calendar.DECEMBER);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date initialDate = cal.getTime();
+
+        GuidedDatePickerAction action = new GuidedDatePickerAction.Builder(
+                mContext)
+                .id(0)
+                .title("Date")
+                .date(initialDate.getTime())
+                .datePickerFormat("DMY")
+                .build();
+
+        actionList.add(action);
+
+        GuidedStepAttributesTestFragment.clear();
+        GuidedStepAttributesTestFragment.GUIDANCE = guidance;
+        GuidedStepAttributesTestFragment.ACTION_LIST = actionList;
+
+        initActivity(intent);
+
+        DatePicker mPickerView = (DatePicker) mActivity.findViewById(
+                R.id.guidedactions_activator_item);
+
+        verticalScrollToFieldValue(Calendar.MONTH, Calendar.NOVEMBER, new int[] {0, 1, 2},
+                mPickerView, KeyEvent.KEYCODE_DPAD_UP);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testDecemberToNovember() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    @Test
+    public void testNovemberToOctoberTransition() throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Intent intent = new Intent();
+
+        String title = "Date Picker Transition Test";
+        String breadcrumb = "Month Transition Test Demo";
+        String description = "Testing the transition from Nov to Oct";
+        GuidanceStylist.Guidance guidance = new GuidanceStylist.Guidance(title, description,
+                breadcrumb, null);
+
+        List<GuidedAction> actionList = new ArrayList<>();
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.set(Calendar.YEAR, 2016);
+        cal.set(Calendar.MONTH, Calendar.NOVEMBER);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date initialDate = cal.getTime();
+
+        GuidedDatePickerAction action = new GuidedDatePickerAction.Builder(
+                mContext)
+                .id(0)
+                .title("Date")
+                .date(initialDate.getTime())
+                .datePickerFormat("DMY")
+                .build();
+
+        actionList.add(action);
+
+        GuidedStepAttributesTestFragment.clear();
+        GuidedStepAttributesTestFragment.GUIDANCE = guidance;
+        GuidedStepAttributesTestFragment.ACTION_LIST = actionList;
+
+        initActivity(intent);
+
+        DatePicker mPickerView = (DatePicker) mActivity.findViewById(
+                R.id.guidedactions_activator_item);
+
+        verticalScrollToFieldValue(Calendar.MONTH, Calendar.OCTOBER, new int[] {0, 1, 2},
+                mPickerView, KeyEvent.KEYCODE_DPAD_UP);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testNovemberToOctober() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    @Test
+    public void testLeapToNonLeapYearTransition() throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Intent intent = new Intent();
+
+        String title = "Date Picker Transition Test";
+        String breadcrumb = "Leap Year Transition Test Demo";
+        String description = "Testing Feb transition from leap to nonlneap year";
+        GuidanceStylist.Guidance guidance = new GuidanceStylist.Guidance(title, description,
+                breadcrumb, null);
+
+        List<GuidedAction> actionList = new ArrayList<>();
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.set(Calendar.YEAR, 2016);   // 2016 is a leap year
+        cal.set(Calendar.MONTH, Calendar.FEBRUARY);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date initialDate = cal.getTime();
+
+        GuidedDatePickerAction action = new GuidedDatePickerAction.Builder(
+                mContext)
+                .id(0)
+                .title("Date")
+                .date(initialDate.getTime())
+                .datePickerFormat("DMY")
+                .build();
+
+        actionList.add(action);
+
+        GuidedStepAttributesTestFragment.clear();
+        GuidedStepAttributesTestFragment.GUIDANCE = guidance;
+        GuidedStepAttributesTestFragment.ACTION_LIST = actionList;
+
+        initActivity(intent);
+
+        DatePicker mPickerView = (DatePicker) mActivity.findViewById(
+                R.id.guidedactions_activator_item);
+
+        verticalScrollToFieldValue(Calendar.YEAR, 2017, new int[] {0, 1, 2},
+                mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testLeapToNonLeapYearTransition() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    @Test
+    public void testNonLeapToLeapYearTransition() throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Intent intent = new Intent();
+
+        String title = "Date Picker Transition Test";
+        String breadcrumb = "Leap Year Transition Test Demo";
+        String description = "Testing Feb transition from nonleap to leap year";
+        GuidanceStylist.Guidance guidance = new GuidanceStylist.Guidance(title, description,
+                breadcrumb, null);
+
+        List<GuidedAction> actionList = new ArrayList<>();
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.set(Calendar.YEAR, 2017);   // 2017 is a non-leap year
+        cal.set(Calendar.MONTH, Calendar.FEBRUARY);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date initialDate = cal.getTime();
+
+        GuidedDatePickerAction action = new GuidedDatePickerAction.Builder(
+                mContext)
+                .id(0)
+                .title("Date")
+                .date(initialDate.getTime())
+                .datePickerFormat("DMY")
+                .build();
+
+        actionList.add(action);
+
+        GuidedStepAttributesTestFragment.clear();
+        GuidedStepAttributesTestFragment.GUIDANCE = guidance;
+        GuidedStepAttributesTestFragment.ACTION_LIST = actionList;
+
+        initActivity(intent);
+
+        DatePicker mPickerView = (DatePicker) mActivity.findViewById(
+                R.id.guidedactions_activator_item);
+
+        verticalScrollToFieldValue(Calendar.YEAR, 2016, new int[] {0, 1, 2},
+                mPickerView, KeyEvent.KEYCODE_DPAD_UP);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testNonLeapToLeapYearTransition() Execution time: " + executionTime);
         Thread.sleep(FINAL_WAIT);
     }
 
     private void traverseMonths(DatePicker mPickerView, GuidedDatePickerAction dateAction)
-            throws Throwable{
+            throws Throwable {
 
         final GuidedStepFragment mFragment = (GuidedStepFragment)
                 mActivity.getGuidedStepTestFragment();
@@ -254,7 +612,7 @@ public class GuidedDatePickerTest extends
         Calendar currentActionCal = Calendar.getInstance();
         currentActionCal.setTimeInMillis(dateAction.getDate());
 
-        sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
+        sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
         Thread.sleep(TRANSITION_LENGTH);
 
         int prevMonth = -1;
@@ -264,7 +622,7 @@ public class GuidedDatePickerTest extends
             int currentDayOfMonth = mPickerView.getColumnAt(DAY_INDEX).getCurrentValue();
             // scroll down the days till reaching the last day of month
             while (currentDayOfMonth != prevDayOfMonth) {
-                sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+                sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
                 Thread.sleep(VERTICAL_SCROLL_WAIT);
                 prevDayOfMonth = currentDayOfMonth;
                 currentDayOfMonth = mPickerView.getColumnAt(DAY_INDEX).getCurrentValue();
@@ -272,10 +630,10 @@ public class GuidedDatePickerTest extends
             int oldDayValue = mPickerView.getColumnAt(DAY_INDEX).getCurrentValue();
             int oldMonthValue = mPickerView.getColumnAt(MONTH_INDEX).getCurrentValue();
             // increment the month
-            sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
+            sendKey(KeyEvent.KEYCODE_DPAD_RIGHT);
             Thread.sleep(VERTICAL_SCROLL_WAIT);
 
-            sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+            sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
             Thread.sleep(TRANSITION_LENGTH);
 
             int newDayValue = mPickerView.getColumnAt(DAY_INDEX).getCurrentValue();
@@ -283,13 +641,14 @@ public class GuidedDatePickerTest extends
             verifyMonthTransition(currentActionCal,
                     oldDayValue, oldMonthValue, newDayValue, newMonthValue);
 
-            sendKeys(KeyEvent.KEYCODE_DPAD_LEFT);
+            sendKey(KeyEvent.KEYCODE_DPAD_LEFT);
             Thread.sleep(TRANSITION_LENGTH);
             prevMonth = currentMonth;
             currentMonth = newMonthValue;
         }
 
     }
+
 
     private void verifyMonthTransition(Calendar currentCal, int oldDayValue, int oldMonthValue,
                                        int newDayValue, int newMonthValue) {
@@ -302,25 +661,86 @@ public class GuidedDatePickerTest extends
         int expectedOldDayValue = currentCal.getActualMaximum(Calendar.DAY_OF_MONTH);
         currentCal.set(Calendar.MONTH, newMonthValue);
         int numDaysInNewMonth = currentCal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        int expectedNewDayValue = (expectedOldDayValue <= numDaysInNewMonth) ?
-                expectedOldDayValue : numDaysInNewMonth;
+        int expectedNewDayValue = (expectedOldDayValue <= numDaysInNewMonth)
+                ? expectedOldDayValue : numDaysInNewMonth;
 
-        assertTrue(getActivity().getString(
+        assertTrue(mContext.getString(
                 R.string.datepicker_test_transition_error1, oldMonthValue),
                 oldDayValue == expectedOldDayValue
         );
-        assertTrue(getActivity().getString(
+        assertTrue(mContext.getString(
                 R.string.datepicker_test_transition_error2, newDayValue, newMonthValue),
                 newDayValue == expectedNewDayValue
         );
     }
 
-    public void testDateRanges() throws Throwable {
+    @Test
+    public void testDateRangesMDYFormat() throws Throwable {
 
-        mInstrumentation = getInstrumentation();
-        Intent intent = new Intent(mInstrumentation.getContext(),
-                GuidedStepAttributesTestActivity.class);
-        Resources res = mInstrumentation.getContext().getResources();
+        long startTime = System.currentTimeMillis();
+
+        GuidedDatePickerAction[] datePickerActions = setupDateActionsForMinAndMaxRangeTests();
+
+        scrollToMinAndMaxDates(new int[] {1, 0, 2}, datePickerActions[0]);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testDateRangesMDYFormat() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    public void testDateRangesDMYFormat() throws Throwable {
+
+        long startTime = System.currentTimeMillis();
+
+        GuidedDatePickerAction[] datePickerActions = setupDateActionsForMinAndMaxRangeTests();
+        Log.d(TAG, "setup dateactions complete!");
+        scrollToMinAndMaxDates(new int[] {0, 1, 2}, datePickerActions[1]);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testDateRangesDMYFormat() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    @Test
+    public void testDateRangesWithYearEqual() throws Throwable {
+
+        long startTime = System.currentTimeMillis();
+
+        GuidedDatePickerAction[] datePickerActions = setupDateActionsForMinAndMaxRangeTests();
+
+        scrollToMinAndMaxDates(new int[] {0, 1, 2}, datePickerActions[2]);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testDateRangesWithYearEqual() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    @Test
+    public void testDateRangesWithMonthAndYearEqual() throws Throwable {
+
+        long startTime = System.currentTimeMillis();
+
+        GuidedDatePickerAction[] datePickerActions = setupDateActionsForMinAndMaxRangeTests();
+
+        scrollToMinAndMaxDates(new int[] {0, 1, 2}, datePickerActions[3]);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testDateRangesWithMonthAndYearEqual() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    @Test
+    public void testDateRangesWithAllFieldsEqual() throws Throwable {
+
+        long startTime = System.currentTimeMillis();
+
+        GuidedDatePickerAction[] datePickerActions = setupDateActionsForMinAndMaxRangeTests();
+
+        scrollToMinAndMaxDates(new int[] {0, 1, 2}, datePickerActions[4]);
+        long executionTime = System.currentTimeMillis() - startTime;
+        Log.d(TAG, "testDateRangesWithAllFieldsEqual() Execution time: " + executionTime);
+        Thread.sleep(FINAL_WAIT);
+    }
+
+    private GuidedDatePickerAction[] setupDateActionsForMinAndMaxRangeTests() {
+        Intent intent = new Intent();
+        Resources res = mContext.getResources();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -349,7 +769,7 @@ public class GuidedDatePickerTest extends
 
         // testing different date formats and the correctness of range changes as we scroll
         GuidedDatePickerAction dateAction1 = new GuidedDatePickerAction.Builder(
-                mInstrumentation.getContext())
+                mContext)
                 .id(0)
                 .title(res.getString(R.string.datepicker_with_range_title,
                         dateFormat.format(minCal.getTime()),
@@ -362,7 +782,7 @@ public class GuidedDatePickerTest extends
                 .build();
 
         GuidedDatePickerAction dateAction2 = new GuidedDatePickerAction.Builder(
-                mInstrumentation.getContext())
+                mContext)
                 .id(1)
                 .title(res.getString(R.string.datepicker_with_range_title,
                         dateFormat.format(minCal.getTimeInMillis()),
@@ -382,7 +802,7 @@ public class GuidedDatePickerTest extends
         maxCal.set(Calendar.MONTH, maxMonth);
 
         GuidedDatePickerAction dateAction3 = new GuidedDatePickerAction.Builder(
-                mInstrumentation.getContext())
+                mContext)
                 .id(2)
                 .title(res.getString(R.string.datepicker_with_range_title,
                         dateFormat.format(minCal.getTimeInMillis()),
@@ -403,7 +823,7 @@ public class GuidedDatePickerTest extends
         maxCal.set(Calendar.DAY_OF_MONTH, maxDay);
 
         GuidedDatePickerAction dateAction4 = new GuidedDatePickerAction.Builder(
-                mInstrumentation.getContext())
+                mContext)
                 .id(3)
                 .title(res.getString(R.string.datepicker_with_range_title,
                         dateFormat.format(minCal.getTimeInMillis()),
@@ -420,7 +840,7 @@ public class GuidedDatePickerTest extends
         minCal.set(Calendar.DAY_OF_MONTH, maxCal.get(Calendar.DAY_OF_MONTH));
 
         GuidedDatePickerAction dateAction5 = new GuidedDatePickerAction.Builder(
-                mInstrumentation.getContext())
+                mContext)
                 .id(4)
                 .title(res.getString(R.string.datepicker_with_range_title,
                         dateFormat.format(minCal.getTimeInMillis()),
@@ -443,17 +863,8 @@ public class GuidedDatePickerTest extends
         GuidedStepAttributesTestFragment.ACTION_LIST = actionList;
 
         initActivity(intent);
-
-        final GuidedStepFragment mFragment = (GuidedStepFragment) mActivity.
-                getGuidedStepTestFragment();
-
-        scrollToMinAndMaxDates(new int[] {1, 0, 2}, dateAction1);
-        scrollToMinAndMaxDates(new int[] {0, 1, 2}, dateAction2);
-        scrollToMinAndMaxDates(new int[] {0, 1, 2}, dateAction3);
-        scrollToMinAndMaxDates(new int[] {0, 1, 2}, dateAction4);
-        scrollToMinAndMaxDates(new int[] {0, 1, 2}, dateAction5);
-
-        Thread.sleep(FINAL_WAIT);
+        return new GuidedDatePickerAction[] {dateAction1, dateAction2, dateAction3, dateAction4,
+                dateAction5};
     }
 
     private void scrollToMinAndMaxDates(int[] columnIndices, GuidedDatePickerAction dateAction)
@@ -475,12 +886,12 @@ public class GuidedDatePickerTest extends
             verticalScrollDir = KeyEvent.KEYCODE_DPAD_UP;
         }
         for(int i = 0; i < verticalScrollOffset; i++) {
-            sendKeys(verticalScrollDir);
+            sendKey(verticalScrollDir);
             Thread.sleep(TRANSITION_LENGTH);
         }
 
-        assertTrue("The wrong action was selected!", mFragment.getSelectedActionPosition() ==
-                dateAction.getId());
+        assertTrue("The wrong action was selected!", mFragment.getSelectedActionPosition()
+                == dateAction.getId());
         DatePicker mPickerView = (DatePicker) mFragment.getActionItemView((int) dateAction.getId())
                 .findViewById(R.id.guidedactions_activator_item);
 
@@ -490,29 +901,35 @@ public class GuidedDatePickerTest extends
 
         // scrolling to the minimum date
 
-        scrollOnField(Calendar.YEAR, columnIndices, mPickerView, KeyEvent.KEYCODE_DPAD_UP);
+        verticalScrollToFieldValue(Calendar.YEAR, -1, columnIndices, mPickerView,
+                KeyEvent.KEYCODE_DPAD_UP);
         dateAction.setDate(mPickerView.getDate());
 
-        scrollOnField(Calendar.MONTH, columnIndices, mPickerView, KeyEvent.KEYCODE_DPAD_UP);
+        verticalScrollToFieldValue(Calendar.MONTH, -1, columnIndices, mPickerView,
+                KeyEvent.KEYCODE_DPAD_UP);
         dateAction.setDate(mPickerView.getDate());
 
-        scrollOnField(Calendar.DAY_OF_MONTH, columnIndices, mPickerView, KeyEvent.KEYCODE_DPAD_UP);
+        verticalScrollToFieldValue(Calendar.DAY_OF_MONTH, -1, columnIndices, mPickerView,
+                KeyEvent.KEYCODE_DPAD_UP);
         dateAction.setDate(mPickerView.getDate());
 
         Thread.sleep(VERTICAL_SCROLL_WAIT);
 
         // now scrolling to the maximum date
 
-        scrollOnField(Calendar.YEAR, columnIndices, mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
+        verticalScrollToFieldValue(Calendar.YEAR, -1, columnIndices, mPickerView,
+                KeyEvent.KEYCODE_DPAD_DOWN);
         dateAction.setDate(mPickerView.getDate());
 
-        scrollOnField(Calendar.MONTH, columnIndices, mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
+        verticalScrollToFieldValue(Calendar.MONTH, -1, columnIndices, mPickerView,
+                KeyEvent.KEYCODE_DPAD_DOWN);
         dateAction.setDate(mPickerView.getDate());
 
-        scrollOnField(Calendar.DAY_OF_MONTH, columnIndices, mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
+        verticalScrollToFieldValue(Calendar.DAY_OF_MONTH, -1, columnIndices, mPickerView,
+                KeyEvent.KEYCODE_DPAD_DOWN);
         dateAction.setDate(mPickerView.getDate());
 
-        sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
+        sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
         Thread.sleep(TRANSITION_LENGTH);
     }
 

@@ -139,7 +139,10 @@ public class StrictFragment extends Fragment {
         super.onSaveInstanceState(outState);
         mCalledOnSaveInstanceState = true;
         checkGetActivity();
-        checkStateAtLeast("onSaveInstanceState", STARTED);
+        // FIXME: We should not allow onSaveInstanceState except when STARTED or greater.
+        // But FragmentManager currently does it in saveAllState for fragments on the
+        // back stack, so fragments may be in the CREATED state.
+        checkStateAtLeast("onSaveInstanceState", CREATED);
     }
 
     @Override

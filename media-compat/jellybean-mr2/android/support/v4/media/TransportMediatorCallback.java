@@ -16,8 +16,12 @@
 
 package android.support.v4.media;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.view.KeyEvent;
 
+@RequiresApi(18)
+@TargetApi(18)
 interface TransportMediatorCallback {
     public void handleKey(KeyEvent key);
     public void handleAudioFocusChange(int focusChange);

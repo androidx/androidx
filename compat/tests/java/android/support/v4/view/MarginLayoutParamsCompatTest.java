@@ -15,15 +15,15 @@
  */
 package android.support.v4.view;
 
+import static org.junit.Assert.assertEquals;
+
 import android.os.Build;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.ViewGroup;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

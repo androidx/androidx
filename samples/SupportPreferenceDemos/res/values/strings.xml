@@ -22,6 +22,12 @@
 
     <string name="root_title">Demo Preferences</string>
 
+    <string name="title_basic_preference">Basic preference</string>
+    <string name="summary_basic_preference">This is a basic preference</string>
+
+    <string name="title_stylish_preference"><b>Very</b> <i>stylish</i> <u>preference</u></string>
+    <string name="summary_stylish_preference">This is a <b>very</b> <i>stylish</i> <u>preference</u></string>
+
     <string name="inline_preferences">In-line preferences</string>
     <string name="dialog_based_preferences">Dialog-based preferences</string>
     <string name="launch_preferences">Launch preferences</string>

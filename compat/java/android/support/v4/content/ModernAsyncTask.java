@@ -16,7 +16,7 @@
 
 package android.support.v4.content;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Binder;
 import android.os.Handler;
@@ -118,7 +118,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static void setDefaultExecutor(Executor exec) {
         sDefaultExecutor = exec;
     }

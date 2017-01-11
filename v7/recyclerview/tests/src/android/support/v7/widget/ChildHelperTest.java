@@ -24,8 +24,8 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -93,8 +93,7 @@ public class ChildHelperTest {
         RecyclerView.ViewHolder vh = vh();
         vh.mPosition = 12;
         mChildHelper.addView(vh.itemView, true);
-        assertSame(vh.itemView,
-                mChildHelper.findHiddenNonRemovedView(12, RecyclerView.INVALID_TYPE));
+        assertSame(vh.itemView, mChildHelper.findHiddenNonRemovedView(12));
     }
 
     @Test
@@ -103,7 +102,7 @@ public class ChildHelperTest {
         vh.mPosition = 12;
         vh.addFlags(RecyclerView.ViewHolder.FLAG_REMOVED);
         mChildHelper.addView(vh.itemView, true);
-        assertNull(mChildHelper.findHiddenNonRemovedView(12, RecyclerView.INVALID_TYPE));
+        assertNull(mChildHelper.findHiddenNonRemovedView(12));
     }
 
     private static class LoggingCallback implements ChildHelper.Callback {

@@ -16,7 +16,7 @@
 
 package android.support.design.internal;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -27,6 +27,7 @@ import android.support.annotation.RestrictTo;
 import android.support.design.R;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.view.PointerIconCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.view.menu.MenuItemImpl;
 import android.support.v7.view.menu.MenuView;
@@ -40,7 +41,7 @@ import android.widget.TextView;
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class BottomNavigationItemView extends FrameLayout implements MenuView.ItemView {
     public static final int INVALID_ITEM_POSITION = -1;
 
@@ -87,7 +88,6 @@ public class BottomNavigationItemView extends FrameLayout implements MenuView.It
         mIcon = (ImageView) findViewById(R.id.icon);
         mSmallLabel = (TextView) findViewById(R.id.smallLabel);
         mLargeLabel = (TextView) findViewById(R.id.largeLabel);
-
     }
 
     @Override
@@ -191,6 +191,14 @@ public class BottomNavigationItemView extends FrameLayout implements MenuView.It
         mSmallLabel.setEnabled(enabled);
         mLargeLabel.setEnabled(enabled);
         mIcon.setEnabled(enabled);
+
+        if (enabled) {
+            ViewCompat.setPointerIcon(this,
+                    PointerIconCompat.getSystemIcon(getContext(), PointerIconCompat.TYPE_HAND));
+        } else {
+            ViewCompat.setPointerIcon(this, null);
+        }
+
     }
 
     @Override

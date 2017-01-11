@@ -15,6 +15,7 @@
  */
 package android.support.v7.app;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
@@ -24,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.StringRes;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -207,6 +209,8 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
             mActivityImpl = ((DelegateProvider) activity).getDrawerToggleDelegate();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             mActivityImpl = new JellybeanMr2Delegate(activity);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            mActivityImpl = new IcsDelegate(activity);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mActivityImpl = new HoneycombDelegate(activity);
         } else {
@@ -492,8 +496,10 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     /**
-     * Delegate if SDK version is between honeycomb and JBMR2
+     * Delegate if SDK version is between Honeycomb and ICS
      */
+    @RequiresApi(11)
+    @TargetApi(11)
     private static class HoneycombDelegate implements Delegate {
 
         final Activity mActivity;
@@ -510,14 +516,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
         @Override
         public Context getActionBarThemedContext() {
-            final ActionBar actionBar = mActivity.getActionBar();
-            final Context context;
-            if (actionBar != null) {
-                context = actionBar.getThemedContext();
-            } else {
-                context = mActivity;
-            }
-            return context;
+            return mActivity;
         }
 
         @Override
@@ -546,8 +545,34 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     /**
+     * Delegate if SDK version is between ICS and JBMR2
+     */
+    @RequiresApi(14)
+    @TargetApi(14)
+    private static class IcsDelegate extends HoneycombDelegate {
+
+        IcsDelegate(Activity activity) {
+            super(activity);
+        }
+
+        @Override
+        public Context getActionBarThemedContext() {
+            final ActionBar actionBar = mActivity.getActionBar();
+            final Context context;
+            if (actionBar != null) {
+                context = actionBar.getThemedContext();
+            } else {
+                context = mActivity;
+            }
+            return context;
+        }
+    }
+
+    /**
      * Delegate if SDK version is JB MR2 or newer
      */
+    @RequiresApi(18)
+    @TargetApi(18)
     private static class JellybeanMr2Delegate implements Delegate {
 
         final Activity mActivity;

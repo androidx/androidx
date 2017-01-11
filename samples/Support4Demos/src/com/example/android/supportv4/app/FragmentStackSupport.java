@@ -16,20 +16,21 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.R;
-
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-
-import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.example.android.supportv4.R;
 
 public class FragmentStackSupport extends FragmentActivity {
     int mStackLevel = 1;
@@ -40,13 +41,13 @@ public class FragmentStackSupport extends FragmentActivity {
         setContentView(R.layout.fragment_stack);
 
         // Watch for button clicks.
-        Button button = (Button)findViewById(R.id.new_fragment);
+        Button button = (Button) findViewById(R.id.new_fragment);
         button.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 addFragmentToStack();
             }
         });
-        button = (Button)findViewById(R.id.home);
+        button = (Button) findViewById(R.id.home);
         button.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 // If there is a back stack, pop it all.
@@ -128,8 +129,9 @@ public class FragmentStackSupport extends FragmentActivity {
                 Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.hello_world, container, false);
             View tv = v.findViewById(R.id.text);
-            ((TextView)tv).setText("Fragment #" + mNum);
-            tv.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.gallery_thumb));
+            ((TextView) tv).setText("Fragment #" + mNum);
+            ViewCompat.setBackground(tv,
+                    ContextCompat.getDrawable(getContext(), android.R.drawable.gallery_thumb));
             return v;
         }
     }

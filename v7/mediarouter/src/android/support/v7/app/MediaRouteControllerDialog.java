@@ -400,7 +400,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         mVolumeGroupList = (OverlayListView) findViewById(R.id.mr_volume_group_list);
         mGroupMemberRoutes = new ArrayList<MediaRouter.RouteInfo>();
-        mVolumeGroupAdapter = new VolumeGroupAdapter(mContext, mGroupMemberRoutes);
+        mVolumeGroupAdapter = new VolumeGroupAdapter(mVolumeGroupList.getContext(),
+                mGroupMemberRoutes);
         mVolumeGroupList.setAdapter(mVolumeGroupAdapter);
         mGroupMemberRoutesAnimatingWithBitmap = new HashSet<>();
 
@@ -523,13 +524,21 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mRouteNameTextView.setText(mRoute.getName());
         mDisconnectButton.setVisibility(mRoute.canDisconnect() ? View.VISIBLE : View.GONE);
         if (mCustomControlView == null && mArtIconIsLoaded) {
-            mArtView.setImageBitmap(mArtIconLoadedBitmap);
-            mArtView.setBackgroundColor(mArtIconBackgroundColor);
+            if (isBitmapRecycled(mArtIconLoadedBitmap)) {
+                Log.w(TAG, "Can't set artwork image with recycled bitmap: " + mArtIconLoadedBitmap);
+            } else {
+                mArtView.setImageBitmap(mArtIconLoadedBitmap);
+                mArtView.setBackgroundColor(mArtIconBackgroundColor);
+            }
             clearLoadedBitmap();
         }
         updateVolumeControlLayout();
         updatePlaybackControlLayout();
         updateLayoutHeight(animate);
+    }
+
+    private boolean isBitmapRecycled(Bitmap bitmap) {
+        return bitmap != null && bitmap.isRecycled();
     }
 
     private boolean canShowPlaybackControlLayout() {
@@ -1001,17 +1010,18 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         | PlaybackStateCompat.ACTION_PLAY_PAUSE)) != 0;
                 boolean supportsPause = (mState.getActions() & (PlaybackStateCompat.ACTION_PAUSE
                         | PlaybackStateCompat.ACTION_PLAY_PAUSE)) != 0;
+                Context playPauseButtonContext = mPlayPauseButton.getContext();
                 if (isPlaying && supportsPause) {
                     mPlayPauseButton.setVisibility(View.VISIBLE);
                     mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
-                            mContext, R.attr.mediaRoutePauseDrawable));
-                    mPlayPauseButton.setContentDescription(mContext.getResources()
+                            playPauseButtonContext, R.attr.mediaRoutePauseDrawable));
+                    mPlayPauseButton.setContentDescription(playPauseButtonContext.getResources()
                             .getText(R.string.mr_controller_pause));
                 } else if (!isPlaying && supportsPlay) {
                     mPlayPauseButton.setVisibility(View.VISIBLE);
                     mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
-                            mContext, R.attr.mediaRoutePlayDrawable));
-                    mPlayPauseButton.setContentDescription(mContext.getResources()
+                            playPauseButtonContext, R.attr.mediaRoutePlayDrawable));
+                    mPlayPauseButton.setContentDescription(playPauseButtonContext.getResources()
                             .getText(R.string.mr_controller_play));
                 } else {
                     mPlayPauseButton.setVisibility(View.GONE);
@@ -1245,7 +1255,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         public View getView(final int position, View convertView, ViewGroup parent) {
             View v = convertView;
             if (v == null) {
-                v = LayoutInflater.from(mContext).inflate(
+                v = LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.mr_controller_volume_item, parent, false);
             } else {
                 updateVolumeGroupItemHeight(v);
@@ -1262,7 +1272,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 MediaRouteVolumeSlider volumeSlider =
                         (MediaRouteVolumeSlider) v.findViewById(R.id.mr_volume_slider);
                 MediaRouterThemeHelper.setVolumeSliderColor(
-                        mContext, volumeSlider, mVolumeGroupList);
+                        parent.getContext(), volumeSlider, mVolumeGroupList);
                 volumeSlider.setTag(route);
                 mVolumeSliderMap.put(route, volumeSlider);
                 volumeSlider.setHideThumb(!isEnabled);
@@ -1313,7 +1323,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
         private long mStartTimeMillis;
 
         FetchArtTask() {
-            mIconBitmap = mDescription == null ? null : mDescription.getIconBitmap();
+            Bitmap bitmap = mDescription == null ? null : mDescription.getIconBitmap();
+            if (isBitmapRecycled(bitmap)) {
+                Log.w(TAG, "Can't fetch the given art bitmap because it's already recycled.");
+                bitmap = null;
+            }
+            mIconBitmap = bitmap;
             mIconUri = mDescription == null ? null : mDescription.getIconUri();
         }
 
@@ -1380,6 +1395,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         }
                     }
                 }
+            }
+            if (isBitmapRecycled(art)) {
+                Log.w(TAG, "Can't use recycled bitmap: " + art);
+                return null;
             }
             if (art != null && art.getWidth() < art.getHeight()) {
                 // Portrait art requires dominant color as background color.

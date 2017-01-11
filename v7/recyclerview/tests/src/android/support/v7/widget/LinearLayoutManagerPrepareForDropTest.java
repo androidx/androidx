@@ -16,21 +16,20 @@
 
 package android.support.v7.widget;
 
-import org.junit.After;
-import org.junit.Before;
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
+import android.support.test.filters.MediumTest;
+import android.view.View;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import android.support.test.InstrumentationRegistry;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.view.View;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManagerTest {
@@ -44,7 +43,7 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
         mSelectTargetChildren = selectTargetChildren;
     }
 
-    @Parameterized.Parameters(name = "{0}_{1}")
+    @Parameterized.Parameters(name = "{0},selectTargetChildren:{1}")
     public static Iterable<Object[]> params() {
         SelectTargetChildren[] selectors
                 = new SelectTargetChildren[]{
@@ -53,11 +52,19 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{1, 0};
                     }
+                    @Override
+                    public String toString() {
+                        return "{1,0}";
+                    }
                 },
                 new SelectTargetChildren() {
                     @Override
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{0, 1};
+                    }
+                    @Override
+                    public String toString() {
+                        return "{0,1}";
                     }
                 },
                 new SelectTargetChildren() {
@@ -65,11 +72,19 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{childCount - 1, childCount - 2};
                     }
+                    @Override
+                    public String toString() {
+                        return "{childCount-1,childCount-2}";
+                    }
                 },
                 new SelectTargetChildren() {
                     @Override
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{childCount - 2, childCount - 1};
+                    }
+                    @Override
+                    public String toString() {
+                        return "{childCount-2,childCount-1}";
                     }
                 },
                 new SelectTargetChildren() {
@@ -77,11 +92,19 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{childCount / 2, childCount / 2 + 1};
                     }
+                    @Override
+                    public String toString() {
+                        return "{childCount/2,childCount/2+1}";
+                    }
                 },
                 new SelectTargetChildren() {
                     @Override
                     public int[] selectTargetChildren(int childCount) {
                         return new int[]{childCount / 2 + 1, childCount / 2};
+                    }
+                    @Override
+                    public String toString() {
+                        return "{childCount/2+1,childCount/2}";
                     }
                 }
         };
@@ -146,7 +169,7 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
             y = dragCoordinate;
             x = fromChild.getLeft();
         }
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mTestAdapter.moveInUIThread(fromPos, toPos);
@@ -166,7 +189,6 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
     }
 
     protected interface SelectTargetChildren {
-
         int[] selectTargetChildren(int childCount);
     }
 }

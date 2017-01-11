@@ -23,5 +23,5 @@
     android:layout_height="1dp"
     android:focusable="false"
     android:focusableInTouchMode="false"
-    android:background="?android:attr/listDivider"
-    />
+    android:importantForAccessibility="no"
+    android:background="?android:attr/listDivider" />

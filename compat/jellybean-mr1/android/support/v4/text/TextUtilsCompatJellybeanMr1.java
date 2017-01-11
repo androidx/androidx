@@ -18,6 +18,8 @@ package android.support.v4.text;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.text.TextUtils;
 
 import java.util.Locale;
@@ -25,6 +27,9 @@ import java.util.Locale;
 /**
  * Jellybean MR1 - specific TextUtils API access.
  */
+
+@RequiresApi(17)
+@TargetApi(17)
 class TextUtilsCompatJellybeanMr1 {
     @NonNull
     public static String htmlEncode(@NonNull String s) {

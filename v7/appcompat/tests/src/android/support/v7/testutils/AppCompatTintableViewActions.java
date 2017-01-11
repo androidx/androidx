@@ -35,41 +35,13 @@ import static org.hamcrest.core.AllOf.allOf;
 
 public class AppCompatTintableViewActions {
     /**
-     * Sets enabled state on a <code>View</code> that implements the
-     * <code>TintableBackgroundView</code> interface.
+     * Sets the passed color state list as the background layer on a {@link View}.
      */
-    public static ViewAction setEnabled(final boolean enabled) {
+    public static ViewAction setBackgroundTintList(final ColorStateList tint) {
         return new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
-                return allOf(isDisplayed(), TestUtilsMatchers.isTintableBackgroundView());
-            }
-
-            @Override
-            public String getDescription() {
-                return "set enabled";
-            }
-
-            @Override
-            public void perform(UiController uiController, View view) {
-                uiController.loopMainThreadUntilIdle();
-
-                view.setEnabled(enabled);
-
-                uiController.loopMainThreadUntilIdle();
-            }
-        };
-    }
-
-    /**
-     * Sets the passed color state list as the background layer on a {@link View} that
-     * implements the {@link TintableBackgroundView} interface.
-     */
-    public static ViewAction setBackgroundTintList(final ColorStateList colorStateList) {
-        return new ViewAction() {
-            @Override
-            public Matcher<View> getConstraints() {
-                return allOf(isDisplayed(), TestUtilsMatchers.isTintableBackgroundView());
+                return isDisplayed();
             }
 
             @Override
@@ -81,8 +53,7 @@ public class AppCompatTintableViewActions {
             public void perform(UiController uiController, View view) {
                 uiController.loopMainThreadUntilIdle();
 
-                TintableBackgroundView tintableBackgroundView = (TintableBackgroundView) view;
-                tintableBackgroundView.setSupportBackgroundTintList(colorStateList);
+                ViewCompat.setBackgroundTintList(view, tint);
 
                 uiController.loopMainThreadUntilIdle();
             }
@@ -90,14 +61,13 @@ public class AppCompatTintableViewActions {
     }
 
     /**
-     * Sets the passed mode as the background tint mode on a <code>View</code> that
-     * implements the <code>TintableBackgroundView</code> interface.
+     * Sets the passed mode as the background tint mode on a <code>View</code>.
      */
-    public static ViewAction setBackgroundTintMode(final PorterDuff.Mode tintMode) {
+    public static ViewAction setBackgroundTintMode(final PorterDuff.Mode mode) {
         return new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
-                return allOf(isDisplayed(), TestUtilsMatchers.isTintableBackgroundView());
+                return isDisplayed();
             }
 
             @Override
@@ -109,8 +79,7 @@ public class AppCompatTintableViewActions {
             public void perform(UiController uiController, View view) {
                 uiController.loopMainThreadUntilIdle();
 
-                TintableBackgroundView tintableBackgroundView = (TintableBackgroundView) view;
-                tintableBackgroundView.setSupportBackgroundTintMode(tintMode);
+                ViewCompat.setBackgroundTintMode(view, mode);
 
                 uiController.loopMainThreadUntilIdle();
             }

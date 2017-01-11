@@ -1,5 +1,3 @@
-apply from:'buildSrc/studioCompat.gradle'
-
 /////////////////////////////
 //
 // Libraries
@@ -83,6 +81,9 @@ project(':support-animated-vector-drawable').projectDir = new File(rootDir, 'gra
 
 include ':support-transition'
 project(':support-transition').projectDir = new File(rootDir, 'transition')
+
+include ':support-exifinterface'
+project(':support-exifinterface').projectDir = new File(rootDir, 'exifinterface')
 
 
 /////////////////////////////

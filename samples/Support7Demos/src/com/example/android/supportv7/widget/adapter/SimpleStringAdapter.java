@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * A simple RecyclerView adapter that displays every string passed in a constructor as an item.
+ */
 public class SimpleStringAdapter extends RecyclerView.Adapter<SimpleStringAdapter.ViewHolder> {
 
     private int mBackground;
@@ -78,13 +81,7 @@ public class SimpleStringAdapter extends RecyclerView.Adapter<SimpleStringAdapte
         h.mTextView.setPadding(20, 0, 20, 0);
         h.mTextView.setFocusable(true);
         h.mTextView.setBackgroundResource(mBackground);
-        RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.leftMargin = 10;
-        lp.rightMargin = 5;
-        lp.topMargin = 20;
-        lp.bottomMargin = 15;
+        RecyclerView.LayoutParams lp = getLayoutParams();
         h.mTextView.setLayoutParams(lp);
         return h;
     }
@@ -95,6 +92,23 @@ public class SimpleStringAdapter extends RecyclerView.Adapter<SimpleStringAdapte
         holder.mTextView.setText(position + ":" + mValues.get(position));
         holder.mTextView.setMinHeight((200 + mValues.get(position).length() * 10));
         holder.mTextView.setBackgroundColor(getBackgroundColor(position));
+    }
+
+
+    /**
+     * Returns LayoutParams to be used for each item in this adapter. It can be overridden
+     * to provide different LayoutParams.
+     * @return LayoutParams to be used for each item in this adapter.
+     */
+    public RecyclerView.LayoutParams getLayoutParams() {
+        RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.leftMargin = 10;
+        lp.rightMargin = 5;
+        lp.topMargin = 20;
+        lp.bottomMargin = 15;
+        return lp;
     }
 
     private int getBackgroundColor(int position) {

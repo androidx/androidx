@@ -17,6 +17,8 @@
 package android.support.v4.view;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
 import android.view.accessibility.AccessibilityEvent;
@@ -25,6 +27,9 @@ import android.view.accessibility.AccessibilityNodeInfo;
 /**
  * Helper for accessing newer features in View introduced in ICS.
  */
+
+@RequiresApi(14)
+@TargetApi(14)
 class ViewCompatICS {
 
     public static boolean canScrollHorizontally(View v, int direction) {

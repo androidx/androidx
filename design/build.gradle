@@ -14,10 +14,16 @@ dependencies {
     androidTestCompile ("com.android.support.test.espresso:espresso-core:${project.rootProject.ext.espressoVersion}") {
         exclude module: 'support-annotations'
     }
+    androidTestCompile ("com.android.support.test.espresso:espresso-contrib:${project.rootProject.ext.espressoVersion}") {
+        exclude group: 'com.android.support'
+    }
     androidTestCompile 'org.mockito:mockito-core:1.9.5'
     androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
     testCompile 'junit:junit:4.12'
+    testCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
+        exclude module: 'support-annotations'
+    }
 }
 
 android {
@@ -32,9 +38,19 @@ android {
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['base', 'gingerbread', 'honeycomb', 'honeycomb-mr1', 'ics', 'lollipop', 'src']
-        main.res.srcDirs 'res', 'res-public'
-        main.assets.srcDir 'assets'
+        main.java.srcDirs = [
+                'base',
+                'gingerbread',
+                'honeycomb',
+                'honeycomb-mr1',
+                'ics',
+                'lollipop',
+                'src'
+        ]
+        main.res.srcDirs = [
+                'res',
+                'res-public'
+        ]
         main.resources.srcDir 'src'
 
         androidTest.setRoot('tests')
@@ -48,11 +64,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
-    }
-
-    lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
     }
 
     buildTypes.all {

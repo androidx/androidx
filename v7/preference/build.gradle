@@ -22,10 +22,23 @@ dependencies {
     compile project(':support-v4')
     compile project(':support-appcompat-v7')
     compile project(':support-recyclerview-v7')
+
+    androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile ("com.android.support.test.espresso:espresso-core:${project.rootProject.ext.espressoVersion}") {
+        exclude module: 'support-annotations'
+    }
+    testCompile 'junit:junit:4.12'
 }
 
 android {
     compileSdkVersion project.ext.currentSdk
+
+    defaultConfig {
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        minSdkVersion 9
+    }
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
@@ -40,6 +53,8 @@ android {
         // This is a *reset* so it replaces the default paths
         androidTest.setRoot('tests')
         androidTest.java.srcDir 'tests/src'
+        androidTest.res.srcDir 'tests/res'
+        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
     compileOptions {
@@ -48,8 +63,8 @@ android {
     }
 
     lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
+        // Remove this once all NewApi breakages have been fixed.
+        disable "NewApi"
     }
 
     buildTypes.all {

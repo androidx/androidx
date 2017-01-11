@@ -13,15 +13,15 @@
  */
 package android.support.v17.leanback.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.os.Build;
 import android.support.annotation.RestrictTo;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class PermissionHelper {
 
     public static void requestPermissions(android.app.Fragment fragment, String[] permissions,

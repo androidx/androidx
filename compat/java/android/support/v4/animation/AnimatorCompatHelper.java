@@ -16,16 +16,16 @@
 
 package android.support.v4.animation;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.view.View;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public final class AnimatorCompatHelper {
 
     private final static AnimatorProvider IMPL;

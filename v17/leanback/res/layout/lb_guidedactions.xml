@@ -31,7 +31,9 @@
         android:visibility="gone"
         android:background="?attr/guidedActionsBackgroundDark" />
 
-    <android.support.v17.leanback.widget.NonOverlappingRelativeLayout
+    <!-- special relativelayout will assign guidedactions_sub_list's topMargin using percentage
+         defined by theme attribute guidedStepKeyline -->
+    <android.support.v17.leanback.widget.GuidedActionsRelativeLayout
         android:id="@+id/guidedactions_content"
         android:transitionName="guidedactions_content"
         android:transitionGroup="false"
@@ -55,9 +57,12 @@
         <android.support.v17.leanback.widget.VerticalGridView
             android:transitionGroup="true"
             android:id="@+id/guidedactions_sub_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="-1dip"
             style="?attr/guidedSubActionsListStyle"
             android:visibility="invisible" />
 
-    </android.support.v17.leanback.widget.NonOverlappingRelativeLayout>
+    </android.support.v17.leanback.widget.GuidedActionsRelativeLayout>
 
 </RelativeLayout>

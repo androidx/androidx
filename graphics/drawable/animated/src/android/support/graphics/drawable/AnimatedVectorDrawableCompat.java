@@ -19,7 +19,7 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-import android.annotation.TargetApi;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -62,7 +62,7 @@ import java.util.List;
  * API. In order to refer to AnimatedVectorDrawableCompat inside a XML file, you can use
  * app:srcCompat attribute in AppCompat library's ImageButton or ImageView.
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+@SuppressLint("NewApi")
 public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implements Animatable {
     private static final String LOGTAG = "AnimatedVDCompat";
 
@@ -344,18 +344,6 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         mAnimatedVectorState.mVectorDrawable.setAutoMirrored(mirrored);
     }
 
-    /**
-     * Obtains styled attributes from the theme, if available, or unstyled
-     * resources if the theme is null.
-     */
-    static TypedArray obtainAttributes(
-            Resources res, Theme theme, AttributeSet set, int[] attrs) {
-        if (theme == null) {
-            return res.obtainAttributes(set, attrs);
-        }
-        return theme.obtainStyledAttributes(set, attrs, 0, 0);
-    }
-
     @Override
     public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)
             throws XmlPullParserException, IOException {
@@ -376,7 +364,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
                 }
                 if (ANIMATED_VECTOR.equals(tagName)) {
                     final TypedArray a =
-                            obtainAttributes(res, theme, attrs,
+                            VectorDrawableCommon.obtainAttributes(res, theme, attrs,
                                     AndroidResources.styleable_AnimatedVectorDrawable);
 
                     int drawableRes = a.getResourceId(

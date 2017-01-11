@@ -16,6 +16,8 @@
 
 package android.support.v7.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -29,8 +31,6 @@ import android.util.AttributeSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A container for multiple
@@ -322,7 +322,7 @@ public abstract class PreferenceGroup extends Preference {
      * Returns true if we're between {@link #onAttached()} and {@link #onPrepareForRemoval()}
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public boolean isAttached() {
         return mAttachedToHierarchy;
     }

@@ -370,6 +370,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.PagerRecyclerViewActivity"
+                  android:label="@string/pager_recycler_view"
+                  android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".widget.AnimatedRecyclerView"
                   android:label="@string/animated_recycler_view"
                   android:theme="@style/Theme.AppCompat">
@@ -409,6 +418,15 @@
         <activity android:name=".util.SortedListActivity"
                   android:label="@string/sorted_list_activity"
                   android:windowSoftInputMode="adjustResize"
+                  android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.StableIdActivity"
+                  android:label="@string/recycler_view"
                   android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

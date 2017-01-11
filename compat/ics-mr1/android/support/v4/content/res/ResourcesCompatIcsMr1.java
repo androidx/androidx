@@ -18,9 +18,12 @@ package android.support.v4.content.res;
 
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
-import android.content.res.Resources.Theme;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(15)
+@TargetApi(15)
 class ResourcesCompatIcsMr1 {
     public static Drawable getDrawableForDensity(Resources res, int id, int density)
             throws NotFoundException {

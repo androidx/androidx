@@ -19,6 +19,7 @@ import sys
 import getopt
 
 def write_java_head(tofile, name):
+    tofile.write("// CHECKSTYLE:OFF Generated code\n")
     tofile.write("/* This file is auto-generated from {}.java.  DO NOT MODIFY. */\n\n".format(name))
 
 def replace_xml_head(line, name):
@@ -114,9 +115,14 @@ for line in file:
     line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
     line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
     line = line.replace('DetailsFragment', 'DetailsSupportFragment')
+    line = line.replace('DetailsSupportFragmentVideoHelper', 'DetailsFragmentVideoHelper')
+    line = line.replace('VideoFragment', 'VideoSupportFragment')
+    line = line.replace('PlaybackFragmentGlueHost', 'PlaybackSupportFragmentGlueHost')
     line = line.replace('DetailsActivity', 'DetailsSupportActivity')
     line = line.replace('PlaybackOverlayActivity', 'PlaybackOverlaySupportActivity')
     line = line.replace('SearchActivity', 'SearchSupportActivity')
+    line = line.replace('SearchActivity', 'SearchSupportActivity')
+    line = line.replace('getRowsFragment', 'getRowsSupportFragment')
     outfile.write(line)
 file.close()
 outfile.close()
@@ -202,7 +208,7 @@ outfile.close()
 
 file = open('src/com/example/android/leanback/VerticalGridFragment.java', 'r')
 outfile = open('src/com/example/android/leanback/VerticalGridSupportFragment.java', 'w')
-outfile.write("/* This file is auto-generated from VerticalGridFragment.  DO NOT MODIFY. */\n\n")
+write_java_head(outfile, "VerticalGridFragment")
 for line in file:
     line = line.replace('VerticalGridFragment', 'VerticalGridSupportFragment')
     line = line.replace('DetailsActivity', 'DetailsSupportActivity')
@@ -300,19 +306,10 @@ outfile = open('src/com/example/android/leanback/PlaybackOverlaySupportFragment.
 write_java_head(outfile, "PlaybackOverlayFragment")
 for line in file:
     line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
-    line = line.replace('PlaybackControlHelper', 'PlaybackControlSupportHelper')
     line = line.replace('PlaybackOverlayActivity', 'PlaybackOverlaySupportActivity')
-    outfile.write(line)
-file.close()
-outfile.close()
-
-file = open('src/com/example/android/leanback/PlaybackControlHelper.java', 'r')
-outfile = open('src/com/example/android/leanback/PlaybackControlSupportHelper.java', 'w')
-write_java_head(outfile, "PlaybackControlHelper")
-for line in file:
-    line = line.replace('PlaybackControlHelper', 'PlaybackControlSupportHelper')
-    line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue')
-    line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
+    line = line.replace('PlaybackFragmentGlueHost', 'PlaybackSupportFragmentGlueHost')
+    line = line.replace('VideoFragment', 'VideoSupportFragment')
+    line = line.replace('PlaybackFragment', 'PlaybackSupportFragment')
     outfile.write(line)
 file.close()
 outfile.close()
@@ -361,6 +358,32 @@ for line in file:
     line = line.replace('OnboardingDemoFragment', 'OnboardingDemoSupportFragment')
     line = line.replace('OnboardingFragment', 'OnboardingSupportFragment')
     line = line.replace('OnboardingActivity', 'OnboardingSupportActivity')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+file = open('src/com/example/android/leanback/SampleVideoFragment.java', 'r')
+outfile = open('src/com/example/android/leanback/SampleVideoSupportFragment.java', 'w')
+write_java_head(outfile, "OnboardingDemoFragment")
+for line in file:
+    line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
+    line = line.replace('import android.app.Activity', 'import android.support.v4.app.FragmentActivity')
+    line = line.replace('SampleVideoFragment', 'SampleVideoSupportFragment')
+    line = line.replace('VideoFragment', 'VideoSupportFragment')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+file = open('src/com/example/android/leanback/VideoActivity.java', 'r')
+outfile = open('src/com/example/android/leanback/VideoSupportActivity.java', 'w')
+write_java_head(outfile, "OnboardingDemoFragment")
+for line in file:
+    line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
+    line = line.replace('import android.app.Activity', 'import android.support.v4.app.FragmentActivity')
+    line = line.replace('VideoActivity', 'VideoSupportActivity')
+    line = line.replace('extends Activity', 'extends FragmentActivity')
+    line = line.replace('getFragmentManager()', 'getSupportFragmentManager()')
+    line = line.replace('SampleVideoFragment', 'SampleVideoSupportFragment')
     outfile.write(line)
 file.close()
 outfile.close()

@@ -22,13 +22,13 @@ import static org.junit.Assert.assertNotNull;
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.support.test.filters.SmallTest;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.testutils.TestUtils;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
 

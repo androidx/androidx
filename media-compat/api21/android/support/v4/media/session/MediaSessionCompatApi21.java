@@ -16,6 +16,7 @@
 
 package android.support.v4.media.session;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -30,10 +31,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
+import android.support.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiresApi(21)
+@TargetApi(21)
 class MediaSessionCompatApi21 {
     public static Object createSession(Context context, String tag) {
         return new MediaSession(context, tag);

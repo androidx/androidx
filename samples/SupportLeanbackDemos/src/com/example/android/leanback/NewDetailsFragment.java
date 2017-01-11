@@ -13,12 +13,15 @@
  */
 package com.example.android.leanback;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v17.leanback.app.DetailsBackgroundParallaxHelper;
+import android.support.v17.leanback.app.DetailsFragmentVideoHelper;
+import android.support.v17.leanback.app.VideoFragment;
+import android.support.v17.leanback.media.MediaPlayerGlue;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
@@ -36,8 +39,12 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 public class NewDetailsFragment extends android.support.v17.leanback.app.DetailsFragment {
@@ -48,7 +55,6 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
     private ArrayObjectAdapter mRowsAdapter;
     private PhotoItem mPhotoItem;
     final CardPresenter cardPresenter = new CardPresenter();
-    private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
 
     private static final int ACTION_PLAY = 1;
     private static final int ACTION_RENT = 2;
@@ -66,9 +72,16 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
     private Action mActionBuy;
 
     private FullWidthDetailsOverviewSharedElementHelper mHelper;
+    private DetailsBackgroundParallaxHelper mParallaxHelper;
+    private DetailsFragmentVideoHelper mVideoHelper;
+    private BackgroundHelper mBackgroundHelper;
+    private int mBitmapMinVerticalOffset = -100;
+    private MediaPlayerGlue mMediaPlayerGlue;
+    private VideoFragment mVideoFragment;
 
     private void initializeTest() {
-        TEST_SHARED_ELEMENT_TRANSITION = null != getActivity().getWindow().getSharedElementEnterTransition();
+        TEST_SHARED_ELEMENT_TRANSITION = null != getActivity().getWindow()
+                .getSharedElementEnterTransition();
         TEST_OVERVIEW_ROW_ON_SECOND = !TEST_SHARED_ELEMENT_TRANSITION;
         TEST_ENTRANCE_TRANSITION = true;
     }
@@ -79,7 +92,24 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         super.onCreate(savedInstanceState);
         initializeTest();
 
-        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
+        mBackgroundHelper = new BackgroundHelper(getActivity());
+        mParallaxHelper = new DetailsBackgroundParallaxHelper.ParallaxBuilder(
+                getActivity(), getParallaxManager())
+                .setCoverImageMinVerticalOffset(mBitmapMinVerticalOffset)
+                .build();
+        mMediaPlayerGlue = new MediaPlayerGlue(getActivity());
+        mMediaPlayerGlue.setHost(createPlaybackGlueHost());
+        mVideoHelper = new DetailsFragmentVideoHelper(mMediaPlayerGlue, getParallaxManager());
+        mVideoHelper.setBackgroundDrawable(mParallaxHelper.getCoverImageDrawable());
+
+        mMediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
+        mMediaPlayerGlue.setArtist("A Googleer");
+        mMediaPlayerGlue.setTitle("Diving with Sharks");
+        mMediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
+
+        final Context context = getActivity();
+        setBadgeDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_title,
+                context.getTheme()));
         setTitle("Leanback Sample App");
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
@@ -90,8 +120,8 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         });
 
         mActionPlay = new Action(ACTION_PLAY, "Play");
-        mActionRent = new Action(ACTION_RENT, "Rent", "$3.99",
-                getResources().getDrawable(R.drawable.ic_action_a));
+        mActionRent = new Action(ACTION_RENT, "Rent", "$3.99", ResourcesCompat.getDrawable(
+                context.getResources(), R.drawable.ic_action_a, context.getTheme()));
         mActionBuy = new Action(ACTION_BUY, "Buy $9.99");
 
         ClassPresenterSelector ps = new ClassPresenterSelector();
@@ -100,7 +130,8 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         dorPresenter.setOnActionClickedListener(new OnActionClickedListener() {
             @Override
             public void onActionClicked(Action action) {
-                Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
+                final Context context = getActivity();
+                Toast.makeText(context, action.toString(), Toast.LENGTH_SHORT).show();
                 int indexOfOverviewRow = TEST_OVERVIEW_ROW_ON_SECOND ? 1 : 0;
                 DetailsOverviewRow dor = (DetailsOverviewRow) mRowsAdapter.get(indexOfOverviewRow);
                 if (action.getId() == ACTION_BUY) {
@@ -111,7 +142,8 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
                     actions.clear(ACTION_RENT);
                     actions.clear(ACTION_BUY);
                     dor.setItem(mPhotoItem.getTitle() + "(Owned)");
-                    dor.setImageDrawable(getResources().getDrawable(R.drawable.details_img_16x9));
+                    dor.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                            R.drawable.details_img_16x9, context.getTheme()));
                 } else if (action.getId() == ACTION_RENT) {
                     // on the UI thread, we can modify actions adapter directly
                     SparseArrayObjectAdapter actions = (SparseArrayObjectAdapter)
@@ -120,7 +152,7 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
                     actions.clear(ACTION_RENT);
                     dor.setItem(mPhotoItem.getTitle() + "(Rented)");
                 } else if (action.getId() == ACTION_PLAY) {
-                    Intent intent = new Intent(getActivity(), PlaybackOverlayActivity.class);
+                    Intent intent = new Intent(context, PlaybackOverlayActivity.class);
                     getActivity().startActivity(intent);
                 }
             }
@@ -143,15 +175,15 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
             public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                                      RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemClicked: " + item + " row " + row);
-                if (item instanceof PhotoItem){
+                if (item instanceof PhotoItem) {
                     Intent intent = new Intent(getActivity(), DetailsActivity.class);
                     intent.putExtra(DetailsActivity.EXTRA_ITEM, (PhotoItem) item);
 
                     Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                             getActivity(),
-                            ((ImageCardView)itemViewHolder.view).getMainImageView(),
+                            ((ImageCardView) itemViewHolder.view).getMainImageView(),
                             DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
                     getActivity().startActivity(intent, bundle);
                 }
@@ -160,7 +192,7 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
             @Override
             public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                                       RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemSelected: " + item + " row " + row);
             }
         });
@@ -180,12 +212,15 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
                 prepareEntranceTransition();
             }
         }
+
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(ITEM, mPhotoItem);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        mBackgroundHelper.attachToView(getBackgroundView());
+        return view;
     }
 
     public void setItem(PhotoItem photoItem) {
@@ -204,9 +239,10 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
                     mRowsAdapter.add(0, new ListRow(header, listRowAdapter));
                 }
 
-                Resources res = getActivity().getResources();
+                final Context context = getActivity();
                 DetailsOverviewRow dor = new DetailsOverviewRow(mPhotoItem.getTitle());
-                dor.setImageDrawable(res.getDrawable(mPhotoItem.getImageResourceId()));
+                dor.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                        mPhotoItem.getImageResourceId(), context.getTheme()));
                 SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter();
                 adapter.set(ACTION_RENT, mActionRent);
                 adapter.set(ACTION_BUY, mActionBuy);
@@ -244,10 +280,21 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
     @Override
     public void onStart() {
         super.onStart();
-        if (mPhotoItem != null) {
-            mBackgroundHelper.setBackground(
-                    getActivity(), mPhotoItem.getImageResourceId());
-        }
+
+        // Restore background drawable in onStart():
+        mBackgroundHelper.setDrawable(mParallaxHelper.getDrawable());
+        mBackgroundHelper.loadBitmap(R.drawable.spiderman,
+                new BackgroundHelper.BitmapLoadCallback() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap) {
+                    mParallaxHelper.setCoverImageBitmap(bitmap);
+                }
+            });
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        mMediaPlayerGlue.pause();
+    }
 }

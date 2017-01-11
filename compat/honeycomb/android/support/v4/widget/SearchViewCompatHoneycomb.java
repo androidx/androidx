@@ -19,6 +19,8 @@ package android.support.v4.widget;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.View;
 import android.widget.SearchView;
 import android.widget.SearchView.OnCloseListener;
@@ -27,6 +29,9 @@ import android.widget.SearchView.OnQueryTextListener;
 /**
  * Implementation of SearchView compatibility that can call Honeycomb APIs.
  */
+
+@RequiresApi(11)
+@TargetApi(11)
 class SearchViewCompatHoneycomb {
 
     public static void checkIfLegalArg(View searchView) {

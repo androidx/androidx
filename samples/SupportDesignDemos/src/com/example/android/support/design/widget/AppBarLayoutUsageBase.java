@@ -50,8 +50,11 @@ abstract class AppBarLayoutUsageBase extends AppCompatActivity {
 
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout)
                 findViewById(R.id.collapsing_app_bar);
-        if (collapsingToolbarLayout != null && displayTitle()) {
-            collapsingToolbarLayout.setTitle(getTitle());
+        if (collapsingToolbarLayout != null) {
+            if (displayTitle()) {
+                collapsingToolbarLayout.setTitle(getTitle());
+            }
+            collapsingToolbarLayout.setContentScrimColor(0xFFFF00FF);
         }
 
         TextView dialog = (TextView) findViewById(R.id.textview_dialogue);

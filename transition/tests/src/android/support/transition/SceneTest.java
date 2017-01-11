@@ -16,18 +16,18 @@
 
 package android.support.transition;
 
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.sameInstance;
 
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.MediumTest;
 import android.support.transition.test.R;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.sameInstance;
+import org.junit.Test;
 
 @MediumTest
 public class SceneTest extends BaseTest {
