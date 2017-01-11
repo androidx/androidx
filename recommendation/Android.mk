@@ -27,6 +27,7 @@ LOCAL_MODULE := android-support-recommendation
 LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_MANIFEST_FILE := AndroidManifest-make.xml
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-v4 \
     android-support-annotations

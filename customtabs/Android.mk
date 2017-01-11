@@ -31,6 +31,7 @@ LOCAL_SRC_FILES := \
     $(call all-java-files-under,src) \
     $(call all-Iaidl-files-under,src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_MANIFEST_FILE := AndroidManifest-make.xml
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-annotations \
     android-support-compat

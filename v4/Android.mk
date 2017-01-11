@@ -35,6 +35,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     android-support-fragment \
     android-support-annotations
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_MANIFEST_FILE := AndroidManifest-make.xml
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
