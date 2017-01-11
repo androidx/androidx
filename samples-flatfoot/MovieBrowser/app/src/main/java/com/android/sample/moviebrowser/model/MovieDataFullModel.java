@@ -34,6 +34,9 @@ public class MovieDataFullModel implements ViewModel {
     private LiveData<Boolean> mFetching = new LiveData<>();
     private LiveData<MovieDataFull> mMovieData = new LiveData<>();
 
+    /**
+     * Returns the {@LiveData} object that wraps the full movie data.
+     */
     public LiveData<MovieDataFull> getMovieData() {
         return mMovieData;
     }

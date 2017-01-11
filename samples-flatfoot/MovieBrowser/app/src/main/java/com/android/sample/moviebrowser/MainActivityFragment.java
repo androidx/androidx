@@ -28,12 +28,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.sample.moviebrowser.model.SearchModel;
 import com.android.sample.moviebrowser.network.NetworkManager;
 import com.android.sample.moviebrowser.network.NetworkManager.Cancelable;
 import com.android.sample.moviebrowser.network.NetworkManager.NetworkCallListener;
 import com.android.support.lifecycle.LifecycleFragment;
+import com.android.support.lifecycle.LifecycleProvider;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.Observer;
+import com.android.support.lifecycle.ViewModelStore;
 
 import com.bumptech.glide.Glide;
 
@@ -46,7 +49,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Main fragment.
  */
 public class MainActivityFragment extends LifecycleFragment {
-    public static final String KEY_QUERY = "main.keyQuery";
 
     static class CustomViewHolder extends RecyclerView.ViewHolder {
         private View mFullView;
@@ -70,8 +72,8 @@ public class MainActivityFragment extends LifecycleFragment {
     private AtomicInteger mLastRequestedPage;
     private AtomicBoolean mHasRequestPending;
     private Cancelable mCurrentCall;
+    private SearchModel mSearchModel;
 
-    private String mSearchQuery;
     private RecyclerView mRecyclerView;
 
     public MainActivityFragment() {
@@ -84,7 +86,6 @@ public class MainActivityFragment extends LifecycleFragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        mSearchQuery = getArguments().getString(KEY_QUERY);
         mRecyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_main, container,
                 false);
         final int columnCount = getContext().getResources().getInteger(R.integer.column_count);
@@ -112,8 +113,8 @@ public class MainActivityFragment extends LifecycleFragment {
                                 .getSupportFragmentManager();
 
                         FragmentTransaction transaction = fragmentManager.beginTransaction();
-                        transaction.replace(R.id.fragment_container, detailsFragment);
-                        transaction.addToBackStack(null);
+                        transaction.add(R.id.fragment_container, detailsFragment, "details");
+                        transaction.addToBackStack("details");
                         transaction.commit();
                     }
                 });
@@ -139,7 +140,7 @@ public class MainActivityFragment extends LifecycleFragment {
                     return;
                 }
 
-                fetchNextPage();
+                fetchNextPage(mSearchModel.getSearchTerm().getValue());
             }
 
             @Override
@@ -158,31 +159,32 @@ public class MainActivityFragment extends LifecycleFragment {
             }
         });
 
-        fetchNextPage();
+        // Get the search model from the activity's scope so that we observe LiveData changes
+        // made to the search box defined in the activity's layout.
+        mSearchModel = ViewModelStore.get((LifecycleProvider) getActivity(),
+                "searchModel", SearchModel.class);
+        mSearchModel.getSearchTerm().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                if (mCurrentCall != null) {
+                    mCurrentCall.cancel();
+                }
+                mMovieListLiveData.setValue(new ArrayList<MovieData>());
+                mHasRequestPending.set(false);
+                mLastRequestedPage.set(0);
+
+                mRecyclerView.getAdapter().notifyDataSetChanged();
+
+                fetchNextPage(s);
+            }
+        });
 
         return mRecyclerView;
     }
 
-    /**
-     * Updates the current search query.
-     *
-     * @param newQuery New search query.
-     */
-    public void updateQuery(String newQuery) {
-        mCurrentCall.cancel();
-        mSearchQuery = newQuery;
-        mMovieListLiveData.setValue(new ArrayList<MovieData>());
-        mHasRequestPending.set(false);
-        mLastRequestedPage.set(0);
-
-        mRecyclerView.getAdapter().notifyDataSetChanged();
-
-        fetchNextPage();
-    }
-
-    private void fetchNextPage() {
+    private void fetchNextPage(String query) {
         mHasRequestPending.set(true);
-        mCurrentCall = NetworkManager.getInstance().fetchSearchResults(mSearchQuery,
+        mCurrentCall = NetworkManager.getInstance().fetchSearchResults(query,
                 mLastRequestedPage.get() + 1,
                 new NetworkCallListener<SearchData>() {
                     @Override

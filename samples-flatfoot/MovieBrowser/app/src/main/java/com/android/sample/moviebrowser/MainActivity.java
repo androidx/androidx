@@ -17,22 +17,29 @@ package com.android.sample.moviebrowser;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.android.sample.moviebrowser.model.SearchModel;
+import com.android.support.lifecycle.ViewModelStore;
+
 /**
  * Our main activity.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        final SearchModel searchModel = ViewModelStore.get(this, "searchModel", SearchModel.class);
+        searchModel.setSearchTerm("Love");
 
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
@@ -47,9 +54,6 @@ public class MainActivity extends AppCompatActivity {
 
             // Create a new Fragment to be placed in the activity layout
             MainActivityFragment mainFragment = new MainActivityFragment();
-            Bundle mainFragmentArgs = new Bundle();
-            mainFragmentArgs.putString(MainActivityFragment.KEY_QUERY, "Love");
-            mainFragment.setArguments(mainFragmentArgs);
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
@@ -64,16 +68,23 @@ public class MainActivity extends AppCompatActivity {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN)
                         && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    String query = search.getText().toString();
+                    Snackbar.make(findViewById(R.id.col), "Searching for " + query,
+                            Snackbar.LENGTH_SHORT).show();
+
                     // Dismiss keyboard
                     InputMethodManager imm = (InputMethodManager) getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(search.getWindowToken(), 0);
 
+                    // Pop everything off of the stack except the first entry
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    while (fragmentManager.getBackStackEntryCount() > 0) {
+                        fragmentManager.popBackStackImmediate();
+                    }
+
                     // Perform search action on key press
-                    MainActivityFragment mainFragment =
-                            (MainActivityFragment) getSupportFragmentManager()
-                                    .findFragmentByTag("main");
-                    mainFragment.updateQuery(search.getText().toString());
+                    searchModel.setSearchTerm(query);
                     return true;
                 }
                 return false;
