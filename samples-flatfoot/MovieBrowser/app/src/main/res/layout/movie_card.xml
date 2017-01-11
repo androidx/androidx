@@ -1,45 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="movie" type="com.android.sample.moviebrowser.MovieData"/>
+        <variable name="handler" type="android.view.View.OnClickListener"/>
+    </data>
 
-    <android.support.v7.widget.CardView
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="6dp"
-        app:cardCornerRadius="4dp"
-        app:cardElevation="2dp">
-        <android.support.percent.PercentRelativeLayout
+        android:onClick="@{handler}">
+
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:id="@+id/poster"
-                app:layout_widthPercent="100%"
-                app:layout_aspectRatio="68%"
-                android:background="#FAFAFA"/>
-            <TextView
-                android:id="@+id/title"
+            android:layout_height="wrap_content"
+            android:layout_margin="6dp"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="2dp">
+            <android.support.percent.PercentRelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/poster"
-                android:lines="2"
-                android:maxLines="2" android:paddingLeft="6dp" android:paddingRight="6dp"
-                android:paddingTop="4dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:textColor="#222"/>
-            <TextView
-                android:id="@+id/year"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/title"
-                android:lines="1"
-                android:maxLines="1" android:paddingLeft="6dp" android:paddingRight="6dp"
-                android:paddingBottom="6dp" android:paddingTop="4dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
-        </android.support.percent.PercentRelativeLayout>
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/poster"
+                    android:background="#FAFAFA"
+                    app:layout_aspectRatio="68%"
+                    app:layout_widthPercent="100%"/>
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/poster"
+                    android:lines="2"
+                    android:maxLines="2"
+                    android:paddingLeft="6dp"
+                    android:paddingRight="6dp"
+                    android:paddingTop="4dp"
+                    android:text="@{movie.Title}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="#222"/>
+                <TextView
+                    android:id="@+id/year"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/title"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:paddingBottom="6dp"
+                    android:paddingLeft="6dp"
+                    android:paddingRight="6dp"
+                    android:paddingTop="4dp"
+                    android:text="@{movie.Year}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+            </android.support.percent.PercentRelativeLayout>
 
-    </android.support.v7.widget.CardView>
+        </android.support.v7.widget.CardView>
 
-</FrameLayout>
+    </FrameLayout>
+</layout>
