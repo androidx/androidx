@@ -39,7 +39,9 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
         final SearchModel searchModel = ViewModelStore.get(this, "searchModel", SearchModel.class);
-        searchModel.setSearchTerm("Love");
+        if (!searchModel.hasSearchTerm()) {
+            searchModel.setSearchTerm("Love");
+        }
 
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout

@@ -29,21 +29,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.sample.moviebrowser.model.SearchModel;
-import com.android.sample.moviebrowser.network.NetworkManager;
-import com.android.sample.moviebrowser.network.NetworkManager.Cancelable;
-import com.android.sample.moviebrowser.network.NetworkManager.NetworkCallListener;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.LifecycleProvider;
-import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
 
 import com.bumptech.glide.Glide;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Main fragment.
@@ -67,21 +60,9 @@ public class MainActivityFragment extends LifecycleFragment {
         }
     }
 
-    private LiveData<List<MovieData>> mMovieListLiveData;
-    private int mTotalSearchResults;
-    private AtomicInteger mLastRequestedPage;
-    private AtomicBoolean mHasRequestPending;
-    private Cancelable mCurrentCall;
     private SearchModel mSearchModel;
 
     private RecyclerView mRecyclerView;
-
-    public MainActivityFragment() {
-        mLastRequestedPage = new AtomicInteger(0);
-        mHasRequestPending = new AtomicBoolean(false);
-        mMovieListLiveData = new LiveData<>();
-        mMovieListLiveData.setValue(new ArrayList<MovieData>());
-    }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
@@ -99,7 +80,7 @@ public class MainActivityFragment extends LifecycleFragment {
 
             @Override
             public void onBindViewHolder(CustomViewHolder holder, final int position) {
-                List<MovieData> movieDataList = mMovieListLiveData.getValue();
+                List<MovieData> movieDataList = mSearchModel.getMovieListLiveData().getValue();
                 final MovieData data = movieDataList.get(position);
                 holder.mFullView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -130,86 +111,30 @@ public class MainActivityFragment extends LifecycleFragment {
                     return;
                 }
 
-                if (mHasRequestPending.get() || (movieDataList.size() == mTotalSearchResults)) {
-                    // Previous request still processing or no more results
-                    return;
-                }
-
-                if (mLastRequestedPage.get() > 100) {
-                    // backend only supports fetching up to 100 pages
-                    return;
-                }
-
-                fetchNextPage(mSearchModel.getSearchTerm().getValue());
+                mSearchModel.fetchMoreIfNecessary();
             }
 
             @Override
             public int getItemCount() {
-                return mMovieListLiveData.getValue().size();
+                return mSearchModel.getMovieListLiveData().getValue().size();
             }
         });
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), columnCount));
 
+        // Get the search model from the activity's scope so that we observe LiveData changes
+        // on the same list of movies that matches the search query set from the search box
+        // defined in the activity's layout.
+        mSearchModel = ViewModelStore.get((LifecycleProvider) getActivity(),
+                "searchModel", SearchModel.class);
         // Register an observer on the LiveData that wraps the list of movies to update the
         // adapter on every change
-        mMovieListLiveData.observe(this, new Observer<List<MovieData>>() {
+        mSearchModel.getMovieListLiveData().observe(this, new Observer<List<MovieData>>() {
             @Override
             public void onChanged(@Nullable List<MovieData> movieDatas) {
                 mRecyclerView.getAdapter().notifyDataSetChanged();
             }
         });
 
-        // Get the search model from the activity's scope so that we observe LiveData changes
-        // made to the search box defined in the activity's layout.
-        mSearchModel = ViewModelStore.get((LifecycleProvider) getActivity(),
-                "searchModel", SearchModel.class);
-        mSearchModel.getSearchTerm().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                if (mCurrentCall != null) {
-                    mCurrentCall.cancel();
-                }
-                mMovieListLiveData.setValue(new ArrayList<MovieData>());
-                mHasRequestPending.set(false);
-                mLastRequestedPage.set(0);
-
-                mRecyclerView.getAdapter().notifyDataSetChanged();
-
-                fetchNextPage(s);
-            }
-        });
-
         return mRecyclerView;
-    }
-
-    private void fetchNextPage(String query) {
-        mHasRequestPending.set(true);
-        mCurrentCall = NetworkManager.getInstance().fetchSearchResults(query,
-                mLastRequestedPage.get() + 1,
-                new NetworkCallListener<SearchData>() {
-                    @Override
-                    public void onLoadSuccess(SearchData data) {
-                        // Get the list of movies in this page
-                        List<MovieData> newData = data.Search;
-                        int newDataCount = newData.size();
-
-                        // Create a new list that will contain the previous pages and the new one
-                        int prevDataCount = mMovieListLiveData.getValue().size();
-                        ArrayList<MovieData> newList =
-                                new ArrayList<>(prevDataCount + newDataCount);
-                        newList.addAll(mMovieListLiveData.getValue());
-                        newList.addAll(newData);
-                        // Set it on our LiveData object - our observer will update the adapter
-                        mMovieListLiveData.setValue(newList);
-
-                        mTotalSearchResults = data.totalResults;
-                        mLastRequestedPage.incrementAndGet();
-                        mHasRequestPending.set(false);
-                    }
-
-                    @Override
-                    public void onLoadFailure() {
-                    }
-                });
     }
 }
