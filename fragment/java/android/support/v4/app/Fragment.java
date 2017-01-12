@@ -2154,6 +2154,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void instantiateChildFragmentManager() {
+        if (mHost == null) {
+            throw new IllegalStateException("Fragment has not been attached yet.");
+        }
         mChildFragmentManager = new FragmentManagerImpl();
         mChildFragmentManager.attachController(mHost, new FragmentContainer() {
             @Override
