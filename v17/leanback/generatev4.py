@@ -16,6 +16,7 @@
 
 import os
 import sys
+import re
 
 print "Generate v4 fragment related code for leanback"
 
@@ -41,6 +42,7 @@ for w in cls:
         line = line.replace('activity.getFragmentManager()', 'activity.getSupportFragmentManager()')
         line = line.replace('Activity activity', 'FragmentActivity activity')
         line = line.replace('(Activity', '(FragmentActivity')
+        line = re.sub(r'FragmentUtil.getContext\(.*this\)', 'getContext()', line);
         outfile.write(line)
     file.close()
     outfile.close()
