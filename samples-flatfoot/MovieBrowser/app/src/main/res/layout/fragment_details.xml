@@ -1,158 +1,178 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background">
-    <android.support.percent.PercentRelativeLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.text.TextUtils"/>
+        <import type="android.view.View"/>
+        <variable name="moviePartial" type="com.android.sample.moviebrowser.MovieData"/>
+        <variable name="movie" type="com.android.sample.moviebrowser.MovieDataFull"/>
+        <variable name="handler" type="android.view.View.OnClickListener"/>
+    </data>
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="12dp">
-
-        <ImageView
-            android:id="@+id/poster"
-            android:layout_width="80dp"
-            app:layout_aspectRatio="68%"
-            android:background="#FAFAFA" />
-
-        <TextView
-            android:id="@+id/title"
+        android:background="@color/background">
+        <android.support.percent.PercentRelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/poster"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="?android:attr/textColorPrimary"/>
+            android:layout_height="match_parent"
+            android:padding="12dp">
 
-        <TextView
-            android:id="@+id/release"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/poster"
-            android:layout_below="@id/title"
-            android:layout_marginTop="4dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+            <ImageView
+                android:id="@+id/poster"
+                android:layout_width="80dp"
+                android:background="#FAFAFA"
+                app:layout_aspectRatio="68%"/>
 
-        <TextView
-            android:id="@+id/runtime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/poster"
-            android:layout_alignBottom="@id/poster"
-            android:paddingLeft="8dp"
-            android:drawableLeft="@drawable/ic_watch_later_black_18dp"
-            android:visibility="invisible"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:drawablePadding="4dp"/>
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/poster"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="@{@string/titleAndYear(moviePartial.Title, moviePartial.Year)}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/textColorPrimary"/>
 
-        <TextView
-            android:id="@+id/rated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/runtime"
-            android:layout_alignBottom="@id/poster"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:visibility="invisible"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            <TextView
+                android:id="@+id/release"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/title"
+                android:layout_marginTop="4dp"
+                android:layout_toRightOf="@id/poster"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="@{movie.Released}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
-        <ImageButton
-            android:id="@+id/edit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignBottom="@id/poster"
-            android:layout_marginRight="8dp"
-            android:src="@drawable/ic_mode_edit_black_24dp"
-            android:clickable="true"
-            android:background="@null"/>
+            <TextView
+                android:id="@+id/runtime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/poster"
+                android:layout_toRightOf="@id/poster"
+                android:drawableLeft="@drawable/ic_watch_later_black_18dp"
+                android:drawablePadding="4dp"
+                android:paddingLeft="8dp"
+                android:text="@{movie.Runtime}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:visibility="@{TextUtils.isEmpty(movie.Runtime) ? View.INVISIBLE : View.VISIBLE}"/>
 
-        <TextView
-            android:id="@+id/plot"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/poster"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="16dp"
-            android:visibility="gone"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="16sp"/>
+            <TextView
+                android:id="@+id/rated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/poster"
+                android:layout_toRightOf="@id/runtime"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="@{TextUtils.isEmpty(movie.Runtime) ? movie.Rated : @string/ratedWithDot(movie.Rated)}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:visibility="@{TextUtils.isEmpty(movie.Rated) ? View.INVISIBLE : View.VISIBLE}"/>
 
-        <TextView
-            android:id="@+id/director_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/plot"
-            android:layout_marginTop="4dp"
-            android:visibility="gone"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            app:textAllCaps="true"
-            android:text="@string/director"/>
+            <ImageButton
+                android:id="@+id/edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/poster"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="8dp"
+                android:background="@null"
+                android:clickable="true"
+                android:onClick="@{handler}"
+                android:src="@drawable/ic_mode_edit_black_24dp"/>
 
-        <TextView
-            android:id="@+id/director"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/director_header"
-            android:layout_marginBottom="12dp"
-            android:visibility="gone"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            <TextView
+                android:id="@+id/plot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/poster"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="24dp"
+                android:text="@{movie.Plot}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="16sp"
+                android:visibility="@{TextUtils.isEmpty(movie.Plot) ? View.GONE : View.VISIBLE}"/>
 
-        <TextView
-            android:id="@+id/writer_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/director"
-            android:layout_marginTop="4dp"
-            android:visibility="gone"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            app:textAllCaps="true"
-            android:text="@string/writer"/>
+            <TextView
+                android:id="@+id/director_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/plot"
+                android:layout_marginTop="4dp"
+                android:text="@string/director"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:visibility="@{TextUtils.isEmpty(movie.Director) ? View.GONE : View.VISIBLE}"
+                app:textAllCaps="true"/>
 
-        <TextView
-            android:id="@+id/writer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/writer_header"
-            android:layout_marginBottom="12dp"
-            android:visibility="gone"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            <TextView
+                android:id="@+id/director"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/director_header"
+                android:layout_marginBottom="12dp"
+                android:text="@{movie.Director}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:visibility="@{TextUtils.isEmpty(movie.Director) ? View.GONE : View.VISIBLE}"/>
 
-        <TextView
-            android:id="@+id/actors_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/writer"
-            android:layout_marginTop="4dp"
-            android:visibility="gone"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            app:textAllCaps="true"
-            android:text="@string/actors"/>
+            <TextView
+                android:id="@+id/writer_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/director"
+                android:layout_marginTop="4dp"
+                android:text="@string/writer"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:visibility="@{TextUtils.isEmpty(movie.Writer) ? View.GONE : View.VISIBLE}"
+                app:textAllCaps="true"/>
 
-        <TextView
-            android:id="@+id/actors"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/actors_header"
-            android:layout_marginBottom="12dp"
-            android:visibility="gone"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            <TextView
+                android:id="@+id/writer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/writer_header"
+                android:layout_marginBottom="12dp"
+                android:text="@{movie.Writer}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:visibility="@{TextUtils.isEmpty(movie.Writer) ? View.GONE : View.VISIBLE}"/>
 
-        <TextView
-            android:id="@+id/imdbRating"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/actors"
-            android:layout_marginTop="24dp"
-            android:drawableLeft="@drawable/ic_star_rate_black_18dp"
-            android:drawablePadding="4dp"
-            android:visibility="gone"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            <TextView
+                android:id="@+id/actors_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/writer"
+                android:layout_marginTop="4dp"
+                android:text="@string/actors"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:visibility="@{TextUtils.isEmpty(movie.Actors) ? View.GONE : View.VISIBLE}"
+                app:textAllCaps="true"/>
 
-    </android.support.percent.PercentRelativeLayout>
-</ScrollView>
+            <TextView
+                android:id="@+id/actors"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/actors_header"
+                android:layout_marginBottom="12dp"
+                android:text="@{movie.Actors}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:visibility="@{TextUtils.isEmpty(movie.Actors) ? View.GONE : View.VISIBLE}"/>
+
+            <TextView
+                android:id="@+id/imdbRating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/actors"
+                android:layout_marginTop="24dp"
+                android:drawableLeft="@drawable/ic_star_rate_black_18dp"
+                android:drawablePadding="4dp"
+                android:text="@{@string/rating(movie.imdbRating, movie.imdbVotes)}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:visibility="@{TextUtils.isEmpty(movie.imdbRating) || TextUtils.isEmpty(movie.imdbVotes) ? View.GONE : View.VISIBLE}"/>
+
+        </android.support.percent.PercentRelativeLayout>
+    </ScrollView>
+</layout>

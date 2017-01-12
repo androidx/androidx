@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -28,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.android.sample.moviebrowser.databinding.EditDetailsBinding;
 import com.android.sample.moviebrowser.model.MovieDataFullModel;
 import com.android.support.lifecycle.LifecycleRegistry;
 import com.android.support.lifecycle.LifecycleRegistryProvider;
@@ -79,8 +81,10 @@ public class EditDetailsFragment extends DialogFragment implements LifecycleRegi
                 });
 
         // Inflate the main editor area and set it as custom view on the dialog
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-        final ViewGroup editor = (ViewGroup) inflater.inflate(R.layout.edit_details, null, false);
+        final LayoutInflater inflater = LayoutInflater.from(getContext());
+        final EditDetailsBinding binding = DataBindingUtil.inflate(
+                inflater, R.layout.edit_details, null, false);
+        final ViewGroup editor = (ViewGroup) binding.getRoot();
         editBuilder.setView(editor);
         final AlertDialog result = editBuilder.create();
 
@@ -94,7 +98,7 @@ public class EditDetailsFragment extends DialogFragment implements LifecycleRegi
                 if (movieDataFull != null) {
                     android.util.Log.e("MovieBrowser", "Got data for editing from model");
                     getDialog().setTitle(movieDataFull.Title);
-                    showEditableFields(editor, movieDataFull.Runtime, movieDataFull.Rated);
+                    binding.setMovie(movieDataFull);
                 }
             }
         });
@@ -106,11 +110,6 @@ public class EditDetailsFragment extends DialogFragment implements LifecycleRegi
         mMovieDataFullModel.loadData(getContext(), imdbId);
 
         return result;
-    }
-
-    private void showEditableFields(ViewGroup editor, String runtime, String rated) {
-        ((EditText) editor.findViewById(R.id.runtime)).setText(runtime);
-        ((EditText) editor.findViewById(R.id.rated)).setText(rated);
     }
 
     private String getCurrentRuntime() {
