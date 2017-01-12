@@ -22,6 +22,7 @@ public final class IntentDefaults {
     public static final int ENTRIES_PER_CATEGORY = 20;
     public static final int CARD_WIDTH = 313;
     public static final int CARD_HEIGHT = 176;
+    public static final int WHICH_VIDEO = IntentKeys.NO_VIDEO;
     public static final boolean DISABLE_SHADOWS = false;
     public static final boolean PLAY_VIDEO = false;
     public static final boolean USE_SINGLE_BITMAP = false;

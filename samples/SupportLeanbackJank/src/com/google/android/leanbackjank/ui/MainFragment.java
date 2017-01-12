@@ -59,7 +59,7 @@ public class MainFragment extends BrowseFragment {
         boolean disableShadows = IntentDefaults.DISABLE_SHADOWS;
         int cardWidth = IntentDefaults.CARD_WIDTH;
         int cardHeight = IntentDefaults.CARD_HEIGHT;
-        boolean playVideo = IntentDefaults.PLAY_VIDEO;
+        int whichVideo = IntentDefaults.WHICH_VIDEO;
         boolean useSingleBitmap = IntentDefaults.USE_SINGLE_BITMAP;
 
         Intent intent = getActivity().getIntent();
@@ -69,7 +69,7 @@ public class MainFragment extends BrowseFragment {
             disableShadows = intent.getBooleanExtra(IntentKeys.DISABLE_SHADOWS, disableShadows);
             cardWidth = intent.getIntExtra(IntentKeys.CARD_WIDTH, cardWidth);
             cardHeight = intent.getIntExtra(IntentKeys.CARD_HEIGHT, cardHeight);
-            playVideo = intent.getBooleanExtra(IntentKeys.PLAY_VIDEO, playVideo);
+            whichVideo = intent.getIntExtra(IntentKeys.WHICH_VIDEO, whichVideo);
             useSingleBitmap = intent.getBooleanExtra(IntentKeys.USE_SINGLE_BITMAP, useSingleBitmap);
         }
 
@@ -78,9 +78,20 @@ public class MainFragment extends BrowseFragment {
         setBackground();
         setupUIElements();
 
-        if (playVideo) {
+        if (whichVideo != IntentKeys.NO_VIDEO) {
+            int resource = 0;
+            /* For info on how to generate videos see:
+             * https://docs.google.com/document/d/1HV8O-Nm4rc2DwVwiZmT4Wa9pf8XttWndg9saGncTRGw
+             */
+            if (whichVideo == IntentKeys.VIDEO_2160P_60FPS) {
+                resource = R.raw.bbb_sunflower_2160p_60fps;
+            } else if (whichVideo == IntentKeys.VIDEO_1080P_60FPS) {
+                resource = R.raw.testvideo_1080p_60fps;
+            } else if (whichVideo == IntentKeys.VIDEO_480P_60FPS) {
+                resource = R.raw.bbb_480p;
+            }
             Uri uri = Uri.parse("android.resource://" + getContext().getPackageName() + "/"
-                    + R.raw.testvideo_1080p_60fps);
+                    + resource);
             Intent videoIntent = new Intent(Intent.ACTION_VIEW, uri, getContext(),
                     VideoActivity.class);
             startActivity(videoIntent);
