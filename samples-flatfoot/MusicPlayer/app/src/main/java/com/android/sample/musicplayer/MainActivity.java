@@ -22,7 +22,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.View;
 
 import com.android.sample.musicplayer.MusicRepository.TrackMetadata;
@@ -105,11 +104,9 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        final LayoutInflater inflater = LayoutInflater.from(this);
-
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler);
         final List<TrackMetadata> tracks = MusicRepository.getInstance().getTracks();
-        mMusicTrackListAdapter = new MusicTrackListAdapter(inflater, tracks);
+        mMusicTrackListAdapter = new MusicTrackListAdapter(tracks);
         mRecyclerView.setAdapter(mMusicTrackListAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }

@@ -15,60 +15,59 @@
  */
 package com.android.sample.musicplayer.adapter;
 
+import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.android.sample.musicplayer.MusicRepository;
 import com.android.sample.musicplayer.MusicRepository.TrackMetadata;
 import com.android.sample.musicplayer.R;
+import com.android.sample.musicplayer.databinding.MainRowBinding;
 
 import java.util.List;
 
 /**
  * Adapter for the list of music tracks.
  */
-public class MusicTrackListAdapter extends Adapter<MusicTrackListAdapter.CustomViewHolder> {
-    private final LayoutInflater mInflater;
+public class MusicTrackListAdapter extends Adapter<MusicTrackListAdapter.TrackBindingHolder> {
     private List<TrackMetadata> mTracks;
     private int mActiveTrackIndex;
 
-    class CustomViewHolder extends RecyclerView.ViewHolder {
-        private ViewGroup mContainerView;
-        private TextView mIndexView;
-        private TextView mTextView;
-        private TextView mArtistView;
+    /**
+     * Holder for the track row.
+     */
+    public static class TrackBindingHolder extends RecyclerView.ViewHolder {
+        private MainRowBinding mViewDataBinding;
 
-        CustomViewHolder(View view) {
-            super(view);
-            this.mContainerView = (ViewGroup) view;
-            this.mIndexView = (TextView) view.findViewById(R.id.index);
-            this.mTextView = (TextView) view.findViewById(R.id.title);
-            this.mArtistView = (TextView) view.findViewById(R.id.artist);
+        public TrackBindingHolder(MainRowBinding viewDataBinding) {
+            super(viewDataBinding.getRoot());
+            mViewDataBinding = viewDataBinding;
+        }
+
+        public MainRowBinding getBinding() {
+            return mViewDataBinding;
         }
     }
 
-    public MusicTrackListAdapter(LayoutInflater inflater, List<TrackMetadata> tracks) {
-        mInflater = inflater;
+    public MusicTrackListAdapter(List<TrackMetadata> tracks) {
         mTracks = tracks;
     }
 
     @Override
-    public CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View inflated = mInflater.inflate(R.layout.main_row, parent, false);
-        return new CustomViewHolder(inflated);
+    public TrackBindingHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        MainRowBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),
+                R.layout.main_row, parent, false);
+        return new TrackBindingHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(CustomViewHolder holder, final int position) {
-        holder.mContainerView.setSelected(position == mActiveTrackIndex);
-        holder.mIndexView.setText(Integer.toString(position + 1));
-        holder.mTextView.setText(mTracks.get(position).getTitle());
-        holder.mArtistView.setText(mTracks.get(position).getArtist());
-        holder.mContainerView.setOnClickListener(new View.OnClickListener() {
+    public void onBindViewHolder(TrackBindingHolder holder, final int position) {
+        MainRowBinding binding = holder.getBinding();
+        binding.setTrack(mTracks.get(position));
+        binding.setHandler(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Update the LiveData-wrapped current track index directly on the repository.
@@ -77,6 +76,7 @@ public class MusicTrackListAdapter extends Adapter<MusicTrackListAdapter.CustomV
                 MusicRepository.getInstance().setTrack(position);
             }
         });
+        binding.getRoot().setSelected(position == mActiveTrackIndex);
     }
 
     @Override
@@ -86,8 +86,10 @@ public class MusicTrackListAdapter extends Adapter<MusicTrackListAdapter.CustomV
 
     public void setActiveTrackIndex(int activeTrackIndex) {
         if (mActiveTrackIndex != activeTrackIndex) {
+            int previousActiveTrackIndex = mActiveTrackIndex;
             mActiveTrackIndex = activeTrackIndex;
-            notifyDataSetChanged();
+            notifyItemChanged(previousActiveTrackIndex);
+            notifyItemChanged(mActiveTrackIndex);
         }
     }
 }
