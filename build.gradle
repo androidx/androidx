@@ -40,11 +40,9 @@ dependencies {
     doclava project(':doclava')
 }
 
-gradle.ext.currentSdk = 25
 ext.supportVersion = '25.1.1'
 ext.extraVersion = 42
 ext.supportRepoOut = ''
-ext.buildToolsVersion = '24.0.1'
 ext.buildNumber = Integer.toString(ext.extraVersion)
 
 ext.testRunnerVersion = '0.6-alpha'
@@ -54,11 +52,23 @@ ext.espressoVersion = '2.3-alpha'
 // required for the doclava dependency.
 ext.usePrebuilts = "true"
 
-// Use the embedded SDK by default, which can be overridden by setting the 'sdk.dir' property
-// (e.g. local.properties) or the 'ANDROID_HOME' environment variable.
 final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
-ext.sdkDirectory = "${rootDir}/../../prebuilts/fullsdk-${platform}";
-System.setProperty('android.home', sdkDirectory)
+System.setProperty('android.dir', "${rootDir}/../../")
+final String fullSdkPath = "${rootDir}/../../prebuilts/fullsdk-${platform}"
+if (file(fullSdkPath).exists()) {
+    gradle.ext.currentSdk = 25
+    ext.buildToolsVersion = '24.0.1'
+    project.ext.androidJar = files("${fullSdkPath}/platforms/android-${gradle.ext.currentSdk}/android.jar")
+    System.setProperty('android.home', "${rootDir}/../../prebuilts/fullsdk-${platform}")
+    File props = file("local.properties")
+    props.write "sdk.dir=${fullSdkPath}"
+} else {
+    gradle.ext.currentSdk = 'current'
+    ext.buildToolsVersion = '24.0.1'
+    project.ext.androidJar = files("${project.rootDir}/../../prebuilts/sdk/current/android.jar")
+    File props = file("local.properties")
+    props.write "android.dir=../../"
+}
 
 /*
  * With the build server you are given two env variables.
@@ -184,16 +194,6 @@ String getSha1(File inputFile) {
     return hashCode.toString()
 }
 
-/**
- * Returns the Android prebuilt JAR for the specified API level.
- *
- * @param apiLevel the API level or "current"
- * @return a file collection containing the Android prebuilt JAR
- */
-FileCollection getAndroidPrebuilt(apiLevel) {
-    files("${ext.sdkDirectory}/platforms/android-${apiLevel}/android.jar")
-}
-
 void registerForDocsTask(Task task, Project subProject, releaseVariant) {
     task.dependsOn releaseVariant.javaCompile
     task.source {
@@ -212,7 +212,7 @@ task generateDocs(type: DoclavaTask, dependsOn: configurations.doclava) {
     destinationDir = new File(project.docsDir, "online")
 
     // Base classpath is Android SDK, sub-projects add their own.
-    classpath = getAndroidPrebuilt(gradle.ext.currentSdk)
+    classpath = project.ext.androidJar
 
     def hdfOption = new DoclavaMultilineJavadocOptionFileOption('hdf')
     hdfOption.add(
@@ -245,7 +245,7 @@ task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
     destinationDir = project.docsDir
 
     // Base classpath is Android SDK, sub-projects add their own.
-    classpath = getAndroidPrebuilt(gradle.ext.currentSdk)
+    classpath = project.ext.androidJar
 
     apiFile = new File(project.docsDir, 'release/current.txt')
     removedApiFile = new File(project.docsDir, 'release/removed.txt')
