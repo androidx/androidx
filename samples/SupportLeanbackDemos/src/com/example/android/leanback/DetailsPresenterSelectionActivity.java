@@ -17,18 +17,15 @@
 package com.example.android.leanback;
 
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v17.leanback.app.GuidedStepFragment;
-import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
+import android.support.v17.leanback.widget.GuidedAction;
 
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Activity that showcases different aspects of GuidedStepFragments.
@@ -54,7 +51,7 @@ public class DetailsPresenterSelectionActivity extends Activity {
     }
 
     private static void addAction(List<GuidedAction> actions, long id, String title, String desc) {
-        actions.add(new GuidedAction.Builder()
+        actions.add(new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .description(desc)
@@ -63,7 +60,7 @@ public class DetailsPresenterSelectionActivity extends Activity {
 
     private static void addCheckedAction(List<GuidedAction> actions, Context context,
             long id, String title, String desc, boolean checked) {
-        actions.add(new GuidedAction.Builder()
+        actions.add(new GuidedAction.Builder(null)
                 .title(title)
                 .description(desc)
                 .id(id)

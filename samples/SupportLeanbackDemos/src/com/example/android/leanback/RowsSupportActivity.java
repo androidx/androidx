@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from RowsActivity.java.  DO NOT MODIFY. */
 
 /*
@@ -15,18 +16,17 @@
  */
 package com.example.android.leanback;
 
+import android.support.v4.app.FragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
 import android.support.v17.leanback.widget.TitleHelper;
 import android.support.v17.leanback.widget.TitleView;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 public class RowsSupportActivity extends FragmentActivity
 {
     private RowsSupportFragment mRowsSupportFragment;
-    private TitleHelper mTitleHelper;
 
     /** Called when the activity is first created. */
     @Override
@@ -52,8 +52,8 @@ public class RowsSupportActivity extends FragmentActivity
         });
 
         BrowseFrameLayout frameLayout = (BrowseFrameLayout) findViewById(R.id.rows_frame);
-        mTitleHelper = new TitleHelper(frameLayout, titleView);
-        frameLayout.setOnFocusSearchListener(mTitleHelper.getOnFocusSearchListener());
-        mRowsSupportFragment.setTitleHelper(mTitleHelper);
+        TitleHelper titleHelper = new TitleHelper(frameLayout, titleView);
+        frameLayout.setOnFocusSearchListener(titleHelper.getOnFocusSearchListener());
+        mRowsSupportFragment.setTitleHelper(titleHelper);
     }
 }

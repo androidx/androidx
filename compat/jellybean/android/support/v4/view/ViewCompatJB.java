@@ -16,14 +16,18 @@
 
 package android.support.v4.view;
 
+import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.ViewParent;
 
 /**
  * Jellybean-specific View API access
  */
+@RequiresApi(16)
+@TargetApi(16)
 class ViewCompatJB {
 
     public static boolean hasTransientState(View view) {

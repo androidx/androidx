@@ -22,9 +22,13 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.util.Pair;
 import android.view.View;
 
+@RequiresApi(23)
+@TargetApi(23)
 class ActivityOptionsCompat23 {
 
     private final ActivityOptions mActivityOptions;

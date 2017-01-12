@@ -16,8 +16,12 @@
 
 package android.support.v4.widget;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.widget.PopupWindow;
 
+@RequiresApi(23)
+@TargetApi(23)
 class PopupWindowCompatApi23 {
 
     static void setOverlapAnchor(PopupWindow popupWindow, boolean overlapAnchor) {

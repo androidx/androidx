@@ -16,7 +16,9 @@
 
 package android.support.transition;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +30,8 @@ import android.view.ViewGroup;
  * animate the various property changes that take place during the
  * scene change.
  */
+@RequiresApi(14)
+@TargetApi(14)
 final class ScenePort {
 
     Runnable mEnterAction, mExitAction;

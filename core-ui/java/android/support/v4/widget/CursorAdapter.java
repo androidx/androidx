@@ -16,6 +16,8 @@
 
 package android.support.v4.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -30,8 +32,6 @@ import android.widget.Filter;
 import android.widget.FilterQueryProvider;
 import android.widget.Filterable;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Static library support version of the framework's {@link android.widget.CursorAdapter}.
  * Used to write apps that run on platforms prior to Android 3.0.  When running
@@ -45,55 +45,55 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected boolean mDataValid;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected boolean mAutoRequery;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected Cursor mCursor;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected Context mContext;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected int mRowIDColumn;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected ChangeObserver mChangeObserver;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected DataSetObserver mDataSetObserver;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected CursorFilter mCursorFilter;
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     protected FilterQueryProvider mFilterQueryProvider;
 
     /**

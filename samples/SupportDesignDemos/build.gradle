@@ -19,7 +19,6 @@ android {
     }
 
     lintOptions {
-        // TODO: fix errors and reenable.
         abortOnError false
     }
 

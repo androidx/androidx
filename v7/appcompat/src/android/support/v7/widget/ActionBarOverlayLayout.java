@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
@@ -42,15 +44,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Special layout for the containing of an overlay action bar (and its content) to correctly handle
  * fitting system windows when the content has request that its layout ignore them.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class ActionBarOverlayLayout extends ViewGroup implements DecorContentParent,
         NestedScrollingParent {
     private static final String TAG = "ActionBarOverlayLayout";

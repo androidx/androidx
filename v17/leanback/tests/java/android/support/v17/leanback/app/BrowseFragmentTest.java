@@ -15,42 +15,55 @@
  */
 package android.support.v17.leanback.app;
 
-import android.support.v17.leanback.test.R;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.view.KeyEvent;
-
-import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.ListRowPresenter;
-import android.content.Intent;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.espresso.action.ViewActions;
-import org.mockito.Mockito;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+
+import android.content.Intent;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.v17.leanback.widget.ItemBridgeAdapter;
+import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
+import android.view.View;
+
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class BrowseFragmentTest {
 
+    static final String TAG = "BrowseFragmentTest";
     static final long TRANSITION_LENGTH = 1000;
     static final long HORIZONTAL_SCROLL_WAIT = 2000;
 
     @Rule
-    public ActivityTestRule<BrowseFragmentTestActivity> activityTestRule
-            = new ActivityTestRule<>(BrowseFragmentTestActivity.class, false, false);
+    public ActivityTestRule<BrowseFragmentTestActivity> activityTestRule =
+            new ActivityTestRule<>(BrowseFragmentTestActivity.class, false, false);
     private BrowseFragmentTestActivity mActivity;
+
+    @After
+    public void afterTest() throws Throwable {
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                if (mActivity != null) {
+                    mActivity.finish();
+                    mActivity = null;
+                }
+            }
+        });
+    }
 
     @Test
     public void testTwoBackKeysWithBackStack() throws Throwable {
@@ -62,6 +75,7 @@ public class BrowseFragmentTest {
 
         Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
 
+        assertNotNull(mActivity.getBrowseTestFragment().getMainFragment());
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
         Thread.sleep(TRANSITION_LENGTH);
         sendKeys(KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_BACK);
@@ -77,6 +91,7 @@ public class BrowseFragmentTest {
 
         Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
 
+        assertNotNull(mActivity.getBrowseTestFragment().getMainFragment());
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
         Thread.sleep(TRANSITION_LENGTH);
         sendKeys(KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_BACK);
@@ -90,6 +105,7 @@ public class BrowseFragmentTest {
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
         mActivity = activityTestRule.launchActivity(intent);
 
+        assertNull(mActivity.getBrowseTestFragment().getMainFragment());
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
     }
 
@@ -121,13 +137,20 @@ public class BrowseFragmentTest {
 
         verify(itemTask, timeout(5000).times(1)).run(any(Presenter.ViewHolder.class));
 
-        ListRowPresenter.ViewHolder row = (ListRowPresenter.ViewHolder) mActivity
-                .getBrowseTestFragment().getRowsFragment().getRowViewHolder(selectRow);
-        assertEquals(selectItem, row.getGridView().getSelectedPosition());
+        activityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ListRowPresenter.ViewHolder row = (ListRowPresenter.ViewHolder) mActivity
+                        .getBrowseTestFragment().getRowsFragment().getRowViewHolder(selectRow);
+                assertNotNull(dumpRecyclerView(mActivity.getBrowseTestFragment().getGridView()), row);
+                assertNotNull(row.getGridView());
+                assertEquals(selectItem, row.getGridView().getSelectedPosition());
+            }
+        });
     }
 
     @Test
-    public void activityRecreate_notCrash() throws InterruptedException {
+    public void activityRecreate_notCrash() throws Throwable {
         final long dataLoadingDelay = 1000;
         Intent intent = new Intent();
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
@@ -138,7 +161,7 @@ public class BrowseFragmentTest {
         Thread.sleep(dataLoadingDelay + TRANSITION_LENGTH);
 
         InstrumentationRegistry.getInstrumentation().callActivityOnRestart(mActivity);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        activityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mActivity.recreate();
@@ -157,13 +180,31 @@ public class BrowseFragmentTest {
         private final BrowseFragmentTestActivity activity;
         private final int expectedRow;
 
-        ItemSelectionTask(BrowseFragmentTestActivity activity, int expectedRow) {
+        public ItemSelectionTask(BrowseFragmentTestActivity activity, int expectedRow) {
             this.activity = activity;
             this.expectedRow = expectedRow;
         }
 
         public void run(Presenter.ViewHolder holder) {
-            assertEquals(expectedRow, activity.getBrowseTestFragment().getSelectedPosition());
+            android.util.Log.d(TAG, dumpRecyclerView(activity.getBrowseTestFragment()
+                    .getGridView()));
+            android.util.Log.d(TAG, "Row " + expectedRow + " " + activity.getBrowseTestFragment()
+                    .getRowsFragment().getRowViewHolder(expectedRow), new Exception());
         }
+    }
+
+    static String dumpRecyclerView(RecyclerView recyclerView) {
+        StringBuffer b = new StringBuffer();
+        for (int i = 0; i < recyclerView.getChildCount(); i++) {
+            View child = recyclerView.getChildAt(i);
+            ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder)
+                    recyclerView.getChildViewHolder(child);
+            b.append("child").append(i).append(":").append(vh);
+            if (vh != null) {
+                b.append(",").append(vh.getViewHolder());
+            }
+            b.append(";");
+        }
+        return b.toString();
     }
 }

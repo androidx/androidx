@@ -32,6 +32,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.IntentCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.content.pm.ActivityInfoCompat;
@@ -116,8 +117,8 @@ public class LoaderCustomSupport extends FragmentActivity {
                 return mIcon;
             }
 
-            return mLoader.getContext().getResources().getDrawable(
-                    android.R.drawable.sym_def_app_icon);
+            return ContextCompat.getDrawable(
+                    mLoader.getContext(), android.R.drawable.sym_def_app_icon);
         }
 
         @Override public String toString() {
@@ -230,8 +231,8 @@ public class LoaderCustomSupport extends FragmentActivity {
         @Override public List<AppEntry> loadInBackground() {
             // Retrieve all known applications.
             List<ApplicationInfo> apps = mPm.getInstalledApplications(
-                    PackageManager.GET_UNINSTALLED_PACKAGES |
-                    PackageManager.GET_DISABLED_COMPONENTS);
+                    PackageManager.MATCH_UNINSTALLED_PACKAGES
+                            | PackageManager.MATCH_DISABLED_COMPONENTS);
             if (apps == null) {
                 apps = new ArrayList<ApplicationInfo>();
             }
@@ -240,7 +241,7 @@ public class LoaderCustomSupport extends FragmentActivity {
 
             // Create corresponding array of entries and load their labels.
             List<AppEntry> entries = new ArrayList<AppEntry>(apps.size());
-            for (int i=0; i<apps.size(); i++) {
+            for (int i = 0; i < apps.size(); i++) {
                 AppEntry entry = new AppEntry(this, apps.get(i));
                 entry.loadLabel(context);
                 entries.add(entry);

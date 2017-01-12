@@ -16,6 +16,7 @@
 
 package android.support.v4.media.session;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.media.AudioManager;
@@ -27,6 +28,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.v4.app.BundleCompat;
+import android.support.v4.app.SupportActivity;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
@@ -36,6 +39,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -53,6 +58,81 @@ import java.util.List;
  */
 public final class MediaControllerCompat {
     static final String TAG = "MediaControllerCompat";
+
+    static final String COMMAND_GET_EXTRA_BINDER =
+            "android.support.v4.media.session.command.GET_EXTRA_BINDER";
+
+    private static class MediaControllerExtraData extends SupportActivity.ExtraData {
+        private final MediaControllerCompat mMediaController;
+
+        MediaControllerExtraData(MediaControllerCompat mediaController) {
+            mMediaController = mediaController;
+        }
+
+        MediaControllerCompat getMediaController() {
+            return mMediaController;
+        }
+    }
+
+    /**
+     * Sets a {@link MediaControllerCompat} for later retrieval via
+     * {@link #getMediaController()}.
+     *
+     * <p>On API 21 and later, this controller will be tied to the window of the activity and
+     * media key and volume events which are received while the Activity is in the foreground
+     * will be forwarded to the controller and used to invoke transport controls or adjust the
+     * volume. Prior to API 21, the global handling of media key and volume events through an
+     * active {@link android.support.v4.media.session.MediaSessionCompat} and media button receiver
+     * will still be respected.</p>
+     *
+     * @param mediaController The controller for the session which should receive
+     *     media keys and volume changes on API 21 and later.
+     * @see #getMediaController()
+     * @see Activity#setMediaController(android.media.session.MediaController)
+     */
+    public static void setMediaController(Activity activity,
+            MediaControllerCompat mediaController) {
+        if (activity instanceof  SupportActivity) {
+            ((SupportActivity) activity).putExtraData(
+                    new MediaControllerExtraData(mediaController));
+        }
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            Object controllerObj = null;
+            if (mediaController != null) {
+                Object sessionTokenObj = mediaController.getSessionToken().getToken();
+                controllerObj = MediaControllerCompatApi21.fromToken(activity, sessionTokenObj);
+            }
+            MediaControllerCompatApi21.setMediaController(activity, controllerObj);
+        }
+    }
+
+    /**
+     * Retrieves the current {@link MediaControllerCompat} for sending media key and volume events.
+     *
+     * @return The controller which should receive events.
+     * @see #setMediaController(Activity,MediaControllerCompat)
+     * @see #getMediaController()
+     */
+    public static MediaControllerCompat getMediaController(Activity activity) {
+        if (activity instanceof SupportActivity) {
+            MediaControllerExtraData extraData =
+                    ((SupportActivity) activity).getExtraData(MediaControllerExtraData.class);
+            return extraData != null ? extraData.getMediaController() : null;
+        } else if (android.os.Build.VERSION.SDK_INT >= 21) {
+            Object controllerObj = MediaControllerCompatApi21.getMediaController(activity);
+            if (controllerObj == null) {
+                return null;
+            }
+            Object sessionTokenObj = MediaControllerCompatApi21.getSessionToken(controllerObj);
+            try {
+                return new MediaControllerCompat(activity,
+                        MediaSessionCompat.Token.fromToken(sessionTokenObj));
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in getMediaController. " + e);
+            }
+        }
+        return null;
+    }
 
     private final MediaControllerImpl mImpl;
     private final MediaSessionCompat.Token mToken;
@@ -344,6 +424,7 @@ public final class MediaControllerCompat {
     public static abstract class Callback implements IBinder.DeathRecipient {
         private final Object mCallbackObj;
         MessageHandler mHandler;
+        boolean mHasExtraCallback;
 
         boolean mRegistered = false;
 
@@ -451,13 +532,21 @@ public final class MediaControllerCompat {
 
             @Override
             public void onSessionEvent(String event, Bundle extras) {
-                Callback.this.onSessionEvent(event, extras);
+                if (mHasExtraCallback && android.os.Build.VERSION.SDK_INT < 23) {
+                    // Ignore. ExtraCallback will handle this.
+                } else {
+                    Callback.this.onSessionEvent(event, extras);
+                }
             }
 
             @Override
             public void onPlaybackStateChanged(Object stateObj) {
-                Callback.this.onPlaybackStateChanged(
-                        PlaybackStateCompat.fromPlaybackState(stateObj));
+                if (mHasExtraCallback && android.os.Build.VERSION.SDK_INT < 22) {
+                    // Ignore. ExtraCallback will handle this.
+                } else {
+                    Callback.this.onPlaybackStateChanged(
+                            PlaybackStateCompat.fromPlaybackState(stateObj));
+                }
             }
 
             @Override
@@ -1263,9 +1352,16 @@ public final class MediaControllerCompat {
     static class MediaControllerImplApi21 implements MediaControllerImpl {
         protected final Object mControllerObj;
 
+        // Extra binder is used for applying the framework change of new APIs and bug fixes
+        // after API 21.
+        private IMediaSession mExtraBinder;
+        private HashMap<Callback, ExtraCallback> mCallbackMap = new HashMap<>();
+        private List<Callback> mPendingCallbacks;
+
         public MediaControllerImplApi21(Context context, MediaSessionCompat session) {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     session.getSessionToken().getToken());
+            requestExtraBinder();
         }
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat.Token sessionToken)
@@ -1273,16 +1369,50 @@ public final class MediaControllerCompat {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     sessionToken.getToken());
             if (mControllerObj == null) throw new RemoteException();
+            requestExtraBinder();
         }
 
         @Override
-        public void registerCallback(Callback callback, Handler handler) {
-            MediaControllerCompatApi21.registerCallback(mControllerObj, callback.mCallbackObj, handler);
+        public final void registerCallback(Callback callback, Handler handler) {
+            MediaControllerCompatApi21.registerCallback(
+                    mControllerObj, callback.mCallbackObj, handler);
+            if (mExtraBinder != null) {
+                callback.setHandler(handler);
+                ExtraCallback extraCallback = new ExtraCallback(callback);
+                mCallbackMap.put(callback, extraCallback);
+                callback.mHasExtraCallback = true;
+                try {
+                    mExtraBinder.registerCallbackListener(extraCallback);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in registerCallback. " + e);
+                }
+            } else {
+                if (mPendingCallbacks == null) {
+                    mPendingCallbacks = new ArrayList<>();
+                }
+                callback.setHandler(handler);
+                mPendingCallbacks.add(callback);
+            }
         }
 
         @Override
-        public void unregisterCallback(Callback callback) {
+        public final void unregisterCallback(Callback callback) {
             MediaControllerCompatApi21.unregisterCallback(mControllerObj, callback.mCallbackObj);
+            if (mExtraBinder != null) {
+                try {
+                    ExtraCallback extraCallback = mCallbackMap.remove(callback);
+                    if (extraCallback != null) {
+                        mExtraBinder.unregisterCallbackListener(extraCallback);
+                    }
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in unregisterCallback. " + e);
+                }
+            } else {
+                if (mPendingCallbacks == null) {
+                    mPendingCallbacks = new ArrayList<>();
+                }
+                mPendingCallbacks.remove(callback);
+            }
         }
 
         @Override
@@ -1298,6 +1428,13 @@ public final class MediaControllerCompat {
 
         @Override
         public PlaybackStateCompat getPlaybackState() {
+            if (android.os.Build.VERSION.SDK_INT < 22 && mExtraBinder != null) {
+                try {
+                    return mExtraBinder.getPlaybackState();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in getPlaybackState. " + e);
+                }
+            }
             Object stateObj = MediaControllerCompatApi21.getPlaybackState(mControllerObj);
             return stateObj != null ? PlaybackStateCompat.fromPlaybackState(stateObj) : null;
         }
@@ -1327,6 +1464,13 @@ public final class MediaControllerCompat {
 
         @Override
         public int getRatingType() {
+            if (android.os.Build.VERSION.SDK_INT < 22 && mExtraBinder != null) {
+                try {
+                    return mExtraBinder.getRatingType();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in getRatingType. " + e);
+                }
+            }
             return MediaControllerCompatApi21.getRatingType(mControllerObj);
         }
 
@@ -1374,6 +1518,100 @@ public final class MediaControllerCompat {
         @Override
         public Object getMediaController() {
             return mControllerObj;
+        }
+
+        // TODO: Handle the case of calling other methods before receiving the extra binder.
+        private void requestExtraBinder() {
+            ResultReceiver cb = new ResultReceiver(new Handler()) {
+                @Override
+                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    if (resultData != null) {
+                        mExtraBinder = IMediaSession.Stub.asInterface(
+                                BundleCompat.getBinder(
+                                        resultData, MediaSessionCompat.EXTRA_BINDER));
+                        if (mPendingCallbacks != null) {
+                            for (Callback callback : mPendingCallbacks) {
+                                ExtraCallback extraCallback = new ExtraCallback(callback);
+                                mCallbackMap.put(callback, extraCallback);
+                                callback.mHasExtraCallback = true;
+                                try {
+                                    mExtraBinder.registerCallbackListener(extraCallback);
+                                } catch (RemoteException e) {
+                                    Log.e(TAG, "Dead object in registerCallback. " + e);
+                                    break;
+                                }
+                            }
+                            mPendingCallbacks = null;
+                        }
+                    }
+                }
+            };
+            sendCommand(COMMAND_GET_EXTRA_BINDER, null, cb);
+        }
+
+        private class ExtraCallback extends IMediaControllerCallback.Stub {
+            private Callback mCallback;
+
+            ExtraCallback(Callback callback) {
+                mCallback = callback;
+            }
+
+            @Override
+            public void onEvent(final String event, final Bundle extras) throws RemoteException {
+                mCallback.mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onSessionEvent(event, extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onSessionDestroyed() throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void onPlaybackStateChanged(final PlaybackStateCompat state)
+                    throws RemoteException {
+                mCallback.mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onPlaybackStateChanged(state);
+                    }
+                });
+            }
+
+            @Override
+            public void onMetadataChanged(MediaMetadataCompat metadata) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void onQueueChanged(List<QueueItem> queue) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void onQueueTitleChanged(CharSequence title) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void onExtrasChanged(Bundle extras) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void onVolumeInfoChanged(ParcelableVolumeInfo info) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
         }
     }
 

@@ -16,19 +16,22 @@
 package android.support.v7.widget;
 
 
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+
+import static org.junit.Assert.assertEquals;
+
+import android.support.test.filters.MediumTest;
+import android.view.View;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import android.view.View;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static org.junit.Assert.assertEquals;
-
+@MediumTest
 @RunWith(Parameterized.class)
 public class GridLayoutManagerCachedBordersTest extends BaseGridLayoutManagerTest {
 
@@ -49,7 +52,9 @@ public class GridLayoutManagerCachedBordersTest extends BaseGridLayoutManagerTes
     @Test
     public void gridCachedBorderstTest() throws Throwable {
         RecyclerView recyclerView = setupBasic(mConfig);
-        waitForFirstLayout(recyclerView);
+        mGlm.expectLayout(1);
+        setRecyclerView(recyclerView);
+        mGlm.waitForLayout(10);
         final boolean vertical = mConfig.mOrientation == GridLayoutManager.VERTICAL;
         final int expectedSizeSum = vertical ? recyclerView.getWidth() : recyclerView.getHeight();
         final int lastVisible = mGlm.findLastVisibleItemPosition();
@@ -66,7 +71,7 @@ public class GridLayoutManagerCachedBordersTest extends BaseGridLayoutManagerTes
     }
 
     private static List<Config> cachedBordersTestConfigs() {
-        ArrayList<Config> configs = new ArrayList<Config>();
+        ArrayList<Config> configs = new ArrayList<>();
         final int[] spanCounts = new int[]{88, 279, 741};
         final int[] spanPerItem = new int[]{11, 9, 13};
         for (int orientation : new int[]{VERTICAL, HORIZONTAL}) {

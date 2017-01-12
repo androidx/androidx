@@ -89,6 +89,11 @@ class RawDocumentFile extends DocumentFile {
     }
 
     @Override
+    public boolean isVirtual() {
+        return false;
+    }
+
+    @Override
     public long lastModified() {
         return mFile.lastModified();
     }

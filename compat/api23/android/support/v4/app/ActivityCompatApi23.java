@@ -22,11 +22,15 @@ import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.os.Parcelable;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.View;
 
 import java.util.List;
 import java.util.Map;
 
+@RequiresApi(23)
+@TargetApi(23)
 class ActivityCompatApi23 {
     public interface OnSharedElementsReadyListenerBridge {
         void onSharedElementsReady();

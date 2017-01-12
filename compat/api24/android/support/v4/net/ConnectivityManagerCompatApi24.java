@@ -16,11 +16,15 @@
 
 package android.support.v4.net;
 
+import android.annotation.TargetApi;
 import android.net.ConnectivityManager;
+import android.support.annotation.RequiresApi;
 
 /**
  * Implementation of ConnectivityManagerCompat that can use API 24 APIs.
  */
+@RequiresApi(24)
+@TargetApi(24)
 class ConnectivityManagerCompatApi24 {
     public static int getRestrictBackgroundStatus(ConnectivityManager cm) {
         return cm.getRestrictBackgroundStatus();

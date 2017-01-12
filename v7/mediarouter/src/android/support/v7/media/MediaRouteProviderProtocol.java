@@ -119,7 +119,7 @@ abstract class MediaRouteProviderProtocol {
     public static final int CLIENT_MSG_SET_DISCOVERY_REQUEST = 10;
 
     public static final String CLIENT_DATA_ROUTE_ID = "routeId";
-    public static final String CLIENT_DATA_ROUTE_GROUP_ID = "routeGroupId";
+    public static final String CLIENT_DATA_ROUTE_LIBRARY_GROUP = "routeGroupId";
     public static final String CLIENT_DATA_VOLUME = "volume";
     public static final String CLIENT_DATA_UNSELECT_REASON = "unselectReason";
 

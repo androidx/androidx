@@ -24,7 +24,6 @@ import android.view.View;
 public class RowsActivity extends Activity
 {
     private RowsFragment mRowsFragment;
-    private TitleHelper mTitleHelper;
 
     /** Called when the activity is first created. */
     @Override
@@ -50,8 +49,8 @@ public class RowsActivity extends Activity
         });
 
         BrowseFrameLayout frameLayout = (BrowseFrameLayout) findViewById(R.id.rows_frame);
-        mTitleHelper = new TitleHelper(frameLayout, titleView);
-        frameLayout.setOnFocusSearchListener(mTitleHelper.getOnFocusSearchListener());
-        mRowsFragment.setTitleHelper(mTitleHelper);
+        TitleHelper titleHelper = new TitleHelper(frameLayout, titleView);
+        frameLayout.setOnFocusSearchListener(titleHelper.getOnFocusSearchListener());
+        mRowsFragment.setTitleHelper(titleHelper);
     }
 }

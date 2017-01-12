@@ -13,22 +13,20 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.app.Activity;
+import android.graphics.Matrix;
 import android.os.Handler;
+import android.support.v17.leanback.transition.TransitionHelper;
+import android.support.v17.leanback.transition.TransitionListener;
+import android.support.v17.leanback.widget.DetailsOverviewRowPresenter.ViewHolder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewCompat;
-import android.support.v17.leanback.R;
-import android.support.v17.leanback.transition.TransitionListener;
-import android.support.v17.leanback.transition.TransitionHelper;
-import android.support.v17.leanback.widget.DetailsOverviewRowPresenter.ViewHolder;
-import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Matrix;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.MeasureSpec;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
@@ -184,12 +182,12 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
 
     void setSharedElementEnterTransition(Activity activity, String sharedElementName,
             long timeoutMs) {
-        if (activity == null && !TextUtils.isEmpty(sharedElementName) ||
-                activity != null && TextUtils.isEmpty(sharedElementName)) {
+        if (activity == null && !TextUtils.isEmpty(sharedElementName)
+                || activity != null && TextUtils.isEmpty(sharedElementName)) {
             throw new IllegalArgumentException();
         }
-        if (activity == mActivityToRunTransition &&
-                TextUtils.equals(sharedElementName, mSharedElementName)) {
+        if (activity == mActivityToRunTransition
+                && TextUtils.equals(sharedElementName, mSharedElementName)) {
             return;
         }
         if (mActivityToRunTransition != null) {

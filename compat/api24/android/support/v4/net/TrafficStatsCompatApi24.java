@@ -16,16 +16,20 @@
 
 package android.support.v4.net;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+import android.annotation.TargetApi;
 import android.net.TrafficStats;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
-/** {@hide} */
-@RestrictTo(GROUP_ID)
+/** @hide */
+@RequiresApi(24)
+@TargetApi(24)
+@RestrictTo(LIBRARY_GROUP)
 public class TrafficStatsCompatApi24 {
     public static void tagDatagramSocket(DatagramSocket socket) throws SocketException {
         TrafficStats.tagDatagramSocket(socket);

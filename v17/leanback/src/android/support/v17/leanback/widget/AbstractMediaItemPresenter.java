@@ -203,9 +203,10 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
             TypedValue typedValue = new TypedValue();
             boolean found = view.getContext().getTheme().resolveAttribute(
                     R.attr.playbackMediaItemNumberViewFlipperLayout, typedValue, true);
-            View mergeView = LayoutInflater.from(view.getContext()).
-                    inflate(found ? typedValue.resourceId :
-                            R.layout.lb_media_item_number_view_flipper,
+            View mergeView = LayoutInflater.from(view.getContext())
+                    .inflate(found
+                            ? typedValue.resourceId
+                            : R.layout.lb_media_item_number_view_flipper,
                             mMediaItemNumberViewFlipper, true);
 
             mMediaItemNumberView = (TextView) mergeView.findViewById(R.id.initial);
@@ -241,8 +242,8 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
             mMediaItemRowActions = actionList;
             for (int i = mActionViewHolders.size(); i < actionList.length; i++) {
                 final int actionIndex = i;
-                final Presenter.ViewHolder actionViewHolder = actionPresenter.
-                        onCreateViewHolder(getMediaItemActionsContainer());
+                final Presenter.ViewHolder actionViewHolder =
+                        actionPresenter.onCreateViewHolder(getMediaItemActionsContainer());
                 getMediaItemActionsContainer().addView(actionViewHolder.view);
                 mActionViewHolders.add(actionViewHolder);
                 actionViewHolder.view.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -426,8 +427,8 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
         if (mThemeId != 0) {
             context = new ContextThemeWrapper(context, mThemeId);
         }
-        View view = LayoutInflater.from(context).
-                inflate(R.layout.lb_row_media_item, parent, false);
+        View view =
+                LayoutInflater.from(context).inflate(R.layout.lb_row_media_item, parent, false);
         final ViewHolder vh = new ViewHolder(view);
         vh.mRowPresenter = this;
         if (mBackgroundColorSet) {

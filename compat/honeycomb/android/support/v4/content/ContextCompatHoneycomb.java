@@ -18,12 +18,17 @@ package android.support.v4.content;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 import java.io.File;
 
 /**
  * Implementation of context compatibility that can call Honeycomb APIs.
  */
+
+@RequiresApi(11)
+@TargetApi(11)
 class ContextCompatHoneycomb {
 
     static void startActivities(Context context, Intent[] intents) {

@@ -16,6 +16,8 @@
 
 package android.support.v7.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -25,8 +27,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A version of {@link ListPreference} that presents the options in a
@@ -102,7 +102,7 @@ public class DropDownPreference extends ListPreference {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public int findSpinnerIndexOfValue(String value) {
         CharSequence[] entryValues = getEntryValues();
         if (value != null && entryValues != null) {

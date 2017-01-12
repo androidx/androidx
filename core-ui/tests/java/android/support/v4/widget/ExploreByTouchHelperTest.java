@@ -16,25 +16,27 @@
 
 package android.support.v4.widget;
 
+import static junit.framework.Assert.assertFalse;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
+
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.coreui.test.R;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.SmallTest;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
-
-import static junit.framework.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assume.assumeTrue;
 
 @SmallTest
 public class ExploreByTouchHelperTest extends BaseInstrumentationTestCase<ExploreByTouchHelperTestActivity> {
@@ -83,8 +85,7 @@ public class ExploreByTouchHelperTest extends BaseInstrumentationTestCase<Explor
                 helper.getAccessibilityNodeProvider(mHost).createAccessibilityNodeInfo(1);
         assertNotNull(scrolledNode);
 
-        mHost.getLocalVisibleRect(hostBounds);
-        hostBounds.intersect(nodeBoundsInParent);
+        // Bounds in parent should not be affected by visibility.
         final Rect scrolledNodeBoundsInParent = new Rect();
         scrolledNode.getBoundsInParent(scrolledNodeBoundsInParent);
         assertEquals("Wrong bounds in parent after scrolling",

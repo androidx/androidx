@@ -16,9 +16,9 @@
 
 package android.support.v4.animation;
 
-import android.support.annotation.RestrictTo;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import android.support.annotation.RestrictTo;
 
 /**
  * <p>An animation listener that receives notifications from an animation.
@@ -27,7 +27,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public interface AnimatorListenerCompat {
 
     /**

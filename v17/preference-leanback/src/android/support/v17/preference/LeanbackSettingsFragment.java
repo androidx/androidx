@@ -16,6 +16,8 @@
 
 package android.support.v17.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Build;
@@ -33,8 +35,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Space;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * This fragment provides a container for displaying a {@link LeanbackPreferenceFragment}
@@ -188,7 +188,7 @@ public abstract class LeanbackSettingsFragment extends Fragment
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static class DummyFragment extends Fragment {
 
         @Override

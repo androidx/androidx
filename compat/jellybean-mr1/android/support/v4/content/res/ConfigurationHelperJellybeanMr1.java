@@ -16,10 +16,13 @@
 
 package android.support.v4.content.res;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(17)
+@TargetApi(17)
 class ConfigurationHelperJellybeanMr1 {
     static int getDensityDpi(@NonNull Resources resources) {
         return resources.getConfiguration().densityDpi;

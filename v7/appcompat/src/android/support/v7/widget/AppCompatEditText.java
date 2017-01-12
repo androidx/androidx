@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -27,8 +29,6 @@ import android.support.v4.view.TintableBackgroundView;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
 import android.widget.EditText;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A {@link EditText} which supports compatible features on older version of the platform,
@@ -91,7 +91,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
         if (mBackgroundTintHelper != null) {
@@ -105,7 +105,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     @Nullable
     public ColorStateList getSupportBackgroundTintList() {
@@ -119,7 +119,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mBackgroundTintHelper != null) {
@@ -133,7 +133,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     @Nullable
     public PorterDuff.Mode getSupportBackgroundTintMode() {

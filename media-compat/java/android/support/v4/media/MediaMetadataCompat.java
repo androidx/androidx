@@ -15,6 +15,8 @@
  */
 package android.support.v4.media;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -23,17 +25,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StringDef;
+import android.support.v4.media.session.MediaControllerCompat.TransportControls;
 import android.support.v4.util.ArrayMap;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Contains metadata about an item, such as the title, artist, etc.
@@ -216,7 +215,7 @@ public final class MediaMetadataCompat implements Parcelable {
     /**
      * A Uri formatted String representing the content. This value is specific to the
      * service providing the content. It may be used with
-     * {@link MediaControllerCompat.TransportControls#playFromUri(Uri, Bundle)}
+     * {@link TransportControls#playFromUri(Uri, Bundle)}
      * to initiate playback when provided by a {@link MediaBrowserCompat} connected to
      * the same app.
      */
@@ -241,7 +240,7 @@ public final class MediaMetadataCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @StringDef({METADATA_KEY_TITLE, METADATA_KEY_ARTIST, METADATA_KEY_ALBUM, METADATA_KEY_AUTHOR,
             METADATA_KEY_WRITER, METADATA_KEY_COMPOSER, METADATA_KEY_COMPILATION,
             METADATA_KEY_DATE, METADATA_KEY_GENRE, METADATA_KEY_ALBUM_ARTIST, METADATA_KEY_ART_URI,
@@ -254,7 +253,7 @@ public final class MediaMetadataCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @StringDef({METADATA_KEY_DURATION, METADATA_KEY_YEAR, METADATA_KEY_TRACK_NUMBER,
             METADATA_KEY_NUM_TRACKS, METADATA_KEY_DISC_NUMBER, METADATA_KEY_BT_FOLDER_TYPE})
     @Retention(RetentionPolicy.SOURCE)
@@ -263,7 +262,7 @@ public final class MediaMetadataCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @StringDef({METADATA_KEY_ART, METADATA_KEY_ALBUM_ART, METADATA_KEY_DISPLAY_ICON})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BitmapKey {}
@@ -271,7 +270,7 @@ public final class MediaMetadataCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @StringDef({METADATA_KEY_USER_RATING, METADATA_KEY_RATING})
     @Retention(RetentionPolicy.SOURCE)
     public @interface RatingKey {}
@@ -662,7 +661,7 @@ public final class MediaMetadataCompat implements Parcelable {
          *            in the metadata.
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public Builder(MediaMetadataCompat source, int maxBitmapSize) {
             this(source);
             for (String key : mBundle.keySet()) {

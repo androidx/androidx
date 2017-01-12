@@ -16,8 +16,12 @@
 
 package android.support.v4.view.accessibility;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.accessibility.AccessibilityEvent;
 
+@RequiresApi(16)
+@TargetApi(16)
 class AccessibilityEventCompatJellyBean {
     public static void setMovementGranularity(AccessibilityEvent event, int granularity) {
         event.setMovementGranularity(granularity);

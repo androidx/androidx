@@ -17,7 +17,11 @@
 package android.support.v4.app;
 
 import android.app.Notification;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(23)
+@TargetApi(23)
 class NotificationCompatApi23 {
 
     public static final String CATEGORY_REMINDER = Notification.CATEGORY_REMINDER;

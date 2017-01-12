@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from OnboardingDemoFragment.java.  DO NOT MODIFY. */
 
 /*
@@ -53,6 +54,7 @@ public class OnboardingDemoSupportFragment extends OnboardingSupportFragment {
 
     private Animator mContentAnimator;
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onAttach(android.app.Activity activity) {
         super.onAttach(activity);

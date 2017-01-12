@@ -25,6 +25,11 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
+
+@RequiresApi(19)
+@TargetApi(19)
 class TransitionKitKat extends TransitionImpl {
 
     /* package */ android.transition.Transition mTransition;

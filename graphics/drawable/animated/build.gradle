@@ -14,7 +14,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion project.ext.currentSdk
     defaultConfig {
         minSdkVersion 11
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -35,10 +35,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
-    }
-
-    lintOptions {
-        abortOnError false
     }
 
     aaptOptions {

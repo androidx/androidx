@@ -20,6 +20,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.view.Window.FEATURE_OPTIONS_PANEL;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -36,6 +37,7 @@ import android.os.Parcelable;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NavUtils;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
@@ -90,6 +92,8 @@ import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+@RequiresApi(9)
+@TargetApi(9)
 class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         implements MenuBuilder.Callback, LayoutInflaterFactory {
 
@@ -212,7 +216,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
 
         if (toolbar != null) {
             final ToolbarActionBar tbab = new ToolbarActionBar(toolbar,
-                    ((Activity) mContext).getTitle(), mAppCompatWindowCallback);
+                    ((Activity) mOriginalWindowCallback).getTitle(), mAppCompatWindowCallback);
             mActionBar = tbab;
             mWindow.setCallback(tbab.getWrappedWindowCallback());
         } else {
@@ -619,7 +623,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
             case Window.FEATURE_NO_TITLE:
                 return mWindowNoTitle;
         }
-        return mWindow.hasFeature(featureId);
+        return false;
     }
 
     @Override

@@ -15,24 +15,27 @@
  */
 package android.support.v7.app;
 
-import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.appcompat.test.R;
-import android.support.v7.custom.CustomDrawerLayout;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.view.View;
-import org.junit.Before;
-import org.junit.Test;
-
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.v7.testutils.DrawerLayoutActions.closeDrawer;
 import static android.support.v7.testutils.DrawerLayoutActions.openDrawer;
 import static android.support.v7.testutils.DrawerLayoutActions.setDrawerLockMode;
 import static android.support.v7.testutils.TestUtilsActions.setLayoutDirection;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import android.support.test.filters.MediumTest;
+import android.support.test.filters.SmallTest;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.appcompat.test.R;
+import android.support.v7.custom.CustomDrawerLayout;
+import android.view.View;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class DrawerLayoutDoubleTest
         extends BaseInstrumentationTestCase<DrawerLayoutDoubleActivity> {
@@ -150,7 +153,7 @@ public class DrawerLayoutDoubleTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDrawerOpenCloseLtr() {
         onView(withId(R.id.drawer_layout)).perform(
                 setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_LTR));
@@ -159,7 +162,7 @@ public class DrawerLayoutDoubleTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDrawerOpenCloseRtl() {
         onView(withId(R.id.drawer_layout)).perform(
                 setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
@@ -213,7 +216,7 @@ public class DrawerLayoutDoubleTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDrawerLockUnlockLtr() {
         onView(withId(R.id.drawer_layout)).perform(
                 setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_LTR));
@@ -222,7 +225,7 @@ public class DrawerLayoutDoubleTest
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDrawerLockUnlockRtl() {
         onView(withId(R.id.drawer_layout)).perform(
                 setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));

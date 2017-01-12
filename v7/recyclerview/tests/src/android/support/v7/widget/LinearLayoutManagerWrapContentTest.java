@@ -22,9 +22,9 @@ import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.v4.view.ViewCompat;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Gravity;
 
 import org.junit.Test;

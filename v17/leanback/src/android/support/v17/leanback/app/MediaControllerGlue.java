@@ -14,7 +14,9 @@ import android.util.Log;
  * A helper class for implementing a glue layer between a
  * {@link PlaybackOverlayFragment} and a
  * {@link android.support.v4.media.session.MediaControllerCompat}.
+ * @deprecated Use {@link android.support.v17.leanback.media.MediaControllerGlue}.
  */
+@Deprecated
 public abstract class MediaControllerGlue extends PlaybackControlGlue {
     static final String TAG = "MediaControllerGlue";
     static final boolean DEBUG = false;
@@ -48,7 +50,7 @@ public abstract class MediaControllerGlue extends PlaybackControlGlue {
      *
      * <p>The {@link PlaybackOverlayFragment} must be passed in.
      * A {@link android.support.v17.leanback.widget.OnItemViewClickedListener} and
-     * {@link PlaybackOverlayFragment.InputEventHandler}
+     * {@link android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler}
      * will be set on the fragment.
      * </p>
      *
@@ -67,7 +69,7 @@ public abstract class MediaControllerGlue extends PlaybackControlGlue {
      *
      * <p>The {@link PlaybackOverlayFragment} must be passed in.
      * A {@link android.support.v17.leanback.widget.OnItemViewClickedListener} and
-     * {@link PlaybackOverlayFragment.InputEventHandler}
+     * {@link android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler}
      * will be set on the fragment.
      * </p>
      *

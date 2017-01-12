@@ -61,7 +61,19 @@ public abstract class LeanbackPreferenceFragment extends BaseLeanbackPreferenceF
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        final TextView decorTitle = (TextView) view.findViewById(R.id.decor_title);
-        decorTitle.setText(getPreferenceScreen().getTitle());
+        setTitle(getPreferenceScreen().getTitle());
+    }
+
+    /**
+     * Set the title to be shown above the preference list
+     * @param title Title text to be shown
+     */
+    public void setTitle(CharSequence title) {
+        final View view = getView();
+        final TextView decorTitle = view == null
+                ? null : (TextView) view.findViewById(R.id.decor_title);
+        if (decorTitle != null) {
+            decorTitle.setText(title);
+        }
     }
 }

@@ -1,9 +1,8 @@
 apply plugin: 'com.android.library'
 archivesBaseName = 'support-media-compat'
 
-
-createApiSourceSets(project, gradle.ext.studioCompat.modules.mediacompat.apiTargets)
 dependencies {
+    compile project(':support-annotations')
     compile project(':support-compat')
     androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
         exclude module: 'support-annotations'
@@ -18,26 +17,27 @@ dependencies {
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
-setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.mediacompat.dependencies)
 
 android {
-    compileSdkVersion 9
+    compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
         minSdkVersion 9
-        // TODO: get target from branch
-        //targetSdkVersion 19
     }
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['java']
+        main.java.srcDirs = [
+                'ics',
+                'jellybean-mr2',
+                'kitkat',
+                'api21',
+                'api22',
+                'api23',
+                'api24',
+                'java'
+        ]
         main.aidl.srcDirs = ['java']
-    }
-
-    lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
     }
 
     compileOptions {
@@ -75,11 +75,6 @@ android.libraryVariants.all { variant ->
         from android.sourceSets.main.java.srcDirs
         exclude('android/content/pm/**')
         exclude('android/service/media/**')
-    }
-
-    project.ext.allSS.each { ss ->
-        javadocTask.source ss.java
-        sourcesJarTask.from ss.java.srcDirs
     }
 
     artifacts.add('archives', javadocJarTask);

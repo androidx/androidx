@@ -16,21 +16,16 @@
 
 package android.support.v17.leanback.widget;
 
-import android.support.v17.leanback.test.R;
-import android.support.v7.widget.RecyclerView;
-import android.support.v17.leanback.widget.BaseGridView;
-import android.support.v17.leanback.widget.OnChildSelectedListener;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v17.leanback.test.R;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -310,8 +305,8 @@ public class GridActivity extends Activity {
 
         @Override
         public FacetProvider getFacetProvider(int viewType) {
-            final Object alignmentFacet = mAlignmentViewTypeProvider != null?
-                mAlignmentViewTypeProvider.getItemAlignmentFacet(viewType) : null;
+            final Object alignmentFacet = mAlignmentViewTypeProvider != null
+                    ? mAlignmentViewTypeProvider.getItemAlignmentFacet(viewType) : null;
             if (alignmentFacet != null) {
                 return new FacetProvider() {
                     @Override

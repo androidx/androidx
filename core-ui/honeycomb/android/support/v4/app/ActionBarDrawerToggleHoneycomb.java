@@ -18,12 +18,13 @@
 package android.support.v4.app;
 
 import android.R;
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,8 @@ import java.lang.reflect.Method;
  * in an action bar without some really gross hacks. Since the MR2 SDK is not published as of
  * this writing, the new API is accessed via reflection here if available.
  */
+@RequiresApi(11)
+@TargetApi(11)
 class ActionBarDrawerToggleHoneycomb {
     private static final String TAG = "ActionBarDrawerToggleHoneycomb";
 

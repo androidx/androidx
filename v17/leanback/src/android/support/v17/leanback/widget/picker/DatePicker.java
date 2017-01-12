@@ -14,6 +14,8 @@
 
 package android.support.v17.leanback.widget.picker;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.RestrictTo;
@@ -30,8 +32,6 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * {@link DatePicker} is a directly subclass of {@link Picker}.
  * This class is a widget for selecting a date. The date can be selected by a
@@ -44,7 +44,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * @attr ref R.styleable#lbDatePicker_datePickerFormat
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class DatePicker extends Picker {
 
     static final String LOG_TAG = "DatePicker";

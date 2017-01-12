@@ -38,14 +38,14 @@
                   android:layout_height="32dp"
                   android:singleLine="true"
                   android:ellipsize="marquee"
-                  android:textAppearance="?attr/mediaRouteChooserPrimaryTextStyle" />
+                  android:textAppearance="@style/TextAppearance.MediaRouter.PrimaryText" />
 
         <TextView android:id="@+id/mr_chooser_route_desc"
                   android:layout_width="fill_parent"
                   android:layout_height="24dp"
                   android:singleLine="true"
                   android:ellipsize="marquee"
-                  android:textAppearance="?attr/mediaRouteChooserSecondaryTextStyle" />
+                  android:textAppearance="@style/TextAppearance.MediaRouter.SecondaryText" />
     </LinearLayout>
 
 </LinearLayout>

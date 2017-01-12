@@ -14,12 +14,8 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
-import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewParent;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Root view of GuidedAction item, it supports a foreground drawable and can disable focus out

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.RestrictTo;
@@ -25,15 +27,13 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.TextView;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Used by dialogs to change the font size and number of lines to try to fit
  * the text to the available space.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class DialogTitle extends TextView {
 
     public DialogTitle(Context context, AttributeSet attrs, int defStyleAttr) {

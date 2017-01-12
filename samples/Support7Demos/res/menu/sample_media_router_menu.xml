@@ -19,6 +19,5 @@
     <item android:id="@+id/media_route_menu_item"
         android:title="@string/media_route_menu_title"
         app:showAsAction="always"
-        app:actionProviderClass=
-        "com.example.android.supportv7.media.SampleMediaRouterActivity$MyMediaRouteActionProvider"/>
+        app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"/>
 </menu>

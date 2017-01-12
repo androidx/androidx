@@ -16,10 +16,13 @@
 
 package android.support.v4.widget;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.ListView;
 
+@RequiresApi(9)
+@TargetApi(9)
 class ListViewCompatGingerbread {
     static void scrollListBy(final ListView listView, int y) {
         final int firstPosition = listView.getFirstVisiblePosition();

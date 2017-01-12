@@ -21,12 +21,16 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.util.SparseArray;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiresApi(19)
+@TargetApi(19)
 class NotificationCompatKitKat {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {

@@ -13,21 +13,19 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.util.MathUtil;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
-import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -58,7 +56,9 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
         final TextView mCurrentTime;
         final TextView mTotalTime;
         final ProgressBar mProgressBar;
-        int mCurrentTimeInSeconds = -1;
+        long mCurrentTimeInMs = -1;         // Hold current time in milliseconds
+        long mTotalTimeInMs = -1;           // Hold total time in milliseconds
+        long mSecondaryProgressInMs = -1;   // Hold secondary progress in milliseconds
         StringBuilder mTotalTimeStringBuilder = new StringBuilder();
         StringBuilder mCurrentTimeStringBuilder = new StringBuilder();
         int mCurrentTimeMarginStart;
@@ -110,8 +110,8 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
                 if (mMoreActionsViewHolder.view.getParent() == null) {
                     mMoreActionsDock.addView(mMoreActionsViewHolder.view);
                 }
-            } else if (mMoreActionsViewHolder != null &&
-                    mMoreActionsViewHolder.view.getParent() != null) {
+            } else if (mMoreActionsViewHolder != null
+                    && mMoreActionsViewHolder.view.getParent() != null) {
                 mMoreActionsDock.removeView(mMoreActionsViewHolder.view);
             }
         }
@@ -139,49 +139,57 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
             return margin;
         }
 
-        void setTotalTime(int totalTimeMs) {
+        void setTotalTime(long totalTimeMs) {
             if (totalTimeMs <= 0) {
                 mTotalTime.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.GONE);
             } else {
                 mTotalTime.setVisibility(View.VISIBLE);
                 mProgressBar.setVisibility(View.VISIBLE);
+                mTotalTimeInMs = totalTimeMs;
                 formatTime(totalTimeMs / 1000, mTotalTimeStringBuilder);
                 mTotalTime.setText(mTotalTimeStringBuilder.toString());
-                mProgressBar.setMax(totalTimeMs);
+                mProgressBar.setMax(Integer.MAX_VALUE);//current progress will be a fraction of this
             }
         }
 
-        int getTotalTime() {
-            return mProgressBar.getMax();
+        long getTotalTime() {
+            return mTotalTimeInMs;
         }
 
-        void setCurrentTime(int currentTimeMs) {
-            int seconds = currentTimeMs / 1000;
-            if (seconds != mCurrentTimeInSeconds) {
-                mCurrentTimeInSeconds = seconds;
-                formatTime(mCurrentTimeInSeconds, mCurrentTimeStringBuilder);
+        void setCurrentTime(long currentTimeMs) {
+            long seconds = currentTimeMs / 1000;
+            if (currentTimeMs != mCurrentTimeInMs) {
+                mCurrentTimeInMs = currentTimeMs;
+                formatTime(seconds, mCurrentTimeStringBuilder);
                 mCurrentTime.setText(mCurrentTimeStringBuilder.toString());
             }
-            mProgressBar.setProgress(currentTimeMs);
+            // Use ratio to represent current progres
+            double ratio = (double) mCurrentTimeInMs / mTotalTimeInMs;     // Range: [0, 1]
+            double progressRatio = ratio * Integer.MAX_VALUE;   // Could safely cast to int
+            mProgressBar.setProgress((int)progressRatio);
         }
 
-        int getCurrentTime() {
-            return mProgressBar.getProgress();
+        long getCurrentTime() {
+            return mTotalTimeInMs;
         }
 
-        void setSecondaryProgress(int progressMs) {
-            mProgressBar.setSecondaryProgress(progressMs);
+        void setSecondaryProgress(long progressMs) {
+            mSecondaryProgressInMs = progressMs;
+            // Solve the progress bar by using ratio
+            double ratio = (double) progressMs / mTotalTimeInMs;           // Range: [0, 1]
+            double progressRatio = ratio * Integer.MAX_VALUE;   // Could safely cast to int
+            mProgressBar.setSecondaryProgress((int) progressRatio);
         }
 
-        int getSecondaryProgress() {
-            return mProgressBar.getSecondaryProgress();
+        long getSecondaryProgress() {
+            return mSecondaryProgressInMs;
         }
     }
 
-    static void formatTime(int seconds, StringBuilder sb) {
-        int minutes = seconds / 60;
-        int hours = minutes / 60;
+    static void formatTime(long seconds, StringBuilder sb) {
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
         seconds -= minutes * 60;
         minutes -= hours * 60;
 
@@ -236,26 +244,50 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
     }
 
     public void setTotalTime(ViewHolder vh, int ms) {
+        setTotalTimeLong(vh, (long) ms);
+    }
+
+    public void setTotalTimeLong(ViewHolder vh, long ms) {
         vh.setTotalTime(ms);
     }
 
     public int getTotalTime(ViewHolder vh) {
+        return MathUtil.safeLongToInt(getTotalTimeLong(vh));
+    }
+
+    public long getTotalTimeLong(ViewHolder vh) {
         return vh.getTotalTime();
     }
 
     public void setCurrentTime(ViewHolder vh, int ms) {
+        setCurrentTimeLong(vh, (long) ms);
+    }
+
+    public void setCurrentTimeLong(ViewHolder vh, long ms) {
         vh.setCurrentTime(ms);
     }
 
     public int getCurrentTime(ViewHolder vh) {
+        return MathUtil.safeLongToInt(getCurrentTimeLong(vh));
+    }
+
+    public long getCurrentTimeLong(ViewHolder vh) {
         return vh.getCurrentTime();
     }
 
     public void setSecondaryProgress(ViewHolder vh, int progressMs) {
+        setSecondaryProgressLong(vh, (long) progressMs);
+    }
+
+    public void setSecondaryProgressLong(ViewHolder vh, long progressMs) {
         vh.setSecondaryProgress(progressMs);
     }
 
     public int getSecondaryProgress(ViewHolder vh) {
+        return MathUtil.safeLongToInt(getSecondaryProgressLong(vh));
+    }
+
+    public long getSecondaryProgressLong(ViewHolder vh) {
         return vh.getSecondaryProgress();
     }
 

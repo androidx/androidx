@@ -16,7 +16,7 @@
 
 package android.support.v7.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_HEAD;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_TAIL;
 import static android.support.v7.widget.LayoutState.LAYOUT_END;
@@ -211,6 +211,12 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      * see {@link android.widget.AbsListView#setSmoothScrollbarEnabled(boolean)}
      */
     private boolean mSmoothScrollbarEnabled = true;
+
+    /**
+     * Temporary array used (solely in {@link #collectAdjacentPrefetchPositions}) for stashing and
+     * sorting distances to views being prefetched.
+     */
+    private int[] mPrefetchDistances;
 
     private final Runnable mCheckForGapsRunnable = new Runnable() {
         @Override
@@ -2065,29 +2071,44 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         requestLayout();
     }
 
+    /** @hide */
     @Override
-    int getItemPrefetchCount() {
-        return mSpanCount;
-    }
-
-    @Override
-    int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+    public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
+            LayoutPrefetchRegistry layoutPrefetchRegistry) {
+        /* This method uses the simplifying assumption that the next N items (where N = span count)
+         * will be assigned, one-to-one, to spans, where ordering is based on which span  extends
+         * least beyond the viewport.
+         *
+         * While this simplified model will be incorrect in some cases, it's difficult to know
+         * item heights, or whether individual items will be full span prior to construction.
+         *
+         * While this greedy estimation approach may underestimate the distance to prefetch items,
+         * it's very unlikely to overestimate them, so distances can be conservatively used to know
+         * the soonest (in terms of scroll distance) a prefetched view may come on screen.
+         */
         int delta = (mOrientation == HORIZONTAL) ? dx : dy;
         if (getChildCount() == 0 || delta == 0) {
             // can't support this scroll, so don't bother prefetching
-            return 0;
+            return;
         }
         prepareLayoutStateForDelta(delta, state);
-        int remainingSpan = mSpanCount;
-        int count = 0;
-        while (count < mSpanCount && mLayoutState.hasMore(state) && remainingSpan > 0) {
-            final int pos = mLayoutState.mCurrentPosition;
-            outIndices[count] = pos;
-            remainingSpan--;
-            mLayoutState.mCurrentPosition += mLayoutState.mItemDirection;
-            count++;
+
+        // build sorted list of distances to end of each span (though we don't care which is which)
+        if (mPrefetchDistances == null || mPrefetchDistances.length < mSpanCount) {
+            mPrefetchDistances = new int[mSpanCount];
         }
-        return count;
+        for (int i = 0; i < mSpanCount; i++) {
+            mPrefetchDistances[i] = mLayoutState.mItemDirection == LAYOUT_START
+                    ? mLayoutState.mStartLine - mSpans[i].getStartLine(mLayoutState.mStartLine)
+                    : mSpans[i].getEndLine(mLayoutState.mEndLine) - mLayoutState.mEndLine;
+        }
+        Arrays.sort(mPrefetchDistances, 0, mSpanCount);
+
+        // then assign them in order to the next N views (where N = span count)
+        for (int i = 0; i < mSpanCount && mLayoutState.hasMore(state); i++) {
+            layoutPrefetchRegistry.addPosition(mLayoutState.mCurrentPosition, mPrefetchDistances[i]);
+            mLayoutState.mCurrentPosition += mLayoutState.mItemDirection;
+        }
     }
 
     void prepareLayoutStateForDelta(int delta, RecyclerView.State state) {
@@ -2104,8 +2125,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         updateLayoutState(referenceChildPosition, state);
         setLayoutStateDirection(layoutDir);
         mLayoutState.mCurrentPosition = referenceChildPosition + mLayoutState.mItemDirection;
-        final int absDt = Math.abs(delta);
-        mLayoutState.mAvailable = absDt;
+        mLayoutState.mAvailable = Math.abs(delta);
     }
 
     int scrollBy(int dt, RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -2136,12 +2156,12 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         return totalScroll;
     }
 
-    private int getLastChildPosition() {
+    int getLastChildPosition() {
         final int childCount = getChildCount();
         return childCount == 0 ? 0 : getPosition(getChildAt(childCount - 1));
     }
 
-    private int getFirstChildPosition() {
+    int getFirstChildPosition() {
         final int childCount = getChildCount();
         return childCount == 0 ? 0 : getPosition(getChildAt(0));
     }
@@ -2976,7 +2996,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static class SavedState implements Parcelable {
 
         int mAnchorPosition;

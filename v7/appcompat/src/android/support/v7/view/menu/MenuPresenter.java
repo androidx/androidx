@@ -16,12 +16,12 @@
 
 package android.support.v7.view.menu;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
 import android.view.ViewGroup;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A MenuPresenter is responsible for building views for a Menu object. It takes over some
@@ -29,7 +29,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public interface MenuPresenter {
 
     /**

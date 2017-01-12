@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-
 package android.support.v7.widget;
-
 
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static android.support.v7.widget.StaggeredGridLayoutManager
@@ -39,10 +37,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.test.filters.MediumTest;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.StateSet;
@@ -60,7 +58,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-
 @MediumTest
 public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManagerTest {
     @Test
@@ -68,7 +65,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS));
         waitFirstLayout();
         assertFalse("test sanity", mRecyclerView.isLayoutRequested());
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mLayoutManager.onDetachedFromWindow(mRecyclerView, mRecyclerView.mRecycler);
@@ -438,7 +435,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
             }
         };
         mLayoutManager.expectLayouts(2);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -778,7 +775,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         assertTrue("Children not laid out", mLayoutManager.collectChildCoordinates().size() > 0);
 
         mLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mLayoutManager.scrollToPositionWithOffset(1, 0);
@@ -797,7 +794,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         final AccessibilityDelegateCompat delegateCompat = mRecyclerView
                 .getCompatAccessibilityDelegate();
         final AccessibilityEvent event = AccessibilityEvent.obtain();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 delegateCompat.onInitializeAccessibilityEvent(mRecyclerView, event);

@@ -16,11 +16,15 @@
 
 package android.support.v4.media;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.browse.MediaBrowser;
 import android.os.Parcel;
+import android.support.annotation.RequiresApi;
 import android.support.v4.media.MediaBrowserServiceCompatApi21.ResultWrapper;
 
+@RequiresApi(23)
+@TargetApi(23)
 class MediaBrowserServiceCompatApi23 {
 
     public static Object createService(Context context, ServiceCompatProxy serviceProxy) {

@@ -1,11 +1,12 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from SearchFragment.java.  DO NOT MODIFY. */
 
 package com.example.android.leanback;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
@@ -16,6 +17,8 @@ import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -35,7 +38,9 @@ public class SearchSupportFragment extends android.support.v17.leanback.app.Sear
 
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
 
-        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
+        final Context context = getActivity();
+        setBadgeDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                R.drawable.ic_title, context.getTheme()));
         setTitle("Leanback Sample App");
         setSearchResultProvider(this);
         setOnItemViewClickedListener(new ItemViewClickedListener());

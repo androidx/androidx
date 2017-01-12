@@ -21,10 +21,9 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
 
-import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.MediumTest;
 import android.support.transition.test.R;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.ViewGroup;
 
 import org.junit.Before;
@@ -63,12 +62,12 @@ public class TransitionManagerTest extends BaseTest {
     }
 
     @Test
-    public void testGo_exitAction() {
+    public void testGo_exitAction() throws Throwable {
         final CheckCalledRunnable enter = new CheckCalledRunnable();
         final CheckCalledRunnable exit = new CheckCalledRunnable();
         mScenes[0].setEnterAction(enter);
         mScenes[0].setExitAction(exit);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 assertThat(enter.wasCalled(), is(false));
@@ -79,7 +78,7 @@ public class TransitionManagerTest extends BaseTest {
             }
         });
         // Let the main thread catch up with the scene change
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 TransitionManager.go(mScenes[1]);
@@ -89,10 +88,10 @@ public class TransitionManagerTest extends BaseTest {
     }
 
     @Test
-    public void testGo_transitionListenerStart() {
-        final SyncTransitionListener listener
-                = new SyncTransitionListener(SyncTransitionListener.EVENT_START);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+    public void testGo_transitionListenerStart() throws Throwable {
+        final SyncTransitionListener listener =
+                new SyncTransitionListener(SyncTransitionListener.EVENT_START);
+        rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Transition transition = new AutoTransition();
@@ -106,10 +105,10 @@ public class TransitionManagerTest extends BaseTest {
     }
 
     @Test
-    public void testGo_transitionListenerEnd() {
-        final SyncTransitionListener listener
-                = new SyncTransitionListener(SyncTransitionListener.EVENT_END);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+    public void testGo_transitionListenerEnd() throws Throwable {
+        final SyncTransitionListener listener =
+                new SyncTransitionListener(SyncTransitionListener.EVENT_END);
+        rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Transition transition = new AutoTransition();

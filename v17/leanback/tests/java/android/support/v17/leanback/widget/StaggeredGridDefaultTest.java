@@ -15,17 +15,13 @@
  */
 package android.support.v17.leanback.widget;
 
-import org.junit.Assert;
-import org.junit.runner.RunWith;
-import org.junit.Test;
-
-import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Testing StaggeredGridDefault algorithm
@@ -43,7 +39,7 @@ public class StaggeredGridDefaultTest extends GridTest {
         // layout first 8 items then all items
         mStaggeredGrid = new StaggeredGridDefault();
         mStaggeredGrid.setNumRows(3);
-        mStaggeredGrid.setMargin(20);
+        mStaggeredGrid.setSpacing(20);
         mStaggeredGrid.setProvider(mProvider);
         mStaggeredGrid.appendVisibleItems(210);
         assertEquals(dump(mStaggeredGrid) + " Should fill 8 items",
@@ -59,7 +55,7 @@ public class StaggeredGridDefaultTest extends GridTest {
         // layout all items together
         mStaggeredGrid = new StaggeredGridDefault();
         mStaggeredGrid.setNumRows(3);
-        mStaggeredGrid.setMargin(20);
+        mStaggeredGrid.setSpacing(20);
         mStaggeredGrid.setProvider(mProvider);
         mStaggeredGrid.appendVisibleItems(100000);
         assertEquals(dump(mStaggeredGrid) + " should fill 9 items",

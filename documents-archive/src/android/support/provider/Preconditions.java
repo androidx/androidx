@@ -16,20 +16,18 @@
 
 package android.support.provider;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
-
-import java.util.Collection;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Simple static methods to be called at the start of your own methods to verify
  * correct arguments and state.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 final class Preconditions {
     static void checkArgument(boolean expression, String message) {
         if (!expression) {

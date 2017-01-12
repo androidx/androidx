@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -27,8 +29,6 @@ import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * A class that wraps a {@link android.content.res.TypedArray} and provides the same public API
  * surface. The purpose of this class is so that we can intercept the {@link #getDrawable(int)}
@@ -36,7 +36,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class TintTypedArray {
 
     private final Context mContext;

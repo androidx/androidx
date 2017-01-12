@@ -13,30 +13,25 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.support.annotation.RestrictTo;
-import android.support.v17.leanback.widget.GuidedActionAdapter.ClickListener;
 import android.support.v17.leanback.widget.GuidedActionAdapter.EditListener;
 import android.util.Log;
 import android.util.Pair;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewParent;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 import java.util.ArrayList;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Internal implementation manages a group of GuidedActionAdapters, control the next action after
  * editing finished, maintain the Ime open/close status.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class GuidedActionAdapterGroup {
 
     private static final String TAG_EDIT = "EditableAction";
@@ -124,7 +119,7 @@ public class GuidedActionAdapterGroup {
     }
 
     public void openIme(GuidedActionAdapter adapter, GuidedActionsStylist.ViewHolder avh) {
-        adapter.getGuidedActionsStylist().setEditingMode(avh, avh.getAction(), true);
+        adapter.getGuidedActionsStylist().setEditingMode(avh, true);
         View v = avh.getEditingView();
         if (v == null || !avh.isInEditingText()) {
             return;
@@ -156,7 +151,7 @@ public class GuidedActionAdapterGroup {
         GuidedActionsStylist.ViewHolder avh = adapter.findSubChildViewHolder(v);
         updateTextIntoAction(avh, v);
         mEditListener.onGuidedActionEditCanceled(avh.getAction());
-        adapter.getGuidedActionsStylist().setEditingMode(avh, avh.getAction(), false);
+        adapter.getGuidedActionsStylist().setEditingMode(avh, false);
         closeIme(v);
         avh.itemView.requestFocus();
     }
@@ -167,7 +162,7 @@ public class GuidedActionAdapterGroup {
         updateTextIntoAction(avh, v);
         adapter.performOnActionClick(avh);
         long nextActionId = mEditListener.onGuidedActionEditedAndProceed(avh.getAction());
-        adapter.getGuidedActionsStylist().setEditingMode(avh, avh.getAction(), false);
+        adapter.getGuidedActionsStylist().setEditingMode(avh, false);
         if (nextActionId != GuidedAction.ACTION_ID_CURRENT
                 && nextActionId != avh.getAction().getId()) {
             handled = focusToNextAction(adapter, avh.getAction(), nextActionId);

@@ -16,11 +16,15 @@
 
 package android.support.transition;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.R;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
 import android.view.MotionEvent;
@@ -32,8 +36,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
+@RequiresApi(14)
+@TargetApi(14)
 class ViewOverlay {
 
     /**
@@ -326,7 +330,7 @@ class ViewOverlay {
         /**
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         protected ViewParent invalidateChildInParentFast(int left, int top, Rect dirty) {
             if (mHostView instanceof ViewGroup && sInvalidateChildInParentFastMethod != null) {
                 try {

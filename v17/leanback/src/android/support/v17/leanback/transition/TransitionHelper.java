@@ -13,6 +13,8 @@
  */
 package android.support.v17.leanback.transition;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RestrictTo;
@@ -23,13 +25,11 @@ import android.view.Window;
 
 import java.util.ArrayList;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Helper for view transitions.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public final class TransitionHelper {
 
     public static final int FADE_IN = 0x1;
@@ -154,6 +154,9 @@ public final class TransitionHelper {
         public void beginDelayedTransition(ViewGroup sceneRoot, Object transitionObject);
 
         public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup);
+
+        public void setEpicenterCallback(Object transitionObject,
+                TransitionEpicenterCallback callback);
     }
 
     /**
@@ -389,6 +392,11 @@ public final class TransitionHelper {
 
         @Override
         public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
+        }
+
+        @Override
+        public void setEpicenterCallback(Object transitionObject,
+                TransitionEpicenterCallback callback) {
         }
     }
 
@@ -633,6 +641,11 @@ public final class TransitionHelper {
             return TransitionHelperApi21.createChangeTransform();
         }
 
+        @Override
+        public void setEpicenterCallback(Object transitionObject,
+                TransitionEpicenterCallback callback) {
+            TransitionHelperApi21.setEpicenterCallback(transitionObject, callback);
+        }
     }
 
     static {
@@ -842,6 +855,11 @@ public final class TransitionHelper {
 
     public static void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
         sImpl.setTransitionGroup(viewGroup, transitionGroup);
+    }
+
+    public static void setEpicenterCallback(Object transition,
+            TransitionEpicenterCallback callback) {
+        sImpl.setEpicenterCallback(transition, callback);
     }
 
     /**

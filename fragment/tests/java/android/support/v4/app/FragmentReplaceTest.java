@@ -15,76 +15,108 @@
  */
 package android.support.v4.app;
 
+import static junit.framework.Assert.assertEquals;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import android.app.Activity;
 import android.app.Fragment;
+import android.app.Instrumentation;
 import android.support.fragment.test.R;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.FragmentTestActivity.TestFragment;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.UiThreadTest;
 import android.view.KeyEvent;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Test to prevent regressions in SupportFragmentManager fragment replace method. See b/24693644
  */
-public class FragmentReplaceTest extends
-        ActivityInstrumentationTestCase2<FragmentTestActivity> {
-    private FragmentTestActivity mActivity;
+@RunWith(AndroidJUnit4.class)
+@MediumTest
+public class FragmentReplaceTest {
+    @Rule
+    public ActivityTestRule<FragmentTestActivity> mActivityRule =
+            new ActivityTestRule<FragmentTestActivity>(FragmentTestActivity.class);
 
+    private Instrumentation mInstrumentation;
 
-    public FragmentReplaceTest() {
-        super(FragmentTestActivity.class);
+    @Before
+    public void setUp() {
+        mInstrumentation = InstrumentationRegistry.getInstrumentation();
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        mActivity = getActivity();
-    }
-
-    @UiThreadTest
+    @Test
     public void testReplaceFragment() throws Throwable {
-        mActivity.getSupportFragmentManager().beginTransaction()
+        final FragmentActivity activity = mActivityRule.getActivity();
+        final FragmentManager fm = activity.getSupportFragmentManager();
+
+        fm.beginTransaction()
                 .add(R.id.content, TestFragment.create(R.layout.fragment_a))
                 .addToBackStack(null)
                 .commit();
-        mActivity.getSupportFragmentManager().executePendingTransactions();
-        assertNotNull(mActivity.findViewById(R.id.textA));
-        assertNull(mActivity.findViewById(R.id.textB));
-        assertNull(mActivity.findViewById(R.id.textC));
+        executePendingTransactions(fm);
+        assertNotNull(activity.findViewById(R.id.textA));
+        assertNull(activity.findViewById(R.id.textB));
+        assertNull(activity.findViewById(R.id.textC));
 
 
-        mActivity.getSupportFragmentManager().beginTransaction()
+        fm.beginTransaction()
                 .add(R.id.content, TestFragment.create(R.layout.fragment_b))
                 .addToBackStack(null)
                 .commit();
-        mActivity.getSupportFragmentManager().executePendingTransactions();
-        assertNotNull(mActivity.findViewById(R.id.textA));
-        assertNotNull(mActivity.findViewById(R.id.textB));
-        assertNull(mActivity.findViewById(R.id.textC));
+        executePendingTransactions(fm);
+        assertNotNull(activity.findViewById(R.id.textA));
+        assertNotNull(activity.findViewById(R.id.textB));
+        assertNull(activity.findViewById(R.id.textC));
 
-        mActivity.getSupportFragmentManager().beginTransaction()
+        activity.getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content, TestFragment.create(R.layout.fragment_c))
                 .addToBackStack(null)
                 .commit();
-        mActivity.getSupportFragmentManager().executePendingTransactions();
-        assertNull(mActivity.findViewById(R.id.textA));
-        assertNull(mActivity.findViewById(R.id.textB));
-        assertNotNull(mActivity.findViewById(R.id.textC));
+        executePendingTransactions(fm);
+        assertNull(activity.findViewById(R.id.textA));
+        assertNull(activity.findViewById(R.id.textB));
+        assertNotNull(activity.findViewById(R.id.textC));
+    }
+
+    private void executePendingTransactions(final FragmentManager fm) throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fm.executePendingTransactions();
+            }
+        });
     }
 
     @SdkSuppress(minSdkVersion = 11)
-    @UiThreadTest
+    @Test
     public void testBackPressWithFrameworkFragment() throws Throwable {
-        mActivity.getFragmentManager().beginTransaction()
+        final Activity activity = mActivityRule.getActivity();
+
+        activity.getFragmentManager().beginTransaction()
                 .add(R.id.content, new Fragment())
                 .addToBackStack(null)
                 .commit();
-        mActivity.getFragmentManager().executePendingTransactions();
-        assertEquals(1, mActivity.getFragmentManager().getBackStackEntryCount());
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.getFragmentManager().executePendingTransactions();
+            }
+        });
+        assertEquals(1, activity.getFragmentManager().getBackStackEntryCount());
 
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
 
-        assertEquals(0, mActivity.getFragmentManager().getBackStackEntryCount());
+        assertEquals(0, activity.getFragmentManager().getBackStackEntryCount());
     }
 }

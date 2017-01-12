@@ -18,10 +18,15 @@ package android.support.v4.accessibilityservice;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.pm.PackageManager;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 /**
  * JB implementation of the new APIs in AccessibilityServiceInfo.
  */
+
+@RequiresApi(16)
+@TargetApi(16)
 class AccessibilityServiceInfoCompatJellyBean {
 
     public static String loadDescription(AccessibilityServiceInfo info, PackageManager pm) {

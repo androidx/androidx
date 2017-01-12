@@ -16,6 +16,7 @@
 
 package android.support.v4.provider;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,14 +24,28 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.DocumentsContract;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.Log;
 
+@RequiresApi(19)
+@TargetApi(19)
 class DocumentsContractApi19 {
     private static final String TAG = "DocumentFile";
 
+    // DocumentsContract API level 24.
+    private static final int FLAG_VIRTUAL_DOCUMENT = 1 << 9;
+
     public static boolean isDocumentUri(Context context, Uri self) {
         return DocumentsContract.isDocumentUri(context, self);
+    }
+
+    public static boolean isVirtual(Context context, Uri self) {
+        if (!isDocumentUri(context, self)) {
+            return false;
+        }
+
+        return (getFlags(context, self) & FLAG_VIRTUAL_DOCUMENT) != 0;
     }
 
     public static String getName(Context context, Uri self) {
@@ -48,6 +63,10 @@ class DocumentsContractApi19 {
         } else {
             return rawType;
         }
+    }
+
+    public static long getFlags(Context context, Uri self) {
+        return queryForLong(context, self, DocumentsContract.Document.COLUMN_FLAGS, 0);
     }
 
     public static boolean isDirectory(Context context, Uri self) {

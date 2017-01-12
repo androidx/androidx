@@ -16,6 +16,11 @@
 
 package android.support.v4.net;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
+
 import static android.net.ConnectivityManager.TYPE_BLUETOOTH;
 import static android.net.ConnectivityManager.TYPE_ETHERNET;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
@@ -26,12 +31,12 @@ import static android.net.ConnectivityManager.TYPE_MOBILE_SUPL;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.ConnectivityManager.TYPE_WIMAX;
 
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-
 /**
  * Implementation of ConnectivityManagerCompat that can use Honeycomb MR2 APIs.
  */
+
+@RequiresApi(13)
+@TargetApi(13)
 class ConnectivityManagerCompatHoneycombMR2 {
     public static boolean isActiveNetworkMetered(ConnectivityManager cm) {
         final NetworkInfo info = cm.getActiveNetworkInfo();

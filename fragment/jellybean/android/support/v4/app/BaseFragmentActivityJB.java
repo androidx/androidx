@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 
 /**
  * Base class for {@code FragmentActivity} to be able to use v16 APIs.
@@ -35,6 +36,7 @@ abstract class BaseFragmentActivityJB extends BaseFragmentActivityHoneycomb {
     // fragment, since we need to use the ActivityCompat version for backward compatibility.
     boolean mStartedActivityFromFragment;
 
+    @RequiresApi(16)
     @Override
     public void startActivityForResult(Intent intent, int requestCode,
             @Nullable Bundle options) {
@@ -48,6 +50,7 @@ abstract class BaseFragmentActivityJB extends BaseFragmentActivityHoneycomb {
         super.startActivityForResult(intent, requestCode, options);
     }
 
+    @RequiresApi(16)
     @Override
     public void startIntentSenderForResult(IntentSender intent, int requestCode,
             @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,

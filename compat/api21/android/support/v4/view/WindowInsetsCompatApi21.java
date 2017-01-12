@@ -17,8 +17,12 @@
 package android.support.v4.view;
 
 import android.graphics.Rect;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.WindowInsets;
 
+@RequiresApi(21)
+@TargetApi(21)
 class WindowInsetsCompatApi21 {
     public static Object consumeStableInsets(Object insets) {
         return ((WindowInsets) insets).consumeStableInsets();

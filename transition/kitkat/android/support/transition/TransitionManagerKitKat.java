@@ -18,6 +18,11 @@ package android.support.transition;
 
 import android.transition.TransitionManager;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
+
+@RequiresApi(19)
+@TargetApi(19)
 class TransitionManagerKitKat extends TransitionManagerImpl {
 
     private final android.transition.TransitionManager mTransitionManager = new TransitionManager();

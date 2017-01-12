@@ -22,9 +22,8 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import android.animation.Animator;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -37,16 +36,12 @@ public class FadeTest extends BaseTest {
     private View mView;
     private ViewGroup mRoot;
 
+    @UiThreadTest
     @Before
     public void setUp() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mRoot = rule.getActivity().getRoot();
-                mView = new View(rule.getActivity());
-                mRoot.addView(mView, new ViewGroup.LayoutParams(100, 100));
-            }
-        });
+        mRoot = rule.getActivity().getRoot();
+        mView = new View(rule.getActivity());
+        mRoot.addView(mView, new ViewGroup.LayoutParams(100, 100));
     }
 
     @Test

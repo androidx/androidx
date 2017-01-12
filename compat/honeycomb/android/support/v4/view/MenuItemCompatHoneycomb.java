@@ -16,12 +16,17 @@
 
 package android.support.v4.view;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.MenuItem;
 import android.view.View;
 
 /**
  * Implementation of menu compatibility that can call Honeycomb APIs.
  */
+
+@RequiresApi(11)
+@TargetApi(11)
 class MenuItemCompatHoneycomb {
     public static void setShowAsAction(MenuItem item, int actionEnum) {
         item.setShowAsAction(actionEnum);

@@ -21,9 +21,9 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.v7.testutils.AppCompatTintableViewActions.setBackgroundResource;
 import static android.support.v7.testutils.AppCompatTintableViewActions.setBackgroundTintList;
 import static android.support.v7.testutils.AppCompatTintableViewActions.setBackgroundTintMode;
-import static android.support.v7.testutils.AppCompatTintableViewActions.setEnabled;
 import static android.support.v7.testutils.TestUtilsActions.setBackgroundTintListViewCompat;
 import static android.support.v7.testutils.TestUtilsActions.setBackgroundTintModeViewCompat;
+import static android.support.v7.testutils.TestUtilsActions.setEnabled;
 import static android.support.v7.testutils.TestUtilsMatchers.isBackground;
 
 import static org.junit.Assert.assertNull;
@@ -219,8 +219,7 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
         // switched to the matching entry in newly set color state list.
         final ColorStateList sandColor = ResourcesCompat.getColorStateList(
                 mResources, R.color.color_state_list_sand, null);
-        onView(withId(viewId)).perform(
-                setBackgroundTintList(sandColor));
+        onView(withId(viewId)).perform(setBackgroundTintList(sandColor));
         verifyBackgroundIsColoredAs("New sand tinting in enabled state", view,
                 sandDefault, 0);
 

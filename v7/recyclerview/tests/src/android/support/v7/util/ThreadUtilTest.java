@@ -16,87 +16,98 @@
 
 package android.support.v7.util;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.os.Looper;
-import android.support.annotation.UiThread;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.widget.TestActivity;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
-public class ThreadUtilTest extends BaseThreadedTest {
+public class ThreadUtilTest {
+    @Rule
+    public ActivityTestRule<TestActivity> mActivityRule =
+            new ActivityTestRule<>(TestActivity.class);
+
     Map<String, LockedObject> results = new HashMap<>();
 
     ThreadUtil.MainThreadCallback<Integer> mMainThreadProxy;
     ThreadUtil.BackgroundCallback<Integer> mBackgroundProxy;
 
     @Before
-    public void init() throws Exception {
-        super.setUp();
-    }
+    public void setup() throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ThreadUtil<Integer> threadUtil = new MessageThreadUtil<>();
 
-    @Override
-    @UiThread
-    public void setUpUi() {
-        ThreadUtil<Integer> threadUtil = new MessageThreadUtil<>();
+                mMainThreadProxy = threadUtil.getMainThreadProxy(
+                        new ThreadUtil.MainThreadCallback<Integer>() {
+                            @Override
+                            public void updateItemCount(int generation, int itemCount) {
+                                assertMainThread();
+                                setResultData("updateItemCount", generation, itemCount);
+                            }
 
-        mMainThreadProxy = threadUtil.getMainThreadProxy(
-                new ThreadUtil.MainThreadCallback<Integer>() {
-                    @Override
-                    public void updateItemCount(int generation, int itemCount) {
-                        assertMainThread();
-                        setResultData("updateItemCount", generation, itemCount);
-                    }
+                            @Override
+                            public void addTile(int generation, TileList.Tile<Integer> data) {
+                                assertMainThread();
+                                setResultData("addTile", generation, data);
+                            }
 
-                    @Override
-                    public void addTile(int generation, TileList.Tile<Integer> data) {
-                        assertMainThread();
-                        setResultData("addTile", generation, data);
-                    }
+                            @Override
+                            public void removeTile(int generation, int position) {
+                                assertMainThread();
+                                setResultData("removeTile", generation, position);
+                            }
+                        });
 
-                    @Override
-                    public void removeTile(int generation, int position) {
-                        assertMainThread();
-                        setResultData("removeTile", generation, position);
-                    }
-                });
+                mBackgroundProxy = threadUtil.getBackgroundProxy(
+                        new ThreadUtil.BackgroundCallback<Integer>() {
+                            @Override
+                            public void refresh(int generation) {
+                                assertBackgroundThread();
+                                setResultData("refresh", generation);
+                            }
 
-        mBackgroundProxy = threadUtil.getBackgroundProxy(
-                new ThreadUtil.BackgroundCallback<Integer>() {
-                    @Override
-                    public void refresh(int generation) {
-                        assertBackgroundThread();
-                        setResultData("refresh", generation);
-                    }
+                            @Override
+                            public void updateRange(int rangeStart, int rangeEnd, int extRangeStart,
+                                    int extRangeEnd, int scrollHint) {
+                                assertBackgroundThread();
+                                setResultData("updateRange", rangeStart, rangeEnd,
+                                        extRangeStart, extRangeEnd, scrollHint);
+                            }
 
-                    @Override
-                    public void updateRange(int rangeStart, int rangeEnd, int extRangeStart,
-                                            int extRangeEnd, int scrollHint) {
-                        assertBackgroundThread();
-                        setResultData("updateRange", rangeStart, rangeEnd,
-                                extRangeStart, extRangeEnd, scrollHint);
-                    }
+                            @Override
+                            public void loadTile(int position, int scrollHint) {
+                                assertBackgroundThread();
+                                setResultData("loadTile", position, scrollHint);
+                            }
 
-                    @Override
-                    public void loadTile(int position, int scrollHint) {
-                        assertBackgroundThread();
-                        setResultData("loadTile", position, scrollHint);
-                    }
-
-                    @Override
-                    public void recycleTile(TileList.Tile<Integer> data) {
-                        assertBackgroundThread();
-                        setResultData("recycleTile", data);
-                    }
-                });
+                            @Override
+                            public void recycleTile(TileList.Tile<Integer> data) {
+                                assertBackgroundThread();
+                                setResultData("recycleTile", data);
+                            }
+                        });
+            }
+        });
     }
 
     @Test

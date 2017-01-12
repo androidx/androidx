@@ -16,13 +16,13 @@
 
 package android.support.v4.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Helper for using the {@link android.app.RemoteInput} API
@@ -268,7 +268,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static final Factory FACTORY = new Factory() {
         @Override
         public RemoteInput build(String resultKey,
