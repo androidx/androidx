@@ -99,6 +99,7 @@ public class EditDetailsFragment extends DialogFragment implements LifecycleRegi
                     android.util.Log.e("MovieBrowser", "Got data for editing from model");
                     getDialog().setTitle(movieDataFull.Title);
                     binding.setMovie(movieDataFull);
+                    binding.executePendingBindings();
                 }
             }
         });

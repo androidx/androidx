@@ -3,14 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
+        <import type="com.android.sample.moviebrowser.Utils"/>
         <variable name="movie" type="com.android.sample.moviebrowser.MovieData"/>
-        <variable name="handler" type="android.view.View.OnClickListener"/>
+        <variable name="fragment" type="android.support.v4.app.Fragment" />
     </data>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="@{handler}">
+        android:onClick="@{() -> Utils.showDetails(fragment, movie)}">
 
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
@@ -25,7 +26,9 @@
                     android:id="@+id/poster"
                     android:background="#FAFAFA"
                     app:layout_aspectRatio="68%"
-                    app:layout_widthPercent="100%"/>
+                    app:layout_widthPercent="100%"
+                    app:url="@{movie.Poster}"
+                    app:fragment="@{fragment}"/>
                 <TextView
                     android:id="@+id/title"
                     android:layout_width="match_parent"

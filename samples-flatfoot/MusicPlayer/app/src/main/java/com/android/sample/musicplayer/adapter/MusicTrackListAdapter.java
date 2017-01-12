@@ -77,6 +77,7 @@ public class MusicTrackListAdapter extends Adapter<MusicTrackListAdapter.TrackBi
             }
         });
         binding.getRoot().setSelected(position == mActiveTrackIndex);
+        binding.executePendingBindings();
     }
 
     @Override

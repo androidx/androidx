@@ -24,15 +24,12 @@ import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.android.sample.moviebrowser.databinding.FragmentDetailsBinding;
 import com.android.sample.moviebrowser.model.MovieDataFullModel;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
-
-import com.bumptech.glide.Glide;
 
 /**
  * Details fragment.
@@ -59,9 +56,8 @@ public class DetailsFragment extends LifecycleFragment {
 
         // Use the initial / partial data to populate as much info on this movie as we can
         binding.setMoviePartial(initialData);
-        // Use Glide for image loading (of the poster)
-        Glide.with(DetailsFragment.this).load(initialData.Poster).fitCenter().crossFade()
-                .into((ImageView) result.findViewById(R.id.poster));
+        binding.setFragment(this);
+        binding.executePendingBindings();
 
         // Get our view model instance and register ourselves to observe change to the
         // full movie data. When a change is reported, update all UI elements based on the new
@@ -73,18 +69,7 @@ public class DetailsFragment extends LifecycleFragment {
             public void onChanged(@Nullable final MovieDataFull movieDataFull) {
                 if (movieDataFull != null) {
                     binding.setMovie(movieDataFull);
-                    binding.setHandler(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            EditDetailsFragment editDetailsFragment = new EditDetailsFragment();
-                            Bundle editDetailsFragmentArgs = new Bundle();
-                            editDetailsFragmentArgs.putString(EditDetailsFragment.IMDB_ID,
-                                    movieDataFull.imdbID);
-                            editDetailsFragment.setArguments(editDetailsFragmentArgs);
-                            editDetailsFragment.setTargetFragment(DetailsFragment.this, CODE_EDIT);
-                            editDetailsFragment.show(getFragmentManager(), "tag");
-                        }
-                    });
+                    binding.executePendingBindings();
                 }
             }
         });

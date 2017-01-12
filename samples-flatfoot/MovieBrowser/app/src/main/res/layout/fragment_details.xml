@@ -6,9 +6,10 @@
     <data>
         <import type="android.text.TextUtils"/>
         <import type="android.view.View"/>
+        <import type="com.android.sample.moviebrowser.Utils"/>
         <variable name="moviePartial" type="com.android.sample.moviebrowser.MovieData"/>
         <variable name="movie" type="com.android.sample.moviebrowser.MovieDataFull"/>
-        <variable name="handler" type="android.view.View.OnClickListener"/>
+        <variable name="fragment" type="android.support.v4.app.Fragment"/>
     </data>
 
     <ScrollView
@@ -24,7 +25,9 @@
                 android:id="@+id/poster"
                 android:layout_width="80dp"
                 android:background="#FAFAFA"
-                app:layout_aspectRatio="68%"/>
+                app:fragment="@{fragment}"
+                app:layout_aspectRatio="68%"
+                app:url="@{moviePartial.Poster}"/>
 
             <TextView
                 android:id="@+id/title"
@@ -83,7 +86,7 @@
                 android:layout_marginRight="8dp"
                 android:background="@null"
                 android:clickable="true"
-                android:onClick="@{handler}"
+                android:onClick="@{() -> Utils.editDetails(fragment, movie.imdbID)}"
                 android:src="@drawable/ic_mode_edit_black_24dp"/>
 
             <TextView
