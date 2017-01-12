@@ -31,10 +31,6 @@ LOCAL_MODULE := android-support-design
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := \
     $(call all-java-files-under,base) \
-    $(call all-java-files-under,gingerbread) \
-    $(call all-java-files-under,honeycomb) \
-    $(call all-java-files-under,honeycomb-mr1) \
-    $(call all-java-files-under,ics) \
     $(call all-java-files-under,lollipop) \
     $(call all-java-files-under,src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
