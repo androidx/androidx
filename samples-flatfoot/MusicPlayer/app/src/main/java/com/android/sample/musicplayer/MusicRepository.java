@@ -86,16 +86,15 @@ public class MusicRepository {
 
     private MusicRepository() {
         mTracks = new ArrayList<>(9);
-        mTracks.add(new TrackMetadata(1, "Tilt You Better", "Dawn Lentil", R.raw.track_01));
-        mTracks.add(new TrackMetadata(2, "Moongirl", "The Weekdy", R.raw.track_02));
-        mTracks.add(new TrackMetadata(3, "Further", "The Linkdrinkers", R.raw.track_03));
-        mTracks.add(new TrackMetadata(4, "Back and Forth", "Marina Venti", R.raw.track_04));
-        mTracks.add(new TrackMetadata(5, "Let Me Hate You", "Juji Beans", R.raw.track_05));
-        mTracks.add(new TrackMetadata(6, "Thirsty", "Smiley Leftfield", R.raw.track_06));
-        mTracks.add(new TrackMetadata(7, "Cheap Deals", "Skia", R.raw.track_07));
-        mTracks.add(new TrackMetadata(8, "Don't Stop the Drilling", "Dusty Oilfield",
-                R.raw.track_08));
-        mTracks.add(new TrackMetadata(9, "Million Regressions", "Lady BreakBuild", R.raw.track_09));
+        mTracks.add(new TrackMetadata(1, "Tilt You Better", "Dawn Lentil", R.raw.track1));
+        mTracks.add(new TrackMetadata(2, "Moongirl", "The Weekdy", R.raw.track2));
+        mTracks.add(new TrackMetadata(3, "Further", "The Linkdrinkers", R.raw.track3));
+        mTracks.add(new TrackMetadata(4, "Back and Forth", "Marina Venti", R.raw.track4));
+        mTracks.add(new TrackMetadata(5, "Let Me Hate You", "Juji Beans", R.raw.track5));
+        mTracks.add(new TrackMetadata(6, "Thirsty", "Smiley Leftfield", R.raw.track6));
+        mTracks.add(new TrackMetadata(7, "Cheap Deals", "Skia", R.raw.track7));
+        mTracks.add(new TrackMetadata(8, "Don't Stop the Drilling", "Raw Oilfield", R.raw.track8));
+        mTracks.add(new TrackMetadata(9, "Million Regressions", "Lady BreakBuild", R.raw.track9));
 
         mCurrentlyActiveTrackData = new LiveData<>();
         mCurrentlyActiveTrackData.setValue(-1);
