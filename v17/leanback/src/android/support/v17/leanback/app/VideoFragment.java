@@ -39,7 +39,7 @@ public class VideoFragment extends PlaybackFragment {
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
-        mVideoSurface = (SurfaceView) getActivity().getLayoutInflater().inflate(
+        mVideoSurface = (SurfaceView) LayoutInflater.from(FragmentUtil.getContext(this)).inflate(
                 R.layout.lb_video_surface, root, false);
         root.addView(mVideoSurface, 0);
         mVideoSurface.getHolder().addCallback(new SurfaceHolder.Callback() {

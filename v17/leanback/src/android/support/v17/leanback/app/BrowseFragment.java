@@ -19,6 +19,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentManager.BackStackEntry;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -1056,12 +1057,13 @@ public class BrowseFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TypedArray ta = getActivity().obtainStyledAttributes(R.styleable.LeanbackTheme);
+        final Context context = FragmentUtil.getContext(this);
+        TypedArray ta = context.obtainStyledAttributes(R.styleable.LeanbackTheme);
         mContainerListMarginStart = (int) ta.getDimension(
-                R.styleable.LeanbackTheme_browseRowsMarginStart, getActivity().getResources()
+                R.styleable.LeanbackTheme_browseRowsMarginStart, context.getResources()
                 .getDimensionPixelSize(R.dimen.lb_browse_rows_margin_start));
         mContainerListAlignTop = (int) ta.getDimension(
-                R.styleable.LeanbackTheme_browseRowsMarginTop, getActivity().getResources()
+                R.styleable.LeanbackTheme_browseRowsMarginTop, context.getResources()
                 .getDimensionPixelSize(R.dimen.lb_browse_rows_margin_top));
         ta.recycle();
 
@@ -1223,7 +1225,7 @@ public class BrowseFragment extends BaseFragment {
     }
 
     void createHeadersTransition() {
-        mHeadersTransition = TransitionHelper.loadTransition(getActivity(),
+        mHeadersTransition = TransitionHelper.loadTransition(FragmentUtil.getContext(this),
                 mShowingHeaders
                         ? R.transition.lb_browse_headers_in : R.transition.lb_browse_headers_out);
 
@@ -1657,7 +1659,7 @@ public class BrowseFragment extends BaseFragment {
 
     @Override
     protected Object createEntranceTransition() {
-        return TransitionHelper.loadTransition(getActivity(),
+        return TransitionHelper.loadTransition(FragmentUtil.getContext(this),
                 R.transition.lb_browse_entrance_transition);
     }
 
@@ -1740,7 +1742,7 @@ public class BrowseFragment extends BaseFragment {
 
         @Override
         public boolean onPreDraw() {
-            if (getView() == null || getActivity() == null) {
+            if (getView() == null || FragmentUtil.getContext(BrowseFragment.this) == null) {
                 mView.getViewTreeObserver().removeOnPreDrawListener(this);
                 return true;
             }

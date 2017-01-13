@@ -1129,7 +1129,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         } else {
             // when there are two actions panel, we need adjust the weight of action to
             // guidedActionContentWidthWeightTwoPanels.
-            Context ctx = mThemeWrapper != null ? mThemeWrapper : getActivity();
+            Context ctx = mThemeWrapper != null ? mThemeWrapper : FragmentUtil.getContext(this);
             TypedValue typedValue = new TypedValue();
             if (ctx.getTheme().resolveAttribute(R.attr.guidedActionContentWidthWeightTwoPanels,
                     typedValue, true)) {
@@ -1327,18 +1327,18 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     private void resolveTheme() {
         // Look up the guidedStepTheme in the currently specified theme.  If it exists,
         // replace the theme with its value.
-        Activity activity = getActivity();
+        Context context = FragmentUtil.getContext(this);
         int theme = onProvideTheme();
-        if (theme == -1 && !isGuidedStepTheme(activity)) {
+        if (theme == -1 && !isGuidedStepTheme(context)) {
             // Look up the guidedStepTheme in the activity's currently specified theme.  If it
             // exists, replace the theme with its value.
             int resId = R.attr.guidedStepTheme;
             TypedValue typedValue = new TypedValue();
-            boolean found = activity.getTheme().resolveAttribute(resId, typedValue, true);
+            boolean found = context.getTheme().resolveAttribute(resId, typedValue, true);
             if (DEBUG) Log.v(TAG, "Found guided step theme reference? " + found);
             if (found) {
                 ContextThemeWrapper themeWrapper =
-                        new ContextThemeWrapper(activity, typedValue.resourceId);
+                        new ContextThemeWrapper(context, typedValue.resourceId);
                 if (isGuidedStepTheme(themeWrapper)) {
                     mThemeWrapper = themeWrapper;
                 } else {
@@ -1350,7 +1350,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                 Log.e(TAG, "GuidedStepFragment does not have an appropriate theme set.");
             }
         } else if (theme != -1) {
-            mThemeWrapper = new ContextThemeWrapper(activity, theme);
+            mThemeWrapper = new ContextThemeWrapper(context, theme);
         }
     }
 
