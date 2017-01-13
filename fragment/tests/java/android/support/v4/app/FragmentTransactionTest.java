@@ -161,6 +161,46 @@ public class FragmentTransactionTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
+    @Test
+    public void testPostOnCommit() throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final boolean[] ran = new boolean[1];
+                FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+                fm.beginTransaction().postOnCommit(new Runnable() {
+                    @Override
+                    public void run() {
+                        ran[0] = true;
+                    }
+                }).commit();
+                fm.executePendingTransactions();
+
+                assertTrue("postOnCommit runnable never ran", ran[0]);
+
+                ran[0] = false;
+
+                boolean threw = false;
+                try {
+                    fm.beginTransaction().postOnCommit(new Runnable() {
+                        @Override
+                        public void run() {
+                            ran[0] = true;
+                        }
+                    }).addToBackStack(null).commit();
+                } catch (IllegalStateException ise) {
+                    threw = true;
+                }
+
+                fm.executePendingTransactions();
+
+                assertTrue("postOnCommit was allowed to be called for back stack transaction",
+                        threw);
+                assertFalse("postOnCommit runnable for back stack transaction was run", ran[0]);
+            }
+        });
+    }
+
     public static class CorrectFragment extends Fragment {}
 
     private static class PrivateFragment extends Fragment {}

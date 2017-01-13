@@ -586,6 +586,77 @@ public class FragmentLifecycleTest {
         assertFalse(fragment1.mCalledOnResume);
     }
 
+    @Test
+    @UiThreadTest
+    public void testIsStateSaved() throws Throwable {
+        FragmentController fc = startupFragmentController(null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        Fragment f = new StrictFragment();
+        fm.beginTransaction()
+                .add(f, "1")
+                .commitNow();
+
+        assertFalse("fragment reported state saved while resumed", f.isStateSaved());
+
+        fc.dispatchPause();
+        fc.saveAllState();
+
+        assertTrue("fragment reported state not saved after saveAllState", f.isStateSaved());
+
+        fc.dispatchStop();
+        fc.dispatchReallyStop();
+
+        assertTrue("fragment reported state not saved after stop", f.isStateSaved());
+
+        fc.dispatchDestroy();
+
+        assertFalse("fragment reported state saved after destroy", f.isStateSaved());
+    }
+
+    @Test
+    @UiThreadTest
+    public void testSetArgumentsLifecycle() throws Throwable {
+        FragmentController fc = startupFragmentController(null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        Fragment f = new StrictFragment();
+        f.setArguments(new Bundle());
+
+        fm.beginTransaction()
+                .add(f, "1")
+                .commitNow();
+
+        f.setArguments(new Bundle());
+
+        fc.dispatchPause();
+        fc.saveAllState();
+
+        boolean threw = false;
+        try {
+            f.setArguments(new Bundle());
+        } catch (IllegalStateException ise) {
+            threw = true;
+        }
+        assertTrue("fragment allowed setArguments after state save", threw);
+
+        fc.dispatchStop();
+        fc.dispatchReallyStop();
+
+        threw = false;
+        try {
+            f.setArguments(new Bundle());
+        } catch (IllegalStateException ise) {
+            threw = true;
+        }
+        assertTrue("fragment allowed setArguments after stop", threw);
+
+        fc.dispatchDestroy();
+
+        // Fully destroyed, so fragments have been removed.
+        f.setArguments(new Bundle());
+    }
+
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
             int popExit) {
         FragmentManagerImpl fmImpl = (FragmentManagerImpl) fm;
