@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package android.support.v4.app;
 
 import android.R;
@@ -38,8 +37,8 @@ import java.lang.reflect.Method;
  * in an action bar without some really gross hacks. Since the MR2 SDK is not published as of
  * this writing, the new API is accessed via reflection here if available.
  */
-@RequiresApi(11)
-class ActionBarDrawerToggleHoneycomb {
+@RequiresApi(14)
+class ActionBarDrawerToggleIcs {
     private static final String TAG = "ActionBarDrawerToggleHoneycomb";
 
     private static final int[] THEME_ATTRS = new int[] {

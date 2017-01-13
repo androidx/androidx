@@ -110,49 +110,26 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         Object setActionBarDescription(Object info, Activity activity, int contentDescRes);
     }
 
-    private static class ActionBarDrawerToggleImplBase implements ActionBarDrawerToggleImpl {
-        ActionBarDrawerToggleImplBase() {
-        }
-
-        @Override
-        public Drawable getThemeUpIndicator(Activity activity) {
-            return null;
-        }
-
-        @Override
-        public Object setActionBarUpIndicator(Object info, Activity activity,
-                Drawable themeImage, int contentDescRes) {
-            // No action bar to set.
-            return info;
-        }
-
-        @Override
-        public Object setActionBarDescription(Object info, Activity activity, int contentDescRes) {
-            // No action bar to set
-            return info;
-        }
-    }
-
     @RequiresApi(11)
-    private static class ActionBarDrawerToggleImplHC implements ActionBarDrawerToggleImpl {
-        ActionBarDrawerToggleImplHC() {
+    private static class ActionBarDrawerToggleImplIcs implements ActionBarDrawerToggleImpl {
+        ActionBarDrawerToggleImplIcs() {
         }
 
         @Override
         public Drawable getThemeUpIndicator(Activity activity) {
-            return ActionBarDrawerToggleHoneycomb.getThemeUpIndicator(activity);
+            return ActionBarDrawerToggleIcs.getThemeUpIndicator(activity);
         }
 
         @Override
         public Object setActionBarUpIndicator(Object info, Activity activity,
                 Drawable themeImage, int contentDescRes) {
-            return ActionBarDrawerToggleHoneycomb.setActionBarUpIndicator(info, activity,
+            return ActionBarDrawerToggleIcs.setActionBarUpIndicator(info, activity,
                     themeImage, contentDescRes);
         }
 
         @Override
         public Object setActionBarDescription(Object info, Activity activity, int contentDescRes) {
-            return ActionBarDrawerToggleHoneycomb.setActionBarDescription(info, activity,
+            return ActionBarDrawerToggleIcs.setActionBarDescription(info, activity,
                     contentDescRes);
         }
     }
@@ -185,13 +162,10 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     private static final ActionBarDrawerToggleImpl IMPL;
 
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 18) {
+        if (Build.VERSION.SDK_INT >= 18) {
             IMPL = new ActionBarDrawerToggleImplJellybeanMR2();
-        } else if (version >= 11) {
-            IMPL = new ActionBarDrawerToggleImplHC();
         } else {
-            IMPL = new ActionBarDrawerToggleImplBase();
+            IMPL = new ActionBarDrawerToggleImplIcs();
         }
     }
 
