@@ -1059,7 +1059,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      */
     public void startDrag(ViewHolder viewHolder) {
         if (!mCallback.hasDragFlag(mRecyclerView, viewHolder)) {
-            Log.e(TAG, "Start drag has been called but swiping is not enabled");
+            Log.e(TAG, "Start drag has been called but dragging is not enabled");
             return;
         }
         if (viewHolder.itemView.getParent() != mRecyclerView) {
@@ -1106,7 +1106,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      */
     public void startSwipe(ViewHolder viewHolder) {
         if (!mCallback.hasSwipeFlag(mRecyclerView, viewHolder)) {
-            Log.e(TAG, "Start swipe has been called but dragging is not enabled");
+            Log.e(TAG, "Start swipe has been called but swiping is not enabled");
             return;
         }
         if (viewHolder.itemView.getParent() != mRecyclerView) {
