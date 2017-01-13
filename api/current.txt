@@ -10500,6 +10500,10 @@ package android.support.v7.widget {
     method public android.support.v4.view.AccessibilityDelegateCompat getItemDelegate();
   }
 
+  public static class RecyclerViewAccessibilityDelegate.ItemDelegate extends android.support.v4.view.AccessibilityDelegateCompat {
+    ctor public RecyclerViewAccessibilityDelegate.ItemDelegate(android.support.v7.widget.RecyclerViewAccessibilityDelegate);
+  }
+
   public class SearchView extends android.support.v7.widget.LinearLayoutCompat implements android.support.v7.view.CollapsibleActionView {
     ctor public SearchView(android.content.Context);
     ctor public SearchView(android.content.Context, android.util.AttributeSet);
