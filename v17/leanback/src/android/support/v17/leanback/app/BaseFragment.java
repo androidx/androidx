@@ -219,7 +219,7 @@ class BaseFragment extends BrandedFragment {
             @Override
             public boolean onPreDraw() {
                 view.getViewTreeObserver().removeOnPreDrawListener(this);
-                if (getActivity() == null || getView() == null) {
+                if (FragmentUtil.getContext(BaseFragment.this) == null || getView() == null) {
                     // bail out if fragment is destroyed immediately after startEntranceTransition
                     return true;
                 }

@@ -473,7 +473,7 @@ public class DetailsFragment extends BaseFragment {
 
     @Override
     protected Object createEntranceTransition() {
-        return TransitionHelper.loadTransition(getActivity(),
+        return TransitionHelper.loadTransition(FragmentUtil.getContext(this),
                 R.transition.lb_details_enter_transition);
     }
 
