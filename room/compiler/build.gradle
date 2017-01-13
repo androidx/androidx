@@ -32,7 +32,7 @@ sourceSets {
 }
 
 dependencies {
-    // take from ButterKnife
+    // taken from ButterKnife
     def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)
     def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
 
