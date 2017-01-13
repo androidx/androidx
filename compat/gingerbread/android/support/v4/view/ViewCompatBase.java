@@ -26,6 +26,7 @@ import android.view.ViewParent;
 import android.view.WindowManager;
 
 import java.lang.reflect.Field;
+import java.util.WeakHashMap;
 
 @RequiresApi(9)
 class ViewCompatBase {
@@ -36,6 +37,7 @@ class ViewCompatBase {
     private static boolean sMinWidthFieldFetched;
     private static Field sMinHeightField;
     private static boolean sMinHeightFieldFetched;
+    private static WeakHashMap<View, String> sTransitionNameMap;
 
     static ColorStateList getBackgroundTintList(View view) {
         return (view instanceof TintableBackgroundView)
@@ -162,6 +164,20 @@ class ViewCompatBase {
             return wm.getDefaultDisplay();
         }
         return null;
+    }
+
+    static void setTransitionName(View view, String transitionName) {
+        if (sTransitionNameMap == null) {
+            sTransitionNameMap = new WeakHashMap<>();
+        }
+        sTransitionNameMap.put(view, transitionName);
+    }
+
+    static String getTransitionName(View view) {
+        if (sTransitionNameMap == null) {
+            return null;
+        }
+        return sTransitionNameMap.get(view);
     }
 
 }
