@@ -27,6 +27,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public class Room {
+    static final String LOG_TAG = "ROOM";
     private static final String CURSOR_CONV_SUFFIX = "_CursorConverter";
     private static Map<Class, CursorConverter> sCursorConverterCache = new HashMap<>();
 

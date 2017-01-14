@@ -36,6 +36,10 @@ import static org.mockito.Mockito.when;
 
 import android.support.annotation.Nullable;
 
+import com.android.support.executors.AppToolkitTaskExecutor;
+import com.android.support.executors.TaskExecutor;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,6 +58,32 @@ public class LiveDataTest {
         when(mProvider.getLifecycle()).thenReturn(mRegistry);
         mActiveObserversChanged = mock(MethodExec.class);
         mLiveData.activeObserversChanged = mActiveObserversChanged;
+    }
+
+    @Before
+    public void swapExecutorDelegate() {
+        TaskExecutor taskExecutor = new TaskExecutor() {
+            @Override
+            public void executeOnDiskIO(Runnable runnable) {
+                runnable.run();
+            }
+
+            @Override
+            public void executeOnMainThread(Runnable runnable) {
+                runnable.run();
+            }
+
+            @Override
+            public boolean isMainThread() {
+                return true;
+            }
+        };
+        AppToolkitTaskExecutor.getInstance().setDelegate(taskExecutor);
+    }
+
+    @After
+    public void removeExecutorDelegate() {
+        AppToolkitTaskExecutor.getInstance().setDelegate(null);
     }
 
     @Test

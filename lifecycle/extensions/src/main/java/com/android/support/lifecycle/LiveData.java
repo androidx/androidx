@@ -23,6 +23,9 @@ import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
+import com.android.support.apptoolkit.internal.ObserverSet;
+import com.android.support.executors.AppToolkitTaskExecutor;
+
 /**
  * LiveData is a data reference that can be observed withing a given lifecycle.
  * <p>
@@ -33,7 +36,10 @@ import android.support.annotation.VisibleForTesting;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 // TODO the usage of ObserverSet needs to be cleaned. Maybe we should simplify the rules.
+// Thread checks are too strict right now, we may consider automatically moving them to main
+// thread.
 public class LiveData<T> {
+    private final Object mDataLock = new Object();
     private static final int START_VERSION = -1;
     private static final Object NOT_SET = new Object();
     private boolean mPendingActiveChanges = false;
@@ -98,6 +104,9 @@ public class LiveData<T> {
     private int mObserverCount = 0;
 
     private Object mData = NOT_SET;
+    // when setData is called, we set the pending data and actual data swap happens on the main
+    // thread
+    private volatile Object mPendingData = NOT_SET;
     private int mVersion = START_VERSION;
 
     private ObserverSet.Callback<LifecycleBoundObserver> mDispatchCallback =
@@ -166,6 +175,7 @@ public class LiveData<T> {
      */
     @MainThread
     public void observe(LifecycleProvider provider, Observer<T> observer) {
+        assertMainThread("observe");
         if (provider.getLifecycle().getCurrentState() == DESTROYED) {
             // ignore
             return;
@@ -181,6 +191,7 @@ public class LiveData<T> {
      */
     @MainThread
     public void removeObserver(final Observer<T> observer) {
+        assertMainThread("removeObserver");
         // TODO make it efficient
         mObservers.forEach(new ObserverSet.Callback<LifecycleBoundObserver>() {
             @Override
@@ -199,6 +210,7 @@ public class LiveData<T> {
      */
     @MainThread
     public void removeObservers(final LifecycleProvider provider) {
+        assertMainThread("removeObservers");
         // TODO make it efficient
         mObservers.forEach(new ObserverSet.Callback<LifecycleBoundObserver>() {
             @Override
@@ -212,14 +224,33 @@ public class LiveData<T> {
 
     /**
      * Sets the value. If there are active observers, the value will be dispatched to them.
+     * <p>
+     * If this method is called on a background thread, the call will be forwarded to the main
+     * thread so calling {@link #getValue()} right after calling {@code setValue} may
+     * not return the value that was set.
      *
      * @param value The new value
      */
-    @MainThread
-    public void setValue(T value) {
-        mVersion++;
-        mData = value;
-        mObservers.forEach(mDispatchCallback);
+    public void setValue(final T value) {
+        // we keep it in pending data so that last set data wins (e.g. we won't be in a case where
+        // data is set on the main thread at a later time is overridden by data that was set on a
+        // background thread.
+        synchronized (mDataLock) {
+            mPendingData = value;
+        }
+        AppToolkitTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mDataLock) {
+                    if (mPendingData != NOT_SET) {
+                        mVersion++;
+                        mData = mPendingData;
+                        mPendingData = NOT_SET;
+                    }
+                }
+                mObservers.forEach(mDispatchCallback);
+            }
+        });
     }
 
     /**
@@ -231,6 +262,8 @@ public class LiveData<T> {
      */
     @Nullable
     public T getValue() {
+        // we do not return pending data here to be able to serve a consistent view to the main
+        // thread.
         Object data = mData;
         if (mData != NOT_SET) {
             //noinspection unchecked
@@ -264,16 +297,19 @@ public class LiveData<T> {
 
     /**
      * Returns the number of observers.
+     * <p>
+     * If called on a background thread, the value might be unreliable.
      *
      * @return The number of observers
      */
-    @MainThread
     public int getObserverCount() {
         return mObserverCount;
     }
 
     /**
      * Returns the number of active observers.
+     * <p>
+     * If called on a background thread, the value might be unreliable.
      *
      * @return The number of active observers
      */
@@ -348,5 +384,13 @@ public class LiveData<T> {
 
     static boolean isActiveState(@Lifecycle.State int state) {
         return state >= STARTED;
+    }
+
+    private void assertMainThread(String methodName) {
+        if (!AppToolkitTaskExecutor.getInstance().isMainThread()) {
+            throw new IllegalStateException("Cannot invoke " + methodName + " on a background"
+                    + " thread. You can easily move the call to main thread using"
+                    + " AppToolkitTaskExecutor.");
+        }
     }
 }

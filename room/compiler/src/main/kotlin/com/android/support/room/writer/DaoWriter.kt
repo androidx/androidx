@@ -22,6 +22,7 @@ import com.android.support.room.ext.N
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.SupportDbTypeNames
 import com.android.support.room.ext.T
+import com.android.support.room.ext.typeName
 import com.android.support.room.parser.QueryType
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.vo.Dao
@@ -120,15 +121,24 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
             val stmtName = scope.getTmpVar("_stmt")
             addStatement("final $T $L = $N.acquire()",
                     SupportDbTypeNames.SQLITE_STMT, stmtName, preparedStmtField)
+            addStatement("$N.beginTransaction()", dbField)
             beginControlFlow("try").apply {
                 val bindScope = scope.fork()
                 queryWriter.bindArgs(stmtName, emptyList(), bindScope)
                 addCode(bindScope.builder().build())
-                addStatement("$L$L.executeUpdateDelete()",
-                        if (method.returnsValue) "return " else "",
-                        stmtName)
+                if (method.returnsValue) {
+                    val resultVar = scope.getTmpVar("_result")
+                    addStatement("final $L $L = $L.executeUpdateDelete()",
+                            method.returnType.typeName(), resultVar, stmtName)
+                    addStatement("$N.setTransactionSuccessful()", dbField)
+                    addStatement("return $L", resultVar)
+                } else {
+                    addStatement("$L.executeUpdateDelete()", stmtName)
+                    addStatement("$N.setTransactionSuccessful()", dbField)
+                }
             }
             nextControlFlow("finally").apply {
+                addStatement("$N.endTransaction()", dbField)
                 addStatement("$N.release($L)", preparedStmtField, stmtName)
             }
             endControlFlow()
@@ -304,9 +314,24 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
             addStatement("$T $L = $N.compileStatement($L)",
                     SupportDbTypeNames.SQLITE_STMT, stmtVar, dbField, sqlVar)
             queryWriter.bindArgs(stmtVar, emptyList(), scope)
-            addStatement("$L$L.executeUpdateDelete()",
-                    if (method.returnsValue) "return " else "",
-                    stmtVar)
+            addStatement("$N.beginTransaction()", dbField)
+            beginControlFlow("try").apply {
+                if (method.returnsValue) {
+                    val resultVar = scope.getTmpVar("_result")
+                    addStatement("final $L $L = $L.executeUpdateDelete()",
+                            method.returnType.typeName(), resultVar, stmtVar)
+                    addStatement("$N.setTransactionSuccessful()", dbField)
+                    addStatement("return $L", resultVar)
+                } else {
+                    addStatement("$L.executeUpdateDelete()", stmtVar)
+                    addStatement("$N.setTransactionSuccessful()", dbField)
+                }
+            }
+            nextControlFlow("finally").apply {
+                addStatement("$N.endTransaction()", dbField)
+            }
+            endControlFlow()
+
         }
         return scope.builder().build()
     }

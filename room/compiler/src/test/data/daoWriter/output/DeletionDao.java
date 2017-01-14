@@ -151,11 +151,15 @@ public class DeletionDao_Impl implements DeletionDao {
   @Override
   public int deleteByUid(int uid) {
     final SupportSQLiteStatement _stmt = _preparedStmtOfDeleteByUid.acquire();
+    __db.beginTransaction();
     try {
       int _argIndex = 1;
       _stmt.bindLong(_argIndex, uid);
-      return _stmt.executeUpdateDelete();
+      final int _result = _stmt.executeUpdateDelete();
+      __db.setTransactionSuccessful();
+      return _result;
     } finally {
+      __db.endTransaction();
       _preparedStmtOfDeleteByUid.release(_stmt);
     }
   }
@@ -174,6 +178,13 @@ public class DeletionDao_Impl implements DeletionDao {
       _stmt.bindLong(_argIndex, _item);
       _argIndex ++;
     }
-    return _stmt.executeUpdateDelete();
+    __db.beginTransaction();
+    try {
+      final int _result = _stmt.executeUpdateDelete();
+      __db.setTransactionSuccessful();
+      return _result;
+    } finally {
+      __db.endTransaction();
+    }
   }
 }

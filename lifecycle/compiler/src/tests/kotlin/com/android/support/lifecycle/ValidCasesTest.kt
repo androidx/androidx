@@ -68,6 +68,4 @@ class ValidCasesTest {
                 load("foo", "InterfaceOk2Interface_LifecycleAdapter", "expected")
         )
     }
-
-
 }

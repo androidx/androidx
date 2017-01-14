@@ -32,6 +32,7 @@ import com.squareup.javapoet.TypeSpec
 import stripNonJava
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.Modifier.PRIVATE
+import javax.lang.model.element.Modifier.PROTECTED
 import javax.lang.model.element.Modifier.PUBLIC
 import javax.lang.model.element.Modifier.VOLATILE
 
@@ -45,9 +46,22 @@ class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeNam
             addModifiers(PUBLIC)
             superclass(database.typeName)
             addMethod(createCreateOpenHelper())
+            addMethod(createCreateInvalidationTracker())
         }
         addDaoImpls(builder)
         return builder.build()
+    }
+
+    private fun createCreateInvalidationTracker(): MethodSpec {
+        return MethodSpec.methodBuilder("createInvalidationTracker").apply {
+            addAnnotation(Override::class.java)
+            addModifiers(PROTECTED)
+            returns(RoomTypeNames.INVALIDATION_TRACKER)
+            val tableNames = database.entities.joinToString(",") {
+                "\"${it.tableName}\""
+            }
+            addStatement("return new $T(this, $L)", RoomTypeNames.INVALIDATION_TRACKER, tableNames)
+        }.build()
     }
 
     private fun  addDaoImpls(builder: TypeSpec.Builder) {

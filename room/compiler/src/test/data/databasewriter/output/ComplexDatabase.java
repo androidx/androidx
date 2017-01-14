@@ -5,6 +5,7 @@ import com.android.support.db.SupportSQLiteOpenHelper;
 import com.android.support.db.SupportSQLiteOpenHelper.Callback;
 import com.android.support.db.SupportSQLiteOpenHelper.Configuration;
 import com.android.support.room.DatabaseConfiguration;
+import com.android.support.room.InvalidationTracker;
 import java.lang.Override;
 
 public class ComplexDatabase_Impl extends ComplexDatabase {
@@ -26,6 +27,10 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
             public void onDowngrade(SupportSQLiteDatabase _db, int _oldVersion, int _newVersion) {
                 onUpgrade(_db, _oldVersion, _newVersion);
             }
+
+            public void onOpen(SupportSQLiteDatabase _db) {
+                internalInitInvalidationTracker(_db);
+            }
         };
         final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(configuration.context)
                 .name(configuration.name)
@@ -34,6 +39,11 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
                 .build();
         final SupportSQLiteOpenHelper _helper = configuration.sqliteOpenHelperFactory.create(_sqliteConfig);
         return _helper;
+    }
+
+    @Override
+    protected InvalidationTracker createInvalidationTracker() {
+        return new InvalidationTracker(this, "User");
     }
 
     @Override

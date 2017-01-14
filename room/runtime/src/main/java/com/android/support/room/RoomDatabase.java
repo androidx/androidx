@@ -35,6 +35,7 @@ public abstract class RoomDatabase {
     private static final String DB_IMPL_SUFFIX = "_Impl";
     private volatile SupportSQLiteDatabase mDatabase;
     private SupportSQLiteOpenHelper mOpenHelper;
+    private final InvalidationTracker mInvalidationTracker;
 
     /**
      * Creates a RoomDatabase.
@@ -44,6 +45,7 @@ public abstract class RoomDatabase {
      * {@link Room#inMemoryDatabaseBuilder(Context, Class)}.
      */
     public RoomDatabase() {
+        mInvalidationTracker = createInvalidationTracker();
     }
 
     /**
@@ -75,6 +77,15 @@ public abstract class RoomDatabase {
      */
     protected abstract SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration config);
 
+    /**
+     * Called when the RoomDatabase is created.
+     * <p>
+     * This is already implemented by the generated code.
+     *
+     * @return Creates a new InvalidationTracker.
+     */
+    protected abstract InvalidationTracker createInvalidationTracker();
+
     // Below, there are wrapper methods for SupportSQLiteDatabase. This helps us track which
     // methods we are using and also helps unit tests to mock this class without mocking
     // all sqlite database methods.
@@ -104,6 +115,7 @@ public abstract class RoomDatabase {
      * Wrapper for {@link SupportSQLiteDatabase#beginTransaction()}.
      */
     public void beginTransaction() {
+        mInvalidationTracker.syncTriggers();
         mOpenHelper.getWritableDatabase().beginTransaction();
     }
 
@@ -112,6 +124,7 @@ public abstract class RoomDatabase {
      */
     public void endTransaction() {
         mOpenHelper.getWritableDatabase().endTransaction();
+        mInvalidationTracker.refreshVersionsAsync();
     }
 
     /**
@@ -119,6 +132,40 @@ public abstract class RoomDatabase {
      */
     public void setTransactionSuccessful() {
         mOpenHelper.getWritableDatabase().setTransactionSuccessful();
+    }
+
+    /**
+     * Called by the generated code when database is open.
+     * <p>
+     * You should never call this method manually.
+     *
+     * @param db The database instance.
+     */
+    protected void internalInitInvalidationTracker(SupportSQLiteDatabase db) {
+        mInvalidationTracker.internalInit(db);
+    }
+
+    /**
+     * Returns the invalidation tracker for this database.
+     * <p>
+     * You can use the invalidation tracker to get notified when certain tables in the database
+     * are modified.
+     *
+     * @return The invalidation tracker for the database.
+     */
+    public InvalidationTracker getInvalidationTracker() {
+        return mInvalidationTracker;
+    }
+
+    /**
+     * Returns true if current thread is in a transaction.
+     *
+     * @return True if there is an active transaction in current thread, false otherwise.
+     *
+     * @see SupportSQLiteDatabase#inTransaction()
+     */
+    public boolean inTransaction() {
+        return mOpenHelper.getWritableDatabase().inTransaction();
     }
 
     /**
@@ -167,7 +214,9 @@ public abstract class RoomDatabase {
 
         /**
          * Creates the databases and initializes it.
-         *
+         * <p>
+         * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
+         * triggers.
          * @return A new database instance.
          */
         public T build() {

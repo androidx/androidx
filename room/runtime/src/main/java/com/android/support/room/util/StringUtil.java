@@ -28,6 +28,7 @@ import java.util.StringTokenizer;
  */
 @SuppressWarnings("WeakerAccess")
 public class StringUtil {
+    public static final String[] EMPTY_STRING_ARRAY = new String[0];
     /**
      * Returns a new StringBuilder to be used while producing SQL queries.
      *

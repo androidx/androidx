@@ -19,6 +19,8 @@ package com.android.support.lifecycle;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 
+import com.android.support.apptoolkit.internal.ObserverSet;
+
 /**
  * An implementation of {@link Lifecycle} that can handle multiple observers.
  * <p>
@@ -27,7 +29,6 @@ import android.support.v4.util.Pair;
  */
 @SuppressWarnings("WeakerAccess")
 public class LifecycleRegistry implements Lifecycle {
-    static final String TAG = "LifecycleRegistry";
     /**
      * Custom list that keeps observers and can handle removals / additions during traversal.
      */
@@ -104,7 +105,7 @@ public class LifecycleRegistry implements Lifecycle {
 
     @Override
     public void removeObserver(LifecycleObserver observer) {
-        mObserverSet.remove(new Pair<LifecycleObserver, GenericLifecycleObserver>(observer, null));
+        mObserverSet.remove(new Pair<>(observer, (GenericLifecycleObserver) null));
     }
 
     /**
@@ -136,6 +137,8 @@ public class LifecycleRegistry implements Lifecycle {
                 return RESUMED;
             case ON_DESTROY:
                 return DESTROYED;
+            case Lifecycle.ANY:
+                break;
         }
         throw new RuntimeException("Unexpected state value");
     }

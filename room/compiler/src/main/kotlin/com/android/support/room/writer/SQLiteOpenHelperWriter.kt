@@ -68,6 +68,15 @@ class SQLiteOpenHelperWriter(val database : Database) {
             addMethod(createOnCreate())
             addMethod(createOnUpgrade())
             addMethod(createOnDowngrade())
+            addMethod(createOnOpen())
+        }.build()
+    }
+
+    private fun createOnOpen(): MethodSpec {
+        return MethodSpec.methodBuilder("onOpen").apply {
+            addModifiers(PUBLIC)
+            addParameter(SupportDbTypeNames.DB, "_db")
+            addStatement("internalInitInvalidationTracker(_db)")
         }.build()
     }
 

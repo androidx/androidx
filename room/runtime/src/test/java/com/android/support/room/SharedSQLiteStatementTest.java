@@ -50,6 +50,7 @@ public class SharedSQLiteStatementTest {
                 return mock(SupportSQLiteStatement.class);
             }
         });
+        when(mockDb.getInvalidationTracker()).thenReturn(mock(InvalidationTracker.class));
         mSharedStmt = new SharedSQLiteStatement(mockDb) {
             @Override
             protected String createQuery() {

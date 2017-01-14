@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle;
+package com.android.support.apptoolkit.internal;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(JUnit4.class)
 public class ObserverSetTest {
+
     private ObserverSet<String> mObserverSet;
 
     @Before
@@ -59,7 +60,7 @@ public class ObserverSetTest {
     }
 
     @Test
-    public void add() {
+    public void addRemove() {
         add("a");
         assertThat(mObserverSet.size(), is(1));
         assertThat(collect().get(0), is("a"));
@@ -116,20 +117,10 @@ public class ObserverSetTest {
                 key.onAny();
             }
         });
-
         verify(observer1, times(1)).onAny();
         verify(observer2, times(1)).onAny();
         // because 1 has been removed and re-added, it should get the next event after o1
         assertThat(collect(list), equalTo(Arrays.asList(observer2, observer1)));
-    }
-
-    @Test
-    public void remove() {
-        add("a");
-        assertThat(mObserverSet.size(), is(1));
-        assertThat(collect().get(0), is("a"));
-        remove("a");
-        assertThat(mObserverSet.size(), is(0));
     }
 
     @Test
@@ -165,16 +156,13 @@ public class ObserverSetTest {
     }
 
     @SuppressWarnings("unused")
-    private interface StartedObserverWith2Methods extends LifecycleObserver {
-        @OnLifecycleEvent(Lifecycle.ON_START)
+    private interface StartedObserverWith2Methods {
         void onStarted1();
 
-        @OnLifecycleEvent(Lifecycle.ON_START)
         void onStarted2();
     }
 
-    private interface ObserveAll extends LifecycleObserver {
-        @OnLifecycleEvent(Lifecycle.ANY)
+    private interface ObserveAll {
         void onAny();
     }
 }

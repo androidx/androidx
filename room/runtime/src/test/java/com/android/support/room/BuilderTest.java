@@ -101,5 +101,10 @@ public class BuilderTest {
         protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration config) {
             return null;
         }
+
+        @Override
+        protected InvalidationTracker createInvalidationTracker() {
+            return null;
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,12 +47,8 @@ android {
 }
 
 dependencies {
-    compile project(":room:common")
-    compile project(":room:db")
-    compile project(":room:db-impl")
-    compile project(":apptoolkit-core")
+    compile "com.android.support:support-annotations:$support_lib_version"
     compile "com.android.support:support-core-utils:$support_lib_version"
-
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-all:$mockito_version"
 }
@@ -61,7 +57,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: rootProject.ext.localMavenRepo)
-            pom.artifactId = "runtime"
+            pom.artifactId = "apptoolkit-core"
         }
     }
 }

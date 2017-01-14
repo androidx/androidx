@@ -16,6 +16,10 @@
 
 // If you change this file, you should also change the settings gradle inside
 // the sub project.
+
+include ':apptoolkit-core'
+project(':apptoolkit-core').projectDir = new File("core")
+
 include ':lifecycle:extensions'
 project(':lifecycle:extensions').projectDir = new File("../lifecycle/extensions")
 
