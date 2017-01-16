@@ -1,0 +1,57 @@
+apply plugin: android.support.SupportLibraryPlugin
+archivesBaseName = 'support-tv-provider'
+
+dependencies {
+    compile project(':support-annotations')
+    compile project(':support-compat')
+    androidTestCompile (libs.test_runner) {
+        exclude module: 'support-annotations'
+    }
+}
+
+android {
+    compileSdkVersion project.ext.currentSdk
+
+    defaultConfig {
+        minSdkVersion 21
+    }
+
+    sourceSets {
+        main.java.srcDirs = ['src']
+        main.res.srcDir 'res'
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri(rootProject.ext.supportRepoOut)) {
+            }
+
+            pom.project {
+                name 'Android Support TV Provider'
+                description "Android Support Library for TV Provider"
+                url 'http://developer.android.com/tools/extras/support-library.html'
+                inceptionYear '2017'
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                scm {
+                    url "http://source.android.com"
+                    connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
+                }
+                developers {
+                    developer {
+                        name 'The Android Open Source Project'
+                    }
+                }
+            }
+        }
+    }
+}
