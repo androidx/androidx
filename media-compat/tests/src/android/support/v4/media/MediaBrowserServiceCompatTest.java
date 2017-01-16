@@ -147,9 +147,8 @@ public class MediaBrowserServiceCompatTest {
         }
     }
 
-    // TODO(hdmoon): Uncomment after fixing failing tests. (Fails on API >= 24)
-    // @Test
-    // @SmallTest
+    @Test
+    @SmallTest
     public void testDelayedItem() throws Exception {
         synchronized (mWaitLock) {
             mItemCallback.reset();
