@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,25 @@
 
 package android.support.transition;
 
-import android.support.annotation.RequiresApi;
-import android.support.v4.util.ArrayMap;
-import android.support.v4.util.LongSparseArray;
-import android.util.SparseArray;
-import android.view.View;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-@RequiresApi(14)
-class TransitionValuesMaps {
+class SyncRunnable implements Runnable {
 
-    final ArrayMap<View, TransitionValues> mViewValues = new ArrayMap<>();
+    private final CountDownLatch mLatch = new CountDownLatch(1);
 
-    final SparseArray<View> mIdValues = new SparseArray<>();
+    @Override
+    public void run() {
+        mLatch.countDown();
+    }
 
-    final LongSparseArray<View> mItemIdValues = new LongSparseArray<>();
-
-    final ArrayMap<String, View> mNameValues = new ArrayMap<>();
+    boolean await() {
+        try {
+            return mLatch.await(3000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return false;
+    }
 
 }

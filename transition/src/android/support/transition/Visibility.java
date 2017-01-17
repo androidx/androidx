@@ -168,9 +168,7 @@ public abstract class Visibility extends Transition {
             if (mTargets.size() > 0 || mTargetIds.size() > 0) {
                 View startView = startValues != null ? startValues.view : null;
                 View endView = endValues != null ? endValues.view : null;
-                int startId = startView != null ? startView.getId() : -1;
-                int endId = endView != null ? endView.getId() : -1;
-                isTarget = isValidTarget(startView, startId) || isValidTarget(endView, endId);
+                isTarget = isValidTarget(startView) || isValidTarget(endView);
             }
             if (isTarget || ((visInfo.mStartParent != null || visInfo.mEndParent != null))) {
                 if (visInfo.mFadeIn) {
@@ -226,6 +224,16 @@ public abstract class Visibility extends Transition {
     public Animator onDisappear(ViewGroup sceneRoot, TransitionValues startValues,
             int startVisibility, TransitionValues endValues, int endVisibility) {
         return null;
+    }
+
+    @Override
+    boolean areValuesChanged(TransitionValues oldValues, TransitionValues newValues) {
+        if (oldValues == null && newValues == null) {
+            return false;
+        }
+        VisibilityInfo changeInfo = getVisibilityChangeInfo(oldValues, newValues);
+        return changeInfo.mVisibilityChange && (changeInfo.mStartVisibility == View.VISIBLE
+                || changeInfo.mEndVisibility == View.VISIBLE);
     }
 
     // TODO: Implement API 21; onAppear (4 params), onDisappear (4 params), getMode, setMode

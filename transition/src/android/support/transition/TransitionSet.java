@@ -273,9 +273,24 @@ public class TransitionSet extends Transition {
     @RestrictTo(LIBRARY_GROUP)
     @Override
     protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
-            TransitionValuesMaps endValues) {
-        for (Transition childTransition : mTransitions) {
-            childTransition.createAnimators(sceneRoot, startValues, endValues);
+            TransitionValuesMaps endValues, ArrayList<TransitionValues> startValuesList,
+            ArrayList<TransitionValues> endValuesList) {
+        long startDelay = getStartDelay();
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; i++) {
+            Transition childTransition = mTransitions.get(i);
+            // We only set the start delay on the first transition if we are playing
+            // the transitions sequentially.
+            if (startDelay > 0 && (mPlayTogether || i == 0)) {
+                long childStartDelay = childTransition.getStartDelay();
+                if (childStartDelay > 0) {
+                    childTransition.setStartDelay(startDelay + childStartDelay);
+                } else {
+                    childTransition.setStartDelay(startDelay);
+                }
+            }
+            childTransition.createAnimators(sceneRoot, startValues, endValues, startValuesList,
+                    endValuesList);
         }
     }
 
@@ -318,11 +333,11 @@ public class TransitionSet extends Transition {
 
     @Override
     public void captureStartValues(@NonNull TransitionValues transitionValues) {
-        int targetId = transitionValues.view.getId();
-        if (isValidTarget(transitionValues.view, targetId)) {
+        if (isValidTarget(transitionValues.view)) {
             for (Transition childTransition : mTransitions) {
-                if (childTransition.isValidTarget(transitionValues.view, targetId)) {
+                if (childTransition.isValidTarget(transitionValues.view)) {
                     childTransition.captureStartValues(transitionValues);
+                    transitionValues.mTargetedTransitions.add(childTransition);
                 }
             }
         }
@@ -330,11 +345,11 @@ public class TransitionSet extends Transition {
 
     @Override
     public void captureEndValues(@NonNull TransitionValues transitionValues) {
-        int targetId = transitionValues.view.getId();
-        if (isValidTarget(transitionValues.view, targetId)) {
+        if (isValidTarget(transitionValues.view)) {
             for (Transition childTransition : mTransitions) {
-                if (childTransition.isValidTarget(transitionValues.view, targetId)) {
+                if (childTransition.isValidTarget(transitionValues.view)) {
                     childTransition.captureEndValues(transitionValues);
+                    transitionValues.mTargetedTransitions.add(childTransition);
                 }
             }
         }

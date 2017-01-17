@@ -1126,6 +1126,8 @@ package android.support.transition {
     method public android.support.transition.Transition addListener(android.support.transition.Transition.TransitionListener);
     method public android.support.transition.Transition addTarget(android.view.View);
     method public android.support.transition.Transition addTarget(int);
+    method public android.support.transition.Transition addTarget(java.lang.String);
+    method public android.support.transition.Transition addTarget(java.lang.Class);
     method public abstract void captureEndValues(android.support.transition.TransitionValues);
     method public abstract void captureStartValues(android.support.transition.TransitionValues);
     method public android.support.transition.Transition clone();
@@ -1135,21 +1137,31 @@ package android.support.transition {
     method public android.support.transition.Transition excludeChildren(java.lang.Class, boolean);
     method public android.support.transition.Transition excludeTarget(android.view.View, boolean);
     method public android.support.transition.Transition excludeTarget(int, boolean);
+    method public android.support.transition.Transition excludeTarget(java.lang.String, boolean);
     method public android.support.transition.Transition excludeTarget(java.lang.Class, boolean);
     method public long getDuration();
     method public android.animation.TimeInterpolator getInterpolator();
     method public java.lang.String getName();
     method public long getStartDelay();
     method public java.util.List<java.lang.Integer> getTargetIds();
+    method public java.util.List<java.lang.String> getTargetNames();
+    method public java.util.List<java.lang.Class> getTargetTypes();
     method public java.util.List<android.view.View> getTargets();
     method public java.lang.String[] getTransitionProperties();
     method public android.support.transition.TransitionValues getTransitionValues(android.view.View, boolean);
     method public android.support.transition.Transition removeListener(android.support.transition.Transition.TransitionListener);
     method public android.support.transition.Transition removeTarget(android.view.View);
     method public android.support.transition.Transition removeTarget(int);
+    method public android.support.transition.Transition removeTarget(java.lang.String);
+    method public android.support.transition.Transition removeTarget(java.lang.Class);
     method public android.support.transition.Transition setDuration(long);
     method public android.support.transition.Transition setInterpolator(android.animation.TimeInterpolator);
+    method public void setMatchOrder(int...);
     method public android.support.transition.Transition setStartDelay(long);
+    field public static final int MATCH_ID = 3; // 0x3
+    field public static final int MATCH_INSTANCE = 1; // 0x1
+    field public static final int MATCH_ITEM_ID = 4; // 0x4
+    field public static final int MATCH_NAME = 2; // 0x2
   }
 
   public static abstract interface Transition.TransitionListener {
