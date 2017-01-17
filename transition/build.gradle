@@ -44,13 +44,3 @@ supportLibrary {
     inceptionYear '2016'
     description 'Android Transition Support Library'
 }
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri(rootProject.ext.supportRepoOut)) {
-            }
-        }
-    }
-}
-

@@ -34,12 +34,3 @@ supportLibrary {
     inceptionYear '2013'
     description 'Android Support Grid Layout'
 }
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri(rootProject.ext.supportRepoOut)) {
-            }
-        }
-    }
-}
