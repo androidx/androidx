@@ -38,7 +38,9 @@ import android.widget.Toast;
 import com.example.android.supportv4.R;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A Fragment that lists all the various browsable queues available
@@ -66,6 +68,7 @@ public class BrowseFragment extends Fragment {
     private final List<MediaBrowserCompat.MediaItem> mMediaItems = new ArrayList<>();
 
     private boolean mCanLoadNewPage;
+    private final Set<Integer> mSubscribedPages = new HashSet<Integer>();
     private MediaBrowserCompat mMediaBrowser;
     private BrowseAdapter mBrowserAdapter;
 
@@ -234,9 +237,15 @@ public class BrowseFragment extends Fragment {
     public void onStop() {
         super.onStop();
         mMediaBrowser.disconnect();
+        mSubscribedPages.clear();
     }
 
     private void loadPage(int page) {
+        Integer pageInteger = Integer.valueOf(page);
+        if (mSubscribedPages.contains(pageInteger)) {
+            return;
+        }
+        mSubscribedPages.add(pageInteger);
         Bundle options = new Bundle();
         options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, PAGE_SIZE);
