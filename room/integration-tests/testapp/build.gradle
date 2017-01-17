@@ -51,6 +51,10 @@ dependencies {
     androidTestCompile("com.android.support.test.espresso:espresso-core:$espresso_version", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    // IJ's gradle integration just cannot figure this out ...
+    androidTestCompile project(':lifecycle:extensions')
+    androidTestCompile project(':lifecycle:common')
+    androidTestCompile project(':lifecycle:runtime')
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-core:$mockito_version"
 

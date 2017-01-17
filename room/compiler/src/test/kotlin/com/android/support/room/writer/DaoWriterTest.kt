@@ -59,7 +59,8 @@ class DaoWriterTest {
 
     fun singleDao(vararg jfo : JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(jfo.toList() + COMMON.USER + COMMON.MULTI_PKEY_ENTITY)
+                .that(jfo.toList() + COMMON.USER + COMMON.MULTI_PKEY_ENTITY +
+                        COMMON.LIVE_DATA + COMMON.COMPUTABLE_LIVE_DATA)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(com.android.support.room.Dao::class)
                         .nextRunHandler { invocation ->

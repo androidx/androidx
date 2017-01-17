@@ -89,6 +89,9 @@ object ProcessorErrors {
     val DB_MUST_EXTEND_ROOM_DB = "Classes annotated with @Database should extend " +
             RoomTypeNames.ROOM_DB
 
+    val LIVE_DATA_QUERY_WITHOUT_SELECT = "LiveData return type can only be used with SELECT" +
+            " queries."
+
     private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
 

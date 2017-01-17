@@ -58,8 +58,8 @@ class QueryWriterTest {
             writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
-                    java.lang.String _sql = "SELECT id FROM users";
-                    java.lang.String[] _args = new String[0];
+                    final java.lang.String _sql = "SELECT id FROM users";
+                    final java.lang.String[] _args = new String[0];
                     """.trimIndent()))
         }.compilesWithoutError()
     }
@@ -74,8 +74,8 @@ class QueryWriterTest {
             writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
-                    java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
-                    java.lang.String[] _args = new String[1];
+                    final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
+                    final java.lang.String[] _args = new String[1];
                     int _argIndex = 0;
                     _args[_argIndex] = name;
                     """.trimIndent()))
@@ -92,8 +92,8 @@ class QueryWriterTest {
             writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
-                    java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
-                    java.lang.String[] _args = new String[2];
+                    final java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
+                    final java.lang.String[] _args = new String[2];
                     int _argIndex = 0;
                     _args[_argIndex] = java.lang.Integer.toString(id1);
                     _argIndex = 1;
@@ -118,9 +118,9 @@ class QueryWriterTest {
                     $STRING_UTIL.appendPlaceholders(_stringBuilder, _inputSize);
                     _stringBuilder.append(") AND age > ");
                     _stringBuilder.append("?");
-                    java.lang.String _sql = _stringBuilder.toString();
+                    final java.lang.String _sql = _stringBuilder.toString();
                     final int _argCount = 1 + _inputSize;
-                    java.lang.String[] _args = new String[_argCount];
+                    final java.lang.String[] _args = new String[_argCount];
                     int _argIndex = 0;
                     for (int _item : ids) {
                       _args[_argIndex] = java.lang.Integer.toString(_item);
@@ -139,9 +139,9 @@ class QueryWriterTest {
                     $STRING_UTIL.appendPlaceholders(_stringBuilder, _inputSize);
                     _stringBuilder.append(") AND age > ");
                     _stringBuilder.append("?");
-                    java.lang.String _sql = _stringBuilder.toString();
+                    final java.lang.String _sql = _stringBuilder.toString();
                     final int _argCount = 1 + _inputSize;
-                    java.lang.String[] _args = new String[_argCount];
+                    final java.lang.String[] _args = new String[_argCount];
                     int _argIndex = 0;
                     for (java.lang.Integer _item : ids) {
                       _args[_argIndex] = _item == null ? null : java.lang.Integer.toString(_item);
@@ -184,8 +184,8 @@ class QueryWriterTest {
             val scope = CodeGenScope()
             writer.prepareReadAndBind("_sql", "_args", scope)
             assertThat(scope.generate().trim(), `is`("""
-                    java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
-                    java.lang.String[] _args = new String[2];
+                    final java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
+                    final java.lang.String[] _args = new String[2];
                     int _argIndex = 0;
                     _args[_argIndex] = java.lang.Integer.toString(age);
                     _argIndex = 1;
@@ -212,9 +212,9 @@ class QueryWriterTest {
                     final int _inputSize = ages.length;
                     $STRING_UTIL.appendPlaceholders(_stringBuilder, _inputSize);
                     _stringBuilder.append(")");
-                    java.lang.String _sql = _stringBuilder.toString();
+                    final java.lang.String _sql = _stringBuilder.toString();
                     final int _argCount = 2 + _inputSize;
-                    java.lang.String[] _args = new String[_argCount];
+                    final java.lang.String[] _args = new String[_argCount];
                     int _argIndex = 0;
                     _args[_argIndex] = java.lang.Integer.toString(age);
                     _argIndex = 1;
@@ -247,9 +247,9 @@ class QueryWriterTest {
                     final int _inputSize_1 = ages.length;
                     $STRING_UTIL.appendPlaceholders(_stringBuilder, _inputSize_1);
                     _stringBuilder.append(")");
-                    java.lang.String _sql = _stringBuilder.toString();
+                    final java.lang.String _sql = _stringBuilder.toString();
                     final int _argCount = 1 + _inputSize + _inputSize_1;
-                    java.lang.String[] _args = new String[_argCount];
+                    final java.lang.String[] _args = new String[_argCount];
                     int _argIndex = 0;
                     for (int _item : ages) {
                       _args[_argIndex] = java.lang.Integer.toString(_item);

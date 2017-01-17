@@ -16,11 +16,14 @@
 
 package com.android.support.room.processor
 
+import com.android.support.room.ext.LifecyclesTypeNames
+import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.log.RLog
 import com.android.support.room.preconditions.Checks
 import com.android.support.room.solver.TypeAdapterStore
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
+import javax.lang.model.type.TypeMirror
 
 data class Context(val processingEnv: ProcessingEnvironment) {
     val logger = RLog(processingEnv)
@@ -31,6 +34,14 @@ data class Context(val processingEnv: ProcessingEnvironment) {
     class CommonTypes(val processingEnv: ProcessingEnvironment) {
         val STRING by lazy {
             processingEnv.elementUtils.getTypeElement("java.lang.String").asType()
+        }
+        val LIVE_DATA: TypeMirror? by lazy {
+            processingEnv.elementUtils.getTypeElement(LifecyclesTypeNames.LIVE_DATA.toString())
+                    ?.asType()
+        }
+        val COMPUTABLE_LIVE_DATA : TypeMirror? by lazy {
+            processingEnv.elementUtils.getTypeElement(LifecyclesTypeNames.COMPUTABLE_LIVE_DATA
+                    .toString())?.asType()
         }
     }
 }

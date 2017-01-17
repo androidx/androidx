@@ -17,7 +17,10 @@
 package com.android.support.room.solver
 
 import com.android.support.room.Entity
+import com.android.support.room.ext.LifecyclesTypeNames
+import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.hasAnnotation
+import com.android.support.room.parser.Table
 import com.android.support.room.processor.Context
 import com.android.support.room.solver.query.parameter.ArrayQueryParameterAdapter
 import com.android.support.room.solver.query.parameter.BasicQueryParameterAdapter
@@ -25,8 +28,11 @@ import com.android.support.room.solver.query.parameter.CollectionQueryParameterA
 import com.android.support.room.solver.query.parameter.QueryParameterAdapter
 import com.android.support.room.solver.query.result.ArrayQueryResultAdapter
 import com.android.support.room.solver.query.result.EntityRowAdapter
+import com.android.support.room.solver.query.result.InstantQueryResultBinder
 import com.android.support.room.solver.query.result.ListQueryResultAdapter
+import com.android.support.room.solver.query.result.LiveDataQueryResultBinder
 import com.android.support.room.solver.query.result.QueryResultAdapter
+import com.android.support.room.solver.query.result.QueryResultBinder
 import com.android.support.room.solver.query.result.RowAdapter
 import com.android.support.room.solver.query.result.SingleColumnRowAdapter
 import com.android.support.room.solver.query.result.SingleEntityQueryResultAdapter
@@ -44,10 +50,12 @@ import com.android.support.room.solver.types.PrimitiveToStringConverter
 import com.android.support.room.solver.types.ReverseTypeConverter
 import com.android.support.room.solver.types.StringColumnTypeAdapter
 import com.android.support.room.solver.types.TypeConverter
+import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
 import java.util.LinkedList
 import javax.lang.model.type.ArrayType
+import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
@@ -56,16 +64,16 @@ import javax.lang.model.type.TypeMirror
  * Holds all type adapters and can create on demand composite type adapters to convert a type into a
  * database column.
  */
-class TypeAdapterStore(val context : Context,
-                       @VisibleForTesting vararg extras : Any) {
-    private val columnTypeAdapters : List<ColumnTypeAdapter>
-    private val typeConverters : List<TypeConverter>
+class TypeAdapterStore(val context: Context,
+                       @VisibleForTesting vararg extras: Any) {
+    private val columnTypeAdapters: List<ColumnTypeAdapter>
+    private val typeConverters: List<TypeConverter>
 
     init {
         val adapters = arrayListOf<ColumnTypeAdapter>()
         val converters = arrayListOf<TypeConverter>()
         extras.forEach {
-            when(it) {
+            when (it) {
                 is TypeConverter -> converters.add(it)
                 is ColumnTypeAdapter -> adapters.add(it)
                 else -> throw IllegalArgumentException("unknown extra")
@@ -121,7 +129,35 @@ class TypeAdapterStore(val context : Context,
         return findTypeConverter(input, listOf(output))
     }
 
-    fun findQueryResultAdapter(typeMirror: TypeMirror) : QueryResultAdapter? {
+    private fun isLiveData(declared : DeclaredType) : Boolean {
+        val typeElement = MoreElements.asType(declared.asElement())
+        val qName = typeElement.qualifiedName.toString()
+        // even though computable live data is internal, we still check for it as we may inherit
+        // it from some internal class.
+        return qName == LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.toString() ||
+                qName == LifecyclesTypeNames.LIVE_DATA.toString()
+    }
+
+    fun findQueryResultBinder(typeMirror: TypeMirror, tables: Set<Table>): QueryResultBinder {
+        return if (typeMirror.kind == TypeKind.DECLARED) {
+            val declared = MoreTypes.asDeclared(typeMirror)
+            if (declared.typeArguments.isEmpty()) {
+                InstantQueryResultBinder(findQueryResultAdapter(typeMirror))
+            } else {
+                if (isLiveData(declared)) {
+                    val liveDataTypeArg = declared.typeArguments.first()
+                    LiveDataQueryResultBinder(liveDataTypeArg, tables,
+                            findQueryResultAdapter(liveDataTypeArg))
+                } else {
+                    InstantQueryResultBinder(findQueryResultAdapter(typeMirror))
+                }
+            }
+        } else {
+            InstantQueryResultBinder(findQueryResultAdapter(typeMirror))
+        }
+    }
+
+    private fun findQueryResultAdapter(typeMirror: TypeMirror): QueryResultAdapter? {
         if (typeMirror.kind == TypeKind.DECLARED) {
             val declared = MoreTypes.asDeclared(typeMirror)
             if (declared.typeArguments.isEmpty()) {
@@ -145,7 +181,7 @@ class TypeAdapterStore(val context : Context,
         }
     }
 
-    private fun findRowAdapter(typeMirror: TypeMirror) : RowAdapter? {
+    private fun findRowAdapter(typeMirror: TypeMirror): RowAdapter? {
         if (typeMirror.kind == TypeKind.DECLARED) {
             val declared = MoreTypes.asDeclared(typeMirror)
             if (declared.typeArguments.isNotEmpty()) {
@@ -170,10 +206,10 @@ class TypeAdapterStore(val context : Context,
         }
     }
 
-    fun findQueryParameterAdapter(typeMirror : TypeMirror) : QueryParameterAdapter? {
+    fun findQueryParameterAdapter(typeMirror: TypeMirror): QueryParameterAdapter? {
         if (MoreTypes.isType(typeMirror)
                 && (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)
-                        || MoreTypes.isTypeOf(java.util.Set::class.java, typeMirror))) {
+                || MoreTypes.isTypeOf(java.util.Set::class.java, typeMirror))) {
             val declared = MoreTypes.asDeclared(typeMirror)
             val converter = findTypeConverter(declared.typeArguments.first(),
                     context.COMMON_TYPES.STRING)
@@ -208,7 +244,8 @@ class TypeAdapterStore(val context : Context,
             val from = prev?.to ?: input
             val candidates = getAllTypeConverters(from, excludes)
             val match = candidates.firstOrNull {
-                outputs.any { output -> types.isSameType(output, it.to) } }
+                outputs.any { output -> types.isSameType(output, it.to) }
+            }
             if (match != null) {
                 return if (prev == null) match else CompositeTypeConverter(prev, match)
             }
@@ -228,7 +265,7 @@ class TypeAdapterStore(val context : Context,
         }
     }
 
-    private fun getAllTypeConverters(input: TypeMirror, excludes : List<TypeMirror>):
+    private fun getAllTypeConverters(input: TypeMirror, excludes: List<TypeMirror>):
             List<TypeConverter> {
         val types = context.processingEnv.typeUtils
         return typeConverters.filter { converter ->

@@ -20,6 +20,8 @@ import com.android.support.room.Query
 import com.android.support.room.parser.ParsedQuery
 import com.android.support.room.parser.QueryType
 import com.android.support.room.parser.SqlParser
+import com.android.support.room.solver.query.result.InstantQueryResultBinder
+import com.android.support.room.solver.query.result.LiveDataQueryResultBinder
 import com.android.support.room.vo.QueryMethod
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -65,10 +67,15 @@ class QueryMethodProcessor(val context: Context) {
             )
         }
 
-        val resultAdapter = context.typeAdapterStore
-                .findQueryResultAdapter(executableType.returnType)
-        context.checker.check(resultAdapter != null || query.type != QueryType.SELECT,
+        val resultBinder = context.typeAdapterStore
+                .findQueryResultBinder(executableType.returnType, query.tables)
+        context.checker.check(resultBinder.adapter != null || query.type != QueryType.SELECT,
                 executableElement, ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
+        if (resultBinder is LiveDataQueryResultBinder) {
+            context.checker.check(query.type == QueryType.SELECT, executableElement,
+                    ProcessorErrors.LIVE_DATA_QUERY_WITHOUT_SELECT)
+        }
+
         val queryMethod = QueryMethod(
                 element = executableElement,
                 query = query,
@@ -76,7 +83,7 @@ class QueryMethodProcessor(val context: Context) {
                 returnType = executableType.returnType,
                 parameters = executableElement.parameters
                         .map { parameterParser.parse(containing, it) },
-                resultAdapter = resultAdapter)
+                queryResultBinder = resultBinder)
 
         val missing = queryMethod.sectionToParamMapping
                 .filter { it.second == null }

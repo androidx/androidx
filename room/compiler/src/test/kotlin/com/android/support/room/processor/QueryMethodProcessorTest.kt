@@ -16,10 +16,13 @@
 
 package com.android.support.room.processor
 
+import COMMON
 import com.android.support.room.Dao
 import com.android.support.room.Query
+import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.typeName
+import com.android.support.room.solver.query.result.LiveDataQueryResultBinder
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.vo.QueryMethod
@@ -28,13 +31,14 @@ import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertAbout
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourceSubjectFactory
+import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -222,7 +226,7 @@ class QueryMethodProcessorTest {
                 @Query("select * from users where id = :_blah")
                 abstract public long getSth(int _blah);
                 """
-        ){parsedQuery, invocation -> }
+        ) { parsedQuery, invocation -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
     }
@@ -341,13 +345,41 @@ class QueryMethodProcessorTest {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun testLiveDataQuery() {
+        singleQueryMethod(
+                """
+                @Query("select name from user where id = :id")
+                abstract ${LifecyclesTypeNames.LIVE_DATA}<String> nameLiveData(String id);
+                """
+        ) { parsedQuery, invocation ->
+            assertThat(parsedQuery.returnType.typeName(),
+                    `is`(ParameterizedTypeName.get(LifecyclesTypeNames.LIVE_DATA,
+                            String::class.typeName()) as TypeName))
+            assertThat(parsedQuery.queryResultBinder,
+                    instanceOf(LiveDataQueryResultBinder::class.java))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testNonSelectLiveData() {
+        singleQueryMethod(
+                """
+                @Query("delete from user where id = :id")
+                abstract ${LifecyclesTypeNames.LIVE_DATA}<Integer> deleteLiveData(String id);
+                """
+        ) { parsedQuery, invocation ->
+        }.failsToCompile()
+                .withErrorContaining(ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT)
+    }
+
     fun singleQueryMethod(vararg input: String,
                           handler: (QueryMethod, TestInvocation) -> Unit):
             CompileTester {
-        return assertAbout(JavaSourceSubjectFactory.javaSource())
-                .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
+        return assertAbout(JavaSourcesSubjectFactory.javaSources())
+                .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-                ))
+                ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA))
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(Query::class, Dao::class)
                         .nextRunHandler { invocation ->

@@ -19,6 +19,7 @@ package com.android.support.room.vo
 import com.android.support.room.ext.typeName
 import com.android.support.room.parser.ParsedQuery
 import com.android.support.room.solver.query.result.QueryResultAdapter
+import com.android.support.room.solver.query.result.QueryResultBinder
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.TypeMirror
@@ -29,7 +30,7 @@ import javax.lang.model.type.TypeMirror
  */
 data class QueryMethod(val element: ExecutableElement, val query: ParsedQuery, val name: String,
                        val returnType: TypeMirror, val parameters: List<QueryParameter>,
-                       val resultAdapter : QueryResultAdapter?) {
+                       val queryResultBinder : QueryResultBinder) {
     val sectionToParamMapping by lazy {
         query.bindSections.map {
             if (it.text.trim() == "?") {

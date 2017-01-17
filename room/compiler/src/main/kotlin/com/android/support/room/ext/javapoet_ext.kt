@@ -61,6 +61,14 @@ object RoomTypeNames {
             ClassName.get("com.android.support.room", "SharedSQLiteStatement")
     val INVALIDATION_TRACKER : ClassName =
             ClassName.get("com.android.support.room", "InvalidationTracker")
+    val INVALIDATION_OBSERVER : ClassName =
+            ClassName.get("com.android.support.room.InvalidationTracker", "Observer")
+}
+
+object LifecyclesTypeNames {
+    val LIVE_DATA: ClassName = ClassName.get("com.android.support.lifecycle", "LiveData")
+    val COMPUTABLE_LIVE_DATA : ClassName = ClassName.get("com.android.support.lifecycle",
+            "ComputableLiveData")
 }
 
 object AndroidTypeNames {

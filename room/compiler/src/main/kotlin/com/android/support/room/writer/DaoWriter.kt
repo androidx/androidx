@@ -16,7 +16,6 @@
 
 package com.android.support.room.writer
 
-import com.android.support.room.ext.AndroidTypeNames
 import com.android.support.room.ext.L
 import com.android.support.room.ext.N
 import com.android.support.room.ext.RoomTypeNames
@@ -342,18 +341,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
         val sqlVar = scope.getTmpVar("_sql")
         val argsVar = scope.getTmpVar("_args")
         queryWriter.prepareReadAndBind(sqlVar, argsVar, scope)
-        scope.builder().apply {
-            val cursorVar = scope.getTmpVar("_cursor")
-            val outVar = scope.getTmpVar("_result")
-            addStatement("final $T $L = $N.query($L, $L)", AndroidTypeNames.CURSOR, cursorVar,
-                    dbField, sqlVar, argsVar)
-            beginControlFlow("try")
-            method.resultAdapter?.convert(outVar, cursorVar, scope)
-            addStatement("return $L", outVar)
-            nextControlFlow("finally")
-            addStatement("$L.close()", cursorVar)
-            endControlFlow()
-        }
+        method.queryResultBinder.convertAndReturn(sqlVar, argsVar, dbField, scope)
         return scope.builder().build()
     }
 

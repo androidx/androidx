@@ -85,20 +85,20 @@ class QueryWriter(val queryMethod: QueryMethod) {
                     }
                 }
 
-                addStatement("$T $L = $L.toString()", String::class.typeName(),
+                addStatement("final $T $L = $L.toString()", String::class.typeName(),
                         outSqlQueryName, stringBuilderVar)
                 if (outArgsName != null) {
                     val argCount = scope.getTmpVar("_argCount")
                     addStatement("final $T $L = $L$L", TypeName.INT, argCount, knownQueryArgsCount,
                             listSizeVars.joinToString("") { " + ${it.second}" })
-                    addStatement("$T $L = new String[$L]",
+                    addStatement("final $T $L = new String[$L]",
                             String::class.arrayTypeName(), outArgsName, argCount)
                 }
             } else {
-                addStatement("$T $L = $S", String::class.typeName(),
+                addStatement("final $T $L = $S", String::class.typeName(),
                         outSqlQueryName, queryMethod.query.queryWithReplacedBindParams)
                 if (outArgsName != null) {
-                    addStatement("$T $L = new String[$L]",
+                    addStatement("final $T $L = new String[$L]",
                             String::class.arrayTypeName(), outArgsName, knownQueryArgsCount)
                 }
             }

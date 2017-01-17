@@ -16,6 +16,7 @@
 
 package com.android.support.room.integration.testapp.dao;
 
+import com.android.support.lifecycle.LiveData;
 import com.android.support.room.Dao;
 import com.android.support.room.Delete;
 import com.android.support.room.Insert;
@@ -70,4 +71,10 @@ public interface UserDao {
 
     @Query("select mId from user order by mId ASC")
     List<Integer> loadIds();
+
+    @Query("select * from user where mId = :id")
+    LiveData<User> liveUserById(int id);
+
+    @Query("select * from user where mName LIKE '%' || :name || '%' ORDER BY mId DESC")
+    LiveData<List<User>> liveUsersListByName(String name);
 }

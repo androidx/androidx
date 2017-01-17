@@ -17,6 +17,8 @@
 package foo.bar;
 import com.android.support.room.*;
 import java.util.List;
+import com.android.support.lifecycle.LiveData;
+
 @Dao
 abstract class ComplexDao {
     @Query("SELECT * FROM user where uid = :id")
@@ -36,4 +38,10 @@ abstract class ComplexDao {
 
     @Query("SELECT age FROM user where id = IN(:ids)")
     abstract public List<Integer> getAllAgesAsList(List<Integer> ids);
+
+    @Query("SELECT * FROM user where uid = :id")
+    abstract public LiveData<User> getByIdLive(int id);
+
+    @Query("SELECT * FROM user where uid IN (:ids)")
+    abstract public LiveData<List<User>> loadUsersByIdsLive(int... ids);
 }

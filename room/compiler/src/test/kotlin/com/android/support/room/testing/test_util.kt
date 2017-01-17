@@ -15,6 +15,8 @@
  */
 
 import com.android.support.room.Query
+import com.android.support.room.ext.LifecyclesTypeNames
+import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.google.common.truth.Truth
@@ -40,6 +42,13 @@ object COMMON {
     }
     val MULTI_PKEY_ENTITY by lazy {
         loadJavaCode("common/input/MultiPKeyEntity.java", "MultiPKeyEntity")
+    }
+    val LIVE_DATA by lazy {
+        loadJavaCode("common/input/LiveData.java", LifecyclesTypeNames.LIVE_DATA.toString())
+    }
+    val COMPUTABLE_LIVE_DATA by lazy {
+        loadJavaCode("common/input/ComputableLiveData.java",
+                LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.toString())
     }
 }
 fun simpleRun(f: (TestInvocation) -> Unit): CompileTester {

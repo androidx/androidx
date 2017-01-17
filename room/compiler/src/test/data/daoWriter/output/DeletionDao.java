@@ -55,7 +55,7 @@ public class DeletionDao_Impl implements DeletionDao {
     this._preparedStmtOfDeleteByUid = new SharedSQLiteStatement(__db) {
       @Override
       public String createQuery() {
-        String _query = "DELETE FROM user where uid = ?";
+        final String _query = "DELETE FROM user where uid = ?";
         return _query;
       }
     };
@@ -171,7 +171,7 @@ public class DeletionDao_Impl implements DeletionDao {
     final int _inputSize = uid.length;
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
-    String _sql = _stringBuilder.toString();
+    final String _sql = _stringBuilder.toString();
     SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
     int _argIndex = 1;
     for (int _item : uid) {

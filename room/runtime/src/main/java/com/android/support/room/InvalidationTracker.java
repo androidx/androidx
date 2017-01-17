@@ -19,6 +19,7 @@ package com.android.support.room;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
@@ -28,6 +29,7 @@ import com.android.support.db.SupportSQLiteDatabase;
 import com.android.support.db.SupportSQLiteStatement;
 import com.android.support.executors.AppToolkitTaskExecutor;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -84,6 +86,7 @@ public class InvalidationTracker {
     @VisibleForTesting
     ArrayMap<String, Integer> mTableIdLookup;
     private String[] mTableNames;
+
     @NonNull
     @VisibleForTesting
     long[] mTableVersions;
@@ -104,7 +107,7 @@ public class InvalidationTracker {
     private ObservedTableTracker mObservedTableTracker;
 
     @VisibleForTesting
-    ObserverSet<ObserverWrapper> mObserverSet;
+    SyncObserverSet<ObserverWrapper> mObserverSet;
 
     private ObserverSet.Callback<ObserverWrapper> mInvalidCheck =
             new ObserverSet.Callback<ObserverWrapper>() {
@@ -243,6 +246,21 @@ public class InvalidationTracker {
             versions[i] = mMaxVersion;
         }
         mObserverSet.add(new ObserverWrapper(observer, tableIds, versions));
+    }
+
+    /**
+     * Adds an observer but keeps a weak reference back to it.
+     * <p>
+     * Note that you cannot remove this observer once added. It will be automatically removed
+     * when the observer is GC'ed.
+     *
+     * @param observer The observer to which InvalidationTracker will keep a weak reference.
+     * @hide
+     */
+    @SuppressWarnings("unused")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void addWeakObserver(Observer observer) {
+        addObserver(new WeakObserver(this, observer));
     }
 
     /**
@@ -438,7 +456,10 @@ public class InvalidationTracker {
             mTables = Arrays.copyOf(tables, tables.length);
         }
 
-        protected abstract void onInvalidated();
+        /**
+         * Called when one of the observed tables is invalidated in the database.
+         */
+        public abstract void onInvalidated();
     }
 
 
@@ -549,6 +570,31 @@ public class InvalidationTracker {
         void onSyncCompleted() {
             synchronized (this) {
                 mPendingSync = false;
+            }
+        }
+    }
+
+    /**
+     * An Observer wrapper that keeps a weak reference to the given object.
+     * <p>
+     * This class with automatically unsubscribe when the wrapped observer goes out of memory.
+     */
+    static class WeakObserver extends Observer {
+        final InvalidationTracker mTracker;
+        final WeakReference<Observer> mDelegateRef;
+        WeakObserver(InvalidationTracker tracker, Observer delegate) {
+            super(delegate.mTables);
+            mTracker = tracker;
+            mDelegateRef = new WeakReference<>(delegate);
+        }
+
+        @Override
+        public void onInvalidated() {
+            final Observer observer = mDelegateRef.get();
+            if (observer == null) {
+                mTracker.removeObserver(this);
+            } else {
+                observer.onInvalidated();
             }
         }
     }

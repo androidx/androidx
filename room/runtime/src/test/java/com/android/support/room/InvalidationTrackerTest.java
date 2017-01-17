@@ -17,18 +17,14 @@
 package com.android.support.room;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,11 +33,10 @@ import android.database.Cursor;
 import com.android.support.db.SupportSQLiteDatabase;
 import com.android.support.db.SupportSQLiteOpenHelper;
 import com.android.support.db.SupportSQLiteStatement;
-import com.android.support.executors.AppToolkitTaskExecutor;
-import com.android.support.executors.TaskExecutor;
+import com.android.support.room.testutil.JunitTaskExecutorRule;
 
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -56,46 +51,25 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RunWith(JUnit4.class)
 public class InvalidationTrackerTest {
     private InvalidationTracker mTracker;
-    private TaskExecutor mTaskExecutor;
     private RoomDatabase mRoomDatabase;
+    @Rule
+    public JunitTaskExecutorRule mTaskExecutorRule = new JunitTaskExecutorRule(1,
+            true);
 
     @Before
     public void setup() {
         mRoomDatabase = mock(RoomDatabase.class);
         SupportSQLiteDatabase sqliteDb = mock(SupportSQLiteDatabase.class);
-        when(sqliteDb.compileStatement(eq(InvalidationTracker.CLEANUP_SQL))).thenReturn(
-                mock(SupportSQLiteStatement.class));
+        final SupportSQLiteStatement statement = mock(SupportSQLiteStatement.class);
         SupportSQLiteOpenHelper openHelper = mock(SupportSQLiteOpenHelper.class);
-        when(openHelper.getWritableDatabase()).thenReturn(sqliteDb);
-        when(mRoomDatabase.getOpenHelper()).thenReturn(openHelper);
+
+        doReturn(statement).when(sqliteDb).compileStatement(eq(InvalidationTracker.CLEANUP_SQL));
+        doReturn(sqliteDb).when(openHelper).getWritableDatabase();
+        //noinspection ResultOfMethodCallIgnored
+        doReturn(openHelper).when(mRoomDatabase).getOpenHelper();
+
         mTracker = new InvalidationTracker(mRoomDatabase, "a", "B");
         mTracker.internalInit(sqliteDb);
-    }
-
-    @Before
-    public void swapExecutorDelegate() {
-        mTaskExecutor = spy(new TaskExecutor() {
-            @Override
-            public void executeOnDiskIO(Runnable runnable) {
-                runnable.run();
-            }
-
-            @Override
-            public void executeOnMainThread(Runnable runnable) {
-                runnable.run();
-            }
-
-            @Override
-            public boolean isMainThread() {
-                return true;
-            }
-        });
-        AppToolkitTaskExecutor.getInstance().setDelegate(mTaskExecutor);
-    }
-
-    @After
-    public void removeExecutorDelegate() {
-        AppToolkitTaskExecutor.getInstance().setDelegate(null);
     }
 
     @Test
@@ -108,11 +82,18 @@ public class InvalidationTrackerTest {
     public void addRemoveObserver() throws Exception {
         InvalidationTracker.Observer observer = new LatchObserver(1, "a");
         mTracker.addObserver(observer);
+        drainTasks();
         assertThat(mTracker.mObserverSet.size(), is(1));
         mTracker.removeObserver(new LatchObserver(1, "a"));
+        drainTasks();
         assertThat(mTracker.mObserverSet.size(), is(1));
         mTracker.removeObserver(observer);
+        drainTasks();
         assertThat(mTracker.mObserverSet.size(), is(0));
+    }
+
+    private void drainTasks() throws InterruptedException {
+        mTaskExecutorRule.drainTasks(200);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -123,43 +104,39 @@ public class InvalidationTrackerTest {
 
     @Test
     public void refreshReadValues() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                ((Runnable) invocation.getArguments()[0]).run();
-                return nullValue();
-            }
-        }).when(mTaskExecutor).executeOnDiskIO(any(Runnable.class));
-
         setVersions(1, 0, 2, 1);
-        mTracker.refreshVersionsAsync();
+        refreshSync();
         assertThat(mTracker.mTableVersions, is(new long[]{1, 2}));
 
         setVersions(3, 1);
-        mTracker.refreshVersionsAsync();
+        refreshSync();
         assertThat(mTracker.mTableVersions, is(new long[]{1, 3}));
 
         setVersions(7, 0);
-        mTracker.refreshVersionsAsync();
+        refreshSync();
         assertThat(mTracker.mTableVersions, is(new long[]{7, 3}));
 
-        mTracker.refreshVersionsAsync();
+        refreshSync();
         assertThat(mTracker.mTableVersions, is(new long[]{7, 3}));
+    }
+
+    private void refreshSync() throws InterruptedException {
+        mTracker.refreshVersionsAsync();
+        drainTasks();
     }
 
     @Test
     public void refreshCheckTasks() throws Exception {
         when(mRoomDatabase.query(anyString(), any(String[].class)))
                 .thenReturn(mock(Cursor.class));
-        doNothing().when(mTaskExecutor).executeOnDiskIO(any(Runnable.class));
         mTracker.refreshVersionsAsync();
         mTracker.refreshVersionsAsync();
-        verify(mTaskExecutor).executeOnDiskIO(mTracker.mRefreshRunnable);
-        mTracker.mRefreshRunnable.run();
+        verify(mTaskExecutorRule.getTaskExecutor()).executeOnDiskIO(mTracker.mRefreshRunnable);
+        drainTasks();
 
-        reset(mTaskExecutor);
+        reset(mTaskExecutorRule.getTaskExecutor());
         mTracker.refreshVersionsAsync();
-        verify(mTaskExecutor).executeOnDiskIO(mTracker.mRefreshRunnable);
+        verify(mTaskExecutorRule.getTaskExecutor()).executeOnDiskIO(mTracker.mRefreshRunnable);
     }
 
     @Test
@@ -167,16 +144,16 @@ public class InvalidationTrackerTest {
         LatchObserver observer = new LatchObserver(1, "a");
         mTracker.addObserver(observer);
         setVersions(1, 0, 2, 1);
-        mTracker.refreshVersionsAsync();
+        refreshSync();
         assertThat(observer.await(), is(true));
 
         setVersions(3, 1);
         observer.reset(1);
-        mTracker.refreshVersionsAsync();
+        refreshSync();
         assertThat(observer.await(), is(false));
 
         setVersions(4, 0);
-        mTracker.refreshVersionsAsync();
+        refreshSync();
         assertThat(observer.await(), is(true));
     }
 
@@ -185,28 +162,31 @@ public class InvalidationTrackerTest {
         LatchObserver observer = new LatchObserver(1, "A", "B");
         mTracker.addObserver(observer);
         setVersions(1, 0, 2, 1);
-        mTracker.refreshVersionsAsync();
+        refreshSync();
         assertThat(observer.await(), is(true));
 
         setVersions(3, 1);
         observer.reset(1);
-        mTracker.refreshVersionsAsync();
+        refreshSync();
         assertThat(observer.await(), is(true));
 
         setVersions(4, 0);
         observer.reset(1);
-        mTracker.refreshVersionsAsync();
+        refreshSync();
         assertThat(observer.await(), is(true));
 
         observer.reset(1);
-        mTracker.refreshVersionsAsync();
+        refreshSync();
         assertThat(observer.await(), is(false));
     }
 
     /**
      * Key value pairs of VERSION, TABLE_ID
      */
-    private void setVersions(int... keyValuePairs) {
+    private void setVersions(int... keyValuePairs) throws InterruptedException {
+        // mockito does not like multi-threaded access so before setting versions, make sure we
+        // sync background tasks.
+        drainTasks();
         Cursor cursor = createCursorWithValues(keyValuePairs);
         doReturn(cursor).when(mRoomDatabase).query(
                 Mockito.eq(InvalidationTracker.SELECT_UPDATED_TABLES_SQL),
@@ -247,7 +227,7 @@ public class InvalidationTrackerTest {
         }
 
         @Override
-        protected void onInvalidated() {
+        public void onInvalidated() {
             mLatch.countDown();
         }
 
