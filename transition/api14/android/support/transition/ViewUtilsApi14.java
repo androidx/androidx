@@ -33,4 +33,14 @@ class ViewUtilsApi14 implements ViewUtilsImpl {
         return new WindowIdApi14(view.getWindowToken());
     }
 
+    @Override
+    public void setTransitionAlpha(@NonNull View view, float alpha) {
+        view.setAlpha(alpha);
+    }
+
+    @Override
+    public float getTransitionAlpha(@NonNull View view) {
+        return view.getAlpha();
+    }
+
 }

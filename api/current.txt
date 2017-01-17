@@ -1704,9 +1704,15 @@ package android.support.transition {
     ctor public Visibility();
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
+    method public int getMode();
     method public boolean isVisible(android.support.transition.TransitionValues);
     method public android.animation.Animator onAppear(android.view.ViewGroup, android.support.transition.TransitionValues, int, android.support.transition.TransitionValues, int);
+    method public android.animation.Animator onAppear(android.view.ViewGroup, android.view.View, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
     method public android.animation.Animator onDisappear(android.view.ViewGroup, android.support.transition.TransitionValues, int, android.support.transition.TransitionValues, int);
+    method public android.animation.Animator onDisappear(android.view.ViewGroup, android.view.View, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public void setMode(int);
+    field public static final int MODE_IN = 1; // 0x1
+    field public static final int MODE_OUT = 2; // 0x2
   }
 
 }

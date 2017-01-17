@@ -1074,14 +1074,13 @@ public abstract class Transition implements Cloneable {
      * id, their instance reference, their transitionName, or by the Class of that view
      * (eg, {@link Spinner}).</p>
      *
+     * @param targetName The name of a target to ignore when running this transition.
+     * @param exclude    Whether to add the target to or remove the target from the
+     *                   current list of excluded targets.
+     * @return This transition object.
      * @see #excludeTarget(View, boolean)
      * @see #excludeTarget(int, boolean)
      * @see #excludeTarget(Class, boolean)
-     *
-     * @param targetName The name of a target to ignore when running this transition.
-     * @param exclude Whether to add the target to or remove the target from the
-     * current list of excluded targets.
-     * @return This transition object.
      */
     @NonNull
     public Transition excludeTarget(@NonNull String targetName, boolean exclude) {

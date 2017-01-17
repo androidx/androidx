@@ -50,6 +50,14 @@ public class VisibilityTest extends BaseTest {
     }
 
     @Test
+    public void testMode() {
+        final CustomVisibility visibility = new CustomVisibility();
+        assertThat(visibility.getMode(), is(Visibility.MODE_IN | Visibility.MODE_OUT));
+        visibility.setMode(Visibility.MODE_IN);
+        assertThat(visibility.getMode(), is(Visibility.MODE_IN));
+    }
+
+    @Test
     @UiThreadTest
     public void testCustomVisibility() {
         final CustomVisibility visibility = new CustomVisibility();
@@ -82,6 +90,31 @@ public class VisibilityTest extends BaseTest {
         assertThat((float) animator.getAnimatedValue(), is(0.25f));
     }
 
+    @Test
+    @UiThreadTest
+    public void testCustomVisibility2() {
+        final CustomVisibility2 visibility = new CustomVisibility2();
+        final TransitionValues startValues = new TransitionValues();
+        startValues.view = mView;
+        visibility.captureStartValues(startValues);
+        mView.setVisibility(View.GONE);
+        final TransitionValues endValues = new TransitionValues();
+        endValues.view = mView;
+        visibility.captureEndValues(endValues);
+        ObjectAnimator animator = (ObjectAnimator) visibility
+                .createAnimator(mRoot, startValues, endValues);
+        assertNotNull(animator);
+
+        // Jump to the end of the animation
+        animator.end();
+
+        // This value confirms that onDisappear, not onAppear, was called
+        assertThat((float) animator.getAnimatedValue(), is(0.25f));
+    }
+
+    /**
+     * A custom {@link Visibility} with 5-arg onAppear/Disappear
+     */
     public static class CustomVisibility extends Visibility {
 
         static final String PROPNAME_SCALE_X = "customVisibility:scaleX";
@@ -127,6 +160,39 @@ public class VisibilityTest extends BaseTest {
             }
             float startScaleX = (float) startValues.values.get(PROPNAME_SCALE_X);
             return ObjectAnimator.ofFloat(startValues.view, "scaleX", startScaleX, 0.25f);
+        }
+
+    }
+
+    /**
+     * A custom {@link Visibility} with 4-arg onAppear/Disappear
+     */
+    public static class CustomVisibility2 extends Visibility {
+
+        static final String PROPNAME_SCALE_X = "customVisibility:scaleX";
+
+        @Override
+        public void captureStartValues(@NonNull TransitionValues transitionValues) {
+            super.captureStartValues(transitionValues);
+            transitionValues.values.put(PROPNAME_SCALE_X, transitionValues.view.getScaleX());
+        }
+
+        @Override
+        public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,
+                TransitionValues endValues) {
+            float startScaleX = startValues == null ? 0.25f :
+                    (float) startValues.values.get(PROPNAME_SCALE_X);
+            return ObjectAnimator.ofFloat(view, "scaleX", startScaleX, 0.75f);
+        }
+
+        @Override
+        public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,
+                TransitionValues endValues) {
+            if (startValues == null) {
+                return null;
+            }
+            float startScaleX = (float) startValues.values.get(PROPNAME_SCALE_X);
+            return ObjectAnimator.ofFloat(view, "scaleX", startScaleX, 0.25f);
         }
 
     }
