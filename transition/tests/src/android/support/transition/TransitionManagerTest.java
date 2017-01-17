@@ -21,7 +21,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
 
-import android.support.annotation.NonNull;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.transition.test.R;
@@ -29,9 +28,6 @@ import android.view.ViewGroup;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @MediumTest
 public class TransitionManagerTest extends BaseTest {
@@ -120,68 +116,6 @@ public class TransitionManagerTest extends BaseTest {
         });
         assertThat("Timed out waiting for the TransitionListener",
                 listener.await(), is(true));
-    }
-
-    /**
-     * This {@link Transition.TransitionListener} synchronously waits for the specified callback.
-     */
-    private static class SyncTransitionListener implements Transition.TransitionListener {
-
-        static final int EVENT_START = 1;
-        static final int EVENT_END = 2;
-        static final int EVENT_CANCEL = 3;
-        static final int EVENT_PAUSE = 4;
-        static final int EVENT_RESUME = 5;
-
-        private final int mTargetEvent;
-        private final CountDownLatch mLatch = new CountDownLatch(1);
-
-        SyncTransitionListener(int event) {
-            mTargetEvent = event;
-        }
-
-        boolean await() {
-            try {
-                return mLatch.await(3000, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                return false;
-            }
-        }
-
-        @Override
-        public void onTransitionStart(@NonNull Transition transition) {
-            if (mTargetEvent == EVENT_START) {
-                mLatch.countDown();
-            }
-        }
-
-        @Override
-        public void onTransitionEnd(@NonNull Transition transition) {
-            if (mTargetEvent == EVENT_END) {
-                mLatch.countDown();
-            }
-        }
-
-        @Override
-        public void onTransitionCancel(@NonNull Transition transition) {
-            if (mTargetEvent == EVENT_CANCEL) {
-                mLatch.countDown();
-            }
-        }
-
-        @Override
-        public void onTransitionPause(@NonNull Transition transition) {
-            if (mTargetEvent == EVENT_PAUSE) {
-                mLatch.countDown();
-            }
-        }
-
-        @Override
-        public void onTransitionResume(@NonNull Transition transition) {
-            if (mTargetEvent == EVENT_RESUME) {
-                mLatch.countDown();
-            }
-        }
     }
 
 }
