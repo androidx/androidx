@@ -416,7 +416,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             @Override
             public void run(View view) throws RuntimeException {
                 view.layout(10, 10, 30, 50);
-                ViewCompat.setTranslationX(view, 10);
+                view.setTranslationX(10);
                 assertThat(getTransformedBoundingBox(view), is(new Rect(20, 10, 40, 50)));
             }
         });
@@ -428,7 +428,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             @Override
             public void run(View view) throws RuntimeException {
                 view.layout(10, 10, 30, 50);
-                ViewCompat.setTranslationY(view, 10);
+                view.setTranslationY(10);
                 assertThat(getTransformedBoundingBox(view), is(new Rect(10, 20, 30, 60)));
             }
         });
@@ -440,7 +440,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             @Override
             public void run(View view) throws RuntimeException {
                 view.layout(10, 10, 30, 50);
-                ViewCompat.setScaleX(view, 2);
+                view.setScaleX(2);
                 assertThat(getTransformedBoundingBox(view), is(new Rect(0, 10, 40, 50)));
             }
         });
@@ -452,7 +452,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             @Override
             public void run(View view) throws RuntimeException {
                 view.layout(10, 10, 30, 50);
-                ViewCompat.setScaleY(view, 2);
+                view.setScaleY(2);
                 assertThat(getTransformedBoundingBox(view), is(new Rect(10, -10, 30, 70)));
             }
         });
@@ -464,7 +464,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             @Override
             public void run(View view) throws RuntimeException {
                 view.layout(10, 10, 30, 50);
-                ViewCompat.setRotation(view, 90);
+                view.setRotation(90);
                 assertThat(getTransformedBoundingBox(view), is(new Rect(0, 20, 40, 40)));
             }
         });
@@ -495,7 +495,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 // trigger decor offsets calculation
                 calculateItemDecorationsForChild(view, new Rect());
                 view.layout(10, 10, 30, 50);
-                ViewCompat.setRotation(view, 90);
+                view.setRotation(90);
                 assertThat(RecyclerViewLayoutTest.this.getTransformedBoundingBox(view),
                         is(new Rect(-4, 19, 42, 43)));
 
