@@ -4219,6 +4219,7 @@ package android.support.v4.app {
     method public final boolean isInLayout();
     method public final boolean isRemoving();
     method public final boolean isResumed();
+    method public final boolean isStateSaved();
     method public final boolean isVisible();
     method public void onActivityCreated(android.os.Bundle);
     method public void onActivityResult(int, int, android.content.Intent);
@@ -4482,6 +4483,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentTransaction hide(android.support.v4.app.Fragment);
     method public abstract boolean isAddToBackStackAllowed();
     method public abstract boolean isEmpty();
+    method public abstract android.support.v4.app.FragmentTransaction postOnCommit(java.lang.Runnable);
     method public abstract android.support.v4.app.FragmentTransaction remove(android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment, java.lang.String);

@@ -551,15 +551,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
     
     /**
-     * Supply the construction arguments for this fragment.  This can only
-     * be called before the fragment has been attached to its activity; that
-     * is, you should call it immediately after constructing the fragment.  The
-     * arguments supplied here will be retained across fragment destroy and
+     * Supply the construction arguments for this fragment.
+     * The arguments supplied here will be retained across fragment destroy and
      * creation.
+     * <p>This method cannot be called if the fragment is added to a FragmentManager and
+     * if {@link #isStateSaved()} would return true.</p>
      */
     public void setArguments(Bundle args) {
-        if (mIndex >= 0) {
-            throw new IllegalStateException("Fragment already active");
+        if (mIndex >= 0 && isStateSaved()) {
+            throw new IllegalStateException("Fragment already active and state has been saved");
         }
         mArguments = args;
     }
@@ -570,6 +570,21 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     final public Bundle getArguments() {
         return mArguments;
+    }
+
+    /**
+     * Returns true if this fragment is added and its state has already been saved
+     * by its host. Any operations that would change saved state should not be performed
+     * if this method returns true, and some operations such as {@link #setArguments(Bundle)}
+     * will fail.
+     *
+     * @return true if this fragment's state has already been saved by its host
+     */
+    public final boolean isStateSaved() {
+        if (mFragmentManager == null) {
+            return false;
+        }
+        return mFragmentManager.isStateSaved();
     }
 
     /**

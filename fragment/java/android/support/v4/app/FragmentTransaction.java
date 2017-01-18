@@ -16,8 +16,6 @@
 
 package android.support.v4.app;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.support.annotation.AnimRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
@@ -29,6 +27,8 @@ import android.view.View;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 /**
  * Static library support version of the framework's {@link android.app.FragmentTransaction}.
@@ -321,6 +321,22 @@ public abstract class FragmentTransaction {
      *                          operations on this transaction.
      */
     public abstract FragmentTransaction setAllowOptimization(boolean allowOptimization);
+
+    /**
+     * Add a Runnable to this transaction that will be run after this transaction has
+     * been committed. If fragment transactions are {@link #setAllowOptimization(boolean) optimized}
+     * this may be after other subsequent fragment operations have also taken place, or operations
+     * in this transaction may have been optimized out due to the presence of a subsequent
+     * fragment transaction in the batch.
+     *
+     * <p><code>postOnCommit</code> may not be used with transactions
+     * {@link #addToBackStack(String) added to the back stack} as Runnables cannot be persisted
+     * with back stack state.</p>
+     *
+     * @param runnable Runnable to add
+     * @return this FragmentTransaction
+     */
+    public abstract FragmentTransaction postOnCommit(Runnable runnable);
 
     /**
      * Schedules a commit of this transaction.  The commit does

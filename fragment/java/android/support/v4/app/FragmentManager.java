@@ -1888,6 +1888,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
+    public boolean isStateSaved() {
+        return mStateSaved;
+    }
+
     /**
      * Adds an action to the queue of pending actions.
      *
@@ -2209,6 +2213,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 freeBackStackIndex(record.mIndex);
                 record.mIndex = -1;
             }
+            record.runOnCommitRunnables();
         }
         if (addToBackStack) {
             reportBackStackChanged();

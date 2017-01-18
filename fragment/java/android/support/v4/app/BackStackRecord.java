@@ -228,6 +228,8 @@ final class BackStackRecord extends FragmentTransaction implements
     ArrayList<String> mSharedElementTargetNames;
     boolean mAllowOptimization = false;
 
+    ArrayList<Runnable> mCommitRunnables;
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(128);
@@ -602,6 +604,28 @@ final class BackStackRecord extends FragmentTransaction implements
                 if (FragmentManagerImpl.DEBUG) Log.v(TAG, "Bump nesting of "
                         + op.fragment + " to " + op.fragment.mBackStackNesting);
             }
+        }
+    }
+
+    @Override
+    public FragmentTransaction postOnCommit(Runnable runnable) {
+        if (runnable == null) {
+            throw new IllegalArgumentException("runnable cannot be null");
+        }
+        disallowAddToBackStack();
+        if (mCommitRunnables == null) {
+            mCommitRunnables = new ArrayList<>();
+        }
+        mCommitRunnables.add(runnable);
+        return this;
+    }
+
+    public void runOnCommitRunnables() {
+        if (mCommitRunnables != null) {
+            for (int i = 0, N = mCommitRunnables.size(); i < N; i++) {
+                mCommitRunnables.get(i).run();
+            }
+            mCommitRunnables = null;
         }
     }
 
