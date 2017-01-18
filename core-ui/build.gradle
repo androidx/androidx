@@ -25,7 +25,6 @@ android {
 
     sourceSets {
         main.java.srcDirs = [
-                'honeycomb',
                 'ics',
                 'jellybean-mr2',
                 'api21',
