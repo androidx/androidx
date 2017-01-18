@@ -2147,7 +2147,7 @@ public class NotificationCompat {
         public static MessagingStyle extractMessagingStyleFromNotification(Notification notif) {
             MessagingStyle style;
             Bundle extras = IMPL.getExtras(notif);
-            if (!extras.containsKey(EXTRA_SELF_DISPLAY_NAME)) {
+            if (extras != null && !extras.containsKey(EXTRA_SELF_DISPLAY_NAME)) {
                 style = null;
             } else {
                 try {
