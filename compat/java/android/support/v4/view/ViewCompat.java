@@ -1817,6 +1817,16 @@ public class ViewCompat {
 
     static class Api24ViewCompatImpl extends MarshmallowViewCompatImpl {
         @Override
+        public void dispatchStartTemporaryDetach(View view) {
+            ViewCompatApi24.dispatchStartTemporaryDetach(view);
+        }
+
+        @Override
+        public void dispatchFinishTemporaryDetach(View view) {
+            ViewCompatApi24.dispatchFinishTemporaryDetach(view);
+        }
+
+        @Override
         public void setPointerIcon(View view, PointerIconCompat pointerIconCompat) {
             ViewCompatApi24.setPointerIcon(view,
                     pointerIconCompat != null ? pointerIconCompat.getPointerIcon() : null);
