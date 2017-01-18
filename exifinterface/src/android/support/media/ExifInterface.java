@@ -658,9 +658,9 @@ public class ExifInterface {
         }
 
         private Object getValue(ByteOrder byteOrder) {
+            ByteOrderedDataInputStream inputStream = null;
             try {
-                ByteOrderedDataInputStream inputStream =
-                        new ByteOrderedDataInputStream(bytes);
+                inputStream = new ByteOrderedDataInputStream(bytes);
                 inputStream.setByteOrder(byteOrder);
                 switch (format) {
                     case IFD_FORMAT_BYTE:
@@ -768,6 +768,14 @@ public class ExifInterface {
             } catch (IOException e) {
                 Log.w(TAG, "IOException occurred during reading a value", e);
                 return null;
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, "IOException occurred while closing InputStream", e);
+                    }
+                }
             }
         }
 
@@ -2040,6 +2048,7 @@ public class ExifInterface {
         signatureInputStream.setByteOrder(mExifByteOrder);
 
         short orfSignature = signatureInputStream.readShort();
+        signatureInputStream.close();
         return orfSignature == ORF_SIGNATURE_1 || orfSignature == ORF_SIGNATURE_2;
     }
 
@@ -2056,6 +2065,7 @@ public class ExifInterface {
         signatureInputStream.setByteOrder(mExifByteOrder);
 
         short signatureByte = signatureInputStream.readShort();
+        signatureInputStream.close();
         return signatureByte == RW2_SIGNATURE;
     }
 

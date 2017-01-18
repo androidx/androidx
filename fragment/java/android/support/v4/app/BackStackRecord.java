@@ -664,6 +664,7 @@ final class BackStackRecord extends FragmentTransaction implements
             LogWriter logw = new LogWriter(TAG);
             PrintWriter pw = new PrintWriter(logw);
             dump("  ", null, pw, null);
+            pw.close();
         }
         mCommitted = true;
         if (mAddToBackStack) {
