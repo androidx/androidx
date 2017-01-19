@@ -131,6 +131,16 @@ public class PresenterTest {
     }
 
     @Test
+    public void testSingleRowHeaderPresenter() {
+        RowHeaderPresenter p = new RowHeaderPresenter();
+        RowHeaderPresenter.ViewHolder vh = new RowHeaderPresenter.ViewHolder(
+                new RowHeaderView(mContext));
+        HeaderItem item = new HeaderItem("");
+        p.onBindViewHolder(vh, new Row(item));
+        assertEquals("Header visibility", View.VISIBLE, vh.view.getVisibility());
+    }
+
+    @Test
     public void testPlaybackControlsRowPresenter() {
         Context context = new ContextThemeWrapper(mContext, R.style.Theme_Leanback);
         Presenter detailsPresenter = new AbstractDetailsDescriptionPresenter() {
