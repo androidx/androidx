@@ -18,10 +18,9 @@ package android.support.v7.widget.helper;
 
 import android.graphics.Canvas;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.recyclerview.R;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.support.v7.recyclerview.R;
-
 
 /**
  * Package private class to keep implementations. Putting them inside ItemTouchUIUtil makes them
@@ -75,8 +74,8 @@ class ItemTouchUIUtilImpl {
 
         @Override
         public void clearView(View view) {
-            ViewCompat.setTranslationX(view, 0f);
-            ViewCompat.setTranslationY(view, 0f);
+            view.setTranslationX(0f);
+            view.setTranslationY(0f);
         }
 
         @Override
@@ -87,8 +86,8 @@ class ItemTouchUIUtilImpl {
         @Override
         public void onDraw(Canvas c, RecyclerView recyclerView, View view,
                 float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            ViewCompat.setTranslationX(view, dX);
-            ViewCompat.setTranslationY(view, dY);
+            view.setTranslationX(dX);
+            view.setTranslationY(dY);
         }
 
         @Override

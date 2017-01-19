@@ -43,17 +43,14 @@ import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.os.TraceCompat;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.InputDeviceCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.ScrollingView;
-import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v4.widget.EdgeEffectCompat;
-import android.support.v4.widget.ScrollerCompat;
 import android.support.v7.recyclerview.R;
 import android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
 import android.util.AttributeSet;
@@ -71,6 +68,7 @@ import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.Interpolator;
+import android.widget.OverScroller;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -2642,8 +2640,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         mVelocityTracker.addMovement(e);
 
-        final int action = MotionEventCompat.getActionMasked(e);
-        final int actionIndex = MotionEventCompat.getActionIndex(e);
+        final int action = e.getActionMasked();
+        final int actionIndex = e.getActionIndex();
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -2672,7 +2670,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 startNestedScroll(nestedScrollAxis);
                 break;
 
-            case MotionEventCompat.ACTION_POINTER_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
                 mScrollPointerId = e.getPointerId(actionIndex);
                 mInitialTouchX = mLastTouchX = (int) (e.getX(actionIndex) + 0.5f);
                 mInitialTouchY = mLastTouchY = (int) (e.getY(actionIndex) + 0.5f);
@@ -2706,7 +2704,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 }
             } break;
 
-            case MotionEventCompat.ACTION_POINTER_UP: {
+            case MotionEvent.ACTION_POINTER_UP: {
                 onPointerUp(e);
             } break;
 
@@ -2755,8 +2753,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         boolean eventAddedToVelocityTracker = false;
 
         final MotionEvent vtev = MotionEvent.obtain(e);
-        final int action = MotionEventCompat.getActionMasked(e);
-        final int actionIndex = MotionEventCompat.getActionIndex(e);
+        final int action = e.getActionMasked();
+        final int actionIndex = e.getActionIndex();
 
         if (action == MotionEvent.ACTION_DOWN) {
             mNestedOffsets[0] = mNestedOffsets[1] = 0;
@@ -2779,7 +2777,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 startNestedScroll(nestedScrollAxis);
             } break;
 
-            case MotionEventCompat.ACTION_POINTER_DOWN: {
+            case MotionEvent.ACTION_POINTER_DOWN: {
                 mScrollPointerId = e.getPointerId(actionIndex);
                 mInitialTouchX = mLastTouchX = (int) (e.getX(actionIndex) + 0.5f);
                 mInitialTouchY = mLastTouchY = (int) (e.getY(actionIndex) + 0.5f);
@@ -2846,7 +2844,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 }
             } break;
 
-            case MotionEventCompat.ACTION_POINTER_UP: {
+            case MotionEvent.ACTION_POINTER_UP: {
                 onPointerUp(e);
             } break;
 
@@ -2855,9 +2853,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 eventAddedToVelocityTracker = true;
                 mVelocityTracker.computeCurrentVelocity(1000, mMaxFlingVelocity);
                 final float xvel = canScrollHorizontally ?
-                        -VelocityTrackerCompat.getXVelocity(mVelocityTracker, mScrollPointerId) : 0;
+                        -mVelocityTracker.getXVelocity(mScrollPointerId) : 0;
                 final float yvel = canScrollVertically ?
-                        -VelocityTrackerCompat.getYVelocity(mVelocityTracker, mScrollPointerId) : 0;
+                        -mVelocityTracker.getYVelocity(mScrollPointerId) : 0;
                 if (!((xvel != 0 || yvel != 0) && fling((int) xvel, (int) yvel))) {
                     setScrollState(SCROLL_STATE_IDLE);
                 }
@@ -2891,7 +2889,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     private void onPointerUp(MotionEvent e) {
-        final int actionIndex = MotionEventCompat.getActionIndex(e);
+        final int actionIndex = e.getActionIndex();
         if (e.getPointerId(actionIndex) == mScrollPointerId) {
             // Pick a new pointer to pick up the slack.
             final int newIndex = actionIndex == 0 ? 1 : 0;
@@ -2910,19 +2908,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return false;
         }
         if ((event.getSource() & InputDeviceCompat.SOURCE_CLASS_POINTER) != 0) {
-            if (event.getAction() == MotionEventCompat.ACTION_SCROLL) {
+            if (event.getAction() == MotionEvent.ACTION_SCROLL) {
                 final float vScroll, hScroll;
                 if (mLayout.canScrollVertically()) {
                     // Inverse the sign of the vertical scroll to align the scroll orientation
                     // with AbsListView.
-                    vScroll = -MotionEventCompat
-                            .getAxisValue(event, MotionEventCompat.AXIS_VSCROLL);
+                    vScroll = -event.getAxisValue(MotionEvent.AXIS_VSCROLL);
                 } else {
                     vScroll = 0f;
                 }
                 if (mLayout.canScrollHorizontally()) {
-                    hScroll = MotionEventCompat
-                            .getAxisValue(event, MotionEventCompat.AXIS_HSCROLL);
+                    hScroll = event.getAxisValue(MotionEvent.AXIS_HSCROLL);
                 } else {
                     hScroll = 0f;
                 }
@@ -4414,8 +4410,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         final int count = mChildHelper.getChildCount();
         for (int i = count - 1; i >= 0; i--) {
             final View child = mChildHelper.getChildAt(i);
-            final float translationX = ViewCompat.getTranslationX(child);
-            final float translationY = ViewCompat.getTranslationY(child);
+            final float translationX = child.getTranslationX();
+            final float translationY = child.getTranslationY();
             if (x >= child.getLeft() + translationX &&
                     x <= child.getRight() + translationX &&
                     y >= child.getTop() + translationY &&
@@ -4632,7 +4628,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     class ViewFlinger implements Runnable {
         private int mLastFlingX;
         private int mLastFlingY;
-        private ScrollerCompat mScroller;
+        private OverScroller mScroller;
         Interpolator mInterpolator = sQuinticInterpolator;
 
 
@@ -4643,7 +4639,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         private boolean mReSchedulePostAnimationCallback = false;
 
         public ViewFlinger() {
-            mScroller = ScrollerCompat.create(getContext(), sQuinticInterpolator);
+            mScroller = new OverScroller(getContext(), sQuinticInterpolator);
         }
 
         @Override
@@ -4656,7 +4652,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             consumePendingUpdateOperations();
             // keep a local reference so that if it is changed during onAnimation method, it won't
             // cause unexpected behaviors
-            final ScrollerCompat scroller = mScroller;
+            final OverScroller scroller = mScroller;
             final SmoothScroller smoothScroller = mLayout.mSmoothScroller;
             if (scroller.computeScrollOffset()) {
                 final int x = scroller.getCurrX();
@@ -4842,7 +4838,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         public void smoothScrollBy(int dx, int dy, int duration, Interpolator interpolator) {
             if (mInterpolator != interpolator) {
                 mInterpolator = interpolator;
-                mScroller = ScrollerCompat.create(getContext(), interpolator);
+                mScroller = new OverScroller(getContext(), interpolator);
             }
             setScrollState(SCROLL_STATE_SETTLING);
             mLastFlingX = mLastFlingY = 0;

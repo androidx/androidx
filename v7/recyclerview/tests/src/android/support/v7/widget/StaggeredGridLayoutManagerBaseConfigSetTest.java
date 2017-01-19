@@ -35,7 +35,6 @@ import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.test.filters.MediumTest;
-import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
@@ -760,9 +759,9 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
             @Override
             public void run() {
                 if (mConfig.mOrientation == HORIZONTAL) {
-                    ViewCompat.setTranslationX(vh.itemView, size * 2);
+                    vh.itemView.setTranslationX(size * 2);
                 } else {
-                    ViewCompat.setTranslationY(vh.itemView, size * 2);
+                    vh.itemView.setTranslationY(size * 2);
                 }
             }
         });
@@ -797,9 +796,9 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
             @Override
             public void run() {
                 if (mConfig.mOrientation == HORIZONTAL) {
-                    ViewCompat.setTranslationX(vh.itemView, -size * 2);
+                    vh.itemView.setTranslationX(-size * 2);
                 } else {
-                    ViewCompat.setTranslationY(vh.itemView, -size * 2);
+                    vh.itemView.setTranslationY(-size * 2);
                 }
             }
         });

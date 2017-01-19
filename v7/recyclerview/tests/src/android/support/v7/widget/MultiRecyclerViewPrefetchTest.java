@@ -25,7 +25,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -138,7 +137,7 @@ public class MultiRecyclerViewPrefetchTest {
             rv.layout(0, 0, 200, 200);
             rv.scrollBy(0, 100);
 
-            ViewCompat.setTranslationX(rv, 100 * i);
+            rv.setTranslationX(100 * i);
         }
 
         GapWorker worker = GapWorker.sGapWorker.get();
