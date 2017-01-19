@@ -432,8 +432,8 @@ public class GridLayoutManager extends LinearLayoutManager {
                     if (invalidMatch == null) {
                         invalidMatch = view; // removed item, least preferred
                     }
-                } else if (mOrientationHelper.getDecoratedStart(view) >= boundsEnd ||
-                        mOrientationHelper.getDecoratedEnd(view) < boundsStart) {
+                } else if (mOrientationHelper.getDecoratedStart(view) >= boundsEnd
+                        || mOrientationHelper.getDecoratedEnd(view) < boundsStart) {
                     if (outOfBoundsMatch == null) {
                         outOfBoundsMatch = view; // item is not visible, less preferred
                     }
@@ -545,8 +545,8 @@ public class GridLayoutManager extends LinearLayoutManager {
             int pos = layoutState.mCurrentPosition;
             final int spanSize = getSpanSize(recycler, state, pos);
             if (spanSize > mSpanCount) {
-                throw new IllegalArgumentException("Item at position " + pos + " requires " +
-                        spanSize + " spans but GridLayoutManager has only " + mSpanCount
+                throw new IllegalArgumentException("Item at position " + pos + " requires "
+                        + spanSize + " spans but GridLayoutManager has only " + mSpanCount
                         + " spans.");
             }
             remainingSpan -= spanSize;
@@ -595,8 +595,8 @@ public class GridLayoutManager extends LinearLayoutManager {
                 maxSize = size;
             }
             final LayoutParams lp = (LayoutParams) view.getLayoutParams();
-            final float otherSize = 1f * mOrientationHelper.getDecoratedMeasurementInOther(view) /
-                    lp.mSpanSize;
+            final float otherSize = 1f * mOrientationHelper.getDecoratedMeasurementInOther(view)
+                    / lp.mSpanSize;
             if (otherSize > maxSizeInOther) {
                 maxSizeInOther = otherSize;
             }
@@ -618,7 +618,7 @@ public class GridLayoutManager extends LinearLayoutManager {
 
         // Views that did not measure the maxSize has to be re-measured
         // We will stop doing this once we introduce Gravity in the GLM layout params
-        for (int i = 0; i < count; i ++) {
+        for (int i = 0; i < count; i++) {
             final View view = mSet[i];
             if (mOrientationHelper.getDecoratedMeasurement(view) != maxSize) {
                 final LayoutParams lp = (LayoutParams) view.getLayoutParams();
@@ -826,7 +826,7 @@ public class GridLayoutManager extends LinearLayoutManager {
      *
      * @see GridLayoutManager#setSpanSizeLookup(SpanSizeLookup)
      */
-    public static abstract class SpanSizeLookup {
+    public abstract static class SpanSizeLookup {
 
         final SparseIntArray mSpanIndexCache = new SparseIntArray();
 
@@ -838,7 +838,7 @@ public class GridLayoutManager extends LinearLayoutManager {
          * @param position The adapter position of the item
          * @return The number of spans occupied by the item at the provided position
          */
-        abstract public int getSpanSize(int position);
+        public abstract int getSpanSize(int position);
 
         /**
          * Sets whether the results of {@link #getSpanIndex(int, int)} method should be cached or
@@ -1044,8 +1044,8 @@ public class GridLayoutManager extends LinearLayoutManager {
                 int overlap = minEnd - maxStart;
                 if (overlap > weakCandidateOverlap) {
                     assignAsWeek = true;
-                } else if (overlap == weakCandidateOverlap &&
-                        preferLastSpan == (candidateStart > weakCandidateSpanIndex)) {
+                } else if (overlap == weakCandidateOverlap
+                        && preferLastSpan == (candidateStart > weakCandidateSpanIndex)) {
                     assignAsWeek = true;
                 }
             }
@@ -1053,8 +1053,8 @@ public class GridLayoutManager extends LinearLayoutManager {
             if (assignAsWeek) {
                 weakCandidate = candidate;
                 weakCandidateSpanIndex = candidateLp.mSpanIndex;
-                weakCandidateOverlap = Math.min(candidateEnd, prevSpanEnd) -
-                        Math.max(candidateStart, prevSpanStart);
+                weakCandidateOverlap = Math.min(candidateEnd, prevSpanEnd)
+                        - Math.max(candidateStart, prevSpanStart);
             }
         }
         return weakCandidate;

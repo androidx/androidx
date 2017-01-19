@@ -15,24 +15,22 @@
  */
 package android.support.v7.widget;
 
+import static android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
+import static android.support.v7.widget.RecyclerView.ViewHolder;
+import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_APPEAR;
+import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_APPEAR_AND_DISAPPEAR;
+import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_APPEAR_PRE_AND_POST;
+import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_DISAPPEARED;
+import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_POST;
+import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_PRE;
+import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_PRE_AND_POST;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.util.Pools;
-import android.view.View;
-
-import static android.support.v7.widget.RecyclerView.ViewHolder;
-import static android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
-
-import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_APPEAR_PRE_AND_POST;
-import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_APPEAR_AND_DISAPPEAR;
-import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_PRE_AND_POST;
-import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_DISAPPEARED;
-import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_APPEAR;
-import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_PRE;
-import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_POST;
 /**
  * This class abstracts all tracking for Views to run animations.
  */
@@ -218,7 +216,7 @@ class ViewInfoStore {
     }
 
     void process(ProcessCallback callback) {
-        for (int index = mLayoutHolderMap.size() - 1; index >= 0; index --) {
+        for (int index = mLayoutHolderMap.size() - 1; index >= 0; index--) {
             final ViewHolder viewHolder = mLayoutHolderMap.keyAt(index);
             final InfoRecord record = mLayoutHolderMap.removeAt(index);
             if ((record.flags & FLAG_APPEAR_AND_DISAPPEAR) == FLAG_APPEAR_AND_DISAPPEAR) {
