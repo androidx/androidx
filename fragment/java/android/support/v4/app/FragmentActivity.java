@@ -16,8 +16,6 @@
 
 package android.support.v4.app;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -25,7 +23,6 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -47,6 +44,8 @@ import android.view.Window;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 /**
  * Base class for activities that want to use the support-based
@@ -643,10 +642,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      * @param args additional arguments to the dump request.
      */
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
-        if (Build.VERSION.SDK_INT >= 11) {
-            // XXX This can only work if we can call the super-class impl. :/
-            //ActivityCompatHoneycomb.dump(this, prefix, fd, writer, args);
-        }
+        super.dump(prefix, fd, writer, args);
         writer.print(prefix); writer.print("Local FragmentActivity ");
                 writer.print(Integer.toHexString(System.identityHashCode(this)));
                 writer.println(" State:");
@@ -658,95 +654,6 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
                 writer.println(mReallyStopped);
         mFragments.dumpLoaders(innerPrefix, fd, writer, args);
         mFragments.getSupportFragmentManager().dump(prefix, fd, writer, args);
-        writer.print(prefix); writer.println("View Hierarchy:");
-        dumpViewHierarchy(prefix + "  ", writer, getWindow().getDecorView());
-    }
-
-    private static String viewToString(View view) {
-        StringBuilder out = new StringBuilder(128);
-        out.append(view.getClass().getName());
-        out.append('{');
-        out.append(Integer.toHexString(System.identityHashCode(view)));
-        out.append(' ');
-        switch (view.getVisibility()) {
-            case View.VISIBLE: out.append('V'); break;
-            case View.INVISIBLE: out.append('I'); break;
-            case View.GONE: out.append('G'); break;
-            default: out.append('.'); break;
-        }
-        out.append(view.isFocusable() ? 'F' : '.');
-        out.append(view.isEnabled() ? 'E' : '.');
-        out.append(view.willNotDraw() ? '.' : 'D');
-        out.append(view.isHorizontalScrollBarEnabled()? 'H' : '.');
-        out.append(view.isVerticalScrollBarEnabled() ? 'V' : '.');
-        out.append(view.isClickable() ? 'C' : '.');
-        out.append(view.isLongClickable() ? 'L' : '.');
-        out.append(' ');
-        out.append(view.isFocused() ? 'F' : '.');
-        out.append(view.isSelected() ? 'S' : '.');
-        out.append(view.isPressed() ? 'P' : '.');
-        out.append(' ');
-        out.append(view.getLeft());
-        out.append(',');
-        out.append(view.getTop());
-        out.append('-');
-        out.append(view.getRight());
-        out.append(',');
-        out.append(view.getBottom());
-        final int id = view.getId();
-        if (id != View.NO_ID) {
-            out.append(" #");
-            out.append(Integer.toHexString(id));
-            final Resources r = view.getResources();
-            if (id != 0 && r != null) {
-                try {
-                    String pkgname;
-                    switch (id&0xff000000) {
-                        case 0x7f000000:
-                            pkgname="app";
-                            break;
-                        case 0x01000000:
-                            pkgname="android";
-                            break;
-                        default:
-                            pkgname = r.getResourcePackageName(id);
-                            break;
-                    }
-                    String typename = r.getResourceTypeName(id);
-                    String entryname = r.getResourceEntryName(id);
-                    out.append(" ");
-                    out.append(pkgname);
-                    out.append(":");
-                    out.append(typename);
-                    out.append("/");
-                    out.append(entryname);
-                } catch (Resources.NotFoundException e) {
-                }
-            }
-        }
-        out.append("}");
-        return out.toString();
-    }
-
-    private void dumpViewHierarchy(String prefix, PrintWriter writer, View view) {
-        writer.print(prefix);
-        if (view == null) {
-            writer.println("null");
-            return;
-        }
-        writer.println(viewToString(view));
-        if (!(view instanceof ViewGroup)) {
-            return;
-        }
-        ViewGroup grp = (ViewGroup)view;
-        final int N = grp.getChildCount();
-        if (N <= 0) {
-            return;
-        }
-        prefix = prefix + "  ";
-        for (int i=0; i<N; i++) {
-            dumpViewHierarchy(prefix, writer, grp.getChildAt(i));
-        }
     }
 
     void doReallyStop(boolean retaining) {
