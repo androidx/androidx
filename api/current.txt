@@ -5266,6 +5266,10 @@ package android.support.v4.graphics {
     method public static int setAlphaComponent(int, int);
   }
 
+  public final class PaintCompat {
+    method public static boolean hasGlyph(android.graphics.Paint, java.lang.String);
+  }
+
 }
 
 package android.support.v4.graphics.drawable {
