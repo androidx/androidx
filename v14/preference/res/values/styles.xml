@@ -48,6 +48,12 @@
         <item name="android:layout">@layout/preference_material</item>
     </style>
 
+    <style name="Preference.SeekBarPreference.Material">
+        <item name="android:layout">@layout/preference_widget_seekbar_material</item>
+        <item name="adjustable">true</item>
+        <item name="showSeekBarValue">true</item>
+    </style>
+
     <style name="Preference.PreferenceScreen.Material">
         <item name="android:layout">@layout/preference_material</item>
     </style>
