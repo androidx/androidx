@@ -69,4 +69,11 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         assertNull(display);
     }
 
+    @Test
+    public void testTransitionName() {
+        final View view = new View(mActivityTestRule.getActivity());
+        ViewCompat.setTransitionName(view, "abc");
+        assertEquals("abc", ViewCompat.getTransitionName(view));
+    }
+
 }

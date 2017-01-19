@@ -854,11 +854,12 @@ public class ViewCompat {
 
         @Override
         public void setTransitionName(View view, String transitionName) {
+            ViewCompatBase.setTransitionName(view, transitionName);
         }
 
         @Override
         public String getTransitionName(View view) {
-            return null;
+            return ViewCompatBase.getTransitionName(view);
         }
 
         @Override
