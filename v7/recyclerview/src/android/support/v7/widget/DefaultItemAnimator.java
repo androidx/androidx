@@ -374,7 +374,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
             }).start();
         }
         if (newView != null) {
-            final ViewPropertyAnimator newViewAnimation = view.animate();
+            final ViewPropertyAnimator newViewAnimation = newView.animate();
             mChangeAnimations.add(changeInfo.newHolder);
             newViewAnimation.translationX(0).translationY(0).setDuration(getChangeDuration()).
                     alpha(1).setListener(new AnimatorListenerAdapter() {
