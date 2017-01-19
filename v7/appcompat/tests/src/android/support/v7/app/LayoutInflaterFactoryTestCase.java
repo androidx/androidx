@@ -37,9 +37,11 @@ import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.AppCompatSpinner;
 import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -82,13 +84,28 @@ public class LayoutInflaterFactoryTestCase
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         final ViewGroup root = (ViewGroup) inflater.inflate(
                 R.layout.layout_android_theme_children, null);
-
         assertThemedContext(root);
+    }
 
-        for (int i = 0; i < root.getChildCount(); i++) {
-            final View child = root.getChildAt(i);
-            assertThemedContext(child);
-        }
+    @UiThreadTest
+    @Test
+    @SmallTest
+    public void testThemedInflationWithUnattachedParent() {
+        final Context activity = getActivity();
+
+        // Create a parent but not attached
+        final LinearLayout parent = new LinearLayout(activity);
+
+        // Now create a LayoutInflater with a themed context
+        LayoutInflater inflater = LayoutInflater.from(activity)
+                .cloneInContext(new ContextThemeWrapper(activity, R.style.MagentaThemeOverlay));
+
+        // Now inflate a layout with children
+        final ViewGroup root = (ViewGroup) inflater.inflate(
+                R.layout.layout_children, parent, false);
+
+        // And assert that the layout is themed correctly
+        assertThemedContext(root);
     }
 
     @UiThreadTest
@@ -190,7 +207,7 @@ public class LayoutInflaterFactoryTestCase
                 view.getClass());
     }
 
-    private static void assertThemedContext(View view) {
+    private static void assertThemedContext(final View view) {
         final Context viewContext = view.getContext();
         final int expectedColor = view.getResources().getColor(R.color.test_magenta);
 
@@ -199,6 +216,14 @@ public class LayoutInflaterFactoryTestCase
                 && colorAccentValue.type <= TypedValue.TYPE_LAST_COLOR_INT);
         assertEquals("View does not have ContextThemeWrapper context",
                 expectedColor, colorAccentValue.data);
+
+        if (view instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) view;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                final View child = vg.getChildAt(i);
+                assertThemedContext(child);
+            }
+        }
     }
 
     private static TypedValue getColorAccentValue(final Resources.Theme theme) {
