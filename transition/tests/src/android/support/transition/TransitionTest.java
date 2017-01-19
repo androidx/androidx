@@ -25,8 +25,13 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -51,6 +56,7 @@ import java.util.List;
 public class TransitionTest extends BaseTest {
 
     private Scene[] mScenes = new Scene[2];
+    private View[] mViews = new View[3];
 
     @Before
     public void prepareScenes() {
@@ -260,6 +266,29 @@ public class TransitionTest extends BaseTest {
         }
     }
 
+    @Test
+    public void testExcludedTransitionAnimator() throws Throwable {
+        showInitialScene();
+        final Animator.AnimatorListener animatorListener = mock(Animator.AnimatorListener.class);
+        final DummyTransition transition = new DummyTransition(animatorListener);
+        final SyncTransitionListener transitionListener = new SyncTransitionListener(
+                SyncTransitionListener.EVENT_END);
+        transition.addListener(transitionListener);
+        transition.addTarget(mViews[0]);
+        transition.excludeTarget(mViews[0], true);
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.beginDelayedTransition(rule.getActivity().getRoot(), transition);
+                mViews[0].setTranslationX(3.f);
+            }
+        });
+        if (!transitionListener.await()) {
+            fail("Timed out waiting for the TransitionListener");
+        }
+        verify(animatorListener, never()).onAnimationStart(any(Animator.class));
+    }
+
     private void showInitialScene() throws Throwable {
         SyncRunnable enter0 = new SyncRunnable();
         mScenes[0].setEnterAction(enter0);
@@ -269,6 +298,9 @@ public class TransitionTest extends BaseTest {
         if (!enter0.await()) {
             fail("Timed out while waiting for scene change");
         }
+        mViews[0] = rule.getActivity().findViewById(R.id.view0);
+        mViews[1] = rule.getActivity().findViewById(R.id.view1);
+        mViews[2] = rule.getActivity().findViewById(R.id.view2);
     }
 
     private void goToScene(final Scene scene, final Transition transition) throws Throwable {
@@ -315,4 +347,38 @@ public class TransitionTest extends BaseTest {
 
     }
 
+    /**
+     * A dummy transition for monitoring use of its animator by the Transition framework.
+     */
+    private static class DummyTransition extends Transition {
+
+        private final Animator.AnimatorListener mListener;
+
+        DummyTransition(Animator.AnimatorListener listener) {
+            mListener = listener;
+        }
+
+        @Override
+        public void captureStartValues(@NonNull TransitionValues transitionValues) {
+            transitionValues.values.put("state", 1);
+        }
+
+        @Override
+        public void captureEndValues(@NonNull TransitionValues transitionValues) {
+            transitionValues.values.put("state", 2);
+        }
+
+        @Override
+        public Animator createAnimator(@NonNull ViewGroup sceneRoot, TransitionValues startValues,
+                TransitionValues endValues) {
+            if (startValues == null || endValues == null) {
+                return null;
+            }
+            final ObjectAnimator animator = ObjectAnimator
+                    .ofFloat(startValues.view, "translationX", 1.f, 2.f);
+            animator.addListener(mListener);
+            return animator;
+        }
+
+    }
 }
