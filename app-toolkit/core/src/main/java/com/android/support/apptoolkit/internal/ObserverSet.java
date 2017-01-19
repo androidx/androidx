@@ -27,11 +27,11 @@ import java.util.List;
 /**
  * A set class that can keep a list of items and allows modifications while traversing.
  * It is NOT thread safe.
- *
  * @param <T> Item type
  * @hide
  */
 // TODO this class is doing more than it should. Needs cleanup / change / removal.
+// also, see InvalidationTracker.SyncObserverSet where we need a sync version.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class ObserverSet<T> {
     private static final String TAG = "ObserverSet";

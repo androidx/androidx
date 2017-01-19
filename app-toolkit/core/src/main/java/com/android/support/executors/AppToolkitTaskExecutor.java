@@ -43,7 +43,8 @@ public class AppToolkitTaskExecutor extends TaskExecutor {
     private AppToolkitTaskExecutor() {
         mDefaultTaskExecutor = new TaskExecutor() {
             private ExecutorService mDiskIO = Executors.newFixedThreadPool(2);
-            private Handler mMainHandler = new Handler(Looper.getMainLooper());
+            @Nullable
+            private volatile Handler mMainHandler;
 
             @Override
             public void executeOnDiskIO(Runnable runnable) {
@@ -55,6 +56,13 @@ public class AppToolkitTaskExecutor extends TaskExecutor {
                 if (isMainThread()) {
                     runnable.run();
                 } else {
+                    if (mMainHandler == null) {
+                        synchronized (this) {
+                            if (mMainHandler == null) {
+                                mMainHandler = new Handler(Looper.getMainLooper());
+                            }
+                        }
+                    }
                     mMainHandler.post(runnable);
                 }
             }

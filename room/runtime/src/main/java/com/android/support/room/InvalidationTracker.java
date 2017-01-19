@@ -119,7 +119,7 @@ public class InvalidationTracker {
     public InvalidationTracker(RoomDatabase database, String... tableNames) {
         mDatabase = database;
         mObservedTableTracker = new ObservedTableTracker(tableNames.length);
-        mObserverSet = new ObserverSet<ObserverWrapper>() {
+        mObserverSet = new SyncObserverSet<ObserverWrapper>() {
             @Override
             protected boolean checkEquality(ObserverWrapper existing, ObserverWrapper added) {
                 return existing.mObserver == added.mObserver;
@@ -549,6 +549,36 @@ public class InvalidationTracker {
         void onSyncCompleted() {
             synchronized (this) {
                 mPendingSync = false;
+            }
+        }
+    }
+
+    /**
+     * Poor man's sync on observer set.
+     * <p>
+     * When we revisit observer set, we should consider making it thread safe.
+     *
+     * @param <T> The type of the items.
+     */
+    abstract static class SyncObserverSet<T> extends ObserverSet<T> {
+        @Override
+        public void add(T observer) {
+            synchronized (this) {
+                super.add(observer);
+            }
+        }
+
+        @Override
+        public void remove(T observer) {
+            synchronized (this) {
+                super.remove(observer);
+            }
+        }
+
+        @Override
+        public void forEach(Callback<T> func) {
+            synchronized (this) {
+                super.forEach(func);
             }
         }
     }

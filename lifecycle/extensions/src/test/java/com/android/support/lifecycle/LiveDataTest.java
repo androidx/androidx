@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 import android.support.annotation.Nullable;
 
 import com.android.support.executors.AppToolkitTaskExecutor;
-import com.android.support.executors.TaskExecutor;
+import com.android.support.lifecycle.util.InstantTaskExecutor;
 
 import org.junit.After;
 import org.junit.Before;
@@ -62,23 +62,7 @@ public class LiveDataTest {
 
     @Before
     public void swapExecutorDelegate() {
-        TaskExecutor taskExecutor = new TaskExecutor() {
-            @Override
-            public void executeOnDiskIO(Runnable runnable) {
-                runnable.run();
-            }
-
-            @Override
-            public void executeOnMainThread(Runnable runnable) {
-                runnable.run();
-            }
-
-            @Override
-            public boolean isMainThread() {
-                return true;
-            }
-        };
-        AppToolkitTaskExecutor.getInstance().setDelegate(taskExecutor);
+        AppToolkitTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
     }
 
     @After
