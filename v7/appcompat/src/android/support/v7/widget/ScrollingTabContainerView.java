@@ -510,7 +510,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
                 if (mIconView != null) {
                     mIconView.setContentDescription(tab.getContentDescription());
                 }
-                ViewCompat.setTooltip(this, hasText ? null : tab.getContentDescription());
+                ViewCompat.setTooltipText(this, hasText ? null : tab.getContentDescription());
             }
         }
 

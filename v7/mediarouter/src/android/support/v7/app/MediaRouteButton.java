@@ -274,7 +274,7 @@ public class MediaRouteButton extends View {
      * button when the button is long pressed.
      */
     void setCheatSheetEnabled(boolean enable) {
-        ViewCompat.setTooltip(this,
+        ViewCompat.setTooltipText(this,
                 enable ? getContext().getString(R.string.mr_button_content_description) : null);
     }
 

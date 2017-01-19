@@ -1752,7 +1752,7 @@ public class TabLayout extends HorizontalScrollView {
                     iconView.requestLayout();
                 }
             }
-            ViewCompat.setTooltip(this, hasText ? null : contentDesc);
+            ViewCompat.setTooltipText(this, hasText ? null : contentDesc);
         }
 
         public Tab getTab() {
