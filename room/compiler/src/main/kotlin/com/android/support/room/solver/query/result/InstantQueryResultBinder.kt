@@ -27,19 +27,20 @@ import com.squareup.javapoet.FieldSpec
  * Instantly runs and returns the query.
  */
 class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder(adapter) {
-    override fun convertAndReturn(sqlVar: String, argsVar: String, dbField: FieldSpec,
+    override fun convertAndReturn(roomSQLiteQueryVar : String, dbField: FieldSpec,
                                   scope: CodeGenScope) {
         scope.builder().apply {
             val outVar = scope.getTmpVar("_result")
             val cursorVar = scope.getTmpVar("_cursor")
-            addStatement("final $T $L = $N.query($L, $L)", AndroidTypeNames.CURSOR, cursorVar,
-                    DaoWriter.dbField, sqlVar, argsVar)
+            addStatement("final $T $L = $N.query($L)", AndroidTypeNames.CURSOR, cursorVar,
+                    DaoWriter.dbField, roomSQLiteQueryVar)
             beginControlFlow("try").apply {
                 adapter?.convert(outVar, cursorVar, scope)
                 addStatement("return $L", outVar)
             }
             nextControlFlow("finally").apply {
                 addStatement("$L.close()", cursorVar)
+                addStatement("$L.release()", roomSQLiteQueryVar)
             }
             endControlFlow()
         }

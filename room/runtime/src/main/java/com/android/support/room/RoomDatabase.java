@@ -24,6 +24,7 @@ import android.support.annotation.Nullable;
 
 import com.android.support.db.SupportSQLiteDatabase;
 import com.android.support.db.SupportSQLiteOpenHelper;
+import com.android.support.db.SupportSQLiteQuery;
 import com.android.support.db.SupportSQLiteStatement;
 import com.android.support.db.framework.FrameworkSQLiteOpenHelperFactory;
 
@@ -99,6 +100,17 @@ public abstract class RoomDatabase {
      */
     public Cursor query(String sql, String[] selectionArgs) {
         return mOpenHelper.getWritableDatabase().rawQuery(sql, selectionArgs);
+    }
+
+    /**
+     * Wrapper for {@link SupportSQLiteDatabase#rawQuery(SupportSQLiteQuery)}.
+     *
+     * @param query The Query which includes the SQL and a bind callback for bind argumetns.
+     *
+     * @return Result of the query.
+     */
+    public Cursor query(SupportSQLiteQuery query) {
+        return mOpenHelper.getWritableDatabase().rawQuery(query);
     }
 
     /**

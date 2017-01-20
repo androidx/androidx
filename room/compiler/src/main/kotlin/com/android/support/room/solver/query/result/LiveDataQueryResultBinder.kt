@@ -20,6 +20,7 @@ import com.android.support.room.ext.AndroidTypeNames
 import com.android.support.room.ext.L
 import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.ext.N
+import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.RoomTypeNames.INVALIDATION_OBSERVER
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
@@ -40,33 +41,40 @@ import javax.lang.model.type.TypeMirror
 class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Table>,
                                 adapter: QueryResultAdapter?)
     : QueryResultBinder(adapter) {
-    override fun convertAndReturn(sqlVar: String, argsVar: String, dbField: FieldSpec,
+    override fun convertAndReturn(roomSQLiteQueryVar : String, dbField: FieldSpec,
                                   scope: CodeGenScope) {
         val typeName = typeArg.typeName()
 
         val liveDataImpl = TypeSpec.anonymousClassBuilder("").apply {
             superclass(ParameterizedTypeName.get(LifecyclesTypeNames.COMPUTABLE_LIVE_DATA,
                     typeName))
-            val observerLockField = FieldSpec.builder(TypeName.BOOLEAN,
-                    scope.getTmpVar("_startedObserving"), Modifier.PRIVATE).initializer("false")
-                    .build()
-            addField(observerLockField)
+            val observerField = FieldSpec.builder(RoomTypeNames.INVALIDATION_OBSERVER,
+                    scope.getTmpVar("_observer"), Modifier.PRIVATE).build()
+            addField(observerField)
             addMethod(createComputeMethod(
-                    observerLockField = observerLockField,
+                    observerField = observerField,
                     typeName = typeName,
-                    sqlVar = sqlVar,
-                    argsVar = argsVar,
+                    roomSQLiteQueryVar = roomSQLiteQueryVar,
                     dbField = dbField,
                     scope = scope
             ))
+            addMethod(createFinalizeMethod(roomSQLiteQueryVar))
         }.build()
         scope.builder().apply {
             addStatement("return $L.getLiveData()", liveDataImpl)
         }
     }
 
-    private fun createComputeMethod(sqlVar: String, argsVar: String, typeName: TypeName,
-                                    observerLockField : FieldSpec,  dbField: FieldSpec,
+    private fun createFinalizeMethod(roomSQLiteQueryVar: String): MethodSpec {
+        return MethodSpec.methodBuilder("finalize").apply {
+            addModifiers(Modifier.PROTECTED)
+            addAnnotation(Override::class.java)
+            addStatement("$L.release()", roomSQLiteQueryVar)
+        }.build()
+    }
+
+    private fun createComputeMethod(roomSQLiteQueryVar: String, typeName: TypeName,
+                                    observerField: FieldSpec, dbField: FieldSpec,
                                     scope: CodeGenScope): MethodSpec {
         return MethodSpec.methodBuilder("compute").apply {
             addAnnotation(Override::class.java)
@@ -75,15 +83,15 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Tab
             val outVar = scope.getTmpVar("_result")
             val cursorVar = scope.getTmpVar("_cursor")
 
-            beginControlFlow("if (!$N)", observerLockField).apply {
-                addStatement("$N = true", observerLockField)
-                addStatement("$N.getInvalidationTracker().addWeakObserver($L)",
-                        dbField, createAnonymousObserver())
+            beginControlFlow("if ($N == null)", observerField).apply {
+                addStatement("$N = $L", observerField, createAnonymousObserver())
+                addStatement("$N.getInvalidationTracker().addWeakObserver($N)",
+                        dbField, observerField)
             }
             endControlFlow()
 
-            addStatement("final $T $L = $N.query($L, $L)", AndroidTypeNames.CURSOR, cursorVar,
-                    DaoWriter.dbField, sqlVar, argsVar)
+            addStatement("final $T $L = $N.query($L)", AndroidTypeNames.CURSOR, cursorVar,
+                    DaoWriter.dbField, roomSQLiteQueryVar)
             beginControlFlow("try").apply {
                 val adapterScope = scope.fork()
                 adapter?.convert(outVar, cursorVar, adapterScope)

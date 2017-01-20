@@ -23,13 +23,6 @@ import com.android.support.room.solver.CodeGenScope
  */
 abstract class QueryParameterAdapter(val isMultiple: Boolean) {
     /**
-     * Must set the values on the String[] (outputVarName) starting from index
-     * startIndexVarName.
-     */
-    abstract fun convert(inputVarName: String, outputVarName: String, startIndexVarName: String,
-                         scope: CodeGenScope)
-
-    /**
      * Must bind the value into the statement at the given index.
      */
     abstract fun bindToStmt(inputVarName: String, stmtVarName: String, startIndexVarName: String,

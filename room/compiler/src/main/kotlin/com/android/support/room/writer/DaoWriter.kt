@@ -339,9 +339,9 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
         val queryWriter = QueryWriter(method)
         val scope = CodeGenScope()
         val sqlVar = scope.getTmpVar("_sql")
-        val argsVar = scope.getTmpVar("_args")
-        queryWriter.prepareReadAndBind(sqlVar, argsVar, scope)
-        method.queryResultBinder.convertAndReturn(sqlVar, argsVar, dbField, scope)
+        val roomSQLiteQueryVar = scope.getTmpVar("_statement")
+        queryWriter.prepareReadAndBind(sqlVar, roomSQLiteQueryVar, scope)
+        method.queryResultBinder.convertAndReturn(roomSQLiteQueryVar, dbField, scope)
         return scope.builder().build()
     }
 

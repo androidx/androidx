@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
@@ -177,5 +178,22 @@ public class SimpleEntityReadWriteTest {
         mUserDao.insertAll(usersArr);
         mUserDao.incrementIds(1);
         assertThat(mUserDao.loadIds(), is(Arrays.asList(3, 5, 7)));
+    }
+
+    @Test
+    public void findByIntQueryParameter() {
+        User user = TestUtil.createUser(1);
+        final String name = "my name";
+        user.setName(name);
+        mUserDao.insert(user);
+        assertThat(mUserDao.findByNameLenght(name.length()), is(Collections.singletonList(user)));
+    }
+
+    @Test
+    public void findByIntFieldMatch() {
+        User user = TestUtil.createUser(1);
+        user.setAge(19);
+        mUserDao.insert(user);
+        assertThat(mUserDao.findByAge(19), is(Collections.singletonList(user)));
     }
 }

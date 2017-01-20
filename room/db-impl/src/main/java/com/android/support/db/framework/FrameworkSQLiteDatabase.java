@@ -19,7 +19,10 @@ package com.android.support.db.framework;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteTransactionListener;
 import android.os.Build;
 import android.os.CancellationSignal;
@@ -29,6 +32,7 @@ import android.support.annotation.RequiresApi;
 import android.util.Pair;
 
 import com.android.support.db.SupportSQLiteDatabase;
+import com.android.support.db.SupportSQLiteQuery;
 import com.android.support.db.SupportSQLiteStatement;
 
 import java.util.List;
@@ -39,6 +43,8 @@ import java.util.Locale;
  */
 @SuppressWarnings("unused")
 public class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
     private final SQLiteDatabase mDelegate;
 
     /**
@@ -207,6 +213,18 @@ public class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
             String[] selectionArgs, String editTable, CancellationSignal cancellationSignal) {
         return mDelegate.rawQueryWithFactory(cursorFactory, sql, selectionArgs, editTable,
                 cancellationSignal);
+    }
+
+    @Override
+    public Cursor rawQuery(final SupportSQLiteQuery supportQuery) {
+        return rawQueryWithFactory(new SQLiteDatabase.CursorFactory() {
+            @Override
+            public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
+                    String editTable, SQLiteQuery query) {
+                supportQuery.bindTo(new FrameworkSQLiteProgram(query));
+                return new SQLiteCursor(masterQuery, editTable, query);
+            }
+        }, supportQuery.getSql(), EMPTY_STRING_ARRAY, null);
     }
 
     @Override

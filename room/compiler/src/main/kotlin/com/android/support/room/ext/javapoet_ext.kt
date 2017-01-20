@@ -63,6 +63,8 @@ object RoomTypeNames {
             ClassName.get("com.android.support.room", "InvalidationTracker")
     val INVALIDATION_OBSERVER : ClassName =
             ClassName.get("com.android.support.room.InvalidationTracker", "Observer")
+    val ROOM_SQL_QUERY : ClassName =
+            ClassName.get("com.android.support.room", "RoomSQLiteQuery")
 }
 
 object LifecyclesTypeNames {

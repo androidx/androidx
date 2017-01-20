@@ -211,22 +211,15 @@ class TypeAdapterStore(val context: Context,
                 && (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)
                 || MoreTypes.isTypeOf(java.util.Set::class.java, typeMirror))) {
             val declared = MoreTypes.asDeclared(typeMirror)
-            val converter = findTypeConverter(declared.typeArguments.first(),
-                    context.COMMON_TYPES.STRING)
-                    ?: return null
             val bindAdapter = findColumnTypeAdapter(declared.typeArguments.first()) ?: return null
-            return CollectionQueryParameterAdapter(converter, bindAdapter)
+            return CollectionQueryParameterAdapter(bindAdapter)
         } else if (typeMirror is ArrayType) {
             val component = typeMirror.componentType
-            val converter = findTypeConverter(component, context.COMMON_TYPES.STRING)
-                    ?: return null
             val bindAdapter = findColumnTypeAdapter(component) ?: return null
-            return ArrayQueryParameterAdapter(converter, bindAdapter)
+            return ArrayQueryParameterAdapter(bindAdapter)
         } else {
-            val converter = findTypeConverter(typeMirror, context.COMMON_TYPES.STRING)
-                    ?: return null
             val bindAdapter = findColumnTypeAdapter(typeMirror) ?: return null
-            return BasicQueryParameterAdapter(converter, bindAdapter)
+            return BasicQueryParameterAdapter(bindAdapter)
         }
     }
 

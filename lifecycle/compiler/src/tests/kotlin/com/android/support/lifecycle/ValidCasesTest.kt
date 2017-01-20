@@ -68,7 +68,7 @@ class ValidCasesTest {
                 load("foo.InterfaceOk2Interface_LifecycleAdapter", "expected")
         )
     }
-    
+
     @Test
     fun testInheritanceDifferentPackages1() {
         processClass("foo.DifferentPackagesBase1",

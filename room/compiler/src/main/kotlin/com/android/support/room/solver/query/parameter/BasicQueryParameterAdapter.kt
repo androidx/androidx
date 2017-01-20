@@ -25,8 +25,7 @@ import com.squareup.javapoet.TypeName
 /**
  * Knows how to convert a query parameter into arguments
  */
-class BasicQueryParameterAdapter(val converter : TypeConverter,
-                                 val bindAdapter : ColumnTypeAdapter)
+class BasicQueryParameterAdapter(val bindAdapter : ColumnTypeAdapter)
             : QueryParameterAdapter(false) {
     override fun bindToStmt(inputVarName: String, stmtVarName: String, startIndexVarName: String,
                             scope: CodeGenScope) {
@@ -38,10 +37,5 @@ class BasicQueryParameterAdapter(val converter : TypeConverter,
     override fun getArgCount(inputVarName: String, outputVarName : String, scope: CodeGenScope) {
         throw UnsupportedOperationException("should not call getArgCount on basic adapters." +
                 "It is always one.")
-    }
-
-    override fun convert(inputVarName: String, outputVarName: String, startIndexVarName: String,
-                         scope: CodeGenScope) {
-        converter.convertForward(inputVarName, "$outputVarName[$startIndexVarName]", scope)
     }
 }

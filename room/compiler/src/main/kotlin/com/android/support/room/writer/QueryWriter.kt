@@ -17,6 +17,8 @@
 package com.android.support.room.writer
 
 import com.android.support.room.ext.L
+import com.android.support.room.ext.RoomTypeNames.ROOM_DB
+import com.android.support.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import com.android.support.room.ext.RoomTypeNames.STRING_UTIL
 import com.android.support.room.ext.S
 import com.android.support.room.ext.T
@@ -36,9 +38,10 @@ import com.squareup.javapoet.TypeName
  * Writes the SQL query and arguments for a QueryMethod.
  */
 class QueryWriter(val queryMethod: QueryMethod) {
-    fun prepareReadAndBind(outSqlQueryName: String, outArgsName: String, scope: CodeGenScope) {
-        val listSizeVars = createSqlQueryAndArgs(outSqlQueryName, outArgsName, scope)
-        bindArgs(outArgsName, listSizeVars, scope)
+    fun prepareReadAndBind(outSqlQueryName: String, outRoomSQLiteQueryVar: String,
+                           scope: CodeGenScope) {
+        val listSizeVars = createSqlQueryAndArgs(outSqlQueryName, outRoomSQLiteQueryVar, scope)
+        bindArgs(outRoomSQLiteQueryVar, listSizeVars, scope)
     }
 
     fun prepareQuery(outSqlQueryName: String, scope: CodeGenScope) {
@@ -91,15 +94,17 @@ class QueryWriter(val queryMethod: QueryMethod) {
                     val argCount = scope.getTmpVar("_argCount")
                     addStatement("final $T $L = $L$L", TypeName.INT, argCount, knownQueryArgsCount,
                             listSizeVars.joinToString("") { " + ${it.second}" })
-                    addStatement("final $T $L = new String[$L]",
-                            String::class.arrayTypeName(), outArgsName, argCount)
+                    addStatement("final $T $L = $T.acquire($L, $L)",
+                            ROOM_SQL_QUERY, outArgsName, ROOM_SQL_QUERY, outSqlQueryName,
+                            argCount)
                 }
             } else {
                 addStatement("final $T $L = $S", String::class.typeName(),
                         outSqlQueryName, queryMethod.query.queryWithReplacedBindParams)
                 if (outArgsName != null) {
-                    addStatement("final $T $L = new String[$L]",
-                            String::class.arrayTypeName(), outArgsName, knownQueryArgsCount)
+                    addStatement("final $T $L = $T.acquire($L, $L)",
+                            ROOM_SQL_QUERY, outArgsName, ROOM_SQL_QUERY, outSqlQueryName,
+                            knownQueryArgsCount)
                 }
             }
         }
@@ -113,8 +118,7 @@ class QueryWriter(val queryMethod: QueryMethod) {
         }
         scope.builder().apply {
             val argIndex = scope.getTmpVar("_argIndex")
-            val startIndex = if (queryMethod.query.type == QueryType.SELECT) 0 else 1
-            addStatement("$T $L = $L", TypeName.INT, argIndex, startIndex)
+            addStatement("$T $L = $L", TypeName.INT, argIndex, 1)
             // # of bindings with 1 placeholder
             var constInputs = 0
             // variable names for size of the bindings that have multiple  args
@@ -122,20 +126,13 @@ class QueryWriter(val queryMethod: QueryMethod) {
             queryMethod.sectionToParamMapping.forEach { pair ->
                 // reset the argIndex to the correct start index
                 if (constInputs > 0 || varInputs.isNotEmpty()) {
-                    addStatement("$L = $L$L$L$L", argIndex,
-                            if (startIndex > 0) "$startIndex + " else "",
-                            if (constInputs > 0) constInputs else "",
-                            if (constInputs > 0 && varInputs.isNotEmpty()) " + " else "",
-                            varInputs.joinToString(" + "))
+                    addStatement("$L = $L$L", argIndex,
+                            if (constInputs > 0) (1 + constInputs) else "1",
+                            varInputs.joinToString { " + $it" })
                 }
                 val param = pair.second
                 param?.let {
-                    if (queryMethod.query.type == QueryType.SELECT) {
-                        param.queryParamAdapter?.convert(param.name, outArgsName, argIndex, scope)
-                    } else {
-                        param.queryParamAdapter?.bindToStmt(param.name, outArgsName, argIndex,
-                                scope)
-                    }
+                    param.queryParamAdapter?.bindToStmt(param.name, outArgsName, argIndex, scope)
                 }
                 // add these to the list so that we can use them to calculate the next count.
                 val sizeVar = listSizeVars.firstOrNull { it.first == param }

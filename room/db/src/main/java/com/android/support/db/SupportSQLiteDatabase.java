@@ -537,6 +537,18 @@ public interface SupportSQLiteDatabase {
             String editTable, CancellationSignal cancellationSignal);
 
     /**
+     * Runs the given query on the database.
+     * <p>
+     * This class allows using type safe sql program bindings while running queries.
+     *
+     * @param query The SQL query that includes the query and can bind into a given compiled
+     *              program.
+     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
+     * {@link Cursor}s are not synchronized, see the documentation for more details.
+     */
+    Cursor rawQuery(SupportSQLiteQuery query);
+
+    /**
      * Convenience method for inserting a row into the database.
      *
      * @param table the table to insert the row into

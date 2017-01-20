@@ -7,6 +7,7 @@ import com.android.support.room.CursorConverter;
 import com.android.support.room.InvalidationTracker.Observer;
 import com.android.support.room.Room;
 import com.android.support.room.RoomDatabase;
+import com.android.support.room.RoomSQLiteQuery;
 import com.android.support.room.util.StringUtil;
 import java.lang.Integer;
 import java.lang.Override;
@@ -25,10 +26,10 @@ public class ComplexDao_Impl extends ComplexDao {
     @Override
     public User getById(int id) {
         final String _sql = "SELECT * FROM user where uid = ?";
-        final String[] _args = new String[1];
-        int _argIndex = 0;
-        _args[_argIndex] = Integer.toString(id);
-        final Cursor _cursor = __db.query(_sql, _args);
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+        int _argIndex = 1;
+        _statement.bindLong(_argIndex, id);
+        final Cursor _cursor = __db.query(_statement);
         try {
             final CursorConverter<User> _converter = Room.getConverter(User.class);
             final User _result;
@@ -40,18 +41,27 @@ public class ComplexDao_Impl extends ComplexDao {
             return _result;
         } finally {
             _cursor.close();
+            _statement.release();
         }
     }
 
     @Override
     public User findByName(String name, String lastName) {
         final String _sql = "SELECT * FROM user where name LIKE ? AND lastName LIKE ?";
-        final String[] _args = new String[2];
-        int _argIndex = 0;
-        _args[_argIndex] = name;
-        _argIndex = 1;
-        _args[_argIndex] = lastName;
-        final Cursor _cursor = __db.query(_sql, _args);
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
+        int _argIndex = 1;
+        if (name == null) {
+            _statement.bindNull(_argIndex);
+        } else {
+            _statement.bindString(_argIndex, name);
+        }
+        _argIndex = 2;
+        if (lastName == null) {
+            _statement.bindNull(_argIndex);
+        } else {
+            _statement.bindString(_argIndex, lastName);
+        }
+        final Cursor _cursor = __db.query(_statement);
         try {
             final CursorConverter<User> _converter = Room.getConverter(User.class);
             final User _result;
@@ -63,6 +73,7 @@ public class ComplexDao_Impl extends ComplexDao {
             return _result;
         } finally {
             _cursor.close();
+            _statement.release();
         }
     }
 
@@ -75,13 +86,13 @@ public class ComplexDao_Impl extends ComplexDao {
         _stringBuilder.append(")");
         final String _sql = _stringBuilder.toString();
         final int _argCount = 0 + _inputSize;
-        final String[] _args = new String[_argCount];
-        int _argIndex = 0;
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
+        int _argIndex = 1;
         for (int _item : ids) {
-            _args[_argIndex] = Integer.toString(_item);
+            _statement.bindLong(_argIndex, _item);
             _argIndex ++;
         }
-        final Cursor _cursor = __db.query(_sql, _args);
+        final Cursor _cursor = __db.query(_statement);
         try {
             final CursorConverter<User> _converter = Room.getConverter(User.class);
             final List<User> _result = new ArrayList<User>(_cursor.getCount());
@@ -93,16 +104,17 @@ public class ComplexDao_Impl extends ComplexDao {
             return _result;
         } finally {
             _cursor.close();
+            _statement.release();
         }
     }
 
     @Override
     int getAge(int id) {
         final String _sql = "SELECT age FROM user where id = ?";
-        final String[] _args = new String[1];
-        int _argIndex = 0;
-        _args[_argIndex] = Integer.toString(id);
-        final Cursor _cursor = __db.query(_sql, _args);
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+        int _argIndex = 1;
+        _statement.bindLong(_argIndex, id);
+        final Cursor _cursor = __db.query(_statement);
         try {
             final int _result;
             if(_cursor.moveToFirst()) {
@@ -113,6 +125,7 @@ public class ComplexDao_Impl extends ComplexDao {
             return _result;
         } finally {
             _cursor.close();
+            _statement.release();
         }
     }
 
@@ -125,13 +138,13 @@ public class ComplexDao_Impl extends ComplexDao {
         _stringBuilder.append(")");
         final String _sql = _stringBuilder.toString();
         final int _argCount = 0 + _inputSize;
-        final String[] _args = new String[_argCount];
-        int _argIndex = 0;
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
+        int _argIndex = 1;
         for (int _item : ids) {
-            _args[_argIndex] = Integer.toString(_item);
+            _statement.bindLong(_argIndex, _item);
             _argIndex ++;
         }
-        final Cursor _cursor = __db.query(_sql, _args);
+        final Cursor _cursor = __db.query(_statement);
         try {
             final int[] _result = new int[_cursor.getCount()];
             int _index = 0;
@@ -144,6 +157,7 @@ public class ComplexDao_Impl extends ComplexDao {
             return _result;
         } finally {
             _cursor.close();
+            _statement.release();
         }
     }
 
@@ -156,13 +170,17 @@ public class ComplexDao_Impl extends ComplexDao {
         _stringBuilder.append(")");
         final String _sql = _stringBuilder.toString();
         final int _argCount = 0 + _inputSize;
-        final String[] _args = new String[_argCount];
-        int _argIndex = 0;
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
+        int _argIndex = 1;
         for (Integer _item : ids) {
-            _args[_argIndex] = _item == null ? null : Integer.toString(_item);
+            if (_item == null) {
+                _statement.bindNull(_argIndex);
+            } else {
+                _statement.bindLong(_argIndex, _item);
+            }
             _argIndex ++;
         }
-        final Cursor _cursor = __db.query(_sql, _args);
+        final Cursor _cursor = __db.query(_statement);
         try {
             final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
             while(_cursor.moveToNext()) {
@@ -177,30 +195,31 @@ public class ComplexDao_Impl extends ComplexDao {
             return _result;
         } finally {
             _cursor.close();
+            _statement.release();
         }
     }
 
     @Override
     public LiveData<User> getByIdLive(int id) {
         final String _sql = "SELECT * FROM user where uid = ?";
-        final String[] _args = new String[1];
-        int _argIndex = 0;
-        _args[_argIndex] = Integer.toString(id);
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+        int _argIndex = 1;
+        _statement.bindLong(_argIndex, id);
         return new ComputableLiveData<User>() {
-            private boolean _startedObserving = false;
+            private Observer _observer;
 
             @Override
             protected User compute() {
-                if (!_startedObserving) {
-                    _startedObserving = true;
-                    __db.getInvalidationTracker().addWeakObserver(new Observer("user") {
+                if (_observer == null) {
+                    _observer = new Observer("user") {
                         @Override
                         public void onInvalidated() {
                             invalidate();
                         }
-                    });
+                    };
+                    __db.getInvalidationTracker().addWeakObserver(_observer);
                 }
-                final Cursor _cursor = __db.query(_sql, _args);
+                final Cursor _cursor = __db.query(_statement);
                 try {
                     final CursorConverter<User> _converter = Room.getConverter(User.class);
                     final User _result;
@@ -214,6 +233,11 @@ public class ComplexDao_Impl extends ComplexDao {
                     _cursor.close();
                 }
             }
+
+            @Override
+            protected void finalize() {
+                _statement.release();
+            }
         }.getLiveData();
     }
 
@@ -226,27 +250,27 @@ public class ComplexDao_Impl extends ComplexDao {
         _stringBuilder.append(")");
         final String _sql = _stringBuilder.toString();
         final int _argCount = 0 + _inputSize;
-        final String[] _args = new String[_argCount];
-        int _argIndex = 0;
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
+        int _argIndex = 1;
         for (int _item : ids) {
-            _args[_argIndex] = Integer.toString(_item);
+            _statement.bindLong(_argIndex, _item);
             _argIndex ++;
         }
         return new ComputableLiveData<List<User>>() {
-            private boolean _startedObserving = false;
+            private Observer _observer;
 
             @Override
             protected List<User> compute() {
-                if (!_startedObserving) {
-                    _startedObserving = true;
-                    __db.getInvalidationTracker().addWeakObserver(new Observer("user") {
+                if (_observer == null) {
+                    _observer = new Observer("user") {
                         @Override
                         public void onInvalidated() {
                             invalidate();
                         }
-                    });
+                    };
+                    __db.getInvalidationTracker().addWeakObserver(_observer);
                 }
-                final Cursor _cursor = __db.query(_sql, _args);
+                final Cursor _cursor = __db.query(_statement);
                 try {
                     final CursorConverter<User> _converter = Room.getConverter(User.class);
                     final List<User> _result = new ArrayList<User>(_cursor.getCount());
@@ -259,6 +283,11 @@ public class ComplexDao_Impl extends ComplexDao {
                 } finally {
                     _cursor.close();
                 }
+            }
+
+            @Override
+            protected void finalize() {
+                _statement.release();
             }
         }.getLiveData();
     }

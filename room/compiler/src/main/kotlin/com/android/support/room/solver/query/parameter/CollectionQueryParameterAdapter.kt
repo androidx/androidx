@@ -27,14 +27,13 @@ import com.squareup.javapoet.TypeName
 /**
  * Binds Collection<T> (e.g. List<T>) into String[] query args.
  */
-class CollectionQueryParameterAdapter(val converter : TypeConverter,
-                                      val bindAdapter : ColumnTypeAdapter)
+class CollectionQueryParameterAdapter(val bindAdapter : ColumnTypeAdapter)
             : QueryParameterAdapter(true) {
     override fun bindToStmt(inputVarName: String, stmtVarName: String, startIndexVarName: String,
                             scope: CodeGenScope) {
         scope.builder().apply {
             val itrVar = scope.getTmpVar("_item")
-            beginControlFlow("for ($T $L : $L)", converter.from.typeName(), itrVar, inputVarName)
+            beginControlFlow("for ($T $L : $L)", bindAdapter.outTypeName, itrVar, inputVarName)
                     .apply {
                         bindAdapter.bindToStmt(stmtVarName, startIndexVarName, itrVar, scope)
                         addStatement("$L ++", startIndexVarName)
@@ -46,17 +45,5 @@ class CollectionQueryParameterAdapter(val converter : TypeConverter,
     override fun getArgCount(inputVarName: String, outputVarName : String, scope: CodeGenScope) {
         scope.builder()
                 .addStatement("final $T $L = $L.size()", TypeName.INT, outputVarName, inputVarName)
-    }
-
-    override fun convert(inputVarName: String, outputVarName: String, startIndexVarName: String,
-                         scope: CodeGenScope) {
-        scope.builder().apply {
-            val itrVar = scope.getTmpVar("_item")
-            beginControlFlow("for ($T $L : $L)", converter.from.typeName(), itrVar, inputVarName)
-                converter.convertForward(
-                        itrVar, "$outputVarName[$startIndexVarName]", scope)
-                addStatement("$L ++", startIndexVarName)
-            endControlFlow()
-        }
     }
 }

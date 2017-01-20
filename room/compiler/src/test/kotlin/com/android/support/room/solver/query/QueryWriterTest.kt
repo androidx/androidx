@@ -18,6 +18,8 @@ package com.android.support.room.solver.query
 
 import com.android.support.room.Dao
 import com.android.support.room.Query
+import com.android.support.room.RoomSQLiteQuery
+import com.android.support.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import com.android.support.room.ext.RoomTypeNames.STRING_UTIL
 import com.android.support.room.processor.QueryMethodProcessor
 import com.android.support.room.solver.CodeGenScope
@@ -46,6 +48,7 @@ class QueryWriterTest {
                 abstract class MyClass {
                 """
         const val DAO_SUFFIX = "}"
+        val QUERY = ROOM_SQL_QUERY.toString()
     }
 
     @Test
@@ -55,11 +58,10 @@ class QueryWriterTest {
                 abstract java.util.List<Integer> selectAllIds();
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadAndBind("_sql", "_args", scope)
-            assertThat(scope.generate().trim(), `is`(
-                    """
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
+            assertThat(scope.generate().trim(), `is`("""
                     final java.lang.String _sql = "SELECT id FROM users";
-                    final java.lang.String[] _args = new String[0];
+                    final $QUERY _stmt = $QUERY.acquire(_sql, 0);
                     """.trimIndent()))
         }.compilesWithoutError()
     }
@@ -71,13 +73,17 @@ class QueryWriterTest {
                 abstract java.util.List<Integer> selectAllIds(String name);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadAndBind("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
                     final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
-                    final java.lang.String[] _args = new String[1];
-                    int _argIndex = 0;
-                    _args[_argIndex] = name;
+                    final $QUERY _stmt = $QUERY.acquire(_sql, 1);
+                    int _argIndex = 1;
+                    if (name == null) {
+                      _stmt.bindNull(_argIndex);
+                    } else {
+                      _stmt.bindString(_argIndex, name);
+                    }
                     """.trimIndent()))
         }.compilesWithoutError()
     }
@@ -89,15 +95,15 @@ class QueryWriterTest {
                 abstract java.util.List<Integer> selectAllIds(int id1, int id2);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadAndBind("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
                     final java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
-                    final java.lang.String[] _args = new String[2];
-                    int _argIndex = 0;
-                    _args[_argIndex] = java.lang.Integer.toString(id1);
-                    _argIndex = 1;
-                    _args[_argIndex] = java.lang.Integer.toString(id2);
+                    final $QUERY _stmt = $QUERY.acquire(_sql, 2);
+                    int _argIndex = 1;
+                    _stmt.bindLong(_argIndex, id1);
+                    _argIndex = 2;
+                    _stmt.bindLong(_argIndex, id2);
                     """.trimIndent()))
         }.compilesWithoutError()
     }
@@ -109,7 +115,7 @@ class QueryWriterTest {
                 abstract java.util.List<Integer> selectAllIds(long time, int... ids);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadAndBind("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
@@ -120,14 +126,14 @@ class QueryWriterTest {
                     _stringBuilder.append("?");
                     final java.lang.String _sql = _stringBuilder.toString();
                     final int _argCount = 1 + _inputSize;
-                    final java.lang.String[] _args = new String[_argCount];
-                    int _argIndex = 0;
+                    final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
+                    int _argIndex = 1;
                     for (int _item : ids) {
-                      _args[_argIndex] = java.lang.Integer.toString(_item);
+                      _stmt.bindLong(_argIndex, _item);
                       _argIndex ++;
                     }
-                    _argIndex = _inputSize;
-                    _args[_argIndex] = java.lang.Long.toString(time);
+                    _argIndex = 1 + _inputSize;
+                    _stmt.bindLong(_argIndex, time);
                     """.trimIndent()))
         }.compilesWithoutError()
     }
@@ -141,14 +147,18 @@ class QueryWriterTest {
                     _stringBuilder.append("?");
                     final java.lang.String _sql = _stringBuilder.toString();
                     final int _argCount = 1 + _inputSize;
-                    final java.lang.String[] _args = new String[_argCount];
-                    int _argIndex = 0;
+                    final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
+                    int _argIndex = 1;
                     for (java.lang.Integer _item : ids) {
-                      _args[_argIndex] = _item == null ? null : java.lang.Integer.toString(_item);
+                      if (_item == null) {
+                        _stmt.bindNull(_argIndex);
+                      } else {
+                        _stmt.bindLong(_argIndex, _item);
+                      }
                       _argIndex ++;
                     }
-                    _argIndex = _inputSize;
-                    _args[_argIndex] = java.lang.Long.toString(time);
+                    _argIndex = 1 + _inputSize;
+                    _stmt.bindLong(_argIndex, time);
                     """.trimIndent()
 
     @Test
@@ -158,7 +168,7 @@ class QueryWriterTest {
                 abstract List<Integer> selectAllIds(long time, List<Integer> ids);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadAndBind("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`(collectionOut))
         }.compilesWithoutError()
     }
@@ -170,7 +180,7 @@ class QueryWriterTest {
                 abstract List<Integer> selectAllIds(long time, Set<Integer> ids);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadAndBind("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`(collectionOut))
         }.compilesWithoutError()
     }
@@ -182,14 +192,14 @@ class QueryWriterTest {
                 abstract List<Integer> selectAllIds(int age);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadAndBind("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`("""
                     final java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
-                    final java.lang.String[] _args = new String[2];
-                    int _argIndex = 0;
-                    _args[_argIndex] = java.lang.Integer.toString(age);
-                    _argIndex = 1;
-                    _args[_argIndex] = java.lang.Integer.toString(age);
+                    final $QUERY _stmt = $QUERY.acquire(_sql, 2);
+                    int _argIndex = 1;
+                    _stmt.bindLong(_argIndex, age);
+                    _argIndex = 2;
+                    _stmt.bindLong(_argIndex, age);
                     """.trimIndent()))
         }.compilesWithoutError()
     }
@@ -201,7 +211,7 @@ class QueryWriterTest {
                 abstract List<Integer> selectAllIds(int age, int... ages);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadAndBind("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`("""
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
                     _stringBuilder.append("SELECT id FROM users WHERE age > ");
@@ -214,14 +224,14 @@ class QueryWriterTest {
                     _stringBuilder.append(")");
                     final java.lang.String _sql = _stringBuilder.toString();
                     final int _argCount = 2 + _inputSize;
-                    final java.lang.String[] _args = new String[_argCount];
-                    int _argIndex = 0;
-                    _args[_argIndex] = java.lang.Integer.toString(age);
-                    _argIndex = 1;
-                    _args[_argIndex] = java.lang.Integer.toString(age);
+                    final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
+                    int _argIndex = 1;
+                    _stmt.bindLong(_argIndex, age);
                     _argIndex = 2;
+                    _stmt.bindLong(_argIndex, age);
+                    _argIndex = 3;
                     for (int _item : ages) {
-                      _args[_argIndex] = java.lang.Integer.toString(_item);
+                      _stmt.bindLong(_argIndex, _item);
                       _argIndex ++;
                     }
                     """.trimIndent()))
@@ -235,7 +245,7 @@ class QueryWriterTest {
                 abstract List<Integer> selectAllIds(int age, int... ages);
                 """) { writer ->
             val scope = CodeGenScope()
-            writer.prepareReadAndBind("_sql", "_args", scope)
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`("""
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
                     _stringBuilder.append("SELECT id FROM users WHERE age IN (");
@@ -249,17 +259,17 @@ class QueryWriterTest {
                     _stringBuilder.append(")");
                     final java.lang.String _sql = _stringBuilder.toString();
                     final int _argCount = 1 + _inputSize + _inputSize_1;
-                    final java.lang.String[] _args = new String[_argCount];
-                    int _argIndex = 0;
+                    final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
+                    int _argIndex = 1;
                     for (int _item : ages) {
-                      _args[_argIndex] = java.lang.Integer.toString(_item);
+                      _stmt.bindLong(_argIndex, _item);
                       _argIndex ++;
                     }
-                    _argIndex = _inputSize;
-                    _args[_argIndex] = java.lang.Integer.toString(age);
                     _argIndex = 1 + _inputSize;
+                    _stmt.bindLong(_argIndex, age);
+                    _argIndex = 2 + _inputSize;
                     for (int _item_1 : ages) {
-                      _args[_argIndex] = java.lang.Integer.toString(_item_1);
+                      _stmt.bindLong(_argIndex, _item_1);
                       _argIndex ++;
                     }
                     """.trimIndent()))

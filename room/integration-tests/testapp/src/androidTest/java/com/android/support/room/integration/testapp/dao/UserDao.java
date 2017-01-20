@@ -77,4 +77,10 @@ public interface UserDao {
 
     @Query("select * from user where mName LIKE '%' || :name || '%' ORDER BY mId DESC")
     LiveData<List<User>> liveUsersListByName(String name);
+
+    @Query("select * from user where length(mName) = ?")
+    List<User> findByNameLenght(int length);
+
+    @Query("select * from user where mAge = ?")
+    List<User> findByAge(int age);
 }
