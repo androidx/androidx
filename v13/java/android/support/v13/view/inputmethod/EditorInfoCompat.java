@@ -50,6 +50,26 @@ public final class EditorInfoCompat {
      */
     public static final int IME_FLAG_NO_PERSONALIZED_LEARNING = 0x1000000;
 
+    /**
+     * Flag of {@link EditorInfo#imeOptions}: used to request an IME that is capable of inputting
+     * ASCII characters.
+     *
+     * <p>The intention of this flag is to ensure that the user can type Roman alphabet characters
+     * in a {@link android.widget.TextView}. It is typically used for an account ID or password
+     * input.</p>
+     *
+     * <p>In many cases, IMEs are already able to input ASCII even without being told so (such IMEs
+     * already respect this flag in a sense), but there are cases when this is not the default. For
+     * instance, users of languages using a different script like Arabic, Greek, Hebrew or Russian
+     * typically have a keyboard that can't input ASCII characters by default.</p>
+     *
+     * <p>Applications need to be aware that the flag is not a guarantee, and some IMEs may not
+     * respect it. However, it is strongly recommended for IME authors to respect this flag
+     * especially when their IME could end up with a state where only languages using non-ASCII are
+     * enabled.</p>
+     */
+    public static final int IME_FLAG_FORCE_ASCII = 0x80000000;
+
     private interface EditorInfoCompatImpl {
         void setContentMimeTypes(@NonNull EditorInfo editorInfo,
                 @Nullable String[] contentMimeTypes);
