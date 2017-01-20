@@ -186,7 +186,7 @@ public class ActionMenuItemView extends AppCompatTextView
         setText(visible ? mTitle : null);
 
         // Show the tooltip for items that do not already show text.
-        ViewCompat.setTooltip(this, visible ? null : mTitle);
+        ViewCompat.setTooltipText(this, visible ? null : mTitle);
     }
 
     public void setIcon(Drawable icon) {

@@ -490,7 +490,7 @@ public class ViewCompat {
         void offsetLeftAndRight(View view, int offset);
         void setPointerIcon(View view, PointerIconCompat pointerIcon);
         Display getDisplay(View view);
-        void setTooltip(View view, CharSequence tooltip);
+        void setTooltipText(View view, CharSequence tooltipText);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -1167,8 +1167,8 @@ public class ViewCompat {
         }
 
         @Override
-        public void setTooltip(View view, CharSequence tooltip) {
-            TooltipCompat.setTooltip(view, tooltip);
+        public void setTooltipText(View view, CharSequence tooltipText) {
+            TooltipCompat.setTooltipText(view, tooltipText);
         }
     }
 
@@ -1836,8 +1836,8 @@ public class ViewCompat {
 
     static class Api26ViewCompatImpl extends Api24ViewCompatImpl {
         @Override
-        public void setTooltip(View view, CharSequence tooltip) {
-            ViewCompatApi26.setTooltip(view, tooltip);
+        public void setTooltipText(View view, CharSequence tooltipText) {
+            ViewCompatApi26.setTooltipText(view, tooltipText);
         }
     }
 
@@ -3618,10 +3618,10 @@ public class ViewCompat {
      * Creates a Toast on long click.
      * </ul>
      *
-     * @param tooltip the tooltip text
+     * @param tooltipText the tooltip text
      */
-    public static void setTooltip(@NonNull View view, @Nullable CharSequence tooltip) {
-        IMPL.setTooltip(view, tooltip);
+    public static void setTooltipText(@NonNull View view, @Nullable CharSequence tooltipText) {
+        IMPL.setTooltipText(view, tooltipText);
     }
 
     protected ViewCompat() {}

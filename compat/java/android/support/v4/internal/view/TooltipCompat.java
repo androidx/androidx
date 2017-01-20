@@ -41,24 +41,24 @@ public class TooltipCompat {
      * Set a tooltip on a view. The tooltip text will be displayed on long click,
      * in a toast aligned with the view.
      * @param view View to align to
-     * @param tooltip Tooltip text
+     * @param tooltipText Tooltip text
      */
-    public static void setTooltip(View view, final CharSequence tooltip) {
-        if (TextUtils.isEmpty(tooltip)) {
+    public static void setTooltipText(View view, final CharSequence tooltipText) {
+        if (TextUtils.isEmpty(tooltipText)) {
             view.setOnLongClickListener(null);
             view.setLongClickable(false);
         } else {
             view.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    showTooltipToast(v, tooltip);
+                    showTooltipToast(v, tooltipText);
                     return true;
                 }
             });
         }
     }
 
-    private static void showTooltipToast(View v, CharSequence tooltip) {
+    private static void showTooltipToast(View v, CharSequence tooltipText) {
         final int[] screenPos = new int[2];
         final Rect displayFrame = new Rect();
         v.getLocationOnScreen(screenPos);
@@ -73,7 +73,7 @@ public class TooltipCompat {
             final int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
             referenceX = screenWidth - referenceX; // mirror
         }
-        Toast toast = Toast.makeText(context, tooltip, Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(context, tooltipText, Toast.LENGTH_SHORT);
         if (midy < displayFrame.height()) {
             // Show along the top; follow action buttons
             toast.setGravity(Gravity.TOP | GravityCompat.END, referenceX,
