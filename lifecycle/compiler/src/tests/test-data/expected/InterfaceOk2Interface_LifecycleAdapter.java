@@ -22,7 +22,7 @@ import com.android.support.lifecycle.LifecycleProvider;
 import java.lang.Object;
 import java.lang.Override;
 
-class InterfaceOk2Interface_LifecycleAdapter implements GenericLifecycleObserver {
+public class InterfaceOk2Interface_LifecycleAdapter implements GenericLifecycleObserver {
     final InterfaceOk2Interface mReceiver;
 
     InterfaceOk2Interface_LifecycleAdapter(InterfaceOk2Interface receiver) {

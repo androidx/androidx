@@ -26,46 +26,64 @@ import org.junit.runners.JUnit4
 class ValidCasesTest {
     @Test
     fun testTest() {
-        processClass("Bar").compilesWithoutError()
+        processClass("foo.Bar").compilesWithoutError()
     }
 
     @Test
     fun testInheritance() {
-        processClass("InheritanceOk1").compilesWithoutError()
+        processClass("foo.InheritanceOk1").compilesWithoutError()
     }
 
     @Test
     fun testInheritance2() {
-        processClass("InheritanceOk2").compilesWithoutError().and().generatesSources(
-                load("foo", "InheritanceOk2Base_LifecycleAdapter", "expected"),
-                load("foo", "InheritanceOk2Derived_LifecycleAdapter", "expected")
+        processClass("foo.InheritanceOk2").compilesWithoutError().and().generatesSources(
+                load("foo.InheritanceOk2Base_LifecycleAdapter", "expected"),
+                load("foo.InheritanceOk2Derived_LifecycleAdapter", "expected")
         )
     }
 
     @Test
     fun testInheritance3() {
-        processClass("InheritanceOk3").compilesWithoutError().and().generatesSources(
-                load("foo", "InheritanceOk3Base_LifecycleAdapter", "expected"),
-                load("foo", "InheritanceOk3Derived_LifecycleAdapter", "expected")
+        processClass("foo.InheritanceOk3").compilesWithoutError().and().generatesSources(
+                load("foo.InheritanceOk3Base_LifecycleAdapter", "expected"),
+                load("foo.InheritanceOk3Derived_LifecycleAdapter", "expected")
         )
     }
 
     @Test
     fun testNoPackageClass() {
-        processClass("NoPackageOk", "").compilesWithoutError()
+        processClass("NoPackageOk").compilesWithoutError()
     }
 
     @Test
     fun testInterface1(){
-        processClass("InterfaceOk1").compilesWithoutError()
+        processClass("foo.InterfaceOk1").compilesWithoutError()
     }
 
     @Test
     fun testInterface2() {
-        processClass("InterfaceOk2").compilesWithoutError().and().generatesSources(
-                load("foo", "InterfaceOk2Base_LifecycleAdapter", "expected"),
-                load("foo", "InterfaceOk2Derived_LifecycleAdapter", "expected"),
-                load("foo", "InterfaceOk2Interface_LifecycleAdapter", "expected")
+        processClass("foo.InterfaceOk2").compilesWithoutError().and().generatesSources(
+                load("foo.InterfaceOk2Base_LifecycleAdapter", "expected"),
+                load("foo.InterfaceOk2Derived_LifecycleAdapter", "expected"),
+                load("foo.InterfaceOk2Interface_LifecycleAdapter", "expected")
+        )
+    }
+    
+    @Test
+    fun testInheritanceDifferentPackages1() {
+        processClass("foo.DifferentPackagesBase1",
+                "bar.DifferentPackagesDerived1").compilesWithoutError().and().generatesSources(
+                load("foo.DifferentPackagesBase1_LifecycleAdapter", "expected"),
+                load("bar.DifferentPackagesDerived1_LifecycleAdapter", "expected")
+        )
+    }
+
+    @Test
+    fun testInheritanceDifferentPackages2() {
+        processClass("foo.DifferentPackagesBase2",
+                "bar.DifferentPackagesDerived2").compilesWithoutError().and().generatesSources(
+                load("foo.DifferentPackagesBase2_LifecycleAdapter", "expected"),
+                load("bar.DifferentPackagesDerived2_LifecycleAdapter", "expected")
         )
     }
 }

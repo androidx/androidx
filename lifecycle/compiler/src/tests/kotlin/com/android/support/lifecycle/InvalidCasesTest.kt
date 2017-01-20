@@ -27,14 +27,15 @@ class InvalidCasesTest(val name: String, val errorMsg: String) {
         @JvmStatic
         @Parameterized.Parameters(name = "failingCase({0})")
         fun data() : Collection<Array<Any>> = listOf(
-                arrayOf<Any>("InvalidFirstArg", LifecycleProcessor.INVALID_FIRST_ARGUMENT),
-                arrayOf<Any>("InvalidSecondArg", LifecycleProcessor.INVALID_SECOND_ARGUMENT),
-                arrayOf<Any>("TooManyArgs", LifecycleProcessor.TOO_MANY_ARGS_ERROR_MSG),
-                arrayOf<Any>("InvalidMethodModifier", LifecycleProcessor.INVALID_METHOD_MODIFIER),
-                arrayOf<Any>("InvalidClassModifier", LifecycleProcessor.INVALID_CLASS_MODIFIER),
-                arrayOf<Any>("InvalidInheritance1",
+                arrayOf<Any>("foo.InvalidFirstArg", LifecycleProcessor.INVALID_FIRST_ARGUMENT),
+                arrayOf<Any>("foo.InvalidSecondArg", LifecycleProcessor.INVALID_SECOND_ARGUMENT),
+                arrayOf<Any>("foo.TooManyArgs", LifecycleProcessor.TOO_MANY_ARGS_ERROR_MSG),
+                arrayOf<Any>("foo.InvalidMethodModifier",
+                        LifecycleProcessor.INVALID_METHOD_MODIFIER),
+                arrayOf<Any>("foo.InvalidClassModifier", LifecycleProcessor.INVALID_CLASS_MODIFIER),
+                arrayOf<Any>("foo.InvalidInheritance1",
                         LifecycleProcessor.INVALID_STATE_OVERRIDE_METHOD),
-                arrayOf<Any>("InvalidInheritance2",
+                arrayOf<Any>("foo.InvalidInheritance2",
                         LifecycleProcessor.INVALID_STATE_OVERRIDE_METHOD)
         )
     }

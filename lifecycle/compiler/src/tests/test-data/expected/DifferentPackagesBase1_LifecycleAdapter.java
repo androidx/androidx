@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,13 @@ package foo;
 
 import com.android.support.lifecycle.GenericLifecycleObserver;
 import com.android.support.lifecycle.LifecycleProvider;
-
 import java.lang.Object;
 import java.lang.Override;
 
-public class InterfaceOk2Derived_LifecycleAdapter implements GenericLifecycleObserver {
-    final InterfaceOk2Derived mReceiver;
+public class DifferentPackagesBase1_LifecycleAdapter implements GenericLifecycleObserver {
+    final DifferentPackagesBase1 mReceiver;
 
-    InterfaceOk2Derived_LifecycleAdapter(InterfaceOk2Derived receiver) {
+    DifferentPackagesBase1_LifecycleAdapter(DifferentPackagesBase1 receiver) {
         this.mReceiver = receiver;
     }
 
@@ -33,14 +32,16 @@ public class InterfaceOk2Derived_LifecycleAdapter implements GenericLifecycleObs
     public void onStateChanged(LifecycleProvider provider, int previousState) {
         final int curState = provider.getLifecycle().getCurrentState();
         if ((curState & 8192) != 0) {
-            mReceiver.onStop1(provider, previousState);
-            mReceiver.onStop2(provider, previousState);
-            mReceiver.onStop3(provider, previousState);
+            mReceiver.onStop(provider, previousState);
         }
     }
 
     public Object getReceiver() {
         return mReceiver;
     }
-}
 
+    public static void __synthetic_onStop(DifferentPackagesBase1 receiver, LifecycleProvider provider,
+            int previousState) {
+        receiver.onStop(provider, previousState);
+    }
+}

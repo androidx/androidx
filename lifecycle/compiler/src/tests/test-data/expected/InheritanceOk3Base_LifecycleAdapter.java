@@ -22,7 +22,7 @@ import com.android.support.lifecycle.LifecycleProvider;
 import java.lang.Object;
 import java.lang.Override;
 
-class InheritanceOk3Base_LifecycleAdapter implements GenericLifecycleObserver {
+public class InheritanceOk3Base_LifecycleAdapter implements GenericLifecycleObserver {
     final InheritanceOk3Base mReceiver;
 
     InheritanceOk3Base_LifecycleAdapter(InheritanceOk3Base receiver) {

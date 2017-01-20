@@ -21,20 +21,20 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory
+import com.google.testing.compile.JavaSourcesSubject
 import java.io.File
 import java.nio.charset.Charset
 import javax.tools.JavaFileObject
 
-fun load(packageName: String, className: String, folder: String): JavaFileObject {
+fun load(fullClassName: String, folder: String): JavaFileObject {
     val folderPath = "src/tests/test-data/${if (folder.isEmpty()) "" else folder + "/"}"
-    val code = File("$folderPath/$className.java").readText(Charset.defaultCharset())
-    val fullName = "$packageName${if (packageName.isEmpty()) "" else "."}$className"
-    return JavaFileObjects.forSourceString(fullName, code);
+    val split = fullClassName.split(".")
+    val code = File("$folderPath/${split.last()}.java").readText(Charset.defaultCharset())
+    return JavaFileObjects.forSourceString(fullClassName, code)
 }
 
-fun processClass(className: String, packageName: String = "foo"): CompileTester {
-    val processedWith = Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
-            .that(load(packageName, className, ""))
-            .processedWith(LifecycleProcessor())
+fun processClass(vararg fullClassNames: String): CompileTester {
+    val processedWith = JavaSourcesSubject.assertThat(
+            *fullClassNames.map { load(it, "") }.toTypedArray()).processedWith(LifecycleProcessor())
     return checkNotNull(processedWith)
 }

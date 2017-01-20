@@ -6,7 +6,7 @@ import com.android.support.lifecycle.LifecycleProvider;
 import java.lang.Object;
 import java.lang.Override;
 
-class InheritanceOk2Base_LifecycleAdapter implements GenericLifecycleObserver {
+public class InheritanceOk2Base_LifecycleAdapter implements GenericLifecycleObserver {
     final InheritanceOk2Base mReceiver;
 
     InheritanceOk2Base_LifecycleAdapter(InheritanceOk2Base receiver) {
