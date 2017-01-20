@@ -2688,21 +2688,13 @@ public final class MediaRouter {
         }
 
         public void setMediaSession(Object session) {
-            if (mMediaSession != null) {
-                mMediaSession.clearVolumeHandling();
-            }
-            if (session == null) {
-                mMediaSession = null;
-            } else {
-                mMediaSession = new MediaSessionRecord(session);
-                updatePlaybackInfoFromSelectedRoute();
-            }
+            setMediaSessionRecord(session != null ? new MediaSessionRecord(session) : null);
         }
 
         public void setMediaSessionCompat(final MediaSessionCompat session) {
             mCompatSession = session;
             if (android.os.Build.VERSION.SDK_INT >= 21) {
-                setMediaSession(session != null ? session.getMediaSession() : null);
+                setMediaSessionRecord(session != null ? new MediaSessionRecord(session) : null);
             } else if (android.os.Build.VERSION.SDK_INT >= 14) {
                 if (mRccMediaSession != null) {
                     removeRemoteControlClient(mRccMediaSession.getRemoteControlClient());
@@ -2715,6 +2707,16 @@ public final class MediaRouter {
                         addRemoteControlClient(session.getRemoteControlClient());
                     }
                 }
+            }
+        }
+
+        private void setMediaSessionRecord(MediaSessionRecord mediaSessionRecord) {
+            if (mMediaSession != null) {
+                mMediaSession.clearVolumeHandling();
+            }
+            mMediaSession = mediaSessionRecord;
+            if (mediaSessionRecord != null) {
+                updatePlaybackInfoFromSelectedRoute();
             }
         }
 
@@ -2793,6 +2795,10 @@ public final class MediaRouter {
 
             public MediaSessionRecord(Object mediaSession) {
                 mMsCompat = MediaSessionCompat.fromMediaSession(mApplicationContext, mediaSession);
+            }
+
+            public MediaSessionRecord(MediaSessionCompat mediaSessionCompat) {
+                mMsCompat = mediaSessionCompat;
             }
 
             public void configureVolume(@VolumeProviderCompat.ControlType int controlType,
