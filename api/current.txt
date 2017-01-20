@@ -4319,6 +4319,7 @@ package android.support.v4.app {
 
   public abstract class FragmentContainer {
     ctor public FragmentContainer();
+    method public android.support.v4.app.Fragment instantiate(android.content.Context, java.lang.String, android.os.Bundle);
     method public abstract android.view.View onFindViewById(int);
     method public abstract boolean onHasView();
   }
