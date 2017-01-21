@@ -30,6 +30,7 @@ import android.support.annotation.Nullable;
 public class LifecycleRuntimeTrojanProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
+        ProcessProvider.init(getContext());
         FragmentLifecycleDispatcher.init(getContext());
         return true;
     }

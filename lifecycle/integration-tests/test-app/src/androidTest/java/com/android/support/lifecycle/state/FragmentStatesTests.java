@@ -16,9 +16,9 @@
 
 package com.android.support.lifecycle.state;
 
+import static com.android.support.lifecycle.TestUtils.recreateActivity;
 import static com.android.support.lifecycle.state.StateProviders.retainedStateProvider;
 import static com.android.support.lifecycle.state.StateProviders.savedStateProvider;
-import static com.android.support.lifecycle.state.TestUtils.recreateActivity;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -65,8 +65,8 @@ public class FragmentStatesTests {
                 });
     }
 
-    protected void testRecreationInBackStack(boolean forceRecreation,
-             Action init, Action checkAfterRecreation) throws Throwable {
+    private void testRecreationInBackStack(boolean forceRecreation,
+            Action init, Action checkAfterRecreation) throws Throwable {
         String tag = "fragment_tag";
         MainActivity activity = activityTestRule.getActivity();
         activityTestRule.runOnUiThread(() -> {
@@ -75,7 +75,8 @@ public class FragmentStatesTests {
             fragmentManager.beginTransaction().add(R.id.root, fragment, tag).commitNow();
             init.run(fragment);
             if (forceRecreation) {
-                TestUtils.stopRetainingInstanceIn(fragment.getChildFragmentManager());
+                fragment.getChildFragmentManager()
+                        .findFragmentByTag(StateProviders.HOLDER_TAG).setRetainInstance(false);
             }
 
             Fragment newFragment = new UsualFragment();

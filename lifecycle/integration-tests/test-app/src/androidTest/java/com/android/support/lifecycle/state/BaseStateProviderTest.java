@@ -16,7 +16,7 @@
 
 package com.android.support.lifecycle.state;
 
-import static com.android.support.lifecycle.state.TestUtils.recreateActivity;
+import static com.android.support.lifecycle.TestUtils.recreateActivity;
 
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.Fragment;
@@ -30,9 +30,9 @@ import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 
-public abstract class BaseStateProviderTest<T> {
+abstract class BaseStateProviderTest<T> {
 
-    public enum TestVariant {
+    enum TestVariant {
         ACTIVITY,
         FRAGMENT
     }
@@ -49,12 +49,13 @@ public abstract class BaseStateProviderTest<T> {
     public ActivityTestRule<MainActivity> activityTestRule =
             new ActivityTestRule<>(MainActivity.class);
 
+    @SuppressWarnings("WeakerAccess")
     @Parameterized.Parameter
     public TestVariant mTestVariant;
 
     private boolean mForceRecreation;
 
-    public BaseStateProviderTest(boolean mForceRecreation) {
+    BaseStateProviderTest(boolean mForceRecreation) {
         this.mForceRecreation = mForceRecreation;
     }
 
@@ -73,10 +74,11 @@ public abstract class BaseStateProviderTest<T> {
         } else {
             fragmentManager = activity.getSupportFragmentManager();
         }
-        TestUtils.stopRetainingInstanceIn(fragmentManager);
+        fragmentManager.findFragmentByTag(StateProviders.HOLDER_TAG).setRetainInstance(false);
     }
 
-    protected void testRecreation(Action<T>... actions) throws Throwable {
+    @SafeVarargs
+    final void testRecreation(Action<T>... actions) throws Throwable {
         MainActivity currentActivity = getActivity();
         for (int i = 0; i < actions.length; i++) {
             final Action<T> action = actions[i];
@@ -94,7 +96,7 @@ public abstract class BaseStateProviderTest<T> {
         }
     }
 
-    protected interface Action<X> {
+    interface Action<X> {
         void run(X provider);
     }
 }

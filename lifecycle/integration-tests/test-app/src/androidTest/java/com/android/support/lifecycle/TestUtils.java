@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle.state;
+package com.android.support.lifecycle;
 
+import android.app.Activity;
 import android.app.Instrumentation;
 import android.app.Instrumentation.ActivityMonitor;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.UiThreadTestRule;
-import android.support.v4.app.FragmentManager;
-
-import com.android.support.lifecycle.testapp.MainActivity;
 
 public class TestUtils {
 
     private static final long TIMEOUT_MS = 2000;
 
-    static MainActivity recreateActivity(final MainActivity activity, UiThreadTestRule rule)
+    @SuppressWarnings("unchecked")
+    public static <T extends Activity> T recreateActivity(final T activity, UiThreadTestRule rule)
             throws Throwable {
         ActivityMonitor monitor = new ActivityMonitor(
-                MainActivity.class.getCanonicalName(), null, false);
+                activity.getClass().getCanonicalName(), null, false);
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         instrumentation.addMonitor(monitor);
-        rule.runOnUiThread(() -> activity.recreate());
-        MainActivity result;
+        rule.runOnUiThread(activity::recreate);
+        T result;
 
         // this guarantee that we will reinstall monitor between notifications about onDestroy
         // and onCreate
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (monitor) {
             do {
                 // the documetation says "Block until an Activity is created
@@ -47,7 +47,7 @@ public class TestUtils {
                 // "Block until an Activity is resumed"...
 
                 // this call will release synchronization monitor's monitor
-                result = (MainActivity) monitor.waitForActivityWithTimeout(TIMEOUT_MS);
+                result = (T) monitor.waitForActivityWithTimeout(TIMEOUT_MS);
                 if (result == null) {
                     throw new RuntimeException("Timeout. Failed to recreate an activity");
                 }
@@ -55,9 +55,4 @@ public class TestUtils {
         }
         return result;
     }
-
-    static void stopRetainingInstanceIn(FragmentManager fragmentManager) {
-        fragmentManager.findFragmentByTag(StateProviders.HOLDER_TAG).setRetainInstance(false);
-    }
-
 }

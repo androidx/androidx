@@ -17,15 +17,14 @@
 package com.android.support.lifecycle;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Loader;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.RestrictTo;
 import android.util.Log;
+
+import com.android.support.lifecycle.ReportInitializationFragment.ActivityInitializationListener;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -73,7 +72,7 @@ public class ActivityLifecycleDispatcher {
     }
 
     private final Activity mActivity;
-    private final LifecycleRegistry mRegistry;
+    final LifecycleRegistry mRegistry;
     // This listener is awesome, but isn't perfect, it is not called in many cases:
     // deliverNewIntents, start in paused state and etc, however, for most straightforward
     // case it is called synchronously after onPause() call.
@@ -96,8 +95,25 @@ public class ActivityLifecycleDispatcher {
         }
     };
 
+    private final ActivityInitializationListener mInitializationListener =
+            new ActivityInitializationListener() {
+                @Override
+                public void onCreate() {
+                    mRegistry.handleLifecycleEvent(Lifecycle.ON_CREATE);
+                }
+
+                @Override
+                public void onStart() {
+                    mRegistry.handleLifecycleEvent(Lifecycle.ON_START);
+                }
+
+                @Override
+                public void onResume() {
+                    mRegistry.handleLifecycleEvent(Lifecycle.ON_RESUME);
+                }
+            };
+
     /**
-     *
      * @param activity activity, lifecycle of which should be dispatched
      * @param provider {@link LifecycleProvider} for this activity
      */
@@ -112,17 +128,9 @@ public class ActivityLifecycleDispatcher {
     public void onActivityPostSuperOnCreate() {
         // loader might have been retained - kill it, kill it!
         mActivity.getLoaderManager().destroyLoader(LOADER_ID);
-        FragmentManager manager = mActivity.getFragmentManager();
         ReportInitializationFragment fragment =
-                (ReportInitializationFragment) manager.findFragmentByTag(FRAGMENT_TAG);
-        if (fragment == null) {
-            fragment = new ReportInitializationFragment();
-            manager.beginTransaction().add(fragment, FRAGMENT_TAG).commit();
-
-            // Hopefully, we are the first to make a transaction.
-            manager.executePendingTransactions();
-        }
-        fragment.setRegistry(mRegistry);
+                ReportInitializationFragment.getOrCreateFor(mActivity);
+        fragment.setActivityListener(mInitializationListener);
     }
 
     /**
@@ -137,10 +145,17 @@ public class ActivityLifecycleDispatcher {
 
     private Object createPauseListener() {
         InvocationHandler handler = new InvocationHandler() {
+            Object mObject = new Object();
+
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                dispatchPauseIfNeeded();
-                return null;
+                if (method.getName().equals("onPaused")) {
+                    dispatchPauseIfNeeded();
+                    return null;
+                }
+                // all other methods are default object's methods, so pass them to our internal
+                // object
+                return method.invoke(mObject, args);
             }
         };
 
@@ -229,43 +244,6 @@ public class ActivityLifecycleDispatcher {
      */
     public Lifecycle getLifecycle() {
         return mRegistry;
-    }
-
-    /**
-     * Internal class that dispatches initialization events.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static class ReportInitializationFragment extends Fragment {
-
-        private LifecycleRegistry mRegistry;
-
-        void setRegistry(LifecycleRegistry registry) {
-            mRegistry = registry;
-        }
-
-        @Override
-        public void onActivityCreated(Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
-            dispatchEvent(Lifecycle.ON_CREATE);
-        }
-
-        @Override
-        public void onStart() {
-            super.onStart();
-            dispatchEvent(Lifecycle.ON_START);
-        }
-
-        @Override
-        public void onResume() {
-            super.onResume();
-            dispatchEvent(Lifecycle.ON_RESUME);
-        }
-
-        private void dispatchEvent(int event) {
-            mRegistry.handleLifecycleEvent(event);
-        }
     }
 
     abstract static class EmptyLoaderCallbacks implements LoaderManager.LoaderCallbacks {
