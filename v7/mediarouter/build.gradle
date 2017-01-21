@@ -5,8 +5,7 @@ dependencies {
     compile project(":support-appcompat-v7")
     compile project(":support-palette-v7")
 
-    androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}")
-    testCompile 'junit:junit:4.12'
+    androidTestCompile libs.test_runner
 }
 
 android {

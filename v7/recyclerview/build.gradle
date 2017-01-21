@@ -5,20 +5,22 @@ dependencies {
     compile project(':support-annotations')
     compile project(':support-compat')
     compile project(':support-core-ui')
-    androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
+
+    androidTestCompile (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile ("com.android.support.test.espresso:espresso-core:${project.rootProject.ext.espressoVersion}") {
+    androidTestCompile (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    testCompile 'junit:junit:4.12'
-    testCompile "org.mockito:mockito-core:1.9.5"
-    testCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
+    androidTestCompile libs.mockito_core
+    androidTestCompile libs.dexmaker
+    androidTestCompile libs.dexmaker_mockito
+
+    testCompile libs.junit
+    testCompile libs.mockito_core
+    testCompile ("$libs.test_runner") {
         exclude module: 'support-annotations'
     }
-    androidTestCompile "org.mockito:mockito-core:1.9.5"
-    androidTestCompile "com.google.dexmaker:dexmaker:1.2"
-    androidTestCompile "com.google.dexmaker:dexmaker-mockito:1.2"
 }
 
 android {

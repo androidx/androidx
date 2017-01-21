@@ -22,13 +22,12 @@ dependencies {
     compile project(':support-appcompat-v7')
     compile project(':support-recyclerview-v7')
 
-    androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
+    androidTestCompile (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile ("com.android.support.test.espresso:espresso-core:${project.rootProject.ext.espressoVersion}") {
+    androidTestCompile (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    testCompile 'junit:junit:4.12'
 }
 
 android {

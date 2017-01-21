@@ -7,20 +7,21 @@ dependencies {
     compile project(':support-recyclerview-v7')
     compile project(':support-transition')
 
-    androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
+    androidTestCompile (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile ("com.android.support.test.espresso:espresso-core:${project.rootProject.ext.espressoVersion}") {
+    androidTestCompile (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile ("com.android.support.test.espresso:espresso-contrib:${project.rootProject.ext.espressoVersion}") {
+    androidTestCompile (libs.espresso_contrib) {
         exclude group: 'com.android.support'
     }
-    androidTestCompile 'org.mockito:mockito-core:1.9.5'
-    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
-    testCompile 'junit:junit:4.12'
-    testCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
+    androidTestCompile libs.mockito_core
+    androidTestCompile libs.dexmaker
+    androidTestCompile libs.dexmaker_mockito
+
+    testCompile libs.junit
+    testCompile ("$libs.test_runner") {
         exclude module: 'support-annotations'
     }
 }
