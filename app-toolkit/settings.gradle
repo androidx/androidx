@@ -78,6 +78,11 @@ project(':room:rxjava2').projectDir = new File(supportRoot, "room/rxjava2")
 include ':room:integration-tests:testapp'
 project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "room/integration-tests/testapp")
 
+include ':navigation:runtime'
+project(':navigation:runtime').projectDir = new File(supportRoot, "navigation/runtime")
+
+include ':navigation:integration-tests:testapp'
+project(':navigation:integration-tests:testapp').projectDir = new File(supportRoot, "navigation/integration-tests/testapp")
 /////////////////////////////
 //
 // SupportLib
