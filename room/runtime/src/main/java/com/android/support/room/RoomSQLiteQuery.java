@@ -17,6 +17,7 @@
 package com.android.support.room;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
 import com.android.support.db.SupportSQLiteProgram;
@@ -32,14 +33,19 @@ import java.util.TreeMap;
  * Cursor queries with correct types rather than passing everything as a string.
  * <p>
  * Because it is relatively a big object, they are pooled and must be released after each use.
+ * @hide
  */
 @SuppressWarnings("unused")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RoomSQLiteQuery implements SupportSQLiteQuery, SupportSQLiteProgram {
     @SuppressWarnings("WeakerAccess")
     @VisibleForTesting
+    // Maximum number of queries we'll keep cached.
     static final int POOL_LIMIT = 15;
     @SuppressWarnings("WeakerAccess")
     @VisibleForTesting
+    // Once we hit POOL_LIMIT, we'll bring the pool size back to the desired number. We always
+    // clear the bigger queries (# of arguments).
     static final int DESIRED_POOL_SIZE = 10;
     private volatile String mQuery;
     @SuppressWarnings("WeakerAccess")
@@ -79,6 +85,7 @@ public class RoomSQLiteQuery implements SupportSQLiteQuery, SupportSQLiteProgram
      * @return A RoomSQLiteQuery that holds the given query and has space for the given number of
      * arguments.
      */
+    @SuppressWarnings("WeakerAccess")
     public static RoomSQLiteQuery acquire(String query, int argumentCount) {
         synchronized (sQueryPool) {
             final Map.Entry<Integer, RoomSQLiteQuery> entry =
@@ -115,7 +122,11 @@ public class RoomSQLiteQuery implements SupportSQLiteQuery, SupportSQLiteProgram
 
     /**
      * Releases the query back to the pool.
+     * <p>
+     * After released, the statement might be returned when {@link #acquire(String, int)} is called
+     * so you should never re-use it after releasing.
      */
+    @SuppressWarnings("WeakerAccess")
     public void release() {
         synchronized (sQueryPool) {
             sQueryPool.put(mCapacity, this);
