@@ -93,14 +93,6 @@ subprojects {
     project.version = release_version
     addRepos(project.repositories)
 
-    if (enablePublicRepos) {
-        apply plugin: 'com.android.databinding.localizemaven'
-        project.localizeMaven {
-            localRepoDir = file("$prebuiltsRoot/tools/common/m2/repository")
-            otherRepoDirs = repoNames
-        }
-    }
-
     // copy test results to DIST
     project.tasks.whenTaskAdded { task ->
         if (task instanceof org.gradle.api.tasks.testing.Test) {
@@ -148,6 +140,16 @@ subprojects {
             def uploadArchivesTask = project.tasks.findByPath("uploadArchives")
             if (uploadArchivesTask != null) {
                 createRepoDistTask.dependsOn(uploadArchivesTask)
+            }
+        }
+    }
+
+    if (enablePublicRepos) {
+        project.afterEvaluate {
+            apply plugin: 'com.android.databinding.localizemaven'
+            project.localizeMaven {
+                localRepoDir = file("$prebuiltsRoot/tools/common/m2/repository")
+                otherRepoDirs = repoNames
             }
         }
     }
