@@ -11,4 +11,7 @@
     <string name="titleAndYear">%1$s (%2$s)</string>
     <string name="rating">Rated %1$s /10 by %2$s people</string>
     <string name="ratedWithDot">\u2022 %1$s</string>
+
+    <string name="auth_token_title">Type or paste your GitHub token</string>
+    <string name="hint_token">GitHub token</string>
 </resources>

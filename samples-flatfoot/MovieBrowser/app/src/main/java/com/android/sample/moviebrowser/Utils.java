@@ -23,8 +23,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 /**
  * Helper methods.
@@ -41,6 +46,22 @@ public class Utils {
     @BindingAdapter({"url", "fragment"})
     public static void loadImage(ImageView imageView, String url, Fragment fragment) {
         Glide.with(fragment).load(url).fitCenter().crossFade().into(imageView);
+    }
+
+    /**
+     * Displays formatted date given a JSON-originating date.
+     */
+    @BindingAdapter("jsonDate")
+    public static void formatDate(TextView textView, String jsonDate) {
+        final SimpleDateFormat responseDateParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+                Locale.ENGLISH);
+        try {
+            textView.setText(
+                    SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT).format(
+                            responseDateParser.parse(jsonDate)));
+        } catch (ParseException pe) {
+            // WTF
+        }
     }
 
     /**
