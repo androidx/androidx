@@ -52,7 +52,7 @@ public class BottomNavigationViewUsage extends AppCompatActivity {
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (bottom.getMenu().size() < 5) {
+                if (bottom.getMenu().size() < bottom.getMaxItemCount()) {
                     MenuItem item = bottom.getMenu().add("Bananas");
                     item.setIcon(android.R.drawable.ic_lock_power_off);
                 }
@@ -62,7 +62,9 @@ public class BottomNavigationViewUsage extends AppCompatActivity {
         buttonRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                bottom.getMenu().removeItem(0);
+                if (bottom.getMenu().size() > 0) {
+                    bottom.getMenu().removeItem(bottom.getMenu().getItem(0).getItemId());
+                }
             }
         });
         Button buttonTint = (Button) findViewById(R.id.button_tint);

@@ -87,9 +87,9 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
             @Override
             public void onClick(View v) {
                 final BottomNavigationItemView itemView = (BottomNavigationItemView) v;
-                final int itemPosition = itemView.getItemPosition();
-                if (!mMenu.performItemAction(itemView.getItemData(), mPresenter, 0)) {
-                    activateNewButton(itemPosition);
+                MenuItem item = itemView.getItemData();
+                if (!mMenu.performItemAction(item, mPresenter, 0)) {
+                    item.setChecked(true);
                 }
             }
         };
@@ -257,6 +257,8 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
         }
         removeAllViews();
         if (mMenu.size() == 0) {
+            mSelectedItemId = 0;
+            mSelectedItemPosition = 0;
             mButtons = null;
             return;
         }
@@ -288,6 +290,7 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
             buildMenuView();
             return;
         }
+        int previousSelectedId = mSelectedItemId;
         for (int i = 0; i < menuSize; i++) {
             mPresenter.setUpdateSuspended(true);
             MenuItem item = mMenu.getItem(i);
@@ -298,18 +301,9 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
             mButtons[i].initialize((MenuItemImpl) item, 0);
             mPresenter.setUpdateSuspended(false);
         }
-    }
-
-    private void activateNewButton(int newButton) {
-        if (mSelectedItemPosition == newButton) {
-            return;
+        if (previousSelectedId != mSelectedItemId) {
+            mAnimationHelper.beginDelayedTransition(this);
         }
-
-        mAnimationHelper.beginDelayedTransition(this);
-
-        mMenu.getItem(newButton).setChecked(true);
-
-        mSelectedItemPosition = newButton;
     }
 
     private BottomNavigationItemView getNewItem() {
@@ -320,7 +314,7 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
         return item;
     }
 
-    int getSelectedItemId() {
+    public int getSelectedItemId() {
         return mSelectedItemId;
     }
 
