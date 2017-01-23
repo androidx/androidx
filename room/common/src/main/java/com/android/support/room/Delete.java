@@ -21,6 +21,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method in a {@link Dao} annotated class as a delete method.
+ * <p>
+ * The implementation of the method will delete its parameters from the database.
+ * <p>
+ * All of the parameters of the Delete method must either be classes annotated with {@link Entity}
+ * or collections/array of it.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Delete {

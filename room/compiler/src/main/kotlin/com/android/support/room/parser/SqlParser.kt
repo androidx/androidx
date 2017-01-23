@@ -138,6 +138,7 @@ enum class QueryType {
     INSERT;
 
     companion object {
+        // IF you change this, don't forget to update @Query documentation.
         val SUPPORTED = hashSetOf(SELECT, DELETE, UPDATE)
     }
 }

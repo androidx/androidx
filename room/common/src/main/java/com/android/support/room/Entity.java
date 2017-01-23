@@ -21,6 +21,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a class as an entity. This class will have a mapping SQLite table in the database.
+ * <p>
+ * Each entity must have at least 1 field annotated with {@link PrimaryKey} and it must have a
+ * no-arg constructor.
+ * <p>
+ * When a class is marked as an Entity, all of its fields are persisted. If you would like to
+ * exclude some of its fields, you can mark them with {@link Ignore}.
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Entity {

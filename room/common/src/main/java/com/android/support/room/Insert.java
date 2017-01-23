@@ -23,7 +23,12 @@ import android.support.annotation.IntDef;
 import java.lang.annotation.Retention;
 
 /**
- * Marks the method as an Insert statement.
+ * Marks a method in a {@link Dao} annotated class as an insert method.
+ * <p>
+ * The implementation of the method will insert its parameters into the database.
+ * <p>
+ * All of the parameters of the Insert method must either be classes annotated with {@link Entity}
+ * or collections/array of it.
  */
 public @interface Insert {
     int REPLACE = 1;

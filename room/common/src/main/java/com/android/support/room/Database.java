@@ -21,6 +21,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a class as a RoomDatabase.
+ * <p>
+ * The class should be an abstract class and extend {@code com.android.support.room.RoomDatabase}.
+ * <p>
+ * You can receive an implementation of the class from
+ * {com.android.support.room.Room#databaseBuilder} or
+ * {com.android.support.room.Room#inMemoryDatabaseBuilder}.
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Database {

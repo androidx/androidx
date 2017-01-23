@@ -21,6 +21,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks the class as a Data Access Object.
+ * <p>
+ * Data Access Objects are the main classes where you define your database interactions.
+ * <p>
+ * The class marked with {@code @Dao} should either be an interface or an abstract class.
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Dao {

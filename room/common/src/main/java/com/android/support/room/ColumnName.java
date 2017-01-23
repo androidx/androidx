@@ -21,6 +21,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Sets the column name of an entity field.
+ * <p>
+ * By default, Room uses the field name as the column name in the database. You can override this
+ * behavior by using this annotation on an Entity field.
+ */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface ColumnName {
