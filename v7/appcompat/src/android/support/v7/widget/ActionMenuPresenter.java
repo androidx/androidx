@@ -27,6 +27,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.transition.ActionBarTransition;
 import android.support.v7.view.ActionBarPolicy;
@@ -646,6 +647,8 @@ class ActionMenuPresenter extends BaseMenuPresenter
             setFocusable(true);
             setVisibility(VISIBLE);
             setEnabled(true);
+
+            ViewCompat.setTooltipText(this, getContentDescription());
 
             setOnTouchListener(new ForwardingListener(this) {
                 @Override
