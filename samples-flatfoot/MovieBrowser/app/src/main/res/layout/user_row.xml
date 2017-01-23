@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="java.lang.Integer"/>
+        <import type="com.android.sample.moviebrowser.Utils"/>
+        <variable name="contributor" type="com.android.sample.moviebrowser.ContributorData"/>
+        <variable name="fragment" type="android.support.v4.app.Fragment"/>
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp">
+
+        <ImageView
+            android:id="@+id/avatar"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            app:fragment="@{fragment}"
+            app:url="@{contributor.avatar_url}"/>
+        />
+
+        <View
+            android:id="@+id/separator"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_toRightOf="@id/avatar"
+            android:background="#80222222"/>
+
+        <TextView
+            android:id="@+id/login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/avatar"
+            android:lines="1"
+            android:maxLines="1"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="4dp"
+            android:text="@{contributor.login}"
+            android:textColor="#222"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/contributions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/avatar"
+            android:lines="1"
+            android:maxLines="1"
+            android:paddingBottom="6dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:text="@{@plurals/contributions(contributor.contributions, contributor.contributions)}"
+            android:textColor="#444"
+            android:textSize="14sp"/>
+
+    </RelativeLayout>
+</layout>

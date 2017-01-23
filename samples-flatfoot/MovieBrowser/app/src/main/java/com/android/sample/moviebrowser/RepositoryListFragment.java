@@ -35,7 +35,7 @@ import com.android.support.lifecycle.ViewModelStore;
 import java.util.List;
 
 /**
- * Main fragment.
+ * Fragment that shows the list of all repositories that match the current search term.
  */
 public class RepositoryListFragment extends LifecycleFragment {
     @Override
@@ -55,7 +55,7 @@ public class RepositoryListFragment extends LifecycleFragment {
         recyclerView.setAdapter(new RepositoryListAdapter(this, searchModel));
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), columnCount));
 
-        // Register an observer on the LiveData that wraps the list of movies to update the
+        // Register an observer on the LiveData that wraps the list of repositories to update the
         // adapter on every change
         searchModel.getRepositoryListLiveData().observe(this, new Observer<List<RepositoryData>>() {
             @Override

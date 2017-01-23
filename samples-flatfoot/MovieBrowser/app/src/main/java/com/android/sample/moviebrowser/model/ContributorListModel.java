@@ -18,8 +18,7 @@ package com.android.sample.moviebrowser.model;
 import android.support.annotation.MainThread;
 import android.text.TextUtils;
 
-import com.android.sample.moviebrowser.AuthTokenLifecycle;
-import com.android.sample.moviebrowser.RepositoryData;
+import com.android.sample.moviebrowser.ContributorData;
 import com.android.sample.moviebrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
@@ -30,14 +29,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * View model for repository list data.
+ * View model for contributor list data.
  */
-public class RepositoryListModel implements ViewModel {
+public class ContributorListModel implements ViewModel {
     private AuthTokenModel mAuthTokenModel;
-    private String mSearchTerm;
-    private AuthTokenLifecycle mAuthTokenLifecycle;
+    private String mOwner;
+    private String mProject;
 
-    private LiveData<List<RepositoryData>> mRepositoryListLiveData = new LiveData<>();
+    private LiveData<List<ContributorData>> mRepositoryListLiveData = new LiveData<>();
     private AtomicBoolean mHasNoMoreDataToLoad = new AtomicBoolean(false);
     private AtomicInteger mLastRequestedPage = new AtomicInteger(0);
     private AtomicBoolean mHasRequestPending = new AtomicBoolean(false);
@@ -46,51 +45,40 @@ public class RepositoryListModel implements ViewModel {
     /**
      * Returns true if the current search term is not empty.
      */
-    public boolean hasSearchTerm() {
-        return !TextUtils.isEmpty(mSearchTerm);
+    public boolean hasSearchTerms() {
+        return !TextUtils.isEmpty(mOwner) && !TextUtils.isEmpty(mProject);
     }
 
     /**
-     * Sets new search term.
+     * Sets new search terms.
      */
     @MainThread
-    public void setSearchTerm(String searchTerm, AuthTokenModel authTokenModel,
-            AuthTokenLifecycle authTokenLifecycle) {
-        mSearchTerm = searchTerm;
+    public void setSearchTerms(String owner, String project, AuthTokenModel authTokenModel) {
+        mOwner = owner;
+        mProject = project;
         mAuthTokenModel = authTokenModel;
-        mAuthTokenLifecycle = authTokenLifecycle;
 
         if (mCurrentCall != null) {
             mCurrentCall.cancel();
         }
-        mRepositoryListLiveData.setValue(new ArrayList<RepositoryData>());
+        mRepositoryListLiveData.setValue(new ArrayList<ContributorData>());
         mHasRequestPending.set(false);
         mLastRequestedPage.set(0);
 
-        if ((mAuthTokenLifecycle != null) && mAuthTokenLifecycle.doWeNeedAuthToken()) {
-            mAuthTokenLifecycle.getAuthToken();
-        } else {
-            fetchNextPage();
-        }
+        fetchNextPage();
     }
 
     private void fetchNextPage() {
         mHasRequestPending.set(true);
-        mCurrentCall = GithubNetworkManager.getInstance(mAuthTokenModel).listRepositories(
-                mSearchTerm, mLastRequestedPage.get() + 1,
-                new GithubNetworkManager.NetworkCallListener<List<RepositoryData>>() {
+        mCurrentCall = GithubNetworkManager.getInstance(mAuthTokenModel).getContributors(
+                mOwner, mProject, mLastRequestedPage.get() + 1,
+                new GithubNetworkManager.NetworkCallListener<List<ContributorData>>() {
                     @Override
                     public void onLoadEmpty(int httpCode) {
-                        if ((httpCode == 401) || (httpCode == 403)) {
-                            if (mAuthTokenLifecycle != null) {
-                                mAuthTokenLifecycle.invalidateAuthToken();
-                                mAuthTokenLifecycle.getAuthToken();
-                            }
-                        }
                     }
 
                     @Override
-                    public void onLoadSuccess(List<RepositoryData> data) {
+                    public void onLoadSuccess(List<ContributorData> data) {
                         int newDataCount = data.size();
                         if (newDataCount == 0) {
                             mHasNoMoreDataToLoad.set(true);
@@ -99,7 +87,7 @@ public class RepositoryListModel implements ViewModel {
 
                         // Create a new list that will contain the previous pages and the new one
                         int prevDataCount = mRepositoryListLiveData.getValue().size();
-                        ArrayList<RepositoryData> newList =
+                        ArrayList<ContributorData> newList =
                                 new ArrayList<>(prevDataCount + newDataCount);
                         newList.addAll(mRepositoryListLiveData.getValue());
                         newList.addAll(data);
@@ -130,17 +118,10 @@ public class RepositoryListModel implements ViewModel {
     }
 
     /**
-     * Resumes loading of data in this model.
+     * Returns the {@LiveData} object that wraps the current list of contributors that matches the
+     * last set search terms.
      */
-    public void resumeLoading() {
-        fetchNextPage();
-    }
-
-    /**
-     * Returns the {@LiveData} object that wraps the current list of repos that matches the last
-     * set search term.
-     */
-    public LiveData<List<RepositoryData>> getRepositoryListLiveData() {
+    public LiveData<List<ContributorData>> getContributorListLiveData() {
         return mRepositoryListLiveData;
     }
 }

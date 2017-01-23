@@ -65,6 +65,24 @@ public class Utils {
     }
 
     /**
+     * Shows full details of the specific repository.
+     */
+    public static void showRepoDetails(Fragment fragment, RepositoryData data) {
+        RepositoryDetailsFragment repoDetailsFragment = new RepositoryDetailsFragment();
+        Bundle detailsFragmentArgs = new Bundle();
+        detailsFragmentArgs.putParcelable(RepositoryDetailsFragment.KEY_REPO, data);
+        repoDetailsFragment.setArguments(detailsFragmentArgs);
+
+        FragmentManager fragmentManager = fragment.getActivity()
+                .getSupportFragmentManager();
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.fragment_container, repoDetailsFragment, "repoDetails:" + data.id);
+        transaction.addToBackStack("repoDetails:" + data.id);
+        transaction.commit();
+    }
+
+    /**
      * Shows full details of the specific movie.
      */
     public static void showDetails(Fragment fragment, MovieData data) {

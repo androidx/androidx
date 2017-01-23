@@ -14,4 +14,20 @@
 
     <string name="auth_token_title">Type or paste your GitHub token</string>
     <string name="hint_token">GitHub token</string>
+    <string name="contributors">Contributors</string>
+    <plurals name="bugs">
+        <item quantity="one">%1$d issue</item>
+        <item quantity="other">%1$d issues</item>
+    </plurals>
+    <string name="starred">%1$d starred</string>
+    <string name="forked">%1$d forked</string>
+    <plurals name="contributions">
+        <item quantity="one">%1$d contribution</item>
+        <item quantity="other">%1$d contributions</item>
+    </plurals>
+    <string name="created">Created on %1$s</string>
+    <string name="repositories">Repositories</string>
+    <string name="followers">Followers</string>
+    <string name="following">Following</string>
+    <string name="joined">Joined on %1$s</string>
 </resources>
