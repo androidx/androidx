@@ -402,6 +402,7 @@ public class BoxInsetLayout extends ViewGroup {
     }
 
     private int calculateInset() {
+        // TODO: This should take the measured width/height as parameters.
         int rightEdge = Math.min(getMeasuredWidth(), mScreenWidth);
         int bottomEdge = Math.min(getMeasuredHeight(), mScreenHeight);
         return (int) (FACTOR * Math.max(rightEdge, bottomEdge));
