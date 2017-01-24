@@ -19,9 +19,11 @@ import static com.android.sample.moviebrowser.DetailsFragment.CODE_EDIT;
 
 import android.databinding.BindingAdapter;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,6 +31,7 @@ import com.bumptech.glide.Glide;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -53,12 +56,33 @@ public class Utils {
      */
     @BindingAdapter("jsonDate")
     public static void formatDate(TextView textView, String jsonDate) {
+        if (TextUtils.isEmpty(jsonDate)) {
+            return;
+        }
         final SimpleDateFormat responseDateParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
                 Locale.ENGLISH);
         try {
             textView.setText(
                     SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT).format(
                             responseDateParser.parse(jsonDate)));
+        } catch (ParseException pe) {
+            // WTF
+        }
+    }
+
+    /**
+     * Displays formatted date given a JSON-originating date.
+     */
+    @BindingAdapter({"stringRes", "jsonDate"})
+    public static void formatDateWithString(TextView textView, @StringRes int stringRes,
+            String jsonDate) {
+        try {
+            Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+                    Locale.ENGLISH).parse(jsonDate);
+            String formattedDate = SimpleDateFormat.getDateInstance(
+                    SimpleDateFormat.SHORT).format(date);
+            textView.setText(textView.getResources().getString(stringRes,
+                    formattedDate));
         } catch (ParseException pe) {
             // WTF
         }
@@ -79,6 +103,24 @@ public class Utils {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.add(R.id.fragment_container, repoDetailsFragment, "repoDetails:" + data.id);
         transaction.addToBackStack("repoDetails:" + data.id);
+        transaction.commit();
+    }
+
+    /**
+     * Shows full details of the specific user.
+     */
+    public static void showUserDetails(Fragment fragment, ContributorData data) {
+        UserDetailsFragment userDetailsFragment = new UserDetailsFragment();
+        Bundle detailsFragmentArgs = new Bundle();
+        detailsFragmentArgs.putParcelable(UserDetailsFragment.INITIAL, data);
+        userDetailsFragment.setArguments(detailsFragmentArgs);
+
+        FragmentManager fragmentManager = fragment.getActivity()
+                .getSupportFragmentManager();
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.fragment_container, userDetailsFragment, "userDetails:" + data.login);
+        transaction.addToBackStack("userDetails:" + data.login);
         transaction.commit();
     }
 

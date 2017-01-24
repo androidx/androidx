@@ -18,14 +18,15 @@ package com.android.sample.moviebrowser;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.android.support.room.Entity;
 import com.android.support.room.PrimaryKey;
 
 /**
  * Person data object.
  */
+@Entity
 public class PersonData implements Parcelable {
-    @PrimaryKey
-    public String login;
+    @PrimaryKey public String login;
     public String id;
     public String avatar_url;
     public String repos_url;
@@ -40,6 +41,22 @@ public class PersonData implements Parcelable {
     public String created_at;
 
     public PersonData() {
+    }
+
+    public PersonData(PersonData copyFrom) {
+        this.login = copyFrom.login;
+        this.id = copyFrom.id;
+        this.avatar_url = copyFrom.avatar_url;
+        this.repos_url = copyFrom.repos_url;
+        this.name = copyFrom.name;
+        this.company = copyFrom.company;
+        this.blog = copyFrom.blog;
+        this.location = copyFrom.location;
+        this.email = copyFrom.email;
+        this.public_repos = copyFrom.public_repos;
+        this.followers = copyFrom.followers;
+        this.following = copyFrom.following;
+        this.created_at = copyFrom.created_at;
     }
 
     @Override

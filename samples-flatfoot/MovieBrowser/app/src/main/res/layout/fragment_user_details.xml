@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="java.lang.Integer"/>
+        <import type="android.text.TextUtils"/>
+        <import type="android.view.View"/>
+        <import type="com.android.sample.moviebrowser.Utils"/>
+        <variable name="userPartial" type="com.android.sample.moviebrowser.ContributorData"/>
+        <variable name="user" type="com.android.sample.moviebrowser.PersonData"/>
+        <variable name="fragment" type="android.support.v4.app.Fragment"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/avatar"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:background="#FAFAFA"
+                app:fragment="@{fragment}"
+                app:url="@{userPartial.avatar_url}"/>
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/avatar"
+                android:lines="1"
+                android:maxLines="1"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="4dp"
+                android:text="@{user.name}"
+                android:textColor="#222"
+                android:textSize="20sp"
+                android:visibility="@{((user == null) || TextUtils.isEmpty(user.name)) ? View.INVISIBLE : View.VISIBLE}"/>
+
+            <TextView
+                android:id="@+id/login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/name"
+                android:layout_toRightOf="@id/avatar"
+                android:lines="1"
+                android:maxLines="1"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="4dp"
+                android:text="@{userPartial.login}"
+                android:textColor="#444"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:id="@+id/created"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/avatar"
+                android:layout_toRightOf="@id/avatar"
+                android:lines="1"
+                android:maxLines="1"
+                android:paddingBottom="2dp"
+                android:paddingLeft="8dp"
+                android:textColor="#444"
+                android:textSize="14sp"
+                app:jsonDate="@{user.created_at}"
+                android:visibility="@{((user == null) || TextUtils.isEmpty(user.created_at)) ? View.INVISIBLE : View.VISIBLE}"/>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingTop="8dp">
+            <TextView
+                android:id="@+id/company"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_people_black_18dp"
+                android:drawablePadding="2dp"
+                android:lines="1"
+                android:maxLines="1"
+                android:textColor="#444"
+                android:textSize="14sp"
+                android:text="@{user.company}"
+                android:visibility="@{((user == null) || TextUtils.isEmpty(user.company)) ? View.GONE : View.VISIBLE}"/>
+
+            <TextView
+                android:id="@+id/location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_location_on_black_18dp"
+                android:drawablePadding="2dp"
+                android:lines="1"
+                android:maxLines="1"
+                android:paddingLeft="16dp"
+                android:textColor="#444"
+                android:textSize="14sp"
+                android:text="@{user.location}"
+                android:visibility="@{((user == null) || TextUtils.isEmpty(user.location)) ? View.GONE : View.VISIBLE}"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <ImageButton
+                android:id="@+id/edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:background="@null"
+                android:clickable="true"
+                android:src="@drawable/ic_mode_edit_black_24dp"
+                android:visibility="@{(user == null) ? View.GONE : View.VISIBLE}"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingTop="8dp">
+            <TextView
+                android:id="@+id/email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_email_black_18dp"
+                android:drawablePadding="2dp"
+                android:lines="1"
+                android:maxLines="1"
+                android:textColor="#444"
+                android:textSize="14sp"
+                android:text="@{user.email}"
+                android:visibility="@{((user == null) || TextUtils.isEmpty(user.email)) ? View.GONE : View.VISIBLE}"/>
+
+            <TextView
+                android:id="@+id/blog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_link_black_18dp"
+                android:drawablePadding="2dp"
+                android:lines="1"
+                android:maxLines="1"
+                android:paddingLeft="16dp"
+                android:textColor="#444"
+                android:textSize="14sp"
+                android:text="@{user.blog}"
+                android:visibility="@{((user == null) || TextUtils.isEmpty(user.blog)) ? View.GONE : View.VISIBLE}"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingTop="8dp">
+            <TextView
+                android:id="@+id/followers_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:maxLines="1"
+                android:paddingRight="4dp"
+                android:text="@string/followers"
+                android:textColor="#444"
+                android:textSize="14sp"
+                android:visibility="@{(user == null) ? View.GONE : View.VISIBLE}"/>
+
+            <TextView
+                android:id="@+id/followers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#CCC"
+                android:lines="1"
+                android:maxLines="1"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:textColor="#444"
+                android:textSize="14sp"
+                android:text="@{Integer.toString(user.followers)}"
+                android:visibility="@{(user == null) ? View.GONE : View.VISIBLE}"/>
+
+            <TextView
+                android:id="@+id/following_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:maxLines="1"
+                android:paddingLeft="16dp"
+                android:paddingRight="4dp"
+                android:text="@string/following"
+                android:textColor="#444"
+                android:textSize="14sp"
+                android:visibility="@{(user == null) ? View.GONE : View.VISIBLE}"/>
+
+            <TextView
+                android:id="@+id/following"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#CCC"
+                android:lines="1"
+                android:maxLines="1"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:textColor="#444"
+                android:textSize="14sp"
+                android:text="@{Integer.toString(user.following)}"
+                android:visibility="@{(user == null) ? View.GONE : View.VISIBLE}"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/repositories_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:paddingLeft="12dp"
+            android:paddingTop="24dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:text="@string/repositories"
+            android:visibility="@{(user == null) ? View.GONE : View.VISIBLE}"
+            app:textAllCaps="true"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/repositories"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+</layout>

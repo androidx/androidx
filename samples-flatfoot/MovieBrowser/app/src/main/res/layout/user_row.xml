@@ -11,7 +11,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="64dp">
+        android:layout_height="64dp"
+        android:onClick="@{() -> Utils.showUserDetails(fragment, contributor)}">
 
         <ImageView
             android:id="@+id/avatar"
@@ -19,7 +20,6 @@
             android:layout_height="64dp"
             app:fragment="@{fragment}"
             app:url="@{contributor.avatar_url}"/>
-        />
 
         <View
             android:id="@+id/separator"
