@@ -40,7 +40,8 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "com.google.auto:auto-common:$auto_common_version"
     compile "com.squareup:javapoet:$javapoet_version"
-    compile 'org.antlr:antlr4:4.5.3'
+    compile "org.antlr:antlr4:$antlr_version"
+    compile "org.xerial:sqlite-jdbc:$xerial_version"
     testCompile "com.google.testing.compile:compile-testing:$compile_testing_version"
     testCompile "junit:junit:$junit_version"
     testCompile "com.intellij:annotations:$intellij_annotation"

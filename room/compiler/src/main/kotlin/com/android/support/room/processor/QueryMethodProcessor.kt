@@ -17,11 +17,14 @@
 package com.android.support.room.processor
 
 import com.android.support.room.Query
+import com.android.support.room.SkipQueryVerification
+import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.parser.ParsedQuery
 import com.android.support.room.parser.QueryType
 import com.android.support.room.parser.SqlParser
-import com.android.support.room.solver.query.result.InstantQueryResultBinder
 import com.android.support.room.solver.query.result.LiveDataQueryResultBinder
+import com.android.support.room.verifier.DatabaseVerificaitonErrors
+import com.android.support.room.verifier.DatabaseVerifier
 import com.android.support.room.vo.QueryMethod
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -33,6 +36,9 @@ import javax.lang.model.type.TypeKind
 
 class QueryMethodProcessor(val context: Context) {
     val parameterParser = QueryParameterProcessor(context)
+    // not enforced
+    var dbVerifier : DatabaseVerifier? = null
+
     fun parse(containing: DeclaredType, executableElement: ExecutableElement): QueryMethod {
         val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
         val executableType = MoreTypes.asExecutable(asMember)
@@ -47,6 +53,14 @@ class QueryMethodProcessor(val context: Context) {
                     AnnotationMirrors.getAnnotationValue(annotation, "value").value.toString())
             context.checker.check(query.errors.isEmpty(), executableElement,
                     query.errors.joinToString("\n"))
+            if (!executableElement.hasAnnotation(SkipQueryVerification::class)) {
+                query.resultInfo = dbVerifier?.analyze(query.original)
+            }
+            if (query.resultInfo?.error != null) {
+                context.logger.e(executableElement,
+                        DatabaseVerificaitonErrors.cannotVerifyQuery(query.resultInfo!!.error!!))
+            }
+
             context.checker.check(executableType.returnType.kind != TypeKind.ERROR,
                     executableElement, ProcessorErrors.CANNOT_RESOLVE_RETURN_TYPE,
                     executableElement)

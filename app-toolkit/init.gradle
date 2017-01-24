@@ -72,6 +72,10 @@ ext.build_tools_version = "26.0.0"
 ext.intellij_annotation = "12.0"
 ext.espresso_version = "2.2.2"
 ext.release_version = "1.0-SNAPSHOT"
+// this Xerial version is newer than we want but we need it to fix
+// https://github.com/xerial/sqlite-jdbc/issues/97
+ext.xerial_version = "3.16.1"
+ext.antlr_version = "4.5.3"
 ext.enablePublicRepos = System.getenv("ALLOW_PUBLIC_REPOS")
 
 // repository creation task

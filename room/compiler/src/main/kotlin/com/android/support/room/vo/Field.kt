@@ -17,6 +17,7 @@
 package com.android.support.room.vo
 
 import com.android.support.room.ext.typeName
+import com.android.support.room.parser.SQLTypeAffinity
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
@@ -66,5 +67,16 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
 
     val setterNameWithVariations by lazy {
         nameWithVariations.map { "set${it.capitalize()}" }
+    }
+
+    /**
+     * definition to be used in create query
+     */
+    val databaseDefinition by lazy {
+        val affinity = let {
+            val adapter = getter.columnAdapter ?: setter.columnAdapter
+            adapter?.typeAffinity ?: SQLTypeAffinity.TEXT
+        }
+        "`$columnName` ${affinity.name}"
     }
 }

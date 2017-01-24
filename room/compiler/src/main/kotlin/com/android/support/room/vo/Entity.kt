@@ -38,4 +38,18 @@ data class Entity(val element : TypeElement, val tableName : String, val type: D
     val primaryKeys by lazy {
         fields.filter { it.primaryKey }
     }
+
+    val createTableQuery by lazy {
+        val definitions = fields.map { it.databaseDefinition } +
+                createPrimaryKeyDefinition()
+        "CREATE TABLE IF NOT EXISTS `$tableName` (${definitions.joinToString(", ")})"
+    }
+
+    private fun createPrimaryKeyDefinition(): String {
+        val keys = fields
+                .filter { it.primaryKey }
+                .map { "`${it.columnName}`" }
+                .joinToString(", ")
+        return "PRIMARY KEY($keys)"
+    }
 }

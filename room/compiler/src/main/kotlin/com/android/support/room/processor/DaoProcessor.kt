@@ -19,8 +19,10 @@ package com.android.support.room.processor
 import com.android.support.room.Delete
 import com.android.support.room.Insert
 import com.android.support.room.Query
+import com.android.support.room.SkipQueryVerification
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
+import com.android.support.room.verifier.DatabaseVerifier
 import com.android.support.room.vo.Dao
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -34,6 +36,8 @@ class DaoProcessor(val context : Context) {
     val queryProcessor = QueryMethodProcessor(context)
     val insertionProcessor = InsertionMethodProcessor(context)
     val deletionProcessor = DeletionMethodProcessor(context)
+
+    var dbVerifier: DatabaseVerifier? = null
 
     companion object {
         val PROCESSED_ANNOTATIONS = listOf(Insert::class, Delete::class, Query::class)
@@ -66,6 +70,11 @@ class DaoProcessor(val context : Context) {
                     Any::class
                 }
             }
+        queryProcessor.dbVerifier = if (element.hasAnnotation(SkipQueryVerification::class)) {
+            null
+        } else {
+            dbVerifier
+        }
         val queryMethods = methods[Query::class]?.map {
             queryProcessor.parse(declaredType, it)
         } ?: emptyList()

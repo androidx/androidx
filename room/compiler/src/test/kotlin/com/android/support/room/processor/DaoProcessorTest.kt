@@ -25,19 +25,23 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
+import createVerifierFromEntities
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
-@RunWith(JUnit4::class)
-class DaoProcessorTest {
+@RunWith(Parameterized::class)
+class DaoProcessorTest(val enableVerification : Boolean) {
     companion object {
         const val DAO_PREFIX = """
             package foo.bar;
             import com.android.support.room.*;
             """
+        @Parameterized.Parameters(name = "enableDbVerification={0}")
+        @JvmStatic
+        fun getParams() = arrayOf(true, false)
     }
 
     @Test
@@ -75,7 +79,7 @@ class DaoProcessorTest {
     fun testAbstractClass() {
         singleDao("""
                 @Dao abstract class MyDao {
-                    @Query("SELECT id FROM users")
+                    @Query("SELECT uid FROM User")
                     abstract int[] getIds();
                 }
                 """) { dao, invocation ->
@@ -89,7 +93,7 @@ class DaoProcessorTest {
     fun testInterface() {
         singleDao("""
                 @Dao interface MyDao {
-                    @Query("SELECT id FROM users")
+                    @Query("SELECT uid FROM User")
                     abstract int[] getIds();
                 }
                 """) { dao, invocation ->
@@ -103,7 +107,7 @@ class DaoProcessorTest {
     fun testWithInsertAndQuery() {
         singleDao("""
                 @Dao abstract class MyDao {
-                    @Query("SELECT id FROM users")
+                    @Query("SELECT uid FROM User")
                     abstract int[] getIds();
                     @Insert
                     abstract void insert(User user);
@@ -118,6 +122,20 @@ class DaoProcessorTest {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun skipQueryVerification() {
+        singleDao("""
+                @Dao @SkipQueryVerification interface MyDao {
+                    @Query("SELECT nonExistingField FROM User")
+                    abstract int[] getIds();
+                }
+                """) { dao, invocation ->
+            assertThat(dao.queryMethods.size, `is`(1))
+            val method = dao.queryMethods.first()
+            assertThat(method.name, `is`("getIds"))
+        }.compilesWithoutError()
+    }
+
     fun singleDao(vararg inputs: String, handler: (Dao, TestInvocation) -> Unit):
             CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
@@ -125,14 +143,20 @@ class DaoProcessorTest {
                         DAO_PREFIX + inputs.joinToString("\n")
                 ), COMMON.USER))
                 .processedWith(TestProcessor.builder()
-                        .forAnnotations(com.android.support.room.Dao::class)
+                        .forAnnotations(com.android.support.room.Dao::class,
+                                com.android.support.room.Entity::class)
                         .nextRunHandler { invocation ->
-                            val entity = invocation.roundEnv
+                            val dao = invocation.roundEnv
                                     .getElementsAnnotatedWith(
                                             com.android.support.room.Dao::class.java)
                                     .first()
                             val parser = DaoProcessor(invocation.context)
-                            val parsedDao = parser.parse(MoreElements.asType(entity))
+                            parser.dbVerifier = if (enableVerification) {
+                                createVerifierFromEntities(invocation)
+                            } else {
+                                null
+                            }
+                            val parsedDao = parser.parse(MoreElements.asType(dao))
                             handler(parsedDao, invocation)
                             true
                         }

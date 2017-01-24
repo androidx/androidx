@@ -37,6 +37,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
+import createVerifierFromEntities
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.notNullValue
@@ -44,12 +45,13 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 import javax.lang.model.type.TypeKind.INT
 import javax.lang.model.type.TypeMirror
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-@RunWith(JUnit4::class)
-class QueryMethodProcessorTest {
+@RunWith(Parameterized::class)
+class QueryMethodProcessorTest(val enableVerification : Boolean) {
     companion object {
         const val DAO_PREFIX = """
                 package foo.bar;
@@ -58,13 +60,16 @@ class QueryMethodProcessorTest {
                 abstract class MyClass {
                 """
         const val DAO_SUFFIX = "}"
+        @Parameterized.Parameters(name = "enableDbVerification={0}")
+        @JvmStatic
+        fun getParams() = arrayOf(true, false)
     }
 
     @Test
     fun testReadNoParams() {
         singleQueryMethod(
                 """
-                @Query("SELECT * from users")
+                @Query("SELECT * from User")
                 abstract public int[] foo();
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
@@ -78,7 +83,7 @@ class QueryMethodProcessorTest {
     fun testSingleParam() {
         singleQueryMethod(
                 """
-                @Query("SELECT * from users")
+                @Query("SELECT * from User")
                 abstract public long foo(int x);
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
@@ -95,7 +100,7 @@ class QueryMethodProcessorTest {
     fun testVarArgs() {
         singleQueryMethod(
                 """
-                @Query("SELECT * from users where id in (?)")
+                @Query("SELECT * from User where uid in (?)")
                 abstract public long foo(int... ids);
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
@@ -113,7 +118,7 @@ class QueryMethodProcessorTest {
     fun testParamBindingMatchingNoName() {
         singleQueryMethod(
                 """
-                @Query("SELECT id from users where id = ?")
+                @Query("SELECT uid from User where uid = ?")
                 abstract public long getIdById(int id);
                 """) { parsedQuery, invocation ->
             val section = parsedQuery.query.bindSections.first()
@@ -128,7 +133,7 @@ class QueryMethodProcessorTest {
     fun testParamBindingMatchingSimpleBind() {
         singleQueryMethod(
                 """
-                @Query("SELECT id from users where id = :id")
+                @Query("SELECT uid from User where uid = :id")
                 abstract public long getIdById(int id);
                 """) { parsedQuery, invocation ->
             val section = parsedQuery.query.bindSections.first()
@@ -144,7 +149,7 @@ class QueryMethodProcessorTest {
     fun testParamBindingTwoBindVarsIntoTheSameParameter() {
         singleQueryMethod(
                 """
-                @Query("SELECT id from users where id = :id OR uid = :id")
+                @Query("SELECT uid from User where uid = :id OR uid = :id")
                 abstract public long getIdById(int id);
                 """) { parsedQuery, invocation ->
             val section = parsedQuery.query.bindSections[0]
@@ -162,7 +167,7 @@ class QueryMethodProcessorTest {
     fun testMissingParameterForBinding() {
         singleQueryMethod(
                 """
-                @Query("SELECT id from users where id = :id OR uid = :uid")
+                @Query("SELECT uid from User where uid = :id OR uid = :uid")
                 abstract public long getIdById(int id);
                 """) { parsedQuery, invocation ->
             val section = parsedQuery.query.bindSections[0]
@@ -183,7 +188,7 @@ class QueryMethodProcessorTest {
     fun test2MissingParameterForBinding() {
         singleQueryMethod(
                 """
-                @Query("SELECT id from users where foo = :bar AND id = :id OR uid = :uid")
+                @Query("SELECT uid from User where name = :bar AND uid = :id OR uid = :uid")
                 abstract public long getIdById(int id);
                 """) { parsedQuery, invocation ->
             val bar = parsedQuery.query.bindSections[0]
@@ -206,7 +211,7 @@ class QueryMethodProcessorTest {
     fun testUnusedParameters() {
         singleQueryMethod(
                 """
-                @Query("SELECT id from users where foo = :bar")
+                @Query("SELECT uid from User where name = :bar")
                 abstract public long getIdById(int bar, int whyNotUseMe);
                 """) { parsedQuery, invocation ->
             val bar = parsedQuery.query.bindSections[0]
@@ -223,7 +228,7 @@ class QueryMethodProcessorTest {
     fun testNameWithUnderscore() {
         singleQueryMethod(
                 """
-                @Query("select * from users where id = :_blah")
+                @Query("select * from User where uid = :_blah")
                 abstract public long getSth(int _blah);
                 """
         ) { parsedQuery, invocation -> }
@@ -235,7 +240,7 @@ class QueryMethodProcessorTest {
     fun testGenericReturnType() {
         singleQueryMethod(
                 """
-                @Query("select * from users")
+                @Query("select * from User")
                 abstract public <T> java.util.List<T> foo(int x);
                 """) { parsedQuery, invocation ->
             val expected: TypeName = ParameterizedTypeName.get(ClassName.get(List::class.java),
@@ -262,7 +267,7 @@ class QueryMethodProcessorTest {
         singleQueryMethod(
                 """
                 static abstract class BaseModel<T> {
-                    @Query("select COUNT(*) from users")
+                    @Query("select COUNT(*) from User")
                     abstract public T getT();
                 }
                 @Dao
@@ -279,7 +284,7 @@ class QueryMethodProcessorTest {
         singleQueryMethod(
                 """
                 static abstract class BaseModel<T> {
-                    @Query("select COUNT(*) from users where :t")
+                    @Query("select COUNT(*) from User where :t")
                     abstract public int getT(T t);
                 }
                 @Dao
@@ -296,7 +301,7 @@ class QueryMethodProcessorTest {
     fun testReadDeleteWithBadReturnType() {
         singleQueryMethod(
                 """
-                @Query("DELETE FROM users where id = ?")
+                @Query("DELETE from User where uid = ?")
                 abstract public float foo(int id);
                 """) { parsedQuery, invocation ->
         }.failsToCompile().withErrorContaining(
@@ -308,7 +313,7 @@ class QueryMethodProcessorTest {
     fun testSimpleDelete() {
         singleQueryMethod(
                 """
-                @Query("DELETE FROM users where id = ?")
+                @Query("DELETE from User where uid = ?")
                 abstract public int foo(int id);
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
@@ -321,7 +326,7 @@ class QueryMethodProcessorTest {
     fun testVoidDeleteQuery() {
         singleQueryMethod(
                 """
-                @Query("DELETE FROM users where id = ?")
+                @Query("DELETE from User where uid = ?")
                 abstract public void foo(int id);
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
@@ -334,7 +339,7 @@ class QueryMethodProcessorTest {
     fun testVoidUpdateQuery() {
         singleQueryMethod(
                 """
-                @Query("update users set name = :name")
+                @Query("update user set name = :name")
                 abstract public void updateAllNames(String name);
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("updateAllNames"))
@@ -349,7 +354,7 @@ class QueryMethodProcessorTest {
     fun testLiveDataQuery() {
         singleQueryMethod(
                 """
-                @Query("select name from user where id = :id")
+                @Query("select name from user where uid = :id")
                 abstract ${LifecyclesTypeNames.LIVE_DATA}<String> nameLiveData(String id);
                 """
         ) { parsedQuery, invocation ->
@@ -365,12 +370,27 @@ class QueryMethodProcessorTest {
     fun testNonSelectLiveData() {
         singleQueryMethod(
                 """
-                @Query("delete from user where id = :id")
+                @Query("delete from user where uid = :id")
                 abstract ${LifecyclesTypeNames.LIVE_DATA}<Integer> deleteLiveData(String id);
                 """
         ) { parsedQuery, invocation ->
         }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT)
+    }
+
+    @Test
+    fun skipVerification() {
+        singleQueryMethod(
+                """
+                @SkipQueryVerification
+                @Query("SELECT foo from User")
+                abstract public int[] foo();
+                """) { parsedQuery, invocation ->
+            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.parameters.size, `is`(0))
+            assertThat(parsedQuery.returnType.typeName(),
+                    `is`(ArrayTypeName.of(TypeName.INT) as TypeName))
+        }.compilesWithoutError()
     }
 
     fun singleQueryMethod(vararg input: String,
@@ -379,7 +399,7 @@ class QueryMethodProcessorTest {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-                ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA))
+                ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER))
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(Query::class, Dao::class)
                         .nextRunHandler { invocation ->
@@ -394,7 +414,13 @@ class QueryMethodProcessorTest {
                                                         }
                                         )
                                     }.filter { it.second.isNotEmpty() }.first()
+                            val verifier = if (enableVerification) {
+                                createVerifierFromEntities(invocation)
+                            } else {
+                                null
+                            }
                             val parser = QueryMethodProcessor(invocation.context)
+                            parser.dbVerifier = verifier
                             val parsedQuery = parser.parse(MoreTypes.asDeclared(owner.asType()),
                                     MoreElements.asExecutable(methods.first()))
                             handler(parsedQuery, invocation)

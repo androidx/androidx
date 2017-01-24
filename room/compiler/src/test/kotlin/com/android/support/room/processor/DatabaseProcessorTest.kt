@@ -16,6 +16,7 @@
 
 package com.android.support.room.processor
 
+import com.android.support.room.RoomProcessor
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.vo.Database
@@ -24,12 +25,14 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
+import com.squareup.javapoet.ClassName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import javax.tools.JavaFileObject
+import javax.tools.StandardLocation
 
 @RunWith(JUnit4::class)
 class DatabaseProcessorTest {
@@ -139,10 +142,7 @@ class DatabaseProcessorTest {
                 }
                 """)){ db, invocation ->
 
-        }.failsToCompile().withErrorContaining(
-                ProcessorErrors.missingTable("nonExistentTable", "foo.bar.BookDao", "loadAllBooks",
-                        "foo.bar.MyDb")
-        )
+        }.failsToCompile().withErrorContaining("no such table: nonExistentTable")
     }
 
     @Test
@@ -166,6 +166,96 @@ class DatabaseProcessorTest {
                 ProcessorErrors.duplicateTableNames("user",
                         listOf("foo.bar.User", "foo.bar.AnotherClass"))
         )
+    }
+
+    @Test
+    fun skipBadQueryVerification() {
+        singleDb(
+                """
+                @SkipQueryVerification
+                @Database(entities = {Book.class})
+                public abstract class MyDb extends RoomDatabase {
+                    abstract BookDao bookDao();
+                }
+                """, BOOK, JavaFileObjects.forSourceString("foo.bar.BookDao",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Dao
+                public interface BookDao {
+                    @Query("SELECT nonExistingField FROM Book")
+                    public java.util.List<Book> loadAllBooks();
+                }
+                """)){ db, invocation ->
+
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun multipleDatabases() {
+        val db1 = JavaFileObjects.forSourceString("foo.bar.Db1",
+                """
+                $DATABASE_PREFIX
+                @Database(entities = {Book.class})
+                public abstract class Db1 extends RoomDatabase {
+                    abstract BookDao bookDao();
+                }
+                """)
+        val db2 = JavaFileObjects.forSourceString("foo.bar.Db2",
+                """
+                $DATABASE_PREFIX
+                @Database(entities = {Book.class})
+                public abstract class Db2 extends RoomDatabase {
+                    abstract BookDao bookDao();
+                }
+                """)
+        val db1_2 = JavaFileObjects.forSourceString("foo.barx.Db1",
+                """
+                package foo.barx;
+                import com.android.support.room.*;
+                import foo.bar.*;
+                @Database(entities = {Book.class})
+                public abstract class Db1 extends RoomDatabase {
+                    abstract BookDao bookDao();
+                }
+                """)
+        Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+                .that(listOf(BOOK, BOOK_DAO, db1, db2, db1_2))
+                .processedWith(RoomProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "foo.bar", "Db1_Impl.class")
+                .and()
+                .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "foo.bar", "Db2_Impl.class")
+                .and()
+                .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "foo.barx", "Db1_Impl.class")
+                .and()
+                .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "foo.bar",
+                        "BookDao_Db1_0_Impl.class")
+                .and()
+                .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "foo.bar",
+                        "BookDao_Db1_1_Impl.class")
+                .and()
+                .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "foo.bar",
+                        "BookDao_Db2_Impl.class")
+    }
+
+    @Test
+    fun twoDaoMethodsForTheSameDao() {
+        singleDb(
+                """
+                @Database(entities = {User.class})
+                public abstract class MyDb extends RoomDatabase {
+                    abstract UserDao userDao();
+                    abstract UserDao userDao2();
+                }
+                """, USER, USER_DAO){db, invocation -> }
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors.DAO_METHOD_CONFLICTS_WITH_OTHERS)
+                .and()
+                .withErrorContaining(ProcessorErrors.duplicateDao(
+                        ClassName.get("foo.bar", "UserDao"), listOf("userDao", "userDao2")
+                ))
     }
 
     fun singleDb(input: String, vararg otherFiles: JavaFileObject,

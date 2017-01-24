@@ -144,8 +144,8 @@ enum class QueryType {
 }
 
 enum class SQLTypeAffinity {
+    NULL,
     TEXT,
-    NUMERIC,
     INTEGER,
     REAL,
     BLOB

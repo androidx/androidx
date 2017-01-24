@@ -908,10 +908,10 @@ List of 3rd party licenses:
     
 
     <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/frameworks-c07e6f4b02b556d1d85052fb3853caf84c80e6b23dcdb1ae1b00f051da1115a2.css" media="all" rel="stylesheet" />
-    <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/github-09e1c38d593bf8fc6e4c4f1b526d0184e27c433d64963942c1e8c361589f8125.css" media="all" rel="stylesheet" />
+    <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/github-85f6307e0a74c78ba00f8c5bf9c7fb17a418d361627638f51f989be45f709416.css" media="all" rel="stylesheet" />
     
     
-    <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/site-293f92180d0a619a750fa2b5eae9e36740f5723a59c0ec308972c70d24e834fc.css" media="all" rel="stylesheet" />
+    <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/site-73b3dae8eb441c98982c7306f0e59decca409e87188e07bc1a961b8cea511aab.css" media="all" rel="stylesheet" />
     
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -941,7 +941,7 @@ List of 3rd party licenses:
     
     <meta name="pjax-timeout" content="1000">
     
-    <meta name="request-id" content="DD6E:16377:37776CE:5A0350B:588674AA" data-pjax-transient>
+    <meta name="request-id" content="F616:4D80:3D52FD2:640C534:588819F9" data-pjax-transient>
 
     <meta name="msapplication-TileImage" content="/windows-tile.png">
     <meta name="msapplication-TileColor" content="#ffffff">
@@ -951,7 +951,7 @@ List of 3rd party licenses:
 <meta name="google-site-verification" content="ZzhVyEFwb7w3e0-uOTltm8Jsck2F5StVihD0exw2fsA">
     <meta name="google-analytics" content="UA-3769691-2">
 
-<meta content="collector.githubapp.com" name="octolytics-host" /><meta content="github" name="octolytics-app-id" /><meta content="DD6E:16377:37776CE:5A0350B:588674AA" name="octolytics-dimension-request_id" />
+<meta content="collector.githubapp.com" name="octolytics-host" /><meta content="github" name="octolytics-app-id" /><meta content="F616:4D80:3D52FD2:640C534:588819F9" name="octolytics-dimension-request_id" />
 <meta content="/&lt;user-name&gt;/&lt;repo-name&gt;/blob/show" data-pjax-transient="true" name="analytics-location" />
 
 
@@ -964,15 +964,15 @@ List of 3rd party licenses:
     <meta name="user-login" content="">
 
         <meta name="expected-hostname" content="github.com">
-      <meta name="js-proxy-site-detection-payload" content="YmU4NWZjNzExMmYxZTVlYjQxOGUxYjIyZTlkZDEzYWQzODQwNTNkZDgxNjg0ZjIxMDRkZjFlODdmZTk3MWY3MXx7InJlbW90ZV9hZGRyZXNzIjoiMTA0LjEzMi4wLjc1IiwicmVxdWVzdF9pZCI6IkRENkU6MTYzNzc6Mzc3NzZDRTo1QTAzNTBCOjU4ODY3NEFBIiwidGltZXN0YW1wIjoxNDg1MjA2Njk4LCJob3N0IjoiZ2l0aHViLmNvbSJ9">
+      <meta name="js-proxy-site-detection-payload" content="YmQzYzA4OTVmOTU4OGNkNDVlZmQwODdjYTU0MDk0YjUzOTJiYTg0NWJhNzRjZmMzN2E0NWY3MmI1M2E2MWMwM3x7InJlbW90ZV9hZGRyZXNzIjoiNzMuMjMxLjEzMS44IiwicmVxdWVzdF9pZCI6IkY2MTY6NEQ4MDozRDUyRkQyOjY0MEM1MzQ6NTg4ODE5RjkiLCJ0aW1lc3RhbXAiOjE0ODUzMTQ1NTMsImhvc3QiOiJnaXRodWIuY29tIn0=">
 
 
       <link rel="mask-icon" href="https://assets-cdn.github.com/pinned-octocat.svg" color="#000000">
       <link rel="icon" type="image/x-icon" href="https://assets-cdn.github.com/favicon.ico">
 
-    <meta name="html-safe-nonce" content="ce49fbfa72b8a7a3afe651f2e2ba293eea50fadd">
+    <meta name="html-safe-nonce" content="60b5f53f2584bab59a420ca40699efced4b0a6ce">
 
-    <meta http-equiv="x-pjax-version" content="7d887a4a7e9afaef47434b8286514583">
+    <meta http-equiv="x-pjax-version" content="5a52992acda5541f43c6302475c81d61">
     
 
       
@@ -1092,8 +1092,8 @@ List of 3rd party licenses:
   </a>
 
     <a class="social-count js-social-count" href="/square/javapoet/stargazers"
-      aria-label="2911 users starred this repository">
-      2,911
+      aria-label="2916 users starred this repository">
+      2,916
     </a>
 
   </li>
@@ -2570,7 +2570,7 @@ List of 3rd party licenses:
       <svg aria-hidden="true" class="octicon octicon-mark-github" height="24" version="1.1" viewBox="0 0 16 16" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
 </a>
     <ul class="site-footer-links">
-      <li>&copy; 2017 <span title="0.07064s from github-fe155-cp1-prd.iad.github.net">GitHub</span>, Inc.</li>
+      <li>&copy; 2017 <span title="0.04921s from github-fe-bd32a9f.cp1-iad.github.net">GitHub</span>, Inc.</li>
         <li><a href="https://github.com/site/terms" data-ga-click="Footer, go to terms, text:terms">Terms</a></li>
         <li><a href="https://github.com/site/privacy" data-ga-click="Footer, go to privacy, text:privacy">Privacy</a></li>
         <li><a href="https://github.com/security" data-ga-click="Footer, go to security, text:security">Security</a></li>
@@ -2595,7 +2595,7 @@ List of 3rd party licenses:
 
       <script crossorigin="anonymous" src="https://assets-cdn.github.com/assets/compat-8e19569aacd39e737a14c8515582825f3c90d1794c0e5539f9b525b8eb8b5a8e.js"></script>
       <script crossorigin="anonymous" src="https://assets-cdn.github.com/assets/frameworks-d23e32e482112ba5e3ea9bd8dc7e555680116a74e002746ac91f41a4e5875a9b.js"></script>
-      <script async="async" crossorigin="anonymous" src="https://assets-cdn.github.com/assets/github-5b30a39e1d9d97a79d4a297aa3ff67bf56fab7480252464db1b6e80dbab10690.js"></script>
+      <script async="async" crossorigin="anonymous" src="https://assets-cdn.github.com/assets/github-2789a710829edc0c146edb49db485fdf15e3005c2e255ed209595bfe0e4c43a5.js"></script>
       
       
       

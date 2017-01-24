@@ -24,10 +24,22 @@ data class Dao(val element : Element, val type : DeclaredType,
                val queryMethods: List<QueryMethod>,
                val insertionMethods : List<InsertionMethod>,
                val deletionMethods : List<DeletionMethod>) {
+    // parsed dao might have a suffix if it is used in multiple databases.
+    private var suffix : String? = null
+    fun setSuffix(newSuffix : String) {
+        if (this.suffix != null) {
+            throw IllegalStateException("cannot set suffix twice")
+        }
+        this.suffix = if (newSuffix == "") "" else "_$newSuffix"
+    }
+
     val typeName by lazy { ClassName.get(type) as ClassName }
 
-    val implClassName by lazy {
-        "${typeName.simpleName()}_Impl"
+    private val implClassName by lazy {
+        if (suffix == null) {
+            suffix = ""
+        }
+        "${typeName.simpleName()}${suffix}_Impl"
     }
 
     val implTypeName by lazy {

@@ -17,9 +17,9 @@
 package com.android.support.room
 
 import com.android.support.room.processor.Context
-import com.android.support.room.processor.DaoProcessor
 import com.android.support.room.processor.DatabaseProcessor
 import com.android.support.room.processor.EntityProcessor
+import com.android.support.room.vo.DaoMethod
 import com.android.support.room.writer.DaoWriter
 import com.android.support.room.writer.DatabaseWriter
 import com.android.support.room.writer.EntityCursorConverterWriter
@@ -38,43 +38,63 @@ class RoomProcessor : BasicAnnotationProcessor() {
     override fun initSteps(): MutableIterable<ProcessingStep>? {
         val context = Context(processingEnv)
         return arrayListOf(EntityProcessingStep(context),
-                DaoProcessingStep(context),
                 DatabaseProcessingStep(context))
-    }
-
-    class DaoProcessingStep(context: Context) : ContextBoundProcessingStep(context) {
-        override fun process(elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>)
-                : MutableSet<Element> {
-            elementsByAnnotation[Dao::class.java]
-                    ?.map {
-                        DaoProcessor(context).parse(MoreElements.asType(it))
-                    }
-                    ?.forEach {
-                        DaoWriter(it).write(context.processingEnv)
-                    }
-            return mutableSetOf()
-        }
-
-        override fun annotations(): MutableSet<out Class<out Annotation>> {
-            return mutableSetOf(Dao::class.java)
-        }
     }
 
     class DatabaseProcessingStep(context: Context) : ContextBoundProcessingStep(context) {
         override fun process(elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>)
                 : MutableSet<Element> {
-            elementsByAnnotation[Database::class.java]
+            // TODO multi step support
+            val databases = elementsByAnnotation[Database::class.java]
                     ?.map {
                         DatabaseProcessor(context).parse(MoreElements.asType(it))
                     }
-                    ?.forEach {
-                        DatabaseWriter(it).write(context.processingEnv)
-                    }
+            val allDaoMethods = databases?.flatMap { it.daoMethods }
+            allDaoMethods?.let {
+                prepareDaosForWriting(databases!!, it)
+                it.forEach {
+                    DaoWriter(it.dao).write(context.processingEnv)
+                }
+            }
+
+            databases?.forEach {
+                DatabaseWriter(it).write(context.processingEnv)
+            }
             return mutableSetOf()
         }
 
         override fun annotations(): MutableSet<out Class<out Annotation>> {
-            return mutableSetOf(Database::class.java)
+            return mutableSetOf(Database::class.java, Dao::class.java)
+        }
+
+        /**
+         * Traverses all dao methods and assigns them suffix if they are used in multiple databases.
+         */
+        private fun prepareDaosForWriting(databases: List<com.android.support.room.vo.Database>,
+                                          daoMethods: List<DaoMethod>) {
+            daoMethods.groupBy { it.dao.typeName }
+                    // if used only in 1 database, nothing to do.
+                    .filter { entry -> entry.value.size > 1 }
+                    .forEach { entry ->
+                        entry.value.groupBy { daoMethod ->
+                            // first suffix guess: Database's simple name
+                            val db = databases.first { db -> db.daoMethods.contains(daoMethod) }
+                            db.typeName.simpleName()
+                        }.forEach { entry ->
+                            val dbName = entry.key
+                            val methods = entry.value
+                            if (methods.size == 1) {
+                                //good, db names do not clash, use db name as suffix
+                                methods.first().dao.setSuffix(dbName)
+                            } else {
+                                // ok looks like a dao is used in 2 different databases both of
+                                // which have the same name. enumerate.
+                                methods.forEachIndexed { index, method ->
+                                    method.dao.setSuffix("${dbName}_$index")
+                                }
+                            }
+                        }
+                    }
         }
     }
 

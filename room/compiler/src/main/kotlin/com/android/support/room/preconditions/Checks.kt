@@ -32,6 +32,7 @@ import kotlin.reflect.KClass
  * much code as possible, leaving only the errors in javac output.
  */
 class Checks(private val logger: RLog) {
+
     fun check(predicate: Boolean, element: Element, errorMsg: String, vararg args: Any): Boolean {
         if (!predicate) {
             logger.e(element, errorMsg, args)

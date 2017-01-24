@@ -115,29 +115,11 @@ class SQLiteOpenHelperWriter(val database : Database) {
         }.build()
     }
 
-    private fun createDatabaseDefinition(field : Field) : String {
-        val affinity = field.let {
-            val adapter = it.getter.columnAdapter ?: it.setter.columnAdapter
-            adapter?.typeAffinity ?: SQLTypeAffinity.TEXT
-        }
-        return "`${field.columnName}` ${affinity.name}"
-    }
+
 
     @VisibleForTesting
     fun createQuery(entity : Entity) : String {
-        val definitions = entity.fields.map {
-            field -> createDatabaseDefinition(field)
-        } + createPrimaryKeyDefinition(entity)
-        return "CREATE TABLE IF NOT EXISTS `${entity.tableName}` " +
-                "(${definitions.joinToString(", ")})"
-    }
-
-    private fun createPrimaryKeyDefinition(entity: Entity): String {
-        val keys = entity.fields
-                .filter { it.primaryKey }
-                .map { "`${it.columnName}`" }
-                .joinToString(", ")
-        return "PRIMARY KEY($keys)"
+        return entity.createTableQuery
     }
 
     @VisibleForTesting

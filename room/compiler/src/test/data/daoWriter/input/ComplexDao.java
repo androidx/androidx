@@ -30,13 +30,13 @@ abstract class ComplexDao {
     @Query("SELECT * FROM user where uid IN (:ids)")
     abstract public List<User> loadAllByIds(int... ids);
 
-    @Query("SELECT age FROM user where id = :id")
+    @Query("SELECT ageColumn FROM user where uid = :id")
     abstract int getAge(int id);
 
-    @Query("SELECT age FROM user where id = IN(:ids)")
+    @Query("SELECT ageColumn FROM user where uid IN(:ids)")
     abstract public int[] getAllAges(int... ids);
 
-    @Query("SELECT age FROM user where id = IN(:ids)")
+    @Query("SELECT ageColumn FROM user where uid IN(:ids)")
     abstract public List<Integer> getAllAgesAsList(List<Integer> ids);
 
     @Query("SELECT * FROM user where uid = :id")

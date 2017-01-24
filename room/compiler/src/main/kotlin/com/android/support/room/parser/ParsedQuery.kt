@@ -19,6 +19,7 @@ package com.android.support.room.parser
 import com.android.support.room.parser.SectionType.BIND_VAR
 import com.android.support.room.parser.SectionType.NEWLINE
 import com.android.support.room.parser.SectionType.TEXT
+import com.android.support.room.verifier.QueryResultInfo
 import org.antlr.v4.runtime.tree.TerminalNode
 
 enum class SectionType {
@@ -47,6 +48,13 @@ data class ParsedQuery(val original: String, val type: QueryType,
         val MISSING = ParsedQuery("missing query", QueryType.UNKNOWN, emptyList(), emptySet(),
                 emptyList())
     }
+
+    /**
+     * Optional data that might be assigned when the query is parsed inside an annotation processor.
+     * User may turn this off or it might be disabled for any reason so generated code should
+     * always handle not having it.
+     */
+    var resultInfo : QueryResultInfo? = null
 
     val sections by lazy {
         val lines = original.lines()

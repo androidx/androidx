@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
+import com.android.support.room.Entity
 import com.android.support.room.Query
 import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.ext.RoomTypeNames
+import com.android.support.room.processor.EntityProcessor
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
+import com.android.support.room.verifier.DatabaseVerifier
+import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory
 import com.squareup.javapoet.ClassName
+import org.mockito.Mockito
 import java.io.File
+import javax.lang.model.element.Element
 import javax.tools.JavaFileObject
 
 object COMMON {
@@ -73,4 +79,12 @@ fun simpleRun(f: (TestInvocation) -> Unit): CompileTester {
 fun loadJavaCode(fileName : String, qName : String) : JavaFileObject {
     val contents = File("src/test/data/$fileName").readText(Charsets.UTF_8)
     return JavaFileObjects.forSourceString(qName, contents)
+}
+
+fun createVerifierFromEntities(invocation: TestInvocation) : DatabaseVerifier {
+    val entities = invocation.roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
+        EntityProcessor(invocation.context).parse(MoreElements.asType(it))
+    }
+    return DatabaseVerifier.create(invocation.context, Mockito.mock(Element::class.java),
+            entities)!!
 }

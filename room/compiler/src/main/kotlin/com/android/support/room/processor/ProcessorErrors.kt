@@ -21,6 +21,7 @@ import com.android.support.room.Insert
 import com.android.support.room.Query
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.vo.Field
+import com.squareup.javapoet.TypeName
 
 object ProcessorErrors {
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
@@ -120,13 +121,6 @@ object ProcessorErrors {
                 unusedParams.joinToString(","))
     }
 
-    private val MISSING_TABLE = "Table \"%s\" is accessed in %s#%s but %s does not have any" +
-            " entity that declares the table \"%s\""
-    fun missingTable(tableName: String, daoName: String, methodName: String,
-                     databaseName : String): String {
-        return MISSING_TABLE.format(tableName, daoName, methodName, databaseName, tableName)
-    }
-
     private val DUPLICATE_TABLES = "Table name \"%s\" is used by multiple entities: %s"
     fun  duplicateTableNames(tableName: String, entityNames: List<String>): String {
         return DUPLICATE_TABLES.format(tableName, entityNames.joinToString(", "))
@@ -134,4 +128,16 @@ object ProcessorErrors {
 
     val DELETION_METHODS_MUST_RETURN_VOID_OR_INT = "Deletion methods must either return void or" +
             " return int (the number of deleted rows)."
+
+    val DAO_METHOD_CONFLICTS_WITH_OTHERS = "Dao method has conflicts."
+
+    fun duplicateDao(dao : TypeName, methodNames : List<String>) : String {
+        return """
+        All of these functions (${methodNames.joinToString(", ")}) return the same DAO class ($dao).
+        A database can use a DAO only once so you should remove ${methodNames.size - 1} of these
+        conflicting DAO methods. If you are implementing any of these to fulfill an interface, don't
+        make it abstract, instead, implement the code that calls the other one.
+        """.trimIndent().replace(System.lineSeparator(), " ")
+    }
+
 }

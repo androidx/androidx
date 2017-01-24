@@ -110,7 +110,7 @@ public class ComplexDao_Impl extends ComplexDao {
 
     @Override
     int getAge(int id) {
-        final String _sql = "SELECT age FROM user where id = ?";
+        final String _sql = "SELECT ageColumn FROM user where uid = ?";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
@@ -132,7 +132,7 @@ public class ComplexDao_Impl extends ComplexDao {
     @Override
     public int[] getAllAges(int... ids) {
         StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-        _stringBuilder.append("SELECT age FROM user where id = IN(");
+        _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
         final int _inputSize = ids.length;
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
         _stringBuilder.append(")");
@@ -164,7 +164,7 @@ public class ComplexDao_Impl extends ComplexDao {
     @Override
     public List<Integer> getAllAgesAsList(List<Integer> ids) {
         StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-        _stringBuilder.append("SELECT age FROM user where id = IN(");
+        _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
         final int _inputSize = ids.size();
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
         _stringBuilder.append(")");
