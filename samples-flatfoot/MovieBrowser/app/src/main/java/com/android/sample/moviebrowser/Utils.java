@@ -125,6 +125,21 @@ public class Utils {
     }
 
     /**
+     * Shows UI for editing user details.
+     */
+    public static void editUserDetails(Fragment fragment, String login) {
+        EditUserDetailsFragment editUserDetailsFragment = new EditUserDetailsFragment();
+        Bundle editUserDetailsFragmentArgs = new Bundle();
+        editUserDetailsFragmentArgs.putString(EditUserDetailsFragment.LOGIN, login);
+        editUserDetailsFragment.setArguments(editUserDetailsFragmentArgs);
+        editUserDetailsFragment.setTargetFragment(fragment, UserDetailsFragment.CODE_EDIT);
+
+        FragmentManager fragmentManager = fragment.getActivity()
+                .getSupportFragmentManager();
+        editUserDetailsFragment.show(fragmentManager, "editUser:" + login);
+    }
+
+    /**
      * Shows full details of the specific movie.
      */
     public static void showDetails(Fragment fragment, MovieData data) {

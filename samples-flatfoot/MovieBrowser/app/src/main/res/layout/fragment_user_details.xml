@@ -73,8 +73,8 @@
                 android:paddingLeft="8dp"
                 android:textColor="#444"
                 android:textSize="14sp"
-                app:jsonDate="@{user.created_at}"
-                android:visibility="@{((user == null) || TextUtils.isEmpty(user.created_at)) ? View.INVISIBLE : View.VISIBLE}"/>
+                android:visibility="@{((user == null) || TextUtils.isEmpty(user.created_at)) ? View.INVISIBLE : View.VISIBLE}"
+                app:jsonDate="@{user.created_at}"/>
 
         </RelativeLayout>
 
@@ -92,9 +92,9 @@
                 android:drawablePadding="2dp"
                 android:lines="1"
                 android:maxLines="1"
+                android:text="@{user.company}"
                 android:textColor="#444"
                 android:textSize="14sp"
-                android:text="@{user.company}"
                 android:visibility="@{((user == null) || TextUtils.isEmpty(user.company)) ? View.GONE : View.VISIBLE}"/>
 
             <TextView
@@ -106,9 +106,9 @@
                 android:lines="1"
                 android:maxLines="1"
                 android:paddingLeft="16dp"
+                android:text="@{user.location}"
                 android:textColor="#444"
                 android:textSize="14sp"
-                android:text="@{user.location}"
                 android:visibility="@{((user == null) || TextUtils.isEmpty(user.location)) ? View.GONE : View.VISIBLE}"/>
 
             <View
@@ -123,6 +123,7 @@
                 android:layout_marginRight="8dp"
                 android:background="@null"
                 android:clickable="true"
+                android:onClick="@{() -> Utils.editUserDetails(fragment, user.login)}"
                 android:src="@drawable/ic_mode_edit_black_24dp"
                 android:visibility="@{(user == null) ? View.GONE : View.VISIBLE}"/>
         </LinearLayout>
@@ -141,9 +142,9 @@
                 android:drawablePadding="2dp"
                 android:lines="1"
                 android:maxLines="1"
+                android:text="@{user.email}"
                 android:textColor="#444"
                 android:textSize="14sp"
-                android:text="@{user.email}"
                 android:visibility="@{((user == null) || TextUtils.isEmpty(user.email)) ? View.GONE : View.VISIBLE}"/>
 
             <TextView
@@ -155,9 +156,9 @@
                 android:lines="1"
                 android:maxLines="1"
                 android:paddingLeft="16dp"
+                android:text="@{user.blog}"
                 android:textColor="#444"
                 android:textSize="14sp"
-                android:text="@{user.blog}"
                 android:visibility="@{((user == null) || TextUtils.isEmpty(user.blog)) ? View.GONE : View.VISIBLE}"/>
         </LinearLayout>
 
@@ -188,9 +189,9 @@
                 android:maxLines="1"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
+                android:text="@{Integer.toString(user.followers)}"
                 android:textColor="#444"
                 android:textSize="14sp"
-                android:text="@{Integer.toString(user.followers)}"
                 android:visibility="@{(user == null) ? View.GONE : View.VISIBLE}"/>
 
             <TextView
@@ -215,9 +216,9 @@
                 android:maxLines="1"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
+                android:text="@{Integer.toString(user.following)}"
                 android:textColor="#444"
                 android:textSize="14sp"
-                android:text="@{Integer.toString(user.following)}"
                 android:visibility="@{(user == null) ? View.GONE : View.VISIBLE}"/>
         </LinearLayout>
 
@@ -228,8 +229,8 @@
             android:paddingBottom="4dp"
             android:paddingLeft="12dp"
             android:paddingTop="24dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:text="@string/repositories"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:visibility="@{(user == null) ? View.GONE : View.VISIBLE}"
             app:textAllCaps="true"/>
 

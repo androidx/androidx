@@ -15,9 +15,12 @@
  */
 package com.android.sample.moviebrowser;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -110,17 +113,17 @@ public class UserDetailsFragment extends LifecycleFragment {
         return result;
     }
 
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        // If the result matches the requested edit code, ask the view model to update itself
-//        // with the new data. As this fragment already registered itself as to observe changes
-//        // to the underlying data, we will update the UI as the side-result of the .update()
-//        // call.
-//        if ((requestCode == CODE_EDIT) && (resultCode == Activity.RESULT_OK)) {
-//            Snackbar.make(getView(), "Updating after edit", Snackbar.LENGTH_SHORT).show();
-//            mPersonDataModel.update(getContext(),
-//                    data.getStringExtra(EditDetailsFragment.KEY_RUNTIME),
-//                    data.getStringExtra(EditDetailsFragment.KEY_RATED));
-//        }
-//    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // If the result matches the requested edit code, ask the view model to update itself
+        // with the new data. As this fragment already registered itself as to observe changes
+        // to the underlying data, we will update the UI as the side-result of the .update()
+        // call.
+        if ((requestCode == CODE_EDIT) && (resultCode == Activity.RESULT_OK)) {
+            Snackbar.make(getView(), "Updating after edit", Snackbar.LENGTH_SHORT).show();
+            mPersonDataModel.update(getContext(),
+                    data.getStringExtra(EditUserDetailsFragment.KEY_EMAIL),
+                    data.getStringExtra(EditUserDetailsFragment.KEY_LOCATION));
+        }
+    }
 }

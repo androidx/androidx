@@ -30,4 +30,6 @@
     <string name="followers">Followers</string>
     <string name="following">Following</string>
     <string name="joined">Joined on %1$s</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_location">Location</string>
 </resources>
