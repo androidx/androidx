@@ -205,4 +205,34 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @return This menu item instance for call chaining
      */
     SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener);
+
+    /**
+     * Change the content description associated with this menu item.
+     *
+     * @param contentDescription The new content description.
+     * @return This menu item instance for call chaining.
+     */
+    SupportMenuItem setContentDescription(CharSequence contentDescription);
+
+    /**
+     * Retrieve the content description associated with this menu item.
+     *
+     * @return The content description.
+     */
+    CharSequence getContentDescription();
+
+    /**
+     * Change the tooltip text associated with this menu item.
+     *
+     * @param tooltipText The new tooltip text.
+     * @return This menu item instance for call chaining.
+     */
+    SupportMenuItem setTooltipText(CharSequence tooltipText);
+
+    /**
+     * Retrieve the tooltip text associated with this menu item.
+     *
+     * @return The tooltip text.
+     */
+    CharSequence getTooltipText();
 }

@@ -18,6 +18,7 @@ package android.support.v4.view;
 
 import android.os.Build;
 import android.support.v4.internal.view.SupportMenuItem;
+import android.support.v4.os.BuildCompat;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -78,6 +79,10 @@ public final class MenuItemCompat {
         boolean collapseActionView(MenuItem item);
         boolean isActionViewExpanded(MenuItem item);
         MenuItem setOnActionExpandListener(MenuItem item, OnActionExpandListener listener);
+        void setContentDescription(MenuItem item, CharSequence contentDescription);
+        CharSequence getContentDescription(MenuItem item);
+        void setTooltipText(MenuItem item, CharSequence tooltipText);
+        CharSequence getTooltipText(MenuItem item);
     }
 
     /**
@@ -151,6 +156,24 @@ public final class MenuItemCompat {
         public MenuItem setOnActionExpandListener(MenuItem item, OnActionExpandListener listener) {
             return item;
         }
+
+        @Override
+        public void setContentDescription(MenuItem item, CharSequence contentDescription) {
+        }
+
+        @Override
+        public CharSequence getContentDescription(MenuItem item) {
+            return null;
+        }
+
+        @Override
+        public void setTooltipText(MenuItem item, CharSequence tooltipText) {
+        }
+
+        @Override
+        public CharSequence getTooltipText(MenuItem item) {
+            return null;
+        }
     }
 
     /**
@@ -196,6 +219,24 @@ public final class MenuItemCompat {
         public MenuItem setOnActionExpandListener(MenuItem item, OnActionExpandListener listener) {
             return item;
         }
+
+        @Override
+        public void setContentDescription(MenuItem item, CharSequence contentDescription) {
+        }
+
+        @Override
+        public CharSequence getContentDescription(MenuItem item) {
+            return null;
+        }
+
+        @Override
+        public void setTooltipText(MenuItem item, CharSequence tooltipText) {
+        }
+
+        @Override
+        public CharSequence getTooltipText(MenuItem item) {
+            return null;
+        }
     }
 
     static class IcsMenuVersionImpl extends HoneycombMenuVersionImpl {
@@ -240,12 +281,36 @@ public final class MenuItemCompat {
         }
     }
 
+    static class Api26MenuVersionImpl extends IcsMenuVersionImpl {
+        @Override
+        public void setContentDescription(MenuItem item, CharSequence contentDescription) {
+            MenuItemCompatApi26.setContentDescription(item, contentDescription);
+        }
+
+        @Override
+        public CharSequence getContentDescription(MenuItem item) {
+            return MenuItemCompatApi26.getContentDescription(item);
+        }
+
+        @Override
+        public void setTooltipText(MenuItem item, CharSequence tooltipText) {
+            MenuItemCompatApi26.setTooltipText(item, tooltipText);
+        }
+
+        @Override
+        public CharSequence getTooltipText(MenuItem item) {
+            return MenuItemCompatApi26.getTooltipText(item);
+        }
+    }
+
     /**
      * Select the correct implementation to use for the current platform.
      */
     static final MenuVersionImpl IMPL;
     static {
-        if (Build.VERSION.SDK_INT >= 14) {
+        if (BuildCompat.isAtLeastO()) {
+            IMPL = new Api26MenuVersionImpl();
+        } else if (Build.VERSION.SDK_INT >= 14) {
             IMPL = new IcsMenuVersionImpl();
         } else if (Build.VERSION.SDK_INT >= 11) {
             IMPL = new HoneycombMenuVersionImpl();
@@ -436,6 +501,58 @@ public final class MenuItemCompat {
             return ((SupportMenuItem) item).setSupportOnActionExpandListener(listener);
         }
         return IMPL.setOnActionExpandListener(item, listener);
+    }
+
+    /**
+     * Change the content description associated with this menu item.
+     *
+     * @param item item to change.
+     * @param contentDescription The new content description.
+     */
+    public static void setContentDescription(MenuItem item, CharSequence contentDescription) {
+        if (item instanceof SupportMenuItem) {
+            ((SupportMenuItem) item).setContentDescription(contentDescription);
+        } else {
+            IMPL.setContentDescription(item, contentDescription);
+        }
+    }
+
+    /**
+     * Retrieve the content description associated with this menu item.
+     *
+     * @return The content description.
+     */
+    public static CharSequence getContentDescription(MenuItem item) {
+        if (item instanceof SupportMenuItem) {
+            return ((SupportMenuItem) item).getContentDescription();
+        }
+        return IMPL.getContentDescription(item);
+    }
+
+    /**
+     * Change the tooltip text associated with this menu item.
+     *
+     * @param item item to change.
+     * @param tooltipText The new tooltip text
+     */
+    public static void setTooltipText(MenuItem item, CharSequence tooltipText) {
+        if (item instanceof SupportMenuItem) {
+            ((SupportMenuItem) item).setTooltipText(tooltipText);
+        } else {
+            IMPL.setTooltipText(item, tooltipText);
+        }
+    }
+
+    /**
+     * Retrieve the tooltip text associated with this menu item.
+     *
+     * @return The tooltip text.
+     */
+    public static CharSequence getTooltipText(MenuItem item) {
+        if (item instanceof SupportMenuItem) {
+            return ((SupportMenuItem) item).getTooltipText();
+        }
+        return IMPL.getTooltipText(item);
     }
 
     private MenuItemCompat() {}

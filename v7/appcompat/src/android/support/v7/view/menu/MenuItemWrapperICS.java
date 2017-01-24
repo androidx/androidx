@@ -296,6 +296,28 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> impleme
         return this;
     }
 
+    @Override
+    public MenuItem setContentDescription(CharSequence contentDescription) {
+        mWrappedObject.setContentDescription(contentDescription);
+        return this;
+    }
+
+    @Override
+    public CharSequence getContentDescription() {
+        return mWrappedObject.getContentDescription();
+    }
+
+    @Override
+    public MenuItem setTooltipText(CharSequence tooltipText) {
+        mWrappedObject.setTooltipText(tooltipText);
+        return this;
+    }
+
+    @Override
+    public CharSequence getTooltipText() {
+        return mWrappedObject.getTooltipText();
+    }
+
     public void setExclusiveCheckable(boolean checkable) {
         try {
             if (mSetExclusiveCheckableMethod == null) {
