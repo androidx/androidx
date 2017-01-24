@@ -15,8 +15,6 @@
  */
 package com.android.sample.moviebrowser;
 
-import static com.android.sample.moviebrowser.DetailsFragment.CODE_EDIT;
-
 import android.databinding.BindingAdapter;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
@@ -137,38 +135,5 @@ public class Utils {
         FragmentManager fragmentManager = fragment.getActivity()
                 .getSupportFragmentManager();
         editUserDetailsFragment.show(fragmentManager, "editUser:" + login);
-    }
-
-    /**
-     * Shows full details of the specific movie.
-     */
-    public static void showDetails(Fragment fragment, MovieData data) {
-        DetailsFragment detailsFragment = new DetailsFragment();
-        Bundle detailsFragmentArgs = new Bundle();
-        detailsFragmentArgs.putParcelable(DetailsFragment.INITIAL, data);
-        detailsFragment.setArguments(detailsFragmentArgs);
-
-        FragmentManager fragmentManager = fragment.getActivity()
-                .getSupportFragmentManager();
-
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.add(R.id.fragment_container, detailsFragment, "details");
-        transaction.addToBackStack("details");
-        transaction.commit();
-    }
-
-    /**
-     * Shows UI for editing movie details.
-     */
-    public static void editDetails(Fragment fragment, String imdbID) {
-        EditDetailsFragment editDetailsFragment = new EditDetailsFragment();
-        Bundle editDetailsFragmentArgs = new Bundle();
-        editDetailsFragmentArgs.putString(EditDetailsFragment.IMDB_ID, imdbID);
-        editDetailsFragment.setArguments(editDetailsFragmentArgs);
-        editDetailsFragment.setTargetFragment(fragment, CODE_EDIT);
-
-        FragmentManager fragmentManager = fragment.getActivity()
-                .getSupportFragmentManager();
-        editDetailsFragment.show(fragmentManager, "tag");
     }
 }
