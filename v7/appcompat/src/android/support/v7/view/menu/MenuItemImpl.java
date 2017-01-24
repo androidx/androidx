@@ -77,9 +77,6 @@ public final class MenuItemImpl implements SupportMenuItem {
     private Runnable mItemCallback;
     private SupportMenuItem.OnMenuItemClickListener mClickListener;
 
-    private CharSequence mContentDescription;
-    private CharSequence mTooltipText;
-
     private int mFlags = ENABLED;
     private static final int CHECKABLE = 0x00000001;
     private static final int CHECKED = 0x00000002;
@@ -745,33 +742,5 @@ public final class MenuItemImpl implements SupportMenuItem {
     public MenuItem setOnActionExpandListener(MenuItem.OnActionExpandListener listener) {
         throw new UnsupportedOperationException(
                 "This is not supported, use MenuItemCompat.setOnActionExpandListener()");
-    }
-
-    @Override
-    public SupportMenuItem setContentDescription(CharSequence contentDescription) {
-        mContentDescription = contentDescription;
-
-        mMenu.onItemsChanged(false);
-
-        return this;
-    }
-
-    @Override
-    public CharSequence getContentDescription() {
-        return mContentDescription;
-    }
-
-    @Override
-    public SupportMenuItem setTooltipText(CharSequence tooltipText) {
-        mTooltipText = tooltipText;
-
-        mMenu.onItemsChanged(false);
-
-        return this;
-    }
-
-    @Override
-    public CharSequence getTooltipText() {
-        return mTooltipText;
     }
 }

@@ -116,8 +116,6 @@ public class NavigationMenuItemView extends ForegroundLinearLayout implements Me
         setTitle(itemData.getTitle());
         setIcon(itemData.getIcon());
         setActionView(itemData.getActionView());
-        setContentDescription(itemData.getContentDescription());
-        ViewCompat.setTooltipText(this, itemData.getTooltipText());
         adjustAppearance();
     }
 
