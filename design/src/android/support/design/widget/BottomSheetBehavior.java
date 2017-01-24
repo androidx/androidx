@@ -597,8 +597,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
         return Math.abs(newTop - mMaxOffset) / (float) mPeekHeight > HIDE_THRESHOLD;
     }
 
-    private View findScrollingChild(View view) {
-        if (view instanceof NestedScrollingChild) {
+    @VisibleForTesting
+    View findScrollingChild(View view) {
+        if (ViewCompat.isNestedScrollingEnabled(view)) {
             return view;
         }
         if (view instanceof ViewGroup) {
