@@ -16,6 +16,7 @@
 
 package android.support.v4.app;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -405,7 +406,15 @@ class NotificationCompatJellybean {
         bundle.putInt(KEY_ICON, action.getIcon());
         bundle.putCharSequence(KEY_TITLE, action.getTitle());
         bundle.putParcelable(KEY_ACTION_INTENT, action.getActionIntent());
-        bundle.putBundle(KEY_EXTRAS, action.getExtras());
+        Bundle actionExtras;
+        if (action.getExtras() != null) {
+            actionExtras = new Bundle(action.getExtras());
+        } else {
+            actionExtras = new Bundle();
+        }
+        actionExtras.putBoolean(NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES,
+                action.getAllowGeneratedReplies());
+        bundle.putBundle(KEY_EXTRAS, actionExtras);
         bundle.putParcelableArray(KEY_REMOTE_INPUTS, RemoteInputCompatJellybean.toBundleArray(
                 action.getRemoteInputs()));
         return bundle;

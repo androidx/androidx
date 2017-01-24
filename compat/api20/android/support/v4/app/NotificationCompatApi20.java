@@ -16,6 +16,7 @@
 
 package android.support.v4.app;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
@@ -152,8 +153,16 @@ class NotificationCompatApi20 {
     private static Notification.Action getActionFromActionCompat(
             NotificationCompatBase.Action actionCompat) {
         Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
-                actionCompat.getIcon(), actionCompat.getTitle(), actionCompat.getActionIntent())
-                .addExtras(actionCompat.getExtras());
+                actionCompat.getIcon(), actionCompat.getTitle(), actionCompat.getActionIntent());
+        Bundle actionExtras;
+        if (actionCompat.getExtras() != null) {
+            actionExtras = new Bundle(actionCompat.getExtras());
+        } else {
+            actionExtras = new Bundle();
+        }
+        actionExtras.putBoolean(NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES,
+                actionCompat.getAllowGeneratedReplies());
+        actionBuilder.addExtras(actionExtras);
         RemoteInputCompatBase.RemoteInput[] remoteInputCompats = actionCompat.getRemoteInputs();
         if (remoteInputCompats != null) {
             RemoteInput[] remoteInputs = RemoteInputCompatApi20.fromCompat(remoteInputCompats);
