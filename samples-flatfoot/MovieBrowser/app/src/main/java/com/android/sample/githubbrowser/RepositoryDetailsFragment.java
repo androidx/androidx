@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.moviebrowser;
+package com.android.sample.githubbrowser;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -24,9 +24,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.android.sample.moviebrowser.adapter.ContibutorListAdapter;
-import com.android.sample.moviebrowser.databinding.FragmentRepoDetailsBinding;
-import com.android.sample.moviebrowser.model.ContributorListModel;
+import com.android.sample.githubbrowser.adapter.ContibutorListAdapter;
+import com.android.sample.githubbrowser.databinding.FragmentRepoDetailsBinding;
+import com.android.sample.githubbrowser.model.ContributorListModel;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;

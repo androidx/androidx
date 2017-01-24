@@ -13,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.android.sample.githubbrowser.db;
 
-package com.android.sample.moviebrowser.db;
+import android.content.Context;
 
-import com.android.sample.moviebrowser.PersonData;
-import com.android.support.room.Database;
-import com.android.support.room.RoomDatabase;
+import com.android.support.room.Room;
 
 /**
- * Database for Github person entities.
+ * Database helper.
  */
-@Database(entities = PersonData.class)
-public abstract class PersonDataDatabase extends RoomDatabase {
+public class PersonDataDatabaseHelper {
+    private static PersonDataDatabase sInstance;
+
     /**
-     * Gets the data access object.
+     * Gets a database instance.
      */
-    public abstract PersonDataDao getPersonDataDao();
+    public static synchronized PersonDataDatabase getDatabase(Context context) {
+        if (sInstance == null) {
+            sInstance = Room.databaseBuilder(context, PersonDataDatabase.class, "person.db")
+                    .build();
+        }
+        return sInstance;
+    }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.moviebrowser;
+package com.android.sample.githubbrowser;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -24,9 +24,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.android.sample.moviebrowser.adapter.RepositoryListAdapter;
-import com.android.sample.moviebrowser.model.AuthTokenModel;
-import com.android.sample.moviebrowser.model.RepositoryListModel;
+import com.android.sample.githubbrowser.adapter.RepositoryListAdapter;
+import com.android.sample.githubbrowser.model.AuthTokenModel;
+import com.android.sample.githubbrowser.model.RepositoryListModel;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.LifecycleProvider;
 import com.android.support.lifecycle.Observer;
@@ -46,7 +46,7 @@ public class RepositoryListFragment extends LifecycleFragment {
         final int columnCount = getContext().getResources().getInteger(R.integer.column_count);
 
         // Get the search model from the activity's scope so that we observe LiveData changes
-        // on the same list of movies that matches the search query set from the search box
+        // on the same list of repos that matches the search query set from the search box
         // defined in the activity's layout.
         final RepositoryListModel searchModel = ViewModelStore.get(
                 (LifecycleProvider) getActivity(),

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.moviebrowser.network;
+package com.android.sample.githubbrowser.network;
 
-import com.android.sample.moviebrowser.ContributorData;
-import com.android.sample.moviebrowser.PersonData;
-import com.android.sample.moviebrowser.RepositoryData;
+import com.android.sample.githubbrowser.ContributorData;
+import com.android.sample.githubbrowser.PersonData;
+import com.android.sample.githubbrowser.RepositoryData;
 
 import java.util.List;
 

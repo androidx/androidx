@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.moviebrowser.model;
+package com.android.sample.githubbrowser.model;
 
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;

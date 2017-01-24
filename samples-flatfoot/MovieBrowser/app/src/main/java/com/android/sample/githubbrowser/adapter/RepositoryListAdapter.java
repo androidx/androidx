@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.moviebrowser.adapter;
+package com.android.sample.githubbrowser.adapter;
 
 import android.databinding.DataBindingUtil;
 import android.support.v4.app.Fragment;
@@ -21,67 +21,67 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.android.sample.moviebrowser.ContributorData;
-import com.android.sample.moviebrowser.R;
-import com.android.sample.moviebrowser.adapter.ContibutorListAdapter.ContributorBindingHolder;
-import com.android.sample.moviebrowser.databinding.UserRowBinding;
-import com.android.sample.moviebrowser.model.ContributorListModel;
+import com.android.sample.githubbrowser.R;
+import com.android.sample.githubbrowser.RepositoryData;
+import com.android.sample.githubbrowser.adapter.RepositoryListAdapter.RepositoryBindingHolder;
+import com.android.sample.githubbrowser.databinding.RepositoryCardBinding;
+import com.android.sample.githubbrowser.model.RepositoryListModel;
 
 import java.util.List;
 
 /**
- * Adapter for the list of contributors.
+ * Adapter for a list of repositories.
  */
-public class ContibutorListAdapter extends RecyclerView.Adapter<ContributorBindingHolder> {
+public class RepositoryListAdapter extends RecyclerView.Adapter<RepositoryBindingHolder> {
     /**
      * Holder for the data cell.
      */
-    public static class ContributorBindingHolder extends RecyclerView.ViewHolder {
-        private UserRowBinding mViewDataBinding;
+    public static class RepositoryBindingHolder extends RecyclerView.ViewHolder {
+        private RepositoryCardBinding mViewDataBinding;
 
-        public ContributorBindingHolder(UserRowBinding viewDataBinding) {
+        public RepositoryBindingHolder(RepositoryCardBinding viewDataBinding) {
             super(viewDataBinding.getRoot());
             mViewDataBinding = viewDataBinding;
         }
 
-        public UserRowBinding getBinding() {
+        public RepositoryCardBinding getBinding() {
             return mViewDataBinding;
         }
     }
 
     private Fragment mFragment;
-    private ContributorListModel mSearchModel;
+    private RepositoryListModel mSearchModel;
 
     /**
      * Creates an adapter.
      */
-    public ContibutorListAdapter(Fragment fragment, ContributorListModel searchModel) {
+    public RepositoryListAdapter(Fragment fragment, RepositoryListModel searchModel) {
         mFragment = fragment;
         mSearchModel = searchModel;
     }
 
     @Override
-    public ContributorBindingHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        UserRowBinding binding = DataBindingUtil.inflate(
+    public RepositoryBindingHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        RepositoryCardBinding binding = DataBindingUtil.inflate(
                 LayoutInflater.from(parent.getContext()),
-                R.layout.user_row, parent, false);
-        return new ContributorBindingHolder(binding);
+                R.layout.repository_card, parent, false);
+        return new RepositoryBindingHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(ContributorBindingHolder holder, final int position) {
-        List<ContributorData> contributorDataList =
-                mSearchModel.getContributorListLiveData().getValue();
-        final ContributorData data = contributorDataList.get(position);
+    public void onBindViewHolder(RepositoryBindingHolder holder, final int position) {
+        List<RepositoryData> repositoryDataList =
+                mSearchModel.getRepositoryListLiveData().getValue();
+        final RepositoryData data = repositoryDataList.get(position);
 
         // Use data binding for wiring the data and the click handler
-        UserRowBinding binding = holder.getBinding();
-        binding.setContributor(data);
+        RepositoryCardBinding binding = holder.getBinding();
+        binding.setRepo(data);
         binding.setFragment(mFragment);
         binding.executePendingBindings();
 
         // Do we need to request another page?
-        if (position <= (contributorDataList.size() - 2)) {
+        if (position <= (repositoryDataList.size() - 2)) {
             // We are not close to the end of our data
             return;
         }
@@ -91,6 +91,6 @@ public class ContibutorListAdapter extends RecyclerView.Adapter<ContributorBindi
 
     @Override
     public int getItemCount() {
-        return mSearchModel.getContributorListLiveData().getValue().size();
+        return mSearchModel.getRepositoryListLiveData().getValue().size();
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.moviebrowser;
+package com.android.sample.githubbrowser;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -28,9 +28,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import com.android.sample.moviebrowser.model.AuthTokenModel;
-import com.android.sample.moviebrowser.model.RepositoryListModel;
-import com.android.sample.moviebrowser.network.GithubNetworkManager;
+import com.android.sample.githubbrowser.model.AuthTokenModel;
+import com.android.sample.githubbrowser.model.RepositoryListModel;
+import com.android.sample.githubbrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
 

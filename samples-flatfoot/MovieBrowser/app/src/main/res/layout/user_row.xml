@@ -4,8 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <import type="java.lang.Integer"/>
-        <import type="com.android.sample.moviebrowser.Utils"/>
-        <variable name="contributor" type="com.android.sample.moviebrowser.ContributorData"/>
+        <import type="com.android.sample.githubbrowser.Utils"/>
+        <variable name="contributor" type="com.android.sample.githubbrowser.ContributorData"/>
         <variable name="fragment" type="android.support.v4.app.Fragment"/>
     </data>
 

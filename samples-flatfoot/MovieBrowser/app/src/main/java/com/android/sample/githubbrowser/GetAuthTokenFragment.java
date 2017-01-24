@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.moviebrowser;
+package com.android.sample.githubbrowser;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -25,7 +25,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import com.android.sample.moviebrowser.model.AuthTokenModel;
+import com.android.sample.githubbrowser.model.AuthTokenModel;
 import com.android.support.lifecycle.LifecycleProvider;
 import com.android.support.lifecycle.ViewModelStore;
 

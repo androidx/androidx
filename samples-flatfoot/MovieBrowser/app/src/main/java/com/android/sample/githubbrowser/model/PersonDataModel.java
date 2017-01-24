@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.moviebrowser.model;
+package com.android.sample.githubbrowser.model;
 
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.MainThread;
 
-import com.android.sample.moviebrowser.PersonData;
-import com.android.sample.moviebrowser.db.PersonDataDatabase;
-import com.android.sample.moviebrowser.db.PersonDataDatabaseHelper;
-import com.android.sample.moviebrowser.network.GithubNetworkManager;
+import com.android.sample.githubbrowser.PersonData;
+import com.android.sample.githubbrowser.db.PersonDataDatabase;
+import com.android.sample.githubbrowser.db.PersonDataDatabaseHelper;
+import com.android.sample.githubbrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
 
@@ -34,7 +34,7 @@ public class PersonDataModel implements ViewModel {
     private LiveData<PersonData> mPersonData = new LiveData<>();
 
     /**
-     * Returns the {@LiveData} object that wraps the full movie data.
+     * Returns the {@LiveData} object that wraps the full person data.
      */
     public LiveData<PersonData> getPersonData() {
         return mPersonData;

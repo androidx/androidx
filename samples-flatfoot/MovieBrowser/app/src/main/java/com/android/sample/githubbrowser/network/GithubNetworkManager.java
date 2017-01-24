@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.moviebrowser.network;
+package com.android.sample.githubbrowser.network;
 
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
-import com.android.sample.moviebrowser.ContributorData;
-import com.android.sample.moviebrowser.PersonData;
-import com.android.sample.moviebrowser.RepositoryData;
-import com.android.sample.moviebrowser.model.AuthTokenModel;
+import com.android.sample.githubbrowser.ContributorData;
+import com.android.sample.githubbrowser.PersonData;
+import com.android.sample.githubbrowser.RepositoryData;
+import com.android.sample.githubbrowser.model.AuthTokenModel;
 
 import java.io.IOException;
 import java.util.List;

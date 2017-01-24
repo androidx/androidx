@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.moviebrowser;
+
+package com.android.sample.githubbrowser.db;
+
+import com.android.sample.githubbrowser.PersonData;
+import com.android.support.room.Dao;
+import com.android.support.room.Insert;
+import com.android.support.room.Query;
 
 /**
- * Defines the interface for working with auth token.
+ * Data access object for person table.
  */
-public interface AuthTokenLifecycle {
+@Dao
+public interface PersonDataDao {
     /**
-     * Returns <code>true</code> iff we need a new auth token.
+     * Load full data for a person based on the login.
      */
-    boolean doWeNeedAuthToken();
+    @Query("select * from persondata where login = ?")
+    PersonData load(String login);
 
     /**
-     * Invalidates the current auth token.
+     * Insert or update full data for a person.
      */
-    void invalidateAuthToken();
-
-    /**
-     * Returns the current auth token.
-     */
-    void getAuthToken();
+    @Insert(onConflict = Insert.REPLACE)
+    void insertOrReplace(PersonData personData);
 }
