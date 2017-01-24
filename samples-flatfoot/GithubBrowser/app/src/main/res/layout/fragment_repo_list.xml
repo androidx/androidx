@@ -6,5 +6,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    tools:context="com.android.sample.githubbrowser.MainActivityFragment"
+    tools:context="com.android.sample.githubbrowser.RepositoryListFragment"
     tools:showIn="@layout/activity_main"/>

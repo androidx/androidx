@@ -36,6 +36,9 @@ import java.util.Locale;
  * Helper methods.
  */
 public class Utils {
+    private static SimpleDateFormat sJsonDateParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+            Locale.ENGLISH);
+
     private Utils() {
         // This is here to prevent object initialization
     }
@@ -57,12 +60,9 @@ public class Utils {
         if (TextUtils.isEmpty(jsonDate)) {
             return;
         }
-        final SimpleDateFormat responseDateParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
-                Locale.ENGLISH);
         try {
-            textView.setText(
-                    SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT).format(
-                            responseDateParser.parse(jsonDate)));
+            textView.setText(SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT).format(
+                    sJsonDateParser.parse(jsonDate)));
         } catch (ParseException pe) {
             // WTF
         }
@@ -74,9 +74,11 @@ public class Utils {
     @BindingAdapter({"stringRes", "jsonDate"})
     public static void formatDateWithString(TextView textView, @StringRes int stringRes,
             String jsonDate) {
+        if (TextUtils.isEmpty(jsonDate)) {
+            return;
+        }
         try {
-            Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
-                    Locale.ENGLISH).parse(jsonDate);
+            Date date = sJsonDateParser.parse(jsonDate);
             String formattedDate = SimpleDateFormat.getDateInstance(
                     SimpleDateFormat.SHORT).format(date);
             textView.setText(textView.getResources().getString(stringRes,

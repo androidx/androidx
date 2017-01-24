@@ -7,10 +7,11 @@
         <import type="java.lang.Integer"/>
         <import type="android.text.TextUtils"/>
         <import type="android.view.View"/>
+        <import type="com.android.sample.githubbrowser.R"/>
         <import type="com.android.sample.githubbrowser.Utils"/>
         <variable name="userPartial" type="com.android.sample.githubbrowser.ContributorData"/>
         <variable name="user" type="com.android.sample.githubbrowser.PersonData"/>
-        <variable name="fragment" type="android.support.v4.app.Fragment"/>
+        <variable name="fragment" type="com.android.support.lifecycle.LifecycleFragment"/>
     </data>
 
     <LinearLayout
@@ -74,7 +75,8 @@
                 android:textColor="#444"
                 android:textSize="14sp"
                 android:visibility="@{((user == null) || TextUtils.isEmpty(user.created_at)) ? View.INVISIBLE : View.VISIBLE}"
-                app:jsonDate="@{user.created_at}"/>
+                app:jsonDate="@{user.created_at}"
+                app:stringRes="@{R.string.joined}"/>
 
         </RelativeLayout>
 
