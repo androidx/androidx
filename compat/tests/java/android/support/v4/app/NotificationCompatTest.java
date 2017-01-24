@@ -21,15 +21,30 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import android.app.Notification;
+import android.content.Context;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.support.v4.BaseInstrumentationTestCase;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 @RunWith(AndroidJUnit4.class)
-public class NotificationCompatTest {
+public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupportActivity> {
+
+    Context mContext;
+
+    public NotificationCompatTest() {
+      super(TestSupportActivity.class);
+    }
+
+    @Before
+    public void setup() {
+        mContext = mActivityTestRule.getActivity();
+    }
 
     @SmallTest
     @Test
@@ -78,7 +93,39 @@ public class NotificationCompatTest {
         assertFalse(a.getAllowGeneratedReplies());
     }
 
+    @SmallTest
+    @Test
+    public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesTrue()
+            throws Throwable {
+        NotificationCompat.Action a = newActionBuilder()
+                .setAllowGeneratedReplies(true).build();
+        NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
+                .addAction(a);
+        Notification notification = newNotificationBuilder().extend(extender).build();
+        assertTrue(new NotificationCompat.WearableExtender(notification).getActions().get(0)
+                .getAllowGeneratedReplies());
+    }
+
+    @SmallTest
+    @Test
+    public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesFalse()
+            throws Throwable {
+        NotificationCompat.Action a = newActionBuilder()
+                .setAllowGeneratedReplies(false).build();
+        NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
+                .addAction(a);
+        Notification notification = newNotificationBuilder().extend(extender).build();
+        assertFalse(new NotificationCompat.WearableExtender(notification).getActions().get(0)
+                .getAllowGeneratedReplies());
+    }
+
     private NotificationCompat.Action.Builder newActionBuilder() {
         return new NotificationCompat.Action.Builder(0, "title", null);
+    }
+    private NotificationCompat.Builder newNotificationBuilder() {
+        return new NotificationCompat.Builder(mContext)
+                .setSmallIcon(0)
+                .setContentTitle("title")
+                .setContentText("text");
     }
 }
