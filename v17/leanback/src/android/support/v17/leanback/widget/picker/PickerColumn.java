@@ -69,8 +69,8 @@ public class PickerColumn {
     }
 
     /**
-     * Get a label for value. The label can be static ({@link #setStaticLabels(CharSequence[])}
-     * or dynamically generated (@link {@link #setLabelFormat(String)} when static labels is null.
+     * Get a label for value. The label can be static {@link #setStaticLabels(CharSequence[])}
+     * or dynamically generated {@link #setLabelFormat(String)} when static labels is null.
      * 
      * @param value Value between minValue and maxValue.
      * @return Label for the value.

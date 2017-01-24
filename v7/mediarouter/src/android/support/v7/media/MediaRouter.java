@@ -94,7 +94,7 @@ public final class MediaRouter {
      * the disconnect button to disconnect and keep playing.
      * <p>
      *
-     * @see {@link MediaRouteDescriptor#canDisconnectAndKeepPlaying()}.
+     * @see MediaRouteDescriptor#canDisconnectAndKeepPlaying()
      */
     public static final int UNSELECT_REASON_DISCONNECTED = 1;
     /**
