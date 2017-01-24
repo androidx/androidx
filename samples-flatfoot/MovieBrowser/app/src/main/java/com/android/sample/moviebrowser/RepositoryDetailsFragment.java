@@ -26,10 +26,8 @@ import android.view.ViewGroup;
 
 import com.android.sample.moviebrowser.adapter.ContibutorListAdapter;
 import com.android.sample.moviebrowser.databinding.FragmentRepoDetailsBinding;
-import com.android.sample.moviebrowser.model.AuthTokenModel;
 import com.android.sample.moviebrowser.model.ContributorListModel;
 import com.android.support.lifecycle.LifecycleFragment;
-import com.android.support.lifecycle.LifecycleProvider;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
 
@@ -57,18 +55,15 @@ public class RepositoryDetailsFragment extends LifecycleFragment {
                 ? (RepositoryData) getArguments().getParcelable(KEY_REPO)
                 : (RepositoryData) savedInstanceState.getParcelable(KEY_REPO);
 
+        // Bind the data on this fragment
         binding.setRepo(mRepositoryData);
         binding.setFragment(this);
         binding.executePendingBindings();
 
-        AuthTokenModel authTokenModel = ViewModelStore.get(
-                (LifecycleProvider) getActivity(), "authTokenModel",
-                AuthTokenModel.class);
         final ContributorListModel contributorListModel = ViewModelStore.get(this,
                 "contributorListModel", ContributorListModel.class);
         if (!contributorListModel.hasSearchTerms()) {
-            contributorListModel.setSearchTerms(mRepositoryData.owner.login, mRepositoryData.name,
-                    authTokenModel);
+            contributorListModel.setSearchTerms(mRepositoryData.owner.login, mRepositoryData.name);
         }
 
         final RecyclerView contributorsRecycler = (RecyclerView) result.findViewById(

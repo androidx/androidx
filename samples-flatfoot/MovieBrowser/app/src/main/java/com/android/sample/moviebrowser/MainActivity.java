@@ -30,6 +30,7 @@ import android.widget.EditText;
 
 import com.android.sample.moviebrowser.model.AuthTokenModel;
 import com.android.sample.moviebrowser.model.RepositoryListModel;
+import com.android.sample.moviebrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
 
@@ -49,13 +50,11 @@ public class MainActivity extends BaseActivity {
                 Context.MODE_PRIVATE);
         final AuthTokenModel authTokenModel = ViewModelStore.get(this, "authTokenModel",
                 AuthTokenModel.class);
-        if (sharedPreferences.contains(AUTH_TOKEN_KEY)) {
-            authTokenModel.getAuthTokenData().setValue(
-                    sharedPreferences.getString(AUTH_TOKEN_KEY, ""));
-        }
+        GithubNetworkManager.getInstance().setAuthTokenModel(authTokenModel);
         authTokenModel.getAuthTokenData().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
+                // Persist the new auth token
                 if (TextUtils.isEmpty(s)) {
                     sharedPreferences.edit().clear().commit();
                 } else {
@@ -63,6 +62,10 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
+        if (sharedPreferences.contains(AUTH_TOKEN_KEY)) {
+            authTokenModel.getAuthTokenData().setValue(
+                    sharedPreferences.getString(AUTH_TOKEN_KEY, ""));
+        }
 
         mAuthTokenLifecycle = new AuthTokenLifecycle() {
             @Override
@@ -91,7 +94,7 @@ public class MainActivity extends BaseActivity {
         final RepositoryListModel mainModel = ViewModelStore.get(this, "mainRepoModel",
                 RepositoryListModel.class);
         if (!mainModel.hasSearchTerm()) {
-            mainModel.setSearchTerm("google", authTokenModel, mAuthTokenLifecycle);
+            mainModel.setSearchTerm("google", mAuthTokenLifecycle);
         }
 
         // Check that the activity is using the layout version with
@@ -137,7 +140,7 @@ public class MainActivity extends BaseActivity {
                     }
 
                     // Perform search action on key press
-                    mainModel.setSearchTerm(query, authTokenModel, mAuthTokenLifecycle);
+                    mainModel.setSearchTerm(query, mAuthTokenLifecycle);
                     return true;
                 }
                 return false;

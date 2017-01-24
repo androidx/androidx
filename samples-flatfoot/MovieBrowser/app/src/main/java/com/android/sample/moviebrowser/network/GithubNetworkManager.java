@@ -41,14 +41,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class GithubNetworkManager {
     private static GithubNetworkManager sInstance;
+
     private GithubService mGithubService;
+    private AuthTokenModel mAuthTokenModel;
 
     /**
      * Gets the singleton instance of this manager.
      */
-    public static synchronized GithubNetworkManager getInstance(AuthTokenModel authTokenModel) {
+    public static synchronized GithubNetworkManager getInstance() {
         if (sInstance == null) {
-            sInstance = new GithubNetworkManager(authTokenModel);
+            sInstance = new GithubNetworkManager();
         }
 
         return sInstance;
@@ -79,7 +81,7 @@ public class GithubNetworkManager {
     }
 
     private class CancelableCall implements Cancelable {
-        private @NonNull Call mCall;
+        @NonNull private Call mCall;
 
         private CancelableCall(@NonNull Call call) {
             mCall = call;
@@ -91,7 +93,7 @@ public class GithubNetworkManager {
         }
     }
 
-    private GithubNetworkManager(final AuthTokenModel authTokenModel) {
+    private GithubNetworkManager() {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.addInterceptor(new Interceptor() {
             @Override
@@ -99,9 +101,9 @@ public class GithubNetworkManager {
                 Request original = chain.request();
                 HttpUrl originalHttpUrl = original.url();
 
-                String authToken = authTokenModel.getAuthTokenData().getValue();
                 HttpUrl url = originalHttpUrl.newBuilder()
-                        .addQueryParameter("access_token", authToken)
+                        .addQueryParameter("access_token",
+                                mAuthTokenModel.getAuthTokenData().getValue())
                         .build();
 
                 Request.Builder requestBuilder = original.newBuilder().url(url);
@@ -118,6 +120,13 @@ public class GithubNetworkManager {
                 .build();
 
         mGithubService = retrofit.create(GithubService.class);
+    }
+
+    /**
+     * Sets authentication token model to be used on all future requests.
+     */
+    public void setAuthTokenModel(AuthTokenModel authTokenModel) {
+        mAuthTokenModel = authTokenModel;
     }
 
     /**

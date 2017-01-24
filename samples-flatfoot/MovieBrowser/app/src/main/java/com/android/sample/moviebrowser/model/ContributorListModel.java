@@ -32,7 +32,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * View model for contributor list data.
  */
 public class ContributorListModel implements ViewModel {
-    private AuthTokenModel mAuthTokenModel;
     private String mOwner;
     private String mProject;
 
@@ -53,10 +52,9 @@ public class ContributorListModel implements ViewModel {
      * Sets new search terms.
      */
     @MainThread
-    public void setSearchTerms(String owner, String project, AuthTokenModel authTokenModel) {
+    public void setSearchTerms(String owner, String project) {
         mOwner = owner;
         mProject = project;
-        mAuthTokenModel = authTokenModel;
 
         if (mCurrentCall != null) {
             mCurrentCall.cancel();
@@ -70,7 +68,7 @@ public class ContributorListModel implements ViewModel {
 
     private void fetchNextPage() {
         mHasRequestPending.set(true);
-        mCurrentCall = GithubNetworkManager.getInstance(mAuthTokenModel).getContributors(
+        mCurrentCall = GithubNetworkManager.getInstance().getContributors(
                 mOwner, mProject, mLastRequestedPage.get() + 1,
                 new GithubNetworkManager.NetworkCallListener<List<ContributorData>>() {
                     @Override

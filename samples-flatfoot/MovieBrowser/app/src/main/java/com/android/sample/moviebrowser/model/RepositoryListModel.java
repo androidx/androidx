@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * View model for repository list data.
  */
 public class RepositoryListModel implements ViewModel {
-    private AuthTokenModel mAuthTokenModel;
     private String mSearchTerm;
     private AuthTokenLifecycle mAuthTokenLifecycle;
 
@@ -54,10 +53,8 @@ public class RepositoryListModel implements ViewModel {
      * Sets new search term.
      */
     @MainThread
-    public void setSearchTerm(String searchTerm, AuthTokenModel authTokenModel,
-            AuthTokenLifecycle authTokenLifecycle) {
+    public void setSearchTerm(String searchTerm, AuthTokenLifecycle authTokenLifecycle) {
         mSearchTerm = searchTerm;
-        mAuthTokenModel = authTokenModel;
         mAuthTokenLifecycle = authTokenLifecycle;
 
         if (mCurrentCall != null) {
@@ -76,7 +73,7 @@ public class RepositoryListModel implements ViewModel {
 
     private void fetchNextPage() {
         mHasRequestPending.set(true);
-        mCurrentCall = GithubNetworkManager.getInstance(mAuthTokenModel).listRepositories(
+        mCurrentCall = GithubNetworkManager.getInstance().listRepositories(
                 mSearchTerm, mLastRequestedPage.get() + 1,
                 new GithubNetworkManager.NetworkCallListener<List<RepositoryData>>() {
                     @Override
