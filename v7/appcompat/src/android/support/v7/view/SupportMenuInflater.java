@@ -321,9 +321,6 @@ public class SupportMenuInflater extends MenuInflater {
 
         ActionProvider itemActionProvider;
 
-        private CharSequence itemContentDescription;
-        private CharSequence itemTooltipText;
-
         private static final int defaultGroupId = NO_ID;
         private static final int defaultItemId = NO_ID;
         private static final int defaultItemCategory = 0;
@@ -415,9 +412,6 @@ public class SupportMenuInflater extends MenuInflater {
                 itemActionProvider = null;
             }
 
-            itemContentDescription = a.getText(R.styleable.MenuItem_contentDescription);
-            itemTooltipText = a.getText(R.styleable.MenuItem_tooltipText);
-
             a.recycle();
 
             itemAdded = false;
@@ -482,9 +476,6 @@ public class SupportMenuInflater extends MenuInflater {
             if (itemActionProvider != null) {
                 MenuItemCompat.setActionProvider(item, itemActionProvider);
             }
-
-            MenuItemCompat.setContentDescription(item, itemContentDescription);
-            MenuItemCompat.setTooltipText(item, itemTooltipText);
         }
 
         public void addItem() {

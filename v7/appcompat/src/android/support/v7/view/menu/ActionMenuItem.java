@@ -55,9 +55,6 @@ public class ActionMenuItem implements SupportMenuItem {
 
     private SupportMenuItem.OnMenuItemClickListener mClickListener;
 
-    private CharSequence mContentDescription;
-    private CharSequence mTooltipText;
-
     private static final int NO_ICON = 0;
 
     private int mFlags = ENABLED;
@@ -299,27 +296,5 @@ public class ActionMenuItem implements SupportMenuItem {
     public SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener) {
         // No need to save the listener; ActionMenuItem does not support collapsing items.
         return this;
-    }
-
-    @Override
-    public SupportMenuItem setContentDescription(CharSequence contentDescription) {
-        mContentDescription = contentDescription;
-        return this;
-    }
-
-    @Override
-    public CharSequence getContentDescription() {
-        return mContentDescription;
-    }
-
-    @Override
-    public SupportMenuItem setTooltipText(CharSequence tooltipText) {
-        mTooltipText = tooltipText;
-        return this;
-    }
-
-    @Override
-    public CharSequence getTooltipText() {
-        return mTooltipText;
     }
 }
