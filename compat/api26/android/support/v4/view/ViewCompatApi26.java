@@ -22,7 +22,6 @@ import android.view.View;
 @RequiresApi(26)
 class ViewCompatApi26 {
     public static void setTooltipText(View view, CharSequence tooltipText) {
-        // TODO(kaznacheev) use setTooltipText as soon as it is available.
-        view.setTooltip(tooltipText);
+        view.setTooltipText(tooltipText);
     }
 }
