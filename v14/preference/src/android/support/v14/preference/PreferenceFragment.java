@@ -261,7 +261,8 @@ public abstract class PreferenceFragment extends Fragment implements
         final Drawable divider = a.getDrawable(R.styleable.PreferenceFragment_android_divider);
         final int dividerHeight = a.getDimensionPixelSize(
                 R.styleable.PreferenceFragment_android_dividerHeight, -1);
-
+        final boolean allowDividerAfterLastItem = a.getBoolean(
+                R.styleable.PreferenceFragment_allowDividerAfterLastItem, true);
         a.recycle();
 
         // Need to theme the inflater to pick up the preferenceFragmentListStyle
@@ -296,6 +297,7 @@ public abstract class PreferenceFragment extends Fragment implements
         if (dividerHeight != -1) {
             setDividerHeight(dividerHeight);
         }
+        mDividerDecoration.setAllowDividerAfterLastItem(allowDividerAfterLastItem);
 
         listContainer.addView(mList);
         mHandler.post(mRequestFocus);
@@ -778,6 +780,7 @@ public abstract class PreferenceFragment extends Fragment implements
 
         private Drawable mDivider;
         private int mDividerHeight;
+        private boolean mAllowDividerAfterLastItem = true;
 
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
@@ -811,7 +814,7 @@ public abstract class PreferenceFragment extends Fragment implements
             if (!dividerAllowedBelow) {
                 return false;
             }
-            boolean nextAllowed = true;
+            boolean nextAllowed = mAllowDividerAfterLastItem;
             int index = parent.indexOfChild(view);
             if (index < parent.getChildCount() - 1) {
                 final View nextView = parent.getChildAt(index + 1);
@@ -835,6 +838,10 @@ public abstract class PreferenceFragment extends Fragment implements
         public void setDividerHeight(int dividerHeight) {
             mDividerHeight = dividerHeight;
             mList.invalidateItemDecorations();
+        }
+
+        public void setAllowDividerAfterLastItem(boolean allowDividerAfterLastItem) {
+            mAllowDividerAfterLastItem = allowDividerAfterLastItem;
         }
     }
 }
