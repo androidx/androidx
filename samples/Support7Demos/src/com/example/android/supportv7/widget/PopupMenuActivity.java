@@ -17,6 +17,7 @@
 package com.example.android.supportv7.widget;
 
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuInflater;
@@ -59,6 +60,11 @@ public class PopupMenuActivity extends AppCompatActivity {
                 mPopupMenu = new PopupMenu(mContainer.getContext(), mButton);
                 final MenuInflater menuInflater = mPopupMenu.getMenuInflater();
                 menuInflater.inflate(R.menu.popup_menu, mPopupMenu.getMenu());
+                final MenuItem editItem = mPopupMenu.getMenu().findItem(R.id.action_edit);
+                MenuItemCompat.setContentDescription(editItem,
+                        getString(R.string.popup_menu_edit_description));
+                MenuItemCompat.setTooltipText(editItem,
+                        getString(R.string.popup_menu_edit_tooltip));
 
                 // Register a listener to be notified when a menu item in our popup menu has
                 // been clicked.
