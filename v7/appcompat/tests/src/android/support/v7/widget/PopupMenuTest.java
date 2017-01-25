@@ -49,8 +49,10 @@ import android.support.test.espresso.Root;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.test.filters.MediumTest;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
+import android.text.TextUtils;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -99,12 +101,32 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
     @Test
     @MediumTest
-    public void testBasicContent() {
+    public void testBasicContent() throws Throwable {
         final Builder menuBuilder = new Builder();
         menuBuilder.wireToActionButton();
 
         onView(withId(R.id.test_button)).perform(click());
         assertNotNull("Popup menu created", mPopupMenu);
+
+        final MenuItem hightlightItem = mPopupMenu.getMenu().findItem(R.id.action_highlight);
+        assertEquals(mResources.getString(R.string.popup_menu_highlight_description),
+                MenuItemCompat.getContentDescription(hightlightItem));
+        assertEquals(mResources.getString(R.string.popup_menu_highlight_tooltip),
+                MenuItemCompat.getTooltipText(hightlightItem));
+
+        final MenuItem editItem = mPopupMenu.getMenu().findItem(R.id.action_edit);
+        assertNotNull(MenuItemCompat.getContentDescription(hightlightItem));
+        assertNotNull(MenuItemCompat.getTooltipText(hightlightItem));
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MenuItemCompat.setContentDescription(editItem,
+                        mResources.getString(R.string.popup_menu_edit_description));
+                MenuItemCompat.setTooltipText(editItem,
+                        mResources.getString(R.string.popup_menu_edit_tooltip));
+            }
+        });
+
         // Unlike ListPopupWindow, PopupMenu doesn't have an API to check whether it is showing.
         // Use a custom matcher to check the visibility of the drop down list view instead.
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME)))
@@ -118,11 +140,15 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         onData(anything()).atPosition(0).check(matches(isDisplayed()));
         onView(withText(mResources.getString(R.string.popup_menu_highlight)))
                 .inRoot(withDecorView(not(is(mMainDecorView))))
-                .check(matches(isDisplayed()));
+                .check(matches(isDisplayed()))
+                .check(matches(selfOrParentWithContentDescription(
+                        mResources.getString(R.string.popup_menu_highlight_description))));
         onData(anything()).atPosition(1).check(matches(isDisplayed()));
         onView(withText(mResources.getString(R.string.popup_menu_edit)))
                 .inRoot(withDecorView(not(is(mMainDecorView))))
-                .check(matches(isDisplayed()));
+                .check(matches(isDisplayed()))
+                .check(matches(selfOrParentWithContentDescription(
+                        mResources.getString(R.string.popup_menu_edit_description))));
         onData(anything()).atPosition(2).check(matches(isDisplayed()));
         onView(withText(mResources.getString(R.string.popup_menu_delete)))
                 .inRoot(withDecorView(not(is(mMainDecorView))))
@@ -597,5 +623,34 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
                 }
             });
         }
+    }
+
+    private static Matcher<View> selfOrParentWithContentDescription(final CharSequence expected) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("self of parent has content description: " + expected);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                return TextUtils.equals(expected, getSelfOrParentContentDescription(view));
+            }
+
+            private CharSequence getSelfOrParentContentDescription(View view) {
+                while (view != null) {
+                    final CharSequence contentDescription = view.getContentDescription();
+                    if (contentDescription != null) {
+                        return contentDescription;
+                    }
+                    final ViewParent parent = view.getParent();
+                    if (!(parent instanceof View)) {
+                        break;
+                    }
+                    view = (View) parent;
+                }
+                return null;
+            }
+        };
     }
 }
