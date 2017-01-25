@@ -39,7 +39,8 @@ public class PaintCompatHasGlyphTest {
                 {"\uDB3F\uDFFD", false},
                 {"☺", true},
                 {"Hello", false},
-                {"\u0020", true },  // white space
+                {"\u0020", true},  // white space
+                {"\t\t\t", false},  // more white space
         });
     }
 
