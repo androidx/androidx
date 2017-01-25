@@ -186,7 +186,21 @@ public class ActionMenuItemView extends AppCompatTextView
         setText(visible ? mTitle : null);
 
         // Show the tooltip for items that do not already show text.
-        ViewCompat.setTooltipText(this, visible ? null : mTitle);
+        final CharSequence contentDescription = mItemData.getContentDescription();
+        if (TextUtils.isEmpty(contentDescription)) {
+            // Use the uncondensed title for content description.
+            setContentDescription(mItemData.getTitle());
+        } else {
+            setContentDescription(contentDescription);
+        }
+
+        final CharSequence tooltipText = mItemData.getTooltipText();
+        if (TextUtils.isEmpty(tooltipText)) {
+            // Use the uncondensed title for tooltip, but only if the title is not shown already.
+            ViewCompat.setTooltipText(this, visible ? null : mItemData.getTitle());
+        } else {
+            ViewCompat.setTooltipText(this, tooltipText);
+        }
     }
 
     public void setIcon(Drawable icon) {
@@ -222,7 +236,6 @@ public class ActionMenuItemView extends AppCompatTextView
     public void setTitle(CharSequence title) {
         mTitle = title;
 
-        setContentDescription(mTitle);
         updateTextButtonVisibility();
     }
 

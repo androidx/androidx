@@ -694,6 +694,12 @@
              for more info. -->
         <attr name="actionProviderClass" format="string" />
 
+        <!-- The content description associated with the item. -->
+        <attr name="contentDescription" format="string"/>
+
+        <!-- The tooltip text associated with the item. -->
+        <attr name="tooltipText" format="string"/>
+
     </declare-styleable>
 
     <declare-styleable name="Spinner">
