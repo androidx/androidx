@@ -53,6 +53,11 @@ public class ActionBarUsage extends AppCompatActivity {
         SearchView searchView = (SearchView) MenuItemCompat
                 .getActionView(menu.findItem(R.id.action_search));
         searchView.setOnQueryTextListener(mOnQueryTextListener);
+        final MenuItem editItem = menu.findItem(R.id.action_edit);
+        MenuItemCompat.setContentDescription(editItem,
+                getString(R.string.action_bar_edit_description));
+        MenuItemCompat.setTooltipText(editItem,
+                getString(R.string.action_bar_edit_tooltip));
         return true;
     }
 
