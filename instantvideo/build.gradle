@@ -1,0 +1,28 @@
+apply plugin: android.support.SupportLibraryPlugin
+archivesBaseName = 'support-instantvideo'
+
+dependencies {
+    compile project(':support-annotations')
+    androidTestCompile (libs.test_runner) {
+        exclude module: 'support-annotations'
+    }
+}
+
+android {
+    compileSdkVersion project.ext.currentSdk
+
+    defaultConfig {
+        minSdkVersion 14
+    }
+
+    sourceSets {
+        main.java.srcDirs = ['src']
+        main.res.srcDir 'res'
+    }
+}
+
+supportLibrary {
+    name 'Android Support Instant Video'
+    inceptionYear '2017'
+    description 'Android Support Library for Instant Video'
+}

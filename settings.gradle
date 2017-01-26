@@ -91,6 +91,9 @@ project(':support-wearable').projectDir = new File(rootDir, 'wearable')
 include ':support-tv-provider'
 project(':support-tv-provider').projectDir = new File(rootDir, 'tv-provider')
 
+include ':support-instantvideo'
+project(':support-instantvideo').projectDir = new File(rootDir, 'instantvideo')
+
 /////////////////////////////
 //
 // Samples
