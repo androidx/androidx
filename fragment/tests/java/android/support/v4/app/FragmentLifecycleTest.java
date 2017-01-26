@@ -657,6 +657,159 @@ public class FragmentLifecycleTest {
         f.setArguments(new Bundle());
     }
 
+    /*
+     * Test that target fragments are in a useful state when we restore them, even if they're
+     * on the back stack.
+     */
+
+    @Test
+    @UiThreadTest
+    public void targetFragmentRestoreLifecycleStateBackStack() throws Throwable {
+        final FragmentController fc1 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm1 = fc1.getSupportFragmentManager();
+
+        fc1.attachHost(null);
+        fc1.dispatchCreate();
+
+        final Fragment target = new TargetFragment();
+        fm1.beginTransaction().add(target, "target").commitNow();
+
+        final Fragment referrer = new ReferrerFragment();
+        referrer.setTargetFragment(target, 0);
+
+        fm1.beginTransaction()
+                .remove(target)
+                .add(referrer, "referrer")
+                .addToBackStack(null)
+                .commit();
+
+        fc1.dispatchActivityCreated();
+        fc1.noteStateNotSaved();
+        fc1.execPendingActions();
+        fc1.doLoaderStart();
+        fc1.dispatchStart();
+        fc1.reportLoaderStart();
+        fc1.dispatchResume();
+        fc1.execPendingActions();
+
+        // Bring the state back down to destroyed, simulating an activity restart
+        fc1.dispatchPause();
+        final Parcelable savedState = fc1.saveAllState();
+        final FragmentManagerNonConfig nonconf = fc1.retainNestedNonConfig();
+        fc1.dispatchStop();
+        fc1.dispatchReallyStop();
+        fc1.dispatchDestroy();
+
+        final FragmentController fc2 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+        final FragmentManager fm2 = fc2.getSupportFragmentManager();
+
+        fc2.attachHost(null);
+        fc2.restoreAllState(savedState, nonconf);
+        fc2.dispatchCreate();
+
+        fc2.dispatchActivityCreated();
+        fc2.noteStateNotSaved();
+        fc2.execPendingActions();
+        fc2.doLoaderStart();
+        fc2.dispatchStart();
+        fc2.reportLoaderStart();
+        fc2.dispatchResume();
+        fc2.execPendingActions();
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.dispatchPause();
+        fc2.saveAllState();
+        fc2.dispatchStop();
+        fc2.dispatchReallyStop();
+        fc2.dispatchDestroy();
+    }
+
+    @Test
+    @UiThreadTest
+    public void targetFragmentRestoreLifecycleStateManagerOrder() throws Throwable {
+        final FragmentController fc1 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm1 = fc1.getSupportFragmentManager();
+
+        fc1.attachHost(null);
+        fc1.dispatchCreate();
+
+        final Fragment target1 = new TargetFragment();
+        final Fragment referrer1 = new ReferrerFragment();
+        referrer1.setTargetFragment(target1, 0);
+
+        fm1.beginTransaction().add(target1, "target1").add(referrer1, "referrer1").commitNow();
+
+        final Fragment target2 = new TargetFragment();
+        final Fragment referrer2 = new ReferrerFragment();
+        referrer2.setTargetFragment(target2, 0);
+
+        // Order shouldn't matter.
+        fm1.beginTransaction().add(referrer2, "referrer2").add(target2, "target2").commitNow();
+
+        fc1.dispatchActivityCreated();
+        fc1.noteStateNotSaved();
+        fc1.execPendingActions();
+        fc1.doLoaderStart();
+        fc1.dispatchStart();
+        fc1.reportLoaderStart();
+        fc1.dispatchResume();
+        fc1.execPendingActions();
+
+        // Bring the state back down to destroyed, simulating an activity restart
+        fc1.dispatchPause();
+        final Parcelable savedState = fc1.saveAllState();
+        final FragmentManagerNonConfig nonconf = fc1.retainNestedNonConfig();
+        fc1.dispatchStop();
+        fc1.dispatchReallyStop();
+        fc1.dispatchDestroy();
+
+        final FragmentController fc2 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+        final FragmentManager fm2 = fc2.getSupportFragmentManager();
+
+        fc2.attachHost(null);
+        fc2.restoreAllState(savedState, nonconf);
+        fc2.dispatchCreate();
+
+        fc2.dispatchActivityCreated();
+        fc2.noteStateNotSaved();
+        fc2.execPendingActions();
+        fc2.doLoaderStart();
+        fc2.dispatchStart();
+        fc2.reportLoaderStart();
+        fc2.dispatchResume();
+        fc2.execPendingActions();
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.dispatchPause();
+        fc2.saveAllState();
+        fc2.dispatchStop();
+        fc2.dispatchReallyStop();
+        fc2.dispatchDestroy();
+    }
+
+    @Test
+    public void targetFragmentNoCycles() throws Throwable {
+        final Fragment one = new Fragment();
+        final Fragment two = new Fragment();
+        final Fragment three = new Fragment();
+
+        try {
+            one.setTargetFragment(two, 0);
+            two.setTargetFragment(three, 0);
+            three.setTargetFragment(one, 0);
+            assertTrue("creating a fragment target cycle did not throw IllegalArgumentException",
+                    false);
+        } catch (IllegalArgumentException e) {
+            // Success!
+        }
+    }
+
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
             int popExit) {
         FragmentManagerImpl fmImpl = (FragmentManagerImpl) fm;
@@ -921,6 +1074,33 @@ public class FragmentLifecycleTest {
             SimpleFragment fragment = new SimpleFragment();
             fragment.mLayoutId = layoutId;
             return fragment;
+        }
+    }
+
+    public static class TargetFragment extends Fragment {
+        public boolean calledCreate;
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            calledCreate = true;
+        }
+    }
+
+    public static class ReferrerFragment extends Fragment {
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            Fragment target = getTargetFragment();
+            assertNotNull("target fragment was null during referrer onCreate", target);
+
+            if (!(target instanceof TargetFragment)) {
+                throw new IllegalStateException("target fragment was not a TargetFragment");
+            }
+
+            assertTrue("target fragment has not yet been created",
+                    ((TargetFragment) target).calledCreate);
         }
     }
 }
