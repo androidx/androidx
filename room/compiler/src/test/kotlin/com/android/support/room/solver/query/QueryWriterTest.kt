@@ -300,7 +300,7 @@ class QueryWriterTest {
                                     }.filter { it.second.isNotEmpty() }.first()
                             val parser = QueryMethodProcessor(invocation.context)
                             val parsedQuery = parser.parse(MoreTypes.asDeclared(owner.asType()),
-                                    MoreElements.asExecutable(methods.first()))
+                                    MoreElements.asExecutable(methods.first()), emptySet())
                             handler(QueryWriter(parsedQuery))
                             true
                         }

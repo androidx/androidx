@@ -16,7 +16,9 @@
 
 package com.android.support.room.solver.query.result
 
+import com.android.support.room.processor.Context
 import com.android.support.room.solver.CodeGenScope
+import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -30,6 +32,8 @@ abstract class RowAdapter(val out : TypeMirror) {
      * It should return a function that handles the conversion in the given scope.
      */
     abstract fun init(cursorVarName: String, scope : CodeGenScope) : RowConverter
+
+    abstract fun reportErrors(context: Context, element: Element, suppressedWarnings: Set<String>)
 
     interface RowConverter {
         fun convert(outVarName : String, cursorVarName : String)

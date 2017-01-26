@@ -17,6 +17,7 @@
 package com.android.support.room.processor
 
 import com.android.support.room.RoomProcessor
+import com.android.support.room.RoomWarnings
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.vo.Database
@@ -256,6 +257,20 @@ class DatabaseProcessorTest {
                 .withErrorContaining(ProcessorErrors.duplicateDao(
                         ClassName.get("foo.bar", "UserDao"), listOf("userDao", "userDao2")
                 ))
+    }
+
+    @Test
+    fun suppressedWarnings() {
+        singleDb(
+                """
+                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @Database(entities = {User.class})
+                public abstract class MyDb extends RoomDatabase {
+                    abstract UserDao userDao();
+                }
+                """, USER, USER_DAO) {db, invocation ->
+            assertThat(db.suppressedWarnings, `is`(setOf(RoomWarnings.CURSOR_MISMATCH)))
+        }.compilesWithoutError()
     }
 
     fun singleDb(input: String, vararg otherFiles: JavaFileObject,

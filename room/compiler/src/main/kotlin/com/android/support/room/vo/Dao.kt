@@ -23,7 +23,8 @@ import javax.lang.model.type.DeclaredType
 data class Dao(val element : Element, val type : DeclaredType,
                val queryMethods: List<QueryMethod>,
                val insertionMethods : List<InsertionMethod>,
-               val deletionMethods : List<DeletionMethod>) {
+               val deletionMethods : List<DeletionMethod>,
+               val suppressedWarnings : Set<String> = emptySet()) {
     // parsed dao might have a suffix if it is used in multiple databases.
     private var suffix : String? = null
     fun setSuffix(newSuffix : String) {

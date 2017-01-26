@@ -21,12 +21,19 @@ import com.android.support.room.PrimaryKey;
 
 @Entity
 public class User {
+
     @PrimaryKey
     private int mId;
+
     private String mName;
+
     private String mLastName;
+
     private int mAge;
+
     private boolean mAdmin;
+
+    private float mWeight;
 
     public int getId() {
         return mId;
@@ -68,17 +75,41 @@ public class User {
         mAdmin = admin;
     }
 
+    public float getWeight() {
+        return mWeight;
+    }
+
+    public void setWeight(float weight) {
+        mWeight = weight;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         User user = (User) o;
 
-        if (mId != user.mId) return false;
-        if (mAge != user.mAge) return false;
-        if (mAdmin != user.mAdmin) return false;
-        if (mName != null ? !mName.equals(user.mName) : user.mName != null) return false;
+        if (mId != user.mId) {
+            return false;
+        }
+        if (mAge != user.mAge) {
+            return false;
+        }
+        if (mAdmin != user.mAdmin) {
+            return false;
+        }
+        if (Float.compare(user.mWeight, mWeight) != 0) {
+            return false;
+        }
+        //noinspection SimplifiableIfStatement
+        if (mName != null ? !mName.equals(user.mName) : user.mName != null) {
+            return false;
+        }
         return mLastName != null ? mLastName.equals(user.mLastName) : user.mLastName == null;
     }
 
@@ -89,6 +120,19 @@ public class User {
         result = 31 * result + (mLastName != null ? mLastName.hashCode() : 0);
         result = 31 * result + mAge;
         result = 31 * result + (mAdmin ? 1 : 0);
+        result = 31 * result + (mWeight != +0.0f ? Float.floatToIntBits(mWeight) : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "User{"
+                + "mId=" + mId
+                + ", mName='" + mName + '\''
+                + ", mLastName='" + mLastName + '\''
+                + ", mAge=" + mAge
+                + ", mAdmin=" + mAdmin
+                + ", mWeight=" + mWeight
+                + '}';
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.support.room.solver.query.result
+package com.android.support.room.vo
 
-import com.android.support.room.processor.Context
-import com.android.support.room.solver.CodeGenScope
-import javax.lang.model.element.Element
+import com.android.support.room.ext.typeName
+import com.squareup.javapoet.TypeName
+import javax.lang.model.element.TypeElement
+import javax.lang.model.type.DeclaredType
 
 /**
- * Gets a Cursor and converts it into the return type of a method annotated with @Query.
+ * A class is turned into a Pojo if it is used in a query response.
  */
-abstract class QueryResultAdapter {
-    abstract fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope)
-    abstract fun reportErrors(context: Context, element: Element, suppressedWarnings: Set<String>)
+data class Pojo(val element : TypeElement, val type: DeclaredType, val fields : List<Field>) {
+    val typeName: TypeName by lazy { type.typeName() }
 }

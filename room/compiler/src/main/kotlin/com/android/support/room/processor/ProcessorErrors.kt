@@ -21,7 +21,9 @@ import com.android.support.room.Insert
 import com.android.support.room.Query
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.vo.Field
+import com.android.support.room.vo.Pojo
 import com.squareup.javapoet.TypeName
+import javax.lang.model.type.TypeMirror
 
 object ProcessorErrors {
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
@@ -122,7 +124,7 @@ object ProcessorErrors {
     }
 
     private val DUPLICATE_TABLES = "Table name \"%s\" is used by multiple entities: %s"
-    fun  duplicateTableNames(tableName: String, entityNames: List<String>): String {
+    fun duplicateTableNames(tableName: String, entityNames: List<String>): String {
         return DUPLICATE_TABLES.format(tableName, entityNames.joinToString(", "))
     }
 
@@ -131,13 +133,45 @@ object ProcessorErrors {
 
     val DAO_METHOD_CONFLICTS_WITH_OTHERS = "Dao method has conflicts."
 
-    fun duplicateDao(dao : TypeName, methodNames : List<String>) : String {
+    fun duplicateDao(dao: TypeName, methodNames: List<String>): String {
         return """
-        All of these functions (${methodNames.joinToString(", ")}) return the same DAO class ($dao).
-        A database can use a DAO only once so you should remove ${methodNames.size - 1} of these
-        conflicting DAO methods. If you are implementing any of these to fulfill an interface, don't
-        make it abstract, instead, implement the code that calls the other one.
-        """.trimIndent().replace(System.lineSeparator(), " ")
+                All of these functions (${methodNames.joinToString(", ")}) return the same DAO
+                class ($dao).
+                A database can use a DAO only once so you should remove ${methodNames.size - 1} of
+                these conflicting DAO methods. If you are implementing any of these to fulfill an
+                interface, don't make it abstract, instead, implement the code that calls the
+                other one.
+                """.trimIndent().replace(System.lineSeparator(), " ")
+    }
+
+    fun cursorPojoMismatch(pojoTypeName: TypeName,
+                           unusedColumns: List<String>, allColumns: List<String>,
+                           unusedFields: List<Field>, allFields: List<Field>): String {
+        val unusedColumnsWarning = if (unusedColumns.isNotEmpty()) { """
+                The query returns some columns (${unusedColumns.joinToString(", ")}) which are not
+                use by $pojoTypeName. You can use @ColumnName annotation on the fields to specify
+                the mapping.
+            """.trimIndent().replace(System.lineSeparator(), " ")
+        } else {
+            ""
+        }
+        val unusedFieldsWarning = if (unusedFields.isNotEmpty()) { """
+                $pojoTypeName has some fields
+                (${unusedFields.joinToString(", ") { it.columnName }}) which are not returned by the
+                query. If they are not supposed to be read from the result, you can mark them with
+                @Ignore annotation.
+            """.trimIndent().replace(System.lineSeparator(), " ")
+        } else {
+            ""
+        }
+        return """
+            $unusedColumnsWarning
+            $unusedFieldsWarning
+            You can suppress this warning by annotating the method with
+            @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH).
+            Columns returned by the query: ${allColumns.joinToString(", ")}.
+            Fields in $pojoTypeName: ${allFields.joinToString(", ") { it.columnName }}.
+            """.trimIndent().replace(System.lineSeparator(), " ")
     }
 
 }

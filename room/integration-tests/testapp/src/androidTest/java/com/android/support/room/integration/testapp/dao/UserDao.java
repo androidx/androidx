@@ -21,10 +21,12 @@ import com.android.support.room.Dao;
 import com.android.support.room.Delete;
 import com.android.support.room.Insert;
 import com.android.support.room.Query;
+import com.android.support.room.integration.testapp.vo.AvgWeightByAge;
 import com.android.support.room.integration.testapp.vo.User;
 
 import java.util.List;
 
+@SuppressWarnings("SameParameterValue")
 @Dao
 public interface UserDao {
     @Query("select * from user where mName like :name")
@@ -83,4 +85,10 @@ public interface UserDao {
 
     @Query("select * from user where mAge = ?")
     List<User> findByAge(int age);
+
+    @Query("select mAge, AVG(mWeight) from user GROUP BY mAge ORDER BY 2 DESC")
+    List<AvgWeightByAge> weightByAge();
+
+    @Query("select mAge, AVG(mWeight) from user GROUP BY mAge ORDER BY 2 DESC LIMIT 1")
+    LiveData<AvgWeightByAge> maxWeightByAgeGroup();
 }

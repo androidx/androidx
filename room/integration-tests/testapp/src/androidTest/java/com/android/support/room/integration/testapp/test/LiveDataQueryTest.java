@@ -36,6 +36,7 @@ import com.android.support.lifecycle.Observer;
 import com.android.support.room.Room;
 import com.android.support.room.integration.testapp.TestDatabase;
 import com.android.support.room.integration.testapp.dao.UserDao;
+import com.android.support.room.integration.testapp.vo.AvgWeightByAge;
 import com.android.support.room.integration.testapp.vo.User;
 
 import org.junit.Before;
@@ -148,6 +149,42 @@ public class LiveDataQueryTest {
 
         lifecycleProvider.handleEvent(Lifecycle.ON_START);
         assertThat(observer.get(), is(Arrays.asList(user4, user3)));
+    }
+
+    @Test
+    public void liveDataWithPojo() throws ExecutionException, InterruptedException {
+        User[] users = TestUtil.createUsersArray(3, 5, 7, 9);
+        users[0].setAge(10);
+        users[0].setWeight(15);
+
+        users[1].setAge(20);
+        users[1].setWeight(25);
+
+        users[2].setAge(20);
+        users[2].setWeight(26);
+
+        users[3].setAge(10);
+        users[3].setWeight(21);
+
+        final TestLifecycleProvider lifecycleProvider = new TestLifecycleProvider();
+        lifecycleProvider.handleEvent(Lifecycle.ON_START);
+
+        final LatchObserver<AvgWeightByAge> observer = new LatchObserver<>();
+        LiveData<AvgWeightByAge> liveData = mUserDao.maxWeightByAgeGroup();
+
+        observe(liveData, lifecycleProvider, observer);
+        assertThat(observer.get(), is(nullValue()));
+
+        observer.reset();
+        mUserDao.insertAll(users);
+        assertThat(observer.get(), is(new AvgWeightByAge(20, 25.5f)));
+
+        observer.reset();
+        User user3 = mUserDao.load(3);
+        user3.setWeight(79);
+        mUserDao.insertOrReplace(user3);
+
+        assertThat(observer.get(), is(new AvgWeightByAge(10, 50)));
     }
 
     private void observe(final LiveData liveData, final LifecycleProvider provider,

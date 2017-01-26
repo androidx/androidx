@@ -16,8 +16,11 @@
 
 package com.android.support.room.solver.query.result
 
+import android.support.annotation.CallSuper
+import com.android.support.room.processor.Context
 import com.android.support.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
+import javax.lang.model.element.Element
 
 /**
  * Connects the query, db and the ResultAdapter.
@@ -31,6 +34,11 @@ abstract class QueryResultBinder(val adapter: QueryResultAdapter?) {
      * receives the sql, bind args and adapter and generates the code that runs the query
      * and returns the result.
      */
-    abstract fun convertAndReturn(roomSQLiteQueryVar : String,
-                                  dbField : FieldSpec, scope : CodeGenScope)
+    abstract fun convertAndReturn(roomSQLiteQueryVar: String,
+                                  dbField: FieldSpec, scope: CodeGenScope)
+
+    @CallSuper
+    open fun reportErrors(context: Context, element: Element, suppressedWarnings: Set<String>) {
+        adapter?.reportErrors(context, element, suppressedWarnings)
+    }
 }

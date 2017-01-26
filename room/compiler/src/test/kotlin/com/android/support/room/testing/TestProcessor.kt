@@ -23,7 +23,7 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 import kotlin.reflect.KClass
 
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
+@SupportedSourceVersion(SourceVersion.RELEASE_8)// test are compiled w/ J_8
 class TestProcessor(val handlers: List<(TestInvocation) -> Boolean>,
                     val annotations: MutableSet<String>) : AbstractProcessor() {
     var count = 0

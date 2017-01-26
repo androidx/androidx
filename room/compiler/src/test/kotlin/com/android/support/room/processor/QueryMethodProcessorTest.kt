@@ -17,14 +17,24 @@
 package com.android.support.room.processor
 
 import COMMON
+import com.android.support.room.ColumnName
 import com.android.support.room.Dao
+import com.android.support.room.Entity
+import com.android.support.room.PrimaryKey
 import com.android.support.room.Query
+import com.android.support.room.RoomWarnings
 import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.typeName
+import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER
+import com.android.support.room.solver.query.result.ListQueryResultAdapter
 import com.android.support.room.solver.query.result.LiveDataQueryResultBinder
+import com.android.support.room.solver.query.result.PojoRowAdapter
+import com.android.support.room.solver.query.result.RowAdapter
+import com.android.support.room.solver.query.result.SingleEntityQueryResultAdapter
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
+import com.android.support.room.vo.Field
 import com.android.support.room.vo.QueryMethod
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -41,17 +51,19 @@ import createVerifierFromEntities
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.junit.runners.Parameterized
+import org.mockito.Mockito
+import javax.lang.model.element.Element
 import javax.lang.model.type.TypeKind.INT
 import javax.lang.model.type.TypeMirror
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(Parameterized::class)
-class QueryMethodProcessorTest(val enableVerification : Boolean) {
+class QueryMethodProcessorTest(val enableVerification: Boolean) {
     companion object {
         const val DAO_PREFIX = """
                 package foo.bar;
@@ -60,9 +72,20 @@ class QueryMethodProcessorTest(val enableVerification : Boolean) {
                 abstract class MyClass {
                 """
         const val DAO_SUFFIX = "}"
+        val POJO = ClassName.get("foo.bar", "MyClass.Pojo")
         @Parameterized.Parameters(name = "enableDbVerification={0}")
         @JvmStatic
         fun getParams() = arrayOf(true, false)
+
+        fun createField(name: String, columnName: String? = null): Field {
+            return Field(
+                    element = Mockito.mock(Element::class.java),
+                    name = name,
+                    type = Mockito.mock(TypeMirror::class.java),
+                    primaryKey = false,
+                    columnName = columnName ?: name
+            )
+        }
     }
 
     @Test
@@ -393,6 +416,191 @@ class QueryMethodProcessorTest(val enableVerification : Boolean) {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun suppressWarnings() {
+        singleQueryMethod("""
+                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @Query("SELECT uid from User")
+                abstract public int[] foo();
+                """) { method, invocation ->
+            assertThat(method.suppressedWarnings, `is`(setOf(RoomWarnings.CURSOR_MISMATCH)))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun pojo_renamedColumn() {
+        pojoTest("""
+                String name;
+                String lName;
+                """, listOf("name", "lastName as lName")) { adapter, queryMethod, invocation ->
+            assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
+            assertThat(adapter?.mapping?.unusedFields, `is`(emptyList()))
+        }?.compilesWithoutError()?.withWarningCount(0)
+    }
+
+    @Test
+    fun pojo_exactMatch() {
+        pojoTest("""
+                String name;
+                String lastName;
+                """, listOf("name", "lastName")) { adapter, queryMethod, invocation ->
+            assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
+            assertThat(adapter?.mapping?.unusedFields, `is`(emptyList()))
+        }?.compilesWithoutError()?.withWarningCount(0)
+    }
+
+    @Test
+    fun pojo_exactMatchWithStar() {
+        pojoTest("""
+            String name;
+            String lastName;
+            int uid;
+            @ColumnName("ageColumn")
+            int age;
+        """, listOf("*")) { adapter, queryMethod, invocation ->
+            assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
+            assertThat(adapter?.mapping?.unusedFields, `is`(emptyList()))
+        }?.compilesWithoutError()?.withWarningCount(0)
+    }
+
+    @Test
+    fun pojo_nonJavaName() {
+        pojoTest("""
+            @ColumnName("MAX(ageColumn)")
+            int maxAge;
+            String name;
+            """, listOf("MAX(ageColumn)", "name")) { adapter, queryMethod, invocation ->
+            assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
+            assertThat(adapter?.mapping?.unusedFields, `is`(emptyList()))
+        }?.compilesWithoutError()?.withWarningCount(0)
+    }
+
+    @Test
+    fun pojo_noMatchingFields() {
+        pojoTest("""
+                String nameX;
+                String lastNameX;
+                """, listOf("name", "lastName")) { adapter, queryMethod, invocation ->
+            assertThat(adapter?.mapping?.unusedColumns, `is`(listOf("name", "lastName")))
+            assertThat(adapter?.mapping?.unusedFields, `is`(adapter?.pojo?.fields))
+        }?.failsToCompile()
+                ?.withErrorContaining(CANNOT_FIND_QUERY_RESULT_ADAPTER)
+                ?.and()
+                ?.withWarningContaining(
+                        ProcessorErrors.cursorPojoMismatch(
+                                pojoTypeName = POJO,
+                                unusedColumns = listOf("name", "lastName"),
+                                unusedFields = listOf(createField("nameX"),
+                                        createField("lastNameX")),
+                                allColumns = listOf("name", "lastName"),
+                                allFields = listOf(createField("nameX"), createField("lastNameX"))
+                        )
+                )
+    }
+
+    @Test
+    fun pojo_badQuery() {
+        // do not report mismatch if query is broken
+        pojoTest("""
+            @ColumnName("MAX(ageColumn)")
+            int maxAge;
+            String name;
+            """, listOf("MAX(age)", "name")) { adapter, queryMethod, invocation ->
+        }?.failsToCompile()
+                ?.withErrorContaining("no such column: age")
+                ?.and()
+                ?.withErrorCount(1)
+                ?.withWarningCount(0)
+    }
+
+    @Test
+    fun pojo_tooManyColumns() {
+        pojoTest("""
+            String name;
+            String lastName;
+            """, listOf("uid", "name", "lastName")) { adapter, queryMethod, invocation ->
+            assertThat(adapter?.mapping?.unusedColumns, `is`(listOf("uid")))
+            assertThat(adapter?.mapping?.unusedFields, `is`(emptyList()))
+        }?.compilesWithoutError()?.withWarningContaining(
+                ProcessorErrors.cursorPojoMismatch(
+                        pojoTypeName = POJO,
+                        unusedColumns = listOf("uid"),
+                        unusedFields = emptyList(),
+                        allColumns = listOf("uid", "name", "lastName"),
+                        allFields = listOf(createField("name"), createField("lastName"))
+                ))
+    }
+
+    @Test
+    fun pojo_tooManyFields() {
+        pojoTest("""
+            String name;
+            String lastName;
+            """, listOf("lastName")) { adapter, queryMethod, invocation ->
+            assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
+            assertThat(adapter?.mapping?.unusedFields, `is`(
+                    adapter?.pojo?.fields?.filter { it.name == "name" }
+            ))
+        }?.compilesWithoutError()?.withWarningContaining(
+                ProcessorErrors.cursorPojoMismatch(
+                        pojoTypeName = POJO,
+                        unusedColumns = emptyList(),
+                        unusedFields = listOf(createField("name")),
+                        allColumns = listOf("lastName"),
+                        allFields = listOf(createField("name"), createField("lastName"))
+                ))
+    }
+
+    @Test
+    fun pojo_tooManyFieldsAndColumns() {
+        pojoTest("""
+            String name;
+            String lastName;
+            """, listOf("uid", "name")) { adapter, queryMethod, invocation ->
+            assertThat(adapter?.mapping?.unusedColumns, `is`(listOf("uid")))
+            assertThat(adapter?.mapping?.unusedFields, `is`(
+                    adapter?.pojo?.fields?.filter { it.name == "lastName" }
+            ))
+        }?.compilesWithoutError()?.withWarningContaining(
+                ProcessorErrors.cursorPojoMismatch(
+                        pojoTypeName = POJO,
+                        unusedColumns = listOf("uid"),
+                        unusedFields = listOf(createField("lastName")),
+                        allColumns = listOf("uid", "name"),
+                        allFields = listOf(createField("name"), createField("lastName"))
+                ))
+    }
+
+    fun pojoTest(pojoFields: String, queryColumns: List<String>,
+                 handler: (PojoRowAdapter?, QueryMethod, TestInvocation) -> Unit): CompileTester? {
+        val assertion = singleQueryMethod(
+                """
+                static class Pojo {
+                    $pojoFields
+                }
+                @Query("SELECT ${queryColumns.joinToString(", ")} from User LIMIT 1")
+                abstract MyClass.Pojo getNameAndLastNames();
+                """
+        ) { parsedQuery, invocation ->
+            val adapter = parsedQuery.queryResultBinder.adapter
+            if (enableVerification) {
+                if (adapter is SingleEntityQueryResultAdapter) {
+                    handler(adapter.rowAdapter as? PojoRowAdapter, parsedQuery, invocation)
+                } else {
+                    handler(null, parsedQuery, invocation)
+                }
+            } else {
+                assertThat(adapter, nullValue())
+            }
+        }
+        if (enableVerification) {
+            return assertion
+        } else {
+            assertion.failsToCompile().withErrorContaining(CANNOT_FIND_QUERY_RESULT_ADAPTER)
+            return null
+        }
+    }
+
     fun singleQueryMethod(vararg input: String,
                           handler: (QueryMethod, TestInvocation) -> Unit):
             CompileTester {
@@ -401,7 +609,8 @@ class QueryMethodProcessorTest(val enableVerification : Boolean) {
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
                 ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER))
                 .processedWith(TestProcessor.builder()
-                        .forAnnotations(Query::class, Dao::class)
+                        .forAnnotations(Query::class, Dao::class, ColumnName::class,
+                                Entity::class, PrimaryKey::class)
                         .nextRunHandler { invocation ->
                             val (owner, methods) = invocation.roundEnv
                                     .getElementsAnnotatedWith(Dao::class.java)
@@ -422,7 +631,7 @@ class QueryMethodProcessorTest(val enableVerification : Boolean) {
                             val parser = QueryMethodProcessor(invocation.context)
                             parser.dbVerifier = verifier
                             val parsedQuery = parser.parse(MoreTypes.asDeclared(owner.asType()),
-                                    MoreElements.asExecutable(methods.first()))
+                                    MoreElements.asExecutable(methods.first()), emptySet())
                             handler(parsedQuery, invocation)
                             true
                         }

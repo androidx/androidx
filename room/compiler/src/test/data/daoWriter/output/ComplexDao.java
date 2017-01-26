@@ -24,6 +24,29 @@ public class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
+    public List<ComplexDao.FullName> fullNames(int id) {
+        final String _sql = "SELECT name || lastName as fullName, uid as id FROM user where uid = ?";
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+        int _argIndex = 1;
+        _statement.bindLong(_argIndex, id);
+        final Cursor _cursor = __db.query(_statement);
+        try {
+            final List<ComplexDao.FullName> _result = new ArrayList<ComplexDao.FullName>(_cursor.getCount());
+            while(_cursor.moveToNext()) {
+                final ComplexDao.FullName _item;
+                _item = new ComplexDao.FullName();
+                _item.fullName = _cursor.getString(0);
+                _item.id = _cursor.getInt(1);
+                _result.add(_item);
+            }
+            return _result;
+        } finally {
+            _cursor.close();
+            _statement.release();
+        }
+    }
+
+    @Override
     public User getById(int id) {
         final String _sql = "SELECT * FROM user where uid = ?";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);

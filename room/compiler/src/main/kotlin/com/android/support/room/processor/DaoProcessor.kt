@@ -75,8 +75,11 @@ class DaoProcessor(val context : Context) {
         } else {
             dbVerifier
         }
+
+        val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
+
         val queryMethods = methods[Query::class]?.map {
-            queryProcessor.parse(declaredType, it)
+            queryProcessor.parse(declaredType, it, suppressedWarnings)
         } ?: emptyList()
 
         val insertionMethods = methods[Insert::class]?.map {
@@ -93,10 +96,12 @@ class DaoProcessor(val context : Context) {
         val type = TypeName.get(declaredType)
         context.checker.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES)
+
         return Dao(element = element,
                 type = declaredType,
                 queryMethods = queryMethods,
                 insertionMethods = insertionMethods,
-                deletionMethods = deletionMethods)
+                deletionMethods = deletionMethods,
+                suppressedWarnings = suppressedWarnings)
     }
 }

@@ -21,6 +21,13 @@ import com.android.support.lifecycle.LiveData;
 
 @Dao
 abstract class ComplexDao {
+    static class FullName {
+        public int id;
+        public String fullName;
+    }
+    @Query("SELECT name || lastName as fullName, uid as id FROM user where uid = :id")
+    abstract public List<FullName> fullNames(int id);
+
     @Query("SELECT * FROM user where uid = :id")
     abstract public User getById(int id);
 

@@ -20,8 +20,10 @@ import com.android.support.room.Entity
 import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.hasAnnotation
+import com.android.support.room.parser.ParsedQuery
 import com.android.support.room.parser.Table
 import com.android.support.room.processor.Context
+import com.android.support.room.processor.PojoProcessor
 import com.android.support.room.solver.query.parameter.ArrayQueryParameterAdapter
 import com.android.support.room.solver.query.parameter.BasicQueryParameterAdapter
 import com.android.support.room.solver.query.parameter.CollectionQueryParameterAdapter
@@ -31,6 +33,7 @@ import com.android.support.room.solver.query.result.EntityRowAdapter
 import com.android.support.room.solver.query.result.InstantQueryResultBinder
 import com.android.support.room.solver.query.result.ListQueryResultAdapter
 import com.android.support.room.solver.query.result.LiveDataQueryResultBinder
+import com.android.support.room.solver.query.result.PojoRowAdapter
 import com.android.support.room.solver.query.result.QueryResultAdapter
 import com.android.support.room.solver.query.result.QueryResultBinder
 import com.android.support.room.solver.query.result.RowAdapter
@@ -50,6 +53,8 @@ import com.android.support.room.solver.types.PrimitiveToStringConverter
 import com.android.support.room.solver.types.ReverseTypeConverter
 import com.android.support.room.solver.types.StringColumnTypeAdapter
 import com.android.support.room.solver.types.TypeConverter
+import com.android.support.room.verifier.QueryResultInfo
+import com.android.support.room.vo.Pojo
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
@@ -129,7 +134,7 @@ class TypeAdapterStore(val context: Context,
         return findTypeConverter(input, listOf(output))
     }
 
-    private fun isLiveData(declared : DeclaredType) : Boolean {
+    private fun isLiveData(declared: DeclaredType): Boolean {
         val typeElement = MoreElements.asType(declared.asElement())
         val qName = typeElement.qualifiedName.toString()
         // even though computable live data is internal, we still check for it as we may inherit
@@ -138,50 +143,56 @@ class TypeAdapterStore(val context: Context,
                 qName == LifecyclesTypeNames.LIVE_DATA.toString()
     }
 
-    fun findQueryResultBinder(typeMirror: TypeMirror, tables: Set<Table>): QueryResultBinder {
+    fun findQueryResultBinder(typeMirror: TypeMirror, query: ParsedQuery): QueryResultBinder {
         return if (typeMirror.kind == TypeKind.DECLARED) {
             val declared = MoreTypes.asDeclared(typeMirror)
             if (declared.typeArguments.isEmpty()) {
-                InstantQueryResultBinder(findQueryResultAdapter(typeMirror))
+                InstantQueryResultBinder(findQueryResultAdapter(typeMirror, query))
             } else {
                 if (isLiveData(declared)) {
                     val liveDataTypeArg = declared.typeArguments.first()
-                    LiveDataQueryResultBinder(liveDataTypeArg, tables,
-                            findQueryResultAdapter(liveDataTypeArg))
+                    LiveDataQueryResultBinder(liveDataTypeArg, query.tables,
+                            findQueryResultAdapter(liveDataTypeArg, query))
                 } else {
-                    InstantQueryResultBinder(findQueryResultAdapter(typeMirror))
+                    InstantQueryResultBinder(findQueryResultAdapter(typeMirror, query))
                 }
             }
         } else {
-            InstantQueryResultBinder(findQueryResultAdapter(typeMirror))
+            InstantQueryResultBinder(findQueryResultAdapter(typeMirror, query))
         }
     }
 
-    private fun findQueryResultAdapter(typeMirror: TypeMirror): QueryResultAdapter? {
+    private fun findQueryResultAdapter(typeMirror: TypeMirror, query: ParsedQuery)
+            : QueryResultAdapter? {
         if (typeMirror.kind == TypeKind.DECLARED) {
             val declared = MoreTypes.asDeclared(typeMirror)
             if (declared.typeArguments.isEmpty()) {
-                val rowAdapter = findRowAdapter(typeMirror) ?: return null
+                val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
                 return SingleEntityQueryResultAdapter(rowAdapter)
             }
-            // TODO make this flexible so that things like LiveData, Rx can work
             if (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)) {
                 val typeArg = declared.typeArguments.first()
-                val rowAdapter = findRowAdapter(typeArg) ?: return null
+                val rowAdapter = findRowAdapter(typeArg, query) ?: return null
                 return ListQueryResultAdapter(rowAdapter)
             }
             return null
         } else if (typeMirror.kind == TypeKind.ARRAY) {
             val array = MoreTypes.asArray(typeMirror)
-            val rowAdapter = findRowAdapter(array.componentType) ?: return null
+            val rowAdapter =
+                    findRowAdapter(array.componentType, query) ?: return null
             return ArrayQueryResultAdapter(rowAdapter)
         } else {
-            val rowAdapter = findRowAdapter(typeMirror) ?: return null
+            val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
             return SingleEntityQueryResultAdapter(rowAdapter)
         }
     }
 
-    private fun findRowAdapter(typeMirror: TypeMirror): RowAdapter? {
+    /**
+     * Find a converter from cursor to the given type mirror.
+     * If there is information about the query result, we try to use it to accept *any* POJO.
+     */
+    @VisibleForTesting
+    fun findRowAdapter(typeMirror: TypeMirror, query: ParsedQuery): RowAdapter? {
         if (typeMirror.kind == TypeKind.DECLARED) {
             val declared = MoreTypes.asDeclared(typeMirror)
             if (declared.typeArguments.isNotEmpty()) {
@@ -192,13 +203,21 @@ class TypeAdapterStore(val context: Context,
             if (asElement.hasAnnotation(Entity::class)) {
                 return EntityRowAdapter(typeMirror)
             }
-            val singleColumn = findColumnTypeAdapter(typeMirror)
-
-            if (singleColumn != null) {
-                return SingleColumnRowAdapter(singleColumn)
+            // if result is unknown, we are fine w/ single column result
+            val resultInfo = query.resultInfo
+            if ((resultInfo?.columns?.size ?: 1) == 1) {
+                val singleColumn = findColumnTypeAdapter(typeMirror)
+                if (singleColumn != null) {
+                    return SingleColumnRowAdapter(singleColumn)
+                }
             }
-            // TODO we can allow any class actually but need a proper API for that to avoid false
-            // positives
+            if (resultInfo != null) {
+                val pojo = PojoProcessor(context).parse(MoreTypes.asTypeElement(typeMirror))
+                return PojoRowAdapter(
+                        info = resultInfo,
+                        pojo = pojo,
+                        out = typeMirror)
+            }
             return null
         } else {
             val singleColumn = findColumnTypeAdapter(typeMirror) ?: return null

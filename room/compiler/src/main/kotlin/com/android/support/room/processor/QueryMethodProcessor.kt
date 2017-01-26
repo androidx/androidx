@@ -26,6 +26,7 @@ import com.android.support.room.solver.query.result.LiveDataQueryResultBinder
 import com.android.support.room.verifier.DatabaseVerificaitonErrors
 import com.android.support.room.verifier.DatabaseVerifier
 import com.android.support.room.vo.QueryMethod
+import com.android.support.room.vo.QueryParameter
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -37,9 +38,10 @@ import javax.lang.model.type.TypeKind
 class QueryMethodProcessor(val context: Context) {
     val parameterParser = QueryParameterProcessor(context)
     // not enforced
-    var dbVerifier : DatabaseVerifier? = null
+    var dbVerifier: DatabaseVerifier? = null
 
-    fun parse(containing: DeclaredType, executableElement: ExecutableElement): QueryMethod {
+    fun parse(containing: DeclaredType, executableElement: ExecutableElement,
+              inheritedSuppressedWarnings: Set<String>): QueryMethod {
         val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
         val executableType = MoreTypes.asExecutable(asMember)
 
@@ -80,14 +82,19 @@ class QueryMethodProcessor(val context: Context) {
                     ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
             )
         }
-
+        val suppressedWarnings = inheritedSuppressedWarnings +
+                SuppressWarningProcessor.getSuppressedWarnings(executableElement)
         val resultBinder = context.typeAdapterStore
-                .findQueryResultBinder(executableType.returnType, query.tables)
+                .findQueryResultBinder(executableType.returnType, query)
         context.checker.check(resultBinder.adapter != null || query.type != QueryType.SELECT,
                 executableElement, ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
         if (resultBinder is LiveDataQueryResultBinder) {
             context.checker.check(query.type == QueryType.SELECT, executableElement,
                     ProcessorErrors.LIVE_DATA_QUERY_WITHOUT_SELECT)
+        }
+        // report adapter errors only if query makes sense or verification is off.
+        if (query.resultInfo?.error == null) {
+            resultBinder.reportErrors(context, executableElement, suppressedWarnings)
         }
 
         val queryMethod = QueryMethod(
@@ -97,7 +104,8 @@ class QueryMethodProcessor(val context: Context) {
                 returnType = executableType.returnType,
                 parameters = executableElement.parameters
                         .map { parameterParser.parse(containing, it) },
-                queryResultBinder = resultBinder)
+                queryResultBinder = resultBinder,
+                suppressedWarnings = suppressedWarnings)
 
         val missing = queryMethod.sectionToParamMapping
                 .filter { it.second == null }
@@ -109,7 +117,8 @@ class QueryMethodProcessor(val context: Context) {
 
         val unused = queryMethod.parameters.filterNot { param ->
             queryMethod.sectionToParamMapping.any { it.second == param }
-        }.map { it.name }
+        }.map(QueryParameter::name)
+
         if (unused.isNotEmpty()) {
             context.logger.w(executableElement,
                     ProcessorErrors.unusedQueryMethodParameter(unused))

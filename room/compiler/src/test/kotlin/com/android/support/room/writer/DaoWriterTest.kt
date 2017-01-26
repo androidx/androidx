@@ -22,6 +22,7 @@ import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaSourcesSubjectFactory
+import createVerifierFromEntities
 import loadJavaCode
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,6 +70,7 @@ class DaoWriterTest {
                                             com.android.support.room.Dao::class.java)
                                     .first()
                             val parser = DaoProcessor(invocation.context)
+                            parser.dbVerifier = createVerifierFromEntities(invocation)
                             val parsedDao = parser.parse(MoreElements.asType(dao))
                             DaoWriter(parsedDao).write(invocation.processingEnv)
                             true

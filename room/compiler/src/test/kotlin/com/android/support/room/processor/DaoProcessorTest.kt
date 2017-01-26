@@ -17,6 +17,8 @@
 package com.android.support.room.processor
 
 import COMMON
+import com.android.support.room.Room
+import com.android.support.room.RoomWarnings
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.vo.Dao
@@ -133,6 +135,39 @@ class DaoProcessorTest(val enableVerification : Boolean) {
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
             assertThat(method.name, `is`("getIds"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun suppressedWarnings() {
+        singleDao("""
+            @SuppressWarnings({"ALL", RoomWarnings.CURSOR_MISMATCH})
+            @Dao interface MyDao {
+                @Query("SELECT * from user")
+                abstract User users();
+            }
+            """) { dao, invocation ->
+            assertThat(dao.suppressedWarnings, `is`(setOf("ALL", RoomWarnings.CURSOR_MISMATCH)))
+            dao.queryMethods.forEach {
+                assertThat(it.suppressedWarnings, `is`(setOf("ALL", RoomWarnings.CURSOR_MISMATCH)))
+            }
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun suppressedWarningsInheritance() {
+        singleDao("""
+            @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+            @Dao interface MyDao {
+                @SuppressWarnings("ALL")
+                @Query("SELECT * from user")
+                abstract User users();
+            }
+            """) { dao, invocation ->
+            assertThat(dao.suppressedWarnings, `is`(setOf(RoomWarnings.CURSOR_MISMATCH)))
+            dao.queryMethods.forEach {
+                assertThat(it.suppressedWarnings, `is`(setOf("ALL", RoomWarnings.CURSOR_MISMATCH)))
+            }
         }.compilesWithoutError()
     }
 

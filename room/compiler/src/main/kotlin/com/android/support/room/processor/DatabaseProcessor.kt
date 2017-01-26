@@ -81,7 +81,8 @@ class DatabaseProcessor(val context: Context) {
         val database = Database(element = element,
                 type = MoreElements.asType(element).asType(),
                 entities = entities,
-                daoMethods = daoMethods)
+                daoMethods = daoMethods,
+                suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element))
         return database
     }
 
@@ -139,9 +140,9 @@ class DatabaseProcessor(val context: Context) {
     private val TO_LIST_OF_TYPES = object
         : SimpleAnnotationValueVisitor6<List<TypeMirror>, String>() {
 
-        override fun visitArray(vals: List<AnnotationValue>, elementName: String)
+        override fun visitArray(values: List<AnnotationValue>, elementName: String)
                 : List<TypeMirror> {
-            return vals.map {
+            return values.map {
                 val tmp = TO_TYPE.visit(it)
                 tmp
             }

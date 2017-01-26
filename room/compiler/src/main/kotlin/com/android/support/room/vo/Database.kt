@@ -26,7 +26,8 @@ import javax.lang.model.type.TypeMirror
 data class Database(val element : Element,
                     val type : TypeMirror,
                     val entities : List<Entity>,
-                    val daoMethods : List<DaoMethod>) {
+                    val daoMethods : List<DaoMethod>,
+                    val suppressedWarnings : Set<String> = emptySet()) {
     val typeName by lazy { ClassName.get(type) as ClassName }
 
     val implClassName by lazy {
