@@ -1534,6 +1534,8 @@ package android.support.transition {
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
     method public int getOrdering();
+    method public android.support.transition.Transition getTransitionAt(int);
+    method public int getTransitionCount();
     method public android.support.transition.TransitionSet removeTransition(android.support.transition.Transition);
     method public android.support.transition.TransitionSet setOrdering(int);
     field public static final int ORDERING_SEQUENTIAL = 1; // 0x1
