@@ -488,6 +488,15 @@ public class TransitionSet extends Transition {
         }
     }
 
+    @Override
+    void capturePropagationValues(TransitionValues transitionValues) {
+        super.capturePropagationValues(transitionValues);
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; ++i) {
+            mTransitions.get(i).capturePropagationValues(transitionValues);
+        }
+    }
+
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @Override
@@ -537,6 +546,15 @@ public class TransitionSet extends Transition {
         int numTransitions = mTransitions.size();
         for (int i = 0; i < numTransitions; ++i) {
             mTransitions.get(i).setCanRemoveViews(canRemoveViews);
+        }
+    }
+
+    @Override
+    public void setEpicenterCallback(EpicenterCallback epicenterCallback) {
+        super.setEpicenterCallback(epicenterCallback);
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; ++i) {
+            mTransitions.get(i).setEpicenterCallback(epicenterCallback);
         }
     }
 

@@ -22,7 +22,6 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
-@SuppressWarnings("unchecked")
 @RunWith(AndroidJUnit4.class)
 public abstract class BaseTest {
 
@@ -30,7 +29,7 @@ public abstract class BaseTest {
     public final ActivityTestRule<TransitionActivity> rule;
 
     BaseTest() {
-        rule = new ActivityTestRule(TransitionActivity.class);
+        rule = new ActivityTestRule<>(TransitionActivity.class);
     }
 
 }
