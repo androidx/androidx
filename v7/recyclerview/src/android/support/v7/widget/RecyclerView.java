@@ -3000,7 +3000,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // custom onMeasure
             if (mAdapterUpdateDuringMeasure) {
                 eatRequestLayout();
+                onEnterLayoutOrScroll();
                 processAdapterUpdatesAndSetAnimationFlags();
+                onExitLayoutOrScroll();
 
                 if (mState.mRunPredictiveAnimations) {
                     mState.mInPreLayout = true;
