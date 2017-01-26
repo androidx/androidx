@@ -16,29 +16,62 @@
 
 package android.support.transition;
 
+
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.transition.test.R;
+import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
 @MediumTest
 public class TransitionTest extends BaseTest {
+
+    private Scene[] mScenes = new Scene[2];
+    private View[] mViews = new View[3];
+
+    @Before
+    public void prepareScenes() {
+        TransitionActivity activity = rule.getActivity();
+        ViewGroup root = activity.getRoot();
+        mScenes[0] = Scene.getSceneForLayout(root, R.layout.scene0, activity);
+        mScenes[1] = Scene.getSceneForLayout(root, R.layout.scene1, activity);
+    }
+
+    @Test
+    public void testName() {
+        Transition transition = new EmptyTransition();
+        assertThat(transition.getName(),
+                is(equalTo("android.support.transition.TransitionTest$EmptyTransition")));
+    }
 
     @Test
     public void testDuration() {
@@ -82,7 +115,7 @@ public class TransitionTest extends BaseTest {
 
     @Test
     @UiThreadTest
-    public void testTargets() {
+    public void testTargetView() {
         // Set up views
         TransitionActivity activity = rule.getActivity();
         ViewGroup root = activity.getRoot();
@@ -106,11 +139,177 @@ public class TransitionTest extends BaseTest {
     }
 
     @Test
+    public void testTargetName() {
+        Transition transition = new EmptyTransition();
+        assertThat(transition.addTarget("a"), is(sameInstance(transition)));
+        assertThat(transition.addTarget("b"), is(sameInstance(transition)));
+        List<String> targetNames = transition.getTargetNames();
+        assertNotNull(targetNames);
+        assertThat(targetNames.size(), is(2));
+        assertThat(targetNames, hasItem("a"));
+        assertThat(targetNames, hasItem("b"));
+        transition.removeTarget("a");
+        assertThat(targetNames.size(), is(1));
+        assertThat(targetNames, not(hasItem("a")));
+        assertThat(targetNames, hasItem("b"));
+    }
+
+    @Test
+    public void testTargetType() {
+        Transition transition = new EmptyTransition();
+        assertThat(transition.addTarget(Button.class), is(sameInstance(transition)));
+        assertThat(transition.addTarget(ImageView.class), is(sameInstance(transition)));
+        List<Class> targetTypes = transition.getTargetTypes();
+        assertNotNull(targetTypes);
+        assertThat(targetTypes.size(), is(2));
+        assertThat(targetTypes, hasItem(Button.class));
+        assertThat(targetTypes, hasItem(ImageView.class));
+        transition.removeTarget(Button.class);
+        assertThat(targetTypes.size(), is(1));
+        assertThat(targetTypes, not(hasItem(Button.class)));
+        assertThat(targetTypes, hasItem(ImageView.class));
+    }
+
+    @Test
+    public void testExcludeTargetId() throws Throwable {
+        showInitialScene();
+        Transition transition = new EmptyTransition();
+        transition.addTarget(R.id.view0);
+        transition.addTarget(R.id.view1);
+        View view0 = rule.getActivity().findViewById(R.id.view0);
+        View view1 = rule.getActivity().findViewById(R.id.view1);
+        assertThat(transition.isValidTarget(view0), is(true));
+        assertThat(transition.isValidTarget(view1), is(true));
+        transition.excludeTarget(R.id.view0, true);
+        assertThat(transition.isValidTarget(view0), is(false));
+        assertThat(transition.isValidTarget(view1), is(true));
+    }
+
+    @Test
+    public void testExcludeTargetView() throws Throwable {
+        showInitialScene();
+        Transition transition = new EmptyTransition();
+        View view0 = rule.getActivity().findViewById(R.id.view0);
+        View view1 = rule.getActivity().findViewById(R.id.view1);
+        transition.addTarget(view0);
+        transition.addTarget(view1);
+        assertThat(transition.isValidTarget(view0), is(true));
+        assertThat(transition.isValidTarget(view1), is(true));
+        transition.excludeTarget(view0, true);
+        assertThat(transition.isValidTarget(view0), is(false));
+        assertThat(transition.isValidTarget(view1), is(true));
+    }
+
+    @Test
+    public void testExcludeTargetName() throws Throwable {
+        showInitialScene();
+        Transition transition = new EmptyTransition();
+        View view0 = rule.getActivity().findViewById(R.id.view0);
+        View view1 = rule.getActivity().findViewById(R.id.view1);
+        ViewCompat.setTransitionName(view0, "zero");
+        ViewCompat.setTransitionName(view1, "one");
+        transition.addTarget("zero");
+        transition.addTarget("one");
+        assertThat(transition.isValidTarget(view0), is(true));
+        assertThat(transition.isValidTarget(view1), is(true));
+        transition.excludeTarget("zero", true);
+        assertThat(transition.isValidTarget(view0), is(false));
+        assertThat(transition.isValidTarget(view1), is(true));
+    }
+
+    @Test
+    public void testExcludeTargetType() throws Throwable {
+        showInitialScene();
+        Transition transition = new EmptyTransition();
+        FrameLayout container = (FrameLayout) rule.getActivity().findViewById(R.id.container);
+        View view0 = rule.getActivity().findViewById(R.id.view0);
+        transition.addTarget(View.class);
+        assertThat(transition.isValidTarget(container), is(true));
+        assertThat(transition.isValidTarget(view0), is(true));
+        transition.excludeTarget(FrameLayout.class, true);
+        assertThat(transition.isValidTarget(container), is(false));
+        assertThat(transition.isValidTarget(view0), is(true));
+    }
+
+    @Test
     public void testListener() {
         Transition transition = new EmptyTransition();
         Transition.TransitionListener listener = new EmptyTransitionListener();
         assertThat(transition.addListener(listener), is(sameInstance(transition)));
         assertThat(transition.removeListener(listener), is(sameInstance(transition)));
+    }
+
+    @Test
+    public void testMatchOrder() throws Throwable {
+        showInitialScene();
+        final Transition transition = new ChangeBounds() {
+            @Nullable
+            @Override
+            public Animator createAnimator(@NonNull ViewGroup sceneRoot,
+                    @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
+                if (startValues != null && endValues != null) {
+                    fail("Match by View ID should be prevented");
+                }
+                return super.createAnimator(sceneRoot, startValues, endValues);
+            }
+        };
+        transition.setDuration(0);
+        // This prevents matches between start and end scenes because they have different set of
+        // View instances. They will be regarded as independent views even though they share the
+        // same View IDs.
+        transition.setMatchOrder(Transition.MATCH_INSTANCE);
+        SyncRunnable enter1 = new SyncRunnable();
+        mScenes[1].setEnterAction(enter1);
+        goToScene(mScenes[1], transition);
+        if (!enter1.await()) {
+            fail("Timed out while waiting for scene change");
+        }
+    }
+
+    @Test
+    public void testExcludedTransitionAnimator() throws Throwable {
+        showInitialScene();
+        final Animator.AnimatorListener animatorListener = mock(Animator.AnimatorListener.class);
+        final DummyTransition transition = new DummyTransition(animatorListener);
+        final SyncTransitionListener transitionListener = new SyncTransitionListener(
+                SyncTransitionListener.EVENT_END);
+        transition.addListener(transitionListener);
+        transition.addTarget(mViews[0]);
+        transition.excludeTarget(mViews[0], true);
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.beginDelayedTransition(rule.getActivity().getRoot(), transition);
+                mViews[0].setTranslationX(3.f);
+            }
+        });
+        if (!transitionListener.await()) {
+            fail("Timed out waiting for the TransitionListener");
+        }
+        verify(animatorListener, never()).onAnimationStart(any(Animator.class));
+    }
+
+    private void showInitialScene() throws Throwable {
+        SyncRunnable enter0 = new SyncRunnable();
+        mScenes[0].setEnterAction(enter0);
+        AutoTransition transition1 = new AutoTransition();
+        transition1.setDuration(0);
+        goToScene(mScenes[0], transition1);
+        if (!enter0.await()) {
+            fail("Timed out while waiting for scene change");
+        }
+        mViews[0] = rule.getActivity().findViewById(R.id.view0);
+        mViews[1] = rule.getActivity().findViewById(R.id.view1);
+        mViews[2] = rule.getActivity().findViewById(R.id.view2);
+    }
+
+    private void goToScene(final Scene scene, final Transition transition) throws Throwable {
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.go(scene, transition);
+            }
+        });
     }
 
     public static class EmptyTransition extends Transition {
@@ -121,8 +320,9 @@ public class TransitionTest extends BaseTest {
         public void captureStartValues(@NonNull TransitionValues transitionValues) {
         }
 
-        public Animator createAnimator(@NonNull ViewGroup sceneRoot, TransitionValues startValues,
-                TransitionValues endValues) {
+        public Animator createAnimator(@NonNull ViewGroup sceneRoot,
+                @Nullable TransitionValues startValues,
+                @Nullable TransitionValues endValues) {
             return null;
         }
 
@@ -147,4 +347,38 @@ public class TransitionTest extends BaseTest {
 
     }
 
+    /**
+     * A dummy transition for monitoring use of its animator by the Transition framework.
+     */
+    private static class DummyTransition extends Transition {
+
+        private final Animator.AnimatorListener mListener;
+
+        DummyTransition(Animator.AnimatorListener listener) {
+            mListener = listener;
+        }
+
+        @Override
+        public void captureStartValues(@NonNull TransitionValues transitionValues) {
+            transitionValues.values.put("state", 1);
+        }
+
+        @Override
+        public void captureEndValues(@NonNull TransitionValues transitionValues) {
+            transitionValues.values.put("state", 2);
+        }
+
+        @Override
+        public Animator createAnimator(@NonNull ViewGroup sceneRoot, TransitionValues startValues,
+                TransitionValues endValues) {
+            if (startValues == null || endValues == null) {
+                return null;
+            }
+            final ObjectAnimator animator = ObjectAnimator
+                    .ofFloat(startValues.view, "translationX", 1.f, 2.f);
+            animator.addListener(mListener);
+            return animator;
+        }
+
+    }
 }

@@ -18,6 +18,7 @@ package android.support.transition;
 
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,6 +51,11 @@ public class TransitionValues {
      * The View with these values
      */
     public View view;
+
+    /**
+     * The Transitions that targeted this view.
+     */
+    final ArrayList<Transition> mTargetedTransitions = new ArrayList<>();
 
     @Override
     public boolean equals(Object other) {
