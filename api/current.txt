@@ -5850,7 +5850,8 @@ package android.support.v4.app {
   }
 
   public static class NotificationCompat.Builder {
-    ctor public NotificationCompat.Builder(android.content.Context);
+    ctor public NotificationCompat.Builder(android.content.Context, java.lang.String);
+    ctor public deprecated NotificationCompat.Builder(android.content.Context);
     method public android.support.v4.app.NotificationCompat.Builder addAction(int, java.lang.CharSequence, android.app.PendingIntent);
     method public android.support.v4.app.NotificationCompat.Builder addAction(android.support.v4.app.NotificationCompat.Action);
     method public android.support.v4.app.NotificationCompat.Builder addExtras(android.os.Bundle);

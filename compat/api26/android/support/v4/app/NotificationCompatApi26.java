@@ -43,7 +43,7 @@ class NotificationCompatApi26 {
                 String sortKey, CharSequence[] remoteInputHistory, RemoteViews contentView,
                 RemoteViews bigContentView, RemoteViews headsUpContentView,
                 String channelId) {
-            mB = new Notification.Builder(context)
+            mB = new Notification.Builder(context, channelId)
                     .setWhen(n.when)
                     .setShowWhen(showWhen)
                     .setSmallIcon(n.icon, n.iconLevel)
@@ -78,8 +78,7 @@ class NotificationCompatApi26 {
                     .setColor(color)
                     .setVisibility(visibility)
                     .setPublicVersion(publicVersion)
-                    .setRemoteInputHistory(remoteInputHistory)
-                    .setChannel(channelId);
+                    .setRemoteInputHistory(remoteInputHistory);
             if (contentView != null) {
                 mB.setCustomContentView(contentView);
             }
