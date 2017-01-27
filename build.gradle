@@ -163,6 +163,7 @@ task(createXml) << {
     Files.write(xml, new File(project.ext.distDir, 'repo-extras.xml'), Charsets.UTF_8)
 }
 createArchive.dependsOn createXml
+createXml.dependsOn createRepository
 
 task(createSourceProp) << {
     def sourceProp =
