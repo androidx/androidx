@@ -29,12 +29,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.util.List;
+
 @MediumTest
 @RunWith(Parameterized.class)
 public class RetainedStateProviderTest extends BaseStateProviderTest<RetainedStateProvider> {
 
-    public RetainedStateProviderTest() {
-        super(false);
+    public RetainedStateProviderTest(String testVariant) {
+        super(testVariant, false);
+    }
+
+    @Parameterized.Parameters
+    public static List<Object[]> params() {
+        return paramsNames;
     }
 
     @Test

@@ -26,9 +26,9 @@ import com.android.support.lifecycle.testapp.MainActivity;
 import com.android.support.lifecycle.testapp.R;
 
 import org.junit.Rule;
-import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
+import java.util.List;
 
 abstract class BaseStateProviderTest<T> {
 
@@ -37,26 +37,22 @@ abstract class BaseStateProviderTest<T> {
         FRAGMENT
     }
 
-    @Parameterized.Parameters
-    public static Iterable<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {TestVariant.ACTIVITY},
-                {TestVariant.FRAGMENT}
-        });
-    }
+    public static List<Object[]> paramsNames = Arrays.asList(
+            new Object[] {TestVariant.ACTIVITY.name()},
+            new Object[] {TestVariant.FRAGMENT.name()});
 
     @Rule
     public ActivityTestRule<MainActivity> activityTestRule =
             new ActivityTestRule<>(MainActivity.class);
 
     @SuppressWarnings("WeakerAccess")
-    @Parameterized.Parameter
-    public TestVariant mTestVariant;
+    protected TestVariant mTestVariant;
 
     private boolean mForceRecreation;
 
-    BaseStateProviderTest(boolean mForceRecreation) {
+    BaseStateProviderTest(String testVariant, boolean mForceRecreation) {
         this.mForceRecreation = mForceRecreation;
+        mTestVariant = TestVariant.valueOf(testVariant);
     }
 
     private MainActivity getActivity() {
