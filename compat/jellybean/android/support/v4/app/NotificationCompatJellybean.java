@@ -380,6 +380,11 @@ class NotificationCompatJellybean {
     private static NotificationCompatBase.Action getActionFromBundle(Bundle bundle,
             NotificationCompatBase.Action.Factory actionFactory,
             RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
+        Bundle extras = bundle.getBundle(KEY_EXTRAS);
+        boolean allowGeneratedReplies = false;
+        if (extras != null) {
+            allowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES, false);
+        }
         return actionFactory.build(
                 bundle.getInt(KEY_ICON),
                 bundle.getCharSequence(KEY_TITLE),
@@ -387,7 +392,7 @@ class NotificationCompatJellybean {
                 bundle.getBundle(KEY_EXTRAS),
                 RemoteInputCompatJellybean.fromBundleArray(
                         BundleUtil.getBundleArrayFromBundle(bundle, KEY_REMOTE_INPUTS),
-                        remoteInputFactory), bundle.getBoolean(KEY_ALLOW_GENERATED_REPLIES));
+                        remoteInputFactory), allowGeneratedReplies);
     }
 
     public static ArrayList<Parcelable> getParcelableArrayListForActions(
