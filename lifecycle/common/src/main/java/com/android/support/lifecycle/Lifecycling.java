@@ -16,6 +16,7 @@
 
 package com.android.support.lifecycle;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.lang.reflect.Constructor;
@@ -32,7 +33,7 @@ class Lifecycling {
     static {
         try {
             sREFLECTIVE = ReflectiveGenericLifecycleObserver.class.getConstructor(Object.class);
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException ignored) {
 
         }
     }
@@ -40,10 +41,12 @@ class Lifecycling {
     private static Map<Class, Constructor<? extends GenericLifecycleObserver>> sCallbackCache =
             new HashMap<>();
 
+    @NonNull
     static GenericLifecycleObserver getCallback(Object object) {
         if (object instanceof GenericLifecycleObserver) {
             return (GenericLifecycleObserver) object;
         }
+        //noinspection TryWithIdenticalCatches
         try {
             final Class<?> klass = object.getClass();
             Constructor<? extends GenericLifecycleObserver> cachedConstructor = sCallbackCache.get(

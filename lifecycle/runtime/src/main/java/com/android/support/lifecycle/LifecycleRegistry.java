@@ -17,9 +17,10 @@
 package com.android.support.lifecycle;
 
 import android.support.annotation.NonNull;
-import android.support.v4.util.Pair;
 
-import com.android.support.apptoolkit.internal.ObserverSet;
+import com.android.support.apptoolkit.internal.SafeIterableMap;
+
+import java.util.Map;
 
 /**
  * An implementation of {@link Lifecycle} that can handle multiple observers.
@@ -32,15 +33,8 @@ public class LifecycleRegistry implements Lifecycle {
     /**
      * Custom list that keeps observers and can handle removals / additions during traversal.
      */
-    private ObserverSet<Pair<LifecycleObserver, GenericLifecycleObserver>> mObserverSet =
-            new ObserverSet<Pair<LifecycleObserver, GenericLifecycleObserver>>() {
-                @Override
-                protected boolean checkEquality(Pair<LifecycleObserver, GenericLifecycleObserver>
-                        existing, Pair<LifecycleObserver, GenericLifecycleObserver> added) {
-                    return existing.first == added.first;
-                }
-            };
-
+    private SafeIterableMap<LifecycleObserver, GenericLifecycleObserver> mObserverSet =
+            new SafeIterableMap<>();
     /**
      * Current state
      */
@@ -56,16 +50,6 @@ public class LifecycleRegistry implements Lifecycle {
      * The provider that owns this Lifecycle.
      */
     private final LifecycleProvider mLifecycleProvider;
-
-
-    private final ObserverSet.Callback<Pair<LifecycleObserver, GenericLifecycleObserver>>
-            mDispatchCallback =
-            new ObserverSet.Callback<Pair<LifecycleObserver, GenericLifecycleObserver>>() {
-                @Override
-                public void run(Pair<LifecycleObserver, GenericLifecycleObserver> pair) {
-                    pair.second.onStateChanged(mLifecycleProvider, mLastEvent);
-                }
-            };
 
     /**
      * Creates a new LifecycleRegistry for the given provider.
@@ -95,17 +79,19 @@ public class LifecycleRegistry implements Lifecycle {
         mLastEvent = event;
         // TODO fake intermediate events
         mState = getStateAfter(event);
-        mObserverSet.forEach(mDispatchCallback);
+        for (Map.Entry<LifecycleObserver, GenericLifecycleObserver> entry: mObserverSet) {
+            entry.getValue().onStateChanged(mLifecycleProvider, mLastEvent);
+        }
     }
 
     @Override
     public void addObserver(LifecycleObserver observer) {
-        mObserverSet.add(new Pair<>(observer, Lifecycling.getCallback(observer)));
+        mObserverSet.putIfAbsent(observer, Lifecycling.getCallback(observer));
     }
 
     @Override
     public void removeObserver(LifecycleObserver observer) {
-        mObserverSet.remove(new Pair<>(observer, (GenericLifecycleObserver) null));
+        mObserverSet.remove(observer);
     }
 
     /**
