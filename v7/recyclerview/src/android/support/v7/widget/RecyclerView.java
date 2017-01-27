@@ -152,6 +152,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     static final boolean DEBUG = false;
 
+    static final boolean VERBOSE_TRACING = false;
+
     private static final int[]  NESTED_SCROLLING_ATTRS =
             {16843830 /* android.R.attr.nestedScrollingEnabled */};
 
@@ -700,7 +702,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
             @Override
             public void addView(View child, int index) {
+                if (VERBOSE_TRACING) {
+                    TraceCompat.beginSection("RV addView");
+                }
                 RecyclerView.this.addView(child, index);
+                if (VERBOSE_TRACING) {
+                    TraceCompat.endSection();
+                }
                 dispatchChildAttached(child);
             }
 
@@ -715,7 +723,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (child != null) {
                     dispatchChildDetached(child);
                 }
+                if (VERBOSE_TRACING) {
+                    TraceCompat.beginSection("RV removeViewAt");
+                }
                 RecyclerView.this.removeViewAt(index);
+                if (VERBOSE_TRACING) {
+                    TraceCompat.endSection();
+                }
             }
 
             @Override
