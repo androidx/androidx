@@ -36,6 +36,9 @@ dependencies {
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-core:$mockito_version"
 
+    androidTestCompile("com.android.support.test:runner:$atsl_version") {
+        exclude module: 'support-annotations'
+    }
     androidTestCompile "com.android.support:appcompat-v7:$support_lib_version"
     androidTestCompile("com.android.support.test.espresso:espresso-core:$espresso_version", {
         exclude group: 'com.android.support', module: 'support-annotations'

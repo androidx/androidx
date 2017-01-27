@@ -48,6 +48,9 @@ dependencies {
     annotationProcessor project(":room:compiler")
     androidTestAnnotationProcessor project(":room:compiler")
 
+    androidTestCompile("com.android.support.test:runner:$atsl_version") {
+        exclude module: 'support-annotations'
+    }
     androidTestCompile("com.android.support.test.espresso:espresso-core:$espresso_version", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
