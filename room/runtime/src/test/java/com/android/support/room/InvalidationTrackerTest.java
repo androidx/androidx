@@ -83,13 +83,13 @@ public class InvalidationTrackerTest {
         InvalidationTracker.Observer observer = new LatchObserver(1, "a");
         mTracker.addObserver(observer);
         drainTasks();
-        assertThat(mTracker.mObserverSet.size(), is(1));
+        assertThat(mTracker.mObserverMap.size(), is(1));
         mTracker.removeObserver(new LatchObserver(1, "a"));
         drainTasks();
-        assertThat(mTracker.mObserverSet.size(), is(1));
+        assertThat(mTracker.mObserverMap.size(), is(1));
         mTracker.removeObserver(observer);
         drainTasks();
-        assertThat(mTracker.mObserverSet.size(), is(0));
+        assertThat(mTracker.mObserverMap.size(), is(0));
     }
 
     private void drainTasks() throws InterruptedException {
