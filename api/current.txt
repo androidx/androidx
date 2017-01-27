@@ -5592,6 +5592,29 @@ package android.support.v4.content.pm {
     field public static final int CONFIG_UI_MODE = 512; // 0x200
   }
 
+  public class ShortcutInfoCompat {
+  }
+
+  public static class ShortcutInfoCompat.Builder {
+    ctor public ShortcutInfoCompat.Builder(android.content.Context, java.lang.String);
+    method public android.support.v4.content.pm.ShortcutInfoCompat build();
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setActivity(android.content.ComponentName);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setDisabledMessage(java.lang.CharSequence);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(android.graphics.Bitmap);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(int);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIntents(android.content.Intent[]);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setLongLabel(java.lang.CharSequence);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setShortLabel(java.lang.CharSequence);
+  }
+
+  public class ShortcutManagerCompat {
+    ctor public ShortcutManagerCompat();
+    method public static android.content.Intent createShortcutResultIntent(android.content.Context, android.support.v4.content.pm.ShortcutInfoCompat);
+    method public static boolean isRequestPinShortcutSupported(android.content.Context);
+    method public static boolean requestPinShortcut(android.content.Context, android.support.v4.content.pm.ShortcutInfoCompat, android.content.IntentSender);
+  }
+
 }
 
 package android.support.v4.content.res {
