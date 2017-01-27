@@ -16,9 +16,14 @@
 package android.support.v17.leanback.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.widget.RecyclerView;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +35,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class SingleRowTest extends GridTest {
 
-    SingleRow mSingleRow;
+    private SingleRow mSingleRow;
 
     @Test
     public void testAppendPrependRemove() {
@@ -160,5 +165,98 @@ public class SingleRowTest extends GridTest {
 
         mSingleRow.prependVisibleItems(0);
         assertEquals(dump(mSingleRow) + " Should not prepend 0", 1, mSingleRow.mFirstVisibleIndex);
+    }
+
+    public void validatePrefetch(int fromLimit, int delta, Integer[]... positionData) {
+        // duplicates logic in support.v7.widget.CacheUtils#verifyPositionsPrefetched
+        RecyclerView.LayoutManager.LayoutPrefetchRegistry registry
+                = mock(RecyclerView.LayoutManager.LayoutPrefetchRegistry.class);
+        mSingleRow.collectAdjacentPrefetchPositions(fromLimit, delta, registry);
+
+        verify(registry, times(positionData.length)).addPosition(anyInt(), anyInt());
+        for (Integer[] aPositionData : positionData) {
+            verify(registry).addPosition(aPositionData[0], aPositionData[1]);
+        }
+    }
+
+    @Test
+    public void testPrefetchBounds() {
+        mProvider = new Provider(new int[]{100, 100});
+
+        mSingleRow = new SingleRow();
+        mSingleRow.setSpacing(20);
+        mSingleRow.setProvider(mProvider);
+        mSingleRow.appendVisibleItems(150);
+
+        validatePrefetch(0, -10);
+        validatePrefetch(-150, 10);
+    }
+
+    @Test
+    public void testPrefetchBoundsReversed() {
+        mProvider = new Provider(new int[]{100, 100});
+
+        mSingleRow = new SingleRow();
+        mSingleRow.setSpacing(20);
+        mSingleRow.setProvider(mProvider);
+        mSingleRow.setReversedFlow(true);
+        mSingleRow.appendVisibleItems(-150);
+
+        validatePrefetch(0, -10);
+        validatePrefetch(150, 10);
+    }
+
+    @Test
+    public void testPrefetchItems() {
+        mProvider = new Provider(new int[]{80, 80, 30, 100, 40, 10});
+
+        mSingleRow = new SingleRow();
+        mSingleRow.setSpacing(20);
+        mSingleRow.setProvider(mProvider);
+        mSingleRow.appendVisibleItems(200);
+
+        // next item, 2, is 0 pixels away
+        validatePrefetch(200, 10, new Integer[] {2, 0});
+
+        // nothing above
+        validatePrefetch(0, -10);
+
+        mProvider.scroll(90);
+        mSingleRow.removeInvisibleItemsAtFront(Integer.MAX_VALUE, 0);
+        mSingleRow.appendVisibleItems(200);
+
+        // next item, 4, is 80 pixels away
+        validatePrefetch(200, 10, new Integer[] {4, 80});
+
+        // next item, 0, is 10 pixels away
+        validatePrefetch(0, -10, new Integer[] {0, 10});
+    }
+
+    @Test
+    public void testPrefetchItemsReversed() {
+        mProvider = new Provider(new int[]{80, 80, 30, 100, 40, 10});
+
+        mSingleRow = new SingleRow();
+        mSingleRow.setSpacing(20);
+        mSingleRow.setProvider(mProvider);
+        mSingleRow.setReversedFlow(true);
+        mSingleRow.appendVisibleItems(-200);
+
+        // next item, 2, is 0 pixels away
+        validatePrefetch(-200, -10, new Integer[] {2, 0});
+
+        // nothing above
+        validatePrefetch(0, 10);
+
+        mProvider.scroll(-90);
+        mSingleRow.removeInvisibleItemsAtFront(Integer.MAX_VALUE, 0);
+        mSingleRow.appendVisibleItems(-200);
+
+        // next item, 4, is 80 pixels away
+        validatePrefetch(-200, -10, new Integer[] {4, 80});
+
+        // one above, 0, is 10 pixels away
+        validatePrefetch(0, 10, new Integer[] {0, 10});
+
     }
 }
