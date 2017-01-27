@@ -88,7 +88,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
             return;
         }
 
-        ShortcutManager mockShortcutManager = mockShortcutManager();
+        ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
+        doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
         when(mockShortcutManager.isRequestPinShortcutSupported()).thenReturn(true, false, true);
 
         assertTrue(ShortcutManagerCompat.isRequestPinShortcutSupported(mContext));
@@ -104,7 +105,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
             return;
         }
 
-        ShortcutManager mockShortcutManager = mockShortcutManager();
+        ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
+        doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
         when(mockShortcutManager.requestPinShortcut(
                 any(ShortcutInfo.class), any(IntentSender.class))).thenReturn(true);
 
@@ -122,7 +124,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
             return;
         }
 
-        ShortcutManager mockShortcutManager = mockShortcutManager();
+        ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
+        doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
 
         when(mockShortcutManager.createShortcutResultIntent(any(ShortcutInfo.class)))
                 .thenReturn(new Intent("some-dummy-action"));
@@ -134,12 +137,6 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
         ArgumentCaptor<ShortcutInfo> captor = ArgumentCaptor.forClass(ShortcutInfo.class);
         verify(mockShortcutManager, times(1)).createShortcutResultIntent(captor.capture());
         assertEquals("test-id", captor.getValue().getId());
-    }
-
-    private ShortcutManager mockShortcutManager() {
-        ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
-        doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
-        return mockShortcutManager;
     }
 
     @Test
