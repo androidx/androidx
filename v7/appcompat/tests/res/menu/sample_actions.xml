@@ -18,12 +18,15 @@
 
     <item android:id="@+id/action_search"
           android:title="@string/search_menu_title"
+          app:contentDescription="@string/search_menu_description"
+          app:tooltipText="@string/search_menu_tooltip"
           app:showAsAction="always|collapseActionView"
           app:actionViewClass="android.support.v7.widget.SearchView"/>
 
     <item android:id="@+id/action_alpha_shortcut"
-          android:title="Alpha"
-          android:alphabeticShortcut="A"/>
+          android:title="@string/alpha_menu_title"
+          android:alphabeticShortcut="A"
+          app:showAsAction="always" />
 
     <item android:id="@+id/action_numeric_shortcut"
           android:title="Numeric"

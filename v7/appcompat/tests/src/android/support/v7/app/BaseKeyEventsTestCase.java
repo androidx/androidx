@@ -30,6 +30,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.support.test.filters.SmallTest;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
 import android.support.v7.view.ActionMode;
@@ -92,10 +93,8 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
     @Test
     @SmallTest
     public void testBackCollapsesSearchView() throws InterruptedException {
-        final String itemTitle = getActivity().getString(R.string.search_menu_title);
-
         // Click on the Search menu item
-        onView(withContentDescription(itemTitle)).perform(click());
+        onView(withId(R.id.action_search)).perform(click());
         // Check that the SearchView is displayed
         onView(withId(R.id.search_bar)).check(matches(isDisplayed()));
 
@@ -177,6 +176,36 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
         KeyEvent upEvent = getActivity().getInvokedKeyUpEvent();
         assertNotNull("onKeyUp called", upEvent);
         assertEquals("onKeyDown event matches", KeyEvent.KEYCODE_MENU, upEvent.getKeyCode());
+    }
+
+    @Test
+    @SmallTest
+    public void testActionMenuContent() throws Throwable {
+        onView(withId(R.id.action_search))
+                .check(matches(isDisplayed()))
+                .check(matches(withContentDescription(R.string.search_menu_description)));
+
+        onView(withId(R.id.action_alpha_shortcut))
+                .check(matches(isDisplayed()))
+                .check(matches(withContentDescription(R.string.alpha_menu_title)));
+
+        Menu menu = getActivity().getMenu();
+        final MenuItem alphaItem = menu.findItem(R.id.action_alpha_shortcut);
+        assertNotNull(alphaItem);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MenuItemCompat.setContentDescription(alphaItem,
+                        getActivity().getString(R.string.alpha_menu_description));
+                MenuItemCompat.setTooltipText(alphaItem,
+                        getActivity().getString(R.string.alpha_menu_tooltip));
+            }
+        });
+
+        onView(withId(R.id.action_alpha_shortcut))
+                .check(matches(isDisplayed()))
+                .check(matches(withContentDescription(R.string.alpha_menu_description)));
     }
 
     private void repopulateWithEmptyMenu() throws InterruptedException {
