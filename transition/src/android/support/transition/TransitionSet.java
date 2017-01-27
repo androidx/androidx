@@ -305,6 +305,14 @@ public class TransitionSet extends Transition {
         return (TransitionSet) super.removeListener(listener);
     }
 
+    @Override
+    public void setPathMotion(PathMotion pathMotion) {
+        super.setPathMotion(pathMotion);
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).setPathMotion(pathMotion);
+        }
+    }
+
     /**
      * Removes the specified child transition from this set.
      *

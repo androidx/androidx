@@ -1589,6 +1589,17 @@ package android.support.percent {
 
 package android.support.transition {
 
+  public class ArcMotion extends android.support.transition.PathMotion {
+    ctor public ArcMotion();
+    method public float getMaximumAngle();
+    method public float getMinimumHorizontalAngle();
+    method public float getMinimumVerticalAngle();
+    method public android.graphics.Path getPath(float, float, float, float);
+    method public void setMaximumAngle(float);
+    method public void setMinimumHorizontalAngle(float);
+    method public void setMinimumVerticalAngle(float);
+  }
+
   public class AutoTransition extends android.support.transition.TransitionSet {
     ctor public AutoTransition();
   }
@@ -1605,6 +1616,19 @@ package android.support.transition {
     ctor public Fade();
     field public static final int IN = 1; // 0x1
     field public static final int OUT = 2; // 0x2
+  }
+
+  public abstract class PathMotion {
+    ctor public PathMotion();
+    method public abstract android.graphics.Path getPath(float, float, float, float);
+  }
+
+  public class PatternPathMotion extends android.support.transition.PathMotion {
+    ctor public PatternPathMotion();
+    ctor public PatternPathMotion(android.graphics.Path);
+    method public android.graphics.Path getPath(float, float, float, float);
+    method public android.graphics.Path getPatternPath();
+    method public void setPatternPath(android.graphics.Path);
   }
 
   public class Scene {
@@ -1639,6 +1663,7 @@ package android.support.transition {
     method public long getDuration();
     method public android.animation.TimeInterpolator getInterpolator();
     method public java.lang.String getName();
+    method public android.support.transition.PathMotion getPathMotion();
     method public long getStartDelay();
     method public java.util.List<java.lang.Integer> getTargetIds();
     method public java.util.List<java.lang.String> getTargetNames();
@@ -1654,6 +1679,7 @@ package android.support.transition {
     method public android.support.transition.Transition setDuration(long);
     method public android.support.transition.Transition setInterpolator(android.animation.TimeInterpolator);
     method public void setMatchOrder(int...);
+    method public void setPathMotion(android.support.transition.PathMotion);
     method public android.support.transition.Transition setStartDelay(long);
     field public static final int MATCH_ID = 3; // 0x3
     field public static final int MATCH_INSTANCE = 1; // 0x1

@@ -16,6 +16,8 @@
 
 package android.support.transition;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -91,6 +93,18 @@ class TransitionUtils {
             view.draw(canvas);
         }
         return bitmap;
+    }
+
+    static Animator mergeAnimators(Animator animator1, Animator animator2) {
+        if (animator1 == null) {
+            return animator2;
+        } else if (animator2 == null) {
+            return animator1;
+        } else {
+            AnimatorSet animatorSet = new AnimatorSet();
+            animatorSet.playTogether(animator1, animator2);
+            return animatorSet;
+        }
     }
 
 }

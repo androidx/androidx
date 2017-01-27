@@ -17,8 +17,10 @@
 package android.support.transition;
 
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewCompat;
 import android.util.Property;
 import android.view.View;
 import android.view.ViewParent;
@@ -54,6 +56,21 @@ class ViewUtils {
                 @Override
                 public void set(View view, Float alpha) {
                     setTransitionAlpha(view, alpha);
+                }
+
+            };
+
+    static final Property<View, Rect> CLIP_BOUNDS =
+            new Property<View, Rect>(Rect.class, "clipBounds") {
+
+                @Override
+                public Rect get(View view) {
+                    return ViewCompat.getClipBounds(view);
+                }
+
+                @Override
+                public void set(View view, Rect clipBounds) {
+                    ViewCompat.setClipBounds(view, clipBounds);
                 }
 
             };
