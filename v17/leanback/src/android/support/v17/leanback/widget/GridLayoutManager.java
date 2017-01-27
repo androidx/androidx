@@ -2154,6 +2154,26 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return dy;
     }
 
+    @Override
+    public void collectAdjacentPrefetchPositions(int dx, int dy, State state,
+            LayoutPrefetchRegistry layoutPrefetchRegistry) {
+        try {
+            saveContext(null, state);
+            int da = (mOrientation == HORIZONTAL) ? dx : dy;
+            if (getChildCount() == 0 || da == 0) {
+                // can't support this scroll, so don't bother prefetching
+                return;
+            }
+
+            int fromLimit = da < 0
+                    ? -mExtraLayoutSpace
+                    : mSizePrimary + mExtraLayoutSpace;
+            mGrid.collectAdjacentPrefetchPositions(fromLimit, da, layoutPrefetchRegistry);
+        } finally {
+            leaveContext();
+        }
+    }
+
     void updateScrollMax() {
         int highVisiblePos = (!mReverseFlowPrimary) ? mGrid.getLastVisibleIndex()
                 : mGrid.getFirstVisibleIndex();
