@@ -18,12 +18,14 @@ package android.support.v7.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
+import static android.support.v7.widget.RecyclerView.VERBOSE_TRACING;
 
 import android.content.Context;
 import android.graphics.PointF;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
+import android.support.v4.os.TraceCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
@@ -1493,7 +1495,13 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         LayoutChunkResult layoutChunkResult = mLayoutChunkResult;
         while ((layoutState.mInfinite || remainingSpace > 0) && layoutState.hasMore(state)) {
             layoutChunkResult.resetInternal();
+            if (VERBOSE_TRACING) {
+                TraceCompat.beginSection("LLM LayoutChunk");
+            }
             layoutChunk(recycler, state, layoutState, layoutChunkResult);
+            if (VERBOSE_TRACING) {
+                TraceCompat.endSection();
+            }
             if (layoutChunkResult.mFinished) {
                 break;
             }
