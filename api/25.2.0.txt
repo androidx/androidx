@@ -2040,7 +2040,6 @@ package android.support.v17.leanback.app {
     method public void setFadingEnabled(boolean);
     method public void setHostCallback(android.support.v17.leanback.media.PlaybackGlueHost.HostCallback);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
-    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.BaseOnItemViewSelectedListener);
     method public final void setOnKeyInterceptListener(android.view.View.OnKeyListener);
     method public void setOnPlaybackItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
     method public void setPlaybackRow(android.support.v17.leanback.widget.Row);
@@ -2125,7 +2124,6 @@ package android.support.v17.leanback.app {
     method public void setFadingEnabled(boolean);
     method public void setHostCallback(android.support.v17.leanback.media.PlaybackGlueHost.HostCallback);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
-    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.BaseOnItemViewSelectedListener);
     method public final void setOnKeyInterceptListener(android.view.View.OnKeyListener);
     method public void setOnPlaybackItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
     method public void setPlaybackRow(android.support.v17.leanback.widget.Row);
@@ -5264,10 +5262,6 @@ package android.support.v4.graphics {
     method public static int compositeColors(int, int);
     method public static double distanceEuclidean(double[], double[]);
     method public static int setAlphaComponent(int, int);
-  }
-
-  public final class PaintCompat {
-    method public static boolean hasGlyph(android.graphics.Paint, java.lang.String);
   }
 
 }
