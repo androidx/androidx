@@ -51,7 +51,7 @@ public class FragmentLifecycleTest {
     @Parameterized.Parameter
     public boolean mNested;
 
-    @Parameterized.Parameters(name = "nested:{0}")
+    @Parameterized.Parameters(name = "nested_{0}")
     public static Object[][] params() {
         return new Object[][]{new Object[]{false}, new Object[]{true}};
     }
