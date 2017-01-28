@@ -1521,6 +1521,7 @@ package android.support.v17.leanback.app {
     method public final boolean isHeadersTransitionOnBackEnabled();
     method public boolean isInHeadersTransition();
     method public boolean isShowingHeaders();
+    method public android.support.v17.leanback.app.HeadersFragment onCreateHeadersFragment();
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
     method protected void onEntranceTransitionStart();
@@ -1625,6 +1626,7 @@ package android.support.v17.leanback.app {
     method public final boolean isHeadersTransitionOnBackEnabled();
     method public boolean isInHeadersTransition();
     method public boolean isShowingHeaders();
+    method public android.support.v17.leanback.app.HeadersSupportFragment onCreateHeadersSupportFragment();
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
     method protected void onEntranceTransitionStart();
@@ -2902,6 +2904,7 @@ package android.support.v17.leanback.widget {
     ctor public FocusHighlightHelper();
     method public static void setupBrowseItemFocusHighlight(android.support.v17.leanback.widget.ItemBridgeAdapter, int, boolean);
     method public static void setupHeaderItemFocusHighlight(android.support.v17.leanback.widget.VerticalGridView);
+    method public static void setupHeaderItemFocusHighlight(android.support.v17.leanback.widget.VerticalGridView, boolean);
   }
 
   public abstract interface FragmentAnimationProvider {
@@ -3303,6 +3306,7 @@ package android.support.v17.leanback.widget {
     method public final void onViewRecycled(android.support.v7.widget.RecyclerView.ViewHolder);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setAdapterListener(android.support.v17.leanback.widget.ItemBridgeAdapter.AdapterListener);
+    method public void setPresenter(android.support.v17.leanback.widget.PresenterSelector);
     method public void setPresenterMapper(java.util.ArrayList<android.support.v17.leanback.widget.Presenter>);
     method public void setWrapper(android.support.v17.leanback.widget.ItemBridgeAdapter.Wrapper);
   }
