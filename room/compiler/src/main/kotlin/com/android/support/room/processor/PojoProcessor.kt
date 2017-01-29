@@ -19,6 +19,8 @@ package com.android.support.room.processor
 import com.android.support.room.Ignore
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
+import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
+import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
 import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
@@ -31,9 +33,12 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.Modifier.PRIVATE
+import javax.lang.model.element.Modifier.PROTECTED
+import javax.lang.model.element.Modifier.PUBLIC
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
+import javax.lang.model.type.TypeMirror
 
 /**
  * Processes any class as if it is a Pojo.
@@ -76,91 +81,123 @@ class PojoProcessor(val context: Context) {
     }
 
     private fun assignGetters(fields: List<Field>, getterCandidates: List<ExecutableElement>) {
-        val types = context.processingEnv.typeUtils
-
         fields.forEach { field ->
-            if (!field.element.hasAnyOf(PRIVATE)) {
-                field.getter = FieldGetter(
-                        name = field.name,
-                        type = field.type,
-                        callType = CallType.FIELD,
-                        columnAdapter = context.typeAdapterStore.findColumnTypeAdapter(field.type))
-            } else {
-                val matching = getterCandidates
-                        .filter {
-                            types.isSameType(field.element.asType(), it.returnType)
-                                    && field.nameWithVariations.contains(it.simpleName.toString())
-                                    || field.getterNameWithVariations
-                                    .contains(it.simpleName.toString())
-                        }
-                context.checker.check(matching.isNotEmpty(), field.element,
-                        ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
-                context.checker.check(matching.size < 2, field.element,
-                        ProcessorErrors.tooManyMatchingGetters(field,
-                                matching.map { it.simpleName.toString() }))
-                val match = matching.firstOrNull()
-                if (match == null) {
-                    // just assume we can set it. the error will block javac anyways.
-                    field.getter = FieldGetter(
-                            name = field.name,
-                            type = field.type,
-                            callType = CallType.FIELD,
-                            columnAdapter = context.typeAdapterStore
-                                    .findColumnTypeAdapter(field.type))
-                } else {
-                    field.getter = FieldGetter(
-                            name = match.simpleName.toString(),
-                            type = match.returnType,
-                            callType = CallType.METHOD,
-                            columnAdapter = context.typeAdapterStore
-                                    .findColumnTypeAdapter(match.returnType))
-                }
-            }
+            val success = chooseAssignment(field = field,
+                    candidates = getterCandidates,
+                    nameVariations = field.getterNameWithVariations,
+                    getType = { method ->
+                        method.returnType
+                    },
+                    assignFromField = {
+                        field.getter = FieldGetter(
+                                name = field.name,
+                                type = field.type,
+                                callType = CallType.FIELD,
+                                columnAdapter = context.typeAdapterStore
+                                        .findColumnTypeAdapter(field.type))
+                    },
+                    assignFromMethod = { match ->
+                        field.getter = FieldGetter(
+                                name = match.simpleName.toString(),
+                                type = match.returnType,
+                                callType = CallType.METHOD,
+                                columnAdapter = context.typeAdapterStore
+                                        .findColumnTypeAdapter(match.returnType))
+                    },
+                    reportAmbiguity = { matching ->
+                        context.logger.e(field.element,
+                                ProcessorErrors.tooManyMatchingGetters(field, matching))
+                    })
+            context.checker.check(success, field.element, CANNOT_FIND_GETTER_FOR_FIELD)
         }
     }
 
     private fun assignSetters(fields: List<Field>, setterCandidates: List<ExecutableElement>) {
-        val types = context.processingEnv.typeUtils
-
         fields.forEach { field ->
-            if (!field.element.hasAnyOf(PRIVATE)) {
-                field.setter = FieldSetter(
-                        name = field.name,
-                        type = field.type,
-                        callType = CallType.FIELD,
-                        columnAdapter = context.typeAdapterStore.findColumnTypeAdapter(field.type))
-            } else {
-                val matching = setterCandidates
-                        .filter {
-                            types.isSameType(field.element.asType(), it.parameters.first().asType())
-                                    && field.nameWithVariations.contains(it.simpleName.toString())
-                                    || field.setterNameWithVariations
-                                    .contains(it.simpleName.toString())
-                        }
-                context.checker.check(matching.isNotEmpty(), field.element,
-                        ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
-                context.checker.check(matching.size < 2, field.element,
-                        ProcessorErrors.tooManyMatchingSetter(field,
-                                matching.map { it.simpleName.toString() }))
-                val match = matching.firstOrNull()
-                if (match == null) {
-                    // default to field setter
-                    field.setter = FieldSetter(
-                            name = field.name,
-                            type = field.type,
-                            callType = CallType.FIELD,
-                            columnAdapter = context.typeAdapterStore
-                                    .findColumnTypeAdapter(field.type))
-                } else {
-                    val paramType = match.parameters.first().asType()
-                    field.setter = FieldSetter(
-                            name = match.simpleName.toString(),
-                            type = paramType,
-                            callType = CallType.METHOD,
-                            columnAdapter = context.typeAdapterStore
-                                    .findColumnTypeAdapter(paramType))
-                }
-            }
+            val success = chooseAssignment(field = field,
+                    candidates = setterCandidates,
+                    nameVariations = field.setterNameWithVariations,
+                    getType = { method ->
+                        method.parameters.first().asType()
+                    },
+                    assignFromField = {
+                        field.setter = FieldSetter(
+                                name = field.name,
+                                type = field.type,
+                                callType = CallType.FIELD,
+                                columnAdapter = context.typeAdapterStore
+                                        .findColumnTypeAdapter(field.type))
+                    },
+                    assignFromMethod = { match ->
+                        val paramType = match.parameters.first().asType()
+                        field.setter = FieldSetter(
+                                name = match.simpleName.toString(),
+                                type = paramType,
+                                callType = CallType.METHOD,
+                                columnAdapter = context.typeAdapterStore
+                                        .findColumnTypeAdapter(paramType))
+                    },
+                    reportAmbiguity = { matching ->
+                        context.logger.e(field.element,
+                                ProcessorErrors.tooManyMatchingSetter(field, matching))
+                    })
+            context.checker.check(success, field.element, CANNOT_FIND_SETTER_FOR_FIELD)
         }
+    }
+
+    /**
+     * Finds a setter/getter from available list of methods.
+     * It returns true if assignment is successful, false otherwise.
+     * At worst case, it sets to the field as if it is accessible so that the rest of the
+     * compilation can continue.
+     */
+    private fun chooseAssignment(field: Field, candidates: List<ExecutableElement>,
+                                 nameVariations : List<String>,
+                                 getType : (ExecutableElement) -> TypeMirror,
+                                 assignFromField: () -> Unit,
+                                 assignFromMethod: (ExecutableElement) -> Unit,
+                                 reportAmbiguity: (List<String>) -> Unit): Boolean {
+        if (field.element.hasAnyOf(PUBLIC)) {
+            assignFromField()
+            return true
+        }
+        val types = context.processingEnv.typeUtils
+        val matching = candidates
+                .filter {
+                    types.isSameType(field.element.asType(), getType(it))
+                            && field.nameWithVariations.contains(it.simpleName.toString())
+                            || nameVariations.contains(it.simpleName.toString())
+                }
+                .groupBy {
+                    if (it.hasAnyOf(PUBLIC)) PUBLIC else PROTECTED
+                }
+        if (matching.isEmpty()) {
+            // we always assign to avoid NPEs in the rest of the compilation.
+            assignFromField()
+            // if field is not private, assume it works (if we are on the same package).
+            // if not, compiler will tell, we didn't have any better alternative anyways.
+            return !field.element.hasAnyOf(PRIVATE)
+        }
+        val match = verifyAndChooseOneFrom(matching[PUBLIC], reportAmbiguity) ?:
+                verifyAndChooseOneFrom(matching[PROTECTED], reportAmbiguity)
+        if (match == null) {
+            assignFromField()
+            return false
+        } else {
+            assignFromMethod(match)
+            return true
+        }
+    }
+
+    private fun verifyAndChooseOneFrom(candidates: List<ExecutableElement>?,
+                                       reportAmbiguity: (List<String>) -> Unit)
+            : ExecutableElement? {
+        if (candidates == null) {
+            return null
+        }
+        if (candidates.size > 1) {
+            reportAmbiguity(candidates.map { it.simpleName.toString() })
+        }
+        return candidates.first()
     }
 }

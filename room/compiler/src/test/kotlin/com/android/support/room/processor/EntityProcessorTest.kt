@@ -104,6 +104,32 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
+    fun tooManyGettersWithDifferentVisibility() {
+        singleEntity("""
+                @PrimaryKey
+                private int id;
+                public void setId(int id) {}
+                public int getId(){ return id; }
+                protected int id(){ return id; }
+                """) { entity, invocation ->
+            assertThat(entity.fields.first().getter.name, `is`("getId"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun tooManyGettersWithDifferentTypes() {
+        singleEntity("""
+                @PrimaryKey
+                public int id;
+                public void setId(int id) {}
+                public int getId(){ return id; }
+                """) { entity, invocation ->
+            assertThat(entity.fields.first().getter.name, `is`("id"))
+            assertThat(entity.fields.first().getter.callType, `is`(CallType.FIELD))
+        }.compilesWithoutError()
+    }
+
+    @Test
     fun tooManySetters() {
         singleEntity("""
                 @PrimaryKey
@@ -126,6 +152,45 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 """) { entity, invocation ->
             assertThat(entity.fields.first().setter.name, `is`("setId"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun tooManySettersWithDifferentVisibility() {
+        singleEntity("""
+                @PrimaryKey
+                private int id;
+                public void setId(int id) {}
+                protected void id(int id) {}
+                public int getId(){ return id; }
+                """) { entity, invocation ->
+            assertThat(entity.fields.first().setter.name, `is`("setId"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun tooManySettersWithDifferentTypes() {
+        singleEntity("""
+                @PrimaryKey
+                public int id;
+                public void setId(int id) {}
+                public int getId(){ return id; }
+                """) { entity, invocation ->
+            assertThat(entity.fields.first().setter.name, `is`("id"))
+            assertThat(entity.fields.first().setter.callType, `is`(CallType.FIELD))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun preferPublicOverProtected() {
+        singleEntity("""
+                @PrimaryKey
+                int id;
+                public void setId(int id) {}
+                public int getId(){ return id; }
+                """) { entity, invocation ->
+            assertThat(entity.fields.first().setter.name, `is`("setId"))
+            assertThat(entity.fields.first().getter.name, `is`("getId"))
         }.compilesWithoutError()
     }
 

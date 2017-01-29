@@ -27,10 +27,8 @@ import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.typeName
 import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER
-import com.android.support.room.solver.query.result.ListQueryResultAdapter
 import com.android.support.room.solver.query.result.LiveDataQueryResultBinder
 import com.android.support.room.solver.query.result.PojoRowAdapter
-import com.android.support.room.solver.query.result.RowAdapter
 import com.android.support.room.solver.query.result.SingleEntityQueryResultAdapter
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
