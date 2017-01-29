@@ -144,7 +144,12 @@ public class SlidingPaneLayoutActivity extends Activity {
         @Override
         public void onGlobalLayout() {
             mActionBar.onFirstLayout();
-            mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            } else {
+                //noinspection deprecation
+                mSlidingLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+            }
         }
     }
 
