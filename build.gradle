@@ -666,14 +666,6 @@ subprojects {
             }
         }
     }
-
-    // Update the version meta-data in each Manifest
-    project.afterEvaluate { p ->
-        if (p.hasProperty('android')) {
-            p.android.defaultConfig.manifestPlaceholders =
-                    ["support-version": rootProject.ext.supportVersion]
-        }
-    }
 }
 
 project.gradle.buildFinished { buildResult ->
