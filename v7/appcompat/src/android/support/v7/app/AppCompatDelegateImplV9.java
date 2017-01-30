@@ -787,7 +787,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
                             endOnGoingFadeAnimation();
 
                             if (shouldAnimateActionModeView()) {
-                                ViewCompat.setAlpha(mActionModeView, 0f);
+                                mActionModeView.setAlpha(0f);
                                 mFadeAnim = ViewCompat.animate(mActionModeView).alpha(1f);
                                 mFadeAnim.setListener(new ViewPropertyAnimatorListenerAdapter() {
                                     @Override
@@ -797,13 +797,13 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
 
                                     @Override
                                     public void onAnimationEnd(View view) {
-                                        ViewCompat.setAlpha(mActionModeView, 1f);
+                                        mActionModeView.setAlpha(1f);
                                         mFadeAnim.setListener(null);
                                         mFadeAnim = null;
                                     }
                                 });
                             } else {
-                                ViewCompat.setAlpha(mActionModeView, 1f);
+                                mActionModeView.setAlpha(1f);
                                 mActionModeView.setVisibility(View.VISIBLE);
                             }
                         }
@@ -830,7 +830,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
                     mActionMode = mode;
 
                     if (shouldAnimateActionModeView()) {
-                        ViewCompat.setAlpha(mActionModeView, 0f);
+                        mActionModeView.setAlpha(0f);
                         mFadeAnim = ViewCompat.animate(mActionModeView).alpha(1f);
                         mFadeAnim.setListener(new ViewPropertyAnimatorListenerAdapter() {
                             @Override
@@ -845,13 +845,13 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
 
                             @Override
                             public void onAnimationEnd(View view) {
-                                ViewCompat.setAlpha(mActionModeView, 1f);
+                                mActionModeView.setAlpha(1f);
                                 mFadeAnim.setListener(null);
                                 mFadeAnim = null;
                             }
                         });
                     } else {
-                        ViewCompat.setAlpha(mActionModeView, 1f);
+                        mActionModeView.setAlpha(1f);
                         mActionModeView.setVisibility(View.VISIBLE);
                         mActionModeView.sendAccessibilityEvent(
                                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);

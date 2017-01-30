@@ -31,7 +31,6 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.XmlRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.preference.internal.AbstractMultiSelectListPreference;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -779,7 +778,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
             for (int childViewIndex = 0; childViewIndex < childCount; childViewIndex++) {
                 final View view = parent.getChildAt(childViewIndex);
                 if (shouldDrawDividerBelow(view, parent)) {
-                    int top = (int) ViewCompat.getY(view) + view.getHeight();
+                    int top = (int) view.getY() + view.getHeight();
                     mDivider.setBounds(0, top, width, top + mDividerHeight);
                     mDivider.draw(c);
                 }

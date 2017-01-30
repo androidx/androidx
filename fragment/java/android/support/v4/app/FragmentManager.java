@@ -657,11 +657,11 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     mView.post(new Runnable() {
                         @Override
                         public void run() {
-                            ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_NONE, null);
+                            mView.setLayerType(View.LAYER_TYPE_NONE, null);
                         }
                     });
                 } else {
-                    ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_NONE, null);
+                    mView.setLayerType(View.LAYER_TYPE_NONE, null);
                 }
             }
             if (mOriginalListener != null) {
@@ -743,7 +743,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     static boolean shouldRunOnHWLayer(View v, Animation anim) {
         return Build.VERSION.SDK_INT >= 19
-                && ViewCompat.getLayerType(v) == ViewCompat.LAYER_TYPE_NONE
+                && v.getLayerType() == View.LAYER_TYPE_NONE
                 && ViewCompat.hasOverlappingRendering(v)
                 && modifiesAlpha(anim);
     }
@@ -1190,7 +1190,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             // If there's already a listener set on the animation, we need wrap the new listener
             // around the existing listener, so that they will both get animation listener
             // callbacks.
-            ViewCompat.setLayerType(v, ViewCompat.LAYER_TYPE_HARDWARE, null);
+            v.setLayerType(View.LAYER_TYPE_HARDWARE, null);
             anim.setAnimationListener(new AnimateOnHWLayerIfNeededListener(v, anim,
                     originalListener));
         }
@@ -1334,11 +1334,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                                     f.mSavedFragmentState), container, f.mSavedFragmentState);
                             if (f.mView != null) {
                                 f.mInnerView = f.mView;
-                                if (Build.VERSION.SDK_INT >= 11) {
-                                    ViewCompat.setSaveFromParentEnabled(f.mView, false);
-                                } else {
-                                    f.mView = NoSaveStateFrameLayout.wrap(f.mView);
-                                }
+                                f.mView.setSaveFromParentEnabled(false);
                                 if (container != null) {
                                     container.addView(f.mView);
                                 }
@@ -1513,11 +1509,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     f.mSavedFragmentState), null, f.mSavedFragmentState);
             if (f.mView != null) {
                 f.mInnerView = f.mView;
-                if (Build.VERSION.SDK_INT >= 11) {
-                    ViewCompat.setSaveFromParentEnabled(f.mView, false);
-                } else {
-                    f.mView = NoSaveStateFrameLayout.wrap(f.mView);
-                }
+                f.mView.setSaveFromParentEnabled(false);
                 if (f.mHidden) f.mView.setVisibility(View.GONE);
                 f.onViewCreated(f.mView, f.mSavedFragmentState);
                 dispatchOnFragmentViewCreated(f, f.mView, f.mSavedFragmentState, false);

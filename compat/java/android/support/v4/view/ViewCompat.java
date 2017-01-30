@@ -18,6 +18,7 @@ package android.support.v4.view;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.animation.ValueAnimator;
 import android.content.res.ColorStateList;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -265,13 +266,19 @@ public class ViewCompat {
     /**
      * Bits of {@link #getMeasuredWidthAndState} and
      * {@link #getMeasuredWidthAndState} that provide the actual measured size.
+     *
+     * @deprecated Use {@link View#MEASURED_SIZE_MASK} directly.
      */
+    @Deprecated
     public static final int MEASURED_SIZE_MASK = 0x00ffffff;
 
     /**
      * Bits of {@link #getMeasuredWidthAndState} and
      * {@link #getMeasuredWidthAndState} that provide the additional state bits.
+     *
+     * @deprecated Use {@link View#MEASURED_STATE_MASK} directly.
      */
+    @Deprecated
     public static final int MEASURED_STATE_MASK = 0xff000000;
 
     /**
@@ -279,14 +286,20 @@ public class ViewCompat {
      * for functions that combine both width and height into a single int,
      * such as {@link #getMeasuredState} and the childState argument of
      * {@link #resolveSizeAndState(int, int, int)}.
+     *
+     * @deprecated Use {@link View#MEASURED_HEIGHT_STATE_SHIFT} directly.
      */
+    @Deprecated
     public static final int MEASURED_HEIGHT_STATE_SHIFT = 16;
 
     /**
      * Bit of {@link #getMeasuredWidthAndState} and
      * {@link #getMeasuredWidthAndState} that indicates the measured size
      * is smaller that the space the view would like to have.
+     *
+     * @deprecated Use {@link View#MEASURED_STATE_TOO_SMALL} directly.
      */
+    @Deprecated
     public static final int MEASURED_STATE_TOO_SMALL = 0x01000000;
 
     /**
@@ -391,19 +404,12 @@ public class ViewCompat {
         boolean isImportantForAccessibility(View view);
         boolean performAccessibilityAction(View view, int action, Bundle arguments);
         AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view);
-        float getAlpha(View view);
-        void setLayerType(View view, int layerType, Paint paint);
-        int getLayerType(View view);
         int getLabelFor(View view);
         void setLabelFor(View view, int id);
         void setLayerPaint(View view, Paint paint);
         int getLayoutDirection(View view);
         void setLayoutDirection(View view, int layoutDirection);
         ViewParent getParentForAccessibility(View view);
-        int resolveSizeAndState(int size, int measureSpec, int childMeasuredState);
-        int getMeasuredWidthAndState(View view);
-        int getMeasuredHeightAndState(View view);
-        int getMeasuredState(View view);
         int getAccessibilityLiveRegion(View view);
         void setAccessibilityLiveRegion(View view, int mode);
         int getPaddingStart(View view);
@@ -411,33 +417,9 @@ public class ViewCompat {
         void setPaddingRelative(View view, int start, int top, int end, int bottom);
         void dispatchStartTemporaryDetach(View view);
         void dispatchFinishTemporaryDetach(View view);
-        float getX(View view);
-        float getY(View view);
-        float getRotation(View view);
-        float getRotationX(View view);
-        float getRotationY(View view);
-        float getScaleX(View view);
-        float getScaleY(View view);
-        float getTranslationX(View view);
-        float getTranslationY(View view);
-        @Nullable Matrix getMatrix(View view);
         int getMinimumWidth(View view);
         int getMinimumHeight(View view);
         ViewPropertyAnimatorCompat animate(View view);
-        void setRotation(View view, float value);
-        void setRotationX(View view, float value);
-        void setRotationY(View view, float value);
-        void setScaleX(View view, float value);
-        void setScaleY(View view, float value);
-        void setTranslationX(View view, float value);
-        void setTranslationY(View view, float value);
-        void setX(View view, float value);
-        void setY(View view, float value);
-        void setAlpha(View view, float value);
-        void setPivotX(View view, float value);
-        void setPivotY(View view, float value);
-        float getPivotX(View view);
-        float getPivotY(View view);
         void setElevation(View view, float elevation);
         float getElevation(View view);
         void setTranslationZ(View view, float translationZ);
@@ -452,12 +434,9 @@ public class ViewCompat {
         boolean getFitsSystemWindows(View view);
         boolean hasOverlappingRendering(View view);
         void setFitsSystemWindows(View view, boolean fitSystemWindows);
-        void jumpDrawablesToCurrentState(View v);
         void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener);
         WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets);
         WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets);
-        void setSaveFromParentEnabled(View view, boolean enabled);
-        void setActivated(View view, boolean activated);
         boolean isPaddingRelative(View view);
         void setBackground(View view, Drawable background);
         ColorStateList getBackgroundTintList(View view);
@@ -478,7 +457,6 @@ public class ViewCompat {
         boolean isInLayout(View view);
         boolean isLaidOut(View view);
         boolean isLayoutDirectionResolved(View view);
-        int combineMeasuredStates(int curState, int newState);
         float getZ(View view);
         void setZ(View view, float z);
         boolean isAttachedToWindow(View view);
@@ -581,18 +559,7 @@ public class ViewCompat {
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
             return null;
         }
-        @Override
-        public float getAlpha(View view) {
-            return 1.0f;
-        }
-        @Override
-        public void setLayerType(View view, int layerType, Paint paint) {
-            // No-op until layers became available (HC)
-        }
-        @Override
-        public int getLayerType(View view) {
-            return LAYER_TYPE_NONE;
-        }
+
         @Override
         public int getLabelFor(View view) {
             return 0;
@@ -619,26 +586,6 @@ public class ViewCompat {
         @Override
         public ViewParent getParentForAccessibility(View view) {
             return view.getParent();
-        }
-
-        @Override
-        public int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
-            return View.resolveSize(size, measureSpec);
-        }
-
-        @Override
-        public int getMeasuredWidthAndState(View view) {
-            return view.getMeasuredWidth();
-        }
-
-        @Override
-        public int getMeasuredHeightAndState(View view) {
-            return view.getMeasuredHeight();
-        }
-
-        @Override
-        public int getMeasuredState(View view) {
-            return 0;
         }
 
         @Override
@@ -718,56 +665,6 @@ public class ViewCompat {
         }
 
         @Override
-        public float getTranslationX(View view) {
-            return 0;
-        }
-
-        @Override
-        public float getTranslationY(View view) {
-            return 0;
-        }
-
-        @Override
-        public float getX(View view) {
-            return view.getLeft();
-        }
-
-        @Override
-        public float getY(View view) {
-            return view.getTop();
-        }
-
-        @Override
-        public float getRotation(View view) {
-            return 0;
-        }
-
-        @Override
-        public float getRotationX(View view) {
-            return 0;
-        }
-
-        @Override
-        public float getRotationY(View view) {
-            return 0;
-        }
-
-        @Override
-        public float getScaleX(View view) {
-            return 0;
-        }
-
-        @Override
-        public float getScaleY(View view) {
-            return 0;
-        }
-
-        @Override
-        public Matrix getMatrix(View view) {
-            return null;
-        }
-
-        @Override
         public int getMinimumWidth(View view) {
             return ViewCompatBase.getMinimumWidth(view);
         }
@@ -780,76 +677,6 @@ public class ViewCompat {
         @Override
         public ViewPropertyAnimatorCompat animate(View view) {
             return new ViewPropertyAnimatorCompat(view);
-        }
-
-        @Override
-        public void setRotation(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public void setTranslationX(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public void setTranslationY(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public void setAlpha(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public void setRotationX(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public void setRotationY(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public void setScaleX(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public void setScaleY(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public void setX(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public void setY(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public void setPivotX(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public void setPivotY(View view, float value) {
-            // noop
-        }
-
-        @Override
-        public float getPivotX(View view) {
-            return 0;
-        }
-
-        @Override
-        public float getPivotY(View view) {
-            return 0;
         }
 
         @Override
@@ -931,11 +758,6 @@ public class ViewCompat {
         }
 
         @Override
-        public void jumpDrawablesToCurrentState(View view) {
-            // Do nothing; API didn't exist.
-        }
-
-        @Override
         public void setOnApplyWindowInsetsListener(View view,
                 OnApplyWindowInsetsListener listener) {
             // noop
@@ -949,16 +771,6 @@ public class ViewCompat {
         @Override
         public WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
             return insets;
-        }
-
-        @Override
-        public void setSaveFromParentEnabled(View v, boolean enabled) {
-            // noop
-        }
-
-        @Override
-        public void setActivated(View view, boolean activated) {
-            // noop
         }
 
         @Override
@@ -1107,11 +919,6 @@ public class ViewCompat {
         }
 
         @Override
-        public int combineMeasuredStates(int curState, int newState) {
-            return curState | newState;
-        }
-
-        @Override
         public float getZ(View view) {
             return getTranslationZ(view) + getElevation(view);
         }
@@ -1175,167 +982,16 @@ public class ViewCompat {
     static class HCViewCompatImpl extends BaseViewCompatImpl {
         @Override
         long getFrameTime() {
-            return ViewCompatHC.getFrameTime();
+            return ValueAnimator.getFrameDelay();
         }
-        @Override
-        public float getAlpha(View view) {
-            return ViewCompatHC.getAlpha(view);
-        }
-        @Override
-        public void setLayerType(View view, int layerType, Paint paint) {
-            ViewCompatHC.setLayerType(view, layerType, paint);
-        }
-        @Override
-        public int getLayerType(View view)  {
-            return ViewCompatHC.getLayerType(view);
-        }
+
         @Override
         public void setLayerPaint(View view, Paint paint) {
             // Make sure the paint is correct; this will be cheap if it's the same
             // instance as was used to call setLayerType earlier.
-            setLayerType(view, getLayerType(view), paint);
+            view.setLayerType(view.getLayerType(), paint);
             // This is expensive, but the only way to accomplish this before JB-MR1.
             view.invalidate();
-        }
-        @Override
-        public int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
-            return ViewCompatHC.resolveSizeAndState(size, measureSpec, childMeasuredState);
-        }
-        @Override
-        public int getMeasuredWidthAndState(View view) {
-            return ViewCompatHC.getMeasuredWidthAndState(view);
-        }
-        @Override
-        public int getMeasuredHeightAndState(View view) {
-            return ViewCompatHC.getMeasuredHeightAndState(view);
-        }
-        @Override
-        public int getMeasuredState(View view) {
-            return ViewCompatHC.getMeasuredState(view);
-        }
-        @Override
-        public float getTranslationX(View view) {
-            return ViewCompatHC.getTranslationX(view);
-        }
-        @Override
-        public float getTranslationY(View view) {
-            return ViewCompatHC.getTranslationY(view);
-        }
-
-        @Override
-        public Matrix getMatrix(View view) {
-            return ViewCompatHC.getMatrix(view);
-        }
-
-        @Override
-        public void setTranslationX(View view, float value) {
-            ViewCompatHC.setTranslationX(view, value);
-        }
-        @Override
-        public void setTranslationY(View view, float value) {
-            ViewCompatHC.setTranslationY(view, value);
-        }
-        @Override
-        public void setAlpha(View view, float value) {
-            ViewCompatHC.setAlpha(view, value);
-        }
-        @Override
-        public void setX(View view, float value) {
-            ViewCompatHC.setX(view, value);
-        }
-        @Override
-        public void setY(View view, float value) {
-            ViewCompatHC.setY(view, value);
-        }
-        @Override
-        public void setRotation(View view, float value) {
-            ViewCompatHC.setRotation(view, value);
-        }
-        @Override
-        public void setRotationX(View view, float value) {
-            ViewCompatHC.setRotationX(view, value);
-        }
-        @Override
-        public void setRotationY(View view, float value) {
-            ViewCompatHC.setRotationY(view, value);
-        }
-        @Override
-        public void setScaleX(View view, float value) {
-            ViewCompatHC.setScaleX(view, value);
-        }
-        @Override
-        public void setScaleY(View view, float value) {
-            ViewCompatHC.setScaleY(view, value);
-        }
-        @Override
-        public void setPivotX(View view, float value) {
-            ViewCompatHC.setPivotX(view, value);
-        }
-        @Override
-        public void setPivotY(View view, float value) {
-            ViewCompatHC.setPivotY(view, value);
-        }
-        @Override
-        public float getX(View view) {
-            return ViewCompatHC.getX(view);
-        }
-
-        @Override
-        public float getY(View view) {
-            return ViewCompatHC.getY(view);
-        }
-
-        @Override
-        public float getRotation(View view) {
-            return ViewCompatHC.getRotation(view);
-        }
-
-        @Override
-        public float getRotationX(View view) {
-            return ViewCompatHC.getRotationX(view);
-        }
-
-        @Override
-        public float getRotationY(View view) {
-            return ViewCompatHC.getRotationY(view);
-        }
-
-        @Override
-        public float getScaleX(View view) {
-            return ViewCompatHC.getScaleX(view);
-        }
-
-        @Override
-        public float getScaleY(View view) {
-            return ViewCompatHC.getScaleY(view);
-        }
-
-        @Override
-        public float getPivotX(View view) {
-            return ViewCompatHC.getPivotX(view);
-        }
-        @Override
-        public float getPivotY(View view) {
-            return ViewCompatHC.getPivotY(view);
-        }
-        @Override
-        public void jumpDrawablesToCurrentState(View view) {
-            ViewCompatHC.jumpDrawablesToCurrentState(view);
-        }
-
-        @Override
-        public void setSaveFromParentEnabled(View view, boolean enabled) {
-            ViewCompatHC.setSaveFromParentEnabled(view, enabled);
-        }
-
-        @Override
-        public void setActivated(View view, boolean activated) {
-            ViewCompatHC.setActivated(view, activated);
-        }
-
-        @Override
-        public int combineMeasuredStates(int curState, int newState) {
-            return ViewCompatHC.combineMeasuredStates(curState, newState);
         }
 
         @Override
@@ -2278,11 +1934,14 @@ public class ViewCompat {
      * The opacity of the view. This is a value from 0 to 1, where 0 means the view is
      * completely transparent and 1 means the view is completely opaque.
      *
-     * <p>By default this is 1.0f. Prior to API 11, the returned value is always 1.0f.
+     * <p>By default this is 1.0f.
      * @return The opacity of the view.
+     *
+     * @deprecated Use {@link View#getAlpha()} directly.
      */
+    @Deprecated
     public static float getAlpha(View view) {
-        return IMPL.getAlpha(view);
+        return view.getAlpha();
     }
 
     /**
@@ -2316,9 +1975,12 @@ public class ViewCompat {
      * @param paint The paint used to compose the layer. This argument is optional
      *        and can be null. It is ignored when the layer type is
      *        {@link #LAYER_TYPE_NONE}
+     *
+     * @deprecated Use {@link View#setLayerType(int, Paint)} directly.
      */
+    @Deprecated
     public static void setLayerType(View view, @LayerType int layerType, Paint paint) {
-        IMPL.setLayerType(view, layerType, paint);
+        view.setLayerType(layerType, paint);
     }
 
     /**
@@ -2336,11 +1998,14 @@ public class ViewCompat {
      * @see #LAYER_TYPE_NONE
      * @see #LAYER_TYPE_SOFTWARE
      * @see #LAYER_TYPE_HARDWARE
+     *
+     * @deprecated Use {@link View#getLayerType()} directly.
      */
+    @Deprecated
     @LayerType
     public static int getLayerType(View view) {
         //noinspection ResourceType
-        return IMPL.getLayerType(view);
+        return view.getLayerType();
     }
 
     /**
@@ -2472,9 +2137,12 @@ public class ViewCompat {
      * @param measureSpec Constraints imposed by the parent
      * @return Size information bit mask as defined by
      * {@link #MEASURED_SIZE_MASK} and {@link #MEASURED_STATE_TOO_SMALL}.
+     *
+     * @deprecated Use {@link View#resolveSizeAndState(int, int, int)} directly.
      */
+    @Deprecated
     public static int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
-        return IMPL.resolveSizeAndState(size, measureSpec, childMeasuredState);
+        return View.resolveSizeAndState(size, measureSpec, childMeasuredState);
     }
 
     /**
@@ -2486,9 +2154,12 @@ public class ViewCompat {
      * {@link android.view.View#getWidth()} to see how wide a view is after layout.
      *
      * @return The measured width of this view as a bit mask.
+     *
+     * @deprecated Use {@link View#getMeasuredWidth()} directly.
      */
+    @Deprecated
     public static int getMeasuredWidthAndState(View view) {
-        return IMPL.getMeasuredWidthAndState(view);
+        return view.getMeasuredWidthAndState();
     }
 
     /**
@@ -2500,9 +2171,12 @@ public class ViewCompat {
      * {@link android.view.View#getHeight()} to see how wide a view is after layout.
      *
      * @return The measured width of this view as a bit mask.
+     *
+     * @deprecated Use {@link View#getMeasuredHeightAndState()} directly.
      */
+    @Deprecated
     public static int getMeasuredHeightAndState(View view) {
-        return IMPL.getMeasuredHeightAndState(view);
+        return view.getMeasuredHeightAndState();
     }
 
     /**
@@ -2511,9 +2185,12 @@ public class ViewCompat {
      * The width component is in the regular bits {@link #MEASURED_STATE_MASK}
      * and the height component is at the shifted bits
      * {@link #MEASURED_HEIGHT_STATE_SHIFT}>>{@link #MEASURED_STATE_MASK}.
+     *
+     * @deprecated Use {@link View#getMeasuredState()} directly.
      */
+    @Deprecated
     public static int getMeasuredState(View view) {
-        return IMPL.getMeasuredState(view);
+        return view.getMeasuredState();
     }
 
     /**
@@ -2523,9 +2200,12 @@ public class ViewCompat {
      * @param newState The new view state to combine.
      * @return Returns a new integer reflecting the combination of the two
      * states.
+     *
+     * @deprecated Use {@link View#combineMeasuredStates(int, int)} directly.
      */
+    @Deprecated
     public static int combineMeasuredStates(int curState, int newState) {
-        return IMPL.combineMeasuredStates(curState, newState);
+        return View.combineMeasuredStates(curState, newState);
     }
 
     /**
@@ -2634,12 +2314,13 @@ public class ViewCompat {
      * This position is post-layout, in addition to wherever the object's
      * layout placed it.
      *
-     * <p>Prior to API 11 this will return 0.</p>
-     *
      * @return The horizontal position of this view relative to its left position, in pixels.
+     *
+     * @deprecated Use {@link View#getTranslationX()} directly.
      */
+    @Deprecated
     public static float getTranslationX(View view) {
-        return IMPL.getTranslationX(view);
+        return view.getTranslationX();
     }
 
     /**
@@ -2647,19 +2328,19 @@ public class ViewCompat {
      * This position is post-layout, in addition to wherever the object's
      * layout placed it.
      *
-     * <p>Prior to API 11 this will return 0.</p>
-     *
      * @return The vertical position of this view relative to its top position, in pixels.
+     *
+     * @deprecated Use {@link View#getTranslationY()} directly.
      */
+    @Deprecated
     public static float getTranslationY(View view) {
-        return IMPL.getTranslationY(view);
+        return view.getTranslationY();
     }
 
     /**
      * The transform matrix of this view, which is calculated based on the current
      * rotation, scale, and pivot properties.
      * <p>
-     * Prior to 11, this method will return {@code null}.
      *
      * @param view The view whose Matrix will be returned
      * @return The current transform matrix for the view
@@ -2669,10 +2350,13 @@ public class ViewCompat {
      * @see #getScaleY(View)
      * @see #getPivotX(View)
      * @see #getPivotY(View)
+     *
+     * @deprecated Use {@link View#getMatrix()} directly.
      */
+    @Deprecated
     @Nullable
     public static Matrix getMatrix(View view) {
-        return IMPL.getMatrix(view);
+        return view.getMatrix();
     }
 
     /**
@@ -2714,13 +2398,14 @@ public class ViewCompat {
      * This effectively positions the object post-layout, in addition to wherever the object's
      * layout placed it.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The horizontal position of this view relative to its left position,
      * in pixels.
+     *
+     * @deprecated Use {@link View#setTranslationX(float)} directly.
      */
+    @Deprecated
     public static void setTranslationX(View view, float value) {
-        IMPL.setTranslationX(view, value);
+        view.setTranslationX(value);
     }
 
     /**
@@ -2728,15 +2413,16 @@ public class ViewCompat {
      * This effectively positions the object post-layout, in addition to wherever the object's
      * layout placed it.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The vertical position of this view relative to its top position,
      * in pixels.
      *
      * @attr name android:translationY
+     *
+     * @deprecated Use {@link View#setTranslationY(float)} directly.
      */
+    @Deprecated
     public static void setTranslationY(View view, float value) {
-        IMPL.setTranslationY(view, value);
+        view.setTranslationY(value);
     }
 
     /**
@@ -2747,12 +2433,13 @@ public class ViewCompat {
      * performance implications, especially for large views. It is best to use the alpha property
      * sparingly and transiently, as in the case of fading animations.</p>
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The opacity of the view.
+     *
+     * @deprecated Use {@link View#setAlpha(float)} directly.
      */
+    @Deprecated
     public static void setAlpha(View view, @FloatRange(from=0.0, to=1.0) float value) {
-        IMPL.setAlpha(view, value);
+        view.setAlpha(value);
     }
 
     /**
@@ -2761,12 +2448,13 @@ public class ViewCompat {
      * the x value passed in and the current left property of the view as determined
      * by the layout bounds.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The visual x position of this view, in pixels.
+     *
+     * @deprecated Use {@link View#setX(float)} directly.
      */
+    @Deprecated
     public static void setX(View view, float value) {
-        IMPL.setX(view, value);
+        view.setX(value);
     }
 
     /**
@@ -2775,24 +2463,26 @@ public class ViewCompat {
      * the y value passed in and the current top property of the view as determined by the
      * layout bounds.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The visual y position of this view, in pixels.
+     *
+     * @deprecated Use {@link View#setY(float)} directly.
      */
+    @Deprecated
     public static void setY(View view, float value) {
-        IMPL.setY(view, value);
+        view.setY(value);
     }
 
     /**
      * Sets the degrees that the view is rotated around the pivot point. Increasing values
      * result in clockwise rotation.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The degrees of rotation.
+     *
+     * @deprecated Use {@link View#setRotation(float)} directly.
      */
+    @Deprecated
     public static void setRotation(View view, float value) {
-        IMPL.setRotation(view, value);
+        view.setRotation(value);
     }
 
     /**
@@ -2800,12 +2490,13 @@ public class ViewCompat {
      * Increasing values result in clockwise rotation from the viewpoint of looking down the
      * x axis.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The degrees of X rotation.
+     *
+     * @deprecated Use {@link View#setRotationX(float)} directly.
      */
+    @Deprecated
     public static void setRotationX(View view, float value) {
-        IMPL.setRotationX(view, value);
+        view.setRotationX(value);
     }
 
     /**
@@ -2813,47 +2504,50 @@ public class ViewCompat {
      * Increasing values result in counter-clockwise rotation from the viewpoint of looking
      * down the y axis.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The degrees of Y rotation.
+     *
+     * @deprecated Use {@link View#setRotationY(float)} directly.
      */
+    @Deprecated
     public static void setRotationY(View view, float value) {
-        IMPL.setRotationY(view, value);
+        view.setRotationY(value);
     }
 
     /**
      * Sets the amount that the view is scaled in x around the pivot point, as a proportion of
      * the view's unscaled width. A value of 1 means that no scaling is applied.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The scaling factor.
+     *
+     * @deprecated Use {@link View#setScaleX(float)} directly.
      */
+    @Deprecated
     public static void setScaleX(View view, float value) {
-        IMPL.setScaleX(view, value);
+        view.setScaleX(value);
     }
 
     /**
      * Sets the amount that the view is scaled in Y around the pivot point, as a proportion of
      * the view's unscaled width. A value of 1 means that no scaling is applied.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The scaling factor.
+     *
+     * @deprecated Use {@link View#setScaleY(float)} directly.
      */
+    @Deprecated
     public static void setScaleY(View view, float value) {
-        IMPL.setScaleY(view, value);
+        view.setScaleY(value);
     }
 
     /**
      * The x location of the point around which the view is
      * {@link #setRotation(View, float) rotated} and {@link #setScaleX(View, float) scaled}.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
+     * @deprecated Use {@link View#getPivotX()} directly.
      */
+    @Deprecated
     public static float getPivotX(View view) {
-        return IMPL.getPivotX(view);
+        return view.getPivotX();
     }
 
     /**
@@ -2863,24 +2557,26 @@ public class ViewCompat {
      * Setting this property disables this behavior and causes the view to use only the
      * explicitly set pivotX and pivotY values.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The x location of the pivot point.
+     *
+     * @deprecated Use {@link View#setPivotX(float)} directly.
      */
+    @Deprecated
     public static void setPivotX(View view, float value) {
-        IMPL.setPivotX(view, value);
+        view.setPivotX(value);
     }
 
     /**
      * The y location of the point around which the view is {@link #setRotation(View,
      * float) rotated} and {@link #setScaleY(View, float) scaled}.
      *
-     * <p>Prior to API 11 this will return 0.</p>
-     *
      * @return The y location of the pivot point.
+     *
+     * @deprecated Use {@link View#getPivotY()} directly.
      */
+    @Deprecated
     public static float getPivotY(View view) {
-        return IMPL.getPivotY(view);
+        return view.getPivotY();
     }
 
     /**
@@ -2890,40 +2586,69 @@ public class ViewCompat {
      * Setting this property disables this behavior and causes the view to use only the
      * explicitly set pivotX and pivotY values.
      *
-     * <p>Prior to API 11 this will have no effect.</p>
-     *
      * @param value The y location of the pivot point.
+     *
+     * @deprecated Use {@link View#setPivotX(float)} directly.
      */
+    @Deprecated
     public static void setPivotY(View view, float value) {
-        IMPL.setPivotY(view, value);
+        view.setPivotY(value);
     }
 
+    /**
+     * @deprecated Use {@link View#getRotation()} directly.
+     */
+    @Deprecated
     public static float getRotation(View view) {
-        return IMPL.getRotation(view);
+        return view.getRotation();
     }
 
+    /**
+     * @deprecated Use {@link View#getRotationX()} directly.
+     */
+    @Deprecated
     public static float getRotationX(View view) {
-        return IMPL.getRotationX(view);
+        return view.getRotationX();
     }
 
+    /**
+     * @deprecated Use {@link View#getRotationY()} directly.
+     */
+    @Deprecated
     public static float getRotationY(View view) {
-        return IMPL.getRotationY(view);
+        return view.getRotationY();
     }
 
+    /**
+     * @deprecated Use {@link View#getScaleX()} directly.
+     */
+    @Deprecated
     public static float getScaleX(View view) {
-        return IMPL.getScaleX(view);
+        return view.getScaleX();
     }
 
+    /**
+     * @deprecated Use {@link View#getScaleY()} directly.
+     */
+    @Deprecated
     public static float getScaleY(View view) {
-        return IMPL.getScaleY(view);
+        return view.getScaleY();
     }
 
+    /**
+     * @deprecated Use {@link View#getX()} directly.
+     */
+    @Deprecated
     public static float getX(View view) {
-        return IMPL.getX(view);
+        return view.getX();
     }
 
+    /**
+     * @deprecated Use {@link View#getY()} directly.
+     */
+    @Deprecated
     public static float getY(View view) {
-        return IMPL.getY(view);
+        return view.getY();
     }
 
     /**
@@ -3035,9 +2760,12 @@ public class ViewCompat {
      * <p>
      * On API 21 and above, also calls <code>StateListAnimator#jumpToCurrentState()</code>
      * if there is a StateListAnimator attached to this view.
+     *
+     * @deprecated Use {@link View#jumpDrawablesToCurrentState()} directly.
      */
+    @Deprecated
     public static void jumpDrawablesToCurrentState(View v) {
-        IMPL.jumpDrawablesToCurrentState(v);
+        v.jumpDrawablesToCurrentState();
     }
 
     /**
@@ -3088,9 +2816,12 @@ public class ViewCompat {
      *
      * @param enabled Set to false to <em>disable</em> state saving, or true
      * (the default) to allow it.
+     *
+     * @deprecated Use {@link View#setSaveFromParentEnabled(boolean)} directly.
      */
+    @Deprecated
     public static void setSaveFromParentEnabled(View v, boolean enabled) {
-        IMPL.setSaveFromParentEnabled(v, enabled);
+        v.setSaveFromParentEnabled(enabled);
     }
 
     /**
@@ -3101,9 +2832,12 @@ public class ViewCompat {
      * user can move views in and out of.
      *
      * @param activated true if the view must be activated, false otherwise
+     *
+     * @deprecated Use {@link View#setActivated(boolean)} directly.
      */
+    @Deprecated
     public static void setActivated(View view, boolean activated) {
-        IMPL.setActivated(view, activated);
+        view.setActivated(activated);
     }
 
     /**

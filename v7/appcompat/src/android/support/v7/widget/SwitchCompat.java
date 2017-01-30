@@ -19,7 +19,6 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -840,7 +839,7 @@ public class SwitchCompat extends CompoundButton {
 
         final int measuredHeight = getMeasuredHeight();
         if (measuredHeight < switchHeight) {
-            setMeasuredDimension(ViewCompat.getMeasuredWidthAndState(this), switchHeight);
+            setMeasuredDimension(getMeasuredWidthAndState(), switchHeight);
         }
     }
 

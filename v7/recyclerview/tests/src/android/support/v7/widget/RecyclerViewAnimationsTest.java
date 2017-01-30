@@ -1404,7 +1404,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             public void onViewDetachedFromWindow(TestViewHolder holder) {
                 if ((addedView[0] == holder.itemView || addedView[1] == holder.itemView)
                         && ViewCompat.hasTransientState(holder.itemView)) {
-                    ViewCompat.animate(holder.itemView).cancel();
+                    holder.itemView.animate().cancel();
                 }
                 super.onViewDetachedFromWindow(holder);
             }

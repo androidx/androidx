@@ -139,8 +139,8 @@ public class WindowDecorActionBar extends ActionBar implements
         @Override
         public void onAnimationEnd(View view) {
             if (mContentAnimations && mContentView != null) {
-                ViewCompat.setTranslationY(mContentView, 0f);
-                ViewCompat.setTranslationY(mContainerView, 0f);
+                mContentView.setTranslationY(0f);
+                mContainerView.setTranslationY(0f);
             }
             mContainerView.setVisibility(View.GONE);
             mContainerView.setTransitioning(false);
@@ -772,20 +772,20 @@ public class WindowDecorActionBar extends ActionBar implements
         if (mCurWindowVisibility == View.VISIBLE && ALLOW_SHOW_HIDE_ANIMATIONS &&
                 (mShowHideAnimationEnabled || fromSystem)) {
             // because we're about to ask its window loc
-            ViewCompat.setTranslationY(mContainerView, 0f);
+            mContainerView.setTranslationY(0f);
             float startingY = -mContainerView.getHeight();
             if (fromSystem) {
                 int topLeft[] = {0, 0};
                 mContainerView.getLocationInWindow(topLeft);
                 startingY -= topLeft[1];
             }
-            ViewCompat.setTranslationY(mContainerView, startingY);
+            mContainerView.setTranslationY(startingY);
             ViewPropertyAnimatorCompatSet anim = new ViewPropertyAnimatorCompatSet();
             ViewPropertyAnimatorCompat a = ViewCompat.animate(mContainerView).translationY(0f);
             a.setUpdateListener(mUpdateListener);
             anim.play(a);
             if (mContentAnimations && mContentView != null) {
-                ViewCompat.setTranslationY(mContentView, startingY);
+                mContentView.setTranslationY(startingY);
                 anim.play(ViewCompat.animate(mContentView).translationY(0f));
             }
             anim.setInterpolator(sShowInterpolator);
@@ -801,10 +801,10 @@ public class WindowDecorActionBar extends ActionBar implements
             mCurrentShowAnim = anim;
             anim.start();
         } else {
-            ViewCompat.setAlpha(mContainerView, 1f);
-            ViewCompat.setTranslationY(mContainerView, 0);
+            mContainerView.setAlpha(1f);
+            mContainerView.setTranslationY(0);
             if (mContentAnimations && mContentView != null) {
-                ViewCompat.setTranslationY(mContentView, 0);
+                mContentView.setTranslationY(0);
             }
             mShowListener.onAnimationEnd(null);
         }
@@ -818,9 +818,9 @@ public class WindowDecorActionBar extends ActionBar implements
             mCurrentShowAnim.cancel();
         }
 
-        if (mCurWindowVisibility == View.VISIBLE && ALLOW_SHOW_HIDE_ANIMATIONS &&
-                (mShowHideAnimationEnabled || fromSystem)) {
-            ViewCompat.setAlpha(mContainerView, 1f);
+        if (mCurWindowVisibility == View.VISIBLE && ALLOW_SHOW_HIDE_ANIMATIONS
+                && (mShowHideAnimationEnabled || fromSystem)) {
+            mContainerView.setAlpha(1f);
             mContainerView.setTransitioning(true);
             ViewPropertyAnimatorCompatSet anim = new ViewPropertyAnimatorCompatSet();
             float endingY = -mContainerView.getHeight();

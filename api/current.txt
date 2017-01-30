@@ -7428,7 +7428,7 @@ package android.support.v4.view {
     method public static android.support.v4.view.ViewPropertyAnimatorCompat animate(android.view.View);
     method public static boolean canScrollHorizontally(android.view.View, int);
     method public static boolean canScrollVertically(android.view.View, int);
-    method public static int combineMeasuredStates(int, int);
+    method public static deprecated int combineMeasuredStates(int, int);
     method public static android.support.v4.view.WindowInsetsCompat dispatchApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
     method public static void dispatchFinishTemporaryDetach(android.view.View);
     method public static boolean dispatchNestedFling(android.view.View, float, float, boolean);
@@ -7438,7 +7438,7 @@ package android.support.v4.view {
     method public static void dispatchStartTemporaryDetach(android.view.View);
     method public static int getAccessibilityLiveRegion(android.view.View);
     method public static android.support.v4.view.accessibility.AccessibilityNodeProviderCompat getAccessibilityNodeProvider(android.view.View);
-    method public static float getAlpha(android.view.View);
+    method public static deprecated float getAlpha(android.view.View);
     method public static android.content.res.ColorStateList getBackgroundTintList(android.view.View);
     method public static android.graphics.PorterDuff.Mode getBackgroundTintMode(android.view.View);
     method public static android.graphics.Rect getClipBounds(android.view.View);
@@ -7447,33 +7447,33 @@ package android.support.v4.view {
     method public static boolean getFitsSystemWindows(android.view.View);
     method public static int getImportantForAccessibility(android.view.View);
     method public static int getLabelFor(android.view.View);
-    method public static int getLayerType(android.view.View);
+    method public static deprecated int getLayerType(android.view.View);
     method public static int getLayoutDirection(android.view.View);
-    method public static android.graphics.Matrix getMatrix(android.view.View);
-    method public static int getMeasuredHeightAndState(android.view.View);
-    method public static int getMeasuredState(android.view.View);
-    method public static int getMeasuredWidthAndState(android.view.View);
+    method public static deprecated android.graphics.Matrix getMatrix(android.view.View);
+    method public static deprecated int getMeasuredHeightAndState(android.view.View);
+    method public static deprecated int getMeasuredState(android.view.View);
+    method public static deprecated int getMeasuredWidthAndState(android.view.View);
     method public static int getMinimumHeight(android.view.View);
     method public static int getMinimumWidth(android.view.View);
     method public static deprecated int getOverScrollMode(android.view.View);
     method public static int getPaddingEnd(android.view.View);
     method public static int getPaddingStart(android.view.View);
     method public static android.view.ViewParent getParentForAccessibility(android.view.View);
-    method public static float getPivotX(android.view.View);
-    method public static float getPivotY(android.view.View);
-    method public static float getRotation(android.view.View);
-    method public static float getRotationX(android.view.View);
-    method public static float getRotationY(android.view.View);
-    method public static float getScaleX(android.view.View);
-    method public static float getScaleY(android.view.View);
+    method public static deprecated float getPivotX(android.view.View);
+    method public static deprecated float getPivotY(android.view.View);
+    method public static deprecated float getRotation(android.view.View);
+    method public static deprecated float getRotationX(android.view.View);
+    method public static deprecated float getRotationY(android.view.View);
+    method public static deprecated float getScaleX(android.view.View);
+    method public static deprecated float getScaleY(android.view.View);
     method public static int getScrollIndicators(android.view.View);
     method public static java.lang.String getTransitionName(android.view.View);
-    method public static float getTranslationX(android.view.View);
-    method public static float getTranslationY(android.view.View);
+    method public static deprecated float getTranslationX(android.view.View);
+    method public static deprecated float getTranslationY(android.view.View);
     method public static float getTranslationZ(android.view.View);
     method public static int getWindowSystemUiVisibility(android.view.View);
-    method public static float getX(android.view.View);
-    method public static float getY(android.view.View);
+    method public static deprecated float getX(android.view.View);
+    method public static deprecated float getY(android.view.View);
     method public static float getZ(android.view.View);
     method public static boolean hasAccessibilityDelegate(android.view.View);
     method public static boolean hasNestedScrollingParent(android.view.View);
@@ -7488,7 +7488,7 @@ package android.support.v4.view {
     method public static boolean isNestedScrollingEnabled(android.view.View);
     method public static deprecated boolean isOpaque(android.view.View);
     method public static boolean isPaddingRelative(android.view.View);
-    method public static void jumpDrawablesToCurrentState(android.view.View);
+    method public static deprecated void jumpDrawablesToCurrentState(android.view.View);
     method public static void offsetLeftAndRight(android.view.View, int);
     method public static void offsetTopAndBottom(android.view.View, int);
     method public static android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
@@ -7501,11 +7501,11 @@ package android.support.v4.view {
     method public static void postOnAnimation(android.view.View, java.lang.Runnable);
     method public static void postOnAnimationDelayed(android.view.View, java.lang.Runnable, long);
     method public static void requestApplyInsets(android.view.View);
-    method public static int resolveSizeAndState(int, int, int);
+    method public static deprecated int resolveSizeAndState(int, int, int);
     method public static void setAccessibilityDelegate(android.view.View, android.support.v4.view.AccessibilityDelegateCompat);
     method public static void setAccessibilityLiveRegion(android.view.View, int);
-    method public static void setActivated(android.view.View, boolean);
-    method public static void setAlpha(android.view.View, float);
+    method public static deprecated void setActivated(android.view.View, boolean);
+    method public static deprecated void setAlpha(android.view.View, float);
     method public static void setBackground(android.view.View, android.graphics.drawable.Drawable);
     method public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList);
     method public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode);
@@ -7517,30 +7517,30 @@ package android.support.v4.view {
     method public static void setImportantForAccessibility(android.view.View, int);
     method public static void setLabelFor(android.view.View, int);
     method public static void setLayerPaint(android.view.View, android.graphics.Paint);
-    method public static void setLayerType(android.view.View, int, android.graphics.Paint);
+    method public static deprecated void setLayerType(android.view.View, int, android.graphics.Paint);
     method public static void setLayoutDirection(android.view.View, int);
     method public static void setNestedScrollingEnabled(android.view.View, boolean);
     method public static void setOnApplyWindowInsetsListener(android.view.View, android.support.v4.view.OnApplyWindowInsetsListener);
     method public static deprecated void setOverScrollMode(android.view.View, int);
     method public static void setPaddingRelative(android.view.View, int, int, int, int);
-    method public static void setPivotX(android.view.View, float);
-    method public static void setPivotY(android.view.View, float);
+    method public static deprecated void setPivotX(android.view.View, float);
+    method public static deprecated void setPivotY(android.view.View, float);
     method public static void setPointerIcon(android.view.View, android.support.v4.view.PointerIconCompat);
-    method public static void setRotation(android.view.View, float);
-    method public static void setRotationX(android.view.View, float);
-    method public static void setRotationY(android.view.View, float);
-    method public static void setSaveFromParentEnabled(android.view.View, boolean);
-    method public static void setScaleX(android.view.View, float);
-    method public static void setScaleY(android.view.View, float);
+    method public static deprecated void setRotation(android.view.View, float);
+    method public static deprecated void setRotationX(android.view.View, float);
+    method public static deprecated void setRotationY(android.view.View, float);
+    method public static deprecated void setSaveFromParentEnabled(android.view.View, boolean);
+    method public static deprecated void setScaleX(android.view.View, float);
+    method public static deprecated void setScaleY(android.view.View, float);
     method public static void setScrollIndicators(android.view.View, int);
     method public static void setScrollIndicators(android.view.View, int, int);
     method public static void setTooltipText(android.view.View, java.lang.CharSequence);
     method public static void setTransitionName(android.view.View, java.lang.String);
-    method public static void setTranslationX(android.view.View, float);
-    method public static void setTranslationY(android.view.View, float);
+    method public static deprecated void setTranslationX(android.view.View, float);
+    method public static deprecated void setTranslationY(android.view.View, float);
     method public static void setTranslationZ(android.view.View, float);
-    method public static void setX(android.view.View, float);
-    method public static void setY(android.view.View, float);
+    method public static deprecated void setX(android.view.View, float);
+    method public static deprecated void setY(android.view.View, float);
     method public static void setZ(android.view.View, float);
     method public static boolean startNestedScroll(android.view.View, int);
     method public static void stopNestedScroll(android.view.View);
@@ -7558,10 +7558,10 @@ package android.support.v4.view {
     field public static final int LAYOUT_DIRECTION_LOCALE = 3; // 0x3
     field public static final int LAYOUT_DIRECTION_LTR = 0; // 0x0
     field public static final int LAYOUT_DIRECTION_RTL = 1; // 0x1
-    field public static final int MEASURED_HEIGHT_STATE_SHIFT = 16; // 0x10
-    field public static final int MEASURED_SIZE_MASK = 16777215; // 0xffffff
-    field public static final int MEASURED_STATE_MASK = -16777216; // 0xff000000
-    field public static final int MEASURED_STATE_TOO_SMALL = 16777216; // 0x1000000
+    field public static final deprecated int MEASURED_HEIGHT_STATE_SHIFT = 16; // 0x10
+    field public static final deprecated int MEASURED_SIZE_MASK = 16777215; // 0xffffff
+    field public static final deprecated int MEASURED_STATE_MASK = -16777216; // 0xff000000
+    field public static final deprecated int MEASURED_STATE_TOO_SMALL = 16777216; // 0x1000000
     field public static final deprecated int OVER_SCROLL_ALWAYS = 0; // 0x0
     field public static final deprecated int OVER_SCROLL_IF_CONTENT_SCROLLS = 1; // 0x1
     field public static final deprecated int OVER_SCROLL_NEVER = 2; // 0x2

@@ -16,6 +16,19 @@
 
 package android.support.v7.widget;
 
+import static android.view.Gravity.AXIS_PULL_AFTER;
+import static android.view.Gravity.AXIS_PULL_BEFORE;
+import static android.view.Gravity.AXIS_SPECIFIED;
+import static android.view.Gravity.AXIS_X_SHIFT;
+import static android.view.Gravity.AXIS_Y_SHIFT;
+import static android.view.Gravity.HORIZONTAL_GRAVITY_MASK;
+import static android.view.Gravity.VERTICAL_GRAVITY_MASK;
+import static android.view.View.MeasureSpec.EXACTLY;
+import static android.view.View.MeasureSpec.makeMeasureSpec;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -23,6 +36,7 @@ import android.graphics.Paint;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewGroupCompat;
+import android.support.v7.gridlayout.R;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.LogPrinter;
@@ -33,20 +47,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import android.support.v7.gridlayout.R;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static android.view.Gravity.*;
-import static android.view.View.MeasureSpec.EXACTLY;
-import static android.view.View.MeasureSpec.makeMeasureSpec;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 /**
  * A layout that places its children in a rectangular <em>grid</em>.
@@ -968,8 +974,8 @@ public class GridLayout extends ViewGroup {
         int measuredHeight = Math.max(heightSansPadding + vPadding, getSuggestedMinimumHeight());
 
         setMeasuredDimension(
-                ViewCompat.resolveSizeAndState(measuredWidth, widthSpec, 0),
-                ViewCompat.resolveSizeAndState(measuredHeight, heightSpec, 0));
+                View.resolveSizeAndState(measuredWidth, widthSpec, 0),
+                View.resolveSizeAndState(measuredHeight, heightSpec, 0));
     }
 
     private int getMeasurement(View c, boolean horizontal) {

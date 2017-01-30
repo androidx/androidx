@@ -18,7 +18,6 @@ package com.example.android.supportv7.view;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.view.View;
@@ -78,7 +77,7 @@ public class CardViewActivity extends AppCompatActivity {
         if (mMaxElevationSeekBar.getProgress() != mCardView.getMaxCardElevation()) {
             mCardView.setMaxCardElevation(mMaxElevationSeekBar.getProgress());
         }
-        ViewCompat.setAlpha(mCardView, mAlphaSeekBar.getProgress() / 255f);
+        mCardView.setAlpha(mAlphaSeekBar.getProgress() / 255f);
         ViewGroup.LayoutParams lp;
         if (mResizeCardView) {
             lp = setViewBounds(mCardView);
@@ -133,7 +132,7 @@ public class CardViewActivity extends AppCompatActivity {
         mMaxElevationSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangedListener);
 
         mAlphaSeekBar = (SeekBar) findViewById(R.id.alpha_seek_bar);
-        mAlphaSeekBar.setProgress((int) ViewCompat.getAlpha(mCardView) * 255);
+        mAlphaSeekBar.setProgress((int) (mCardView.getAlpha() * 255));
         mAlphaSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangedListener);
 
         RadioGroup rb = (RadioGroup) findViewById(R.id.select_target_radio);

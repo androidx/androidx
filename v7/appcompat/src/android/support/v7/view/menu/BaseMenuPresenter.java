@@ -20,7 +20,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.support.annotation.RestrictTo;
-import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -105,7 +104,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
                     if (item != oldItem) {
                         // Don't let old states linger with new data.
                         itemView.setPressed(false);
-                        ViewCompat.jumpDrawablesToCurrentState(itemView);
+                        itemView.jumpDrawablesToCurrentState();
                     }
                     if (itemView != convertView) {
                         addItemView(itemView, childIndex);

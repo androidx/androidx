@@ -519,7 +519,7 @@ public final class ViewPropertyAnimatorCompat {
 
         @Override
         public void withLayer(ViewPropertyAnimatorCompat vpa, View view) {
-            vpa.mOldLayerType = ViewCompat.getLayerType(view);
+            vpa.mOldLayerType = view.getLayerType();
             ViewPropertyAnimatorCompatICS.setListener(view, new MyVpaListener(vpa));
         }
 
@@ -537,7 +537,7 @@ public final class ViewPropertyAnimatorCompat {
                 mAnimEndCalled = false;
 
                 if (mVpa.mOldLayerType >= 0) {
-                    ViewCompat.setLayerType(view, ViewCompat.LAYER_TYPE_HARDWARE, null);
+                    view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
                 }
                 if (mVpa.mStartAction != null) {
                     Runnable startAction = mVpa.mStartAction;
@@ -557,7 +557,7 @@ public final class ViewPropertyAnimatorCompat {
             @Override
             public void onAnimationEnd(View view) {
                 if (mVpa.mOldLayerType >= 0) {
-                    ViewCompat.setLayerType(view, mVpa.mOldLayerType, null);
+                    view.setLayerType(mVpa.mOldLayerType, null);
                     mVpa.mOldLayerType = -1;
                 }
                 if (Build.VERSION.SDK_INT >= 16 || !mAnimEndCalled) {
@@ -1252,20 +1252,20 @@ public final class ViewPropertyAnimatorCompat {
 
     /**
      * The View associated with this ViewPropertyAnimator will have its
-     * {@link ViewCompat#setLayerType(View, int, android.graphics.Paint) layer type} set to
-     * {@link ViewCompat#LAYER_TYPE_HARDWARE} for the duration of the next animation.
-     * As stated in the documentation for {@link ViewCompat#LAYER_TYPE_HARDWARE},
+     * {@link View#setLayerType(int, android.graphics.Paint) layer type} set to
+     * {@link View#LAYER_TYPE_HARDWARE} for the duration of the next animation.
+     * As stated in the documentation for {@link View#LAYER_TYPE_HARDWARE},
      * the actual type of layer used internally depends on the runtime situation of the
      * view. If the activity and this view are hardware-accelerated, then the layer will be
      * accelerated as well. If the activity or the view is not accelerated, then the layer will
-     * effectively be the same as {@link ViewCompat#LAYER_TYPE_SOFTWARE}.
+     * effectively be the same as {@link View#LAYER_TYPE_SOFTWARE}.
      *
      * <p>This state is not persistent, either on the View or on this ViewPropertyAnimator: the
      * layer type of the View will be restored when the animation ends to what it was when this
      * method was called, and this setting on ViewPropertyAnimator is only valid for the next
      * animation. Note that calling this method and then independently setting the layer type of
      * the View (by a direct call to
-     * {@link ViewCompat#setLayerType(View, int, android.graphics.Paint)}) will result in some
+     * {@link View#setLayerType(int, android.graphics.Paint)}) will result in some
      * inconsistency, including having the layer type restored to its pre-withLayer()
      * value when the animation ends.</p>
      *

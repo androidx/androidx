@@ -1593,8 +1593,8 @@ public class Toolbar extends ViewGroup {
             navWidth = mNavButtonView.getMeasuredWidth() + getHorizontalMargins(mNavButtonView);
             height = Math.max(height, mNavButtonView.getMeasuredHeight() +
                     getVerticalMargins(mNavButtonView));
-            childState = ViewUtils.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(mNavButtonView));
+            childState = View.combineMeasuredStates(childState,
+                    mNavButtonView.getMeasuredState());
         }
 
         if (shouldLayout(mCollapseButtonView)) {
@@ -1604,8 +1604,8 @@ public class Toolbar extends ViewGroup {
                     getHorizontalMargins(mCollapseButtonView);
             height = Math.max(height, mCollapseButtonView.getMeasuredHeight() +
                     getVerticalMargins(mCollapseButtonView));
-            childState = ViewUtils.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(mCollapseButtonView));
+            childState = View.combineMeasuredStates(childState,
+                    mCollapseButtonView.getMeasuredState());
         }
 
         final int contentInsetStart = getCurrentContentInsetStart();
@@ -1619,8 +1619,8 @@ public class Toolbar extends ViewGroup {
             menuWidth = mMenuView.getMeasuredWidth() + getHorizontalMargins(mMenuView);
             height = Math.max(height, mMenuView.getMeasuredHeight() +
                     getVerticalMargins(mMenuView));
-            childState = ViewUtils.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(mMenuView));
+            childState = View.combineMeasuredStates(childState,
+                    mMenuView.getMeasuredState());
         }
 
         final int contentInsetEnd = getCurrentContentInsetEnd();
@@ -1632,8 +1632,8 @@ public class Toolbar extends ViewGroup {
                     heightMeasureSpec, 0, collapsingMargins);
             height = Math.max(height, mExpandedActionView.getMeasuredHeight() +
                     getVerticalMargins(mExpandedActionView));
-            childState = ViewUtils.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(mExpandedActionView));
+            childState = View.combineMeasuredStates(childState,
+                    mExpandedActionView.getMeasuredState());
         }
 
         if (shouldLayout(mLogoView)) {
@@ -1641,8 +1641,8 @@ public class Toolbar extends ViewGroup {
                     heightMeasureSpec, 0, collapsingMargins);
             height = Math.max(height, mLogoView.getMeasuredHeight() +
                     getVerticalMargins(mLogoView));
-            childState = ViewUtils.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(mLogoView));
+            childState = View.combineMeasuredStates(childState,
+                    mLogoView.getMeasuredState());
         }
 
         final int childCount = getChildCount();
@@ -1657,8 +1657,7 @@ public class Toolbar extends ViewGroup {
             width += measureChildCollapseMargins(child, widthMeasureSpec, width,
                     heightMeasureSpec, 0, collapsingMargins);
             height = Math.max(height, child.getMeasuredHeight() + getVerticalMargins(child));
-            childState = ViewUtils.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(child));
+            childState = View.combineMeasuredStates(childState, child.getMeasuredState());
         }
 
         int titleWidth = 0;
@@ -1671,8 +1670,7 @@ public class Toolbar extends ViewGroup {
                     collapsingMargins);
             titleWidth = mTitleTextView.getMeasuredWidth() + getHorizontalMargins(mTitleTextView);
             titleHeight = mTitleTextView.getMeasuredHeight() + getVerticalMargins(mTitleTextView);
-            childState = ViewUtils.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(mTitleTextView));
+            childState = View.combineMeasuredStates(childState, mTitleTextView.getMeasuredState());
         }
         if (shouldLayout(mSubtitleTextView)) {
             titleWidth = Math.max(titleWidth, measureChildCollapseMargins(mSubtitleTextView,
@@ -1681,8 +1679,8 @@ public class Toolbar extends ViewGroup {
                     collapsingMargins));
             titleHeight += mSubtitleTextView.getMeasuredHeight() +
                     getVerticalMargins(mSubtitleTextView);
-            childState = ViewUtils.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(mSubtitleTextView));
+            childState = View.combineMeasuredStates(childState,
+                    mSubtitleTextView.getMeasuredState());
         }
 
         width += titleWidth;
@@ -1693,12 +1691,12 @@ public class Toolbar extends ViewGroup {
         width += getPaddingLeft() + getPaddingRight();
         height += getPaddingTop() + getPaddingBottom();
 
-        final int measuredWidth = ViewCompat.resolveSizeAndState(
+        final int measuredWidth = View.resolveSizeAndState(
                 Math.max(width, getSuggestedMinimumWidth()),
-                widthMeasureSpec, childState & ViewCompat.MEASURED_STATE_MASK);
-        final int measuredHeight = ViewCompat.resolveSizeAndState(
+                widthMeasureSpec, childState & View.MEASURED_STATE_MASK);
+        final int measuredHeight = View.resolveSizeAndState(
                 Math.max(height, getSuggestedMinimumHeight()),
-                heightMeasureSpec, childState << ViewCompat.MEASURED_HEIGHT_STATE_SHIFT);
+                heightMeasureSpec, childState << View.MEASURED_HEIGHT_STATE_SHIFT);
 
         setMeasuredDimension(measuredWidth, shouldCollapse() ? 0 : measuredHeight);
     }

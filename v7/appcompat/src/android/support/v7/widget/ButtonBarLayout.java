@@ -19,7 +19,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.ConfigurationHelper;
 import android.support.v4.view.ViewCompat;
@@ -102,20 +101,9 @@ public class ButtonBarLayout extends LinearLayout {
         if (mAllowStacking && !isStacked()) {
             final boolean stack;
 
-            if (Build.VERSION.SDK_INT >= 11) {
-                // On API v11+ we can use MEASURED_STATE_MASK and MEASURED_STATE_TOO_SMALL
-                final int measuredWidth = ViewCompat.getMeasuredWidthAndState(this);
-                final int measuredWidthState = measuredWidth & ViewCompat.MEASURED_STATE_MASK;
-                stack = measuredWidthState == ViewCompat.MEASURED_STATE_TOO_SMALL;
-            } else {
-                // Before that we need to manually total up the children's preferred width.
-                // This isn't perfect but works well enough for a workaround.
-                int childWidthTotal = 0;
-                for (int i = 0, count = getChildCount(); i < count; i++) {
-                    childWidthTotal += getChildAt(i).getMeasuredWidth();
-                }
-                stack = (childWidthTotal + getPaddingLeft() + getPaddingRight()) > widthSize;
-            }
+            final int measuredWidth = getMeasuredWidthAndState();
+            final int measuredWidthState = measuredWidth & View.MEASURED_STATE_MASK;
+            stack = measuredWidthState == View.MEASURED_STATE_TOO_SMALL;
 
             if (stack) {
                 setStacked(true);

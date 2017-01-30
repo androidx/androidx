@@ -26,10 +26,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.support.percent.R;
-
-import java.lang.Math;
-
 /**
  * Helper for layouts that want to support percentage based dimensions.
  *
@@ -320,15 +316,15 @@ public class PercentLayoutHelper {
     }
 
     private static boolean shouldHandleMeasuredWidthTooSmall(View view, PercentLayoutInfo info) {
-        int state = ViewCompat.getMeasuredWidthAndState(view) & ViewCompat.MEASURED_STATE_MASK;
-        return state == ViewCompat.MEASURED_STATE_TOO_SMALL && info.widthPercent >= 0 &&
-                info.mPreservedParams.width == ViewGroup.LayoutParams.WRAP_CONTENT;
+        int state = view.getMeasuredWidthAndState() & View.MEASURED_STATE_MASK;
+        return state == View.MEASURED_STATE_TOO_SMALL && info.widthPercent >= 0
+                && info.mPreservedParams.width == ViewGroup.LayoutParams.WRAP_CONTENT;
     }
 
     private static boolean shouldHandleMeasuredHeightTooSmall(View view, PercentLayoutInfo info) {
-        int state = ViewCompat.getMeasuredHeightAndState(view) & ViewCompat.MEASURED_STATE_MASK;
-        return state == ViewCompat.MEASURED_STATE_TOO_SMALL && info.heightPercent >= 0 &&
-                info.mPreservedParams.height == ViewGroup.LayoutParams.WRAP_CONTENT;
+        int state = view.getMeasuredHeightAndState() & View.MEASURED_STATE_MASK;
+        return state == View.MEASURED_STATE_TOO_SMALL && info.heightPercent >= 0
+                && info.mPreservedParams.height == ViewGroup.LayoutParams.WRAP_CONTENT;
     }
 
     /* package */ static class PercentMarginLayoutParams extends ViewGroup.MarginLayoutParams {

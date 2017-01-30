@@ -17,6 +17,8 @@ package android.support.v7.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -24,8 +26,6 @@ import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorCompat;
-import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionBarPolicy;
@@ -35,6 +35,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.ViewPropertyAnimator;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.DecelerateInterpolator;
@@ -70,7 +71,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
     private int mContentHeight;
     private int mSelectedTabIndex;
 
-    protected ViewPropertyAnimatorCompat mVisibilityAnim;
+    protected ViewPropertyAnimator mVisibilityAnim;
     protected final VisibilityAnimListener mVisAnimListener = new VisibilityAnimListener();
 
     private static final Interpolator sAlphaInterpolator = new DecelerateInterpolator();
@@ -236,17 +237,17 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         }
         if (visibility == VISIBLE) {
             if (getVisibility() != VISIBLE) {
-                ViewCompat.setAlpha(this, 0f);
+                setAlpha(0f);
             }
 
-            ViewPropertyAnimatorCompat anim = ViewCompat.animate(this).alpha(1f);
+            ViewPropertyAnimator anim = animate().alpha(1f);
             anim.setDuration(FADE_DURATION);
 
             anim.setInterpolator(sAlphaInterpolator);
             anim.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
             anim.start();
         } else {
-            ViewPropertyAnimatorCompat anim = ViewCompat.animate(this).alpha(0f);
+            ViewPropertyAnimator anim = animate().alpha(0f);
             anim.setDuration(FADE_DURATION);
 
             anim.setInterpolator(sAlphaInterpolator);
@@ -565,11 +566,11 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         }
     }
 
-    protected class VisibilityAnimListener implements ViewPropertyAnimatorListener {
+    protected class VisibilityAnimListener extends AnimatorListenerAdapter {
         private boolean mCanceled = false;
         private int mFinalVisibility;
 
-        public VisibilityAnimListener withFinalVisibility(ViewPropertyAnimatorCompat animation,
+        public VisibilityAnimListener withFinalVisibility(ViewPropertyAnimator animation,
                 int visibility) {
             mFinalVisibility = visibility;
             mVisibilityAnim = animation;
@@ -577,13 +578,13 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         }
 
         @Override
-        public void onAnimationStart(View view) {
+        public void onAnimationStart(Animator animator) {
             setVisibility(VISIBLE);
             mCanceled = false;
         }
 
         @Override
-        public void onAnimationEnd(View view) {
+        public void onAnimationEnd(Animator animator) {
             if (mCanceled) return;
 
             mVisibilityAnim = null;
@@ -591,7 +592,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         }
 
         @Override
-        public void onAnimationCancel(View view) {
+        public void onAnimationCancel(Animator animator) {
             mCanceled = true;
         }
     }

@@ -499,7 +499,7 @@ public abstract class BaseTransientBottomBar<B extends BaseTransientBottomBar<B>
             if (USE_OFFSET_API) {
                 ViewCompat.offsetTopAndBottom(mView, viewHeight);
             } else {
-                ViewCompat.setTranslationY(mView, viewHeight);
+                mView.setTranslationY(viewHeight);
             }
             final ValueAnimator animator = new ValueAnimator();
             animator.setIntValues(viewHeight, 0);
@@ -528,7 +528,7 @@ public abstract class BaseTransientBottomBar<B extends BaseTransientBottomBar<B>
                         ViewCompat.offsetTopAndBottom(mView,
                                 currentAnimatedIntValue - mPreviousAnimatedIntValue);
                     } else {
-                        ViewCompat.setTranslationY(mView, currentAnimatedIntValue);
+                        mView.setTranslationY(currentAnimatedIntValue);
                     }
                     mPreviousAnimatedIntValue = currentAnimatedIntValue;
                 }
@@ -582,7 +582,7 @@ public abstract class BaseTransientBottomBar<B extends BaseTransientBottomBar<B>
                         ViewCompat.offsetTopAndBottom(mView,
                                 currentAnimatedIntValue - mPreviousAnimatedIntValue);
                     } else {
-                        ViewCompat.setTranslationY(mView, currentAnimatedIntValue);
+                        mView.setTranslationY(currentAnimatedIntValue);
                     }
                     mPreviousAnimatedIntValue = currentAnimatedIntValue;
                 }

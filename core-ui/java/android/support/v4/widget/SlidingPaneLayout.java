@@ -985,11 +985,11 @@ public class SlidingPaneLayout extends ViewGroup {
                 lp.dimPaint = new Paint();
             }
             lp.dimPaint.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_OVER));
-            if (ViewCompat.getLayerType(v) != ViewCompat.LAYER_TYPE_HARDWARE) {
-                ViewCompat.setLayerType(v, ViewCompat.LAYER_TYPE_HARDWARE, lp.dimPaint);
+            if (v.getLayerType() != View.LAYER_TYPE_HARDWARE) {
+                v.setLayerType(View.LAYER_TYPE_HARDWARE, lp.dimPaint);
             }
             invalidateChildRegion(v);
-        } else if (ViewCompat.getLayerType(v) != ViewCompat.LAYER_TYPE_NONE) {
+        } else if (v.getLayerType() != View.LAYER_TYPE_NONE) {
             if (lp.dimPaint != null) {
                 lp.dimPaint.setColorFilter(null);
             }
@@ -1654,7 +1654,7 @@ public class SlidingPaneLayout extends ViewGroup {
         @Override
         public void run() {
             if (mChildView.getParent() == SlidingPaneLayout.this) {
-                ViewCompat.setLayerType(mChildView, ViewCompat.LAYER_TYPE_NONE, null);
+                mChildView.setLayerType(View.LAYER_TYPE_NONE, null);
                 invalidateChildRegion(mChildView);
             }
             mPostedRunnables.remove(this);

@@ -19,7 +19,6 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
@@ -162,7 +161,7 @@ abstract class AbsActionBarView extends ViewGroup {
 
         if (visibility == VISIBLE) {
             if (getVisibility() != VISIBLE) {
-                ViewCompat.setAlpha(this, 0f);
+                setAlpha(0f);
             }
             ViewPropertyAnimatorCompat anim = ViewCompat.animate(this).alpha(1f);
             anim.setDuration(duration);

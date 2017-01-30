@@ -8729,7 +8729,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
 
             if (mRecyclerView != null) {
-                final Matrix childMatrix = ViewCompat.getMatrix(child);
+                final Matrix childMatrix = child.getMatrix();
                 if (childMatrix != null && !childMatrix.isIdentity()) {
                     final RectF tempRectF = mRecyclerView.mTempRectF;
                     tempRectF.set(out);
