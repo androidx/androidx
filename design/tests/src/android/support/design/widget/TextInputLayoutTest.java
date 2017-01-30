@@ -480,6 +480,12 @@ public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLa
                 .check(matches(hasFocus()));
     }
 
+    @Test
+    public void testTextSetViaAttributeCollapsedHint() {
+        onView(withId(R.id.textinput_with_text))
+                .check(isHintExpanded(false));
+    }
+
     static ViewAssertion isHintExpanded(final boolean expanded) {
         return new ViewAssertion() {
             @Override
