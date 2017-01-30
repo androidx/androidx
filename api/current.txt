@@ -354,11 +354,13 @@ package android.support.design.widget {
     method public android.content.res.ColorStateList getItemTextColor();
     method public int getMaxItemCount();
     method public android.view.Menu getMenu();
+    method public int getSelectedItemId();
     method public void inflateMenu(int);
     method public void setItemBackgroundResource(int);
     method public void setItemIconTintList(android.content.res.ColorStateList);
     method public void setItemTextColor(android.content.res.ColorStateList);
     method public void setOnNavigationItemSelectedListener(android.support.design.widget.BottomNavigationView.OnNavigationItemSelectedListener);
+    method public void setSelectedItemId(int);
   }
 
   public static abstract interface BottomNavigationView.OnNavigationItemSelectedListener {
