@@ -11,8 +11,6 @@ dependencies {
 }
 
 android {
-    compileSdkVersion project.ext.currentSdk
-
     defaultConfig {
         minSdkVersion 17
     }
