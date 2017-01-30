@@ -39,6 +39,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1522,31 +1523,47 @@ public final class MediaControllerCompat {
 
         // TODO: Handle the case of calling other methods before receiving the extra binder.
         private void requestExtraBinder() {
-            ResultReceiver cb = new ResultReceiver(new Handler()) {
-                @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    if (resultData != null) {
-                        mExtraBinder = IMediaSession.Stub.asInterface(
-                                BundleCompat.getBinder(
-                                        resultData, MediaSessionCompat.EXTRA_BINDER));
-                        if (mPendingCallbacks != null) {
-                            for (Callback callback : mPendingCallbacks) {
-                                ExtraCallback extraCallback = new ExtraCallback(callback);
-                                mCallbackMap.put(callback, extraCallback);
-                                callback.mHasExtraCallback = true;
-                                try {
-                                    mExtraBinder.registerCallbackListener(extraCallback);
-                                } catch (RemoteException e) {
-                                    Log.e(TAG, "Dead object in registerCallback. " + e);
-                                    break;
-                                }
-                            }
-                            mPendingCallbacks = null;
-                        }
-                    }
+            sendCommand(COMMAND_GET_EXTRA_BINDER, null,
+                    new ExtraBinderRequestResultReceiver(this, new Handler()));
+        }
+
+        private void processPendingCallbacks() {
+            if (mPendingCallbacks == null || mExtraBinder == null) {
+                return;
+            }
+            for (Callback callback : mPendingCallbacks) {
+                ExtraCallback extraCallback = new ExtraCallback(callback);
+                mCallbackMap.put(callback, extraCallback);
+                callback.mHasExtraCallback = true;
+                try {
+                    mExtraBinder.registerCallbackListener(extraCallback);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in registerCallback. " + e);
+                    break;
                 }
-            };
-            sendCommand(COMMAND_GET_EXTRA_BINDER, null, cb);
+            }
+            mPendingCallbacks = null;
+        }
+
+        private static class ExtraBinderRequestResultReceiver extends ResultReceiver {
+            private WeakReference<MediaControllerImplApi21> mMediaControllerImpl;
+
+            public ExtraBinderRequestResultReceiver(MediaControllerImplApi21 mediaControllerImpl,
+                    Handler handler) {
+                super(handler);
+                mMediaControllerImpl = new WeakReference<>(mediaControllerImpl);
+            }
+
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                MediaControllerImplApi21 mediaControllerImpl = mMediaControllerImpl.get();
+                if (mediaControllerImpl == null || resultData == null) {
+                    return;
+                }
+                mediaControllerImpl.mExtraBinder = IMediaSession.Stub.asInterface(
+                        BundleCompat.getBinder(resultData, MediaSessionCompat.EXTRA_BINDER));
+                mediaControllerImpl.processPendingCallbacks();
+            }
         }
 
         private class ExtraCallback extends IMediaControllerCallback.Stub {
