@@ -27,6 +27,7 @@ import android.text.TextUtils.TruncateAt;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.TextView;
@@ -454,9 +455,9 @@ public class PagerTitleStrip extends ViewGroup {
             height = Math.max(minHeight, textHeight + heightPadding);
         }
 
-        final int childState = ViewCompat.getMeasuredState(mCurrText);
-        final int measuredHeight = ViewCompat.resolveSizeAndState(height, heightMeasureSpec,
-                childState << ViewCompat.MEASURED_HEIGHT_STATE_SHIFT);
+        final int childState = mCurrText.getMeasuredState();
+        final int measuredHeight = View.resolveSizeAndState(height, heightMeasureSpec,
+                childState << View.MEASURED_HEIGHT_STATE_SHIFT);
         setMeasuredDimension(widthSize, measuredHeight);
     }
 

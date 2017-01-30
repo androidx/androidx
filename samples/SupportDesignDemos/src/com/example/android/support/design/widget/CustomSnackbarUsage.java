@@ -19,7 +19,6 @@ package com.example.android.support.design.widget;
 import android.os.Bundle;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,15 +50,15 @@ public class CustomSnackbarUsage extends AppCompatActivity {
                 new BaseTransientBottomBar.ContentViewCallback() {
                     @Override
                     public void animateContentIn(int delay, int duration) {
-                        ViewCompat.setAlpha(content, 0f);
-                        ViewCompat.animate(content).alpha(1f).setDuration(duration)
+                        content.setAlpha(0f);
+                        content.animate().alpha(1f).setDuration(duration)
                                 .setStartDelay(delay).start();
                     }
 
                     @Override
                     public void animateContentOut(int delay, int duration) {
-                        ViewCompat.setAlpha(content, 1f);
-                        ViewCompat.animate(content).alpha(0f).setDuration(duration)
+                        content.setAlpha(1f);
+                        content.animate().alpha(0f).setDuration(duration)
                                 .setStartDelay(delay).start();
                     }
                 };

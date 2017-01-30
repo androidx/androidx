@@ -28,7 +28,6 @@ import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ActionProvider;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.menu.ShowableListMenu;
 import android.util.AttributeSet;
@@ -762,9 +761,9 @@ public class ActivityChooserView extends ViewGroup implements
                     titleView.setText(activity.loadLabel(packageManager));
                     // Highlight the default.
                     if (mShowDefaultActivity && position == 0 && mHighlightDefaultActivity) {
-                        ViewCompat.setActivated(convertView, true);
+                        convertView.setActivated(true);
                     } else {
-                        ViewCompat.setActivated(convertView, false);
+                        convertView.setActivated(false);
                     }
                     return convertView;
                 default:

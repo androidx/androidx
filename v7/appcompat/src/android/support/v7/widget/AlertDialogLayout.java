@@ -106,8 +106,7 @@ public class AlertDialogLayout extends LinearLayoutCompat {
             topPanel.measure(widthMeasureSpec, MeasureSpec.UNSPECIFIED);
 
             usedHeight += topPanel.getMeasuredHeight();
-            childState = ViewCompat.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(topPanel));
+            childState = View.combineMeasuredStates(childState, topPanel.getMeasuredState());
         }
 
         int buttonHeight = 0;
@@ -118,8 +117,7 @@ public class AlertDialogLayout extends LinearLayoutCompat {
             buttonWantsHeight = buttonPanel.getMeasuredHeight() - buttonHeight;
 
             usedHeight += buttonHeight;
-            childState = ViewCompat.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(buttonPanel));
+            childState = View.combineMeasuredStates(childState, buttonPanel.getMeasuredState());
         }
 
         int middleHeight = 0;
@@ -136,8 +134,7 @@ public class AlertDialogLayout extends LinearLayoutCompat {
             middleHeight = middlePanel.getMeasuredHeight();
 
             usedHeight += middleHeight;
-            childState = ViewCompat.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(middlePanel));
+            childState = View.combineMeasuredStates(childState, middlePanel.getMeasuredState());
         }
 
         int remainingHeight = heightSize - usedHeight;
@@ -159,8 +156,7 @@ public class AlertDialogLayout extends LinearLayoutCompat {
             buttonPanel.measure(widthMeasureSpec, childHeightSpec);
 
             usedHeight += buttonPanel.getMeasuredHeight();
-            childState = ViewCompat.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(buttonPanel));
+            childState = View.combineMeasuredStates(childState, buttonPanel.getMeasuredState());
         }
 
         // If we still have remaining space, make the middle pane bigger up
@@ -180,8 +176,7 @@ public class AlertDialogLayout extends LinearLayoutCompat {
             middlePanel.measure(widthMeasureSpec, childHeightSpec);
 
             usedHeight += middlePanel.getMeasuredHeight();
-            childState = ViewCompat.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(middlePanel));
+            childState = View.combineMeasuredStates(childState, middlePanel.getMeasuredState());
         }
 
         // Compute desired width as maximum child width.
@@ -195,9 +190,9 @@ public class AlertDialogLayout extends LinearLayoutCompat {
 
         maxWidth += getPaddingLeft() + getPaddingRight();
 
-        final int widthSizeAndState = ViewCompat.resolveSizeAndState(
+        final int widthSizeAndState = View.resolveSizeAndState(
                 maxWidth, widthMeasureSpec, childState);
-        final int heightSizeAndState = ViewCompat.resolveSizeAndState(
+        final int heightSizeAndState = View.resolveSizeAndState(
                 usedHeight, heightMeasureSpec, 0);
         setMeasuredDimension(widthSizeAndState, heightSizeAndState);
 

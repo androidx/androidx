@@ -18,9 +18,9 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.RatingBar;
 
 /**
@@ -55,7 +55,7 @@ public class AppCompatRatingBar extends RatingBar {
         Bitmap sampleTile = mAppCompatProgressBarHelper.getSampleTime();
         if (sampleTile != null) {
             final int width = sampleTile.getWidth() * getNumStars();
-            setMeasuredDimension(ViewCompat.resolveSizeAndState(width, widthMeasureSpec, 0),
+            setMeasuredDimension(View.resolveSizeAndState(width, widthMeasureSpec, 0),
                     getMeasuredHeight());
         }
     }
