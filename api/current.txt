@@ -2252,6 +2252,7 @@ package android.support.v17.leanback.app {
     method public void displayCompletions(android.view.inputmethod.CompletionInfo[]);
     method public android.graphics.drawable.Drawable getBadgeDrawable();
     method public android.content.Intent getRecognizerIntent();
+    method public android.support.v17.leanback.app.RowsFragment getRowsFragment();
     method public java.lang.String getTitle();
     method public static android.support.v17.leanback.app.SearchFragment newInstance(java.lang.String);
     method public void setBadgeDrawable(android.graphics.drawable.Drawable);
@@ -2281,6 +2282,7 @@ package android.support.v17.leanback.app {
     method public void displayCompletions(android.view.inputmethod.CompletionInfo[]);
     method public android.graphics.drawable.Drawable getBadgeDrawable();
     method public android.content.Intent getRecognizerIntent();
+    method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
     method public java.lang.String getTitle();
     method public static android.support.v17.leanback.app.SearchSupportFragment newInstance(java.lang.String);
     method public void setBadgeDrawable(android.graphics.drawable.Drawable);

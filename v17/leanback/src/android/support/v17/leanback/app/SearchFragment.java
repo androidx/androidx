@@ -417,6 +417,16 @@ public class SearchFragment extends Fragment {
         super.onDestroy();
     }
 
+    /**
+     * Returns RowsFragment that shows result rows. RowsFragment is initialized after
+     * SearchFragment.onCreateView().
+     *
+     * @return RowsFragment that shows result rows.
+     */
+    public RowsFragment getRowsFragment() {
+        return mRowsFragment;
+    }
+
     private void releaseRecognizer() {
         if (null != mSpeechRecognizer) {
             mSearchBar.setSpeechRecognizer(null);
