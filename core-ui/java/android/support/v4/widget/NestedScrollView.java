@@ -35,7 +35,6 @@ import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ScrollingView;
-import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
@@ -834,8 +833,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 if (mIsBeingDragged) {
                     final VelocityTracker velocityTracker = mVelocityTracker;
                     velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-                    int initialVelocity = (int) VelocityTrackerCompat.getYVelocity(velocityTracker,
-                            mActivePointerId);
+                    int initialVelocity = (int) velocityTracker.getYVelocity(mActivePointerId);
 
                     if ((Math.abs(initialVelocity) > mMinimumVelocity)) {
                         flingWithNestedDispatch(-initialVelocity);
