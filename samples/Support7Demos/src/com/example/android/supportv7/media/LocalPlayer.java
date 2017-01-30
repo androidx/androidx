@@ -400,7 +400,6 @@ public abstract class LocalPlayer extends Player implements
 
             // add surface holder callback
             SurfaceHolder holder = mSurfaceView.getHolder();
-            holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
             holder.addCallback(this);
         }
 
@@ -414,7 +413,7 @@ public abstract class LocalPlayer extends Player implements
         public void release() {
             super.release();
 
-            if (isPresentationApiSupported()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 releasePresentation();
             }
 
@@ -490,7 +489,8 @@ public abstract class LocalPlayer extends Player implements
             int width = getVideoWidth();
             int height = getVideoHeight();
             if (width > 0 && height > 0) {
-                if (isPresentationApiSupported() && mPresentation != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1
+                        && mPresentation != null) {
                     mPresentation.updateSize(width, height);
                 } else {
                     int surfaceWidth = mLayout.getWidth();
@@ -526,11 +526,6 @@ public abstract class LocalPlayer extends Player implements
                 mSurfaceView.setVisibility(View.VISIBLE);
             }
         }
-
-        private boolean isPresentationApiSupported() {
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
-        }
-
 
         // Listens for when presentations are dismissed.
         private final DialogInterface.OnDismissListener mOnDismissListener =
@@ -575,7 +570,6 @@ public abstract class LocalPlayer extends Player implements
                 // Set up the surface view.
                 mPresentationSurfaceView = (SurfaceView)findViewById(R.id.surface_view);
                 SurfaceHolder holder = mPresentationSurfaceView.getHolder();
-                holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
                 holder.addCallback(SurfaceViewPlayer.this);
                 Log.i(TAG, "Presentation created");
             }
