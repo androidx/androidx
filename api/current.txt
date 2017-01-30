@@ -135,7 +135,9 @@ package android.support.customtabs {
   public class CustomTabsCallback {
     ctor public CustomTabsCallback();
     method public void extraCallback(java.lang.String, android.os.Bundle);
+    method public void onMessageChannelReady(android.os.Bundle);
     method public void onNavigationEvent(int, android.os.Bundle);
+    method public void onPostMessage(java.lang.String, android.os.Bundle);
     field public static final int NAVIGATION_ABORTED = 4; // 0x4
     field public static final int NAVIGATION_FAILED = 3; // 0x3
     field public static final int NAVIGATION_FINISHED = 2; // 0x2
@@ -215,10 +217,19 @@ package android.support.customtabs {
     method protected abstract boolean mayLaunchUrl(android.support.customtabs.CustomTabsSessionToken, android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>);
     method protected abstract boolean newSession(android.support.customtabs.CustomTabsSessionToken);
     method public android.os.IBinder onBind(android.content.Intent);
+    method protected abstract int postMessage(android.support.customtabs.CustomTabsSessionToken, java.lang.String, android.os.Bundle);
+    method protected abstract boolean requestPostMessageChannel(android.support.customtabs.CustomTabsSessionToken, android.net.Uri);
     method protected abstract boolean updateVisuals(android.support.customtabs.CustomTabsSessionToken, android.os.Bundle);
     method protected abstract boolean warmup(long);
     field public static final java.lang.String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
     field public static final java.lang.String KEY_URL = "android.support.customtabs.otherurls.URL";
+    field public static final int RESULT_FAILURE_DISALLOWED = -1; // 0xffffffff
+    field public static final int RESULT_FAILURE_MESSAGING_ERROR = -3; // 0xfffffffd
+    field public static final int RESULT_FAILURE_REMOTE_ERROR = -2; // 0xfffffffe
+    field public static final int RESULT_SUCCESS = 0; // 0x0
+  }
+
+  public static abstract class CustomTabsService.Result implements java.lang.annotation.Annotation {
   }
 
   public abstract class CustomTabsServiceConnection implements android.content.ServiceConnection {
@@ -229,6 +240,8 @@ package android.support.customtabs {
 
   public final class CustomTabsSession {
     method public boolean mayLaunchUrl(android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>);
+    method public int postMessage(java.lang.String, android.os.Bundle);
+    method public boolean requestPostMessageChannel(android.net.Uri);
     method public boolean setActionButton(android.graphics.Bitmap, java.lang.String);
     method public boolean setSecondaryToolbarViews(android.widget.RemoteViews, int[], android.app.PendingIntent);
     method public deprecated boolean setToolbarItem(int, android.graphics.Bitmap, java.lang.String);
@@ -237,6 +250,24 @@ package android.support.customtabs {
   public class CustomTabsSessionToken {
     method public android.support.customtabs.CustomTabsCallback getCallback();
     method public static android.support.customtabs.CustomTabsSessionToken getSessionTokenFromIntent(android.content.Intent);
+    method public boolean isAssociatedWith(android.support.customtabs.CustomTabsSession);
+  }
+
+  public class PostMessageService extends android.app.Service {
+    ctor public PostMessageService();
+    method public android.os.IBinder onBind(android.content.Intent);
+  }
+
+  public abstract class PostMessageServiceConnection implements android.content.ServiceConnection {
+    ctor public PostMessageServiceConnection(android.support.customtabs.CustomTabsSessionToken);
+    method public boolean bindSessionToPostMessageService(android.content.Context, java.lang.String);
+    method public final boolean notifyMessageChannelReady(android.os.Bundle);
+    method public void onPostMessageServiceConnected();
+    method public void onPostMessageServiceDisconnected();
+    method public final void onServiceConnected(android.content.ComponentName, android.os.IBinder);
+    method public final void onServiceDisconnected(android.content.ComponentName);
+    method public final boolean postMessage(java.lang.String, android.os.Bundle);
+    method public void unbindFromContext(android.content.Context);
   }
 
 }

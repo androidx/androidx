@@ -31,6 +31,7 @@ android {
 
         androidTest.setRoot('tests')
         androidTest.java.srcDir('tests/src/')
+        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
     compileOptions {
