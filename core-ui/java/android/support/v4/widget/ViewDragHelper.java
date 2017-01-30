@@ -19,7 +19,6 @@ package android.support.v4.widget;
 
 import android.content.Context;
 import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -570,8 +569,8 @@ public class ViewDragHelper {
         }
 
         return forceSettleCapturedViewAt(finalLeft, finalTop,
-                (int) VelocityTrackerCompat.getXVelocity(mVelocityTracker, mActivePointerId),
-                (int) VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId));
+                (int) mVelocityTracker.getXVelocity(mActivePointerId),
+                (int) mVelocityTracker.getYVelocity(mActivePointerId));
     }
 
     /**
@@ -703,8 +702,8 @@ public class ViewDragHelper {
         }
 
         mScroller.fling(mCapturedView.getLeft(), mCapturedView.getTop(),
-                (int) VelocityTrackerCompat.getXVelocity(mVelocityTracker, mActivePointerId),
-                (int) VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId),
+                (int) mVelocityTracker.getXVelocity(mActivePointerId),
+                (int) mVelocityTracker.getYVelocity(mActivePointerId),
                 minLeft, maxLeft, minTop, maxTop);
 
         setDragState(STATE_SETTLING);
@@ -1405,10 +1404,10 @@ public class ViewDragHelper {
     private void releaseViewForPointerUp() {
         mVelocityTracker.computeCurrentVelocity(1000, mMaxVelocity);
         final float xvel = clampMag(
-                VelocityTrackerCompat.getXVelocity(mVelocityTracker, mActivePointerId),
+                mVelocityTracker.getXVelocity(mActivePointerId),
                 mMinVelocity, mMaxVelocity);
         final float yvel = clampMag(
-                VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId),
+                mVelocityTracker.getYVelocity(mActivePointerId),
                 mMinVelocity, mMaxVelocity);
         dispatchViewReleased(xvel, yvel);
     }

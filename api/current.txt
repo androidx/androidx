@@ -7418,9 +7418,9 @@ package android.support.v4.view {
     method public abstract void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
   }
 
-  public final class VelocityTrackerCompat {
-    method public static float getXVelocity(android.view.VelocityTracker, int);
-    method public static float getYVelocity(android.view.VelocityTracker, int);
+  public final deprecated class VelocityTrackerCompat {
+    method public static deprecated float getXVelocity(android.view.VelocityTracker, int);
+    method public static deprecated float getYVelocity(android.view.VelocityTracker, int);
   }
 
   public class ViewCompat {
