@@ -22,6 +22,7 @@ import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNEC
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_GET_MEDIA_ITEM;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REMOVE_SUBSCRIPTION;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEARCH;
 import static android.support.v4.media.MediaBrowserProtocol
         .CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_VERSION_CURRENT;
@@ -33,6 +34,8 @@ import static android.support.v4.media.MediaBrowserProtocol.DATA_OPTIONS;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_PACKAGE_NAME;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_RESULT_RECEIVER;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_ROOT_HINTS;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_SEARCH_EXTRAS;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_SEARCH_QUERY;
 import static android.support.v4.media.MediaBrowserProtocol.EXTRA_CLIENT_VERSION;
 import static android.support.v4.media.MediaBrowserProtocol.EXTRA_MESSENGER_BINDER;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT;
@@ -325,7 +328,30 @@ public final class MediaBrowserCompat {
     }
 
     /**
-     * A class with information on a single media item for use in browsing media.
+     * Searches {@link MediaItem media items} from the connected service. Not all services may
+     * support this, and {@link SearchCallback#onError} will be called if not implemented.
+     *
+     * @param query The search query that contains keywords separated by space. Should not be an
+     *            empty string.
+     * @param extras The bundle of service-specific arguments to send to the media browser service.
+     *            The contents of this bundle may affect the search result.
+     * @param callback The callback to receive the search result. Must be non-null.
+     */
+    public void search(@NonNull final String query, final Bundle extras,
+            @NonNull SearchCallback callback) {
+        if (TextUtils.isEmpty(query)) {
+            throw new IllegalArgumentException("query cannot be empty");
+        }
+        if (callback == null) {
+            throw new IllegalArgumentException("callback cannot be null");
+        }
+        mImpl.search(query, extras, callback);
+    }
+
+    /**
+     * A class with information on a single media item for use in browsing/searching media.
+     * MediaItems are application dependent so we cannot guarantee that they contain the
+     * right values.
      */
     public static class MediaItem implements Parcelable {
         private final int mFlags;
@@ -486,7 +512,7 @@ public final class MediaBrowserCompat {
          * Returns the media id in the {@link MediaDescriptionCompat} for this item.
          * @see MediaMetadataCompat#METADATA_KEY_MEDIA_ID
          */
-        public @NonNull String getMediaId() {
+        public @Nullable String getMediaId() {
             return mDescription.getMediaId();
         }
     }
@@ -765,6 +791,32 @@ public final class MediaBrowserCompat {
         }
     }
 
+    /**
+     * Callback for receiving the result of {@link #search}.
+     */
+    public abstract static class SearchCallback {
+        /**
+         * Called when the {@link #search} finished successfully.
+         *
+         * @param query The search query sent for the search request to the connected service.
+         * @param extras The bundle of service-specific arguments sent to the connected service.
+         * @param items The list of media items which contains the search result.
+         */
+        public void onSearchResult(@NonNull String query, Bundle extras,
+                @NonNull List<MediaItem> items) {
+        }
+
+        /**
+         * Called when an error happens while {@link #search} or the connected service doesn't
+         * support {@link #search}.
+         *
+         * @param query The search query sent for the search request to the connected service.
+         * @param extras The bundle of service-specific arguments sent to the connected service.
+         */
+        public void onError(@NonNull String query, Bundle extras) {
+        }
+    }
+
     interface MediaBrowserImpl {
         void connect();
         void disconnect();
@@ -777,6 +829,7 @@ public final class MediaBrowserCompat {
                 @NonNull SubscriptionCallback callback);
         void unsubscribe(@NonNull String parentId, SubscriptionCallback callback);
         void getItem(final @NonNull String mediaId, @NonNull final ItemCallback cb);
+        void search(@NonNull String query, Bundle extras, @NonNull SearchCallback callback);
     }
 
     interface MediaBrowserServiceCallbackImpl {
@@ -1064,6 +1117,34 @@ public final class MediaBrowserCompat {
                     @Override
                     public void run() {
                         cb.onError(mediaId);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void search(@NonNull final String query, final Bundle extras,
+                @NonNull final SearchCallback callback) {
+            if (!isConnected()) {
+                Log.i(TAG, "Not connected, unable to search.");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(query, extras);
+                    }
+                });
+                return;
+            }
+
+            ResultReceiver receiver = new SearchResultReceiver(query, extras, callback, mHandler);
+            try {
+                mServiceBinderWrapper.search(query, extras, receiver, mCallbacksMessenger);
+            } catch (RemoteException e) {
+                Log.i(TAG, "Remote error searching items with query: " + query, e);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(query, extras);
                     }
                 });
             }
@@ -1537,6 +1618,45 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        public void search(@NonNull final String query, final Bundle extras,
+                @NonNull final SearchCallback callback) {
+            if (!isConnected()) {
+                Log.i(TAG, "Not connected, unable to search.");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(query, extras);
+                    }
+                });
+                return;
+            }
+            if (mServiceBinderWrapper == null) {
+                Log.i(TAG, "The connected service doesn't support search.");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Default framework implementation.
+                        callback.onError(query, extras);
+                    }
+                });
+                return;
+            }
+
+            ResultReceiver receiver = new SearchResultReceiver(query, extras, callback, mHandler);
+            try {
+                mServiceBinderWrapper.search(query, extras, receiver, mCallbacksMessenger);
+            } catch (RemoteException e) {
+                Log.i(TAG, "Remote error searching items with query: " + query, e);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(query, extras);
+                    }
+                });
+            }
+        }
+
+        @Override
         public void onConnected() {
             Bundle extras = MediaBrowserCompatApi21.getExtras(mBrowserObj);
             if (extras == null) {
@@ -1804,6 +1924,15 @@ public final class MediaBrowserCompat {
             sendRequest(CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER, null, callbackMessenger);
         }
 
+        void search(String query, Bundle extras, ResultReceiver receiver,
+                Messenger callbacksMessenger) throws RemoteException {
+            Bundle data = new Bundle();
+            data.putString(DATA_SEARCH_QUERY, query);
+            data.putBundle(DATA_SEARCH_EXTRAS, extras);
+            data.putParcelable(DATA_RESULT_RECEIVER, receiver);
+            sendRequest(CLIENT_MSG_SEARCH, data, callbacksMessenger);
+        }
+
         private void sendRequest(int what, Bundle data, Messenger cbMessenger)
                 throws RemoteException {
             Message msg = Message.obtain();
@@ -1830,7 +1959,7 @@ public final class MediaBrowserCompat {
             if (resultData != null) {
                 resultData.setClassLoader(MediaBrowserCompat.class.getClassLoader());
             }
-            if (resultCode != 0 || resultData == null
+            if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
                     || !resultData.containsKey(MediaBrowserServiceCompat.KEY_MEDIA_ITEM)) {
                 mCallback.onError(mMediaId);
                 return;
@@ -1841,6 +1970,39 @@ public final class MediaBrowserCompat {
             } else {
                 mCallback.onError(mMediaId);
             }
+        }
+    }
+
+    private static class SearchResultReceiver extends ResultReceiver {
+        private final String mQuery;
+        private final Bundle mExtras;
+        private final SearchCallback mCallback;
+
+        SearchResultReceiver(String query, Bundle extras, SearchCallback callback,
+                Handler handler) {
+            super(handler);
+            mQuery = query;
+            mExtras = extras;
+            mCallback = callback;
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
+                    || !resultData.containsKey(MediaBrowserServiceCompat.KEY_SEARCH_RESULTS)) {
+                mCallback.onError(mQuery, mExtras);
+                return;
+            }
+            Parcelable[] items = resultData.getParcelableArray(
+                    MediaBrowserServiceCompat.KEY_SEARCH_RESULTS);
+            List<MediaItem> results = null;
+            if (items != null) {
+                results = new ArrayList<>();
+                for (Parcelable item : items) {
+                    results.add((MediaItem) item);
+                }
+            }
+            mCallback.onSearchResult(mQuery, mExtras, results);
         }
     }
 }
