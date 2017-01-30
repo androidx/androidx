@@ -16,18 +16,22 @@
 
 package android.support.v4.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
 
 /**
  * Base class for {@code FragmentActivity} to be able to use v16 APIs.
  *
  * @hide
  */
-abstract class BaseFragmentActivityJB extends BaseFragmentActivityHoneycomb {
+@RestrictTo(LIBRARY_GROUP)
+abstract class BaseFragmentActivityJB extends BaseFragmentActivityApi14 {
 
     // We need to keep track of whether startActivityForResult originated from a Fragment, so we
     // can conditionally check whether the requestCode collides with our reserved ID space for the
