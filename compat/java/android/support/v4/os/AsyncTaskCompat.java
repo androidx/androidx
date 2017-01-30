@@ -17,12 +17,16 @@
 package android.support.v4.os;
 
 import android.os.AsyncTask;
-import android.os.Build;
+
+import java.util.concurrent.Executor;
 
 /**
  * Helper for accessing features in {@link android.os.AsyncTask}
  * introduced after API level 4 in a backwards compatible fashion.
+ *
+ * @deprecated Use {@link android.os.AsyncTask} directly.
  */
+@Deprecated
 public final class AsyncTaskCompat {
 
     /**
@@ -32,21 +36,17 @@ public final class AsyncTaskCompat {
      * @param task The {@link android.os.AsyncTask} to execute.
      * @param params The parameters of the task.
      * @return the instance of AsyncTask.
+     *
+     * @deprecated Use {@link android.os.AsyncTask#executeOnExecutor(Executor, Object[])} directly.
      */
+    @Deprecated
     public static <Params, Progress, Result> AsyncTask<Params, Progress, Result> executeParallel(
             AsyncTask<Params, Progress, Result> task,
             Params... params) {
         if (task == null) {
             throw new IllegalArgumentException("task can not be null");
         }
-
-        if (Build.VERSION.SDK_INT >= 11) {
-            // From API 11 onwards, we need to manually select the THREAD_POOL_EXECUTOR
-            AsyncTaskCompatHoneycomb.executeParallel(task, params);
-        } else {
-            // Before API 11, all tasks were run in parallel
-            task.execute(params);
-        }
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
 
         return task;
     }

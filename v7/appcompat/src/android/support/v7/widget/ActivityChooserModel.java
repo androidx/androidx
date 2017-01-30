@@ -16,20 +16,19 @@
 
 package android.support.v7.widget;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlSerializer;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.DataSetObservable;
 import android.os.AsyncTask;
-import android.support.v4.os.AsyncTaskCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -572,7 +571,7 @@ class ActivityChooserModel extends DataSetObservable {
         }
         mHistoricalRecordsChanged = false;
         if (!TextUtils.isEmpty(mHistoryFileName)) {
-            AsyncTaskCompat.executeParallel(new PersistHistoryAsyncTask(),
+            new PersistHistoryAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
                     new ArrayList<HistoricalRecord>(mHistoricalRecords), mHistoryFileName);
         }
     }

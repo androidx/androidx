@@ -20,7 +20,6 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.v4.graphics.BitmapCompat;
-import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.util.LruCache;
 import android.widget.ImageView;
 
@@ -57,7 +56,7 @@ class ImageLoader {
             return;
         }
 
-        AsyncTaskCompat.executeParallel(new AsyncTask<Void, Void, Bitmap>() {
+        new AsyncTask<Void, Void, Bitmap>() {
             @Override
             protected Bitmap doInBackground(Void... params) {
                 return MediaStore.Images.Thumbnails.getThumbnail(
@@ -80,7 +79,7 @@ class ImageLoader {
                     }
                 }
             }
-        });
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     /**

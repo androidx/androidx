@@ -24,7 +24,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.ColorUtils;
-import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -856,23 +855,22 @@ public final class Palette {
                 throw new IllegalArgumentException("listener can not be null");
             }
 
-            return AsyncTaskCompat.executeParallel(
-                    new AsyncTask<Bitmap, Void, Palette>() {
-                        @Override
-                        protected Palette doInBackground(Bitmap... params) {
-                            try {
-                                return generate();
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, "Exception thrown during async generate", e);
-                                return null;
-                            }
-                        }
+            return new AsyncTask<Bitmap, Void, Palette>() {
+                @Override
+                protected Palette doInBackground(Bitmap... params) {
+                    try {
+                        return generate();
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, "Exception thrown during async generate", e);
+                        return null;
+                    }
+                }
 
-                        @Override
-                        protected void onPostExecute(Palette colorExtractor) {
-                            listener.onGenerated(colorExtractor);
-                        }
-                    }, mBitmap);
+                @Override
+                protected void onPostExecute(Palette colorExtractor) {
+                    listener.onGenerated(colorExtractor);
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mBitmap);
         }
 
         private int[] getPixelsFromBitmap(Bitmap bitmap) {
