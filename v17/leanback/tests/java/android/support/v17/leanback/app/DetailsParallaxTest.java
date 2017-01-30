@@ -16,11 +16,11 @@
 package android.support.v17.leanback.app;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
-import android.support.v17.leanback.widget.ParallaxRecyclerViewSource;
+import android.support.v17.leanback.widget.DetailsParallax;
+import android.support.v17.leanback.widget.RecyclerViewParallax;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,11 +29,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Unit tests for {@link DetailsParallaxManager}.
+ * Unit tests for {@link DetailsParallax}.
  */
 @RunWith(JUnit4.class)
 @SmallTest
-public class DetailsParallaxManagerTest {
+public class DetailsParallaxTest {
 
     @Rule
     public ActivityTestRule<DetailsFragmentTestActivity> activityTestRule =
@@ -48,17 +48,17 @@ public class DetailsParallaxManagerTest {
     @Test
     public void setupTest() {
         double delta = 0.0002;
-        DetailsParallaxManager dpm = new DetailsParallaxManager();
+        DetailsParallax dpm = new DetailsParallax();
         dpm.setRecyclerView(mActivity.getDetailsFragment().getRowsFragment().getVerticalGridView());
 
-        assertNotNull(dpm.getParallax());
-
-        ParallaxRecyclerViewSource.ChildPositionProperty frameTop = dpm.getFrameTop();
+        RecyclerViewParallax.ChildPositionProperty frameTop =
+                (RecyclerViewParallax.ChildPositionProperty) dpm.getOverviewRowTop();
         assertEquals(0f, frameTop.getFraction(), delta);
         assertEquals(0f, frameTop.getAdapterPosition(), delta);
 
 
-        ParallaxRecyclerViewSource.ChildPositionProperty frameBottom = dpm.getFrameBottom();
+        RecyclerViewParallax.ChildPositionProperty frameBottom =
+                (RecyclerViewParallax.ChildPositionProperty) dpm.getOverviewRowBottom();
         assertEquals(1f, frameBottom.getFraction(), delta);
         assertEquals(0f, frameBottom.getAdapterPosition(), delta);
     }

@@ -64,6 +64,7 @@
     <item name="lb_focus_zoom_factor_medium" type="fraction">114%</item>
     <item name="lb_focus_zoom_factor_large" type="fraction">118%</item>
 
+    <dimen name="lb_details_cover_drawable_parallax_movement">50dip</dimen>
     <dimen name="lb_details_overview_height_large">274dp</dimen>
     <dimen name="lb_details_overview_height_small">159dp</dimen>
     <dimen name="lb_details_overview_margin_start">132dp</dimen>
