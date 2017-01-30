@@ -18,9 +18,9 @@ package com.android.sample.githubbrowser.network;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
-import com.android.sample.githubbrowser.ContributorData;
-import com.android.sample.githubbrowser.PersonData;
-import com.android.sample.githubbrowser.RepositoryData;
+import com.android.sample.githubbrowser.data.ContributorData;
+import com.android.sample.githubbrowser.data.PersonData;
+import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.model.AuthTokenModel;
 
 import java.io.IOException;

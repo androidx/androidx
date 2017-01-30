@@ -19,7 +19,7 @@ import android.support.annotation.MainThread;
 import android.text.TextUtils;
 
 import com.android.sample.githubbrowser.AuthTokenLifecycle;
-import com.android.sample.githubbrowser.RepositoryData;
+import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;

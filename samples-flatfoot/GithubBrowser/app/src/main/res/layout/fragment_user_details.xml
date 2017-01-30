@@ -9,8 +9,8 @@
         <import type="android.view.View"/>
         <import type="com.android.sample.githubbrowser.R"/>
         <import type="com.android.sample.githubbrowser.Utils"/>
-        <variable name="userPartial" type="com.android.sample.githubbrowser.ContributorData"/>
-        <variable name="user" type="com.android.sample.githubbrowser.PersonData"/>
+        <variable name="userPartial" type="com.android.sample.githubbrowser.data.ContributorData"/>
+        <variable name="user" type="com.android.sample.githubbrowser.data.PersonData"/>
         <variable name="fragment" type="com.android.support.lifecycle.LifecycleFragment"/>
     </data>
 

@@ -19,7 +19,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.MainThread;
 
-import com.android.sample.githubbrowser.PersonData;
+import com.android.sample.githubbrowser.data.PersonData;
 import com.android.sample.githubbrowser.db.PersonDataDatabase;
 import com.android.sample.githubbrowser.db.PersonDataDatabaseHelper;
 import com.android.sample.githubbrowser.network.GithubNetworkManager;

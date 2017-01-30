@@ -21,9 +21,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.android.sample.githubbrowser.ContributorData;
 import com.android.sample.githubbrowser.R;
 import com.android.sample.githubbrowser.adapter.ContibutorListAdapter.ContributorBindingHolder;
+import com.android.sample.githubbrowser.data.ContributorData;
 import com.android.sample.githubbrowser.databinding.UserRowBinding;
 import com.android.sample.githubbrowser.model.ContributorListModel;
 

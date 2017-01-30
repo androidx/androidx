@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.sample.githubbrowser.adapter.RepositoryListAdapter;
+import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.model.AuthTokenModel;
 import com.android.sample.githubbrowser.model.RepositoryListModel;
 import com.android.support.lifecycle.LifecycleFragment;

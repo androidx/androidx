@@ -22,8 +22,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.android.sample.githubbrowser.R;
-import com.android.sample.githubbrowser.RepositoryData;
 import com.android.sample.githubbrowser.adapter.RepositoryListAdapter.RepositoryBindingHolder;
+import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.databinding.RepositoryCardBinding;
 import com.android.sample.githubbrowser.model.RepositoryListModel;
 

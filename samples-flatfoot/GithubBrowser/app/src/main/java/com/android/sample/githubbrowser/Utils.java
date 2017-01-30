@@ -25,6 +25,9 @@ import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.sample.githubbrowser.data.ContributorData;
+import com.android.sample.githubbrowser.data.RepositoryData;
+
 import com.bumptech.glide.Glide;
 
 import java.text.ParseException;

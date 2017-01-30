@@ -16,7 +16,7 @@
 
 package com.android.sample.githubbrowser.db;
 
-import com.android.sample.githubbrowser.PersonData;
+import com.android.sample.githubbrowser.data.PersonData;
 import com.android.support.room.Database;
 import com.android.support.room.RoomDatabase;
 

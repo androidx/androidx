@@ -28,6 +28,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.sample.githubbrowser.adapter.RepositoryListAdapter;
+import com.android.sample.githubbrowser.data.ContributorData;
+import com.android.sample.githubbrowser.data.PersonData;
+import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.databinding.FragmentUserDetailsBinding;
 import com.android.sample.githubbrowser.model.PersonDataModel;
 import com.android.sample.githubbrowser.model.RepositoryListModel;

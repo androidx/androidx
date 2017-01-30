@@ -13,21 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.githubbrowser;
+package com.android.sample.githubbrowser.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.android.support.room.Entity;
+import com.android.support.room.PrimaryKey;
+
 /**
  * Contributor data object.
  */
+@Entity
 public class ContributorData implements Parcelable {
-    public String login;
+    @PrimaryKey public String login;
     public String id;
     public String avatar_url;
     public String repos_url;
     public String type;
     public int contributions;
+
+    public ContributorData() {
+    }
 
     @Override
     public int describeContents() {

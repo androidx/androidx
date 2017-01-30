@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.android.sample.githubbrowser.data.PersonData;
 import com.android.sample.githubbrowser.databinding.EditUserDetailsBinding;
 import com.android.sample.githubbrowser.model.PersonDataModel;
 import com.android.support.lifecycle.LifecycleRegistry;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.githubbrowser;
+package com.android.sample.githubbrowser.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;

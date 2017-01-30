@@ -16,7 +16,7 @@
 
 package com.android.sample.githubbrowser.db;
 
-import com.android.sample.githubbrowser.PersonData;
+import com.android.sample.githubbrowser.data.PersonData;
 import com.android.support.room.Dao;
 import com.android.support.room.Insert;
 import com.android.support.room.Query;

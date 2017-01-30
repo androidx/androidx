@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.githubbrowser;
+package com.android.sample.githubbrowser.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.android.support.room.Entity;
+import com.android.support.room.PrimaryKey;
+
 /**
  * Repository data object.
  */
+@Entity
 public class RepositoryData implements Parcelable {
-    public String id;
+    @PrimaryKey public String id;
     public String name;
     public String full_name;
     public ContributorData owner;
@@ -34,6 +38,9 @@ public class RepositoryData implements Parcelable {
     public int open_issues_count;
     public ContributorData organization;
     public int subscribers_count;
+
+    public RepositoryData() {
+    }
 
     @Override
     public int describeContents() {

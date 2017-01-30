@@ -18,7 +18,7 @@ package com.android.sample.githubbrowser.model;
 import android.support.annotation.MainThread;
 import android.text.TextUtils;
 
-import com.android.sample.githubbrowser.ContributorData;
+import com.android.sample.githubbrowser.data.ContributorData;
 import com.android.sample.githubbrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
