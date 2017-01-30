@@ -6393,8 +6393,8 @@ package android.support.v4.net {
 
 package android.support.v4.os {
 
-  public final class AsyncTaskCompat {
-    method public static <Params, Progress, Result> android.os.AsyncTask<Params, Progress, Result> executeParallel(android.os.AsyncTask<Params, Progress, Result>, Params...);
+  public final deprecated class AsyncTaskCompat {
+    method public static deprecated <Params, Progress, Result> android.os.AsyncTask<Params, Progress, Result> executeParallel(android.os.AsyncTask<Params, Progress, Result>, Params...);
   }
 
   public class BuildCompat {
