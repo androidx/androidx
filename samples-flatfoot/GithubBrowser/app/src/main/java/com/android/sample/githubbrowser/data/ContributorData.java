@@ -26,7 +26,8 @@ import com.android.support.room.PrimaryKey;
  */
 @Entity
 public class ContributorData implements Parcelable {
-    @PrimaryKey public String login;
+    @PrimaryKey
+    public String login;
     public String id;
     public String avatar_url;
     public String repos_url;
@@ -68,5 +69,36 @@ public class ContributorData implements Parcelable {
         repos_url = in.readString();
         type = in.readString();
         contributions = in.readInt();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ContributorData that = (ContributorData) o;
+
+        if (contributions != that.contributions) return false;
+        if (login != null ? !login.equals(that.login) : that.login != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (avatar_url != null ? !avatar_url.equals(that.avatar_url) : that.avatar_url != null) {
+            return false;
+        }
+        if (repos_url != null ? !repos_url.equals(that.repos_url) : that.repos_url != null) {
+            return false;
+        }
+        return type != null ? type.equals(that.type) : that.type == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = login != null ? login.hashCode() : 0;
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (avatar_url != null ? avatar_url.hashCode() : 0);
+        result = 31 * result + (repos_url != null ? repos_url.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + contributions;
+        return result;
     }
 }

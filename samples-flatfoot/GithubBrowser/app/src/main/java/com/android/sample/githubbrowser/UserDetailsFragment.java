@@ -30,15 +30,12 @@ import android.view.ViewGroup;
 import com.android.sample.githubbrowser.adapter.RepositoryListAdapter;
 import com.android.sample.githubbrowser.data.ContributorData;
 import com.android.sample.githubbrowser.data.PersonData;
-import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.databinding.FragmentUserDetailsBinding;
 import com.android.sample.githubbrowser.model.PersonDataModel;
 import com.android.sample.githubbrowser.model.RepositoryListModel;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
-
-import java.util.List;
 
 /**
  * Fragment that shows details of a single user, including the list of their repositories.
@@ -77,21 +74,9 @@ public class UserDetailsFragment extends LifecycleFragment {
 
         final RecyclerView repositoriesRecycler = (RecyclerView) result.findViewById(
                 R.id.repositories);
-        repositoriesRecycler.setAdapter(
-                new RepositoryListAdapter(this, repositoriesListModel));
+        repositoriesRecycler.setAdapter(new RepositoryListAdapter(this, repositoriesListModel));
         final int columnCount = getContext().getResources().getInteger(R.integer.column_count);
         repositoriesRecycler.setLayoutManager(new GridLayoutManager(getContext(), columnCount));
-
-        // Register an observer on the LiveData that wraps the list of repositories
-        // to update the adapter on every change
-        repositoriesListModel.getRepositoryListLiveData().observe(this,
-                new Observer<List<RepositoryData>>() {
-                    @Override
-                    public void onChanged(
-                            @Nullable List<RepositoryData> repositoryDataList) {
-                        repositoriesRecycler.getAdapter().notifyDataSetChanged();
-                    }
-                });
 
         // Get our view model instance and register ourselves to observe change to the
         // full user data. When a change is reported, update all UI elements based on the new

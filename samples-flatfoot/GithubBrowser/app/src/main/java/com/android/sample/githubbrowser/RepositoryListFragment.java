@@ -25,15 +25,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.sample.githubbrowser.adapter.RepositoryListAdapter;
-import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.model.AuthTokenModel;
 import com.android.sample.githubbrowser.model.RepositoryListModel;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.LifecycleProvider;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
-
-import java.util.List;
 
 /**
  * Fragment that shows the list of all repositories that match the current search term.
@@ -55,15 +52,6 @@ public class RepositoryListFragment extends LifecycleFragment {
 
         recyclerView.setAdapter(new RepositoryListAdapter(this, searchModel));
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), columnCount));
-
-        // Register an observer on the LiveData that wraps the list of repositories to update the
-        // adapter on every change
-        searchModel.getRepositoryListLiveData().observe(this, new Observer<List<RepositoryData>>() {
-            @Override
-            public void onChanged(@Nullable List<RepositoryData> repositoryDataList) {
-                recyclerView.getAdapter().notifyDataSetChanged();
-            }
-        });
 
         AuthTokenModel authTokenModel = ViewModelStore.get((LifecycleProvider) getActivity(),
                 "authTokenModel", AuthTokenModel.class);

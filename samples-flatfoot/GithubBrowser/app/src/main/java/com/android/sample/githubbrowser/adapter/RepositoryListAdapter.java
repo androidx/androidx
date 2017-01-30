@@ -16,7 +16,9 @@
 package com.android.sample.githubbrowser.adapter;
 
 import android.databinding.DataBindingUtil;
-import android.support.v4.app.Fragment;
+import android.support.annotation.Nullable;
+import android.support.v7.util.DiffUtil;
+import android.support.v7.util.DiffUtil.DiffResult;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -26,6 +28,8 @@ import com.android.sample.githubbrowser.adapter.RepositoryListAdapter.Repository
 import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.databinding.RepositoryCardBinding;
 import com.android.sample.githubbrowser.model.RepositoryListModel;
+import com.android.support.lifecycle.LifecycleFragment;
+import com.android.support.lifecycle.Observer;
 
 import java.util.List;
 
@@ -49,15 +53,52 @@ public class RepositoryListAdapter extends RecyclerView.Adapter<RepositoryBindin
         }
     }
 
-    private Fragment mFragment;
+    private LifecycleFragment mFragment;
     private RepositoryListModel mSearchModel;
+    private List<RepositoryData> mCurrList;
 
     /**
      * Creates an adapter.
      */
-    public RepositoryListAdapter(Fragment fragment, RepositoryListModel searchModel) {
+    public RepositoryListAdapter(LifecycleFragment fragment, RepositoryListModel searchModel) {
         mFragment = fragment;
         mSearchModel = searchModel;
+
+        // Register an observer on the LiveData that wraps the list of repositories
+        // to calculate the content diff and update ourselves.
+        mSearchModel.getRepositoryListLiveData().observe(fragment,
+                new Observer<List<RepositoryData>>() {
+                    @Override
+                    public void onChanged(@Nullable final List<RepositoryData> repositoryDataList) {
+                        DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                            @Override
+                            public int getOldListSize() {
+                                return (mCurrList == null) ? 0 : mCurrList.size();
+                            }
+
+                            @Override
+                            public int getNewListSize() {
+                                return repositoryDataList.size();
+                            }
+
+                            @Override
+                            public boolean areItemsTheSame(int oldItemPosition,
+                                    int newItemPosition) {
+                                return mCurrList.get(oldItemPosition).id.equals(
+                                        repositoryDataList.get(newItemPosition).id);
+                            }
+
+                            @Override
+                            public boolean areContentsTheSame(int oldItemPosition,
+                                    int newItemPosition) {
+                                return mCurrList.get(oldItemPosition).equals(
+                                        repositoryDataList.get(newItemPosition));
+                            }
+                        });
+                        result.dispatchUpdatesTo(RepositoryListAdapter.this);
+                        mCurrList = repositoryDataList;
+                    }
+                });
     }
 
     @Override

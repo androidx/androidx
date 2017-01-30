@@ -16,7 +16,9 @@
 package com.android.sample.githubbrowser.adapter;
 
 import android.databinding.DataBindingUtil;
-import android.support.v4.app.Fragment;
+import android.support.annotation.Nullable;
+import android.support.v7.util.DiffUtil;
+import android.support.v7.util.DiffUtil.DiffResult;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -26,6 +28,8 @@ import com.android.sample.githubbrowser.adapter.ContibutorListAdapter.Contributo
 import com.android.sample.githubbrowser.data.ContributorData;
 import com.android.sample.githubbrowser.databinding.UserRowBinding;
 import com.android.sample.githubbrowser.model.ContributorListModel;
+import com.android.support.lifecycle.LifecycleFragment;
+import com.android.support.lifecycle.Observer;
 
 import java.util.List;
 
@@ -49,15 +53,53 @@ public class ContibutorListAdapter extends RecyclerView.Adapter<ContributorBindi
         }
     }
 
-    private Fragment mFragment;
+    private LifecycleFragment mFragment;
     private ContributorListModel mSearchModel;
+    private List<ContributorData> mCurrList;
 
     /**
      * Creates an adapter.
      */
-    public ContibutorListAdapter(Fragment fragment, ContributorListModel searchModel) {
+    public ContibutorListAdapter(LifecycleFragment fragment, ContributorListModel searchModel) {
         mFragment = fragment;
         mSearchModel = searchModel;
+
+        // Register an observer on the LiveData that wraps the list of contributors to update
+        // ourselves on every change
+        mSearchModel.getContributorListLiveData().observe(fragment,
+                new Observer<List<ContributorData>>() {
+                    @Override
+                    public void onChanged(
+                            @Nullable final List<ContributorData> contributorDataList) {
+                        DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                            @Override
+                            public int getOldListSize() {
+                                return (mCurrList == null) ? 0 : mCurrList.size();
+                            }
+
+                            @Override
+                            public int getNewListSize() {
+                                return contributorDataList.size();
+                            }
+
+                            @Override
+                            public boolean areItemsTheSame(int oldItemPosition,
+                                    int newItemPosition) {
+                                return mCurrList.get(oldItemPosition).id.equals(
+                                        contributorDataList.get(newItemPosition).id);
+                            }
+
+                            @Override
+                            public boolean areContentsTheSame(int oldItemPosition,
+                                    int newItemPosition) {
+                                return mCurrList.get(oldItemPosition).equals(
+                                        contributorDataList.get(newItemPosition));
+                            }
+                        });
+                        result.dispatchUpdatesTo(ContibutorListAdapter.this);
+                        mCurrList = contributorDataList;
+                    }
+                });
     }
 
     @Override

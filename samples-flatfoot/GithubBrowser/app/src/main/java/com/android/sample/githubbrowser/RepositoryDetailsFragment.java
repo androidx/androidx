@@ -25,7 +25,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.sample.githubbrowser.adapter.ContibutorListAdapter;
-import com.android.sample.githubbrowser.data.ContributorData;
 import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.databinding.FragmentRepoDetailsBinding;
 import com.android.sample.githubbrowser.model.ContributorListModel;
@@ -33,8 +32,6 @@ import com.android.sample.githubbrowser.model.RepositoryDataModel;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
-
-import java.util.List;
 
 /**
  * Fragment that shows details of a single repository, including the list of its contributors.
@@ -99,15 +96,5 @@ public class RepositoryDetailsFragment extends LifecycleFragment {
                 R.id.contributors);
         contributorsRecycler.setAdapter(new ContibutorListAdapter(this, contributorListModel));
         contributorsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // Register an observer on the LiveData that wraps the list of contributors to update the
-        // adapter on every change
-        contributorListModel.getContributorListLiveData().observe(this,
-                new Observer<List<ContributorData>>() {
-                    @Override
-                    public void onChanged(@Nullable List<ContributorData> contributorDataList) {
-                        contributorsRecycler.getAdapter().notifyDataSetChanged();
-                    }
-                });
     }
 }
