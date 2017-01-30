@@ -15,23 +15,28 @@
  */
 package android.support.v17.leanback.app;
 
+import android.animation.PropertyValuesHolder;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v17.leanback.graphics.FitWidthBitmapDrawable;
 import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
 import android.support.v17.leanback.widget.DetailsOverviewRow;
+import android.support.v17.leanback.widget.DetailsParallaxDrawable;
 import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter;
 import android.support.v17.leanback.widget.FullWidthDetailsOverviewSharedElementHelper;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.ParallaxTarget;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.view.ViewGroup;
@@ -77,7 +82,7 @@ public class DetailsTestFragment extends android.support.v17.leanback.app.Detail
     private Action mActionBuy;
 
     private FullWidthDetailsOverviewSharedElementHelper mHelper;
-    private DetailsBackgroundParallaxHelper mParallaxHelper;
+    private DetailsParallaxDrawable mParallaxDrawable;
     private int mMinVerticalOffset;
 
     @Override
@@ -88,14 +93,20 @@ public class DetailsTestFragment extends android.support.v17.leanback.app.Detail
         if (getArguments() != null) {
             mMinVerticalOffset = getArguments().getInt(VERTICAL_OFFSET, -100);
         }
-        mParallaxHelper = new DetailsBackgroundParallaxHelper.ParallaxBuilder(
+        Drawable coverDrawable = new FitWidthBitmapDrawable();
+        mParallaxDrawable = new DetailsParallaxDrawable(
                 getActivity(),
-                getParallaxManager())
-                .setCoverImageMinVerticalOffset(mMinVerticalOffset)
-                .build();
+                getParallax(),
+                coverDrawable,
+                new ParallaxTarget.PropertyValuesHolderTarget(
+                        coverDrawable,
+                        PropertyValuesHolder.ofInt("verticalOffset", 0, mMinVerticalOffset)
+                )
+        );
+
         BackgroundManager backgroundManager = BackgroundManager.getInstance(getActivity());
         backgroundManager.attach(getActivity().getWindow());
-        backgroundManager.setDrawable(mParallaxHelper.getDrawable());
+        backgroundManager.setDrawable(mParallaxDrawable);
 
         mActionPlay = new Action(ACTION_PLAY, "Play");
         mActionRent = new Action(ACTION_RENT, "Rent", "$3.99",
@@ -171,10 +182,10 @@ public class DetailsTestFragment extends android.support.v17.leanback.app.Detail
         super.onResume();
         Bitmap bitmap = BitmapFactory.decodeResource(getActivity().getResources(),
                 R.drawable.spiderman);
-        mParallaxHelper.setCoverImageBitmap(bitmap);
+        ((FitWidthBitmapDrawable) mParallaxDrawable.getCoverDrawable()).setBitmap(bitmap);
     }
 
-    DetailsBackgroundParallaxHelper getParallaxHelper() {
-        return mParallaxHelper;
+    DetailsParallaxDrawable getParallaxDrawable() {
+        return mParallaxDrawable;
     }
 }

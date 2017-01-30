@@ -33,21 +33,18 @@ import org.mockito.MockitoAnnotations;
 @SmallTest
 public class ParallaxIntEffectTest {
 
-    ParallaxSource.IntSource source;
-    int screenMax;
-    ParallaxEffect.IntEffect effect;
-    @Mock ParallaxTarget target;
+    Parallax.IntParallax mSource;
+    int mScreenMax;
+    ParallaxEffect.IntEffect mEffect;
+    @Mock ParallaxTarget mTarget;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        source = new ParallaxSource.IntSource<ParallaxSource.IntProperty>() {
+        mSource = new Parallax.IntParallax<Parallax.IntProperty>() {
 
-            public void setListener(ParallaxSource.Listener listener) {
-            }
-
-            public int getMaxParentVisibleSize() {
-                return screenMax;
+            public int getMaxValue() {
+                return mScreenMax;
             }
 
             @Override
@@ -55,182 +52,182 @@ public class ParallaxIntEffectTest {
                 return new IntProperty(name, index);
             }
         };
-        effect = new ParallaxEffect.IntEffect();
+        mEffect = new ParallaxEffect.IntEffect();
     }
 
     @Test
     public void testOneVariable() {
-        screenMax = 1080;
-        ParallaxSource.IntProperty var1 = source.addProperty("var1");
+        mScreenMax = 1080;
+        Parallax.IntProperty var1 = mSource.addProperty("var1");
 
-        effect.setPropertyRanges(var1.atAbsolute(540), var1.atAbsolute(0));
-        effect.target(target);
+        mEffect.setPropertyRanges(var1.atAbsolute(540), var1.atAbsolute(0));
+        mEffect.target(mTarget);
 
         // start
-        var1.setIntValue(source, 540);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 540);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // 25% complete
-        var1.setIntValue(source, 405);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0.25f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 405);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0.25f);
+        Mockito.reset(mTarget);
 
         // middle
-        var1.setIntValue(source, 270);
-        effect.performMapping(source);
-        verify(target, times(1)).update(.5f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 270);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(.5f);
+        Mockito.reset(mTarget);
 
         // 75% complete
-        var1.setIntValue(source, 135);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0.75f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 135);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0.75f);
+        Mockito.reset(mTarget);
 
         // end
-        var1.setIntValue(source, 0);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 0);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // after end
-        var1.setIntValue(source, -1000);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, -1000);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // before start
-        var1.setIntValue(source, 1000);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 1000);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // unknown_before
-        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_BEFORE);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // unknown_after
-        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_AFTER);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
     }
 
     @Test(expected=IllegalStateException.class)
     public void testVerifyKeyValueOfSameVariableInDesendantOrder() {
-        screenMax = 1080;
-        ParallaxSource.IntProperty var1 = source.addProperty("var1");
+        mScreenMax = 1080;
+        Parallax.IntProperty var1 = mSource.addProperty("var1");
 
-        effect.setPropertyRanges(var1.atAbsolute(540), var1.atAbsolute(550));
-        effect.target(target);
-        var1.setIntValue(source, 0);
-        effect.performMapping(source);
+        mEffect.setPropertyRanges(var1.atAbsolute(540), var1.atAbsolute(550));
+        mEffect.target(mTarget);
+        var1.setIntValue(mSource, 0);
+        mEffect.performMapping(mSource);
     }
 
     @Test
     public void testTwoVariable() {
-        screenMax = 1080;
-        ParallaxSource.IntProperty var1 = source.addProperty("var1");
-        ParallaxSource.IntProperty var2 = source.addProperty("var2");
+        mScreenMax = 1080;
+        Parallax.IntProperty var1 = mSource.addProperty("var1");
+        Parallax.IntProperty var2 = mSource.addProperty("var2");
 
-        effect.setPropertyRanges(var1.atAbsolute(540), var2.atAbsolute(540));
-        effect.target(target);
+        mEffect.setPropertyRanges(var1.atAbsolute(540), var2.atAbsolute(540));
+        mEffect.target(mTarget);
 
         // start
-        var1.setIntValue(source, 540);
-        var2.setIntValue(source, 840);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 540);
+        var2.setIntValue(mSource, 840);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // middle
-        var1.setIntValue(source, 390);
-        var2.setIntValue(source, 690);
-        effect.performMapping(source);
-        verify(target, times(1)).update(.5f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 390);
+        var2.setIntValue(mSource, 690);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(.5f);
+        Mockito.reset(mTarget);
 
         // end
-        var1.setIntValue(source, 240);
-        var2.setIntValue(source, 540);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 240);
+        var2.setIntValue(mSource, 540);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // after end
-        var1.setIntValue(source, 200);
-        var2.setIntValue(source, 500);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 200);
+        var2.setIntValue(mSource, 500);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // before start
-        var1.setIntValue(source, 1000);
-        var2.setIntValue(source, 1300);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 1000);
+        var2.setIntValue(mSource, 1300);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // unknown_before
-        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
-        var2.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_BEFORE);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // unknown_before
-        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
-        var2.setIntValue(source, -1000);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(mSource, -1000);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // unknown_after
-        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
-        var2.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_AFTER);
+        var2.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_AFTER);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // unknown_after
-        var1.setIntValue(source, 1000);
-        var2.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 1000);
+        var2.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_AFTER);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // unknown_before and less
-        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
-        var2.setIntValue(source, 500);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(mSource, 500);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // unknown_before and hit second
-        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
-        var2.setIntValue(source, 540);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(mSource, 540);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // unknown_before with estimation
-        var1.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_BEFORE);
-        var2.setIntValue(source, 1080);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0.5f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_BEFORE);
+        var2.setIntValue(mSource, 1080);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0.5f);
+        Mockito.reset(mTarget);
 
         // unknown_after with estimation
-        var1.setIntValue(source, 0);
-        var2.setIntValue(source, ParallaxSource.IntProperty.UNKNOWN_AFTER);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0.5f);
-        Mockito.reset(target);
+        var1.setIntValue(mSource, 0);
+        var2.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_AFTER);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0.5f);
+        Mockito.reset(mTarget);
     }
 
 }

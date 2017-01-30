@@ -18,14 +18,15 @@ package android.support.v17.leanback.app;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
 import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
+import android.support.v17.leanback.widget.DetailsParallax;
 import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter;
 import android.support.v17.leanback.widget.ItemAlignmentFacet;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
@@ -95,13 +96,16 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     BrowseFrameLayout mRootView;
+    View mBackgroundView;
+    Drawable mBackgroundDrawable;
     Fragment mVideoSupportFragment;
-    DetailsParallaxManager mDetailsParallaxManager;
+    DetailsParallax mDetailsParallax;
     RowsSupportFragment mRowsSupportFragment;
     ObjectAdapter mAdapter;
     int mContainerListAlignTop;
     BaseOnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     BaseOnItemViewClickedListener mOnItemViewClickedListener;
+    DetailsSupportFragmentBackgroundController mDetailsBackgroundController;
 
     Object mSceneAfterEntranceTransition;
 
@@ -187,6 +191,10 @@ public class DetailsSupportFragment extends BaseSupportFragment {
             Bundle savedInstanceState) {
         mRootView = (BrowseFrameLayout) inflater.inflate(
                 R.layout.lb_details_fragment, container, false);
+        mBackgroundView = mRootView.findViewById(R.id.details_background_view);
+        if (mBackgroundView != null) {
+            mBackgroundView.setBackground(mBackgroundDrawable);
+        }
         mRowsSupportFragment = (RowsSupportFragment) getChildFragmentManager().findFragmentById(
                 R.id.details_rows_dock);
         if (mRowsSupportFragment == null) {
@@ -213,13 +221,13 @@ public class DetailsSupportFragment extends BaseSupportFragment {
             mRowsSupportFragment.setExternalAdapterListener(new ItemBridgeAdapter.AdapterListener() {
                 @Override
                 public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
-                    if (mDetailsParallaxManager != null && vh.getViewHolder()
+                    if (mDetailsParallax != null && vh.getViewHolder()
                             instanceof FullWidthDetailsOverviewRowPresenter.ViewHolder) {
                         FullWidthDetailsOverviewRowPresenter.ViewHolder rowVh =
                                 (FullWidthDetailsOverviewRowPresenter.ViewHolder)
                                         vh.getViewHolder();
                         rowVh.getOverviewView().setTag(R.id.lb_parallax_source,
-                                mDetailsParallaxManager.getParallax().getSource());
+                                mDetailsParallax);
                     }
                 }
             });
@@ -330,54 +338,24 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * Creates an instance of {@link VideoSupportFragment}. Subclasses can override this method
-     * and provide their own instance of a {@link Fragment}. When you provide your own instance of
-     * video fragment, you MUST also provide a custom
-     * {@link android.support.v17.leanback.media.PlaybackGlueHost}.
-     * @hide
-     */
-    public Fragment onCreateVideoSupportFragment() {
-        return new VideoSupportFragment();
-    }
-
-    /**
-     * Creates an instance of
-     * {@link android.support.v17.leanback.media.PlaybackGlueHost}. The implementation
-     * of this host depends on the instance of video fragment {@link #onCreateVideoSupportFragment()}.
-     * @hide
-     */
-    public PlaybackGlueHost onCreateVideoSupportFragmentHost(Fragment fragment) {
-        return new VideoSupportFragmentGlueHost((VideoSupportFragment) fragment);
-    }
-
-    /**
-     * This method adds a fragment for rendering video to the layout. In case the
-     * fragment is being restored, it will return the video fragment in there.
+     * This method asks DetailsSupportFragmentBackgroundController to add a fragment for rendering video.
+     * In case the fragment is already there, it will return the existing one. The method must be
+     * called after calling super.onCreate(). App usually does not call this method directly.
      *
      * @return Fragment the added or restored fragment responsible for rendering video.
-     * @hide
+     * @see DetailsSupportFragmentBackgroundController#onCreateVideoSupportFragment()
      */
-    public final Fragment findOrCreateVideoSupportFragment() {
-        Fragment fragment = getFragmentManager().findFragmentById(R.id.video_surface_container);
-        if (fragment == null) {
-            FragmentTransaction ft2 = getFragmentManager().beginTransaction();
+    final Fragment findOrCreateVideoSupportFragment() {
+        Fragment fragment = getChildFragmentManager()
+                .findFragmentById(R.id.video_surface_container);
+        if (fragment == null && mDetailsBackgroundController != null) {
+            FragmentTransaction ft2 = getChildFragmentManager().beginTransaction();
             ft2.add(android.support.v17.leanback.R.id.video_surface_container,
-                    fragment = onCreateVideoSupportFragment());
+                    fragment = mDetailsBackgroundController.onCreateVideoSupportFragment());
             ft2.commit();
         }
         mVideoSupportFragment = fragment;
         return mVideoSupportFragment;
-    }
-
-    /**
-     * This method initializes a video fragment, create an instance of
-     * {@link android.support.v17.leanback.media.PlaybackGlueHost} using that fragment
-     * and return it.
-     * @hide
-     */
-    public final PlaybackGlueHost createPlaybackGlueHost() {
-        Fragment fragment = findOrCreateVideoSupportFragment();
-        return onCreateVideoSupportFragmentHost(fragment);
     }
 
     void onRowSelected(int selectedPosition, int selectedSubPosition) {
@@ -468,8 +446,8 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         if (isEntranceTransitionEnabled()) {
             mRowsSupportFragment.setEntranceTransitionState(false);
         }
-        if (mDetailsParallaxManager != null) {
-            mDetailsParallaxManager.setRecyclerView(mRowsSupportFragment.getVerticalGridView());
+        if (mDetailsParallax != null) {
+            mDetailsParallax.setRecyclerView(mRowsSupportFragment.getVerticalGridView());
         }
         mRowsSupportFragment.getVerticalGridView().requestFocus();
     }
@@ -501,44 +479,34 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * Create a DetailsParallaxManager that will be used to configure parallax effect of background
-     * and start/stop Video playback. Subclass may override.
+     * Returns the {@link DetailsParallax} instance used by
+     * {@link DetailsSupportFragmentBackgroundController} to configure parallax effect of background and
+     * control embedded video playback. App usually does not use this method directly.
+     * App may use this method for other custom parallax tasks.
      *
-     * @return The new created DetailsParallaxManager.
-     * @see #getParallaxManager()
-     * @hide
+     * @return The DetailsParallax instance attached to the DetailsSupportFragment.
      */
-    public DetailsParallaxManager onCreateParallaxManager() {
-        return new DetailsParallaxManager();
-    }
-
-    /**
-     * Returns the {@link DetailsParallaxManager} instance used to configure parallax effect of
-     * background.
-     *
-     * @return The DetailsParallaxManager instance attached to the DetailsSupportFragment.
-     * @see #onCreateParallaxManager()
-     * @hide
-     */
-    public DetailsParallaxManager getParallaxManager() {
-        if (mDetailsParallaxManager == null) {
-            mDetailsParallaxManager = onCreateParallaxManager();
+    public DetailsParallax getParallax() {
+        if (mDetailsParallax == null) {
+            mDetailsParallax = new DetailsParallax();
             if (mRowsSupportFragment != null && mRowsSupportFragment.getView() != null) {
-                mDetailsParallaxManager.setRecyclerView(mRowsSupportFragment.getVerticalGridView());
+                mDetailsParallax.setRecyclerView(mRowsSupportFragment.getVerticalGridView());
             }
         }
-        return mDetailsParallaxManager;
+        return mDetailsParallax;
     }
 
     /**
-     * Returns background View that above VideoSupportFragment. App can set a background drawable to this
-     * view to hide the VideoSupportFragment before it is ready to play.
+     * Set background drawable shown below foreground rows UI and above
+     * {@link #findOrCreateVideoSupportFragment()}.
      *
-     * @see #findOrCreateVideoSupportFragment()
-     * @hide
+     * @see DetailsSupportFragmentBackgroundController
      */
-    public View getBackgroundView() {
-        return mRootView == null ? null : mRootView.findViewById(R.id.details_background_view);
+    void setBackgroundDrawable(Drawable drawable) {
+        if (mBackgroundView != null) {
+            mBackgroundView.setBackground(drawable);
+        }
+        mBackgroundDrawable = drawable;
     }
 
     /**

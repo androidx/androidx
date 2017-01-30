@@ -18,8 +18,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v17.leanback.app.DetailsBackgroundParallaxHelper;
-import android.support.v17.leanback.app.DetailsFragmentVideoHelper;
+import android.support.v17.leanback.app.DetailsFragmentBackgroundController;
 import android.support.v17.leanback.media.MediaPlayerGlue;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -72,17 +71,15 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
     private Action mActionBuy;
 
     private FullWidthDetailsOverviewSharedElementHelper mHelper;
-    private DetailsBackgroundParallaxHelper mParallaxHelper;
-    private DetailsFragmentVideoHelper mVideoHelper;
-    private BackgroundHelper mBackgroundHelper;
-    private int mBitmapMinVerticalOffset = -100;
-    private MediaPlayerGlue mMediaPlayerGlue;
+    private BackgroundHelper mBackgroundHelper; // used to download bitmap async.
+    private final DetailsFragmentBackgroundController mDetailsBackground =
+            new DetailsFragmentBackgroundController(this);
 
     private void initializeTest() {
         TEST_SHARED_ELEMENT_TRANSITION = null != getActivity().getWindow()
                 .getSharedElementEnterTransition();
         TEST_OVERVIEW_ROW_ON_SECOND = !TEST_SHARED_ELEMENT_TRANSITION;
-        TEST_ENTRANCE_TRANSITION = true;
+        TEST_ENTRANCE_TRANSITION = false;
     }
 
     @Override
@@ -92,21 +89,15 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         initializeTest();
 
         mBackgroundHelper = new BackgroundHelper(getActivity());
-        mParallaxHelper = new DetailsBackgroundParallaxHelper.ParallaxBuilder(
-                getActivity(), getParallaxManager())
-                .setCoverImageMinVerticalOffset(mBitmapMinVerticalOffset)
-                .build();
+        mDetailsBackground.enableParallax();
         if (TEST_BACKGROUND_PLAYER) {
-            mMediaPlayerGlue = new MediaPlayerGlue(getActivity());
-            mMediaPlayerGlue.setHost(createPlaybackGlueHost());
-            mVideoHelper = new DetailsFragmentVideoHelper(mMediaPlayerGlue, getParallaxManager());
-            mVideoHelper.setBackgroundDrawable(mParallaxHelper.getCoverImageDrawable());
+            MediaPlayerGlue mediaPlayerGlue = new MediaPlayerGlue(getActivity());
+            mDetailsBackground.setupVideoPlayback(mediaPlayerGlue);
 
-            mMediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
-            mMediaPlayerGlue.setArtist("A Googleer");
-            mMediaPlayerGlue.setTitle("Diving with Sharks");
-            mMediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
-
+            mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
+            mediaPlayerGlue.setArtist("A Googleer");
+            mediaPlayerGlue.setTitle("Diving with Sharks");
+            mediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
         }
 
         final Context context = getActivity();
@@ -218,7 +209,6 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        mBackgroundHelper.attachToView(getBackgroundView());
         return view;
     }
 
@@ -291,21 +281,18 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         super.onStart();
 
         // Restore background drawable in onStart():
-        mBackgroundHelper.setDrawable(mParallaxHelper.getDrawable());
         mBackgroundHelper.loadBitmap(R.drawable.spiderman,
                 new BackgroundHelper.BitmapLoadCallback() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap) {
-                    mParallaxHelper.setCoverImageBitmap(bitmap);
+                    mDetailsBackground.setCoverBitmap(bitmap);
                 }
             });
     }
 
     @Override
     public void onStop() {
+        mDetailsBackground.setCoverBitmap(null);
         super.onStop();
-        if (TEST_BACKGROUND_PLAYER) {
-            mMediaPlayerGlue.pause();
-        }
     }
 }
