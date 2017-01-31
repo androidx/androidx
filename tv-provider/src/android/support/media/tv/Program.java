@@ -18,8 +18,10 @@ package android.support.media.tv;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.media.tv.TvContentRating;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -27,7 +29,10 @@ import android.support.media.tv.TvContractCompat.Programs;
 import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 
+import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -45,6 +50,7 @@ public final class Program implements Comparable<Program> {
     private static final int IS_RECORDING_PROHIBITED = 1;
     private static final int IS_SEARCHABLE = 1;
     private static final int IS_TRANSIENT = 1;
+    private static final int IS_LIVE = 1;
 
     private final long mId;
     private final long mChannelId;
@@ -58,8 +64,8 @@ public final class Program implements Comparable<Program> {
     private final String mLongDescription;
     private final int mVideoWidth;
     private final int mVideoHeight;
-    private final String mPosterArtUri;
-    private final String mThumbnailUri;
+    private final Uri mPosterArtUri;
+    private final Uri mThumbnailUri;
     private final String[] mBroadcastGenres;
     private final String[] mCanonicalGenres;
     private final TvContentRating[] mContentRatings;
@@ -73,12 +79,28 @@ public final class Program implements Comparable<Program> {
     private final int mRecordingProhibited;
     private final String mSeasonTitle;
     private final String mInternalProviderId;
-    private final String mPreviewVideoUri;
-    private final int mPreviewLastPlaybackPosition;
-    private final int mPreviewDuration;
-    private final String mPreviewAppLinkIntentUri;
-    private final int mPreviewWeight;
+    private final Uri mPreviewVideoUri;
+    private final int mLastPlaybackPositionMillis;
+    private final int mDurationMillis;
+    private final Uri mAppLinkIntentUri;
+    private final int mWeight;
     private final int mTransient;
+    private final String mType;
+    private final String mWatchNextType;
+    private final String mPosterArtAspectRatio;
+    private final String mThumbnailAspectRatio;
+    private final Uri mLogoUri;
+    private final String mAvailability;
+    private final String mStartingPrice;
+    private final String mOfferPrice;
+    private final String mReleaseDate;
+    private final int mItemCount;
+    private final int mLive;
+    private final String mInteractionType;
+    private final int mInteractionCount;
+    private final String mAuthor;
+    private final String mReviewRatingStyle;
+    private final String mReviewRating;
 
     private Program(Builder builder) {
         mId = builder.mId;
@@ -109,11 +131,27 @@ public final class Program implements Comparable<Program> {
         mSeasonTitle = builder.mSeasonTitle;
         mInternalProviderId = builder.mExternalId;
         mPreviewVideoUri = builder.mPreviewVideoUri;
-        mPreviewLastPlaybackPosition = builder.mPreviewPosition;
-        mPreviewDuration = builder.mPreviewDuration;
-        mPreviewAppLinkIntentUri = builder.mPreviewAppLinkIntentUri;
-        mPreviewWeight = builder.mWeight;
+        mLastPlaybackPositionMillis = builder.mLastPlaybackPositionMillis;
+        mDurationMillis = builder.mDurationMillis;
+        mAppLinkIntentUri = builder.mAppLinkIntentUri;
+        mWeight = builder.mWeight;
         mTransient = builder.mTransient;
+        mType = builder.mType;
+        mWatchNextType = builder.mWatchNextType;
+        mPosterArtAspectRatio = builder.mPosterArtAspectRatio;
+        mThumbnailAspectRatio = builder.mThumbnailAspectRatio;
+        mLogoUri = builder.mLogoUri;
+        mAvailability = builder.mAvailability;
+        mStartingPrice = builder.mStartingPrice;
+        mOfferPrice = builder.mOfferPrice;
+        mReleaseDate = builder.mReleaseDate;
+        mItemCount = builder.mItemCount;
+        mLive = builder.mLive;
+        mInteractionType = builder.mInteractionType;
+        mInteractionCount = builder.mInteractionCount;
+        mAuthor = builder.mAuthor;
+        mReviewRatingStyle = builder.mReviewRatingStyle;
+        mReviewRating = builder.mReviewRating;
     }
 
     /**
@@ -224,14 +262,14 @@ public final class Program implements Comparable<Program> {
     /**
      * @return The value of {@link Programs#COLUMN_POSTER_ART_URI} for the program.
      */
-    public String getPosterArtUri() {
+    public Uri getPosterArtUri() {
         return mPosterArtUri;
     }
 
     /**
      * @return The value of {@link Programs#COLUMN_THUMBNAIL_URI} for the program.
      */
-    public String getThumbnailUri() {
+    public Uri getThumbnailUri() {
         return mThumbnailUri;
     }
 
@@ -308,36 +346,43 @@ public final class Program implements Comparable<Program> {
     /**
      * @return The value of {@link Programs#COLUMN_PREVIEW_VIDEO_URI} for the program.
      */
-    public String getPreviewVideoUri() {
+    public Uri getPreviewVideoUri() {
         return mPreviewVideoUri;
     }
 
     /**
-     * @return The value of {@link Programs#COLUMN_PREVIEW_LAST_PLAYBACK_POSITION} for the program.
+     * @return The value of {@link Programs#COLUMN_LAST_PLAYBACK_POSITION_MILLIS} for the program.
      */
-    public int getPreviewLastPlaybackPosition() {
-        return mPreviewLastPlaybackPosition;
+    public int getLastPlaybackPositionMillis() {
+        return mLastPlaybackPositionMillis;
     }
 
     /**
-     * @return The value of {@link Programs#COLUMN_PREVIEW_DURATION} for the program.
+     * @return The value of {@link Programs#COLUMN_DURATION_MILLIS} for the program.
      */
-    public int getPreviewDuration() {
-        return mPreviewDuration;
+    public int getDurationMillis() {
+        return mDurationMillis;
     }
 
     /**
-     * @return The value of {@link Programs#COLUMN_PREVIEW_INTENT_URI} for the program.
+     * @return The value of {@link Programs#COLUMN_APP_LINK_INTENT_URI} for the program.
      */
-    public String getPreviewAppLinkIntentUri() {
-        return mPreviewAppLinkIntentUri;
+    public Uri getAppLinkIntentUri() {
+        return mAppLinkIntentUri;
     }
 
     /**
-     * @return The value of {@link Programs#COLUMN_PREVIEW_WEIGHT} for the program.
+     * @return The value of {@link Programs#COLUMN_APP_LINK_INTENT_URI} for the program.
      */
-    public int getPreviewWeight() {
-        return mPreviewWeight;
+    public Intent getAppLinkIntent() throws URISyntaxException {
+        return Intent.parseUri(mAppLinkIntentUri.toString(), Intent.URI_INTENT_SCHEME);
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_WEIGHT} for the program.
+     */
+    public int getWeight() {
+        return mWeight;
     }
 
     /**
@@ -347,6 +392,118 @@ public final class Program implements Comparable<Program> {
     @RestrictTo(LIBRARY_GROUP)
     public boolean isTransient() {
         return mTransient == IS_TRANSIENT;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_TYPE} for the program.
+     */
+    public String getType() {
+        return mType;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_WATCH_NEXT_TYPE} for the program.
+     */
+    public String getWatchNextType() {
+        return mWatchNextType;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_POSTER_ART_ASPECT_RATIO} for the program.
+     */
+    public String getPosterArtAspectRatio() {
+        return mPosterArtAspectRatio;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_THUMBNAIL_ASPECT_RATIO} for the program.
+     */
+    public String getThumbnailAspectRatio() {
+        return mThumbnailAspectRatio;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_LOGO_URI} for the program.
+     */
+    public Uri getLogoUri() {
+        return mLogoUri;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_AVAILABILITY} for the program.
+     */
+    public String getAvailability() {
+        return mAvailability;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_STARTING_PRICE} for the program.
+     */
+    public String getStartingPrice() {
+        return mStartingPrice;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_OFFER_PRICE} for the program.
+     */
+    public String getOfferPrice() {
+        return mOfferPrice;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_RELEASE_DATE} for the program.
+     */
+    public String getReleaseDate() {
+        return mReleaseDate;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_ITEM_COUNT} for the program.
+     */
+    public int getItemCount() {
+        return mItemCount;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_LIVE} for the program.
+     */
+    public boolean isLive() {
+        return mLive == IS_LIVE;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_INTERACTION_TYPE} for the program.
+     */
+    public String getInteractionType() {
+        return mInteractionType;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_INTERACTION_COUNT} for the program.
+     */
+    public int getInteractionCount() {
+        return mInteractionCount;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_AUTHOR} for the program.
+     */
+    public String getAuthor() {
+        return mAuthor;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_REVIEW_RATING_STYLE} for the program.
+     */
+    public String getReviewRatingStyle() {
+        return mReviewRatingStyle;
+    }
+
+    /**
+     * @return The value of {@link Programs#COLUMN_REVIEW_RATING} for the program.
+     */
+    public String getReviewRating() {
+        return mReviewRating;
     }
 
     @Override
@@ -393,13 +550,29 @@ public final class Program implements Comparable<Program> {
                 && (!BuildCompat.isAtLeastO()
                         || Objects.equals(mInternalProviderId, program.mInternalProviderId)
                         && Objects.equals(mPreviewVideoUri, program.mPreviewVideoUri)
-                        && Objects.equals(mPreviewLastPlaybackPosition,
-                                program.mPreviewLastPlaybackPosition)
-                        && Objects.equals(mPreviewDuration, program.mPreviewDuration)
-                        && Objects.equals(mPreviewAppLinkIntentUri,
-                                program.mPreviewAppLinkIntentUri)
-                        && Objects.equals(mPreviewWeight, program.mPreviewWeight)
-                        && Objects.equals(mTransient, program.mTransient));
+                        && Objects.equals(mLastPlaybackPositionMillis,
+                                program.mLastPlaybackPositionMillis)
+                        && Objects.equals(mDurationMillis, program.mDurationMillis)
+                        && Objects.equals(mAppLinkIntentUri,
+                                program.mAppLinkIntentUri)
+                        && Objects.equals(mWeight, program.mWeight)
+                        && Objects.equals(mTransient, program.mTransient)
+                        && Objects.equals(mType, program.mType)
+                        && Objects.equals(mWatchNextType, program.mWatchNextType)
+                        && Objects.equals(mPosterArtAspectRatio, program.mPosterArtAspectRatio)
+                        && Objects.equals(mThumbnailAspectRatio, program.mThumbnailAspectRatio)
+                        && Objects.equals(mLogoUri, program.mLogoUri)
+                        && Objects.equals(mAvailability, program.mAvailability)
+                        && Objects.equals(mStartingPrice, program.mStartingPrice)
+                        && Objects.equals(mOfferPrice, program.mOfferPrice)
+                        && Objects.equals(mReleaseDate, program.mReleaseDate)
+                        && Objects.equals(mItemCount, program.mItemCount)
+                        && Objects.equals(mLive, program.mLive)
+                        && Objects.equals(mInteractionType, program.mInteractionType)
+                        && Objects.equals(mInteractionCount, program.mInteractionCount)
+                        && Objects.equals(mAuthor, program.mAuthor)
+                        && Objects.equals(mReviewRatingStyle, program.mReviewRatingStyle)
+                        && Objects.equals(mReviewRating, program.mReviewRating));
     }
 
     /**
@@ -484,13 +657,13 @@ public final class Program implements Comparable<Program> {
         } else {
             values.putNull(Programs.COLUMN_LONG_DESCRIPTION);
         }
-        if (!TextUtils.isEmpty(mPosterArtUri)) {
-            values.put(Programs.COLUMN_POSTER_ART_URI, mPosterArtUri);
+        if (mPosterArtUri != null) {
+            values.put(Programs.COLUMN_POSTER_ART_URI, mPosterArtUri.toString());
         } else {
             values.putNull(Programs.COLUMN_POSTER_ART_URI);
         }
-        if (!TextUtils.isEmpty(mThumbnailUri)) {
-            values.put(Programs.COLUMN_THUMBNAIL_URI, mThumbnailUri);
+        if (mThumbnailUri != null) {
+            values.put(Programs.COLUMN_THUMBNAIL_URI, mThumbnailUri.toString());
         } else {
             values.putNull(Programs.COLUMN_THUMBNAIL_URI);
         }
@@ -573,24 +746,72 @@ public final class Program implements Comparable<Program> {
             if (!TextUtils.isEmpty(mInternalProviderId)) {
                 values.put(Programs.COLUMN_INTERNAL_PROVIDER_ID, mInternalProviderId);
             }
-            if (!TextUtils.isEmpty(mPreviewVideoUri)) {
-                values.put(Programs.COLUMN_PREVIEW_VIDEO_URI, mPreviewVideoUri);
+            if (mPreviewVideoUri != null) {
+                values.put(Programs.COLUMN_PREVIEW_VIDEO_URI, mPreviewVideoUri.toString());
             }
-            if (mPreviewLastPlaybackPosition != INVALID_INT_VALUE) {
-                values.put(Programs.COLUMN_PREVIEW_LAST_PLAYBACK_POSITION,
-                        mPreviewLastPlaybackPosition);
+            if (mLastPlaybackPositionMillis != INVALID_INT_VALUE) {
+                values.put(Programs.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
+                        mLastPlaybackPositionMillis);
             }
-            if (mPreviewDuration != INVALID_INT_VALUE) {
-                values.put(Programs.COLUMN_PREVIEW_DURATION, mPreviewDuration);
+            if (mDurationMillis != INVALID_INT_VALUE) {
+                values.put(Programs.COLUMN_DURATION_MILLIS, mDurationMillis);
             }
-            if (!TextUtils.isEmpty(mPreviewAppLinkIntentUri)) {
-                values.put(Programs.COLUMN_PREVIEW_INTENT_URI, mPreviewAppLinkIntentUri);
+            if (mAppLinkIntentUri != null) {
+                values.put(Programs.COLUMN_APP_LINK_INTENT_URI, mAppLinkIntentUri.toString());
             }
-            if (mPreviewWeight != INVALID_INT_VALUE) {
-                values.put(Programs.COLUMN_PREVIEW_WEIGHT, mPreviewWeight);
+            if (mWeight != INVALID_INT_VALUE) {
+                values.put(Programs.COLUMN_WEIGHT, mWeight);
             }
             if (mTransient == IS_TRANSIENT) {
                 values.put(Programs.COLUMN_TRANSIENT, mTransient);
+            }
+            if (!TextUtils.isEmpty(mType)) {
+                values.put(Programs.COLUMN_TYPE, mType);
+            }
+            if (!TextUtils.isEmpty(mWatchNextType)) {
+                values.put(Programs.COLUMN_WATCH_NEXT_TYPE, mWatchNextType);
+            }
+            if (!TextUtils.isEmpty(mPosterArtAspectRatio)) {
+                values.put(Programs.COLUMN_POSTER_ART_ASPECT_RATIO, mPosterArtAspectRatio);
+            }
+            if (!TextUtils.isEmpty(mThumbnailAspectRatio)) {
+                values.put(Programs.COLUMN_THUMBNAIL_ASPECT_RATIO, mThumbnailAspectRatio);
+            }
+            if (mLogoUri != null) {
+                values.put(Programs.COLUMN_LOGO_URI, mLogoUri.toString());
+            }
+            if (!TextUtils.isEmpty(mAvailability)) {
+                values.put(Programs.COLUMN_AVAILABILITY, mAvailability);
+            }
+            if (!TextUtils.isEmpty(mStartingPrice)) {
+                values.put(Programs.COLUMN_STARTING_PRICE, mStartingPrice);
+            }
+            if (!TextUtils.isEmpty(mOfferPrice)) {
+                values.put(Programs.COLUMN_OFFER_PRICE, mOfferPrice);
+            }
+            if (!TextUtils.isEmpty(mReleaseDate)) {
+                values.put(Programs.COLUMN_RELEASE_DATE, mReleaseDate);
+            }
+            if (mItemCount != INVALID_INT_VALUE) {
+                values.put(Programs.COLUMN_ITEM_COUNT, mItemCount);
+            }
+            if (mLive != INVALID_INT_VALUE) {
+                values.put(Programs.COLUMN_LIVE, mLive);
+            }
+            if (!TextUtils.isEmpty(mInteractionType)) {
+                values.put(Programs.COLUMN_INTERACTION_TYPE, mInteractionType);
+            }
+            if (mInteractionCount != INVALID_INT_VALUE) {
+                values.put(Programs.COLUMN_INTERACTION_COUNT, mInteractionCount);
+            }
+            if (!TextUtils.isEmpty(mAuthor)) {
+                values.put(Programs.COLUMN_AUTHOR, mAuthor);
+            }
+            if (!TextUtils.isEmpty(mReviewRatingStyle)) {
+                values.put(Programs.COLUMN_REVIEW_RATING_STYLE, mReviewRatingStyle);
+            }
+            if (!TextUtils.isEmpty(mReviewRating)) {
+                values.put(Programs.COLUMN_REVIEW_RATING, mReviewRating);
             }
         }
         return values;
@@ -652,11 +873,11 @@ public final class Program implements Comparable<Program> {
         }
         if ((index = cursor.getColumnIndex(Programs.COLUMN_POSTER_ART_URI)) >= 0
                 && !cursor.isNull(index)) {
-            builder.setPosterArtUri(cursor.getString(index));
+            builder.setPosterArtUri(Uri.parse(cursor.getString(index)));
         }
         if ((index = cursor.getColumnIndex(Programs.COLUMN_THUMBNAIL_URI)) >= 0
                 && !cursor.isNull(index)) {
-            builder.setThumbnailUri(cursor.getString(index));
+            builder.setThumbnailUri(Uri.parse(cursor.getString(index)));
         }
         if ((index = cursor.getColumnIndex(Programs.COLUMN_AUDIO_LANGUAGE)) >= 0
                 && !cursor.isNull(index)) {
@@ -737,27 +958,91 @@ public final class Program implements Comparable<Program> {
             }
             if ((index = cursor.getColumnIndex(Programs.COLUMN_PREVIEW_VIDEO_URI)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setPreviewVideoUri(cursor.getString(index));
+                builder.setPreviewVideoUri(Uri.parse(cursor.getString(index)));
             }
-            if ((index = cursor.getColumnIndex(Programs.COLUMN_PREVIEW_LAST_PLAYBACK_POSITION)) >= 0
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_LAST_PLAYBACK_POSITION_MILLIS)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setPreviewLastPlaybackPosition(cursor.getInt(index));
+                builder.setLastPlaybackPositionMillis(cursor.getInt(index));
             }
-            if ((index = cursor.getColumnIndex(Programs.COLUMN_PREVIEW_DURATION)) >= 0
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_DURATION_MILLIS)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setPreviewDuration(cursor.getInt(index));
+                builder.setDurationMillis(cursor.getInt(index));
             }
-            if ((index = cursor.getColumnIndex(Programs.COLUMN_PREVIEW_INTENT_URI)) >= 0
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_APP_LINK_INTENT_URI)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setPreviewIntentUri(cursor.getString(index));
+                builder.setAppLinkIntentUri(Uri.parse(cursor.getString(index)));
             }
-            if ((index = cursor.getColumnIndex(Programs.COLUMN_PREVIEW_WEIGHT)) >= 0
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_WEIGHT)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setPreviewWeight(cursor.getInt(index));
+                builder.setWeight(cursor.getInt(index));
             }
             if ((index = cursor.getColumnIndex(Programs.COLUMN_TRANSIENT)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setTransient(cursor.getInt(index) == IS_TRANSIENT);
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_TYPE)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setType(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_WATCH_NEXT_TYPE)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setWatchNextType(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_POSTER_ART_ASPECT_RATIO)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setPosterArtAspectRatio(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_THUMBNAIL_ASPECT_RATIO)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setThumbnailAspectRatio(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_LOGO_URI)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setLogoUri(Uri.parse(cursor.getString(index)));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_AVAILABILITY)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setAvailability(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_STARTING_PRICE)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setStartingPrice(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_OFFER_PRICE)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setOfferPrice(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_RELEASE_DATE)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setReleaseDate(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_ITEM_COUNT)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setItemCount(cursor.getInt(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_LIVE)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setLive(cursor.getInt(index) == IS_LIVE);
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_INTERACTION_TYPE)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setInteractionType(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_INTERACTION_COUNT)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setInteractionCount(cursor.getInt(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_AUTHOR)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setAuthor(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_REVIEW_RATING_STYLE)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setReviewRatingStyle(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_REVIEW_RATING)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setReviewRating(cursor.getString(index));
             }
         }
         return builder.build();
@@ -801,11 +1086,27 @@ public final class Program implements Comparable<Program> {
         String[] oColumns = new String[] {
                 Programs.COLUMN_INTERNAL_PROVIDER_ID,
                 Programs.COLUMN_PREVIEW_VIDEO_URI,
-                Programs.COLUMN_PREVIEW_LAST_PLAYBACK_POSITION,
-                Programs.COLUMN_PREVIEW_DURATION,
-                Programs.COLUMN_PREVIEW_INTENT_URI,
-                Programs.COLUMN_PREVIEW_WEIGHT,
+                Programs.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
+                Programs.COLUMN_DURATION_MILLIS,
+                Programs.COLUMN_APP_LINK_INTENT_URI,
+                Programs.COLUMN_WEIGHT,
                 Programs.COLUMN_TRANSIENT,
+                Programs.COLUMN_TYPE,
+                Programs.COLUMN_WATCH_NEXT_TYPE,
+                Programs.COLUMN_POSTER_ART_ASPECT_RATIO,
+                Programs.COLUMN_THUMBNAIL_ASPECT_RATIO,
+                Programs.COLUMN_LOGO_URI,
+                Programs.COLUMN_AVAILABILITY,
+                Programs.COLUMN_STARTING_PRICE,
+                Programs.COLUMN_OFFER_PRICE,
+                Programs.COLUMN_RELEASE_DATE,
+                Programs.COLUMN_ITEM_COUNT,
+                Programs.COLUMN_LIVE,
+                Programs.COLUMN_INTERACTION_TYPE,
+                Programs.COLUMN_INTERACTION_COUNT,
+                Programs.COLUMN_AUTHOR,
+                Programs.COLUMN_REVIEW_RATING_STYLE,
+                Programs.COLUMN_REVIEW_RATING,
         };
         if (BuildCompat.isAtLeastO()) {
             return CollectionUtils.concatAll(baseColumns, marshmallowColumns, nougatColumns,
@@ -823,6 +1124,8 @@ public final class Program implements Comparable<Program> {
      * This Builder class simplifies the creation of a {@link Program} object.
      */
     public static final class Builder {
+        private static final SimpleDateFormat sFormat = new SimpleDateFormat("yyyy-MM-dd");
+
         private long mId = INVALID_LONG_VALUE;
         private long mChannelId = INVALID_LONG_VALUE;
         private String mTitle;
@@ -835,8 +1138,8 @@ public final class Program implements Comparable<Program> {
         private String mLongDescription;
         private int mVideoWidth = INVALID_INT_VALUE;
         private int mVideoHeight = INVALID_INT_VALUE;
-        private String mPosterArtUri;
-        private String mThumbnailUri;
+        private Uri mPosterArtUri;
+        private Uri mThumbnailUri;
         private String[] mBroadcastGenres;
         private String[] mCanonicalGenres;
         private TvContentRating[] mContentRatings;
@@ -850,12 +1153,28 @@ public final class Program implements Comparable<Program> {
         private int mRecordingProhibited = INVALID_INT_VALUE;
         private String mSeasonTitle;
         private String mExternalId;
-        private String mPreviewVideoUri;
-        private int mPreviewPosition = INVALID_INT_VALUE;
-        private int mPreviewDuration = INVALID_INT_VALUE;
-        private String mPreviewAppLinkIntentUri;
+        private Uri mPreviewVideoUri;
+        private int mLastPlaybackPositionMillis = INVALID_INT_VALUE;
+        private int mDurationMillis = INVALID_INT_VALUE;
+        private Uri mAppLinkIntentUri;
         private int mWeight = INVALID_INT_VALUE;
         private int mTransient;
+        private String mType;
+        private String mWatchNextType;
+        private String mPosterArtAspectRatio;
+        private String mThumbnailAspectRatio;
+        private Uri mLogoUri;
+        private String mAvailability;
+        private String mStartingPrice;
+        private String mOfferPrice;
+        private String mReleaseDate;  // XXX: change this to Date class.
+        private int mItemCount = INVALID_INT_VALUE;
+        private int mLive = INVALID_INT_VALUE;
+        private String mInteractionType;
+        private int mInteractionCount = INVALID_INT_VALUE;
+        private String mAuthor;
+        private String mReviewRatingStyle;
+        private String mReviewRating;
 
         /**
          * Creates a new Builder object.
@@ -896,11 +1215,27 @@ public final class Program implements Comparable<Program> {
             mSeasonTitle = other.mSeasonTitle;
             mExternalId = other.mInternalProviderId;
             mPreviewVideoUri = other.mPreviewVideoUri;
-            mPreviewPosition = other.mPreviewLastPlaybackPosition;
-            mPreviewDuration = other.mPreviewDuration;
-            mPreviewAppLinkIntentUri = other.mPreviewAppLinkIntentUri;
-            mWeight = other.mPreviewWeight;
+            mLastPlaybackPositionMillis = other.mLastPlaybackPositionMillis;
+            mDurationMillis = other.mDurationMillis;
+            mAppLinkIntentUri = other.mAppLinkIntentUri;
+            mWeight = other.mWeight;
             mTransient = other.mTransient;
+            mType = other.mType;
+            mWatchNextType = other.mWatchNextType;
+            mPosterArtAspectRatio = other.mPosterArtAspectRatio;
+            mThumbnailAspectRatio = other.mThumbnailAspectRatio;
+            mLogoUri = other.mLogoUri;
+            mAvailability = other.mAvailability;
+            mStartingPrice = other.mStartingPrice;
+            mOfferPrice = other.mOfferPrice;
+            mReleaseDate = other.mReleaseDate;
+            mItemCount = other.mItemCount;
+            mLive = other.mLive;
+            mInteractionType = other.mInteractionType;
+            mInteractionCount  = other.mInteractionCount;
+            mAuthor = other.mAuthor;
+            mReviewRatingStyle = other.mReviewRatingStyle;
+            mReviewRating = other.mReviewRating;
         }
 
         /**
@@ -1096,7 +1431,7 @@ public final class Program implements Comparable<Program> {
          * @param posterArtUri The value of {@link Programs#COLUMN_POSTER_ART_URI} for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setPosterArtUri(String posterArtUri) {
+        public Builder setPosterArtUri(Uri posterArtUri) {
             mPosterArtUri = posterArtUri;
             return this;
         }
@@ -1107,7 +1442,7 @@ public final class Program implements Comparable<Program> {
          * @param thumbnailUri The value of {@link Programs#COLUMN_THUMBNAIL_URI} for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setThumbnailUri(String thumbnailUri) {
+        public Builder setThumbnailUri(Uri thumbnailUri) {
             mThumbnailUri = thumbnailUri;
             return this;
         }
@@ -1258,7 +1593,7 @@ public final class Program implements Comparable<Program> {
          *                        program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setPreviewVideoUri(String previewVideoUri) {
+        public Builder setPreviewVideoUri(Uri previewVideoUri) {
             mPreviewVideoUri = previewVideoUri;
             return this;
         }
@@ -1266,45 +1601,55 @@ public final class Program implements Comparable<Program> {
         /**
          * Sets the last playback position (in milliseconds) of the preview video.
          *
-         * @param position The value of {@link Programs#COLUMN_PREVIEW_LAST_PLAYBACK_POSITION} for
+         * @param position The value of {@link Programs#COLUMN_LAST_PLAYBACK_POSITION_MILLIS} for
          *                 the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setPreviewLastPlaybackPosition(int position) {
-            mPreviewPosition = position;
+        public Builder setLastPlaybackPositionMillis(int position) {
+            mLastPlaybackPositionMillis = position;
             return this;
         }
 
         /**
          * Sets the last playback duration (in milliseconds) of the preview video.
          *
-         * @param duration The value of {@link Programs#COLUMN_PREVIEW_DURATION} for the program.
+         * @param duration The value of {@link Programs#COLUMN_DURATION_MILLIS} for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setPreviewDuration(int duration) {
-            mPreviewDuration = duration;
+        public Builder setDurationMillis(int duration) {
+            mDurationMillis = duration;
             return this;
         }
 
         /**
          * Sets the intent URI of the app link for the preview video.
          *
-         * @param previewAppLinkIntentUri The value of {@link Programs#COLUMN_PREVIEW_INTENT_URI}
-         *                                for the program.
+         * @param appLinkIntentUri The value of {@link Programs#COLUMN_APP_LINK_INTENT_URI}
+         *                         for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setPreviewIntentUri(String previewAppLinkIntentUri) {
-            mPreviewAppLinkIntentUri = previewAppLinkIntentUri;
+        public Builder setAppLinkIntentUri(Uri appLinkIntentUri) {
+            mAppLinkIntentUri = appLinkIntentUri;
             return this;
+        }
+
+        /**
+         * Sets the intent of the app link for the preview video.
+         *
+         * @param appLinkIntent The Intent to be executed when the App Linking card is selected
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setAppLinkIntent(Intent appLinkIntent) {
+            return setAppLinkIntentUri(Uri.parse(appLinkIntent.toUri(Intent.URI_INTENT_SCHEME)));
         }
 
         /**
          * Sets the weight of the preview program within the channel.
          *
-         * @param weight The value of {@link Programs#COLUMN_PREVIEW_WEIGHT} for the program.
+         * @param weight The value of {@link Programs#COLUMN_WEIGHT} for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setPreviewWeight(int weight) {
+        public Builder setWeight(int weight) {
             mWeight = weight;
             return this;
         }
@@ -1319,6 +1664,258 @@ public final class Program implements Comparable<Program> {
         @RestrictTo(LIBRARY_GROUP)
         public Builder setTransient(boolean transientValue) {
             mTransient = transientValue ? IS_TRANSIENT : 0;
+            return this;
+        }
+
+        /**
+         * Sets the type of this program content.
+         *
+         * <p>The value should match one of the followings:
+         * {@link Programs#TYPE_MOVIE},
+         * {@link Programs#TYPE_TV_SERIES},
+         * {@link Programs#TYPE_TV_SEASON},
+         * {@link Programs#TYPE_TV_EPISODE},
+         * {@link Programs#TYPE_CLIP},
+         * {@link Programs#TYPE_EVENT},
+         * {@link Programs#TYPE_CHANNEL},
+         * {@link Programs#TYPE_TRACK},
+         * {@link Programs#TYPE_ALBUM},
+         * {@link Programs#TYPE_ARTIST},
+         * {@link Programs#TYPE_PLAYLIST}, and
+         * {@link Programs#TYPE_STATION}.
+         *
+         * @param type The value of {@link Programs#COLUMN_TYPE} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setType(String type) {
+            mType = type;
+            return this;
+        }
+
+        /**
+         * Sets the "watch next" type of this program content.
+         *
+         * <p>The value should match one of the followings:
+         * {@link Programs#WATCH_NEXT_TYPE_CONTINUE},
+         * {@link Programs#WATCH_NEXT_TYPE_NEXT}, and
+         * {@link Programs#WATCH_NEXT_TYPE_NEW}.
+         *
+         * @param watchNextType The value of {@link Programs#COLUMN_WATCH_NEXT_TYPE} for the
+         *                      program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setWatchNextType(String watchNextType) {
+            mWatchNextType = watchNextType;
+            return this;
+        }
+
+        /**
+         * Sets the aspect ratio of the poster art for this TV program.
+         *
+         * <p>The value should match one of the followings:
+         * {@link Programs#ASPECT_RATIO_16_9},
+         * {@link Programs#ASPECT_RATIO_3_2},
+         * {@link Programs#ASPECT_RATIO_1_1}, and
+         * {@link Programs#ASPECT_RATIO_2_3}.
+         *
+         * @param ratio The value of {@link Programs#COLUMN_POSTER_ART_ASPECT_RATIO} for the
+         *              program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setPosterArtAspectRatio(String ratio) {
+            mPosterArtAspectRatio = ratio;
+            return this;
+        }
+
+        /**
+         * Sets the aspect ratio of the thumbnail for this TV program.
+         *
+         * <p>The value should match one of the followings:
+         * {@link Programs#ASPECT_RATIO_16_9},
+         * {@link Programs#ASPECT_RATIO_3_2},
+         * {@link Programs#ASPECT_RATIO_1_1}, and
+         * {@link Programs#ASPECT_RATIO_2_3}.
+         *
+         * @param ratio The value of {@link Programs#COLUMN_THUMBNAIL_ASPECT_RATIO} for the
+         *              program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setThumbnailAspectRatio(String ratio) {
+            mThumbnailAspectRatio = ratio;
+            return this;
+        }
+
+        /**
+         * Sets the URI for the logo of this TV program.
+         *
+         * @param logoUri The value of {@link Programs#COLUMN_LOGO_URI} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setLogoUri(Uri logoUri) {
+            mLogoUri = logoUri;
+            return this;
+        }
+
+        /**
+         * Sets the availability of this TV program.
+         *
+         * <p>The value should match one of the followings:
+         * {@link Programs#AVAILABILITY_AVAILABLE},
+         * {@link Programs#AVAILABILITY_FREE_WITH_SUBSCRIPTION}, and
+         * {@link Programs#AVAILABILITY_PAID_CONTENT}.
+         *
+         * @param availability The value of {@link Programs#COLUMN_AVAILABILITY} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setAvailability(String availability) {
+            mAvailability = availability;
+            return this;
+        }
+
+        /**
+         * Sets the starting price of this TV program.
+         *
+         * @param price The value of {@link Programs#COLUMN_STARTING_PRICE} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setStartingPrice(String price) {
+            mStartingPrice = price;
+            return this;
+        }
+
+        /**
+         * Sets the offer price of this TV program.
+         *
+         * @param price The value of {@link Programs#COLUMN_OFFER_PRICE} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setOfferPrice(String price) {
+            mOfferPrice = price;
+            return this;
+        }
+
+        /**
+         * Sets the release date of this TV program.
+         *
+         * <p>The value should be in the form of either "yyyy-MM-dd" or "yyyy".
+         *
+         * @param releaseDate The value of {@link Programs#COLUMN_RELEASE_DATE} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setReleaseDate(String releaseDate) {
+            mReleaseDate = releaseDate;
+            return this;
+        }
+
+        /**
+         * Sets the release date of this TV program.
+         *
+         * @param releaseDate The value of {@link Programs#COLUMN_RELEASE_DATE} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setReleaseDate(Date releaseDate) {
+            mReleaseDate = sFormat.format(releaseDate);
+            return this;
+        }
+
+        /**
+         * Sets the count of the items included in this TV program.
+         *
+         * @param itemCount value of {@link Programs#COLUMN_ITEM_COUNT} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setItemCount(int itemCount) {
+            mItemCount = itemCount;
+            return this;
+        }
+
+        /**
+         * Sets whether this TV program is live or not.
+         *
+         * @param live The value of {@link Programs#COLUMN_LIVE} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setLive(boolean live) {
+            mLive = live ? IS_LIVE : 0;
+            return this;
+        }
+
+        /**
+         * Sets the type of interaction for this TV program.
+         *
+         * <p> The value should match one of the followings:
+         * {@link Programs#INTERACTION_TYPE_LISTENS},
+         * {@link Programs#INTERACTION_TYPE_FOLLOWERS},
+         * {@link Programs#INTERACTION_TYPE_FANS},
+         * {@link Programs#INTERACTION_TYPE_LIKES},
+         * {@link Programs#INTERACTION_TYPE_THUMBS},
+         * {@link Programs#INTERACTION_TYPE_VIEWS}, and
+         * {@link Programs#INTERACTION_TYPE_VIEWERS}.
+         *
+         * @param interactionType The value of {@link Programs#COLUMN_AVAILABILITY} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setInteractionType(String interactionType) {
+            mInteractionType = interactionType;
+            return this;
+        }
+
+        /**
+         * Sets the interaction count for this program.
+         *
+         * @param interactionCount value of {@link Programs#COLUMN_INTERACTION_COUNT} for the
+         *                         program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setInteractionCount(int interactionCount) {
+            mInteractionCount = interactionCount;
+            return this;
+        }
+
+        /**
+         * Sets the author or artist of this content.
+         *
+         * @param author The value of {@link Programs#COLUMN_AUTHOR} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setAuthor(String author) {
+            mAuthor = author;
+            return this;
+        }
+
+        /**
+         * The review rating score style used for {@link #setReviewRating}.
+         *
+         * <p> The value should match one of the followings:
+         * {@link Programs#REVIEW_RATING_STYLE_STARS},
+         * {@link Programs#REVIEW_RATING_STYLE_THUMBS_UP_DOWN}, and
+         * {@link Programs#REVIEW_RATING_STYLE_PERCENTAGE}.
+         *
+         * @param reviewRatingStyle The value of {@link Programs#COLUMN_REVIEW_RATING_STYLE} for the
+         *                          program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setReviewRatingStyle(String reviewRatingStyle) {
+            mReviewRatingStyle = reviewRatingStyle;
+            return this;
+        }
+
+        /**
+         * Sets the review rating score for this program.
+         *
+         * <p>The format of the value is dependent on {@link Programs#COLUMN_REVIEW_RATING_STYLE}.
+         * If the style is {@link Programs#REVIEW_RATING_STYLE_STARS}, the value should be a real
+         * number between 0.0 and 5.0. (e.g. "4.5") If the style is
+         * {@link Programs#REVIEW_RATING_STYLE_THUMBS_UP_DOWN}, the value should be two integers,
+         * one for thumbs-up count and the other for thumbs-down count, with a comma between them.
+         * (e.g. "200,40") If the style is {@link Programs#REVIEW_RATING_STYLE_PERCENTAGE}, the
+         * value shoule be a real number between 0 and 100. (e.g. "99.9")
+         *
+         * @param reviewRating The value of {@link Programs#COLUMN_AVAILABILITY} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setReviewRating(String reviewRating) {
+            mReviewRating = reviewRating;
             return this;
         }
 

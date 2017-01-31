@@ -1046,6 +1046,238 @@ public final class TvContractCompat {
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/program";
 
         /**
+         * The program type for movie.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_MOVIE = "TYPE_MOVIE";
+
+        /**
+         * The program type for TV series.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_TV_SERIES = "TYPE_TV_SERIES";
+
+        /**
+         * The program type for TV season.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_TV_SEASON = "TYPE_TV_SEASON";
+
+        /**
+         * The program type for TV episode.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_TV_EPISODE = "TYPE_TV_EPISODE";
+
+        /**
+         * The program type for clip.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_CLIP = "TYPE_CLIP";
+
+        /**
+         * The program type for event.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_EVENT = "TYPE_EVENT";
+
+        /**
+         * The program type for channel.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_CHANNEL = "TYPE_CHANNEL";
+
+        /**
+         * The program type for track.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_TRACK = "TYPE_TRACK";
+
+        /**
+         * The program type for album.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_ALBUM = "TYPE_ALBUM";
+
+        /**
+         * The program type for artist.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_ARTIST = "TYPE_ARTIST";
+
+        /**
+         * The program type for playlist.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_PLAYLIST = "TYPE_PLAYLIST";
+
+        /**
+         * The program type for station.
+         *
+         * @see #COLUMN_TYPE
+         */
+        public static final String TYPE_STATION = "TYPE_STATION";
+
+        /**
+         * The watch next type for CONTINUE.
+         *
+         * @see #COLUMN_WATCH_NEXT_TYPE
+         */
+        public static final String WATCH_NEXT_TYPE_CONTINUE = "WATCH_NEXT_TYPE_CONTINUE";
+
+        /**
+         * The watch next type for NEXT.
+         *
+         * @see #COLUMN_WATCH_NEXT_TYPE
+         */
+        public static final String WATCH_NEXT_TYPE_NEXT = "WATCH_NEXT_TYPE_NEXT";
+
+        /**
+         * The watch next type for NEW.
+         *
+         * @see #COLUMN_WATCH_NEXT_TYPE
+         */
+        public static final String WATCH_NEXT_TYPE_NEW = "WATCH_NEXT_TYPE_NEW";
+
+        /**
+         * The aspect ratio for 16:9.
+         *
+         * @see #COLUMN_POSTER_ART_ASPECT_RATIO
+         * @see #COLUMN_THUMBNAIL_ASPECT_RATIO
+         */
+        public static final String ASPECT_RATIO_16_9 = "ASPECT_RATIO_16_9";
+
+        /**
+         * The aspect ratio for 3:2.
+         *
+         * @see #COLUMN_POSTER_ART_ASPECT_RATIO
+         * @see #COLUMN_THUMBNAIL_ASPECT_RATIO
+         */
+        public static final String ASPECT_RATIO_3_2 = "ASPECT_RATIO_3_2";
+
+        /**
+         * The aspect ratio for 1:1.
+         *
+         * @see #COLUMN_POSTER_ART_ASPECT_RATIO
+         * @see #COLUMN_THUMBNAIL_ASPECT_RATIO
+         */
+        public static final String ASPECT_RATIO_1_1 = "ASPECT_RATIO_1_1";
+
+        /**
+         * The aspect ratio for 2:3.
+         *
+         * @see #COLUMN_POSTER_ART_ASPECT_RATIO
+         * @see #COLUMN_THUMBNAIL_ASPECT_RATIO
+         */
+        public static final String ASPECT_RATIO_2_3 = "ASPECT_RATIO_2_3";
+
+        /**
+         * The availability for "available to this user".
+         *
+         * @see #COLUMN_AVAILABILITY
+         */
+        public static final String AVAILABILITY_AVAILABLE = "AVAILABILITY_AVAILABLE";
+
+        /**
+         * The availability for "free with subscription".
+         *
+         * @see #COLUMN_AVAILABILITY
+         */
+        public static final String AVAILABILITY_FREE_WITH_SUBSCRIPTION =
+                "AVAILABILITY_FREE_WITH_SUBSCRIPTION";
+
+        /**
+         * The availability for "paid content, either to-own or rental
+         * (user has not purchased/rented).
+         *
+         * @see #COLUMN_AVAILABILITY
+         */
+        public static final String AVAILABILITY_PAID_CONTENT = "AVAILABILITY_PAID_CONTENT";
+
+        /**
+         * The interaction type for "listens".
+         *
+         * @see #COLUMN_INTERACTION_TYPE
+         */
+        public static final String INTERACTION_TYPE_LISTENS = "INTERACTION_TYPE_LISTENS";
+
+        /**
+         * The interaction type for "followers".
+         *
+         * @see #COLUMN_INTERACTION_TYPE
+         */
+        public static final String INTERACTION_TYPE_FOLLOWERS = "INTERACTION_TYPE_FOLLOWERS";
+
+        /**
+         * The interaction type for "fans".
+         *
+         * @see #COLUMN_INTERACTION_TYPE
+         */
+        public static final String INTERACTION_TYPE_FANS = "INTERACTION_TYPE_FANS";
+
+        /**
+         * The interaction type for "likes".
+         *
+         * @see #COLUMN_INTERACTION_TYPE
+         */
+        public static final String INTERACTION_TYPE_LIKES = "INTERACTION_TYPE_LIKES";
+
+        /**
+         * The interaction type for "thumbs".
+         *
+         * @see #COLUMN_INTERACTION_TYPE
+         */
+        public static final String INTERACTION_TYPE_THUMBS = "INTERACTION_TYPE_THUMBS";
+
+        /**
+         * The interaction type for "views".
+         *
+         * @see #COLUMN_INTERACTION_TYPE
+         */
+        public static final String INTERACTION_TYPE_VIEWS = "INTERACTION_TYPE_VIEWS";
+
+        /**
+         * The interaction type for "viewers".
+         *
+         * @see #COLUMN_INTERACTION_TYPE
+         */
+        public static final String INTERACTION_TYPE_VIEWERS = "INTERACTION_TYPE_VIEWERS";
+
+        /**
+         * The review rating style for five star rating.
+         *
+         * @see #COLUMN_REVIEW_RATING_STYLE
+         */
+        public static final String REVIEW_RATING_STYLE_STARS = "REVIEW_RATING_STYLE_STARS";
+
+        /**
+         * The review rating style for thumbs-up and thumbs-down rating.
+         *
+         * @see #COLUMN_REVIEW_RATING_STYLE
+         */
+        public static final String REVIEW_RATING_STYLE_THUMBS_UP_DOWN =
+                "REVIEW_RATING_STYLE_THUMBS_UP_DOWN";
+
+        /**
+         * The review rating style for 0 to 100 point system.
+         *
+         * @see #COLUMN_REVIEW_RATING_STYLE
+         */
+        public static final String REVIEW_RATING_STYLE_PERCENTAGE =
+                "REVIEW_RATING_STYLE_PERCENTAGE";
+
+        /**
          * The ID of the TV channel that provides this TV program.
          *
          * <p>This is a part of the channel URI and matches to {@link BaseColumns#_ID}.
@@ -1055,6 +1287,44 @@ public final class TvContractCompat {
          * <p>Type: INTEGER (long)
          */
         public static final String COLUMN_CHANNEL_ID = "channel_id";
+
+        /**
+         * The type of this program content.
+         *
+         * <p>The value should match one of the followings:
+         * {@link #TYPE_MOVIE},
+         * {@link #TYPE_TV_SERIES},
+         * {@link #TYPE_TV_SEASON},
+         * {@link #TYPE_TV_EPISODE},
+         * {@link #TYPE_CLIP},
+         * {@link #TYPE_EVENT},
+         * {@link #TYPE_CHANNEL},
+         * {@link #TYPE_TRACK},
+         * {@link #TYPE_ALBUM},
+         * {@link #TYPE_ARTIST},
+         * {@link #TYPE_PLAYLIST}, and
+         * {@link #TYPE_STATION}.
+         *
+         * <p>This is a required field if the program is from a {@link Channels#TYPE_PREVIEW}
+         * channel.
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_TYPE = "type";
+
+        /**
+         * The "watch next" type of this program content.
+         *
+         * <p>The value should match one of the followings:
+         * {@link #WATCH_NEXT_TYPE_CONTINUE},
+         * {@link #WATCH_NEXT_TYPE_NEXT}, and
+         * {@link #WATCH_NEXT_TYPE_NEW}.
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_WATCH_NEXT_TYPE = "watch_next_type";
 
         /**
          * The title of this TV program.
@@ -1287,6 +1557,19 @@ public final class TvContractCompat {
         public static final String COLUMN_POSTER_ART_URI = "poster_art_uri";
 
         /**
+         * The aspect ratio of the poster art for this TV program.
+         *
+         * <p>The value should match one of the followings:
+         * {@link #ASPECT_RATIO_16_9},
+         * {@link #ASPECT_RATIO_3_2},
+         * {@link #ASPECT_RATIO_1_1}, and
+         * {@link #ASPECT_RATIO_2_3}.
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_POSTER_ART_ASPECT_RATIO = "poster_art_aspect_ratio";
+
+        /**
          * The URI for the thumbnail of this TV program.
          *
          * <p>The system can generate a thumbnail from the poster art if this column is not
@@ -1307,6 +1590,104 @@ public final class TvContractCompat {
          * <p>Type: TEXT
          */
         public static final String COLUMN_THUMBNAIL_URI = "thumbnail_uri";
+
+        /**
+         * The aspect ratio of the thumbnail for this TV program.
+         *
+         * <p>The value should match one of the followings:
+         * {@link #ASPECT_RATIO_16_9},
+         * {@link #ASPECT_RATIO_3_2},
+         * {@link #ASPECT_RATIO_1_1}, and
+         * {@link #ASPECT_RATIO_2_3}.
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_THUMBNAIL_ASPECT_RATIO = "poster_thumbnail_aspect_ratio";
+
+        /**
+         * The URI for the logo of this TV program.
+         *
+         * <p>This is a small badge shown on top of the poster art or thumbnail representing the
+         * source of the content.
+         *
+         * <p>The data in the column must be a URL, or a URI in one of the following formats:
+         *
+         * <ul>
+         * <li>content ({@link android.content.ContentResolver#SCHEME_CONTENT})</li>
+         * <li>android.resource ({@link android.content.ContentResolver#SCHEME_ANDROID_RESOURCE})
+         * </li>
+         * <li>file ({@link android.content.ContentResolver#SCHEME_FILE})</li>
+         * </ul>
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_LOGO_URI = "logo_uri";
+
+        /**
+         * The availability of this TV program.
+         *
+         * <p>The value should match one of the followings:
+         * {@link #AVAILABILITY_AVAILABLE},
+         * {@link #AVAILABILITY_FREE_WITH_SUBSCRIPTION}, and
+         * {@link #AVAILABILITY_PAID_CONTENT}.
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_AVAILABILITY = "availability";
+
+        /**
+         * The starting price of this TV program.
+         *
+         * <p>This indicates the lowest regular acquisition cost of the content. It is only used
+         * if the availability of the program is {@link #AVAILABILITY_PAID_CONTENT}.
+         *
+         * <p>Type: TEXT
+         * @see #COLUMN_OFFER_PRICE
+         */
+        public static final String COLUMN_STARTING_PRICE = "starting_price";
+
+        /**
+         * The offer price of this TV program.
+         *
+         * <p>This is the promotional cost of the content. It is only used if the availability of
+         * the program is {@link #AVAILABILITY_PAID_CONTENT}.
+         *
+         * <p>Type: TEXT
+         * @see #COLUMN_STARTING_PRICE
+         */
+        public static final String COLUMN_OFFER_PRICE = "offer_price";
+
+        /**
+         * The release date of this TV program.
+         *
+         * <p>The value should be in the form of either "yyyy-MM-dd" or "yyyy".
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_RELEASE_DATE = "release_date";
+
+        /**
+         * The count of the items included in this TV program.
+         *
+         * <p>This is only relevant if the program represents a collection of items such as series,
+         * episodes, or music tracks.
+         *
+         * <p>Type: INTEGER
+         */
+        public static final String COLUMN_ITEM_COUNT = "item_count";
+
+        /**
+         * The flag indicating whether this TV program is live or not.
+         *
+         * <p>A value of 1 indicates that the content is airing and should be consumed now, a value
+         * of 0 indicates that the content is off the air and does not need to be consumed at the
+         * present time. If not specified, the value is set to 0 (not live) by default.
+         *
+         * <p>Type: INTEGER (boolean)
+         */
+        public static final String COLUMN_LIVE = "live";
 
         /**
          * The flag indicating whether this TV program is searchable or not.
@@ -1437,8 +1818,8 @@ public final class TvContractCompat {
          *
          * <p>Type: INTEGER
          */
-        public static final String COLUMN_PREVIEW_LAST_PLAYBACK_POSITION =
-                "preview_last_playback_position";
+        public static final String COLUMN_LAST_PLAYBACK_POSITION_MILLIS =
+                "last_playback_position_millis";
 
         /**
          * The duration (in milliseconds) of the preview video.
@@ -1449,7 +1830,7 @@ public final class TvContractCompat {
          *
          * <p>Type: INTEGER
          */
-        public static final String COLUMN_PREVIEW_DURATION = "preview_duration";
+        public static final String COLUMN_DURATION_MILLIS = "duration_millis";
 
         /**
          * The intent URI which is launched when the preview video is selected.
@@ -1462,8 +1843,7 @@ public final class TvContractCompat {
          *
          * <p>Type: TEXT
          */
-        public static final String COLUMN_PREVIEW_INTENT_URI =
-                "preview_intent_uri";
+        public static final String COLUMN_APP_LINK_INTENT_URI = "app_link_intent_uri";
 
         /**
          * The weight of the preview program within the channel.
@@ -1477,7 +1857,7 @@ public final class TvContractCompat {
          *
          * <p>Type: INTEGER
          */
-        public static final String COLUMN_PREVIEW_WEIGHT = "preview_weight";
+        public static final String COLUMN_WEIGHT = "weight";
 
         /**
          * The flag indicating whether this program is transient or not.
@@ -1487,10 +1867,72 @@ public final class TvContractCompat {
          * specified, this value is set to 0 (not transient) by default.
          *
          * <p>Type: INTEGER (boolean)
+         * @see Channels#COLUMN_TRANSIENT
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
         public static final String COLUMN_TRANSIENT = "transient";
+
+        /**
+         * The type of interaction for this TV program.
+         *
+         * <p> The value should match one of the followings:
+         * {@link #INTERACTION_TYPE_LISTENS},
+         * {@link #INTERACTION_TYPE_FOLLOWERS},
+         * {@link #INTERACTION_TYPE_FANS},
+         * {@link #INTERACTION_TYPE_LIKES},
+         * {@link #INTERACTION_TYPE_THUMBS},
+         * {@link #INTERACTION_TYPE_VIEWS}, and
+         * {@link #INTERACTION_TYPE_VIEWERS}.
+         *
+         * <p>Type: TEXT
+         * @see #COLUMN_INTERACTION_COUNT
+         */
+        public static final String COLUMN_INTERACTION_TYPE = "interaction_type";
+
+        /**
+         * The interaction count for this program.
+         *
+         * <p>This indicates the number of times interaction has happened.
+         *
+         * <p>Type: INTEGER
+         * @see #COLUMN_INTERACTION_TYPE
+         */
+        public static final String COLUMN_INTERACTION_COUNT = "interaction_count";
+
+        /**
+         * The author or artist of this content.
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_AUTHOR = "author";
+
+        /**
+         * The review rating score style used for {@link #COLUMN_REVIEW_RATING}.
+         *
+         * <p> The value should match one of the followings: {@link #REVIEW_RATING_STYLE_STARS},
+         * {@link #REVIEW_RATING_STYLE_THUMBS_UP_DOWN}, and {@link #REVIEW_RATING_STYLE_PERCENTAGE}.
+         *
+         * <p>Type: TEXT
+         * @see #COLUMN_REVIEW_RATING
+         */
+        public static final String COLUMN_REVIEW_RATING_STYLE = "review_rating_style";
+
+        /**
+         * The review rating score for this program.
+         *
+         * <p>The format of the value is dependent on {@link #COLUMN_REVIEW_RATING_STYLE}. If the
+         * style is {@link #REVIEW_RATING_STYLE_STARS}, the value should be a real number between
+         * 0.0 and 5.0. (e.g. "4.5") If the style is {@link #REVIEW_RATING_STYLE_THUMBS_UP_DOWN},
+         * the value should be two integers, one for thumbs-up count and the other for thumbs-down
+         * count, with a comma between them. (e.g. "200,40") If the style is
+         * {@link #REVIEW_RATING_STYLE_PERCENTAGE}, the value shoule be a real number between 0 and
+         * 100. (e.g. "99.9")
+         *
+         * <p>Type: TEXT
+         * @see #COLUMN_REVIEW_RATING_STYLE
+         */
+        public static final String COLUMN_REVIEW_RATING = "review_rating";
 
         private Programs() {}
 
