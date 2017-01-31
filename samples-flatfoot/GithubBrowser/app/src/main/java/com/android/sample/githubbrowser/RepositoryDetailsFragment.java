@@ -29,6 +29,7 @@ import com.android.sample.githubbrowser.data.ContributorData;
 import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.databinding.FragmentRepoDetailsBinding;
 import com.android.sample.githubbrowser.model.ContributorListModel;
+import com.android.sample.githubbrowser.model.RepositoryDataModel;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
@@ -39,9 +40,8 @@ import java.util.List;
  * Fragment that shows details of a single repository, including the list of its contributors.
  */
 public class RepositoryDetailsFragment extends LifecycleFragment {
-    public static final String KEY_REPO = "repoDetails.full";
-
-    private RepositoryData mRepositoryData;
+    public static final String REPO_ID = "repoDetails.id";
+    public static final String REPO_FULL_NAME = "repoDetails.fullName";
 
     public RepositoryDetailsFragment() {
     }
@@ -53,22 +53,49 @@ public class RepositoryDetailsFragment extends LifecycleFragment {
                 inflater, R.layout.fragment_repo_details, container, false);
         final View result = binding.getRoot();
 
-        mRepositoryData = (savedInstanceState == null)
-                ? (RepositoryData) getArguments().getParcelable(KEY_REPO)
-                : (RepositoryData) savedInstanceState.getParcelable(KEY_REPO);
+        final String repoId = getArguments().getString(REPO_ID);
+        final String repoFullName = getArguments().getString(REPO_FULL_NAME);
 
-        // Bind the data on this fragment
-        binding.setRepo(mRepositoryData);
-        binding.setFragment(this);
+        // Get our view model instance and register ourselves to observe change to the
+        // full user data. When a change is reported, update all UI elements based on the new
+        // data.
+        RepositoryDataModel repositoryDataModel = ViewModelStore.get(this, repoId,
+                RepositoryDataModel.class);
+        repositoryDataModel.getRepositoryData().observe(this, new Observer<RepositoryData>() {
+            @Override
+            public void onChanged(@Nullable final RepositoryData repositoryData) {
+                if (repositoryData != null) {
+                    // Bind the data on this fragment
+                    bindRepositoryData(binding, repositoryData);
+                }
+            }
+        });
+
+        // Ask the model to load the data for this repository. When the data becomes available
+        // (either immediately from the previous load or later on when it's fetched from
+        // remote API call), we will be notified since this fragment registered itself as an
+        // observer on the matching live data object.
+        repositoryDataModel.loadData(getContext(), repoId, repoFullName);
+
+        return result;
+    }
+
+    private void bindRepositoryData(FragmentRepoDetailsBinding binding,
+            RepositoryData repositoryData) {
+        binding.setRepo(repositoryData);
+        binding.setFragment(RepositoryDetailsFragment.this);
         binding.executePendingBindings();
 
         final ContributorListModel contributorListModel = ViewModelStore.get(this,
                 "contributorListModel", ContributorListModel.class);
         if (!contributorListModel.hasSearchTerms()) {
-            contributorListModel.setSearchTerms(mRepositoryData.owner.login, mRepositoryData.name);
+            // TODO - this is temporary until Room persists non-primitive fields. Until
+            // then we split full name into user and name manually
+            String[] split = repositoryData.full_name.split("/");
+            contributorListModel.setSearchTerms(split[0], repositoryData.name);
         }
 
-        final RecyclerView contributorsRecycler = (RecyclerView) result.findViewById(
+        final RecyclerView contributorsRecycler = (RecyclerView) binding.getRoot().findViewById(
                 R.id.contributors);
         contributorsRecycler.setAdapter(new ContibutorListAdapter(this, contributorListModel));
         contributorsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -82,7 +109,5 @@ public class RepositoryDetailsFragment extends LifecycleFragment {
                         contributorsRecycler.getAdapter().notifyDataSetChanged();
                     }
                 });
-
-        return result;
     }
 }

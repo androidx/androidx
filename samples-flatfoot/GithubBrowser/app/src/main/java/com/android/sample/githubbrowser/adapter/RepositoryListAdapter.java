@@ -86,11 +86,13 @@ public class RepositoryListAdapter extends RecyclerView.Adapter<RepositoryBindin
             return;
         }
 
-        mSearchModel.fetchMoreIfNecessary();
+        mSearchModel.fetchAtIndexIfNecessary(repositoryDataList.size());
     }
 
     @Override
     public int getItemCount() {
-        return mSearchModel.getRepositoryListLiveData().getValue().size();
+        List<RepositoryData> repositoryDataList =
+                mSearchModel.getRepositoryListLiveData().getValue();
+        return (repositoryDataList == null) ? 0 : repositoryDataList.size();
     }
 }

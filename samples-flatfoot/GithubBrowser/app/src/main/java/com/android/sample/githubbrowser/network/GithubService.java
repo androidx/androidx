@@ -37,6 +37,12 @@ public interface GithubService {
     Call<List<RepositoryData>> listRepositories(@Path("user") String user, @Query("page") int page);
 
     /**
+     * Gets the information about the specified repository.
+     */
+    @GET("/repos/{user}/{name}")
+    Call<RepositoryData> getRepository(@Path("user") String user, @Path("name") String name);
+
+    /**
      * Lists the contributors for the specified project owned by the specified user.
      */
     @GET("/repos/{user}/{project}/contributors")

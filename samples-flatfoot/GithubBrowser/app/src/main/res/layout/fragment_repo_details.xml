@@ -24,9 +24,7 @@
                 android:id="@+id/avatar"
                 android:layout_width="96dp"
                 android:layout_height="96dp"
-                android:background="#FAFAFA"
-                app:fragment="@{fragment}"
-                app:url="@{repo.owner.avatar_url}"/>
+                android:background="#FAFAFA"/>
 
             <TextView
                 android:id="@+id/name"

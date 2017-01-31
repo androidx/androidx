@@ -159,6 +159,34 @@ public class GithubNetworkManager {
     }
 
     /**
+     * Fetches the details of the specified repository.
+     */
+    @MainThread
+    public CancelableCall getRepository(String user, String name,
+            final NetworkCallListener<RepositoryData> networkCallListener) {
+        Call<RepositoryData> getRepositoryCall = mGithubService.getRepository(user, name);
+        getRepositoryCall.enqueue(new Callback<RepositoryData>() {
+            @Override
+            public void onResponse(Call<RepositoryData> call,
+                    Response<RepositoryData> response) {
+                RepositoryData body = response.body();
+                if (body == null) {
+                    networkCallListener.onLoadEmpty(response.code());
+                } else {
+                    networkCallListener.onLoadSuccess(body);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RepositoryData> call, Throwable t) {
+                android.util.Log.e("GithubBrowser", "Call = " + call.toString(), t);
+                networkCallListener.onLoadFailure();
+            }
+        });
+        return new CancelableCall(getRepositoryCall);
+    }
+
+    /**
      * Fetches the specified page of contributors.
      */
     @MainThread

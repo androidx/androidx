@@ -94,7 +94,7 @@ public class MainActivity extends BaseActivity {
         final RepositoryListModel mainModel = ViewModelStore.get(this, "mainRepoModel",
                 RepositoryListModel.class);
         if (!mainModel.hasSearchTerm()) {
-            mainModel.setSearchTerm("google", mAuthTokenLifecycle);
+            mainModel.setSearchTerm(this, "google", mAuthTokenLifecycle);
         }
 
         // Check that the activity is using the layout version with
@@ -140,7 +140,7 @@ public class MainActivity extends BaseActivity {
                     }
 
                     // Perform search action on key press
-                    mainModel.setSearchTerm(query, mAuthTokenLifecycle);
+                    mainModel.setSearchTerm(v.getContext(), query, mAuthTokenLifecycle);
                     return true;
                 }
                 return false;

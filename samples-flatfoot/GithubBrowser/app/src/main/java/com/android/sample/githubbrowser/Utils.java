@@ -97,7 +97,8 @@ public class Utils {
     public static void showRepoDetails(Fragment fragment, RepositoryData data) {
         RepositoryDetailsFragment repoDetailsFragment = new RepositoryDetailsFragment();
         Bundle detailsFragmentArgs = new Bundle();
-        detailsFragmentArgs.putParcelable(RepositoryDetailsFragment.KEY_REPO, data);
+        detailsFragmentArgs.putString(RepositoryDetailsFragment.REPO_ID, data.id);
+        detailsFragmentArgs.putString(RepositoryDetailsFragment.REPO_FULL_NAME, data.full_name);
         repoDetailsFragment.setArguments(detailsFragmentArgs);
 
         FragmentManager fragmentManager = fragment.getActivity()

@@ -15,16 +15,23 @@
  */
 package com.android.sample.githubbrowser.model;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.support.annotation.MainThread;
+import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import com.android.sample.githubbrowser.AuthTokenLifecycle;
+import com.android.sample.githubbrowser.data.GeneralRepoSearchData;
 import com.android.sample.githubbrowser.data.RepositoryData;
+import com.android.sample.githubbrowser.data.SearchQueryData;
+import com.android.sample.githubbrowser.db.PersonDataDao;
+import com.android.sample.githubbrowser.db.PersonDataDatabase;
+import com.android.sample.githubbrowser.db.PersonDataDatabaseHelper;
 import com.android.sample.githubbrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,10 +44,12 @@ public class RepositoryListModel implements ViewModel {
     private AuthTokenLifecycle mAuthTokenLifecycle;
 
     private LiveData<List<RepositoryData>> mRepositoryListLiveData = new LiveData<>();
-    private AtomicBoolean mHasNoMoreDataToLoad = new AtomicBoolean(false);
-    private AtomicInteger mLastRequestedPage = new AtomicInteger(0);
-    private AtomicBoolean mHasRequestPending = new AtomicBoolean(false);
-    private GithubNetworkManager.Cancelable mCurrentCall;
+    private AtomicBoolean mHasNetworkRequestPending = new AtomicBoolean(false);
+    private GithubNetworkManager.Cancelable mCurrentNetworkCall;
+
+    private PersonDataDatabase mDatabase;
+    private SearchQueryData mSearchQueryData;
+    private AtomicInteger mLastRequestedIndex = new AtomicInteger(0);
 
     /**
      * Returns true if the current search term is not empty.
@@ -53,28 +62,73 @@ public class RepositoryListModel implements ViewModel {
      * Sets new search term.
      */
     @MainThread
-    public void setSearchTerm(String searchTerm, AuthTokenLifecycle authTokenLifecycle) {
+    public void setSearchTerm(Context context, String searchTerm,
+            AuthTokenLifecycle authTokenLifecycle) {
+        if (mDatabase == null) {
+            mDatabase = PersonDataDatabaseHelper.getDatabase(context);
+        }
         mSearchTerm = searchTerm;
         mAuthTokenLifecycle = authTokenLifecycle;
 
-        if (mCurrentCall != null) {
-            mCurrentCall.cancel();
+        if (mCurrentNetworkCall != null) {
+            mCurrentNetworkCall.cancel();
         }
-        mRepositoryListLiveData.setValue(new ArrayList<RepositoryData>());
-        mHasRequestPending.set(false);
-        mLastRequestedPage.set(0);
 
-        if ((mAuthTokenLifecycle != null) && mAuthTokenLifecycle.doWeNeedAuthToken()) {
-            mAuthTokenLifecycle.getAuthToken();
-        } else {
-            fetchNextPage();
-        }
+        final PersonDataDao personDataDao = mDatabase.getPersonDataDao();
+
+        // Get the LiveData wrapper around the list of repositories that match our current
+        // search query. The wrapped list will be updated on every successful network request
+        // that is performed for data that is not available in our database.
+        mRepositoryListLiveData = personDataDao.getRepositories(mSearchTerm);
+
+        mHasNetworkRequestPending.set(false);
+
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... params) {
+                // Get data about locally persisted results of our current search query. Note that
+                // since this is working with a disk-based database, we're running off the main
+                // thread.
+                mSearchQueryData = personDataDao.getSearchQueryData(
+                        params[0], SearchQueryData.GENERAL_REPOSITORIES);
+                if (mSearchQueryData == null) {
+                    // This query has not been performed before - initialize an entry in the
+                    // database. TODO - consult the timestamp of network requests for staleness.
+                    mSearchQueryData = new SearchQueryData();
+                    mSearchQueryData.searchQuery = mSearchTerm;
+                    mSearchQueryData.searchKind = SearchQueryData.GENERAL_REPOSITORIES;
+                    mSearchQueryData.numberOfFetchedItems = -1;
+                    mDatabase.getPersonDataDao().update(mSearchQueryData);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                if ((mAuthTokenLifecycle != null) && mAuthTokenLifecycle.doWeNeedAuthToken()) {
+                    mAuthTokenLifecycle.getAuthToken();
+                } else {
+                    fetchNextPage();
+                }
+            }
+        }.execute(mSearchTerm);
     }
 
     private void fetchNextPage() {
-        mHasRequestPending.set(true);
-        mCurrentCall = GithubNetworkManager.getInstance().listRepositories(
-                mSearchTerm, mLastRequestedPage.get() + 1,
+        // Do we have data in the database?
+        if (mSearchQueryData.numberOfFetchedItems >= mLastRequestedIndex.get()) {
+            // We already have the data stored (and retrieved) from database.
+            return;
+        }
+
+        if (mHasNetworkRequestPending.get() || mSearchQueryData.hasNoMoreData) {
+            // Previous request still processing or no more results
+            return;
+        }
+
+        mHasNetworkRequestPending.set(true);
+        mCurrentNetworkCall = GithubNetworkManager.getInstance().listRepositories(
+                mSearchTerm, mSearchQueryData.indexOfLastFetchedPage + 1,
                 new GithubNetworkManager.NetworkCallListener<List<RepositoryData>>() {
                     @Override
                     public void onLoadEmpty(int httpCode) {
@@ -88,23 +142,15 @@ public class RepositoryListModel implements ViewModel {
 
                     @Override
                     public void onLoadSuccess(List<RepositoryData> data) {
-                        int newDataCount = data.size();
-                        if (newDataCount == 0) {
-                            mHasNoMoreDataToLoad.set(true);
-                            return;
-                        }
-
-                        // Create a new list that will contain the previous pages and the new one
-                        int prevDataCount = mRepositoryListLiveData.getValue().size();
-                        ArrayList<RepositoryData> newList =
-                                new ArrayList<>(prevDataCount + newDataCount);
-                        newList.addAll(mRepositoryListLiveData.getValue());
-                        newList.addAll(data);
-                        // Set it on our LiveData object - our observer will update the adapter
-                        mRepositoryListLiveData.setValue(newList);
-
-                        mLastRequestedPage.incrementAndGet();
-                        mHasRequestPending.set(false);
+                        new AsyncTask<RepositoryData, Void, Void>() {
+                            @Override
+                            protected Void doInBackground(RepositoryData... params) {
+                                // Note that since we're going to be inserting data into disk-based
+                                // database, we need to be running off the main thread.
+                                processNewPageOfData(params);
+                                return null;
+                            }
+                        }.execute(data.toArray(new RepositoryData[data.size()]));
                     }
 
                     @Override
@@ -113,15 +159,55 @@ public class RepositoryListModel implements ViewModel {
                 });
     }
 
+    @WorkerThread
+    private void processNewPageOfData(RepositoryData... data) {
+        int newDataCount = data.length;
+
+        final PersonDataDao personDataDao = mDatabase.getPersonDataDao();
+        final int indexOfFirstData = mSearchQueryData.numberOfFetchedItems;
+        // Update the metadata about our current search query (in the database)
+        if (newDataCount == 0) {
+            mSearchQueryData.hasNoMoreData = true;
+        } else {
+            if (mSearchQueryData.indexOfLastFetchedPage == 0) {
+                mSearchQueryData.timestamp = System.currentTimeMillis();
+            }
+            mSearchQueryData.indexOfLastFetchedPage++;
+            mSearchQueryData.numberOfFetchedItems += newDataCount;
+        }
+        personDataDao.update(mSearchQueryData);
+
+        if (newDataCount > 0) {
+            // Insert entries for the newly loaded repositories in two places:
+            // 1. The table that stores repository IDs that match a specific query.
+            // 2. The table that stores full data on each individual repository.
+            // This way we don't store multiple full entries for the same repository
+            // that happens to match two or more search queries.
+            GeneralRepoSearchData[] generalRepoSearchDataArray =
+                    new GeneralRepoSearchData[newDataCount];
+            for (int i = 0; i < newDataCount; i++) {
+                generalRepoSearchDataArray[i] = new GeneralRepoSearchData();
+                generalRepoSearchDataArray[i].searchQuery = mSearchTerm;
+                generalRepoSearchDataArray[i].resultIndex = indexOfFirstData + i;
+                generalRepoSearchDataArray[i].repoId = data[i].id;
+            }
+            personDataDao.insert(generalRepoSearchDataArray);
+            personDataDao.insert(data);
+        }
+
+        mHasNetworkRequestPending.set(false);
+    }
+
     /**
-     * Fetches the next page of search data if necessary.
+     * Fetches data at specified index if data does not exist yet.
      */
-    @MainThread
-    public void fetchMoreIfNecessary() {
-        if (mHasRequestPending.get() || mHasNoMoreDataToLoad.get()) {
+    public void fetchAtIndexIfNecessary(int index) {
+        if (mHasNetworkRequestPending.get() || mSearchQueryData.hasNoMoreData) {
             // Previous request still processing or no more results
             return;
         }
+
+        mLastRequestedIndex.set(index);
 
         fetchNextPage();
     }

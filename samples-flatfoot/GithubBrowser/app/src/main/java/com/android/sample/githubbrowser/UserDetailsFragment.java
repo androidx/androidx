@@ -72,7 +72,7 @@ public class UserDetailsFragment extends LifecycleFragment {
         final RepositoryListModel repositoriesListModel = ViewModelStore.get(
                 UserDetailsFragment.this, "repositoriesListModel", RepositoryListModel.class);
         if (!repositoriesListModel.hasSearchTerm()) {
-            repositoriesListModel.setSearchTerm(initialData.login, null);
+            repositoriesListModel.setSearchTerm(this.getContext(), initialData.login, null);
         }
 
         final RecyclerView repositoriesRecycler = (RecyclerView) result.findViewById(
