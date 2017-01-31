@@ -1031,6 +1031,35 @@ package android.support.media {
 
 }
 
+package android.support.media.instantvideo.preload {
+
+  public class InstantVideoPreloadManager {
+    method public void clearCache();
+    method public static synchronized android.support.media.instantvideo.preload.InstantVideoPreloadManager getInstance(android.content.Context);
+    method public void preload(android.net.Uri);
+    method public void setMaxCacheSize(int);
+    method public void setMaxPreloadVideoCount(int);
+  }
+
+}
+
+package android.support.media.instantvideo.widget {
+
+  public class InstantVideoView extends android.widget.FrameLayout {
+    ctor public InstantVideoView(android.content.Context);
+    ctor public InstantVideoView(android.content.Context, android.util.AttributeSet);
+    ctor public InstantVideoView(android.content.Context, android.util.AttributeSet, int);
+    ctor public InstantVideoView(android.content.Context, android.util.AttributeSet, int, int);
+    method public int getCurrentPosition();
+    method public void seekTo(int);
+    method public void setImageDrawable(android.graphics.drawable.Drawable);
+    method public void setVideoUri(android.net.Uri);
+    method public void start();
+    method public void stop();
+  }
+
+}
+
 package android.support.media.tv {
 
   public final class Channel {
