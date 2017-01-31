@@ -16,39 +16,50 @@
 
 package android.support.v4.app;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.LargeTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.FragmentTestActivity.ChildFragment;
 import android.support.v4.app.test.FragmentTestActivity.ParentFragment;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.LargeTest;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @LargeTest
-public class NestedFragmentTest extends ActivityInstrumentationTestCase2<FragmentTestActivity> {
+public class NestedFragmentTest {
+    @Rule
+    public ActivityTestRule<FragmentTestActivity> mActivityRule =
+            new ActivityTestRule<FragmentTestActivity>(FragmentTestActivity.class);
 
-    ParentFragment mParentFragment;
+    private Instrumentation mInstrumentation;
+    private ParentFragment mParentFragment;
 
-    public NestedFragmentTest() {
-        super(FragmentTestActivity.class);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+    @Before
+    public void setup() throws Throwable {
+        mInstrumentation = InstrumentationRegistry.getInstrumentation();
+        final FragmentManager fragmentManager =
+                mActivityRule.getActivity().getSupportFragmentManager();
         mParentFragment = new ParentFragment();
         fragmentManager.beginTransaction().add(mParentFragment, "parent").commit();
         final CountDownLatch latch = new CountDownLatch(1);
-        getActivity().runOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             public void run() {
                 fragmentManager.executePendingTransactions();
                 latch.countDown();
@@ -58,27 +69,26 @@ public class NestedFragmentTest extends ActivityInstrumentationTestCase2<Fragmen
     }
 
     @UiThreadTest
+    @Test(expected = IllegalArgumentException.class)
     public void testThrowsWhenUsingReservedRequestCode() {
-        try {
-            mParentFragment.getChildFragment().startActivityForResult(
+        mParentFragment.getChildFragment().startActivityForResult(
                 new Intent(Intent.ACTION_CALL), 16777216 /* requestCode */);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {}
     }
 
-    public void testNestedFragmentStartActivityForResult() throws Exception {
+    @Test
+    public void testNestedFragmentStartActivityForResult() throws Throwable {
         Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(
                 Activity.RESULT_OK, new Intent());
 
         Instrumentation.ActivityMonitor activityMonitor =
-                getInstrumentation().addMonitor(
+                mInstrumentation.addMonitor(
                         new IntentFilter(Intent.ACTION_CALL), activityResult, true /* block */);
 
         // Sanity check that onActivityResult hasn't been called yet.
         assertFalse(mParentFragment.getChildFragment().onActivityResultCalled);
 
         final CountDownLatch latch = new CountDownLatch(1);
-        getActivity().runOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             public void run() {
                 mParentFragment.getChildFragment().startActivityForResult(
                         new Intent(Intent.ACTION_CALL),
@@ -88,7 +98,7 @@ public class NestedFragmentTest extends ActivityInstrumentationTestCase2<Fragmen
         });
         assertTrue(latch.await(1, TimeUnit.SECONDS));
 
-        assertTrue(getInstrumentation().checkMonitorHit(activityMonitor, 1));
+        assertTrue(mInstrumentation.checkMonitorHit(activityMonitor, 1));
 
         final ChildFragment childFragment = mParentFragment.getChildFragment();
         assertTrue(childFragment.onActivityResultCalled);

@@ -17,6 +17,8 @@
 
 package android.support.v4.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -55,8 +57,6 @@ import android.widget.FrameLayout;
 import android.widget.ScrollView;
 
 import java.util.List;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * NestedScrollView is just like {@link android.widget.ScrollView}, but it supports acting
@@ -1334,7 +1334,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * children.</p>
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public int computeVerticalScrollRange() {
         final int count = getChildCount();
@@ -1356,35 +1356,35 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public int computeVerticalScrollOffset() {
         return Math.max(0, super.computeVerticalScrollOffset());
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public int computeVerticalScrollExtent() {
         return super.computeVerticalScrollExtent();
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public int computeHorizontalScrollRange() {
         return super.computeHorizontalScrollRange();
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public int computeHorizontalScrollOffset() {
         return super.computeHorizontalScrollOffset();
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public int computeHorizontalScrollExtent() {
         return super.computeHorizontalScrollExtent();

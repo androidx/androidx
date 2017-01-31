@@ -13,23 +13,19 @@
  */
 package android.support.v17.leanback.app;
 
+import android.graphics.Paint;
+import android.graphics.Paint.FontMetricsInt;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.widget.TitleView;
 import android.text.TextUtils;
-import android.util.Log;
-import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.graphics.Paint;
-import android.graphics.PixelFormat;
-import android.graphics.Paint.FontMetricsInt;
-import android.graphics.drawable.Drawable;
 
 /**
  * A fragment for displaying an error indication.
@@ -75,8 +71,8 @@ public class ErrorFragment extends BrandedFragment {
         mBackgroundDrawable = drawable;
         if (drawable != null) {
             final int opacity = drawable.getOpacity();
-            mIsBackgroundTranslucent = (opacity == PixelFormat.TRANSLUCENT ||
-                    opacity == PixelFormat.TRANSPARENT);
+            mIsBackgroundTranslucent = (opacity == PixelFormat.TRANSLUCENT
+                    || opacity == PixelFormat.TRANSPARENT);
         }
         updateBackground();
         updateMessage();
@@ -194,9 +190,9 @@ public class ErrorFragment extends BrandedFragment {
                 mErrorFrame.setBackground(mBackgroundDrawable);
             } else {
                 mErrorFrame.setBackgroundColor(mErrorFrame.getResources().getColor(
-                        mIsBackgroundTranslucent ?
-                        R.color.lb_error_background_color_translucent :
-                        R.color.lb_error_background_color_opaque));
+                        mIsBackgroundTranslucent
+                                ? R.color.lb_error_background_color_translucent
+                                : R.color.lb_error_background_color_opaque));
             }
         }
     }

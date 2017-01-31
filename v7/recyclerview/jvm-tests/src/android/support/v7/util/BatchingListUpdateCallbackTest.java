@@ -15,13 +15,16 @@
  */
 package android.support.v7.util;
 
-import android.test.suitebuilder.annotation.SmallTest;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
+import android.support.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import static org.mockito.Mockito.*;
 
 @RunWith(JUnit4.class)
 @SmallTest

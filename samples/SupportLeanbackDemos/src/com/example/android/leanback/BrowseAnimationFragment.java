@@ -15,6 +15,7 @@ package com.example.android.leanback;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
@@ -23,9 +24,9 @@ import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.View;
-import android.os.Handler;
 
 import java.util.Random;
 
@@ -57,8 +58,8 @@ public class BrowseAnimationFragment extends
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        setBadgeDrawable(
-                getActivity().getResources().getDrawable(R.drawable.ic_title));
+        setBadgeDrawable(ResourcesCompat.getDrawable(getActivity().getResources(),
+                R.drawable.ic_title, getActivity().getTheme()));
         setTitle("Leanback Sample App");
         setHeadersState(HEADERS_ENABLED);
 

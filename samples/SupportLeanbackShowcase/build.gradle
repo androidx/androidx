@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 ext {
   // This will be set by local.properties file. By default it
-  // will use the public release version (23.2.1). You can run
+  // will use the public release version (24.0.0). You can run
   // python build-local.py to build the local verison. That script will
   // figure out the local library version based on maven metadata for leanback
   // library and update local.properties file. Gradle build file in turn
@@ -9,7 +9,7 @@ ext {
   Properties properties = new Properties()
   properties.load(project.rootProject.file('local.properties').newDataInputStream())
   supportLibVersion = properties.getProperty('LIBRARY_VERSION')
-  supportLibVersion = supportLibVersion ? supportLibVersion : "23.2.1"
+  supportLibVersion = supportLibVersion ? supportLibVersion : "24.0.0"
   localRepo = properties.getProperty('LOCAL_REPO')
 }
 
@@ -18,7 +18,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.2.1'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

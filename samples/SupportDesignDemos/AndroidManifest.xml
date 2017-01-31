@@ -128,6 +128,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.CustomSnackbarUsage"
+                  android:label="@string/design_snackbar_custom">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".widget.AppBarLayoutToolbarScrollTabsScroll"
                   android:label="@string/design_appbar_toolbar_scroll_tabs_scroll">
             <intent-filter>

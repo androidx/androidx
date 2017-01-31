@@ -15,15 +15,17 @@
  */
 package android.support.v7.widget;
 
-import android.support.v7.appcompat.test.R;
-import android.support.v7.testutils.TestUtilsActions;
-import android.test.suitebuilder.annotation.SmallTest;
-import org.junit.Test;
-
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.v7.testutils.TestUtilsActions.setTextAppearance;
+
 import static org.junit.Assert.assertEquals;
+
+import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.SmallTest;
+import android.support.v7.appcompat.test.R;
+
+import org.junit.Test;
 
 /**
  * In addition to all tinting-related tests done by the base class, this class provides
@@ -79,5 +81,15 @@ public class AppCompatButtonTest
                 (AppCompatButton) mContainer.findViewById(R.id.button_app_allcaps_false);
 
         assertEquals("Button is not in all caps", text, button.getLayout().getText());
+    }
+
+    @Test
+    public void testBackgroundTintListOnColoredButton() {
+        testUntintedBackgroundTintingViewCompatAcrossStateChange(R.id.button_colored_untinted);
+    }
+
+    @Test
+    public void testBackgroundTintListOnButton() {
+        testUntintedBackgroundTintingViewCompatAcrossStateChange(R.id.button_untinted);
     }
 }

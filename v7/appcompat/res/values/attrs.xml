@@ -1038,6 +1038,7 @@
         <attr name="multiChoiceItemLayout" format="reference" />
         <attr name="singleChoiceItemLayout" format="reference" />
         <attr name="listItemLayout" format="reference" />
+        <attr name="showTitle" format="boolean" />
     </declare-styleable>
 
     <!-- @hide -->
@@ -1099,6 +1100,13 @@
         <attr name="android:drawableStart" />
         <attr name="android:drawableEnd" />
         <attr name="android:textAppearance" />
+    </declare-styleable>
+
+    <declare-styleable name="RecycleListView">
+        <!-- Bottom padding to use when no buttons are present. -->
+        <attr name="paddingBottomNoButtons" format="dimension" />
+        <!-- Top padding to use when no title is present. -->
+        <attr name="paddingTopNoTitle" format="dimension" />
     </declare-styleable>
 
 </resources>

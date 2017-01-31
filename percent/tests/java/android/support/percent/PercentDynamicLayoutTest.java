@@ -15,25 +15,27 @@
  */
 package android.support.percent;
 
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
+import static org.hamcrest.CoreMatchers.allOf;
+
 import android.support.annotation.LayoutRes;
 import android.support.percent.test.R;
-import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.support.test.filters.SmallTest;
 import android.view.View;
 import android.view.ViewStub;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Test;
-
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
-import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static org.hamcrest.core.AllOf.allOf;
 
 /**
  * Test cases to verify that percent layouts properly account for their own paddings.
@@ -45,17 +47,13 @@ public class PercentDynamicLayoutTest
         super(PercentDynamicLayoutActivity.class);
     }
 
+    @UiThreadTest
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         // Now that the test is done, replace the activity content view with ViewStub so
         // that it's ready to be replaced for the next test.
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                final PercentDynamicLayoutActivity activity = mActivityTestRule.getActivity();
-                activity.setContentView(R.layout.percent_dynamic_layout);
-            }
-        });
+        final PercentDynamicLayoutActivity activity = mActivityTestRule.getActivity();
+        activity.setContentView(R.layout.percent_dynamic_layout);
     }
 
     /**

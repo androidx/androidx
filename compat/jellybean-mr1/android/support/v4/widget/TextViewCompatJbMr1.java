@@ -16,12 +16,16 @@
 
 package android.support.v4.widget;
 
+import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.widget.TextView;
 
+@RequiresApi(17)
+@TargetApi(17)
 class TextViewCompatJbMr1 {
 
     public static void setCompoundDrawablesRelative(@NonNull TextView textView,
@@ -46,8 +50,17 @@ class TextViewCompatJbMr1 {
                 bottom);
     }
 
-    static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
-        return textView.getCompoundDrawablesRelative();
+    public static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
+        final boolean rtl = textView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+        final Drawable[] compounds = textView.getCompoundDrawables();
+        if (rtl) {
+            // If we're on RTL, we need to invert the horizontal result like above
+            final Drawable start = compounds[2];
+            final Drawable end = compounds[0];
+            compounds[0] = start;
+            compounds[2] = end;
+        }
+        return compounds;
     }
 
 }

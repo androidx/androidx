@@ -20,8 +20,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.os.SystemClock;
+import android.support.test.filters.SmallTest;
 import android.support.v7.testutils.BaseTestActivity;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
@@ -29,9 +29,9 @@ import android.view.View;
 import org.junit.Test;
 
 public class KeyboardShortcutsTestCaseWithToolbar
-        extends BaseKeyboardShortcutsTestCase<ToolbarActionBarActivity> {
+        extends BaseKeyboardShortcutsTestCase<ToolbarAppCompatActivity> {
     public KeyboardShortcutsTestCaseWithToolbar() {
-        super(ToolbarActionBarActivity.class);
+        super(ToolbarAppCompatActivity.class);
     }
 
     @Test
@@ -40,7 +40,7 @@ public class KeyboardShortcutsTestCaseWithToolbar
         final BaseTestActivity activity = getActivity();
 
         final View editText = activity.findViewById(android.support.v7.appcompat.test.R.id.editText);
-        runTestOnUiThread(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 editText.requestFocus();
@@ -52,7 +52,7 @@ public class KeyboardShortcutsTestCaseWithToolbar
         getInstrumentation().waitForIdleSync();
 
         // Should jump to the action bar after control-<
-        runTestOnUiThread(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 assertFalse(editText.hasFocus());
@@ -64,7 +64,7 @@ public class KeyboardShortcutsTestCaseWithToolbar
         getInstrumentation().waitForIdleSync();
 
         // Should jump to the first view again.
-        runTestOnUiThread(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 assertTrue(editText.hasFocus());

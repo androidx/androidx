@@ -16,7 +16,7 @@
 
 package android.support.design.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v4.view.ViewPager.SCROLL_STATE_DRAGGING;
 import static android.support.v4.view.ViewPager.SCROLL_STATE_IDLE;
 import static android.support.v4.view.ViewPager.SCROLL_STATE_SETTLING;
@@ -44,6 +44,7 @@ import android.support.design.R;
 import android.support.v4.util.Pools;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.PointerIconCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.TextViewCompat;
@@ -181,7 +182,7 @@ public class TabLayout extends HorizontalScrollView {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef(value = {MODE_SCROLLABLE, MODE_FIXED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Mode {}
@@ -206,7 +207,7 @@ public class TabLayout extends HorizontalScrollView {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef(flag = true, value = {GRAVITY_FILL, GRAVITY_CENTER})
     @Retention(RetentionPolicy.SOURCE)
     public @interface TabGravity {}
@@ -1507,6 +1508,8 @@ public class TabLayout extends HorizontalScrollView {
             setGravity(Gravity.CENTER);
             setOrientation(VERTICAL);
             setClickable(true);
+            ViewCompat.setPointerIcon(this,
+                    PointerIconCompat.getSystemIcon(getContext(), PointerIconCompat.TYPE_HAND));
         }
 
         @Override

@@ -16,15 +16,19 @@
 
 package android.support.v4.provider;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.DocumentsContract;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import java.util.ArrayList;
 
+@RequiresApi(21)
+@TargetApi(21)
 class DocumentsContractApi21 {
     private static final String TAG = "DocumentFile";
 

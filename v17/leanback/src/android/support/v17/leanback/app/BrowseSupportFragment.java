@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from BrowseFragment.java.  DO NOT MODIFY. */
 
 /*
@@ -14,6 +15,8 @@
  * the License.
  */
 package android.support.v17.leanback.app;
+
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -53,8 +56,6 @@ import android.view.ViewTreeObserver;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
  * A fragment for creating Leanback browse screens. It is composed of a
@@ -483,10 +484,18 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
 
         /**
-         * Returns the selected position.
+         * @return The position of selected row.
          */
         public int getSelectedPosition() {
             return 0;
+        }
+
+        /**
+         * @param position Position of Row.
+         * @return Row ViewHolder.
+         */
+        public RowPresenter.ViewHolder findRowViewHolderByPosition(int position) {
+            return null;
         }
     }
 
@@ -504,7 +513,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             item = adapter.get(position);
         }
 
-        mSelectedPosition = position;
         boolean oldIsPageRow = mIsPageRow;
         mIsPageRow = item instanceof PageRow;
         boolean swap;
@@ -612,8 +620,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     /** The headers fragment is disabled and will never be shown. */
     public static final int HEADERS_DISABLED = 3;
 
-    private MainFragmentAdapterRegistry mMainFragmentAdapterRegistry
-            = new MainFragmentAdapterRegistry();
+    private MainFragmentAdapterRegistry mMainFragmentAdapterRegistry =
+            new MainFragmentAdapterRegistry();
     MainFragmentAdapter mMainFragmentAdapter;
     Fragment mMainFragment;
     HeadersSupportFragment mHeadersSupportFragment;
@@ -805,6 +813,13 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     /**
+     * @return Current main fragment or null if not created.
+     */
+    public Fragment getMainFragment() {
+        return mMainFragment;
+    }
+
+    /**
      * Get currently bound HeadersSupportFragment or null if HeadersSupportFragment has not been created yet.
      * @return Currently bound HeadersSupportFragment or null if HeadersSupportFragment has not been created yet.
      */
@@ -951,14 +966,14 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             }
             if (DEBUG) Log.v(TAG, "onFocusSearch focused " + focused + " + direction " + direction);
 
-            if (getTitleView() != null && focused != getTitleView() &&
-                    direction == View.FOCUS_UP) {
+            if (getTitleView() != null && focused != getTitleView()
+                    && direction == View.FOCUS_UP) {
                 return getTitleView();
             }
-            if (getTitleView() != null && getTitleView().hasFocus() &&
-                    direction == View.FOCUS_DOWN) {
-                return mCanShowHeaders && mShowingHeaders ?
-                        mHeadersSupportFragment.getVerticalGridView() : mMainFragment.getView();
+            if (getTitleView() != null && getTitleView().hasFocus()
+                    && direction == View.FOCUS_DOWN) {
+                return mCanShowHeaders && mShowingHeaders
+                        ? mHeadersSupportFragment.getVerticalGridView() : mMainFragment.getView();
             }
 
             boolean isRtl = ViewCompat.getLayoutDirection(focused) == View.LAYOUT_DIRECTION_RTL;
@@ -999,20 +1014,18 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             }
             // Make sure not changing focus when requestFocus() is called.
             if (mCanShowHeaders && mShowingHeaders) {
-                if (mHeadersSupportFragment != null && mHeadersSupportFragment.getView() != null &&
-                        mHeadersSupportFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
+                if (mHeadersSupportFragment != null && mHeadersSupportFragment.getView() != null
+                        && mHeadersSupportFragment.getView().requestFocus(
+                                direction, previouslyFocusedRect)) {
                     return true;
                 }
             }
-            if (mMainFragment != null && mMainFragment.getView() != null &&
-                    mMainFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
+            if (mMainFragment != null && mMainFragment.getView() != null
+                    && mMainFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
                 return true;
             }
-            if (getTitleView() != null &&
-                    getTitleView().requestFocus(direction, previouslyFocusedRect)) {
-                return true;
-            }
-            return false;
+            return getTitleView() != null
+                    && getTitleView().requestFocus(direction, previouslyFocusedRect);
         }
 
         @Override
@@ -1122,11 +1135,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                     .getMainFragmentAdapter();
             mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
 
-            mIsPageRow = savedInstanceState != null ?
-                    savedInstanceState.getBoolean(IS_PAGE_ROW, false) : false;
+            mIsPageRow = savedInstanceState != null
+                    && savedInstanceState.getBoolean(IS_PAGE_ROW, false);
 
-            mSelectedPosition = savedInstanceState != null ?
-                    savedInstanceState.getInt(CURRENT_SELECTED_POSITION, 0) : 0;
+            mSelectedPosition = savedInstanceState != null
+                    ? savedInstanceState.getInt(CURRENT_SELECTED_POSITION, 0) : 0;
 
             if (!mIsPageRow) {
                 if (mMainFragment instanceof MainFragmentRowsAdapterProvider) {
@@ -1214,8 +1227,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     void createHeadersTransition() {
         mHeadersTransition = TransitionHelper.loadTransition(getActivity(),
-                mShowingHeaders ?
-                R.transition.lb_browse_headers_in : R.transition.lb_browse_headers_out);
+                mShowingHeaders
+                        ? R.transition.lb_browse_headers_in : R.transition.lb_browse_headers_out);
 
         TransitionHelper.addTransitionListener(mHeadersTransition, new TransitionListener() {
             @Override
@@ -1412,13 +1425,17 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             return;
         }
 
+        mSelectedPosition = position;
+        if (mHeadersSupportFragment == null || mMainFragmentAdapter == null) {
+            // onDestroyView() called
+            return;
+        }
         mHeadersSupportFragment.setSelectedPosition(position, smooth);
         replaceMainFragment(position);
 
         if (mMainFragmentRowsAdapter != null) {
             mMainFragmentRowsAdapter.setSelectedPosition(position, smooth);
         }
-        mSelectedPosition = position;
 
         updateTitleViewVisibility();
     }
@@ -1476,6 +1493,17 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     /**
+     * @return selected row ViewHolder inside fragment created by {@link MainFragmentRowsAdapter}.
+     */
+    public RowPresenter.ViewHolder getSelectedRowViewHolder() {
+        if (mMainFragmentRowsAdapter != null) {
+            int rowPos = mMainFragmentRowsAdapter.getSelectedPosition();
+            return mMainFragmentRowsAdapter.findRowViewHolderByPosition(rowPos);
+        }
+        return null;
+    }
+
+    /**
      * Sets the selected row position.
      */
     public void setSelectedPosition(int position, boolean smooth) {
@@ -1514,9 +1542,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         mHeadersSupportFragment.setAlignment(mContainerListAlignTop);
         setMainFragmentAlignment();
 
-        if (mCanShowHeaders && mShowingHeaders && mHeadersSupportFragment.getView() != null) {
+        if (mCanShowHeaders && mShowingHeaders && mHeadersSupportFragment != null
+                && mHeadersSupportFragment.getView() != null) {
             mHeadersSupportFragment.getView().requestFocus();
-        } else if ((!mCanShowHeaders || !mShowingHeaders) && mMainFragment.getView() != null) {
+        } else if ((!mCanShowHeaders || !mShowingHeaders) && mMainFragment != null
+                && mMainFragment.getView() != null) {
             mMainFragment.getView().requestFocus();
         }
 

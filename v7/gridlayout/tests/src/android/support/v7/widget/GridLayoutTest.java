@@ -16,24 +16,25 @@
 
 package android.support.v7.widget;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.gridlayout.test.R;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -48,9 +49,9 @@ public class GridLayoutTest {
         mActivityTestRule = new ActivityTestRule<>(GridLayoutTestActivity.class);
     }
 
-    private void setContentView(final int layoutId) {
+    private void setContentView(final int layoutId) throws Throwable {
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final Activity activity = mActivityTestRule.getActivity();
@@ -65,7 +66,7 @@ public class GridLayoutTest {
     }
 
     @Test
-    public void testUseDefaultMargin() {
+    public void testUseDefaultMargin() throws Throwable {
         setContentView(R.layout.use_default_margin_test);
         int left = mLeftView.getWidth();
         int right = mRightView.getWidth();
@@ -78,7 +79,7 @@ public class GridLayoutTest {
     }
 
     @Test
-    public void testImplicitFillHorizontal() {
+    public void testImplicitFillHorizontal() throws Throwable {
         setContentView(R.layout.fill_horizontal_test);
         int left = mLeftView.getWidth();
         int right = mRightView.getWidth();
@@ -91,7 +92,7 @@ public class GridLayoutTest {
     }
 
     @Test
-    public void testMakeViewGone() {
+    public void testMakeViewGone() throws Throwable {
         setContentView(R.layout.make_view_gone_test);
         int left = mLeftView.getWidth();
         int right = mRightView.getWidth();
@@ -101,7 +102,7 @@ public class GridLayoutTest {
         assertTrue("test sanity", total > 0);
         // set second view to gone
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        instrumentation.runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final View rightView = mActivityTestRule.getActivity().findViewById(R.id.rightView);
@@ -116,7 +117,7 @@ public class GridLayoutTest {
     }
 
     @Test
-    public void testWrapContentInOtherDirection() {
+    public void testWrapContentInOtherDirection() throws Throwable {
         setContentView(R.layout.height_wrap_content_test);
         int left = mLeftView.getHeight();
         int right = mRightView.getHeight();

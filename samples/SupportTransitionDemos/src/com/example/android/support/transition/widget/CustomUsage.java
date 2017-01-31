@@ -28,7 +28,7 @@ import android.view.ViewGroup;
  * This demonstrates usage of a custom Transition. See {@link ChangeColor} for the actual
  * implementation of a custom Transition.
  */
-public class CustomUsage extends TransitionUsageBase {
+public class CustomUsage extends SceneUsageBase {
 
     private Transition mTransition;
 

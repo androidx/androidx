@@ -16,13 +16,16 @@
 
 package android.support.v4.graphics.drawable;
 
-import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 /**
  * Implementation of drawable compatibility that can call KitKat APIs.
  */
+
+@RequiresApi(19)
+@TargetApi(19)
 class DrawableCompatKitKat {
     public static void setAutoMirrored(Drawable drawable, boolean mirrored) {
         drawable.setAutoMirrored(mirrored);

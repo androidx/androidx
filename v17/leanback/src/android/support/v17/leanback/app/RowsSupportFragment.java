@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from RowsFragment.java.  DO NOT MODIFY. */
 
 /*
@@ -19,12 +20,12 @@ import android.animation.TimeAnimator;
 import android.animation.TimeAnimator.TimeListener;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
+import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
-import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
@@ -203,8 +204,8 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
             if (DEBUG) Log.v(TAG, "setExpand " + expand + " count " + count);
             for (int i = 0; i < count; i++) {
                 View view = listView.getChildAt(i);
-                ItemBridgeAdapter.ViewHolder vh
-                        = (ItemBridgeAdapter.ViewHolder) listView.getChildViewHolder(view);
+                ItemBridgeAdapter.ViewHolder vh =
+                        (ItemBridgeAdapter.ViewHolder) listView.getChildViewHolder(view);
                 setRowViewExpanded(vh, mExpand);
             }
         }
@@ -558,6 +559,19 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
         }
     }
 
+    /**
+     * Find row ViewHolder by position in adapter.
+     * @param position Position of row.
+     * @return ViewHolder of Row.
+     */
+    public RowPresenter.ViewHolder findRowViewHolderByPosition(int position) {
+        if (mVerticalGridView == null) {
+            return null;
+        }
+        return getRowViewHolder((ItemBridgeAdapter.ViewHolder) mVerticalGridView
+                .findViewHolderForAdapterPosition(position));
+    }
+
     public static class MainFragmentAdapter extends BrowseSupportFragment.MainFragmentAdapter<RowsSupportFragment> {
 
         public MainFragmentAdapter(RowsSupportFragment fragment) {
@@ -642,6 +656,11 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
         @Override
         public int getSelectedPosition() {
             return getFragment().getSelectedPosition();
+        }
+
+        @Override
+        public RowPresenter.ViewHolder findRowViewHolderByPosition(int position) {
+            return getFragment().findRowViewHolderByPosition(position);
         }
     }
 }

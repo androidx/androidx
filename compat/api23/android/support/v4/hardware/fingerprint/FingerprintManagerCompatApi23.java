@@ -16,9 +16,14 @@
 
 package android.support.v4.hardware.fingerprint;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
 import java.security.Signature;
@@ -26,32 +31,41 @@ import java.security.Signature;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Actual FingerprintManagerCompat implementation for API level 23 and later.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RequiresApi(23)
+@TargetApi(23)
+@RestrictTo(LIBRARY_GROUP)
 public final class FingerprintManagerCompatApi23 {
 
-    private static FingerprintManager getFingerprintManager(Context ctx) {
-        return ctx.getSystemService(FingerprintManager.class);
+    private static FingerprintManager getFingerprintManagerOrNull(Context context) {
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
+            return context.getSystemService(FingerprintManager.class);
+        } else {
+            return null;
+        }
     }
 
     public static boolean hasEnrolledFingerprints(Context context) {
-        return getFingerprintManager(context).hasEnrolledFingerprints();
+        final FingerprintManager fp = getFingerprintManagerOrNull(context);
+        return (fp != null) && fp.hasEnrolledFingerprints();
     }
 
     public static boolean isHardwareDetected(Context context) {
-        return getFingerprintManager(context).isHardwareDetected();
+        final FingerprintManager fp = getFingerprintManagerOrNull(context);
+        return (fp != null) && fp.isHardwareDetected();
     }
 
     public static void authenticate(Context context, CryptoObject crypto, int flags, Object cancel,
             AuthenticationCallback callback, Handler handler) {
-        getFingerprintManager(context).authenticate(wrapCryptoObject(crypto),
-                (android.os.CancellationSignal) cancel, flags,
-                wrapCallback(callback), handler);
+        final FingerprintManager fp = getFingerprintManagerOrNull(context);
+        if (fp != null) {
+            fp.authenticate(wrapCryptoObject(crypto),
+                    (android.os.CancellationSignal) cancel, flags,
+                    wrapCallback(callback), handler);
+        }
     }
 
     private static FingerprintManager.CryptoObject wrapCryptoObject(CryptoObject cryptoObject) {

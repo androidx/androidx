@@ -16,6 +16,18 @@
 
 package android.support.v7.widget;
 
+import static android.support.v7.widget.AdapterHelper.UpdateOp.ADD;
+import static android.support.v7.widget.AdapterHelper.UpdateOp.MOVE;
+import static android.support.v7.widget.AdapterHelper.UpdateOp.REMOVE;
+import static android.support.v7.widget.AdapterHelper.UpdateOp.UPDATE;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import android.support.test.filters.SmallTest;
+import android.support.v7.widget.AdapterHelper.UpdateOp;
+import android.util.Log;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,16 +38,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-
-import android.support.v7.widget.AdapterHelper.UpdateOp;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.util.Log;
-
-import static android.support.v7.widget.AdapterHelper.UpdateOp.ADD;
-import static android.support.v7.widget.AdapterHelper.UpdateOp.MOVE;
-import static android.support.v7.widget.AdapterHelper.UpdateOp.REMOVE;
-import static android.support.v7.widget.AdapterHelper.UpdateOp.UPDATE;
-import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
 @SmallTest

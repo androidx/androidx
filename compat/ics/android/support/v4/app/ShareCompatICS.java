@@ -18,10 +18,14 @@ package android.support.v4.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.ActionProvider;
 import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 
+@RequiresApi(14)
+@TargetApi(14)
 class ShareCompatICS {
     private static final String HISTORY_FILENAME_PREFIX = ".sharecompat_";
 

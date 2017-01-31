@@ -16,23 +16,25 @@
 
 package android.support.v7.widget;
 
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import android.support.test.filters.MediumTest;
+import android.view.View;
+import android.view.ViewGroup;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import android.view.View;
-import android.view.ViewGroup;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
+@MediumTest
 @RunWith(Parameterized.class)
 public class GridLayoutManagerRtlTest extends BaseGridLayoutManagerTest {
 
@@ -44,7 +46,7 @@ public class GridLayoutManagerRtlTest extends BaseGridLayoutManagerTest {
         mItemsWrapContent = itemsWrapContent;
     }
 
-    @Parameterized.Parameters(name = "conf: {0} changeRl:{1} oneLine: {2} itemsWrap: {3}")
+    @Parameterized.Parameters(name = "conf:{0},changeRl:{1},oneLine:{2},itemsWrap:{3}")
     public static List<Object[]> params() {
         List<Object[]> result = new ArrayList<>();
         for (boolean changeRtlAfter : new boolean[]{false, true}) {

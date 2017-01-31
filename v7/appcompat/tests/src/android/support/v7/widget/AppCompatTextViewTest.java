@@ -17,18 +17,15 @@ package android.support.v7.widget;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-
 import static android.support.v7.testutils.TestUtilsActions.setEnabled;
 import static android.support.v7.testutils.TestUtilsActions.setTextAppearance;
+
 import static org.junit.Assert.assertEquals;
 
 import android.graphics.Color;
-import android.support.test.espresso.action.ViewActions;
+import android.support.test.filters.SmallTest;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.appcompat.test.R;
-import android.support.v7.testutils.TestUtilsActions;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.widget.TextView;
 
 import org.junit.Test;

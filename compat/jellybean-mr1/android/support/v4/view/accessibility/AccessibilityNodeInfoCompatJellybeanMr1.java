@@ -16,9 +16,13 @@
 
 package android.support.v4.view.accessibility;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+@RequiresApi(17)
+@TargetApi(17)
 class AccessibilityNodeInfoCompatJellybeanMr1 {
 
     public static void setLabelFor(Object info, View labeled) {

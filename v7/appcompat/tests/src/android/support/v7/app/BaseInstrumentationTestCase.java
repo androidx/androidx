@@ -16,14 +16,14 @@
 
 package android.support.v7.app;
 
-import org.junit.Rule;
-import org.junit.runner.RunWith;
-
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Rule;
+import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public abstract class BaseInstrumentationTestCase<A extends Activity> {
@@ -44,22 +44,4 @@ public abstract class BaseInstrumentationTestCase<A extends Activity> {
     public Instrumentation getInstrumentation() {
         return InstrumentationRegistry.getInstrumentation();
     }
-
-    @Deprecated
-    public void runTestOnUiThread(final Runnable r) throws Throwable {
-        final Throwable[] exceptions = new Throwable[1];
-        getInstrumentation().runOnMainSync(new Runnable() {
-            public void run() {
-                try {
-                    r.run();
-                } catch (Throwable throwable) {
-                    exceptions[0] = throwable;
-                }
-            }
-        });
-        if (exceptions[0] != null) {
-            throw exceptions[0];
-        }
-    }
-
 }

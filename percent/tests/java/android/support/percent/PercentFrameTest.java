@@ -15,21 +15,18 @@
  */
 package android.support.percent;
 
-import android.os.Build;
-import android.support.percent.test.R;
-import android.support.v4.view.ViewCompat;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.util.Log;
-import android.view.View;
-import junit.framework.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import static android.support.percent.LayoutDirectionActions.setLayoutDirection;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
+import android.os.Build;
+import android.support.percent.test.R;
+import android.support.test.filters.SmallTest;
+import android.support.v4.view.ViewCompat;
+import android.view.View;
+
+import org.junit.Before;
+import org.junit.Test;
 
 @SmallTest
 public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActivity> {

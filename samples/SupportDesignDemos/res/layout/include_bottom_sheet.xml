@@ -15,8 +15,7 @@
      limitations under the License.
 -->
 <merge xmlns:tools="http://schemas.android.com/tools"
-       xmlns:android="http://schemas.android.com/apk/res/android"
-       tools:showIn="@layout/design_bottom_sheet">
+       xmlns:android="http://schemas.android.com/apk/res/android">
 
     <TextView
             android:layout_width="match_parent"

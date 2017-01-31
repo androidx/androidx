@@ -16,21 +16,23 @@
 
 package android.support.v7.widget;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
+import android.support.test.filters.MediumTest;
+import android.util.Log;
+import android.view.View;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import android.util.Log;
-import android.view.View;
 
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
+@MediumTest
 @RunWith(Parameterized.class)
 public class GridLayoutManagerBaseConfigSetTest extends BaseGridLayoutManagerTest {
     @Parameterized.Parameters(name = "{0}")
@@ -63,7 +65,7 @@ public class GridLayoutManagerBaseConfigSetTest extends BaseGridLayoutManagerTes
                 * (config.mReverseLayout ? -1 : 1);
         final String logPrefix = config.toString();
         final int[] globalPos = new int[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 assertSame("test sanity", mRecyclerView, rv);
@@ -107,7 +109,7 @@ public class GridLayoutManagerBaseConfigSetTest extends BaseGridLayoutManagerTes
         });
         checkForMainThreadException();
         // test sanity, ensure scroll happened
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final int childCount = mGlm.getChildCount();
@@ -123,7 +125,7 @@ public class GridLayoutManagerBaseConfigSetTest extends BaseGridLayoutManagerTes
             }
         });
         getInstrumentation().waitForIdleSync();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 int globalScrollPosition = globalPos[0];

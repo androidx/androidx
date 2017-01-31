@@ -13,20 +13,21 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.support.v7.widget.SimpleItemAnimator;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 /**
  * An abstract base class for vertically and horizontally scrolling lists. The items come
@@ -34,7 +35,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * Do not directly use this class, use {@link VerticalGridView} and {@link HorizontalGridView}.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 abstract class BaseGridView extends RecyclerView {
 
     /**
@@ -198,6 +199,8 @@ abstract class BaseGridView extends RecyclerView {
         super(context, attrs, defStyle);
         mLayoutManager = new GridLayoutManager(this);
         setLayoutManager(mLayoutManager);
+        // leanback LayoutManager already restores focus inside onLayoutChildren().
+        setPreserveFocusAfterLayout(false);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setHasFixedSize(true);
         setChildrenDrawingOrderEnabled(true);
@@ -226,10 +229,12 @@ abstract class BaseGridView extends RecyclerView {
         boolean throughSideStart = a.getBoolean(R.styleable.lbBaseGridView_focusOutSideStart, true);
         boolean throughSideEnd = a.getBoolean(R.styleable.lbBaseGridView_focusOutSideEnd, true);
         mLayoutManager.setFocusOutSideAllowed(throughSideStart, throughSideEnd);
-        mLayoutManager.setVerticalMargin(
-                a.getDimensionPixelSize(R.styleable.lbBaseGridView_verticalMargin, 0));
-        mLayoutManager.setHorizontalMargin(
-                a.getDimensionPixelSize(R.styleable.lbBaseGridView_horizontalMargin, 0));
+        mLayoutManager.setVerticalSpacing(
+                a.getDimensionPixelSize(R.styleable.lbBaseGridView_android_verticalSpacing,
+                        a.getDimensionPixelSize(R.styleable.lbBaseGridView_verticalMargin, 0)));
+        mLayoutManager.setHorizontalSpacing(
+                a.getDimensionPixelSize(R.styleable.lbBaseGridView_android_horizontalSpacing,
+                        a.getDimensionPixelSize(R.styleable.lbBaseGridView_horizontalMargin, 0)));
         if (a.hasValue(R.styleable.lbBaseGridView_android_gravity)) {
             setGravity(a.getInt(R.styleable.lbBaseGridView_android_gravity, Gravity.NO_GRAVITY));
         }
@@ -430,41 +435,86 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Sets the margin in pixels between two child items.
+     * Sets the spacing in pixels between two child items.
+     * @deprecated use {@link #setItemSpacing(int)}
      */
+    @Deprecated
     public void setItemMargin(int margin) {
-        mLayoutManager.setItemMargin(margin);
+        setItemSpacing(margin);
+    }
+
+    /**
+     * Sets the spacing in pixels between two child items.
+     */
+    public void setItemSpacing(int spacing) {
+        mLayoutManager.setItemSpacing(spacing);
         requestLayout();
     }
 
     /**
-     * Sets the margin in pixels between two child items vertically.
+     * Sets the spacing in pixels between two child items vertically.
+     * @deprecated Use {@link #setVerticalSpacing(int)}
      */
+    @Deprecated
     public void setVerticalMargin(int margin) {
-        mLayoutManager.setVerticalMargin(margin);
-        requestLayout();
+        setVerticalSpacing(margin);
     }
 
     /**
-     * Returns the margin in pixels between two child items vertically.
+     * Returns the spacing in pixels between two child items vertically.
+     * @deprecated Use {@link #getVerticalSpacing()}
      */
+    @Deprecated
     public int getVerticalMargin() {
-        return mLayoutManager.getVerticalMargin();
+        return mLayoutManager.getVerticalSpacing();
     }
 
     /**
-     * Sets the margin in pixels between two child items horizontally.
+     * Sets the spacing in pixels between two child items horizontally.
+     * @deprecated Use {@link #setHorizontalSpacing(int)}
      */
+    @Deprecated
     public void setHorizontalMargin(int margin) {
-        mLayoutManager.setHorizontalMargin(margin);
+        setHorizontalSpacing(margin);
+    }
+
+    /**
+     * Returns the spacing in pixels between two child items horizontally.
+     * @deprecated Use {@link #getHorizontalSpacing()}
+     */
+    @Deprecated
+    public int getHorizontalMargin() {
+        return mLayoutManager.getHorizontalSpacing();
+    }
+
+    /**
+     * Sets the spacing in pixels between two child items vertically.
+     */
+    public void setVerticalSpacing(int spacing) {
+        mLayoutManager.setVerticalSpacing(spacing);
         requestLayout();
     }
 
     /**
-     * Returns the margin in pixels between two child items horizontally.
+     * Returns the spacing in pixels between two child items vertically.
      */
-    public int getHorizontalMargin() {
-        return mLayoutManager.getHorizontalMargin();
+    public int getVerticalSpacing() {
+        return mLayoutManager.getVerticalSpacing();
+    }
+
+    /**
+     * Sets the spacing in pixels between two child items horizontally.
+     */
+    public void setHorizontalSpacing(int spacing) {
+        mLayoutManager.setHorizontalSpacing(spacing);
+        requestLayout();
+    }
+
+    /**
+     * Returns the spacing in pixels between two child items horizontally.
+     */
+    public int getHorizontalSpacing() {
+        return mLayoutManager.getHorizontalSpacing();
     }
 
     /**
@@ -610,7 +660,7 @@ abstract class BaseGridView extends RecyclerView {
             if (vh == null || hasPendingAdapterUpdates()) {
                 addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
                     @Override
-                    public void onChildViewHolderSelected(RecyclerView parent,
+                    public void onChildViewHolderSelectedAndPositioned(RecyclerView parent,
                             RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
                         if (selectedPosition == position) {
                             removeOnChildViewHolderSelectedListener(this);
@@ -847,10 +897,7 @@ abstract class BaseGridView extends RecyclerView {
         if (super.dispatchKeyEvent(event)) {
             return true;
         }
-        if (mOnUnhandledKeyListener != null && mOnUnhandledKeyListener.onUnhandledKey(event)) {
-            return true;
-        }
-        return false;
+        return mOnUnhandledKeyListener != null && mOnUnhandledKeyListener.onUnhandledKey(event);
     }
 
     @Override
@@ -936,7 +983,7 @@ abstract class BaseGridView extends RecyclerView {
      *                          Must be bigger or equals to 0.
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void setExtraLayoutSpace(int extraLayoutSpace) {
         mLayoutManager.setExtraLayoutSpace(extraLayoutSpace);
     }
@@ -946,9 +993,26 @@ abstract class BaseGridView extends RecyclerView {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public int getExtraLayoutSpace() {
         return mLayoutManager.getExtraLayoutSpace();
     }
 
+
+    public void animateOut() {
+        ((GridLayoutManager) getLayoutManager()).setIsSlidingChildViews(true);
+        smoothScrollBy(0, -600, new AccelerateDecelerateInterpolator());
+    }
+
+    public void animateIn() {
+        addOnScrollListener(new OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    ((GridLayoutManager) getLayoutManager()).setIsSlidingChildViews(false);
+                }
+            }
+        });
+        smoothScrollBy(0, 600, new AccelerateDecelerateInterpolator());
+    }
 }

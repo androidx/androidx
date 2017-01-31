@@ -16,31 +16,29 @@
 
 package android.support.v7.widget;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import android.os.Looper;
+import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import static org.junit.Assert.*;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -135,7 +133,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
     }
 
     void runAndWait(int itemCount, int seconds, final ThrowingRunnable postRun) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAnimator.runPendingAnimations();
@@ -317,7 +315,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
     }
 
     void endAnimations(final RecyclerView.ViewHolder... vhs) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 for (RecyclerView.ViewHolder vh : vhs) {
@@ -329,7 +327,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
 
     boolean animateAdd(final RecyclerView.ViewHolder vh) throws Throwable {
         final boolean[] result = new boolean[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 result[0] = mAnimator.animateAdd(vh);
@@ -340,7 +338,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
 
     boolean animateRemove(final RecyclerView.ViewHolder vh) throws Throwable {
         final boolean[] result = new boolean[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 result[0] = mAnimator.animateRemove(vh);
@@ -352,7 +350,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
     boolean animateMove(final RecyclerView.ViewHolder vh, final int fromX, final int fromY,
             final int toX, final int toY) throws Throwable {
         final boolean[] result = new boolean[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 result[0] = mAnimator.animateMove(vh, fromX, fromY, toX, toY);
@@ -365,7 +363,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
             final RecyclerView.ViewHolder newHolder,
             final int fromX, final int fromY, final int toX, final int toY) throws Throwable {
         final boolean[] result = new boolean[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 result[0] = mAnimator.animateChange(oldHolder, newHolder, fromX, fromY, toX, toY);
@@ -376,7 +374,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
 
     private ViewHolder createViewHolder(final int pos) throws Throwable {
         final ViewHolder vh = mAdapter.createViewHolder(mDummyParent, 1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAdapter.bindViewHolder(vh, pos);

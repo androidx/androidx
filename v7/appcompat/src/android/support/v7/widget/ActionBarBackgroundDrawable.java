@@ -16,10 +16,14 @@
 
 package android.support.v7.widget;
 
+import android.annotation.TargetApi;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RequiresApi;
 
+@RequiresApi(9)
+@TargetApi(9)
 class ActionBarBackgroundDrawable extends Drawable {
 
     final ActionBarContainer mContainer;

@@ -14,81 +14,34 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# A helper sub-library that makes direct use of Gingerbread APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-fragment-gingerbread
-LOCAL_SDK_VERSION := 9
-LOCAL_SRC_FILES := $(call all-java-files-under, gingerbread)
-LOCAL_JAVA_LIBRARIES := \
-    android-support-annotations \
-    android-support-compat \
-    android-support-core-utils \
-    android-support-media-compat \
-    android-support-core-ui
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of Honeycomb APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-fragment-honeycomb
-LOCAL_SDK_VERSION := 11
-LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-fragment-gingerbread
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of JellyBean APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-fragment-jellybean
-LOCAL_SDK_VERSION := 16
-LOCAL_SRC_FILES := $(call all-java-files-under, jellybean)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-fragment-honeycomb
-LOCAL_JAVA_LIBRARIES := \
-    android-support-annotations \
-    android-support-compat \
-    android-support-media-compat \
-    android-support-core-ui \
-    android-support-core-utils
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of Lollipop APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-fragment-api21
-LOCAL_SDK_VERSION := 21
-LOCAL_SRC_FILES := $(call all-java-files-under, api21)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-fragment-jellybean
-LOCAL_JAVA_LIBRARIES := \
-    android-support-annotations \
-    android-support-compat \
-    android-support-media-compat \
-    android-support-core-ui \
-    android-support-core-utils
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
 # Here is the final static library that apps can link against.
+# Applications that use this library must specify
+#
+#   LOCAL_STATIC_ANDROID_LIBRARIES := \
+#       android-support-fragment \
+#       android-support-compat \
+#       android-support-media-compat \
+#       android-support-core-ui \
+#       android-support-core-utils
+#
+# in their makefiles to include the resources and their dependencies in their package.
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-fragment
-LOCAL_SDK_VERSION := 9
-LOCAL_SRC_FILES := $(call all-java-files-under, java)
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
+LOCAL_SRC_FILES := \
+    $(call all-java-files-under, gingerbread) \
+    $(call all-java-files-under, honeycomb) \
+    $(call all-java-files-under, jellybean) \
+    $(call all-java-files-under, api21) \
+    $(call all-java-files-under, java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-fragment-api21
-LOCAL_JAVA_LIBRARIES := \
-    android-support-annotations \
+LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-compat \
-    android-support-media-compat \
     android-support-core-ui \
-    android-support-core-utils
+    android-support-core-utils \
+    android-support-media-compat \
+    android-support-annotations
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly

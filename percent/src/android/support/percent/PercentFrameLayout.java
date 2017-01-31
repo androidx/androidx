@@ -16,8 +16,10 @@
 
 package android.support.percent;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -144,7 +146,10 @@ public class PercentFrameLayout extends FrameLayout {
             gravity = source.gravity;
         }
 
+        @RequiresApi(19)
+        @TargetApi(19)
         public LayoutParams(LayoutParams source) {
+            // The copy constructor used here is only supported on API 19+.
             this((FrameLayout.LayoutParams) source);
             mPercentLayoutInfo = source.mPercentLayoutInfo;
         }

@@ -16,7 +16,7 @@
 
 package android.support.v7.widget;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 import android.content.Context;
@@ -142,6 +142,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * Stashed to avoid allocation, currently only used in #fill()
      */
     private final LayoutChunkResult mLayoutChunkResult = new LayoutChunkResult();
+
+    /**
+     * Number of items to prefetch when first coming on screen with new data.
+     */
+    private int mInitialItemPrefetchCount = 2;
 
     /**
      * Creates a vertical LinearLayoutManager
@@ -1182,34 +1187,109 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                 && mOrientationHelper.getEnd() == 0;
     }
 
-    @Override
-    int getItemPrefetchCount() {
-        return 1;
-    }
-
-    int gatherPrefetchIndicesForLayoutState(RecyclerView.State state, LayoutState layoutState,
-            int[] outIndices) {
+    void collectPrefetchPositionsForLayoutState(RecyclerView.State state, LayoutState layoutState,
+            LayoutPrefetchRegistry layoutPrefetchRegistry) {
         final int pos = layoutState.mCurrentPosition;
         if (pos >= 0 && pos < state.getItemCount()) {
-            outIndices[0] = pos;
-            return 1;
+            layoutPrefetchRegistry.addPosition(pos, layoutState.mScrollingOffset);
         }
-        return 0;
     }
 
     @Override
-    int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+    public void collectInitialPrefetchPositions(int adapterItemCount,
+            LayoutPrefetchRegistry layoutPrefetchRegistry) {
+        final boolean fromEnd;
+        final int anchorPos;
+        if (mPendingSavedState != null && mPendingSavedState.hasValidAnchor()) {
+            // use restored state, since it hasn't been resolved yet
+            fromEnd = mPendingSavedState.mAnchorLayoutFromEnd;
+            anchorPos = mPendingSavedState.mAnchorPosition;
+        } else {
+            resolveShouldLayoutReverse();
+            fromEnd = mShouldReverseLayout;
+            if (mPendingScrollPosition == NO_POSITION) {
+                anchorPos = fromEnd ? adapterItemCount - 1 : 0;
+            } else {
+                anchorPos = mPendingScrollPosition;
+            }
+        }
+
+        final int direction = fromEnd
+                ? LayoutState.ITEM_DIRECTION_HEAD
+                : LayoutState.ITEM_DIRECTION_TAIL;
+        int targetPos = anchorPos;
+        for (int i = 0; i < mInitialItemPrefetchCount; i++) {
+            if (targetPos >= 0 && targetPos < adapterItemCount) {
+                layoutPrefetchRegistry.addPosition(targetPos, 0);
+            } else {
+                break; // no more to prefetch
+            }
+            targetPos += direction;
+        }
+    }
+
+    /**
+     * Sets the number of items to prefetch in
+     * {@link #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)}, which defines
+     * how many inner items should be prefetched when this LayoutManager's RecyclerView
+     * is nested inside another RecyclerView.
+     *
+     * <p>Set this value to the number of items this inner LayoutManager will display when it is
+     * first scrolled into the viewport. RecyclerView will attempt to prefetch that number of items
+     * so they are ready, avoiding jank as the inner RecyclerView is scrolled into the viewport.</p>
+     *
+     * <p>For example, take a vertically scrolling RecyclerView with horizontally scrolling inner
+     * RecyclerViews. The rows always have 4 items visible in them (or 5 if not aligned). Passing
+     * <code>4</code> to this method for each inner RecyclerView's LinearLayoutManager will enable
+     * RecyclerView's prefetching feature to do create/bind work for 4 views within a row early,
+     * before it is scrolled on screen, instead of just the default 2.</p>
+     *
+     * <p>Calling this method does nothing unless the LayoutManager is in a RecyclerView
+     * nested in another RecyclerView.</p>
+     *
+     * <p class="note"><strong>Note:</strong> Setting this value to be larger than the number of
+     * views that will be visible in this view can incur unnecessary bind work, and an increase to
+     * the number of Views created and in active use.</p>
+     *
+     * @param itemCount Number of items to prefetch
+     *
+     * @see #isItemPrefetchEnabled()
+     * @see #getInitialItemPrefetchCount()
+     * @see #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)
+     */
+    public void setInitialPrefetchItemCount(int itemCount) {
+        mInitialItemPrefetchCount = itemCount;
+    }
+
+    /**
+     * Gets the number of items to prefetch in
+     * {@link #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)}, which defines
+     * how many inner items should be prefetched when this LayoutManager's RecyclerView
+     * is nested inside another RecyclerView.
+     *
+     * @see #isItemPrefetchEnabled()
+     * @see #setInitialPrefetchItemCount(int)
+     * @see #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)
+     *
+     * @return number of items to prefetch.
+     */
+    public int getInitialItemPrefetchCount() {
+        return mInitialItemPrefetchCount;
+    }
+
+    @Override
+    public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
+            LayoutPrefetchRegistry layoutPrefetchRegistry) {
         int delta = (mOrientation == HORIZONTAL) ? dx : dy;
         if (getChildCount() == 0 || delta == 0) {
             // can't support this scroll, so don't bother prefetching
-            return 0;
+            return;
         }
-
 
         final int layoutDirection = delta > 0 ? LayoutState.LAYOUT_END : LayoutState.LAYOUT_START;
         final int absDy = Math.abs(delta);
         updateLayoutState(layoutDirection, absDy, true, state);
-        return gatherPrefetchIndicesForLayoutState(state, mLayoutState, outIndices);
+        collectPrefetchPositionsForLayoutState(state, mLayoutState, layoutPrefetchRegistry);
     }
 
     int scrollBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -1919,7 +1999,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     /**
      * @hide This method should be called by ItemTouchHelper only.
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void prepareForDrop(View view, View target, int x, int y) {
         assertNotInLayoutOrScroll("Cannot drop a view during a scroll or layout calculation");
@@ -2138,7 +2218,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static class SavedState implements Parcelable {
 
         int mAnchorPosition;

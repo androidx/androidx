@@ -69,6 +69,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
 
+    private TextView mTitleView;
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
     private ArrayList<MediaRouter.RouteInfo> mRoutes;
     private RouteAdapter mAdapter;
@@ -165,11 +166,20 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     }
 
     @Override
+    public void setTitle(CharSequence title) {
+        mTitleView.setText(title);
+    }
+
+    @Override
+    public void setTitle(int titleId) {
+        mTitleView.setText(titleId);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.mr_chooser_dialog);
-        setTitle(R.string.mr_chooser_title);
 
         mRoutes = new ArrayList<>();
         mAdapter = new RouteAdapter(getContext(), mRoutes);
@@ -177,6 +187,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(mAdapter);
         mListView.setEmptyView(findViewById(android.R.id.empty));
+        mTitleView = (TextView) findViewById(R.id.mr_chooser_title);
 
         updateLayout();
     }

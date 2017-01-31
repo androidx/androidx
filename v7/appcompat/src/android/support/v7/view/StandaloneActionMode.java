@@ -15,6 +15,8 @@
  */
 package android.support.v7.view;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.MenuItemCompat;
@@ -30,12 +32,10 @@ import android.view.accessibility.AccessibilityEvent;
 
 import java.lang.ref.WeakReference;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class StandaloneActionMode extends ActionMode implements MenuBuilder.Callback {
     private Context mContext;
     private ActionBarContextView mContextView;

@@ -15,6 +15,30 @@
  */
 package android.support.v4.media;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNECT;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_GET_MEDIA_ITEM;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REGISTER_CALLBACK_MESSENGER;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REMOVE_SUBSCRIPTION;
+import static android.support.v4.media.MediaBrowserProtocol
+        .CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_VERSION_CURRENT;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLBACK_TOKEN;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_ID;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_LIST;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_SESSION_TOKEN;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_OPTIONS;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_PACKAGE_NAME;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_RESULT_RECEIVER;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_ROOT_HINTS;
+import static android.support.v4.media.MediaBrowserProtocol.EXTRA_CLIENT_VERSION;
+import static android.support.v4.media.MediaBrowserProtocol.EXTRA_MESSENGER_BINDER;
+import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT;
+import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT_FAILED;
+import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -34,7 +58,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
-import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaControllerCompat.TransportControls;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.os.ResultReceiver;
@@ -49,9 +73,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-import static android.support.v4.media.MediaBrowserProtocol.*;
 
 /**
  * Browses media content offered by a {@link MediaBrowserServiceCompat}.
@@ -309,7 +330,7 @@ public final class MediaBrowserCompat {
         private final MediaDescriptionCompat mDescription;
 
         /** @hide */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef(flag=true, value = { FLAG_BROWSABLE, FLAG_PLAYABLE })
         public @interface Flags { }
@@ -323,7 +344,7 @@ public final class MediaBrowserCompat {
          * Flag: Indicates that the item is playable.
          * <p>
          * The id of this item may be passed to
-         * {@link MediaControllerCompat.TransportControls#playFromMediaId(String, Bundle)}
+         * {@link TransportControls#playFromMediaId(String, Bundle)}
          * to start playing it.
          * </p>
          */
@@ -1784,7 +1805,9 @@ public final class MediaBrowserCompat {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            resultData.setClassLoader(MediaBrowserCompat.class.getClassLoader());
+            if (resultData != null) {
+                resultData.setClassLoader(MediaBrowserCompat.class.getClassLoader());
+            }
             if (resultCode != 0 || resultData == null
                     || !resultData.containsKey(MediaBrowserServiceCompat.KEY_MEDIA_ITEM)) {
                 mCallback.onError(mMediaId);

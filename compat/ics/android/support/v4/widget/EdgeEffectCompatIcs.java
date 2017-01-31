@@ -17,14 +17,19 @@ package android.support.v4.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.widget.EdgeEffect;
 
 /**
  * Stub implementation that contains a real EdgeEffect on ICS.
- *
+ * <p/>
  * This class is an implementation detail for EdgeEffectCompat
  * and should not be used directly.
  */
+
+@RequiresApi(14)
+@TargetApi(14)
 class EdgeEffectCompatIcs {
     public static Object newEdgeEffect(Context context) {
         return new EdgeEffect(context);

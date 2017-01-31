@@ -17,10 +17,15 @@
 package android.support.v4.net;
 
 import android.net.ConnectivityManager;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 /**
  * Implementation of ConnectivityManagerCompat that can use Jellybean APIs.
  */
+
+@RequiresApi(16)
+@TargetApi(16)
 class ConnectivityManagerCompatJellyBean {
     public static boolean isActiveNetworkMetered(ConnectivityManager cm) {
         return cm.isActiveNetworkMetered();

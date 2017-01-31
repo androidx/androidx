@@ -17,14 +17,17 @@
 package android.support.v4.view;
 
 import android.content.Context;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 
+@RequiresApi(11)
+@TargetApi(11)
 class LayoutInflaterCompatHC {
     private static final String TAG = "LayoutInflaterCompatHC";
 

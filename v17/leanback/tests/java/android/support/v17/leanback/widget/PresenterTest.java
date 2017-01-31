@@ -15,23 +15,38 @@
  */
 package android.support.v17.leanback.widget;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.v17.leanback.app.HeadersFragment;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.R;
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.v17.leanback.app.HeadersFragment;
 import android.view.ContextThemeWrapper;
-import android.widget.FrameLayout;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.support.v17.leanback.widget.DividerRow;
-import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.DividerPresenter;
-import android.view.ContextThemeWrapper;
+import android.widget.FrameLayout;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @MediumTest
-public class PresenterTest extends AndroidTestCase {
+@RunWith(AndroidJUnit4.class)
+public class PresenterTest {
+    private Context mContext;
 
+    @Before
+    public void setup() throws Exception {
+        mContext = InstrumentationRegistry.getTargetContext();
+    }
+
+    @Test
     public void testZoomFactors() throws Throwable {
         new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_SMALL);
         new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_MEDIUM);
@@ -46,7 +61,7 @@ public class PresenterTest extends AndroidTestCase {
 
     private void testHeaderPresenter(RowHeaderPresenter p) {
         int expectedVisibility;
-        Presenter.ViewHolder vh = p.onCreateViewHolder(new FrameLayout(getContext()));
+        Presenter.ViewHolder vh = p.onCreateViewHolder(new FrameLayout(mContext));
         p.onBindViewHolder(vh, null);
         expectedVisibility = p.isNullItemVisibilityGone() ? View.GONE : View.VISIBLE;
         assertTrue("Header visibility",
@@ -59,6 +74,7 @@ public class PresenterTest extends AndroidTestCase {
                 vh.view.getVisibility() == View.VISIBLE);
     }
 
+    @Test
     public void testHeaderPresenter() throws Throwable {
         HeadersFragment hf = new HeadersFragment();
         PresenterSelector ps = hf.getPresenterSelector();
@@ -90,8 +106,9 @@ public class PresenterTest extends AndroidTestCase {
         testHeaderPresenter(rhp);
     }
 
+    @Test
     public void testPlaybackControlsRowPresenter() {
-        setContext(new ContextThemeWrapper(getContext(), R.style.Theme_Leanback));
+        Context context = new ContextThemeWrapper(mContext, R.style.Theme_Leanback);
         Presenter detailsPresenter = new AbstractDetailsDescriptionPresenter() {
             @Override
             protected void onBindDescription(ViewHolder vh, Object item) {
@@ -102,7 +119,7 @@ public class PresenterTest extends AndroidTestCase {
         PlaybackControlsRowPresenter controlsRowPresenter = new PlaybackControlsRowPresenter(
                 detailsPresenter);
         PlaybackControlsRowPresenter.ViewHolder vh = (PlaybackControlsRowPresenter.ViewHolder)
-                controlsRowPresenter.onCreateViewHolder(new FrameLayout(getContext()));
+                controlsRowPresenter.onCreateViewHolder(new FrameLayout(context));
 
         Object item = new Object();
         PlaybackControlsRow controlsRow = new PlaybackControlsRow(item);
@@ -117,7 +134,7 @@ public class PresenterTest extends AndroidTestCase {
         controlsRowPresenter.onUnbindRowViewHolder(vh);
 
         controlsRow.setImageBitmap(
-                getContext(), Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888));
+                context, Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888));
         controlsRowPresenter.onBindRowViewHolder(vh, controlsRow);
         AssertHelper.assertGreaterThan("Controls card right panel layout height",
                 vh.view.findViewById(R.id.controls_card_right_panel).getLayoutParams().height, 0);

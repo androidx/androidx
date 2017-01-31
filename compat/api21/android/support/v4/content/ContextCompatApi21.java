@@ -18,9 +18,13 @@ package android.support.v4.content;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 import java.io.File;
 
+@RequiresApi(21)
+@TargetApi(21)
 class ContextCompatApi21 {
     public static Drawable getDrawable(Context context, int id) {
         return context.getDrawable(id);

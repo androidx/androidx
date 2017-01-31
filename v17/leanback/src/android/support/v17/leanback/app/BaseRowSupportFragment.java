@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from BaseRowFragment.java.  DO NOT MODIFY. */
 
 /*
@@ -221,7 +222,7 @@ abstract class BaseRowSupportFragment extends Fragment {
         }
     }
 
-    final VerticalGridView getVerticalGridView() {
+    public final VerticalGridView getVerticalGridView() {
         return mVerticalGridView;
     }
 

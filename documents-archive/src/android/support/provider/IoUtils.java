@@ -16,20 +16,19 @@
 
 package android.support.provider;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import java.io.Closeable;
 import java.io.InputStream;
-import java.util.Collection;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Simple static methods to perform common IO operations.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 final class IoUtils {
     static void closeQuietly(@Nullable Closeable closeable) {
        if (closeable != null) {

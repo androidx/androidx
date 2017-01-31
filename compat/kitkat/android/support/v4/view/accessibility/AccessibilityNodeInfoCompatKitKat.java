@@ -17,11 +17,16 @@
 package android.support.v4.view.accessibility;
 
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 /**
  * KitKat-specific AccessibilityNodeInfo API implementation.
  */
+
+@RequiresApi(19)
+@TargetApi(19)
 class AccessibilityNodeInfoCompatKitKat {
     private static final byte TRAIT_UNSET = -1;
     private static final String TRAITS_KEY =

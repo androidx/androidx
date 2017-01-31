@@ -29,7 +29,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
-import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -149,7 +148,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
             }
         };
         mLayoutManager.expectLayouts(2);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -178,7 +177,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
     }
 
     void scrollToPositionWithOffset(final int position, final int offset) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mLayoutManager.scrollToPositionWithOffset(position, offset);
@@ -336,14 +335,14 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
         @Override
         public String toString() {
-            return "Config{" +
-                    "mStackFromEnd=" + mStackFromEnd +
-                    ", mOrientation=" + mOrientation +
-                    ", mReverseLayout=" + mReverseLayout +
-                    ", mRecycleChildrenOnDetach=" + mRecycleChildrenOnDetach +
-                    ", mItemCount=" + mItemCount +
-                    ", wrap=" + mWrap +
-                    '}';
+            return "Config{"
+                    + "mStackFromEnd=" + mStackFromEnd
+                    + ",mOrientation=" + mOrientation
+                    + ",mReverseLayout=" + mReverseLayout
+                    + ",mRecycleChildrenOnDetach=" + mRecycleChildrenOnDetach
+                    + ",mItemCount=" + mItemCount
+                    + ",wrap=" + mWrap
+                    + '}';
         }
 
         public Config wrap(boolean wrap) {
@@ -598,7 +597,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
         Map<Item, Rect> collectChildCoordinates() throws Throwable {
             final Map<Item, Rect> items = new LinkedHashMap<Item, Rect>();
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     final int childCount = getChildCount();
@@ -636,9 +635,10 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         }
 
         @Override
-        int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+        public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
+                LayoutPrefetchRegistry layoutPrefetchRegistry) {
             if (prefetchLatch != null) prefetchLatch.countDown();
-            return super.gatherPrefetchIndices(dx, dy, state, outIndices);
+            super.collectAdjacentPrefetchPositions(dx, dy, state, layoutPrefetchRegistry);
         }
     }
 }

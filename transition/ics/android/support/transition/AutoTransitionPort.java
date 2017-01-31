@@ -16,6 +16,9 @@
 
 package android.support.transition;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
+
 /**
  * Utility class for creating a default transition that automatically fades,
  * moves, and resizes views during a scene change.
@@ -24,6 +27,8 @@ package android.support.transition;
  * tag <code>autoTransition</code>, along with the other standard
  * attributes of {@link android.R.styleable#Transition}.</p>
  */
+@RequiresApi(14)
+@TargetApi(14)
 class AutoTransitionPort extends TransitionSetPort {
 
     /**

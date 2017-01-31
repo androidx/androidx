@@ -13,23 +13,18 @@
  */
 package android.support.v17.leanback.transition;
 
-import android.animation.AnimatorInflater;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
-import android.view.Gravity;
-import android.view.View;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Helper class to load Leanback specific transition.
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class LeanbackTransitionHelper {
 
     interface LeanbackTransitionHelperVersion {

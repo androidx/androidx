@@ -16,12 +16,12 @@
 
 package android.support.v4.util;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.io.Writer;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Helper for accessing features in {@link android.util.LogWriter}
@@ -29,7 +29,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class LogWriter extends Writer {
     private final String mTag;
     private StringBuilder mBuilder = new StringBuilder(128);

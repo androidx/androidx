@@ -16,6 +16,7 @@
 
 package com.example.android.support.transition.widget;
 
+import android.support.annotation.LayoutRes;
 import com.example.android.support.transition.R;
 
 import android.os.Bundle;
@@ -33,43 +34,17 @@ import android.widget.FrameLayout;
  */
 abstract class TransitionUsageBase extends AppCompatActivity {
 
-    protected Scene[] mScenes;
-
-    private int mCurrentScene;
-
-    abstract Scene[] setUpScenes(ViewGroup root);
-
-    abstract void go(Scene scene);
+    @LayoutRes
+    abstract int getLayoutResId();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.basic_usage);
+        setContentView(getLayoutResId());
 
         // Retrieve the Toolbar from our content view, and set it as the action bar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FrameLayout root = (FrameLayout) findViewById(R.id.root);
-        mScenes = setUpScenes(root);
-        TransitionManager.go(mScenes[0]);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.basic_usage, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_toggle:
-                mCurrentScene = (mCurrentScene + 1) % mScenes.length;
-                go(mScenes[mCurrentScene]);
-                return true;
-        }
-        return false;
     }
 
 }

@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -48,8 +50,6 @@ import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 
 /**
  * A {@link Spinner} which supports compatible features on older versions of the platform,
@@ -66,9 +66,6 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatSpinner extends Spinner implements TintableBackgroundView {
-
-    static final boolean IS_AT_LEAST_M = Build.VERSION.SDK_INT >= 23;
-    private static final boolean IS_AT_LEAST_JB = Build.VERSION.SDK_INT >= 16;
 
     private static final int[] ATTRS_ANDROID_SPINNERMODE = {android.R.attr.spinnerMode};
 
@@ -211,7 +208,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
             } else {
                 // If we're running on a < M device, we'll use the current context and still handle
                 // any dropdown popup
-                mPopupContext = !IS_AT_LEAST_M ? context : null;
+                mPopupContext = !(Build.VERSION.SDK_INT >= 23) ? context : null;
             }
         }
 
@@ -296,7 +293,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public Context getPopupContext() {
         if (mPopup != null) {
             return mPopupContext;
-        } else if (IS_AT_LEAST_M) {
+        } else if (Build.VERSION.SDK_INT >= 23) {
             return super.getPopupContext();
         }
         return null;
@@ -305,7 +302,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public void setPopupBackgroundDrawable(Drawable background) {
         if (mPopup != null) {
             mPopup.setBackgroundDrawable(background);
-        } else if (IS_AT_LEAST_JB) {
+        } else if (Build.VERSION.SDK_INT >= 16) {
             super.setPopupBackgroundDrawable(background);
         }
     }
@@ -317,7 +314,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public Drawable getPopupBackground() {
         if (mPopup != null) {
             return mPopup.getBackground();
-        } else if (IS_AT_LEAST_JB) {
+        } else if (Build.VERSION.SDK_INT >= 16) {
             return super.getPopupBackground();
         }
         return null;
@@ -326,7 +323,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public void setDropDownVerticalOffset(int pixels) {
         if (mPopup != null) {
             mPopup.setVerticalOffset(pixels);
-        } else if (IS_AT_LEAST_JB) {
+        } else if (Build.VERSION.SDK_INT >= 16) {
             super.setDropDownVerticalOffset(pixels);
         }
     }
@@ -334,7 +331,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public int getDropDownVerticalOffset() {
         if (mPopup != null) {
             return mPopup.getVerticalOffset();
-        } else if (IS_AT_LEAST_JB) {
+        } else if (Build.VERSION.SDK_INT >= 16) {
             return super.getDropDownVerticalOffset();
         }
         return 0;
@@ -343,7 +340,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public void setDropDownHorizontalOffset(int pixels) {
         if (mPopup != null) {
             mPopup.setHorizontalOffset(pixels);
-        } else if (IS_AT_LEAST_JB) {
+        } else if (Build.VERSION.SDK_INT >= 16) {
             super.setDropDownHorizontalOffset(pixels);
         }
     }
@@ -357,7 +354,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public int getDropDownHorizontalOffset() {
         if (mPopup != null) {
             return mPopup.getHorizontalOffset();
-        } else if (IS_AT_LEAST_JB) {
+        } else if (Build.VERSION.SDK_INT >= 16) {
             return super.getDropDownHorizontalOffset();
         }
         return 0;
@@ -366,7 +363,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public void setDropDownWidth(int pixels) {
         if (mPopup != null) {
             mDropDownWidth = pixels;
-        } else if (IS_AT_LEAST_JB) {
+        } else if (Build.VERSION.SDK_INT >= 16) {
             super.setDropDownWidth(pixels);
         }
     }
@@ -374,7 +371,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public int getDropDownWidth() {
         if (mPopup != null) {
             return mDropDownWidth;
-        } else if (IS_AT_LEAST_JB) {
+        } else if (Build.VERSION.SDK_INT >= 16) {
             return super.getDropDownWidth();
         }
         return 0;
@@ -478,7 +475,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
         if (mBackgroundTintHelper != null) {
@@ -492,7 +489,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     @Nullable
     public ColorStateList getSupportBackgroundTintList() {
@@ -507,7 +504,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mBackgroundTintHelper != null) {
@@ -521,7 +518,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     @Nullable
     public PorterDuff.Mode getSupportBackgroundTintMode() {
@@ -607,7 +604,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
             }
 
             if (dropDownTheme != null) {
-                 if (IS_AT_LEAST_M && adapter instanceof android.widget.ThemedSpinnerAdapter) {
+                 if (Build.VERSION.SDK_INT >= 23
+                         && adapter instanceof android.widget.ThemedSpinnerAdapter) {
                     final android.widget.ThemedSpinnerAdapter themedAdapter =
                             (android.widget.ThemedSpinnerAdapter) adapter;
                     if (themedAdapter.getDropDownViewTheme() != dropDownTheme) {

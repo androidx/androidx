@@ -83,15 +83,16 @@ class PersistentFocusWrapper extends FrameLayout {
     }
 
     private boolean shouldPersistFocusFromDirection(int direction) {
-        return ((mPersistFocusVertical && (direction == FOCUS_UP || direction == FOCUS_DOWN)) ||
-                (!mPersistFocusVertical && (direction == FOCUS_LEFT || direction == FOCUS_RIGHT)));
+        return ((mPersistFocusVertical && (direction == FOCUS_UP || direction == FOCUS_DOWN))
+                || (!mPersistFocusVertical
+                && (direction == FOCUS_LEFT || direction == FOCUS_RIGHT)));
     }
 
     @Override
     public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
         if (DEBUG) Log.v(TAG, "addFocusables");
-        if (hasFocus() || getGrandChildCount() == 0 ||
-                !shouldPersistFocusFromDirection(direction)) {
+        if (hasFocus() || getGrandChildCount() == 0
+                || !shouldPersistFocusFromDirection(direction)) {
             super.addFocusables(views, direction, focusableMode);
         } else {
             // Select a child in requestFocus
@@ -107,7 +108,10 @@ class PersistentFocusWrapper extends FrameLayout {
             view = (View) view.getParent();
         }
         mSelectedPosition = view == null ? -1 : ((ViewGroup) child).indexOfChild(view);
-        if (DEBUG) Log.v(TAG, "requestChildFocus focused " + focused + " mSelectedPosition " + mSelectedPosition);
+        if (DEBUG) {
+            Log.v(TAG, "requestChildFocus focused " + focused + " mSelectedPosition "
+                    + mSelectedPosition);
+        }
     }
 
     @Override
@@ -142,8 +146,8 @@ class PersistentFocusWrapper extends FrameLayout {
             dest.writeInt(mSelectedPosition);
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
             @Override
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);

@@ -16,6 +16,8 @@
 
 package android.support.v4.view;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.res.ColorStateList;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -49,8 +51,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.WeakHashMap;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Helper for accessing features in {@link View} introduced after API
  * level 4 in a backwards compatible fashion.
@@ -59,20 +59,20 @@ public class ViewCompat {
     private static final String TAG = "ViewCompat";
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({View.FOCUS_LEFT, View.FOCUS_UP, View.FOCUS_RIGHT, View.FOCUS_DOWN,
             View.FOCUS_FORWARD, View.FOCUS_BACKWARD})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FocusDirection {}
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({View.FOCUS_LEFT, View.FOCUS_UP, View.FOCUS_RIGHT, View.FOCUS_DOWN})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FocusRealDirection {}
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({View.FOCUS_FORWARD, View.FOCUS_BACKWARD})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FocusRelativeDirection {}
@@ -1810,7 +1810,8 @@ public class ViewCompat {
     static class Api24ViewCompatImpl extends MarshmallowViewCompatImpl {
         @Override
         public void setPointerIcon(View view, PointerIconCompat pointerIconCompat) {
-            ViewCompatApi24.setPointerIcon(view, pointerIconCompat.getPointerIcon());
+            ViewCompatApi24.setPointerIcon(view,
+                    pointerIconCompat != null ? pointerIconCompat.getPointerIcon() : null);
         }
     }
 

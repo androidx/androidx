@@ -16,14 +16,16 @@
 
 package android.support.v7.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.os.BuildCompat;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import android.text.TextUtils;
 
 /**
  * Used to help create {@link Preference} hierarchies
@@ -37,8 +39,6 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * @see PreferenceFragmentCompat
  */
 public class PreferenceManager {
-
-    private static final String TAG = "PreferenceManager";
 
     public static final String KEY_HAS_SET_DEFAULT_VALUES = "_has_set_default_values";
 
@@ -91,6 +91,7 @@ public class PreferenceManager {
      */
     private PreferenceScreen mPreferenceScreen;
 
+    private PreferenceComparisonCallback mPreferenceComparisonCallback;
     private OnPreferenceTreeClickListener mOnPreferenceTreeClickListener;
     private OnDisplayPreferenceDialogListener mOnDisplayPreferenceDialogListener;
     private OnNavigateToScreenListener mOnNavigateToScreenListener;
@@ -98,7 +99,7 @@ public class PreferenceManager {
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public PreferenceManager(Context context) {
         mContext = context;
 
@@ -117,7 +118,7 @@ public class PreferenceManager {
      *         root).
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public PreferenceScreen inflateFromResource(Context context, int resId,
             PreferenceScreen rootPreferences) {
         // Block commits
@@ -232,15 +233,6 @@ public class PreferenceManager {
             mStorage = STORAGE_DEVICE_PROTECTED;
             mSharedPreferences = null;
         }
-    }
-
-    /**
-     * @removed
-     * @deprecated
-     */
-    @Deprecated
-    public void setStorageDeviceEncrypted() {
-        setStorageDeviceProtected();
     }
 
     /**
@@ -384,7 +376,6 @@ public class PreferenceManager {
      *            parameter set to true.
      */
     public static void setDefaultValues(Context context, int resId, boolean readAgain) {
-
         // Use the default shared preferences name and mode
         setDefaultValues(context, getDefaultSharedPreferencesName(context),
                 getDefaultSharedPreferencesMode(), resId, readAgain);
@@ -484,6 +475,15 @@ public class PreferenceManager {
         return mContext;
     }
 
+    public PreferenceComparisonCallback getPreferenceComparisonCallback() {
+        return mPreferenceComparisonCallback;
+    }
+
+    public void setPreferenceComparisonCallback(
+            PreferenceComparisonCallback preferenceComparisonCallback) {
+        mPreferenceComparisonCallback = preferenceComparisonCallback;
+    }
+
     public OnDisplayPreferenceDialogListener getOnDisplayPreferenceDialogListener() {
         return mOnDisplayPreferenceDialogListener;
     }
@@ -533,6 +533,102 @@ public class PreferenceManager {
      */
     public OnNavigateToScreenListener getOnNavigateToScreenListener() {
         return mOnNavigateToScreenListener;
+    }
+
+    /**
+     * Callback class to be used by the {@link android.support.v7.widget.RecyclerView.Adapter}
+     * associated with the {@link PreferenceScreen}, used to determine when two {@link Preference}
+     * objects are semantically and visually the same.
+     */
+    public static abstract class PreferenceComparisonCallback {
+        /**
+         * Called to determine if two {@link Preference} objects represent the same item
+         *
+         * @param p1 {@link Preference} object to compare
+         * @param p2 {@link Preference} object to compare
+         * @return {@code true} if the objects represent the same item
+         */
+        public abstract boolean arePreferenceItemsTheSame(Preference p1, Preference p2);
+
+        /**
+         * Called to determine if two {@link Preference} objects will display the same data
+         *
+         * @param p1 {@link Preference} object to compare
+         * @param p2 {@link Preference} object to compare
+         * @return {@code true} if the objects are visually identical
+         */
+        public abstract boolean arePreferenceContentsTheSame(Preference p1, Preference p2);
+    }
+
+    /**
+     * A basic implementation of {@link PreferenceComparisonCallback} suitable for use with the
+     * default {@link Preference} classes. If the {@link PreferenceScreen} contains custom
+     * {@link Preference} subclasses, you must override
+     * {@link #arePreferenceContentsTheSame(Preference, Preference)}
+     */
+    public static class SimplePreferenceComparisonCallback extends PreferenceComparisonCallback {
+        /**
+         * {@inheritDoc}
+         *
+         * <p>This method will not be able to track replaced {@link Preference} objects if they
+         * do not have a unique key.</p>
+         *
+         * @see Preference#setKey(String)
+         */
+        @Override
+        public boolean arePreferenceItemsTheSame(Preference p1, Preference p2) {
+            return p1.getId() == p2.getId();
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The result of this method is only valid for the default {@link Preference} objects,
+         * and custom subclasses which do not override
+         * {@link Preference#onBindViewHolder(PreferenceViewHolder)}. This method also assumes
+         * that if a preference object is being replaced by a new instance, the old instance was
+         * not modified after being removed from its containing {@link PreferenceGroup}.</p>
+         */
+        @Override
+        public boolean arePreferenceContentsTheSame(Preference p1, Preference p2) {
+            if (p1.getClass() != p2.getClass()) {
+                return false;
+            }
+            if (p1 == p2 && p1.wasDetached()) {
+                // Defensively handle the case where a preference was removed, updated and re-added.
+                // Hopefully this is rare.
+                return false;
+            }
+            if (!TextUtils.equals(p1.getTitle(), p2.getTitle())) {
+                return false;
+            }
+            if (!TextUtils.equals(p1.getSummary(), p2.getSummary())) {
+                return false;
+            }
+            final Drawable p1Icon = p1.getIcon();
+            final Drawable p2Icon = p2.getIcon();
+            if (p1Icon != p2Icon && (p1Icon == null || !p1Icon.equals(p2Icon))) {
+                return false;
+            }
+            if (p1.isEnabled() != p2.isEnabled()) {
+                return false;
+            }
+            if (p1.isSelectable() != p2.isSelectable()) {
+                return false;
+            }
+            if (p1 instanceof TwoStatePreference) {
+                if (((TwoStatePreference) p1).isChecked()
+                        != ((TwoStatePreference) p2).isChecked()) {
+                    return false;
+                }
+            }
+            if (p1 instanceof DropDownPreference && p1 != p2) {
+                // Different object, must re-bind spinner adapter
+                return false;
+            }
+
+            return true;
+        }
     }
 
     /**

@@ -16,6 +16,8 @@
 
 package android.support.v17.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.RestrictTo;
@@ -25,8 +27,6 @@ import android.support.v7.preference.PreferenceRecyclerViewAccessibilityDelegate
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * This fragment provides a preference fragment with leanback-style behavior, suitable for
@@ -49,7 +49,7 @@ public abstract class BaseLeanbackPreferenceFragment extends PreferenceFragment 
     /**
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public Fragment getCallbackFragment() {
         return getParentFragment();

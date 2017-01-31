@@ -25,7 +25,13 @@ import android.os.Handler;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
 
+/**
+ * App uses BackgroundHelper for each Activity, it wraps BackgroundManager and provides:
+ * 1. AsyncTask to load bitmap in background thread.
+ * 2. Using a BitmapCache to cache loaded bitmaps.
+ */
 public class BackgroundHelper {
 
     private static final String TAG = "BackgroundHelper";
@@ -36,49 +42,94 @@ public class BackgroundHelper {
     // in case multiple backgrounds are set in quick succession.
     private static final int SET_BACKGROUND_DELAY_MS = 100;
 
+    /**
+     * An very simple example of BitmapCache.
+     */
+    public static class BitmapCache {
+        Bitmap mLastBitmap;
+        Object mLastToken;
+
+        // Singleton BitmapCache shared by multiple activities/backgroundHelper.
+        static BitmapCache sInstance = new BitmapCache();
+
+        private BitmapCache() {
+        }
+
+        /**
+         * Get cached bitmap by token, returns null if missing cache.
+         */
+        public Bitmap getCache(Object token) {
+            if (token == null ? mLastToken == null : token.equals(mLastToken)) {
+                if (DEBUG) Log.v(TAG, "hitCache token:" + token + " " + mLastBitmap);
+                return mLastBitmap;
+            }
+            return null;
+        }
+
+        /**
+         * Add cached bitmap.
+         */
+        public void putCache(Object token, Bitmap bitmap) {
+            if (DEBUG) Log.v(TAG, "putCache token:" + token + " " + bitmap);
+            mLastToken = token;
+            mLastBitmap = bitmap;
+        }
+
+        /**
+         * Add singleton of BitmapCache shared across activities.
+         */
+        public static BitmapCache getInstance() {
+            return sInstance;
+        }
+    }
+
+    /**
+     * Callback class to perform task after bitmap is loaded.
+     */
+    public abstract static class BitmapLoadCallback {
+        /**
+         * Called when Bitmap is loaded.
+         */
+        public abstract void onBitmapLoaded(Bitmap bitmap);
+    }
+
     static class Request {
         Object mImageToken;
-        Activity mActivity;
         Bitmap mResult;
 
-        Request(Activity activity, Object imageToken) {
-            mActivity = activity;
+        Request(Object imageToken) {
             mImageToken = imageToken;
         }
     }
 
-    public BackgroundHelper() {
+    public BackgroundHelper(Activity activity) {
         if (DEBUG && !ENABLED) Log.v(TAG, "BackgroundHelper: disabled");
+        mActivity = activity;
     }
 
     class LoadBackgroundRunnable implements Runnable {
         Request mRequest;
 
-        LoadBackgroundRunnable(Activity activity, Object imageToken) {
-            mRequest = new Request(activity, imageToken);
+        LoadBackgroundRunnable(Object imageToken) {
+            mRequest = new Request(imageToken);
         }
 
         @Override
         public void run() {
-            if (mTask != null) {
-                if (DEBUG) Log.v(TAG, "Cancelling task");
-                mTask.cancel(true);
-            }
             if (DEBUG) Log.v(TAG, "Executing task");
-            mTask = new LoadBitmapTask();
-            mTask.execute(mRequest);
+            new LoadBitmapIntoBackgroundManagerTask().execute(mRequest);
             mRunnable = null;
         }
-    };
+    }
 
-    class LoadBitmapTask extends AsyncTask<Request, Object, Request> {
+    class LoadBitmapTaskBase extends AsyncTask<Request, Object, Request> {
         @Override
         protected Request doInBackground(Request... params) {
             boolean cancelled = isCancelled();
             if (DEBUG) Log.v(TAG, "doInBackground cancelled " + cancelled);
             Request request = params[0];
             if (!cancelled) {
-                request.mResult = loadBitmap(request.mActivity, request.mImageToken);
+                request.mResult = loadBitmap(request.mImageToken);
             }
             return request;
         }
@@ -86,10 +137,7 @@ public class BackgroundHelper {
         @Override
         protected void onPostExecute(Request request) {
             if (DEBUG) Log.v(TAG, "onPostExecute");
-            applyBackground(request.mActivity, request.mResult);
-            if (mTask == this) {
-                mTask = null;
-            }
+            BitmapCache.getInstance().putCache(request.mImageToken, request.mResult);
         }
 
         @Override
@@ -97,58 +145,142 @@ public class BackgroundHelper {
             if (DEBUG) Log.v(TAG, "onCancelled");
         }
 
-        private Bitmap loadBitmap(Activity activity, Object imageToken) {
+        private Bitmap loadBitmap(Object imageToken) {
             if (imageToken instanceof Integer) {
                 final int resourceId = (Integer) imageToken;
                 if (DEBUG) Log.v(TAG, "load resourceId " + resourceId);
-                Drawable drawable = ContextCompat.getDrawable(activity, resourceId);
+                Drawable drawable = ContextCompat.getDrawable(mActivity, resourceId);
                 if (drawable instanceof BitmapDrawable) {
                     return ((BitmapDrawable) drawable).getBitmap();
                 }
             }
             return null;
         }
+    }
 
-        private void applyBackground(Activity activity, Bitmap bitmap) {
-            BackgroundManager backgroundManager = BackgroundManager.getInstance(activity);
-            if (backgroundManager == null || !backgroundManager.isAttached()) {
-                return;
-            }
-            backgroundManager.setBitmap(bitmap);
+    class LoadBitmapIntoBackgroundManagerTask extends LoadBitmapTaskBase {
+        @Override
+        protected void onPostExecute(Request request) {
+            super.onPostExecute(request);
+            mBackgroundManager.setBitmap(request.mResult);
         }
     }
 
-    private LoadBackgroundRunnable mRunnable;
-    private LoadBitmapTask mTask;
+    class LoadBitmapCallbackTask extends LoadBitmapTaskBase {
+        BitmapLoadCallback mCallback;
+
+        LoadBitmapCallbackTask(BitmapLoadCallback callback) {
+            mCallback = callback;
+        }
+
+        @Override
+        protected void onPostExecute(Request request) {
+            super.onPostExecute(request);
+            if (mCallback != null) {
+                mCallback.onBitmapLoaded(request.mResult);
+            }
+        }
+    }
+
+    final Activity mActivity;
+    BackgroundManager mBackgroundManager;
+    LoadBackgroundRunnable mRunnable;
 
     // Allocate a dedicated handler because there may be no view available
     // when setBackground is invoked.
-    private Handler mHandler = new Handler();
+    static Handler sHandler = new Handler();
 
-    public void setBackground(Activity activity, Object imageToken) {
+    void createBackgroundManagerIfNeeded() {
+        if (mBackgroundManager == null) {
+            mBackgroundManager = BackgroundManager.getInstance(mActivity);
+        }
+    }
+
+    /**
+     * Attach BackgroundManager to activity window.
+     */
+    public void attachToWindow() {
         if (!ENABLED) {
+            return;
+        }
+        if (DEBUG) Log.v(TAG, "attachToWindow " + mActivity);
+        createBackgroundManagerIfNeeded();
+        mBackgroundManager.attach(mActivity.getWindow());
+    }
+
+    /**
+     * Attach BackgroundManager to a view inside activity.
+     */
+    public void attachToView(View backgroundView) {
+        if (!ENABLED) {
+            return;
+        }
+        if (DEBUG) Log.v(TAG, "attachToView " + mActivity + " " + backgroundView);
+        createBackgroundManagerIfNeeded();
+        mBackgroundManager.attachToView(backgroundView);
+    }
+
+    /**
+     * Sets a background bitmap. It will look up the cache first if missing, an AsyncTask will
+     * will be launched to load the bitmap.
+     */
+    public void setBackground(Object imageToken) {
+        if (!ENABLED) {
+            return;
+        }
+        if (DEBUG) Log.v(TAG, "set imageToken " + imageToken + " to " + mActivity);
+        createBackgroundManagerIfNeeded();
+        if (imageToken == null) {
+            mBackgroundManager.setDrawable(null);
+            return;
+        }
+        Bitmap cachedBitmap = BitmapCache.getInstance().getCache(imageToken);
+        if (cachedBitmap != null) {
+            mBackgroundManager.setBitmap(cachedBitmap);
             return;
         }
         if (mRunnable != null) {
-            mHandler.removeCallbacks(mRunnable);
+            sHandler.removeCallbacks(mRunnable);
         }
-        mRunnable = new LoadBackgroundRunnable(activity, imageToken);
-        mHandler.postDelayed(mRunnable, SET_BACKGROUND_DELAY_MS);
+        mRunnable = new LoadBackgroundRunnable(imageToken);
+        sHandler.postDelayed(mRunnable, SET_BACKGROUND_DELAY_MS);
     }
 
-    static public void attach(Activity activity) {
+    /**
+     * Clear Drawable.
+     */
+    public void clearDrawable() {
         if (!ENABLED) {
             return;
         }
-        if (DEBUG) Log.v(TAG, "attach to activity " + activity);
-        BackgroundManager.getInstance(activity).attach(activity.getWindow());
+        if (DEBUG) Log.v(TAG, "clearDrawable to " + mActivity);
+        createBackgroundManagerIfNeeded();
+        mBackgroundManager.clearDrawable();
     }
 
-    static public void release(Activity activity) {
+    /**
+     * Directly sets a Drawable as background.
+     */
+    public void setDrawable(Drawable drawable) {
         if (!ENABLED) {
             return;
         }
-        if (DEBUG) Log.v(TAG, "release from activity " + activity);
-        BackgroundManager.getInstance(activity).release();
+        if (DEBUG) Log.v(TAG, "setDrawable " + drawable + " to " + mActivity);
+        createBackgroundManagerIfNeeded();
+        mBackgroundManager.setDrawable(drawable);
+    }
+
+    /**
+     * Load bitmap in background and pass result to BitmapLoadCallback.
+     */
+    public void loadBitmap(Object imageToken, BitmapLoadCallback callback) {
+        Bitmap cachedBitmap = BitmapCache.getInstance().getCache(imageToken);
+        if (cachedBitmap != null) {
+            if (callback != null) {
+                callback.onBitmapLoaded(cachedBitmap);
+                return;
+            }
+        }
+        new LoadBitmapCallbackTask(callback).execute(new Request(imageToken));
     }
 }

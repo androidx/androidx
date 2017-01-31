@@ -20,6 +20,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.util.Log;
@@ -277,8 +278,9 @@ public class BrowseFragment extends Fragment {
             holder.mTitleView.setText(item.getDescription().getTitle());
             holder.mDescriptionView.setText(item.getDescription().getDescription());
             if (item.isPlayable()) {
-                holder.mImageView.setImageDrawable(getContext().getResources()
-                        .getDrawable(R.drawable.ic_play_arrow_white_24dp));
+
+                holder.mImageView.setImageDrawable(ContextCompat.getDrawable(
+                        getContext(), R.drawable.ic_play_arrow_white_24dp));
                 holder.mImageView.setVisibility(View.VISIBLE);
             } else {
                 holder.mImageView.setVisibility(View.GONE);

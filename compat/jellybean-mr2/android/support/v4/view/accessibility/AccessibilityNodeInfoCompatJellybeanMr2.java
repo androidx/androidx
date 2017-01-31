@@ -16,10 +16,14 @@
 
 package android.support.v4.view.accessibility;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
 
+@RequiresApi(18)
+@TargetApi(18)
 class AccessibilityNodeInfoCompatJellybeanMr2 {
 
     public static void setViewIdResourceName(Object info, String viewId) {

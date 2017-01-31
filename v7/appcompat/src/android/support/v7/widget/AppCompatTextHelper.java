@@ -16,16 +16,20 @@
 
 package android.support.v7.widget;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.appcompat.R;
 import android.support.v7.text.AllCapsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+@RequiresApi(9)
+@TargetApi(9)
 class AppCompatTextHelper {
 
     static AppCompatTextHelper create(TextView textView) {

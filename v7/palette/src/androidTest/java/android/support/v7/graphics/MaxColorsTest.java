@@ -20,8 +20,8 @@ import static android.support.v7.graphics.TestUtils.loadSampleBitmap;
 
 import static org.junit.Assert.assertTrue;
 
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

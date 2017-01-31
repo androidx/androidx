@@ -17,9 +17,9 @@
 package com.example.android.leanback;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -28,13 +28,14 @@ import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidedActionsStylist;
-import android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder;
 import android.support.v17.leanback.widget.GuidedDatePickerAction;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.EditorInfo;
 
 import java.util.ArrayList;
@@ -94,49 +95,59 @@ public class GuidedStepActivity extends Activity {
         super.onRestoreInstanceState(savedInstanceState);
     }
 
-    private static void addAction(List<GuidedAction> actions, long id, String title, String desc) {
-        actions.add(new GuidedAction.Builder()
+    private static GuidedAction addAction(List<GuidedAction> actions, long id, String title,
+            String desc) {
+        GuidedAction action;
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .description(desc)
                 .build());
+        return action;
     }
 
-    private static void addAction(List<GuidedAction> actions, long id, String title, String desc,
-            List<GuidedAction> subActions) {
-        actions.add(new GuidedAction.Builder()
+    private static GuidedAction addAction(List<GuidedAction> actions, long id, String title,
+            String desc, List<GuidedAction> subActions) {
+        GuidedAction action;
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .description(desc)
                 .subActions(subActions)
                 .build());
+        return action;
     }
 
-    private static void addEditableAction(Context context, List<GuidedAction> actions,
+    private static GuidedAction addEditableAction(Context context, List<GuidedAction> actions,
             long id, String title, String desc) {
-        actions.add(new GuidedAction.Builder(context)
+        GuidedAction action;
+        actions.add(action = new GuidedAction.Builder(context)
                 .id(id)
                 .title(title)
                 .description(desc)
                 .editable(true)
                 .icon(R.drawable.lb_ic_search_mic)
                 .build());
+        return action;
     }
 
-    private static void addEditableAction(List<GuidedAction> actions, long id, String title,
+    private static GuidedAction addEditableAction(List<GuidedAction> actions, long id, String title,
             String editTitle, String desc) {
-        actions.add(new GuidedAction.Builder()
+        GuidedAction action;
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .editTitle(editTitle)
                 .description(desc)
                 .editable(true)
                 .build());
+        return action;
     }
 
-    private static void addEditableAction(List<GuidedAction> actions, long id, String title,
+    private static GuidedAction addEditableAction(List<GuidedAction> actions, long id, String title,
             String editTitle, int editInputType, String desc, String editDesc) {
-        actions.add(new GuidedAction.Builder()
+        GuidedAction action;
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .editTitle(editTitle)
@@ -145,19 +156,24 @@ public class GuidedStepActivity extends Activity {
                 .editDescription(editDesc)
                 .editable(true)
                 .build());
+        return action;
     }
 
-    private static void addDatePickerAction(List<GuidedAction> actions, long id, String title) {
-        actions.add(new GuidedDatePickerAction.Builder(null)
+    private static GuidedDatePickerAction addDatePickerAction(List<GuidedAction> actions, long id,
+            String title) {
+        GuidedDatePickerAction action;
+        actions.add(action = new GuidedDatePickerAction.Builder(null)
                 .id(id)
                 .title(title)
                 .datePickerFormat("MY")
                 .build());
+        return action;
     }
 
-    private static void addEditableDescriptionAction(List<GuidedAction> actions, long id,
+    private static GuidedAction addEditableDescriptionAction(List<GuidedAction> actions, long id,
             String title, String desc, String editDescription, int descriptionEditInputType) {
-        actions.add(new GuidedAction.Builder()
+        GuidedAction action;
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .description(desc)
@@ -165,16 +181,19 @@ public class GuidedStepActivity extends Activity {
                 .descriptionEditInputType(descriptionEditInputType)
                 .descriptionEditable(true)
                 .build());
+        return action;
     }
 
-    private static void addCheckedAction(List<GuidedAction> actions, long id, Context context,
+    private static GuidedAction addCheckedAction(List<GuidedAction> actions, long id,
             String title, String desc, int checkSetId) {
-        actions.add(new GuidedAction.Builder()
+        GuidedAction action;
+        actions.add(action = new GuidedAction.Builder(null)
                 .id(id)
                 .title(title)
                 .description(desc)
                 .checkSetId(checkSetId)
                 .build());
+        return action;
     }
 
     public static class FirstStepFragment extends GuidedStepFragment {
@@ -189,7 +208,9 @@ public class GuidedStepActivity extends Activity {
             String title = getString(R.string.guidedstep_first_title);
             String breadcrumb = getString(R.string.guidedstep_first_breadcrumb);
             String description = getString(R.string.guidedstep_first_description);
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -217,6 +238,11 @@ public class GuidedStepActivity extends Activity {
         }
     }
 
+    public interface NewPaymentFragmentTarget {
+        void onNewPaymentFragmentStarted();
+        void onNewPaymentAdded(int selection);
+    }
+
     static ArrayList<String> sCards = new ArrayList<String>();
     static int sSelectedCard = -1;
     static {
@@ -226,12 +252,26 @@ public class GuidedStepActivity extends Activity {
 
     public static class NewPaymentStepFragment extends GuidedStepFragment {
 
+        NewPaymentFragmentTarget mNewPaymentTarget;
+
+        @Override
+        public void onCreate(Bundle savedInstance) {
+            super.onCreate(savedInstance);
+            Fragment targetFragment = getTargetFragment();
+            if (targetFragment instanceof NewPaymentFragmentTarget) {
+                mNewPaymentTarget = ((NewPaymentFragmentTarget) targetFragment);
+                mNewPaymentTarget.onNewPaymentFragmentStarted();
+            }
+        }
+
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_newpayment_title);
             String breadcrumb = getString(R.string.guidedstep_newpayment_breadcrumb);
             String description = getString(R.string.guidedstep_newpayment_description);
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -262,8 +302,11 @@ public class GuidedStepActivity extends Activity {
                 } else {
                     card = "Master "+cardNumber;
                 }
-                sSelectedCard = sCards.size();
+                int selection = sCards.size();
                 sCards.add(card);
+                if (mNewPaymentTarget != null) {
+                    mNewPaymentTarget.onNewPaymentAdded(selection);
+                }
                 popBackStackToGuidedStepFragment(NewPaymentStepFragment.class,
                         FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
@@ -311,7 +354,27 @@ public class GuidedStepActivity extends Activity {
         }
     }
 
-    public static class SecondStepFragment extends GuidedStepFragment {
+    public static class SecondStepFragment extends GuidedStepFragment
+            implements NewPaymentFragmentTarget {
+
+
+        boolean mExpandPaymentListInOnCreateView;
+
+        @Override
+        public void onNewPaymentAdded(int selection) {
+            // if a new payment is added, we dont need expand the sub actions list.
+            mExpandPaymentListInOnCreateView = false;
+            sSelectedCard = selection;
+            updatePaymentAction(findActionById(PAYMENT));
+            findButtonActionById(GuidedAction.ACTION_ID_CONTINUE).setEnabled(sSelectedCard != -1);
+        }
+
+        @Override
+        public void onNewPaymentFragmentStarted() {
+            // if a new payment fragment is opened, when come back we should expand the payment
+            // sub actions list unless user created a new payment in onNewPaymentAdded
+            mExpandPaymentListInOnCreateView = true;
+        }
 
         public GuidedActionsStylist onCreateActionsStylist() {
             return new GuidedActionsStylist() {
@@ -332,7 +395,9 @@ public class GuidedStepActivity extends Activity {
             String title = getString(R.string.guidedstep_second_title);
             String breadcrumb = getString(R.string.guidedstep_second_breadcrumb);
             String description = getString(R.string.guidedstep_second_description);
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -341,7 +406,7 @@ public class GuidedStepActivity extends Activity {
             addEditableAction(getContext(), actions, FIRST_NAME, "Pat", "Your first name");
             addEditableAction(getContext(), actions, LAST_NAME, "Smith", "Your last name");
             List<GuidedAction> subActions = new ArrayList<GuidedAction>();
-            addAction(actions, PAYMENT, "Select Payment", "", subActions);
+            updatePaymentAction(addAction(actions, PAYMENT, "Select Payment", "", subActions));
             addEditableDescriptionAction(actions, PASSWORD, "Password", "", "",
                     InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         }
@@ -351,6 +416,7 @@ public class GuidedStepActivity extends Activity {
             actions.add(new GuidedAction.Builder(getActivity())
                     .clickAction(GuidedAction.ACTION_ID_CONTINUE)
                     .description("Continue")
+                    .enabled(isPasswordValid() && isPaymentValid())
                     .build());
         }
 
@@ -360,6 +426,20 @@ public class GuidedStepActivity extends Activity {
                 FragmentManager fm = getFragmentManager();
                 GuidedStepFragment.add(fm, new ThirdStepFragment(), R.id.lb_guidedstep_host);
             }
+        }
+
+        void updatePaymentAction(GuidedAction paymentAction) {
+            List<GuidedAction> subActions = paymentAction.getSubActions();
+            subActions.clear();
+            for (int i = 0; i < sCards.size(); i++) {
+                addCheckedAction(subActions, -1, sCards.get(i), "",
+                        GuidedAction.DEFAULT_CHECK_SET_ID);
+                if (i == sSelectedCard) {
+                    subActions.get(i).setChecked(true);
+                }
+            }
+            addAction(subActions, NEW_PAYMENT, "Add New Card", "");
+            paymentAction.setDescription(sSelectedCard == -1 ? "" : sCards.get(sSelectedCard));
         }
 
         @Override
@@ -398,30 +478,21 @@ public class GuidedStepActivity extends Activity {
                 return true;
             } else {
                 FragmentManager fm = getFragmentManager();
-                GuidedStepFragment.add(fm, new NewPaymentStepFragment(), R.id.lb_guidedstep_host);
+                NewPaymentStepFragment newPaymentFragment = new NewPaymentStepFragment();
+                newPaymentFragment.setTargetFragment(this, 0);
+                GuidedStepFragment.add(fm, newPaymentFragment, R.id.lb_guidedstep_host);
                 return false;
             }
         }
 
         @Override
-        public void onResume() {
-            super.onResume();
-            // when resumed, update sub actions list and selected index from data model.
-            GuidedAction payments = findActionById(PAYMENT);
-            payments.getSubActions().clear();
-            for (int i = 0; i < sCards.size(); i++) {
-                addCheckedAction(payments.getSubActions(), -1, getActivity(), sCards.get(i), "",
-                        GuidedAction.DEFAULT_CHECK_SET_ID);
-                if (i == sSelectedCard) {
-                    payments.getSubActions().get(i).setChecked(true);
-                }
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            View view = super.onCreateView(inflater, container, savedInstanceState);
+            if (mExpandPaymentListInOnCreateView) {
+                expandAction(findActionById(PAYMENT), false);
             }
-            addAction(payments.getSubActions(), NEW_PAYMENT, "Add New Card", "");
-            if (sSelectedCard != -1) {
-                payments.setDescription(sCards.get(sSelectedCard));
-            }
-            notifyActionChanged(findActionPositionById(PAYMENT));
-            updateContinue(isPasswordValid() && isPaymentValid());
+            return view;
         }
 
         boolean isPaymentValid() {
@@ -452,7 +523,9 @@ public class GuidedStepActivity extends Activity {
             String title = getString(R.string.guidedstep_third_title);
             String breadcrumb = getString(R.string.guidedstep_third_breadcrumb);
             String description = getString(R.string.guidedstep_third_description);
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -470,7 +543,7 @@ public class GuidedStepActivity extends Activity {
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
             String desc = "The description can be quite long as well.  " +
                     "Just be sure to set multilineDescription to true in the GuidedAction.";
-            actions.add(new GuidedAction.Builder()
+            actions.add(new GuidedAction.Builder(getActivity())
                     .title("Note that Guided Actions can have titles that are quite long.")
                     .description(desc)
                     .multilineDescription(true)
@@ -479,14 +552,14 @@ public class GuidedStepActivity extends Activity {
                     .focusable(false)
                     .build());
             for (int i = 0; i < OPTION_NAMES.length; i++) {
-                addCheckedAction(actions, RADIO_ID_BASE + i, getActivity(), OPTION_NAMES[i],
+                addCheckedAction(actions, RADIO_ID_BASE + i, OPTION_NAMES[i],
                         OPTION_DESCRIPTIONS[i], GuidedAction.DEFAULT_CHECK_SET_ID);
                 if (i == DEFAULT_OPTION) {
                     actions.get(actions.size() -1).setChecked(true);
                 }
             }
             for (int i = 0; i < OPTION_NAMES.length; i++) {
-                addCheckedAction(actions, CHECKBOX_ID_BASE + i, getActivity(), OPTION_NAMES[i],
+                addCheckedAction(actions, CHECKBOX_ID_BASE + i, OPTION_NAMES[i],
                         OPTION_DESCRIPTIONS[i], GuidedAction.CHECKBOX_CHECK_SET_ID);
             }
         }
@@ -531,7 +604,9 @@ public class GuidedStepActivity extends Activity {
             String title = getString(R.string.guidedstep_fourth_title);
             String breadcrumb = getString(R.string.guidedstep_fourth_breadcrumb);
             String description = "You chose: " + OPTION_NAMES[(int) getOption()];
-            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
+            final Context context = getActivity();
+            Drawable icon = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.ic_main_icon, context.getTheme());
             return new Guidance(title, description, breadcrumb, icon);
         }
 

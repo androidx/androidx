@@ -13,14 +13,14 @@
  */
 package android.support.v17.leanback.util;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Linear or DAG of {@link State}s. StateMachine is by default a linear model, until
@@ -31,7 +31,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public final class StateMachine {
 
     /**

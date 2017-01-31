@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-
 archivesBaseName = 'cardview-v7'
 
 dependencies {
@@ -7,38 +6,27 @@ dependencies {
 }
 
 android {
-    // WARNING: should be 7
     compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
         minSdkVersion 9
-        // TODO: get target from branch
-        //targetSdkVersion 19
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
     }
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['base', 'gingerbread', 'jellybean-mr1', 'api21', 'src']
-        main.aidl.srcDirs = ['base', 'gingerbread', 'jellybean-mr1', 'api21', 'src']
-        main.res.srcDirs = ['res']
-
-        androidTest.setRoot('tests')
-        androidTest.java.srcDir 'tests/java'
+        main.java.srcDirs = [
+                'base',
+                'gingerbread',
+                'jellybean-mr1',
+                'api21',
+                'src'
+        ]
+        main.res.srcDir 'res'
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
-    }
-
-    lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
     }
 }
 

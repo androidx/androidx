@@ -16,6 +16,8 @@
 
 package android.support.v7.view.menu;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RestrictTo;
@@ -26,12 +28,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public final class MenuWrapperFactory {
     private MenuWrapperFactory() {
     }

@@ -48,9 +48,8 @@ class MediaItemActionPresenter extends Presenter {
     @Override
     public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
         Context context = parent.getContext();
-        View actionView = LayoutInflater.from(context).
-                inflate(R.layout.lb_row_media_item_action, parent,
-                        false);
+        View actionView = LayoutInflater.from(context)
+                .inflate(R.layout.lb_row_media_item_action, parent, false);
         return new ViewHolder(actionView);
     }
 

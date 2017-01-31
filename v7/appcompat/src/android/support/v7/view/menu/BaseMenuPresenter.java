@@ -16,6 +16,8 @@
 
 package android.support.v7.view.menu;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
@@ -25,8 +27,6 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Base class for MenuPresenters that have a consistent container view and item views. Behaves
  * similarly to an AdapterView in that existing item views will be reused if possible when items
@@ -34,7 +34,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public abstract class BaseMenuPresenter implements MenuPresenter {
 
     protected Context mSystemContext;

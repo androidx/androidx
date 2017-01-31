@@ -84,7 +84,7 @@
             android:focusableInTouchMode="true"
             android:paddingStart="@dimen/lb_details_overview_description_margin_start"
             android:paddingEnd="@dimen/lb_details_overview_description_margin_end"
-            lb:horizontalMargin="@dimen/lb_details_overview_action_items_margin"
+            android:horizontalSpacing="@dimen/lb_details_overview_action_items_spacing"
             lb:rowHeight="@dimen/lb_details_overview_actions_height" />
 
         </LinearLayout>

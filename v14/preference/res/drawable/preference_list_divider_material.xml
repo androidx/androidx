@@ -15,8 +15,7 @@
   limitations under the License
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-       android:tint="?android:attr/colorForeground">
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="#1f000000" />
     <size
         android:height="1dp"

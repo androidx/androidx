@@ -17,8 +17,12 @@
 package android.support.transition;
 
 import android.animation.Animator;
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.view.ViewGroup;
 
+@RequiresApi(14)
+@TargetApi(14)
 class VisibilityIcs extends TransitionIcs implements VisibilityImpl {
 
     @Override

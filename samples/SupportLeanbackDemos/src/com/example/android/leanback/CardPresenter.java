@@ -15,16 +15,15 @@ package com.example.android.leanback;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import com.example.android.leanback.R;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.ViewGroup;
 import android.view.ContextThemeWrapper;
 import android.view.View.MeasureSpec;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.TextView;
 
 import java.util.Random;
 
@@ -104,8 +103,9 @@ public class CardPresenter extends Presenter {
     public void onBindViewHolder(ViewHolder viewHolder, Object item) {
         Log.d(TAG, "onBindViewHolder for " + item.toString());
         PhotoItem photoItem = (PhotoItem) item;
-        Drawable drawable =  viewHolder.view.getContext().getResources()
-                .getDrawable(photoItem.getImageResourceId());
+        final Context context = viewHolder.view.getContext();
+        Drawable drawable =  ResourcesCompat.getDrawable(context.getResources(),
+                photoItem.getImageResourceId(), context.getTheme());
         ((ImageCardView) viewHolder.view).setMainImage(drawable);
         ((ImageCardView) viewHolder.view).setTitleText(photoItem.getTitle());
         if (!TextUtils.isEmpty(photoItem.getContent())) {
