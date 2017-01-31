@@ -19,6 +19,7 @@ package android.support.v4.internal.view;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Rect;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.GravityCompat;
@@ -58,29 +59,43 @@ public class TooltipCompat {
         }
     }
 
-    private static void showTooltipToast(View v, CharSequence tooltipText) {
-        final int[] screenPos = new int[2];
-        final Rect displayFrame = new Rect();
-        v.getLocationOnScreen(screenPos);
-        v.getWindowVisibleDisplayFrame(displayFrame);
+    private static void showTooltipToast(View anchor, CharSequence tooltipText) {
+        final Context context = anchor.getContext();
+        final Resources resources = context.getResources();
+        final int screenWidth = resources.getDisplayMetrics().widthPixels;
+        final int screenHeight = resources.getDisplayMetrics().heightPixels;
 
-        final Context context = v.getContext();
-        final int width = v.getWidth();
-        final int height = v.getHeight();
-        final int midy = screenPos[1] + height / 2;
-        int referenceX = screenPos[0] + width / 2;
-        if (ViewCompat.getLayoutDirection(v) == ViewCompat.LAYOUT_DIRECTION_LTR) {
-            final int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+        final Rect displayFrame = new Rect();
+        anchor.getWindowVisibleDisplayFrame(displayFrame);
+        if (displayFrame.left < 0 && displayFrame.top < 0) {
+            // No meaningful display frame, the anchor view is probably in a subpanel
+            // (such as a popup window). Use the screen frame as a reasonable approximation.
+            final int statusBarHeight;
+            int resourceId = resources.getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                statusBarHeight = resources.getDimensionPixelSize(resourceId);
+            } else {
+                statusBarHeight = 0;
+            }
+            displayFrame.set(0, statusBarHeight, screenWidth, screenHeight);
+        }
+
+        final int[] anchorPos = new int[2];
+        anchor.getLocationOnScreen(anchorPos);
+        int referenceX = anchorPos[0] + anchor.getWidth() / 2;
+        if (ViewCompat.getLayoutDirection(anchor) == ViewCompat.LAYOUT_DIRECTION_LTR) {
             referenceX = screenWidth - referenceX; // mirror
         }
+        final int anchorTop = anchorPos[1];
         Toast toast = Toast.makeText(context, tooltipText, Toast.LENGTH_SHORT);
-        if (midy < displayFrame.height()) {
-            // Show along the top; follow action buttons
+        if (anchorTop < displayFrame.height() * 0.8) {
+            // Show along the bottom of the anchor view.
             toast.setGravity(Gravity.TOP | GravityCompat.END, referenceX,
-                    screenPos[1] + height - displayFrame.top);
+                    anchorTop + anchor.getHeight() - displayFrame.top);
         } else {
-            // Show along the bottom center
-            toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, height);
+            // Show along the top of the anchor view.
+            toast.setGravity(Gravity.BOTTOM | GravityCompat.END, referenceX,
+                    displayFrame.bottom - anchorTop);
         }
         toast.show();
     }
