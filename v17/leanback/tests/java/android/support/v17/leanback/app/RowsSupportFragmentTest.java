@@ -18,11 +18,14 @@
  */
 package android.support.v17.leanback.app;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.SystemClock;
-import android.support.test.filters.MediumTest;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.testutils.PollingCheck;
@@ -35,10 +38,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class RowsSupportFragmentTest {
 

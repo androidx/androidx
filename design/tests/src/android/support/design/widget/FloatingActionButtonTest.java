@@ -53,6 +53,8 @@ import android.support.test.espresso.action.CoordinatesProvider;
 import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.Swipe;
+import android.support.test.filters.LargeTest;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
@@ -60,7 +62,6 @@ import android.view.View;
 
 import org.junit.Test;
 
-@SmallTest
 public class FloatingActionButtonTest
         extends BaseInstrumentationTestCase<FloatingActionButtonActivity> {
 
@@ -68,6 +69,7 @@ public class FloatingActionButtonTest
         super(FloatingActionButtonActivity.class);
     }
 
+    @SmallTest
     @Test
     public void testDefaultBackgroundTint() {
         final int colorAccent = TestUtils.getThemeAttrColor(
@@ -76,6 +78,7 @@ public class FloatingActionButtonTest
                 .check(matches(withFabBackgroundFill(colorAccent)));
     }
 
+    @SmallTest
     @Test
     public void testSetTintOnDefaultBackgroundTint() {
         onView(withId(R.id.fab_standard))
@@ -83,12 +86,14 @@ public class FloatingActionButtonTest
                 .check(matches(withFabBackgroundFill(Color.GREEN)));
     }
 
+    @SmallTest
     @Test
     public void testDeclaredBackgroundTint() {
         onView(withId(R.id.fab_tint))
                 .check(matches(withFabBackgroundFill(Color.MAGENTA)));
     }
 
+    @SmallTest
     @Test
     public void testSetTintOnDeclaredBackgroundTint() {
         onView(withId(R.id.fab_tint))
@@ -96,6 +101,7 @@ public class FloatingActionButtonTest
                 .check(matches(withFabBackgroundFill(Color.GREEN)));
     }
 
+    @SmallTest
     @Test
     public void testSetStatefulTintAcrossStateChanges() {
         final Activity activity = mActivityTestRule.getActivity();
@@ -118,6 +124,7 @@ public class FloatingActionButtonTest
                 .check(matches(withFabBackgroundFill(normal)));
     }
 
+    @SmallTest
     @Test
     public void testDeclaredStatefulTintAcrossStateChanges() {
         final Activity activity = mActivityTestRule.getActivity();
@@ -132,12 +139,14 @@ public class FloatingActionButtonTest
                 .check(matches(withFabBackgroundFill(disabled)));
     }
 
+    @SmallTest
     @Test
     public void setVectorDrawableSrc() {
         onView(withId(R.id.fab_standard))
                 .perform(setImageResource(R.drawable.vector_icon));
     }
 
+    @SmallTest
     @Test
     public void testSetMiniSize() {
         final int miniSize = mActivityTestRule.getActivity().getResources()
@@ -148,6 +157,7 @@ public class FloatingActionButtonTest
                 .check(matches(withFabContentHeight(miniSize)));
     }
 
+    @SmallTest
     @Test
     public void testSetSizeToggle() {
         final int miniSize = mActivityTestRule.getActivity().getResources()
@@ -164,6 +174,7 @@ public class FloatingActionButtonTest
                 .check(matches(withFabContentHeight(normalSize)));
     }
 
+    @SmallTest
     @Test
     public void testOffset() {
         onView(withId(R.id.fab_standard))
@@ -175,6 +186,7 @@ public class FloatingActionButtonTest
                 .check(matches(withFabContentAreaOnMargins(Gravity.RIGHT | Gravity.BOTTOM)));
     }
 
+    @SmallTest
     @Test
     public void testHideShow() {
         onView(withId(R.id.fab_standard))
@@ -183,6 +195,7 @@ public class FloatingActionButtonTest
                 .check(matches(isDisplayed()));
     }
 
+    @MediumTest
     @Test
     public void testShowHide() {
         onView(withId(R.id.fab_standard))
@@ -191,6 +204,7 @@ public class FloatingActionButtonTest
                 .check(matches(not(isDisplayed())));
     }
 
+    @LargeTest
     @Test
     public void testClickableTouchAndDragOffView() {
         onView(withId(R.id.fab_standard))
@@ -232,6 +246,7 @@ public class FloatingActionButtonTest
                 .check(matches(not(isPressed())));
     }
 
+    @MediumTest
     @Test
     public void testOnClickListener() {
         final View.OnClickListener listener = mock(View.OnClickListener.class);
@@ -245,6 +260,7 @@ public class FloatingActionButtonTest
         verify(listener, times(1)).onClick(view);
     }
 
+    @SmallTest
     @Test
     public void testSetCompatElevation() {
         onView(withId(R.id.fab_standard))

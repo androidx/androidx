@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -35,7 +34,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Parcelable;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -63,7 +62,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class GridWidgetTest {
 

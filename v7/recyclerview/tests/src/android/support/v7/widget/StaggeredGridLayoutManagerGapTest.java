@@ -21,7 +21,7 @@ import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_
 import static org.junit.Assert.assertNull;
 
 import android.graphics.Rect;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(Parameterized.class)
-@MediumTest
+@LargeTest
 public class StaggeredGridLayoutManagerGapTest extends BaseStaggeredGridLayoutManagerTest {
     private final Config mConfig;
     private final int mDeletePosition;

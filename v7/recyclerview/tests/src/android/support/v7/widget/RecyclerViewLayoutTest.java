@@ -51,7 +51,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
@@ -82,7 +82,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@LargeTest
 public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest {
     private static final int FLAG_HORIZONTAL = 1;
     private static final int FLAG_VERTICAL = 1 << 1;

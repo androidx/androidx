@@ -697,7 +697,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testSingleChoiceItemsFromRuntimeArray() {
         final String[] content = new String[] { "Alice", "Bob", "Charlie", "Delta" };
         final DialogInterface.OnClickListener mockClickListener =
@@ -711,7 +711,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testSingleChoiceItemsFromResourcesArray() {
         final DialogInterface.OnClickListener mockClickListener =
                 mock(DialogInterface.OnClickListener.class);

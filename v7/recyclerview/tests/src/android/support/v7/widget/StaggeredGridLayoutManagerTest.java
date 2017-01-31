@@ -37,7 +37,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
@@ -58,7 +58,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@MediumTest
+@LargeTest
 public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManagerTest {
     @Test
     public void forceLayoutOnDetach() throws Throwable {

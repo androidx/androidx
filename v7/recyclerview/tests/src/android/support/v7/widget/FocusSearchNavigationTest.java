@@ -30,7 +30,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.recyclerview.test.R;
@@ -57,7 +57,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * This class tests RecyclerView focus search failure handling by using a real LayoutManager.
  */
-@MediumTest
+@LargeTest
 @RunWith(Parameterized.class)
 public class FocusSearchNavigationTest {
     @Rule

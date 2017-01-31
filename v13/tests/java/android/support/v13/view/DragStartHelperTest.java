@@ -33,6 +33,7 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
@@ -52,7 +53,6 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 
 @RequiresApi(13)
-@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class DragStartHelperTest {
 
@@ -166,6 +166,7 @@ public class DragStartHelperTest {
         mDragSource = mActivityRule.getActivity().findViewById(R.id.drag_source);
     }
 
+    @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseClick() throws Throwable {
@@ -180,6 +181,7 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
+    @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mousePressWithSecondaryButton() throws Throwable {
@@ -196,6 +198,7 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
+    @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseDrag() throws Throwable {
@@ -214,6 +217,7 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
+    @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseDragWithNonprimaryButton() throws Throwable {
@@ -233,6 +237,7 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
+    @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseDragUsingTouchListener() throws Throwable {
@@ -258,6 +263,7 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
+    @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseDragWhenListenerReturnsFalse() throws Throwable {
@@ -281,6 +287,7 @@ public class DragStartHelperTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseLongPress() throws Throwable {
@@ -297,6 +304,7 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
+    @SmallTest
     @Test
     public void touchDrag() throws Throwable {
         final DragStartListener listener = createListener(false);
@@ -312,6 +320,7 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
+    @SmallTest
     @Test
     public void touchTap() throws Throwable {
         final DragStartListener listener = createListener(false);
@@ -325,6 +334,7 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
+    @LargeTest
     @Test
     public void touchLongPress() throws Throwable {
         final DragStartListener listener = createListener(true);
@@ -340,6 +350,7 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
+    @LargeTest
     @Test
     public void touchLongPressUsingLongClickListener() throws Throwable {
         final DragStartListener listener = createListener(true);

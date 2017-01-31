@@ -45,6 +45,8 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
+import android.support.test.filters.LargeTest;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -61,7 +63,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
 public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestSupportActivity> {
 
     Context mContext;
@@ -82,6 +83,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
     }
 
     @Test
+    @SmallTest
     @TargetApi(26)
     public void testIsRequestPinShortcutSupported_v26() throws Throwable {
         if (!BuildCompat.isAtLeastO()) {
@@ -99,6 +101,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
     }
 
     @Test
+    @SmallTest
     @TargetApi(26)
     public void testRequestPinShortcut_v26()  throws Throwable {
         if (!BuildCompat.isAtLeastO()) {
@@ -118,6 +121,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
     }
 
     @Test
+    @SmallTest
     @TargetApi(26)
     public void testCreateShortcutResultIntent_v26()  throws Throwable {
         if (!BuildCompat.isAtLeastO()) {
@@ -139,6 +143,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
         assertEquals("test-id", captor.getValue().getId());
     }
 
+    @SmallTest
     @Test
     public void testIsRequestPinShortcutSupported_v4() throws Throwable {
         if (BuildCompat.isAtLeastO()) {
@@ -165,6 +170,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
         assertTrue(ShortcutManagerCompat.isRequestPinShortcutSupported(mContext));
     }
 
+    @LargeTest
     @Test
     public void testRequestPinShortcut_v4_noCallback()  throws Throwable {
         if (BuildCompat.isAtLeastO()) {
@@ -179,6 +185,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
         verifyLegacyIntent(receiver.blockingGetIntent());
     }
 
+    @MediumTest
     @Test
     public void testRequestPinShortcut_v4_withCallback()  throws Throwable {
         if (BuildCompat.isAtLeastO()) {
@@ -199,6 +206,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
         assertNotNull(callback.blockingGetIntent());
     }
 
+    @SmallTest
     @Test
     public void testCreateShortcutResultIntent_v4() throws Throwable {
         if (BuildCompat.isAtLeastO()) {

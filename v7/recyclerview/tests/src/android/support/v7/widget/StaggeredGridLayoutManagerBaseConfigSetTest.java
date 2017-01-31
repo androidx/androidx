@@ -34,7 +34,7 @@ import android.graphics.Rect;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
@@ -50,7 +50,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RunWith(Parameterized.class)
-@MediumTest
+@LargeTest
 public class StaggeredGridLayoutManagerBaseConfigSetTest
         extends BaseStaggeredGridLayoutManagerTest {
 

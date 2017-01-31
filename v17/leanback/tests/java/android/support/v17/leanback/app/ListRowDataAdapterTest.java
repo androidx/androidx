@@ -20,6 +20,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -44,7 +45,6 @@ import java.util.List;
  * Unit test for {@link ListRowDataAdapter} class.
  */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
 public class ListRowDataAdapterTest {
     @Mock
     private PresenterSelector presenterSelector;
@@ -56,6 +56,7 @@ public class ListRowDataAdapterTest {
         MockitoAnnotations.initMocks(this);
     }
 
+    @SmallTest
     @Test
     public void itemRangeChangedTest() {
         int itemCount = 4;
@@ -75,6 +76,7 @@ public class ListRowDataAdapterTest {
         assertEquals(5, listRowDataAdapter.size());
     }
 
+    @SmallTest
     @Test
     public void adapterSize_nonVisibleRowPresent() {
         int itemCount = 4;
@@ -96,6 +98,7 @@ public class ListRowDataAdapterTest {
         assertEquals(5, listRowDataAdapter.size());
     }
 
+    @SmallTest
     @Test
     public void adapterSize_visibleRowInserted() {
         int itemCount = 4;
@@ -119,6 +122,7 @@ public class ListRowDataAdapterTest {
         assertEquals(8, listRowDataAdapter.size());
     }
 
+    @SmallTest
     @Test
     public void adapterSize_nonVisibleRowInserted() {
         int itemCount = 4;
@@ -150,6 +154,7 @@ public class ListRowDataAdapterTest {
         assertEquals(9, listRowDataAdapter.size());
     }
 
+    @SmallTest
     @Test
     public void adapterSize_visibleRowRemoved() {
         int itemCount = 4;
@@ -171,6 +176,7 @@ public class ListRowDataAdapterTest {
         assertEquals(3, listRowDataAdapter.size());
     }
 
+    @MediumTest
     @Test
     public void adapterSize_nonVisibleRowRemoved() {
         int itemCount = 4;
@@ -196,6 +202,7 @@ public class ListRowDataAdapterTest {
         assertEquals(4, listRowDataAdapter.size());
     }
 
+    @SmallTest
     @Test
     public void adapterSize_rowsRemoveAll() {
         ArrayObjectAdapter adapter = new ArrayObjectAdapter(presenterSelector);
@@ -216,6 +223,7 @@ public class ListRowDataAdapterTest {
         assertEquals(1, listRowDataAdapter.size());
     }
 
+    @SmallTest
     @Test
     public void changeRemove_revealInvisibleItems() {
         ArrayObjectAdapter adapter = new ArrayObjectAdapter(presenterSelector);
@@ -238,6 +246,7 @@ public class ListRowDataAdapterTest {
         assertEquals(4, listRowDataAdapter.size());
     }
 
+    @SmallTest
     @Test
     public void adapterSize_rowsRemoved() {
         int itemCount = 4;
@@ -260,6 +269,7 @@ public class ListRowDataAdapterTest {
         assertEquals(3, listRowDataAdapter.size());
     }
 
+    @SmallTest
     @Test
     public void customObjectAdapterTest() {
         int itemCount = 4;

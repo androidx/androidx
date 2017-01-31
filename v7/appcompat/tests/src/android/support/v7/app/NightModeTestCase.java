@@ -27,15 +27,15 @@ import static org.junit.Assert.assertFalse;
 
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.appcompat.test.R;
-import android.test.suitebuilder.annotation.MediumTest;
 
 import org.junit.Before;
 import org.junit.Test;
 
-@MediumTest
+@LargeTest
 @SdkSuppress(minSdkVersion = 14)
 public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActivity> {
 
