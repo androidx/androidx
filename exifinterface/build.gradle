@@ -4,6 +4,9 @@ archivesBaseName = 'exifinterface'
 
 dependencies {
     compile project(':support-annotations')
+    androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
+        exclude module: 'support-annotations'
+    }
 }
 
 android {
@@ -11,12 +14,18 @@ android {
 
     defaultConfig {
         minSdkVersion 9
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDirs = ['src']
-        main.res.srcDir 'res'
+        main.res.srcDirs = ['res']
+
+        androidTest.setRoot('tests')
+        androidTest.java.srcDir 'tests/src'
+        androidTest.res.srcDir 'res'
+        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
     compileOptions {
