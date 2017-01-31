@@ -37,6 +37,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupportActivity> {
+    private static final String TEXT_RESULT_KEY = "text";
+    private static final String DATA_RESULT_KEY = "data";
 
     Context mContext;
 
@@ -65,7 +67,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     @Test
     public void testNotificationActionBuilder_copiesRemoteInputs() throws Throwable {
         NotificationCompat.Action a = newActionBuilder()
-                .addRemoteInput(new RemoteInput("a", "b", null, false, null)).build();
+                .addRemoteInput(new RemoteInput("a", "b", null, false, null, null)).build();
 
         NotificationCompat.Action aCopy = new NotificationCompat.Action.Builder(a).build();
 
@@ -128,7 +130,44 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 .getAllowGeneratedReplies());
     }
 
-    private NotificationCompat.Action.Builder newActionBuilder() {
+    @Test
+    public void testNotificationActionBuilder_setDataOnlyRemoteInput() throws Throwable {
+        NotificationCompat.Action a = newActionBuilder()
+                .addRemoteInput(newDataOnlyRemoteInput()).build();
+        RemoteInput[] textInputs = a.getRemoteInputs();
+        assertTrue(textInputs == null || textInputs.length == 0);
+        verifyRemoteInputArrayHasSingleResult(a.getDataOnlyRemoteInputs(), DATA_RESULT_KEY);
+    }
+
+    @Test
+    public void testNotificationActionBuilder_setTextAndDataOnlyRemoteInput() throws Throwable {
+        NotificationCompat.Action a = newActionBuilder()
+                .addRemoteInput(newDataOnlyRemoteInput())
+                .addRemoteInput(newTextRemoteInput())
+                .build();
+
+        verifyRemoteInputArrayHasSingleResult(a.getRemoteInputs(), TEXT_RESULT_KEY);
+        verifyRemoteInputArrayHasSingleResult(a.getDataOnlyRemoteInputs(), DATA_RESULT_KEY);
+    }
+
+    private static RemoteInput newDataOnlyRemoteInput() {
+        return new RemoteInput.Builder(DATA_RESULT_KEY)
+            .setAllowFreeFormInput(false)
+            .setAllowDataType("mimeType", true)
+            .build();
+    }
+
+    private static RemoteInput newTextRemoteInput() {
+        return new RemoteInput.Builder(TEXT_RESULT_KEY).build();  // allowFreeForm defaults to true
+    }
+
+    private static void verifyRemoteInputArrayHasSingleResult(
+            RemoteInput[] remoteInputs, String expectedResultKey) {
+        assertTrue(remoteInputs != null && remoteInputs.length == 1);
+        assertEquals(expectedResultKey, remoteInputs[0].getResultKey());
+    }
+
+    private static NotificationCompat.Action.Builder newActionBuilder() {
         return new NotificationCompat.Action.Builder(0, "title", null);
     }
 

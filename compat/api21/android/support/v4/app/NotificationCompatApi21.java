@@ -242,6 +242,7 @@ class NotificationCompatApi21 {
                 remoteInput.getLabel(),
                 remoteInput.getChoices(),
                 remoteInput.getAllowFreeFormInput(),
-                remoteInput.getExtras());
+                remoteInput.getExtras(),
+                null /* allowedDataTypes */);
     }
 }

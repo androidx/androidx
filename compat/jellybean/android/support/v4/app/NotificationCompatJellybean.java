@@ -16,7 +16,6 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -40,6 +39,7 @@ class NotificationCompatJellybean {
     static final String EXTRA_LOCAL_ONLY = "android.support.localOnly";
     static final String EXTRA_ACTION_EXTRAS = "android.support.actionExtras";
     static final String EXTRA_REMOTE_INPUTS = "android.support.remoteInputs";
+    static final String EXTRA_DATA_ONLY_REMOTE_INPUTS = "android.support.dataRemoteInputs";
     static final String EXTRA_GROUP_KEY = "android.support.groupKey";
     static final String EXTRA_GROUP_SUMMARY = "android.support.isGroupSummary";
     static final String EXTRA_SORT_KEY = "android.support.sortKey";
@@ -52,6 +52,7 @@ class NotificationCompatJellybean {
     private static final String KEY_ACTION_INTENT = "actionIntent";
     private static final String KEY_EXTRAS = "extras";
     private static final String KEY_REMOTE_INPUTS = "remoteInputs";
+    private static final String KEY_DATA_ONLY_REMOTE_INPUTS = "dataOnlyRemoteInputs";
     private static final String KEY_ALLOW_GENERATED_REPLIES = "allowGeneratedReplies";
 
     private static final Object sExtrasLock = new Object();
@@ -261,15 +262,19 @@ class NotificationCompatJellybean {
             RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory, int icon,
             CharSequence title, PendingIntent actionIntent, Bundle extras) {
         RemoteInputCompatBase.RemoteInput[] remoteInputs = null;
+        RemoteInputCompatBase.RemoteInput[] dataOnlyRemoteInputs = null;
         boolean allowGeneratedReplies = false;
         if (extras != null) {
             remoteInputs = RemoteInputCompatJellybean.fromBundleArray(
                     BundleUtil.getBundleArrayFromBundle(extras, EXTRA_REMOTE_INPUTS),
                     remoteInputFactory);
+            dataOnlyRemoteInputs = RemoteInputCompatJellybean.fromBundleArray(
+                    BundleUtil.getBundleArrayFromBundle(extras, EXTRA_DATA_ONLY_REMOTE_INPUTS),
+                    remoteInputFactory);
             allowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES);
         }
         return factory.build(icon, title, actionIntent, extras, remoteInputs,
-                allowGeneratedReplies);
+                dataOnlyRemoteInputs, allowGeneratedReplies);
     }
 
     public static Bundle writeActionAndGetExtras(
@@ -279,6 +284,10 @@ class NotificationCompatJellybean {
         if (action.getRemoteInputs() != null) {
             actionExtras.putParcelableArray(EXTRA_REMOTE_INPUTS,
                     RemoteInputCompatJellybean.toBundleArray(action.getRemoteInputs()));
+        }
+        if (action.getDataOnlyRemoteInputs() != null) {
+            actionExtras.putParcelableArray(EXTRA_DATA_ONLY_REMOTE_INPUTS,
+                    RemoteInputCompatJellybean.toBundleArray(action.getDataOnlyRemoteInputs()));
         }
         actionExtras.putBoolean(EXTRA_ALLOW_GENERATED_REPLIES,
                 action.getAllowGeneratedReplies());
@@ -391,7 +400,11 @@ class NotificationCompatJellybean {
                 bundle.getBundle(KEY_EXTRAS),
                 RemoteInputCompatJellybean.fromBundleArray(
                         BundleUtil.getBundleArrayFromBundle(bundle, KEY_REMOTE_INPUTS),
-                        remoteInputFactory), allowGeneratedReplies);
+                        remoteInputFactory),
+                RemoteInputCompatJellybean.fromBundleArray(
+                        BundleUtil.getBundleArrayFromBundle(bundle, KEY_DATA_ONLY_REMOTE_INPUTS),
+                        remoteInputFactory),
+                allowGeneratedReplies);
     }
 
     public static ArrayList<Parcelable> getParcelableArrayListForActions(
