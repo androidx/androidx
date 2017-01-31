@@ -129,6 +129,31 @@ public class TransitionSet extends Transition {
     }
 
     /**
+     * Returns the number of child transitions in the TransitionSet.
+     *
+     * @return The number of child transitions in the TransitionSet.
+     * @see #addTransition(Transition)
+     * @see #getTransitionAt(int)
+     */
+    public int getTransitionCount() {
+        return mTransitions.size();
+    }
+
+    /**
+     * Returns the child Transition at the specified position in the TransitionSet.
+     *
+     * @param index The position of the Transition to retrieve.
+     * @see #addTransition(Transition)
+     * @see #getTransitionCount()
+     */
+    public Transition getTransitionAt(int index) {
+        if (index < 0 || index >= mTransitions.size()) {
+            return null;
+        }
+        return mTransitions.get(index);
+    }
+
+    /**
      * Setting a non-negative duration on a TransitionSet causes all of the child
      * transitions (current and future) to inherit this duration.
      *
@@ -180,6 +205,24 @@ public class TransitionSet extends Transition {
 
     @NonNull
     @Override
+    public TransitionSet addTarget(@NonNull String targetName) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).addTarget(targetName);
+        }
+        return (TransitionSet) super.addTarget(targetName);
+    }
+
+    @NonNull
+    @Override
+    public TransitionSet addTarget(@NonNull Class targetType) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).addTarget(targetType);
+        }
+        return (TransitionSet) super.addTarget(targetType);
+    }
+
+    @NonNull
+    @Override
     public TransitionSet addListener(@NonNull TransitionListener listener) {
         return (TransitionSet) super.addListener(listener);
     }
@@ -200,6 +243,60 @@ public class TransitionSet extends Transition {
             mTransitions.get(i).removeTarget(target);
         }
         return (TransitionSet) super.removeTarget(target);
+    }
+
+    @NonNull
+    @Override
+    public TransitionSet removeTarget(@NonNull Class target) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).removeTarget(target);
+        }
+        return (TransitionSet) super.removeTarget(target);
+    }
+
+    @NonNull
+    @Override
+    public TransitionSet removeTarget(@NonNull String target) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).removeTarget(target);
+        }
+        return (TransitionSet) super.removeTarget(target);
+    }
+
+    @NonNull
+    @Override
+    public Transition excludeTarget(@NonNull View target, boolean exclude) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).excludeTarget(target, exclude);
+        }
+        return super.excludeTarget(target, exclude);
+    }
+
+    @NonNull
+    @Override
+    public Transition excludeTarget(@NonNull String targetName, boolean exclude) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).excludeTarget(targetName, exclude);
+        }
+        return super.excludeTarget(targetName, exclude);
+    }
+
+    @NonNull
+    @Override
+    public Transition excludeTarget(int targetId, boolean exclude) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).excludeTarget(targetId, exclude);
+        }
+        return super.excludeTarget(targetId, exclude);
+    }
+
+    @NonNull
+    @Override
+    public Transition excludeTarget(@NonNull Class type, boolean exclude) {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            mTransitions.get(i).excludeTarget(type, exclude);
+        }
+        return super.excludeTarget(type, exclude);
     }
 
     @NonNull
