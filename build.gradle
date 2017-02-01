@@ -63,9 +63,9 @@ if (file(fullSdkPath).exists()) {
     File props = file("local.properties")
     props.write "sdk.dir=${fullSdkPath}"
 } else {
-    gradle.ext.currentSdk = 'current'
+    gradle.ext.currentSdk = 25
     ext.buildToolsVersion = '24.0.1'
-    project.ext.androidJar = files("${project.rootDir}/../../prebuilts/sdk/current/android.jar")
+    project.ext.androidJar = files("${project.rootDir}/../../prebuilts/sdk/${gradle.ext.currentSdk}/android.jar")
     File props = file("local.properties")
     props.write "android.dir=../../"
 }
