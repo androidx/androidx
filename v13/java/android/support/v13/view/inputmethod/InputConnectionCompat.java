@@ -16,12 +16,14 @@
 
 package android.support.v13.view.inputmethod;
 
+import android.annotation.TargetApi;
 import android.content.ClipDescription;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 import android.view.inputmethod.EditorInfo;
@@ -32,6 +34,8 @@ import android.view.inputmethod.InputConnectionWrapper;
  * Helper for accessing features in {@link InputConnection} introduced after API level 13 in a
  * backwards compatible fashion.
  */
+@RequiresApi(13)
+@TargetApi(13)
 public final class InputConnectionCompat {
 
     private interface InputConnectionCompatImpl {

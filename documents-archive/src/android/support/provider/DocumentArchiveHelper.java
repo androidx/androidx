@@ -16,11 +16,11 @@
 
 package android.support.provider;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.res.AssetFileDescriptor;
-import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.CancellationSignal;
@@ -36,14 +36,8 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Provides basic implementation for creating, extracting and accessing
@@ -55,7 +49,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * TODO: Update the documentation. b/26047732
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class DocumentArchiveHelper implements Closeable {
     /**
      * Cursor column to be used for passing the local file path for documents.

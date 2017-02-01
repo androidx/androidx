@@ -15,10 +15,19 @@
  */
 package android.support.v7.widget;
 
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+
+import static org.junit.Assert.assertEquals;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.content.Context;
 import android.graphics.Rect;
 import android.view.View;
-import android.view.ViewGroup;
+
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -26,14 +35,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 
 public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
@@ -128,12 +129,12 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
 
         @Override
         public String toString() {
-            return "Config{" +
-                    "mSpanCount=" + mSpanCount +
-                    ", mOrientation=" + (mOrientation == GridLayoutManager.HORIZONTAL ? "h" : "v") +
-                    ", mItemCount=" + mItemCount +
-                    ", mReverseLayout=" + mReverseLayout +
-                    '}';
+            return "Config{"
+                    + "mSpanCount=" + mSpanCount
+                    + ",mOrientation=" + (mOrientation == GridLayoutManager.HORIZONTAL ? "h" : "v")
+                    + ",mItemCount=" + mItemCount
+                    + ",mReverseLayout=" + mReverseLayout
+                    + '}';
         }
 
         public Config reverseLayout(boolean reverseLayout) {
@@ -317,9 +318,10 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
         }
 
         @Override
-        int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+        public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
+                LayoutPrefetchRegistry layoutPrefetchRegistry) {
             if (prefetchLatch != null) prefetchLatch.countDown();
-            return super.gatherPrefetchIndices(dx, dy, state, outIndices);
+            super.collectAdjacentPrefetchPositions(dx, dy, state, layoutPrefetchRegistry);
         }
     }
 

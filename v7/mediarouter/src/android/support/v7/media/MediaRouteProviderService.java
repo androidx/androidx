@@ -16,6 +16,35 @@
 
 package android.support.v7.media;
 
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_ID;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_LIBRARY_GROUP;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_DATA_UNSELECT_REASON;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_DATA_VOLUME;
+import static android.support.v7.media.MediaRouteProviderProtocol
+        .CLIENT_MSG_CREATE_ROUTE_CONTROLLER;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_MSG_REGISTER;
+import static android.support.v7.media.MediaRouteProviderProtocol
+        .CLIENT_MSG_RELEASE_ROUTE_CONTROLLER;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_MSG_ROUTE_CONTROL_REQUEST;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_MSG_SELECT_ROUTE;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_MSG_SET_DISCOVERY_REQUEST;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_MSG_SET_ROUTE_VOLUME;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_MSG_UNREGISTER;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_MSG_UNSELECT_ROUTE;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_MSG_UPDATE_ROUTE_VOLUME;
+import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_VERSION_1;
+import static android.support.v7.media.MediaRouteProviderProtocol.SERVICE_DATA_ERROR;
+import static android.support.v7.media.MediaRouteProviderProtocol
+        .SERVICE_MSG_CONTROL_REQUEST_FAILED;
+import static android.support.v7.media.MediaRouteProviderProtocol
+        .SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED;
+import static android.support.v7.media.MediaRouteProviderProtocol.SERVICE_MSG_DESCRIPTOR_CHANGED;
+import static android.support.v7.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_FAILURE;
+import static android.support.v7.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_SUCCESS;
+import static android.support.v7.media.MediaRouteProviderProtocol.SERVICE_MSG_REGISTERED;
+import static android.support.v7.media.MediaRouteProviderProtocol.SERVICE_VERSION_CURRENT;
+import static android.support.v7.media.MediaRouteProviderProtocol.isValidRemoteMessenger;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,8 +61,6 @@ import android.util.SparseArray;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.v7.media.MediaRouteProviderProtocol.*;
 
 /**
  * Base class for media route provider services.
@@ -663,7 +690,7 @@ public abstract class MediaRouteProviderService extends Service {
 
                     case CLIENT_MSG_CREATE_ROUTE_CONTROLLER: {
                         String routeId = data.getString(CLIENT_DATA_ROUTE_ID);
-                        String routeGroupId = data.getString(CLIENT_DATA_ROUTE_GROUP_ID);
+                        String routeGroupId = data.getString(CLIENT_DATA_ROUTE_LIBRARY_GROUP);
                         if (routeId != null) {
                             return service.onCreateRouteController(
                                     messenger, requestId, arg, routeId, routeGroupId);

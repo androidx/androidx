@@ -16,13 +16,17 @@
 
 package android.support.v7.app;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.support.annotation.RequiresApi;
 import android.view.KeyboardShortcutGroup;
 import android.view.Menu;
 import android.view.Window;
 
 import java.util.List;
 
+@RequiresApi(24)
+@TargetApi(24)
 class AppCompatDelegateImplN extends AppCompatDelegateImplV23 {
 
     AppCompatDelegateImplN(Context context, Window window, AppCompatCallback callback) {

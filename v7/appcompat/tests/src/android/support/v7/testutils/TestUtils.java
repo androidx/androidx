@@ -16,7 +16,6 @@
 
 package android.support.v7.testutils;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -25,10 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
-import android.support.test.InstrumentationRegistry;
 import android.support.v4.util.Pair;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.TintTypedArray;
 import android.view.View;
 import android.view.ViewParent;
@@ -173,6 +169,36 @@ public class TestUtils {
     }
 
     /**
+     * Checks whether the center pixel in the specified drawable is of the same specified color.
+     *
+     * In case there is a color mismatch, the behavior of this method depends on the
+     * <code>throwExceptionIfFails</code> parameter. If it is <code>true</code>, this method will
+     * throw an <code>Exception</code> describing the mismatch. Otherwise this method will call
+     * <code>Assert.fail</code> with detailed description of the mismatch.
+     */
+    public static void assertCenterPixelOfColor(String failMessagePrefix, @NonNull Drawable drawable,
+            int drawableWidth, int drawableHeight, boolean callSetBounds, @ColorInt int color,
+            int allowedComponentVariance, boolean throwExceptionIfFails) {
+        // Create a bitmap
+        Bitmap bitmap = Bitmap.createBitmap(drawableWidth, drawableHeight, Bitmap.Config.ARGB_8888);
+        // Create a canvas that wraps the bitmap
+        Canvas canvas = new Canvas(bitmap);
+        if (callSetBounds) {
+            // Configure the drawable to have bounds that match the passed size
+            drawable.setBounds(0, 0, drawableWidth, drawableHeight);
+        }
+        // And ask the drawable to draw itself to the canvas / bitmap
+        drawable.draw(canvas);
+
+        try {
+            assertCenterPixelOfColor(failMessagePrefix, bitmap, color, allowedComponentVariance,
+                    throwExceptionIfFails);
+        } finally {
+            bitmap.recycle();
+        }
+    }
+
+    /**
      * Checks whether the center pixel in the specified bitmap is of the same specified color.
      *
      * In case there is a color mismatch, the behavior of this method depends on the
@@ -181,8 +207,7 @@ public class TestUtils {
      * <code>Assert.fail</code> with detailed description of the mismatch.
      */
     public static void assertCenterPixelOfColor(String failMessagePrefix, @NonNull Bitmap bitmap,
-            @ColorInt int color,
-            int allowedComponentVariance, boolean throwExceptionIfFails) {
+            @ColorInt int color, int allowedComponentVariance, boolean throwExceptionIfFails) {
         final int centerX = bitmap.getWidth() / 2;
         final int centerY = bitmap.getHeight() / 2;
         final @ColorInt int colorAtCenterPixel = bitmap.getPixel(centerX, centerY);
@@ -253,17 +278,5 @@ public class TestUtils {
         } finally {
             a.recycle();
         }
-    }
-
-    public static void setLocalNightModeAndWaitForRecreate(final AppCompatActivity activity,
-            @AppCompatDelegate.NightMode final int nightMode) {
-        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        instrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                activity.getDelegate().setLocalNightMode(nightMode);
-            }
-        });
-        instrumentation.waitForIdleSync();
     }
 }

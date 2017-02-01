@@ -16,12 +16,12 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.v7.view.menu.MenuBuilder;
 import android.view.MenuItem;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * An interface notified when a menu item is hovered. Useful for cases when hover should trigger
@@ -29,7 +29,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public interface MenuItemHoverListener {
     /**
      * Called when hover exits a menu item.

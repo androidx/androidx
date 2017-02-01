@@ -18,9 +18,11 @@
 <!-- Layout used by SwitchPreference for the switch widget style. This is inflated
      inside android.R.layout.preference. -->
 <Switch xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/switch_widget"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:focusable="false"
-    android:clickable="false"
-    android:background="@null" />
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:ignore="NewApi"
+        android:id="@android:id/switch_widget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:clickable="false"
+        android:background="@null" />

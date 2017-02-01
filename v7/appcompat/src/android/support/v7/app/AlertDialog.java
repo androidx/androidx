@@ -16,6 +16,8 @@
 
 package android.support.v7.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -36,13 +38,10 @@ import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A subclass of Dialog that can display one, two or three buttons. If you only want to
@@ -56,8 +55,8 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  * </pre>
  *
  * <p>The AlertDialog class takes care of automatically setting
- * {@link WindowManager.LayoutParams#FLAG_ALT_FOCUSABLE_IM
- * WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM} for you based on whether
+ * {@link android.view.WindowManager.LayoutParams#FLAG_ALT_FOCUSABLE_IM
+ * android.view.WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM} for you based on whether
  * any views in the dialog return true from {@link View#onCheckIsTextEditor()
  * View.onCheckIsTextEditor()}.  Generally you want this set for a Dialog
  * without text editors, so that it will be placed on top of the current
@@ -876,7 +875,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * be able to put padding around the view.
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         @Deprecated
         public Builder setView(View view, int viewSpacingLeft, int viewSpacingTop,
                 int viewSpacingRight, int viewSpacingBottom) {
@@ -909,7 +908,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         /**
          * @hide
          */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         public Builder setRecycleOnMeasureEnabled(boolean enabled) {
             P.mRecycleOnMeasure = enabled;
             return this;

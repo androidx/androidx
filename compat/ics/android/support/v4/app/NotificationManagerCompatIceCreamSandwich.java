@@ -17,7 +17,11 @@
 package android.support.v4.app;
 
 import android.app.Service;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(14)
+@TargetApi(14)
 class NotificationManagerCompatIceCreamSandwich {
     static final int SIDE_CHANNEL_BIND_FLAGS = Service.BIND_AUTO_CREATE
             | Service.BIND_WAIVE_PRIORITY;

@@ -18,11 +18,16 @@ package android.support.v7.widget;
 
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.app.Instrumentation;
 import android.graphics.Rect;
@@ -31,6 +36,7 @@ import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.recyclerview.test.R;
 import android.support.v7.recyclerview.test.SameActivityTestRule;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +44,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -49,12 +61,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
-import android.support.v7.recyclerview.test.R;
-
-import static org.junit.Assert.*;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 abstract public class BaseRecyclerViewInstrumentationTest {
 
@@ -114,7 +120,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
     void setHasTransientState(final View view, final boolean value) {
         try {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     ViewCompat.setHasTransientState(view, value);
@@ -136,7 +142,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     }
 
     void setAdapter(final RecyclerView.Adapter adapter) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.setAdapter(adapter);
@@ -147,7 +153,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     public View focusSearch(final View focused, final int direction)
             throws Throwable {
         final View[] result = new View[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 View view = focused.focusSearch(direction);
@@ -168,7 +174,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
     void swapAdapter(final RecyclerView.Adapter adapter,
             final boolean removeAndRecycleExistingViews) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -244,7 +250,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         if (!isMainThread()) {
             getInstrumentation().waitForIdleSync();
         }
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -267,7 +273,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
     void waitForAnimations(int seconds) throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.mItemAnimator
@@ -286,7 +292,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
     public void waitForIdleScroll(final RecyclerView recyclerView) throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 RecyclerView.OnScrollListener listener = new RecyclerView.OnScrollListener() {
@@ -310,16 +316,12 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
     public boolean requestFocus(final View view, boolean waitForScroll) throws Throwable {
         final boolean[] result = new boolean[1];
-        try {
-            runTestOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    result[0] = view.requestFocus();
-                }
-            });
-        } catch (Throwable throwable) {
-            fail(throwable.getMessage());
-        }
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                result[0] = view.requestFocus();
+            }
+        });
         if (waitForScroll && result[0]) {
             waitForIdleScroll(mRecyclerView);
         }
@@ -375,7 +377,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             });
         }
         mAdapterHelper = recyclerView.mAdapterHelper;
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 getActivity().getContainer().addView(recyclerView);
@@ -387,58 +389,46 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         return getActivity().getContainer();
     }
 
-    public void requestLayoutOnUIThread(final View view) {
-        try {
-            runTestOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    view.requestLayout();
-                }
-            });
-        } catch (Throwable throwable) {
-            Log.e(TAG, "", throwable);
-        }
+    protected void requestLayoutOnUIThread(final View view) throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                view.requestLayout();
+            }
+        });
     }
 
-    public void scrollBy(final int dt) {
-        try {
-            runTestOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mRecyclerView.getLayoutManager().canScrollHorizontally()) {
-                        mRecyclerView.scrollBy(dt, 0);
-                    } else {
-                        mRecyclerView.scrollBy(0, dt);
-                    }
-
+    protected void scrollBy(final int dt) throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mRecyclerView.getLayoutManager().canScrollHorizontally()) {
+                    mRecyclerView.scrollBy(dt, 0);
+                } else {
+                    mRecyclerView.scrollBy(0, dt);
                 }
-            });
-        } catch (Throwable throwable) {
-            Log.e(TAG, "", throwable);
-        }
+
+            }
+        });
     }
 
-    public void smoothScrollBy(final int dt) {
-        try {
-            runTestOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mRecyclerView.getLayoutManager().canScrollHorizontally()) {
-                        mRecyclerView.smoothScrollBy(dt, 0);
-                    } else {
-                        mRecyclerView.smoothScrollBy(0, dt);
-                    }
-
+    protected void smoothScrollBy(final int dt) throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mRecyclerView.getLayoutManager().canScrollHorizontally()) {
+                    mRecyclerView.smoothScrollBy(dt, 0);
+                } else {
+                    mRecyclerView.smoothScrollBy(0, dt);
                 }
-            });
-        } catch (Throwable throwable) {
-            Log.e(TAG, "", throwable);
-        }
+
+            }
+        });
         getInstrumentation().waitForIdleSync();
     }
 
     void scrollToPosition(final int position) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.getLayoutManager().scrollToPosition(position);
@@ -468,7 +458,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                     }
                 };
         final AtomicBoolean addedListener = new AtomicBoolean(false);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 RecyclerView.ViewHolder viewHolderForAdapterPosition =
@@ -482,7 +472,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
             }
         });
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.smoothScrollToPosition(position);
@@ -497,7 +487,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             Log.d(TAG, "SMOOTH scrolling done");
         }
         if (addedListener.get()) {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     mRecyclerView.removeOnChildAttachStateChangeListener(listener);
@@ -508,7 +498,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     }
 
     void freezeLayout(final boolean freeze) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.setLayoutFrozen(freeze);
@@ -517,7 +507,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     }
 
     public void setVisibility(final View view, final int visibility) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 view.setVisibility(visibility);
@@ -769,10 +759,20 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
         final String mText;
         int mType = 0;
+        boolean mFocusable;
 
         Item(int adapterIndex, String text) {
             mAdapterIndex = adapterIndex;
             mText = text;
+            mFocusable = true;
+        }
+
+        public boolean isFocusable() {
+            return mFocusable;
+        }
+
+        public void setFocusable(boolean mFocusable) {
+            this.mFocusable = mFocusable;
         }
 
         @Override
@@ -895,7 +895,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             for (int[] tuple : startCountTuples) {
                 tuple[1] = -tuple[1];
             }
-            new AddRemoveRunnable(startCountTuples).runOnMainThread();
+            mActivityRule.runOnUiThread(new AddRemoveRunnable(startCountTuples));
         }
 
         @Override
@@ -922,7 +922,8 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
         public void addAndNotify(final int count) throws Throwable {
             assertEquals(0, mItems.size());
-            new AddRemoveRunnable(DEFAULT_ITEM_PREFIX, new int[]{0, count}).runOnMainThread();
+            mActivityRule.runOnUiThread(
+                    new AddRemoveRunnable(DEFAULT_ITEM_PREFIX, new int[]{0, count}));
         }
 
         public void resetItemsTo(final List<Item> testItems) throws Throwable {
@@ -930,7 +931,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                 deleteAndNotify(0, mItems.size());
             }
             mItems = testItems;
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     notifyItemRangeInserted(0, testItems.size());
@@ -943,11 +944,11 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
 
         public void addAndNotify(final int[]... startCountTuples) throws Throwable {
-            new AddRemoveRunnable(startCountTuples).runOnMainThread();
+            mActivityRule.runOnUiThread(new AddRemoveRunnable(startCountTuples));
         }
 
         public void dispatchDataSetChanged() throws Throwable {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     notifyDataSetChanged();
@@ -956,7 +957,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
 
         public void changeAndNotify(final int start, final int count) throws Throwable {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     notifyItemRangeChanged(start, count);
@@ -966,7 +967,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
         public void changeAndNotifyWithPayload(final int start, final int count,
                 final Object payload) throws Throwable {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     notifyItemRangeChanged(start, count, payload);
@@ -975,7 +976,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
 
         public void changePositionsAndNotify(final int... positions) throws Throwable {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     for (int i = 0; i < positions.length; i += 1) {
@@ -992,7 +993,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
          * item to index 1, then remove an item from index 2 (updated index 2)
          */
         public void addDeleteAndNotify(final int[]... startCountTuples) throws Throwable {
-            new AddRemoveRunnable(startCountTuples).runOnMainThread();
+            mActivityRule.runOnUiThread(new AddRemoveRunnable(startCountTuples));
         }
 
         @Override
@@ -1018,7 +1019,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
          */
         public void moveItem(final int from, final int to, final boolean notifyChange)
                 throws Throwable {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     moveInUIThread(from, to);
@@ -1033,7 +1034,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
          * Uses notifyItemMoved
          */
         public void moveAndNotify(final int from, final int to) throws Throwable {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     moveInUIThread(from, to);
@@ -1076,14 +1077,6 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                 this("new item ", startCountTuples);
             }
 
-            public void runOnMainThread() throws Throwable {
-                if (Looper.myLooper() == Looper.getMainLooper()) {
-                    run();
-                } else {
-                    runTestOnUiThread(this);
-                }
-            }
-
             @Override
             public void run() {
                 for (int[] tuple : mStartCountTuples) {
@@ -1115,24 +1108,6 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
     public boolean isMainThread() {
         return Looper.myLooper() == Looper.getMainLooper();
-    }
-
-    public void runTestOnUiThread(final Runnable r) throws Throwable {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            r.run();
-        } else {
-            InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        r.run();
-                    } catch (Throwable t) {
-                        postExceptionToInstrumentation(t);
-                    }
-                }
-            });
-            checkForMainThreadException();
-        }
     }
 
     static class TargetTuple {

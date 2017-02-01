@@ -16,19 +16,27 @@
 
 package android.support.v4.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
+@RequiresApi(9)
+@TargetApi(9)
 public class NotificationCompatBase {
+    private static Method sSetLatestEventInfo;
 
     public static abstract class Action {
         public abstract int getIcon();
@@ -66,7 +74,26 @@ public class NotificationCompatBase {
     public static Notification add(Notification notification, Context context,
             CharSequence contentTitle, CharSequence contentText, PendingIntent contentIntent,
             PendingIntent fullScreenIntent) {
-        notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+        if (sSetLatestEventInfo == null) {
+            try {
+                sSetLatestEventInfo = Notification.class.getMethod("setLatestEventInfo",
+                        Context.class, CharSequence.class, CharSequence.class, PendingIntent.class);
+            } catch (NoSuchMethodException e) {
+                // This method was @removed, so it must exist on later
+                // versions even if it's not in public API.
+                throw new RuntimeException(e);
+            }
+        }
+
+        try {
+            sSetLatestEventInfo.invoke(notification, context,
+                    contentTitle, contentText, contentIntent);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            // This method was @removed, so it must be invokable on later
+            // versions even if it's not in public API.
+            throw new RuntimeException(e);
+        }
+
         notification.fullScreenIntent = fullScreenIntent;
         return notification;
     }

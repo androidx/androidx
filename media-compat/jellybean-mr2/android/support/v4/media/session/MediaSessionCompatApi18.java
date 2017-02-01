@@ -15,14 +15,18 @@
  */
 package android.support.v4.media.session;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.RemoteControlClient;
-import android.util.Log;
 import android.os.SystemClock;
+import android.support.annotation.RequiresApi;
+import android.util.Log;
 
+@RequiresApi(18)
+@TargetApi(18)
 class MediaSessionCompatApi18 {
     private static final String TAG = "MediaSessionCompatApi18";
 

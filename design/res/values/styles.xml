@@ -14,7 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Widget.Design.FloatingActionButton" parent="android:Widget">
         <item name="android:background">@drawable/design_fab_background</item>
@@ -44,6 +44,7 @@
 
     <style name="Widget.Design.BottomNavigationView" parent="">
         <item name="itemBackground">?attr/selectableItemBackgroundBorderless</item>
+        <item name="elevation">@dimen/design_bottom_navigation_elevation</item>
     </style>
 
     <style name="Base.Widget.Design.TabLayout" parent="android:Widget">
@@ -68,8 +69,9 @@
         <item name="errorTextAppearance">@style/TextAppearance.Design.Error</item>
         <item name="counterTextAppearance">@style/TextAppearance.Design.Counter</item>
         <item name="counterOverflowTextAppearance">@style/TextAppearance.Design.Counter.Overflow</item>
-        <item name="passwordToggleDrawable">@drawable/design_ic_visibility</item>
+        <item name="passwordToggleDrawable">@drawable/design_password_eye</item>
         <item name="passwordToggleTint">@color/design_tint_password_toggle</item>
+        <item name="passwordToggleContentDescription">@string/password_toggle_content_description</item>
     </style>
 
     <style name="TextAppearance.Design.Hint" parent="TextAppearance.AppCompat.Caption">
@@ -128,7 +130,7 @@
 
     <style name="Widget.Design.BottomSheet.Modal" parent="android:Widget">
         <item name="android:background">?android:attr/colorBackground</item>
-        <item name="android:elevation">@dimen/design_bottom_sheet_modal_elevation</item>
+        <item tools:ignore="NewApi" name="android:elevation">@dimen/design_bottom_sheet_modal_elevation</item>
         <item name="behavior_peekHeight">auto</item>
         <item name="behavior_hideable">true</item>
         <item name="behavior_skipCollapsed">false</item>

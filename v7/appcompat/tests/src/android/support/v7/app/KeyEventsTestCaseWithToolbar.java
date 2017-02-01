@@ -16,8 +16,8 @@
 
 package android.support.v7.app;
 
-public class KeyEventsTestCaseWithToolbar extends BaseKeyEventsTestCase<ToolbarActionBarActivity> {
+public class KeyEventsTestCaseWithToolbar extends BaseKeyEventsTestCase<ToolbarAppCompatActivity> {
     public KeyEventsTestCaseWithToolbar() {
-        super(ToolbarActionBarActivity.class);
+        super(ToolbarAppCompatActivity.class);
     }
 }

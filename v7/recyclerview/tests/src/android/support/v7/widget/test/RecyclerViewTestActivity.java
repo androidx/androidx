@@ -16,11 +16,7 @@
 
 package android.support.v7.widget.test;
 
-
 import android.app.Activity;
-import android.content.Context;
-import android.support.v7.widget.LinearLayoutManager;
-import android.util.AttributeSet;
 
 public class RecyclerViewTestActivity extends Activity {
 

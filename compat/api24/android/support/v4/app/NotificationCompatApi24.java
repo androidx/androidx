@@ -23,11 +23,15 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiresApi(24)
+@TargetApi(24)
 class NotificationCompatApi24 {
 
     public static final String CATEGORY_CALL = Notification.CATEGORY_CALL;

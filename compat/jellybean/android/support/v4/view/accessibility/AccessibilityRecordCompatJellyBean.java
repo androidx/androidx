@@ -16,12 +16,17 @@
 
 package android.support.v4.view.accessibility;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.View;
 import android.view.accessibility.AccessibilityRecord;
 
 /**
  * JellyBean specific AccessibilityRecord API implementation.
  */
+
+@RequiresApi(16)
+@TargetApi(16)
 class AccessibilityRecordCompatJellyBean {
 
     public static void setSource(Object record, View root, int virtualDescendantId) {

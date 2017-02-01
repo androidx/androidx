@@ -16,6 +16,7 @@
 
 package android.support.v4.view;
 
+import android.os.Build;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.util.Log;
 import android.view.MenuItem;
@@ -244,10 +245,9 @@ public final class MenuItemCompat {
      */
     static final MenuVersionImpl IMPL;
     static {
-        final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 14) {
+        if (Build.VERSION.SDK_INT >= 14) {
             IMPL = new IcsMenuVersionImpl();
-        } else if (version >= 11) {
+        } else if (Build.VERSION.SDK_INT >= 11) {
             IMPL = new HoneycombMenuVersionImpl();
         } else {
             IMPL = new BaseMenuVersionImpl();

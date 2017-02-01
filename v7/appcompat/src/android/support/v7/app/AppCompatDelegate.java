@@ -16,6 +16,8 @@
 
 package android.support.v7.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -43,8 +45,6 @@ import android.view.Window;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * This class represents a delegate which you can use to extend AppCompat's support to any
@@ -133,7 +133,7 @@ public abstract class AppCompatDelegate {
     private static boolean sCompatVectorFromResourcesEnabled = false;
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO, MODE_NIGHT_FOLLOW_SYSTEM,
             MODE_NIGHT_UNSPECIFIED})
     @Retention(RetentionPolicy.SOURCE)

@@ -19,6 +19,7 @@ package com.example.android.supportv7.widget;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.android.supportv7.R;
@@ -29,6 +30,8 @@ import com.example.android.supportv7.widget.util.ConfigToggle;
  */
 public class LinearLayoutManagerActivity extends BaseLayoutManagerActivity<LinearLayoutManager> {
     private DividerItemDecoration mDividerItemDecoration;
+    private LinearSnapHelper mLinearSnapHelper;
+    private boolean mSnapHelperAttached;
 
     @Override
     protected LinearLayoutManager createLayoutManager() {
@@ -39,6 +42,7 @@ public class LinearLayoutManagerActivity extends BaseLayoutManagerActivity<Linea
     protected void onRecyclerViewInit(RecyclerView recyclerView) {
         mDividerItemDecoration = new DividerItemDecoration(this, mLayoutManager.getOrientation());
         recyclerView.addItemDecoration(mDividerItemDecoration);
+        mLinearSnapHelper = new LinearSnapHelper();
     }
 
     @Override
@@ -93,6 +97,18 @@ public class LinearLayoutManagerActivity extends BaseLayoutManagerActivity<Linea
                     @Override
                     public void onChange(boolean newValue) {
                         mLayoutManager.setStackFromEnd(newValue);
+                    }
+                },
+                new ConfigToggle(this, R.string.checkbox_snap) {
+                    @Override
+                    public boolean isChecked() {
+                        return mSnapHelperAttached;
+                    }
+
+                    @Override
+                    public void onChange(boolean newValue) {
+                        mLinearSnapHelper.attachToRecyclerView(newValue ? mRecyclerView : null);
+                        mSnapHelperAttached = newValue;
                     }
                 }
         };

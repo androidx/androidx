@@ -243,8 +243,8 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter implements FacetProv
 
     @Override
     public int getItemViewType(int position) {
-        PresenterSelector presenterSelector = mPresenterSelector != null ?
-                mPresenterSelector : mAdapter.getPresenterSelector();
+        PresenterSelector presenterSelector = mPresenterSelector != null
+                ? mPresenterSelector : mAdapter.getPresenterSelector();
         Object item = mAdapter.get(position);
         Presenter presenter = presenterSelector.getPresenter(item);
         int type = mPresenters.indexOf(presenter);

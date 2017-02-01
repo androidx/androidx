@@ -16,11 +16,16 @@
 
 package android.support.v4.view.accessibility;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 /**
  * Api24-specific AccessibilityNodeInfo API implementation.
  */
+
+@RequiresApi(24)
+@TargetApi(24)
 class AccessibilityNodeInfoCompatApi24 {
     public static Object getActionSetProgress() {
         return AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_PROGRESS;

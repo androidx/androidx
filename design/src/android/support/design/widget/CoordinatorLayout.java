@@ -16,6 +16,9 @@
 
 package android.support.design.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.design.widget.ViewUtils.objectEquals;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -44,6 +47,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
+import android.support.v4.util.Pools;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -71,9 +75,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-import static android.support.design.widget.ViewUtils.objectEquals;
 
 /**
  * CoordinatorLayout is a super-powered {@link android.widget.FrameLayout FrameLayout}.
@@ -133,28 +134,38 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     static final ThreadLocal<Map<String, Constructor<Behavior>>> sConstructors =
             new ThreadLocal<>();
 
-
     static final int EVENT_PRE_DRAW = 0;
     static final int EVENT_NESTED_SCROLL = 1;
     static final int EVENT_VIEW_REMOVED = 2;
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({EVENT_PRE_DRAW, EVENT_NESTED_SCROLL, EVENT_VIEW_REMOVED})
     public @interface DispatchChangeEvent {}
 
     static final Comparator<View> TOP_SORTED_CHILDREN_COMPARATOR;
+    private static final Pools.Pool<Rect> sRectPool = new Pools.SynchronizedPool<>(12);
+
+    @NonNull
+    private static Rect acquireTempRect() {
+        Rect rect = sRectPool.acquire();
+        if (rect == null) {
+            rect = new Rect();
+        }
+        return rect;
+    }
+
+    private static void releaseTempRect(@NonNull Rect rect) {
+        rect.setEmpty();
+        sRectPool.release(rect);
+    }
 
     private final List<View> mDependencySortedChildren = new ArrayList<>();
     private final DirectedAcyclicGraph<View> mChildDag = new DirectedAcyclicGraph<>();
 
     private final List<View> mTempList1 = new ArrayList<>();
     private final List<View> mTempDependenciesList = new ArrayList<>();
-    private final Rect mTempRect1 = new Rect();
-    private final Rect mTempRect2 = new Rect();
-    private final Rect mTempRect3 = new Rect();
-    private final Rect mTempRect4 = new Rect();
     private final int[] mTempIntPair = new int[2];
     private Paint mScrimPaint;
 
@@ -731,6 +742,11 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         final int childCount = mDependencySortedChildren.size();
         for (int i = 0; i < childCount; i++) {
             final View child = mDependencySortedChildren.get(i);
+            if (child.getVisibility() == GONE) {
+                // If the child is GONE, skip...
+                continue;
+            }
+
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
             int keylineWidthUsed = 0;
@@ -843,6 +859,11 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         final int childCount = mDependencySortedChildren.size();
         for (int i = 0; i < childCount; i++) {
             final View child = mDependencySortedChildren.get(i);
+            if (child.getVisibility() == GONE) {
+                // If the child is GONE, skip...
+                continue;
+            }
+
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             final Behavior behavior = lp.getBehavior();
 
@@ -1036,12 +1057,16 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     private void layoutChildWithAnchor(View child, View anchor, int layoutDirection) {
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
-        final Rect anchorRect = mTempRect1;
-        final Rect childRect = mTempRect2;
-        getDescendantRect(anchor, anchorRect);
-        getDesiredAnchoredChildRect(child, layoutDirection, anchorRect, childRect);
-
-        child.layout(childRect.left, childRect.top, childRect.right, childRect.bottom);
+        final Rect anchorRect = acquireTempRect();
+        final Rect childRect = acquireTempRect();
+        try {
+            getDescendantRect(anchor, anchorRect);
+            getDesiredAnchoredChildRect(child, layoutDirection, anchorRect, childRect);
+            child.layout(childRect.left, childRect.top, childRect.right, childRect.bottom);
+        } finally {
+            releaseTempRect(anchorRect);
+            releaseTempRect(childRect);
+        }
     }
 
     /**
@@ -1120,7 +1145,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      */
     private void layoutChild(View child, int layoutDirection) {
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        final Rect parent = mTempRect1;
+        final Rect parent = acquireTempRect();
         parent.set(getPaddingLeft() + lp.leftMargin,
                 getPaddingTop() + lp.topMargin,
                 getWidth() - getPaddingRight() - lp.rightMargin,
@@ -1136,10 +1161,13 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
             parent.bottom -= mLastInsets.getSystemWindowInsetBottom();
         }
 
-        final Rect out = mTempRect2;
+        final Rect out = acquireTempRect();
         GravityCompat.apply(resolveGravity(lp.gravity), child.getMeasuredWidth(),
                 child.getMeasuredHeight(), parent, out, layoutDirection);
         child.layout(out.left, out.top, out.right, out.bottom);
+
+        releaseTempRect(parent);
+        releaseTempRect(out);
     }
 
     /**
@@ -1214,11 +1242,17 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     final void onChildViewsChanged(@DispatchChangeEvent final int type) {
         final int layoutDirection = ViewCompat.getLayoutDirection(this);
         final int childCount = mDependencySortedChildren.size();
-        final Rect inset = mTempRect4;
-        inset.setEmpty();
+        final Rect inset = acquireTempRect();
+        final Rect drawRect = acquireTempRect();
+        final Rect lastDrawRect = acquireTempRect();
+
         for (int i = 0; i < childCount; i++) {
             final View child = mDependencySortedChildren.get(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            if (type == EVENT_PRE_DRAW && child.getVisibility() == View.GONE) {
+                // Do not try to update GONE child views in pre draw updates.
+                continue;
+            }
 
             // Check child views before for anchor
             for (int j = 0; j < i; j++) {
@@ -1230,7 +1264,6 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
             }
 
             // Get the current draw rect of the view
-            final Rect drawRect = mTempRect1;
             getChildRect(child, true, drawRect);
 
             // Accumulate inset sizes
@@ -1262,7 +1295,6 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
             if (type == EVENT_PRE_DRAW) {
                 // Did it change? if not continue
-                final Rect lastDrawRect = mTempRect2;
                 getLastChildRect(child, lastDrawRect);
                 if (lastDrawRect.equals(drawRect)) {
                     continue;
@@ -1306,46 +1338,62 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                 }
             }
         }
+
+        releaseTempRect(inset);
+        releaseTempRect(drawRect);
+        releaseTempRect(lastDrawRect);
     }
 
     private void offsetChildByInset(final View child, final Rect inset, final int layoutDirection) {
         if (!ViewCompat.isLaidOut(child)) {
-            // The view has not been laid out yet,
-            // so we can't obtain its bounds.
+            // The view has not been laid out yet, so we can't obtain its bounds.
+            return;
+        }
+
+        if (child.getWidth() <= 0 || child.getHeight() <= 0) {
+            // Bounds are empty so there is nothing to dodge against, skip...
             return;
         }
 
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        final int absDodgeInsetEdges = GravityCompat.getAbsoluteGravity(lp.dodgeInsetEdges,
-                layoutDirection);
-
         final Behavior behavior = lp.getBehavior();
-        final Rect rect = mTempRect3;
-        if (behavior != null && behavior.getInsetDodgeRect(this, child, rect)) {
-            // Make sure that it intersects the views bounds
-            if (!rect.intersect(child.getLeft(), child.getTop(),
-                    child.getRight(), child.getBottom())) {
-                throw new IllegalArgumentException("Rect should intersect with child's bounds.");
+        final Rect dodgeRect = acquireTempRect();
+        final Rect bounds = acquireTempRect();
+        bounds.set(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
+
+        if (behavior != null && behavior.getInsetDodgeRect(this, child, dodgeRect)) {
+            // Make sure that the rect is within the view's bounds
+            if (!bounds.contains(dodgeRect)) {
+                    throw new IllegalArgumentException("Rect should be within the child's bounds."
+                            + " Rect:" + dodgeRect.toShortString()
+                            + " | Bounds:" + bounds.toShortString());
             }
         } else {
-            rect.set(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
+            dodgeRect.set(bounds);
         }
 
-        if (rect.isEmpty()) {
+        // We can release the bounds rect now
+        releaseTempRect(bounds);
+
+        if (dodgeRect.isEmpty()) {
             // Rect is empty so there is nothing to dodge against, skip...
+            releaseTempRect(dodgeRect);
             return;
         }
 
+        final int absDodgeInsetEdges = GravityCompat.getAbsoluteGravity(lp.dodgeInsetEdges,
+                layoutDirection);
+
         boolean offsetY = false;
         if ((absDodgeInsetEdges & Gravity.TOP) == Gravity.TOP) {
-            int distance = rect.top - lp.topMargin - lp.mInsetOffsetY;
+            int distance = dodgeRect.top - lp.topMargin - lp.mInsetOffsetY;
             if (distance < inset.top) {
                 setInsetOffsetY(child, inset.top - distance);
                 offsetY = true;
             }
         }
         if ((absDodgeInsetEdges & Gravity.BOTTOM) == Gravity.BOTTOM) {
-            int distance = getHeight() - rect.bottom - lp.bottomMargin + lp.mInsetOffsetY;
+            int distance = getHeight() - dodgeRect.bottom - lp.bottomMargin + lp.mInsetOffsetY;
             if (distance < inset.bottom) {
                 setInsetOffsetY(child, distance - inset.bottom);
                 offsetY = true;
@@ -1357,14 +1405,14 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
         boolean offsetX = false;
         if ((absDodgeInsetEdges & Gravity.LEFT) == Gravity.LEFT) {
-            int distance = rect.left - lp.leftMargin - lp.mInsetOffsetX;
+            int distance = dodgeRect.left - lp.leftMargin - lp.mInsetOffsetX;
             if (distance < inset.left) {
                 setInsetOffsetX(child, inset.left - distance);
                 offsetX = true;
             }
         }
         if ((absDodgeInsetEdges & Gravity.RIGHT) == Gravity.RIGHT) {
-            int distance = getWidth() - rect.right - lp.rightMargin + lp.mInsetOffsetX;
+            int distance = getWidth() - dodgeRect.right - lp.rightMargin + lp.mInsetOffsetX;
             if (distance < inset.right) {
                 setInsetOffsetX(child, distance - inset.right);
                 offsetX = true;
@@ -1373,6 +1421,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         if (!offsetX) {
             setInsetOffsetX(child, 0);
         }
+
+        releaseTempRect(dodgeRect);
     }
 
     private void setInsetOffsetX(View child, int offsetX) {
@@ -1534,9 +1584,9 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     void offsetChildToAnchor(View child, int layoutDirection) {
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         if (lp.mAnchorView != null) {
-            final Rect anchorRect = mTempRect1;
-            final Rect childRect = mTempRect2;
-            final Rect desiredChildRect = mTempRect3;
+            final Rect anchorRect = acquireTempRect();
+            final Rect childRect = acquireTempRect();
+            final Rect desiredChildRect = acquireTempRect();
 
             getDescendantRect(lp.mAnchorView, anchorRect);
             getChildRect(child, false, childRect);
@@ -1566,6 +1616,10 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                     b.onDependentViewChanged(this, child, lp.mAnchorView);
                 }
             }
+
+            releaseTempRect(anchorRect);
+            releaseTempRect(childRect);
+            releaseTempRect(desiredChildRect);
         }
     }
 
@@ -1579,9 +1633,13 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      * @return true if the point is within the child view's bounds, false otherwise
      */
     public boolean isPointInChildBounds(View child, int x, int y) {
-        final Rect r = mTempRect1;
+        final Rect r = acquireTempRect();
         getDescendantRect(child, r);
-        return r.contains(x, y);
+        try {
+            return r.contains(x, y);
+        } finally {
+            releaseTempRect(r);
+        }
     }
 
     /**
@@ -1594,13 +1652,17 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      */
     public boolean doViewsOverlap(View first, View second) {
         if (first.getVisibility() == VISIBLE && second.getVisibility() == VISIBLE) {
-            final Rect firstRect = mTempRect1;
+            final Rect firstRect = acquireTempRect();
             getChildRect(first, first.getParent() != this, firstRect);
-            final Rect secondRect = mTempRect2;
+            final Rect secondRect = acquireTempRect();
             getChildRect(second, second.getParent() != this, secondRect);
-
-            return !(firstRect.left > secondRect.right || firstRect.top > secondRect.bottom
-                    || firstRect.right < secondRect.left || firstRect.bottom < secondRect.top);
+            try {
+                return !(firstRect.left > secondRect.right || firstRect.top > secondRect.bottom
+                        || firstRect.right < secondRect.left || firstRect.bottom < secondRect.top);
+            } finally {
+                releaseTempRect(firstRect);
+                releaseTempRect(secondRect);
+            }
         }
         return false;
     }
@@ -1637,6 +1699,10 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View view = getChildAt(i);
+            if (view.getVisibility() == View.GONE) {
+                // If it's GONE, don't dispatch
+                continue;
+            }
             final LayoutParams lp = (LayoutParams) view.getLayoutParams();
             final Behavior viewBehavior = lp.getBehavior();
             if (viewBehavior != null) {
@@ -1705,6 +1771,11 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
         for (int i = 0; i < childCount; i++) {
             final View view = getChildAt(i);
+            if (view.getVisibility() == GONE) {
+                // If the child is GONE, skip...
+                continue;
+            }
+
             final LayoutParams lp = (LayoutParams) view.getLayoutParams();
             if (!lp.isNestedScrollAccepted()) {
                 continue;
@@ -1732,6 +1803,11 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View view = getChildAt(i);
+            if (view.getVisibility() == GONE) {
+                // If the child is GONE, skip...
+                continue;
+            }
+
             final LayoutParams lp = (LayoutParams) view.getLayoutParams();
             if (!lp.isNestedScrollAccepted()) {
                 continue;
@@ -1766,6 +1842,11 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View view = getChildAt(i);
+            if (view.getVisibility() == GONE) {
+                // If the child is GONE, skip...
+                continue;
+            }
+
             final LayoutParams lp = (LayoutParams) view.getLayoutParams();
             if (!lp.isNestedScrollAccepted()) {
                 continue;
@@ -1790,6 +1871,11 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View view = getChildAt(i);
+            if (view.getVisibility() == GONE) {
+                // If the child is GONE, skip...
+                continue;
+            }
+
             final LayoutParams lp = (LayoutParams) view.getLayoutParams();
             if (!lp.isNestedScrollAccepted()) {
                 continue;
@@ -1906,6 +1992,10 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * <p>Once a Behavior intercepts touch events, the rest of the event stream will
          * be sent to the {@link #onTouchEvent} method.</p>
          *
+         * <p>This method will be called regardless of the visibility of the associated child
+         * of the behavior. If you only wish to handle touch events when the child is visible, you
+         * should add a check to {@link View#isShown()} on the given child.</p>
+         *
          * <p>The default implementation of this method always returns false.</p>
          *
          * @param parent the parent view currently receiving this touch event
@@ -1926,6 +2016,10 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * manipulate its child views. For example, a Behavior may allow a user to drag a
          * UI pane open or closed. This method should perform actual mutations of view
          * layout state.</p>
+         *
+         * <p>This method will be called regardless of the visibility of the associated child
+         * of the behavior. If you only wish to handle touch events when the child is visible, you
+         * should add a check to {@link View#isShown()} on the given child.</p>
          *
          * @param parent the parent view currently receiving this touch event
          * @param child the child view associated with this Behavior

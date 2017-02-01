@@ -16,6 +16,8 @@
 
 package android.support.v7.view.menu;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -47,15 +49,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Implementation of the {@link android.support.v4.internal.view.SupportMenu} interface for creating a
  * standard menu UI.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class MenuBuilder implements SupportMenu {
 
     private static final String TAG = "MenuBuilder";
@@ -165,6 +165,8 @@ public class MenuBuilder implements SupportMenu {
 
     private boolean mItemsChangedWhileDispatchPrevented = false;
 
+    private boolean mStructureChangedWhileDispatchPrevented = false;
+
     private boolean mOptionalIconsVisible = false;
 
     private boolean mIsClosing = false;
@@ -189,7 +191,7 @@ public class MenuBuilder implements SupportMenu {
      * @hide
      */
 
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public interface Callback {
 
         /**
@@ -213,7 +215,7 @@ public class MenuBuilder implements SupportMenu {
      * Called by menu items to execute their associated action
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public interface ItemInvoker {
         boolean invokeItem(MenuItemImpl item);
     }
@@ -582,6 +584,7 @@ public class MenuBuilder implements SupportMenu {
         clearHeader();
         mPreventDispatchingItemsChanged = false;
         mItemsChangedWhileDispatchPrevented = false;
+        mStructureChangedWhileDispatchPrevented = false;
         onItemsChanged(true);
     }
 
@@ -599,6 +602,7 @@ public class MenuBuilder implements SupportMenu {
         final int group = item.getGroupId();
 
         final int N = mItems.size();
+        stopDispatchingItemsChanged();
         for (int i = 0; i < N; i++) {
             MenuItemImpl curItem = mItems.get(i);
             if (curItem.getGroupId() == group) {
@@ -609,6 +613,7 @@ public class MenuBuilder implements SupportMenu {
                 curItem.setCheckedInt(curItem == item);
             }
         }
+        startDispatchingItemsChanged();
     }
 
     @Override
@@ -1042,6 +1047,9 @@ public class MenuBuilder implements SupportMenu {
             dispatchPresenterUpdate(structureChanged);
         } else {
             mItemsChangedWhileDispatchPrevented = true;
+            if (structureChanged) {
+                mStructureChangedWhileDispatchPrevented = true;
+            }
         }
     }
 
@@ -1054,6 +1062,7 @@ public class MenuBuilder implements SupportMenu {
         if (!mPreventDispatchingItemsChanged) {
             mPreventDispatchingItemsChanged = true;
             mItemsChangedWhileDispatchPrevented = false;
+            mStructureChangedWhileDispatchPrevented = false;
         }
     }
 
@@ -1062,7 +1071,7 @@ public class MenuBuilder implements SupportMenu {
 
         if (mItemsChangedWhileDispatchPrevented) {
             mItemsChangedWhileDispatchPrevented = false;
-            onItemsChanged(true);
+            onItemsChanged(mStructureChangedWhileDispatchPrevented);
         }
     }
 

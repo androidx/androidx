@@ -16,6 +16,10 @@
 
 package android.support.graphics.drawable.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -24,16 +28,16 @@ import android.graphics.drawable.Drawable.ConstantState;
 import android.support.annotation.DrawableRes;
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.graphics.drawable.animated.test.R;
-import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 import android.view.View;
 import android.widget.ImageButton;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,8 +50,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.*;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -197,7 +199,7 @@ public class AnimatedVectorDrawableTest {
         final Canvas c = new Canvas(bitmap);
         CountDownLatch latch = new CountDownLatch(numTests);
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
@@ -223,7 +225,7 @@ public class AnimatedVectorDrawableTest {
      */
     private void verifyRedOnly(final int pixelX, final int pixelY, final View button,
             final Bitmap bitmap, final Canvas canvas, final CountDownLatch latch) throws Throwable {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 button.draw(canvas);
@@ -268,6 +270,8 @@ public class AnimatedVectorDrawableTest {
             assertEquals(0x40, d1.getAlpha());
             assertEquals(0x20, d2.getAlpha());
             assertEquals(originalAlpha, d3.getAlpha());
+        } else {
+            assertEquals(d1.mutate(), d1);
         }
     }
 }

@@ -16,6 +16,10 @@
 
 package android.support.design.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.design.widget.ViewUtils.objectEquals;
+
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
@@ -25,6 +29,7 @@ import android.os.Parcelable;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.R;
@@ -44,9 +49,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-import static android.support.design.widget.ViewUtils.objectEquals;
 
 /**
  * AppBarLayout is a vertical {@link LinearLayout} which implements many of the features of
@@ -319,7 +321,7 @@ public class AppBarLayout extends LinearLayout {
 
     @Override
     protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        if (p instanceof LinearLayout.LayoutParams) {
+        if (Build.VERSION.SDK_INT >= 19 && p instanceof LinearLayout.LayoutParams) {
             return new LayoutParams((LinearLayout.LayoutParams) p);
         } else if (p instanceof MarginLayoutParams) {
             return new LayoutParams((MarginLayoutParams) p);
@@ -588,7 +590,7 @@ public class AppBarLayout extends LinearLayout {
     public static class LayoutParams extends LinearLayout.LayoutParams {
 
         /** @hide */
-        @RestrictTo(GROUP_ID)
+        @RestrictTo(LIBRARY_GROUP)
         @IntDef(flag=true, value={
                 SCROLL_FLAG_SCROLL,
                 SCROLL_FLAG_EXIT_UNTIL_COLLAPSED,
@@ -681,11 +683,17 @@ public class AppBarLayout extends LinearLayout {
             super(source);
         }
 
+        @RequiresApi(19)
+        @TargetApi(19)
         public LayoutParams(LinearLayout.LayoutParams source) {
+            // The copy constructor called here only exists on API 19+.
             super(source);
         }
 
+        @RequiresApi(19)
+        @TargetApi(19)
         public LayoutParams(LayoutParams source) {
+            // The copy constructor called here only exists on API 19+.
             super(source);
             mScrollFlags = source.mScrollFlags;
             mScrollInterpolator = source.mScrollInterpolator;

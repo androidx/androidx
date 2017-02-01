@@ -18,12 +18,16 @@ package android.support.transition;
 
 import android.animation.Animator;
 import android.animation.TimeInterpolator;
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiresApi(14)
+@TargetApi(14)
 class TransitionIcs extends TransitionImpl {
 
     /* package */ TransitionPort mTransition;

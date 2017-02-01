@@ -26,11 +26,14 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v7-palette
-LOCAL_SDK_VERSION := 9
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, src/main)
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/src/main/res
 LOCAL_MANIFEST_FILE := src/main/AndroidManifest.xml
-LOCAL_SHARED_ANDROID_LIBRARIES += android-support-compat android-support-core-utils
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-compat \
+    android-support-core-utils \
+    android-support-annotations
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from PlaybackOverlayFragment.java.  DO NOT MODIFY. */
 
 /*
@@ -15,25 +16,21 @@
  */
 package android.support.v17.leanback.app;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
-import android.support.v17.leanback.widget.Action;
-import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.view.InputEvent;
-import android.view.animation.AccelerateInterpolator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.widget.RecyclerView;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.animation.LogAccelerateInterpolator;
 import android.support.v17.leanback.animation.LogDecelerateInterpolator;
+import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter.DataObserver;
@@ -42,13 +39,17 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.InputEvent;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
@@ -62,7 +63,12 @@ import java.util.ArrayList;
  * An instance of {@link android.support.v17.leanback.widget.PlaybackControlsRow} is expected to be
  * at position 0 in the adapter.
  * </p>
+ * <p>
+ *  This class is now deprecated, please us
+ * </p>
+ * @deprecated Use {@link PlaybackSupportFragment}.
  */
+@Deprecated
 public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
 
     /**
@@ -91,19 +97,6 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         }
     }
 
-    /**
-     * Interface allowing the application to handle input events.
-     */
-    public interface InputEventHandler {
-        /**
-         * Called when an {@link InputEvent} is received.
-         *
-         * @return If the event should be consumed, return true. To allow the event to
-         * continue on to the next handler, return false.
-         */
-        public boolean handleInputEvent(InputEvent event);
-    }
-
     static final String TAG = "PlaybackOverlaySupportFragment";
     static final boolean DEBUG = false;
     private static final int ANIMATION_MULTIPLIER = 1;
@@ -125,7 +118,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
     private int mMajorFadeTranslateY, mMinorFadeTranslateY;
     int mAnimationTranslateY;
     OnFadeCompleteListener mFadeCompleteListener;
-    private InputEventHandler mInputEventHandler;
+    private PlaybackControlGlue.InputEventHandler mInputEventHandler;
     boolean mFadingEnabled = true;
     int mFadingStatus = IDLE;
     int mBgAlpha;
@@ -133,9 +126,8 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
     private ValueAnimator mControlRowFadeInAnimator, mControlRowFadeOutAnimator;
     private ValueAnimator mDescriptionFadeInAnimator, mDescriptionFadeOutAnimator;
     private ValueAnimator mOtherRowFadeInAnimator, mOtherRowFadeOutAnimator;
-    private boolean mTranslateAnimationEnabled;
     boolean mResetControlsToPrimaryActionsPending;
-    private RecyclerView.ItemAnimator mItemAnimator;
+    PlaybackGlueHost.HostCallback mHostCallback;
 
     private final Animator.AnimatorListener mFadeListener =
             new Animator.AnimatorListener() {
@@ -172,14 +164,22 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         }
     };
 
-    private final Handler mHandler = new Handler() {
+    static class FadeHandler extends Handler {
         @Override
         public void handleMessage(Message message) {
-            if (message.what == START_FADE_OUT && mFadingEnabled) {
-                fade(false);
+            PlaybackOverlaySupportFragment fragment;
+            if (message.what == START_FADE_OUT) {
+                fragment = ((WeakReference<PlaybackOverlaySupportFragment>) message.obj).get();
+                if (fragment != null && fragment.mFadingEnabled) {
+                    fragment.fade(false);
+                }
             }
         }
-    };
+    }
+
+    static final Handler sHandler = new FadeHandler();
+
+    final WeakReference<PlaybackOverlaySupportFragment> mFragmentReference =  new WeakReference(this);
 
     private final VerticalGridView.OnTouchInterceptListener mOnTouchInterceptListener =
             new VerticalGridView.OnTouchInterceptListener() {
@@ -236,12 +236,12 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
             mFadingEnabled = enabled;
             if (mFadingEnabled) {
                 if (isResumed() && mFadingStatus == IDLE
-                        && !mHandler.hasMessages(START_FADE_OUT)) {
+                        && !sHandler.hasMessages(START_FADE_OUT, mFragmentReference)) {
                     startFadeTimer();
                 }
             } else {
                 // Ensure fully opaque
-                mHandler.removeMessages(START_FADE_OUT);
+                sHandler.removeMessages(START_FADE_OUT, mFragmentReference);
                 fade(true);
             }
         }
@@ -268,9 +268,14 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         return mFadeCompleteListener;
     }
 
+    @Deprecated
+    public interface InputEventHandler extends PlaybackControlGlue.InputEventHandler {
+    }
+
     /**
      * Sets the input event handler.
      */
+    @Deprecated
     public final void setInputEventHandler(InputEventHandler handler) {
         mInputEventHandler = handler;
     }
@@ -278,7 +283,22 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
     /**
      * Returns the input event handler.
      */
+    @Deprecated
     public final InputEventHandler getInputEventHandler() {
+        return (InputEventHandler)mInputEventHandler;
+    }
+
+    /**
+     * Sets the input event handler.
+     */
+    public final void setEventHandler(PlaybackControlGlue.InputEventHandler handler) {
+        mInputEventHandler = handler;
+    }
+
+    /**
+     * Returns the input event handler.
+     */
+    public final PlaybackControlGlue.InputEventHandler getEventHandler() {
         return mInputEventHandler;
     }
 
@@ -292,7 +312,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         if (!mFadingEnabled || !isResumed()) {
             return;
         }
-        if (mHandler.hasMessages(START_FADE_OUT)) {
+        if (sHandler.hasMessages(START_FADE_OUT, mFragmentReference)) {
             // Restart the timer
             startFadeTimer();
         } else {
@@ -304,8 +324,32 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
      * Fades out the playback overlay immediately.
      */
     public void fadeOut() {
-        mHandler.removeMessages(START_FADE_OUT);
+        sHandler.removeMessages(START_FADE_OUT, mFragmentReference);
         fade(false);
+    }
+
+    /**
+     * Sets the {@link PlaybackGlueHost.HostCallback}. Implementor of this interface will
+     * take appropriate actions to take action when the hosting fragment starts/stops processing.
+     */
+    void setHostCallback(PlaybackGlueHost.HostCallback hostCallback) {
+        this.mHostCallback = hostCallback;
+    }
+
+    @Override
+    public void onStop() {
+        if (mHostCallback != null) {
+            mHostCallback.onHostStop();
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onPause() {
+        if (mHostCallback != null) {
+            mHostCallback.onHostPause();
+        }
+        super.onPause();
     }
 
     private boolean areControlsHidden() {
@@ -344,7 +388,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
                 // them out (even if the key was consumed by the handler).
                 if (mFadingEnabled && !controlsHidden) {
                     consumeEvent = true;
-                    mHandler.removeMessages(START_FADE_OUT);
+                    sHandler.removeMessages(START_FADE_OUT, mFragmentReference);
                     fade(false);
                 } else if (consumeEvent) {
                     tickle();
@@ -367,13 +411,15 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         }
         getVerticalGridView().setOnTouchInterceptListener(mOnTouchInterceptListener);
         getVerticalGridView().setOnKeyInterceptListener(mOnKeyInterceptListener);
+        if (mHostCallback != null) {
+            mHostCallback.onHostResume();
+        }
     }
 
     void startFadeTimer() {
-        if (mHandler != null) {
-            mHandler.removeMessages(START_FADE_OUT);
-            mHandler.sendEmptyMessageDelayed(START_FADE_OUT, mShowTimeMs);
-        }
+        sHandler.removeMessages(START_FADE_OUT, mFragmentReference);
+        sHandler.sendMessageDelayed(sHandler.obtainMessage(START_FADE_OUT, mFragmentReference),
+                mShowTimeMs);
     }
 
     private static ValueAnimator loadAnimator(Context context, int resId) {
@@ -538,8 +584,8 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
             return;
         }
 
-        mAnimationTranslateY = getVerticalGridView().getSelectedPosition() == 0 ?
-                mMajorFadeTranslateY : mMinorFadeTranslateY;
+        mAnimationTranslateY = getVerticalGridView().getSelectedPosition() == 0
+                ? mMajorFadeTranslateY : mMinorFadeTranslateY;
 
         if (mFadingStatus == IDLE) {
             if (fadeIn) {
@@ -751,6 +797,9 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         super.onStart();
         // Workaround problem VideoView forcing itself to focused, let controls take focus.
         getRowsSupportFragment().getView().requestFocus();
+        if (mHostCallback != null) {
+            mHostCallback.onHostStart();
+        }
     }
 
     private final DataObserver mObserver = new DataObserver() {

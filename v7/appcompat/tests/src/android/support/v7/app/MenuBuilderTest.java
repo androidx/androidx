@@ -16,18 +16,21 @@
 
 package android.support.v7.app;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.view.menu.MenuBuilder;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 @RunWith(AndroidJUnit4.class)
+@SmallTest
 public class MenuBuilderTest {
 
     @Test

@@ -13,16 +13,13 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.support.v17.leanback.R;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.Outline;
-import android.graphics.drawable.ColorDrawable;
+import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
-import android.view.ViewGroup;
+import android.support.annotation.RequiresApi;
 import android.view.View;
-import android.view.ViewOutlineProvider;
 
+@RequiresApi(23)
+@TargetApi(23)
 class ForegroundHelperApi23 {
 
     public static Drawable getForeground(View view) {

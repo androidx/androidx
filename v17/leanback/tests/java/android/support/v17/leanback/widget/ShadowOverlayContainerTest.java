@@ -15,23 +15,40 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-@MediumTest
-public class ShadowOverlayContainerTest extends AndroidTestCase {
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@MediumTest
+@RunWith(AndroidJUnit4.class)
+public class ShadowOverlayContainerTest {
+    private Context mContext;
+
+    @Before
+    public void setup() throws Exception {
+        mContext = InstrumentationRegistry.getTargetContext();
+    }
+
+    @Test
     public void testWrapContent() {
-        FrameLayout frameLayout = new FrameLayout(getContext());
-        TextView textView = new TextView(getContext());
+        FrameLayout frameLayout = new FrameLayout(mContext);
+        TextView textView = new TextView(mContext);
         textView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT));
         textView.setText("abc");
-        ShadowOverlayContainer container = new ShadowOverlayContainer(getContext());
+        ShadowOverlayContainer container = new ShadowOverlayContainer(mContext);
         container.initialize(true, true, true);
         container.wrap(textView);
         frameLayout.addView(container);
@@ -56,12 +73,13 @@ public class ShadowOverlayContainerTest extends AndroidTestCase {
         assertEquals(container.getHeight(), textView.getHeight());
     }
 
+    @Test
     public void testFixedSize() {
-        FrameLayout frameLayout = new FrameLayout(getContext());
-        TextView textView = new TextView(getContext());
+        FrameLayout frameLayout = new FrameLayout(mContext);
+        TextView textView = new TextView(mContext);
         textView.setLayoutParams(new FrameLayout.LayoutParams(200, LayoutParams.WRAP_CONTENT));
         textView.setText("abc");
-        ShadowOverlayContainer container = new ShadowOverlayContainer(getContext());
+        ShadowOverlayContainer container = new ShadowOverlayContainer(mContext);
         container.initialize(true, true, true);
         container.wrap(textView);
         frameLayout.addView(container);
@@ -85,13 +103,14 @@ public class ShadowOverlayContainerTest extends AndroidTestCase {
         assertEquals(container.getHeight(), textView.getHeight());
     }
 
+    @Test
     public void testMatchParent() {
-        FrameLayout frameLayout = new FrameLayout(getContext());
-        TextView textView = new TextView(getContext());
+        FrameLayout frameLayout = new FrameLayout(mContext);
+        TextView textView = new TextView(mContext);
         textView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.WRAP_CONTENT));
         textView.setText("abc");
-        ShadowOverlayContainer container = new ShadowOverlayContainer(getContext());
+        ShadowOverlayContainer container = new ShadowOverlayContainer(mContext);
         container.initialize(true, true, true);
         container.wrap(textView);
         frameLayout.addView(container);

@@ -16,10 +16,15 @@
 package android.support.v4.graphics;
 
 import android.graphics.Bitmap;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 /**
  * Implementation of BitmapCompat that can use KitKat APIs.
  */
+
+@RequiresApi(19)
+@TargetApi(19)
 class BitmapCompatKitKat {
 
     static int getAllocationByteCount(Bitmap bitmap) {

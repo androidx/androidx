@@ -20,7 +20,11 @@ import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.content.res.Resources.Theme;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(21)
+@TargetApi(21)
 class ResourcesCompatApi21 {
     public static Drawable getDrawable(Resources res, int id, Theme theme)
             throws NotFoundException {

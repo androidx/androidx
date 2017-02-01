@@ -18,11 +18,15 @@ package android.support.design.widget;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
 
+@RequiresApi(14)
+@TargetApi(14)
 class FloatingActionButtonIcs extends FloatingActionButtonGingerbread {
 
     private float mRotation;
@@ -84,7 +88,8 @@ class FloatingActionButtonIcs extends FloatingActionButtonGingerbread {
                             mAnimState = ANIM_STATE_NONE;
 
                             if (!mCancelled) {
-                                mView.internalSetVisibility(View.GONE, fromUser);
+                                mView.internalSetVisibility(fromUser ? View.GONE : View.INVISIBLE,
+                                        fromUser);
                                 if (listener != null) {
                                     listener.onHidden();
                                 }
@@ -93,7 +98,7 @@ class FloatingActionButtonIcs extends FloatingActionButtonGingerbread {
                     });
         } else {
             // If the view isn't laid out, or we're in the editor, don't run the animation
-            mView.internalSetVisibility(View.GONE, fromUser);
+            mView.internalSetVisibility(fromUser ? View.GONE : View.INVISIBLE, fromUser);
             if (listener != null) {
                 listener.onHidden();
             }

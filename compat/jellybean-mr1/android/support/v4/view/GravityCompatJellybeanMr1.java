@@ -18,8 +18,12 @@
 package android.support.v4.view;
 
 import android.graphics.Rect;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.Gravity;
 
+@RequiresApi(17)
+@TargetApi(17)
 class GravityCompatJellybeanMr1 {
 
     public static int getAbsoluteGravity(int gravity, int layoutDirection) {

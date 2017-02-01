@@ -16,6 +16,10 @@
 
 package android.support.transition;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.view.ViewCompat;
@@ -27,8 +31,8 @@ import android.view.ViewTreeObserver;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
+@RequiresApi(14)
+@TargetApi(14)
 class TransitionManagerPort {
     // TODO: how to handle enter/exit?
 
@@ -60,7 +64,7 @@ class TransitionManagerPort {
      * @hide pending later changes
      * @see #setDefaultTransition(TransitionPort)
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static TransitionPort getDefaultTransition() {
         return sDefaultTransition;
     }
@@ -73,7 +77,7 @@ class TransitionManagerPort {
      * @param transition The default transition to be used for scene changes.
      * @hide pending later changes
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public void setDefaultTransition(TransitionPort transition) {
         sDefaultTransition = transition;
     }

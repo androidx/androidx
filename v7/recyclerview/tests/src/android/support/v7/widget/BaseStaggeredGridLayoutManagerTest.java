@@ -1,10 +1,27 @@
 package android.support.v7.widget;
 
+import static android.support.v7.widget.LayoutState.LAYOUT_END;
+import static android.support.v7.widget.LayoutState.LAYOUT_START;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
+import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE;
+import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -17,27 +34,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static android.support.v7.widget.LayoutState.LAYOUT_END;
-import static android.support.v7.widget.LayoutState.LAYOUT_START;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
-import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE;
-import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-
-public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
+abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     protected static final boolean DEBUG = false;
     protected static final int AVG_ITEM_PER_VIEW = 3;
-    protected static final String TAG = "StaggeredGridLayoutManagerTest";
+    protected static final String TAG = "SGLM_TEST";
     volatile WrappedLayoutManager mLayoutManager;
     GridTestAdapter mAdapter;
 
@@ -124,7 +125,7 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
     protected void waitForMainThread(int count) throws Throwable {
         final AtomicInteger i = new AtomicInteger(count);
         while (i.get() > 0) {
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     i.decrementAndGet();
@@ -245,7 +246,7 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
 
     protected void scrollToPositionWithOffset(final int position, final int offset)
             throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mLayoutManager.scrollToPositionWithOffset(position, offset);
@@ -441,13 +442,13 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
 
         @Override
         public String toString() {
-            return "[CONFIG:" +
-                    " span:" + mSpanCount + "," +
-                    " orientation:" + (mOrientation == HORIZONTAL ? "horz," : "vert,") +
-                    " reverse:" + (mReverseLayout ? "T" : "F") +
-                    " itemCount:" + mItemCount +
-                    " wrapContent:" + mWrap +
-                    " gap strategy: " + gapStrategyName(mGapStrategy);
+            return "[CONFIG:"
+                    + "span:" + mSpanCount
+                    + ",orientation:" + (mOrientation == HORIZONTAL ? "horz," : "vert,")
+                    + ",reverse:" + (mReverseLayout ? "T" : "F")
+                    + ",itemCount:" + mItemCount
+                    + ",wrapContent:" + mWrap
+                    + ",gap_strategy:" + gapStrategyName(mGapStrategy);
         }
 
         protected static String gapStrategyName(int gapStrategy) {
@@ -455,9 +456,9 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
                 case GAP_HANDLING_NONE:
                     return "none";
                 case GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS:
-                    return "move spans";
+                    return "move_spans";
             }
-            return "gap strategy: unknown";
+            return "gap_strategy:unknown";
         }
 
         @Override
@@ -720,21 +721,20 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
 
         Map<Item, Rect> collectChildCoordinates() throws Throwable {
             final Map<Item, Rect> items = new LinkedHashMap<Item, Rect>();
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    final int start = mPrimaryOrientation.getStartAfterPadding();
+                    final int end = mPrimaryOrientation.getEndAfterPadding();
                     final int childCount = getChildCount();
                     for (int i = 0; i < childCount; i++) {
                         View child = getChildAt(i);
-                        // do it if and only if child is visible
-                        if (child.getRight() < 0 || child.getBottom() < 0 ||
-                                child.getLeft() >= getWidth() || child.getTop() >= getHeight()) {
-                            // invisible children may be drawn in cases like scrolling so we should
-                            // ignore them
+                        // ignore child if it fits the recycling constraints
+                        if (mPrimaryOrientation.getDecoratedStart(child) >= end
+                                || mPrimaryOrientation.getDecoratedEnd(child) < start) {
                             continue;
                         }
-                        LayoutParams lp = (LayoutParams) child
-                                .getLayoutParams();
+                        LayoutParams lp = (LayoutParams) child.getLayoutParams();
                         TestViewHolder vh = (TestViewHolder) lp.mViewHolder;
                         items.put(vh.mBoundItem, getViewBounds(child));
                     }
@@ -805,9 +805,10 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
         }
 
         @Override
-        int gatherPrefetchIndices(int dx, int dy, RecyclerView.State state, int[] outIndices) {
+        public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
+                LayoutPrefetchRegistry layoutPrefetchRegistry) {
             if (prefetchLatch != null) prefetchLatch.countDown();
-            return super.gatherPrefetchIndices(dx, dy, state, outIndices);
+            super.collectAdjacentPrefetchPositions(dx, dy, state, layoutPrefetchRegistry);
         }
     }
 

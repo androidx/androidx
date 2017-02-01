@@ -16,6 +16,7 @@
 
 package android.support.v7.app;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -28,6 +29,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.view.SupportActionModeWrapper;
 import android.util.DisplayMetrics;
@@ -35,11 +37,11 @@ import android.util.Log;
 import android.view.ActionMode;
 import android.view.Window;
 
+@RequiresApi(14)
+@TargetApi(14)
 class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
 
     private static final String KEY_LOCAL_NIGHT_MODE = "appcompat:local_night_mode";
-
-    private static final boolean FLUSH_RESOURCE_CACHES_ON_NIGHT_CHANGE = true;
 
     @NightMode
     private int mLocalNightMode = MODE_NIGHT_UNSPECIFIED;
@@ -210,28 +212,18 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
                 }
                 final Configuration config = new Configuration(conf);
                 final DisplayMetrics metrics = res.getDisplayMetrics();
-                final float originalFontScale = config.fontScale;
 
                 // Update the UI Mode to reflect the new night mode
                 config.uiMode = newNightMode | (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
-                if (FLUSH_RESOURCE_CACHES_ON_NIGHT_CHANGE) {
-                    // Set a fake font scale value to flush any resource caches
-                    config.fontScale = originalFontScale * 2;
-                }
-                // Now update the configuration
                 res.updateConfiguration(config, metrics);
 
-                if (FLUSH_RESOURCE_CACHES_ON_NIGHT_CHANGE) {
-                    // If we're flushing the resources cache, revert back to the original
-                    // font scale value
-                    config.fontScale = originalFontScale;
-                    res.updateConfiguration(config, metrics);
-                }
+                // We may need to flush the Resources' drawable cache due to framework bugs..
+                ResourcesFlusher.flush(res);
             }
             return true;
         } else {
             if (DEBUG) {
-                Log.d(TAG, "applyNightMode() | Night mode has not changed. Skipping");
+                Log.d(TAG, "applyNightMode() | Skipping. Night mode has not changed: " + mode);
             }
         }
         return false;
@@ -321,6 +313,7 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
 
         @ApplyableNightMode
         final int getApplyableNightMode() {
+            mIsNight = mTwilightManager.isNight();
             return mIsNight ? MODE_NIGHT_YES : MODE_NIGHT_NO;
         }
 
@@ -336,7 +329,7 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
             cleanup();
 
             // If we're set to AUTO, we register a receiver to be notified on time changes. The
-            // system only send the tick out every minute, but that's enough fidelity for our use
+            // system only sends the tick out every minute, but that's enough fidelity for our use
             // case
             if (mAutoTimeChangeReceiver == null) {
                 mAutoTimeChangeReceiver = new BroadcastReceiver() {

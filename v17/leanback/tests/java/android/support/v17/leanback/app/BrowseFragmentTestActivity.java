@@ -36,25 +36,19 @@ public class BrowseFragmentTestActivity extends Activity {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
 
-        BrowseTestFragment.NUM_ROWS = intent.getIntExtra(EXTRA_NUM_ROWS,
-                BrowseTestFragment.DEFAULT_NUM_ROWS);
-        BrowseTestFragment.REPEAT_PER_ROW = intent.getIntExtra(EXTRA_REPEAT_PER_ROW,
-                BrowseTestFragment.DEFAULT_REPEAT_PER_ROW);
-        BrowseTestFragment.LOAD_DATA_DELAY = intent.getLongExtra(EXTRA_LOAD_DATA_DELAY,
-                BrowseTestFragment.DEFAULT_LOAD_DATA_DELAY);
-        BrowseTestFragment.TEST_ENTRANCE_TRANSITION = intent.getBooleanExtra(
-                EXTRA_TEST_ENTRANCE_TRANSITION,
-                BrowseTestFragment.DEFAULT_TEST_ENTRANCE_TRANSITION);
-        BrowseTestFragment.SET_ADAPTER_AFTER_DATA_LOAD = intent.getBooleanExtra(
-                EXTRA_SET_ADAPTER_AFTER_DATA_LOAD,
-                BrowseTestFragment.DEFAULT_SET_ADAPTER_AFTER_DATA_LOAD);
         setContentView(R.layout.browse);
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.main_frame, new BrowseTestFragment());
-        if (intent.getBooleanExtra(EXTRA_ADD_TO_BACKSTACK, false)) {
-            ft.addToBackStack(null);
+        if (savedInstanceState == null) {
+            Bundle arguments = new Bundle();
+            arguments.putAll(intent.getExtras());
+            BrowseTestFragment fragment = new BrowseTestFragment();
+            fragment.setArguments(arguments);
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.replace(R.id.main_frame, fragment);
+            if (intent.getBooleanExtra(EXTRA_ADD_TO_BACKSTACK, false)) {
+                ft.addToBackStack(null);
+            }
+            ft.commit();
         }
-        ft.commit();
     }
 
     public BrowseTestFragment getBrowseTestFragment() {

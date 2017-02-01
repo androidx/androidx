@@ -16,6 +16,7 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -67,6 +68,7 @@ public class BrowseFrameLayout extends FrameLayout {
 
     private OnFocusSearchListener mListener;
     private OnChildFocusListener mOnChildFocusListener;
+    private OnKeyListener mOnDispatchKeyListener;
 
     /**
      * Sets a {@link OnFocusSearchListener}.
@@ -123,5 +125,26 @@ public class BrowseFrameLayout extends FrameLayout {
         if (mOnChildFocusListener != null) {
             mOnChildFocusListener.onRequestChildFocus(child, focused);
         }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        boolean consumed = super.dispatchKeyEvent(event);
+        if (mOnDispatchKeyListener != null) {
+            if (!consumed) {
+                return mOnDispatchKeyListener.onKey(getRootView(), event.getKeyCode(), event);
+            }
+        }
+        return consumed;
+    }
+
+    /**
+     * Sets the {@link android.view.View.OnKeyListener} on this view. This listener would fire
+     * only for unhandled {@link KeyEvent}s. We need to provide an external key listener to handle
+     * back button clicks when we are in full screen video mode because
+     * {@link View#setOnKeyListener(OnKeyListener)} doesn't fire as the focus is not on this view.
+     */
+    public void setOnDispatchKeyListener(OnKeyListener listener) {
+        this.mOnDispatchKeyListener = listener;
     }
 }

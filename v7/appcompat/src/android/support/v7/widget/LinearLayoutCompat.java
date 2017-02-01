@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -36,8 +38,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 
 /**
  * A Layout that arranges its children in a single column or a single row. The direction of
@@ -56,7 +56,7 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  */
 public class LinearLayoutCompat extends ViewGroup {
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({HORIZONTAL, VERTICAL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface OrientationMode {}
@@ -65,7 +65,7 @@ public class LinearLayoutCompat extends ViewGroup {
     public static final int VERTICAL = 1;
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef(flag = true,
             value = {
                     SHOW_DIVIDER_NONE,
@@ -273,7 +273,7 @@ public class LinearLayoutCompat extends ViewGroup {
      *
      * @hide Used internally by framework.
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public int getDividerWidth() {
         return mDividerWidth;
     }
@@ -1688,6 +1688,16 @@ public class LinearLayoutCompat extends ViewGroup {
             mGravity = gravity;
             requestLayout();
         }
+    }
+
+    /**
+     * Returns the current gravity. See {@link android.view.Gravity}
+     *
+     * @return the current gravity.
+     * @see #setGravity
+     */
+    public int getGravity() {
+        return mGravity;
     }
 
     public void setHorizontalGravity(int horizontalGravity) {

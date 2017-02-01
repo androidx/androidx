@@ -17,12 +17,17 @@
 package android.support.v4.view.accessibility;
 
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 /**
  * JellyBean specific AccessibilityNodeInfo API implementation.
  */
+
+@RequiresApi(16)
+@TargetApi(16)
 class AccessibilityNodeInfoCompatJellyBean {
 
     public static void addChild(Object info, View child, int virtualDescendantId) {

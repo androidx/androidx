@@ -16,11 +16,16 @@
 
 package android.support.v4.view.accessibility;
 
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.accessibility.AccessibilityRecord;
 
 /**
  * ICS MR1 specific AccessibilityRecord API implementation.
  */
+
+@RequiresApi(15)
+@TargetApi(15)
 class AccessibilityRecordCompatIcsMr1 {
 
     public static int getMaxScrollX(Object record) {

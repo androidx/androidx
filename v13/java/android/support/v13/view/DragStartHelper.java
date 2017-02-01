@@ -17,7 +17,9 @@
 package android.support.v13.view;
 
 
+import android.annotation.TargetApi;
 import android.graphics.Point;
+import android.support.annotation.RequiresApi;
 import android.support.v4.view.InputDeviceCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
@@ -68,11 +70,14 @@ import android.view.View;
  * }
  * </pre>
  */
+@RequiresApi(13)
+@TargetApi(13)
 public class DragStartHelper {
     final private View mView;
     final private OnDragStartListener mListener;
 
     private int mLastTouchX, mLastTouchY;
+    private boolean mDragging;
 
     /**
      * Interface definition for a callback to be invoked when a drag start gesture is detected.
@@ -83,7 +88,7 @@ public class DragStartHelper {
          *
          * @param v The view over which the drag start gesture has been detected.
          * @param helper The DragStartHelper object which detected the gesture.
-         * @return True if the listener has consumed the event, false otherwise.
+         * @return True if the listener has started the drag operation, false otherwise.
          */
         boolean onDragStart(View v, DragStartHelper helper);
     }
@@ -127,15 +132,37 @@ public class DragStartHelper {
      * @return True if the listener has consumed the event, false otherwise.
      */
     public boolean onTouch(View v, MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN ||
-                event.getAction() == MotionEvent.ACTION_MOVE) {
-            mLastTouchX = (int) event.getX();
-            mLastTouchY = (int) event.getY();
-        }
-        if (event.getAction() == MotionEvent.ACTION_MOVE &&
-                MotionEventCompat.isFromSource(event, InputDeviceCompat.SOURCE_MOUSE) &&
-                (MotionEventCompat.getButtonState(event) & MotionEventCompat.BUTTON_PRIMARY) != 0) {
-            return mListener.onDragStart(v, this);
+        final int x = (int) event.getX();
+        final int y = (int) event.getY();
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mLastTouchX = x;
+                mLastTouchY = y;
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                if (!MotionEventCompat.isFromSource(event, InputDeviceCompat.SOURCE_MOUSE)
+                        || (MotionEventCompat.getButtonState(event)
+                                & MotionEventCompat.BUTTON_PRIMARY) == 0) {
+                    break;
+                }
+                if (mDragging) {
+                    // Ignore ACTION_MOVE events once the drag operation is in progress.
+                    break;
+                }
+                if (mLastTouchX == x && mLastTouchY == y) {
+                    // Do not call the listener unless the pointer position has actually changed.
+                    break;
+                }
+                mLastTouchX = x;
+                mLastTouchY = y;
+                mDragging = mListener.onDragStart(v, this);
+                return mDragging;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                mDragging = false;
+                break;
         }
         return false;
     }

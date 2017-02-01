@@ -15,6 +15,8 @@
  */
 package android.support.v4.media;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -24,8 +26,6 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A simple set of metadata for a media item suitable for display. This can be
@@ -101,7 +101,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static final String DESCRIPTION_KEY_MEDIA_URI =
             "android.support.v4.media.description.MEDIA_URI";
     /**
@@ -109,7 +109,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @hide
      */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     public static final String DESCRIPTION_KEY_NULL_BUNDLE_FLAG =
             "android.support.v4.media.description.NULL_BUNDLE_FLAG";
     /**

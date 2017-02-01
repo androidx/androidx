@@ -17,7 +17,7 @@
 package android.support.v4.text;
 
 import android.os.Build;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.support.test.filters.SmallTest;
 
 import junit.framework.TestCase;
 

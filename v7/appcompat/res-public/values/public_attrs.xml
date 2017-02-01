@@ -66,7 +66,7 @@
      <public type="attr" name="buttonBarNeutralButtonStyle"/>
      <public type="attr" name="buttonBarPositiveButtonStyle"/>
      <public type="attr" name="buttonBarStyle"/>
-     <public type="attr" name="buttonGravity" />
+     <public type="attr" name="buttonGravity"/>
      <public type="attr" name="buttonStyle"/>
      <public type="attr" name="buttonStyleSmall"/>
      <public type="attr" name="buttonTint"/>
@@ -131,7 +131,7 @@
      <public type="attr" name="listPreferredItemPaddingRight"/>
      <public type="attr" name="logo"/>
      <public type="attr" name="logoDescription"/>
-     <public type="attr" name="maxButtonHeight" />
+     <public type="attr" name="maxButtonHeight"/>
      <public type="attr" name="measureWithLargestChild"/>
      <public type="attr" name="navigationContentDescription"/>
      <public type="attr" name="navigationIcon"/>
@@ -166,6 +166,7 @@
      <public type="attr" name="spinnerStyle"/>
      <public type="attr" name="splitTrack"/>
      <public type="attr" name="srcCompat"/>
+     <public type="attr" name="state_above_anchor"/>
      <public type="attr" name="submitBackground"/>
      <public type="attr" name="subtitle"/>
      <public type="attr" name="subtitleTextAppearance"/>
@@ -188,13 +189,15 @@
      <public type="attr" name="theme"/>
      <public type="attr" name="thickness"/>
      <public type="attr" name="thumbTextPadding"/>
+     <public type="attr" name="thumbTint"/>
+     <public type="attr" name="thumbTintMode"/>
      <public type="attr" name="tickMark"/>
      <public type="attr" name="tickMarkTint"/>
      <public type="attr" name="tickMarkTintMode"/>
      <public type="attr" name="title"/>
+     <public type="attr" name="titleMargin"/>
      <public type="attr" name="titleMarginBottom"/>
      <public type="attr" name="titleMarginEnd"/>
-     <public type="attr" name="titleMargin"/>
      <public type="attr" name="titleMargins"/>
      <public type="attr" name="titleMarginStart"/>
      <public type="attr" name="titleMarginTop"/>
@@ -204,6 +207,8 @@
      <public type="attr" name="toolbarNavigationButtonStyle"/>
      <public type="attr" name="toolbarStyle"/>
      <public type="attr" name="track"/>
+     <public type="attr" name="trackTint"/>
+     <public type="attr" name="trackTintMode"/>
      <public type="attr" name="voiceIcon"/>
      <public type="attr" name="windowActionBar"/>
      <public type="attr" name="windowActionBarOverlay"/>

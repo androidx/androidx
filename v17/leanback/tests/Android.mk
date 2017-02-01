@@ -36,7 +36,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
         android-support-v7-recyclerview \
         android-support-v17-leanback \
         android-support-test \
-        mockito-target
+        mockito-target-minus-junit4
 
 LOCAL_PACKAGE_NAME := AndroidLeanbackTests
 

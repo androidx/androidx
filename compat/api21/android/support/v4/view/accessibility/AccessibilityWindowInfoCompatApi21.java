@@ -17,11 +17,16 @@
 package android.support.v4.view.accessibility;
 
 import android.graphics.Rect;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.accessibility.AccessibilityWindowInfo;
 
 /**
  * Api21-specific AccessibilityWindowInfo API implementation.
  */
+
+@RequiresApi(21)
+@TargetApi(21)
 class AccessibilityWindowInfoCompatApi21 {
 
     public static Object obtain() {

@@ -21,8 +21,8 @@ import android.content.UriPermission;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.support.test.filters.MediumTest;
 import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.DataInputStream;
@@ -122,6 +122,7 @@ public class DocumentFileTest extends AndroidTestCase {
                 resetRoot();
                 assertTrue("isDirectory", doc.isDirectory());
                 assertFalse("isFile", doc.isFile());
+                assertFalse("isVirtual", doc.isVirtual());
                 assertTrue("canRead", doc.canRead());
                 assertTrue("canWrite", doc.canWrite());
                 assertTrue("exists", doc.exists());

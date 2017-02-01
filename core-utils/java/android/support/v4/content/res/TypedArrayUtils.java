@@ -15,6 +15,8 @@
  */
 package android.support.v4.content.res;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -23,14 +25,12 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleableRes;
 import android.util.TypedValue;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
-
 /**
  * Compat methods for accessing TypedArray values.
  *
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public class TypedArrayUtils {
     public static boolean getBoolean(TypedArray a, @StyleableRes int index,
             @StyleableRes int fallbackIndex, boolean defaultValue) {
@@ -64,6 +64,15 @@ public class TypedArrayUtils {
         String val = a.getString(index);
         if (val == null) {
             val = a.getString(fallbackIndex);
+        }
+        return val;
+    }
+
+    public static CharSequence getText(TypedArray a, @StyleableRes int index,
+            @StyleableRes int fallbackIndex) {
+        CharSequence val = a.getText(index);
+        if (val == null) {
+            val = a.getText(fallbackIndex);
         }
         return val;
     }

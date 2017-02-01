@@ -19,6 +19,7 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v17.leanback.R;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -125,9 +126,12 @@ public class BaseCardView extends FrameLayout {
     private final int mActivatedAnimDuration;
     private final int mSelectedAnimDuration;
 
+    /**
+     * Distance of top of info view to bottom of MainView, it will shift up when extra view appears.
+     */
     float mInfoOffset;
     float mInfoVisFraction;
-    float mInfoAlpha = 1.0f;
+    float mInfoAlpha;
     private Animation mAnim;
 
     private final static int[] LB_PRESSED_STATE_SET = new int[]{
@@ -195,7 +199,8 @@ public class BaseCardView extends FrameLayout {
         mExtraViewList = new ArrayList<View>();
 
         mInfoOffset = 0.0f;
-        mInfoVisFraction = 0.0f;
+        mInfoVisFraction = getFinalInfoVisFraction();
+        mInfoAlpha = getFinalInfoAlpha();
     }
 
     /**
@@ -242,8 +247,8 @@ public class BaseCardView extends FrameLayout {
                 // Valid card type
                 mCardType = type;
             } else {
-                Log.e(TAG, "Invalid card type specified: " + type +
-                        ". Defaulting to type CARD_TYPE_MAIN_ONLY.");
+                Log.e(TAG, "Invalid card type specified: " + type
+                        + ". Defaulting to type CARD_TYPE_MAIN_ONLY.");
                 mCardType = CARD_TYPE_MAIN_ONLY;
             }
             requestLayout();
@@ -269,14 +274,28 @@ public class BaseCardView extends FrameLayout {
      */
     public void setInfoVisibility(int visibility) {
         if (mInfoVisibility != visibility) {
+            cancelAnimations();
             mInfoVisibility = visibility;
-            if (mInfoVisibility == CARD_REGION_VISIBLE_SELECTED && isSelected()) {
-                mInfoVisFraction = 1.0f;
-            } else {
-                mInfoVisFraction = 0.0f;
-            }
+            mInfoVisFraction = getFinalInfoVisFraction();
             requestLayout();
+            float newInfoAlpha = getFinalInfoAlpha();
+            if (newInfoAlpha != mInfoAlpha) {
+                mInfoAlpha = newInfoAlpha;
+                for (int i = 0; i < mInfoViewList.size(); i++) {
+                    mInfoViewList.get(i).setAlpha(mInfoAlpha);
+                }
+            }
         }
+    }
+
+    final float getFinalInfoVisFraction() {
+        return mCardType == CARD_TYPE_INFO_UNDER && mInfoVisibility == CARD_REGION_VISIBLE_SELECTED
+                && !isSelected() ? 0.0f : 1.0f;
+    }
+
+    final float getFinalInfoAlpha() {
+        return mCardType == CARD_TYPE_INFO_OVER && mInfoVisibility == CARD_REGION_VISIBLE_SELECTED
+                && !isSelected() ? 0.0f : 1.0f;
     }
 
     /**
@@ -293,17 +312,20 @@ public class BaseCardView extends FrameLayout {
      *     be one of {@link #CARD_REGION_VISIBLE_ALWAYS},
      *     {@link #CARD_REGION_VISIBLE_SELECTED}, or
      *     {@link #CARD_REGION_VISIBLE_ACTIVATED}.
+     * @deprecated Extra view's visibility is controlled by {@link #setInfoVisibility(int)}
      */
+    @Deprecated
     public void setExtraVisibility(int visibility) {
         if (mExtraVisibility != visibility) {
             mExtraVisibility = visibility;
-            requestLayout();
         }
     }
 
     /**
      * Returns the visibility of the extra region of the card.
+     * @deprecated Extra view's visibility is controlled by {@link #getInfoVisibility()}
      */
+    @Deprecated
     public int getExtraVisibility() {
         return mExtraVisibility;
     }
@@ -400,13 +422,13 @@ public class BaseCardView extends FrameLayout {
         }
 
         boolean infoAnimating = hasInfoRegion() && mInfoVisibility == CARD_REGION_VISIBLE_SELECTED;
-        mMeasuredHeight = (int) (mainHeight +
-                (infoAnimating ? (infoHeight * mInfoVisFraction) : infoHeight)
+        mMeasuredHeight = (int) (mainHeight
+                + (infoAnimating ? (infoHeight * mInfoVisFraction) : infoHeight)
                 + extraHeight - (infoAnimating ? 0 : mInfoOffset));
 
         // Report our final dimensions.
-        setMeasuredDimension(View.resolveSizeAndState(mMeasuredWidth + getPaddingLeft() +
-                getPaddingRight(), widthMeasureSpec, state),
+        setMeasuredDimension(View.resolveSizeAndState(mMeasuredWidth + getPaddingLeft()
+                + getPaddingRight(), widthMeasureSpec, state),
                 View.resolveSizeAndState(mMeasuredHeight + getPaddingTop() + getPaddingBottom(),
                         heightMeasureSpec, state << View.MEASURED_HEIGHT_STATE_SHIFT));
     }
@@ -488,8 +510,6 @@ public class BaseCardView extends FrameLayout {
         super.onDetachedFromWindow();
         removeCallbacks(mAnimationTrigger);
         cancelAnimations();
-        mInfoOffset = 0.0f;
-        mInfoVisFraction = 0.0f;
     }
 
     private boolean hasInfoRegion() {
@@ -500,6 +520,9 @@ public class BaseCardView extends FrameLayout {
         return mCardType == CARD_TYPE_INFO_UNDER_WITH_EXTRA;
     }
 
+    /**
+     * Returns target visibility of info region.
+     */
     private boolean isRegionVisible(int regionVisibility) {
         switch (regionVisibility) {
             case CARD_REGION_VISIBLE_ALWAYS:
@@ -507,7 +530,28 @@ public class BaseCardView extends FrameLayout {
             case CARD_REGION_VISIBLE_ACTIVATED:
                 return isActivated();
             case CARD_REGION_VISIBLE_SELECTED:
-                return isActivated() && isSelected();
+                return isSelected();
+            default:
+                if (DEBUG) Log.e(TAG, "invalid region visibility state: " + regionVisibility);
+                return false;
+        }
+    }
+
+    /**
+     * Unlike isRegionVisible(), this method returns true when it is fading out when unselected.
+     */
+    private boolean isCurrentRegionVisible(int regionVisibility) {
+        switch (regionVisibility) {
+            case CARD_REGION_VISIBLE_ALWAYS:
+                return true;
+            case CARD_REGION_VISIBLE_ACTIVATED:
+                return isActivated();
+            case CARD_REGION_VISIBLE_SELECTED:
+                if (mCardType == CARD_TYPE_INFO_UNDER) {
+                    return mInfoVisFraction > 0f;
+                } else {
+                    return isSelected();
+                }
             default:
                 if (DEBUG) Log.e(TAG, "invalid region visibility state: " + regionVisibility);
                 return false;
@@ -521,12 +565,8 @@ public class BaseCardView extends FrameLayout {
 
         final int count = getChildCount();
 
-        boolean infoVisible = isRegionVisible(mInfoVisibility);
+        boolean infoVisible = hasInfoRegion() && isCurrentRegionVisible(mInfoVisibility);
         boolean extraVisible = hasExtraRegion() && mInfoOffset > 0f;
-
-        if (mCardType == CARD_TYPE_INFO_UNDER && mInfoVisibility == CARD_REGION_VISIBLE_SELECTED) {
-            infoVisible = infoVisible && mInfoVisFraction > 0f;
-        }
 
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
@@ -538,6 +578,7 @@ public class BaseCardView extends FrameLayout {
             BaseCardView.LayoutParams lp = (BaseCardView.LayoutParams) child
                     .getLayoutParams();
             if (lp.viewType == LayoutParams.VIEW_TYPE_INFO) {
+                child.setAlpha(mInfoAlpha);
                 mInfoViewList.add(child);
                 child.setVisibility(infoVisible ? View.VISIBLE : View.GONE);
             } else if (lp.viewType == LayoutParams.VIEW_TYPE_EXTRA) {
@@ -579,11 +620,8 @@ public class BaseCardView extends FrameLayout {
     }
 
     private void applyActiveState(boolean active) {
-        if (hasInfoRegion() && mInfoVisibility <= CARD_REGION_VISIBLE_ACTIVATED) {
-            setInfoViewVisibility(active);
-        }
-        if (hasExtraRegion() && mExtraVisibility <= CARD_REGION_VISIBLE_ACTIVATED) {
-            //setExtraVisibility(active);
+        if (hasInfoRegion() && mInfoVisibility == CARD_REGION_VISIBLE_ACTIVATED) {
+            setInfoViewVisibility(isRegionVisible(mInfoVisibility));
         }
     }
 
@@ -643,6 +681,7 @@ public class BaseCardView extends FrameLayout {
         if (mAnim != null) {
             mAnim.cancel();
             mAnim = null;
+            clearAnimation();
         }
     }
 
@@ -695,32 +734,30 @@ public class BaseCardView extends FrameLayout {
     private void animateInfoHeight(boolean shown) {
         cancelAnimations();
 
-        int extraHeight = 0;
         if (shown) {
-            int widthSpec = MeasureSpec.makeMeasureSpec(mMeasuredWidth, MeasureSpec.EXACTLY);
-            int heightSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
-
-            for (int i = 0; i < mExtraViewList.size(); i++) {
-                View extraView = mExtraViewList.get(i);
+            for (int i = 0; i < mInfoViewList.size(); i++) {
+                View extraView = mInfoViewList.get(i);
                 extraView.setVisibility(View.VISIBLE);
-                extraView.measure(widthSpec, heightSpec);
-                extraHeight = Math.max(extraHeight, extraView.getMeasuredHeight());
             }
         }
 
-        mAnim = new InfoHeightAnimation(mInfoVisFraction, shown ? 1.0f : 0f);
+        float targetFraction = shown ? 1.0f : 0f;
+        if (mInfoVisFraction == targetFraction) {
+            return;
+        }
+        mAnim = new InfoHeightAnimation(mInfoVisFraction, targetFraction);
         mAnim.setDuration(mSelectedAnimDuration);
         mAnim.setInterpolator(new AccelerateDecelerateInterpolator());
         mAnim.setAnimationListener(new Animation.AnimationListener() {
-                @Override
+            @Override
             public void onAnimationStart(Animation animation) {
             }
 
-                @Override
+            @Override
             public void onAnimationEnd(Animation animation) {
-                if (mInfoOffset == 0f) {
-                    for (int i = 0; i < mExtraViewList.size(); i++) {
-                        mExtraViewList.get(i).setVisibility(View.GONE);
+                if (mInfoVisFraction == 0f) {
+                    for (int i = 0; i < mInfoViewList.size(); i++) {
+                        mInfoViewList.get(i).setVisibility(View.GONE);
                     }
                 }
             }
@@ -744,6 +781,10 @@ public class BaseCardView extends FrameLayout {
             for (int i = 0; i < mInfoViewList.size(); i++) {
                 mInfoViewList.get(i).setVisibility(View.VISIBLE);
             }
+        }
+        float targetAlpha = shown ? 1.0f : 0.0f;
+        if (targetAlpha == mInfoAlpha) {
+            return;
         }
 
         mAnim = new InfoAlphaAnimation(mInfoAlpha, shown ? 1.0f : 0.0f);
@@ -854,9 +895,23 @@ public class BaseCardView extends FrameLayout {
         }
     }
 
+    class AnimationBase extends Animation {
+
+        @VisibleForTesting
+        final void mockStart() {
+            getTransformation(0, null);
+        }
+
+        @VisibleForTesting
+        final void mockEnd() {
+            applyTransformation(1f, null);
+            cancelAnimations();
+        }
+    }
+
     // Helper animation class used in the animation of the info and extra
     // fields vertically within the card
-    private class InfoOffsetAnimation extends Animation {
+    final class InfoOffsetAnimation extends AnimationBase {
         private float mStartValue;
         private float mDelta;
 
@@ -874,7 +929,7 @@ public class BaseCardView extends FrameLayout {
 
     // Helper animation class used in the animation of the visible height
     // for the info fields.
-    private class InfoHeightAnimation extends Animation {
+    final class InfoHeightAnimation extends AnimationBase {
         private float mStartValue;
         private float mDelta;
 
@@ -892,7 +947,7 @@ public class BaseCardView extends FrameLayout {
 
     // Helper animation class used to animate the alpha for the info views
     // when they are fading in or out of view.
-    private class InfoAlphaAnimation extends Animation {
+    final class InfoAlphaAnimation extends AnimationBase {
         private float mStartValue;
         private float mDelta;
 

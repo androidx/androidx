@@ -13,26 +13,17 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.SharedElementCallback;
-import android.support.v4.view.ViewCompat;
-import android.support.v17.leanback.R;
-import android.support.v17.leanback.transition.TransitionListener;
-import android.support.v17.leanback.transition.TransitionHelper;
-import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder;
 import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Matrix;
+import android.os.Handler;
+import android.support.v17.leanback.transition.TransitionHelper;
+import android.support.v17.leanback.transition.TransitionListener;
+import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.View.MeasureSpec;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 
-import java.util.List;
+import java.lang.ref.WeakReference;
 
 /**
  * Helper class to assist delayed shared element activity transition for view created by
@@ -46,10 +37,30 @@ import java.util.List;
 public class FullWidthDetailsOverviewSharedElementHelper extends
         FullWidthDetailsOverviewRowPresenter.Listener {
 
-    static final String TAG = "FullWidthDetailsOverviewSharedElementHelper";
+    static final String TAG = "DetailsTransitionHelper";
     static final boolean DEBUG = false;
 
     private static final long DEFAULT_TIMEOUT = 5000;
+
+    static class TransitionTimeOutRunnable implements Runnable {
+        WeakReference<FullWidthDetailsOverviewSharedElementHelper> mHelperRef;
+
+        TransitionTimeOutRunnable(FullWidthDetailsOverviewSharedElementHelper helper) {
+            mHelperRef = new WeakReference<FullWidthDetailsOverviewSharedElementHelper>(helper);
+        }
+
+        @Override
+        public void run() {
+            FullWidthDetailsOverviewSharedElementHelper helper = mHelperRef.get();
+            if (helper == null) {
+                return;
+            }
+            if (DEBUG) {
+                Log.d(TAG, "timeout " + helper.mActivityToRunTransition);
+            }
+            helper.startPostponedEnterTransition();
+        }
+    }
 
     ViewHolder mViewHolder;
     Activity mActivityToRunTransition;
@@ -63,12 +74,12 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
 
     public void setSharedElementEnterTransition(Activity activity, String sharedElementName,
             long timeoutMs) {
-        if (activity == null && !TextUtils.isEmpty(sharedElementName) ||
-                activity != null && TextUtils.isEmpty(sharedElementName)) {
+        if (activity == null && !TextUtils.isEmpty(sharedElementName)
+                || activity != null && TextUtils.isEmpty(sharedElementName)) {
             throw new IllegalArgumentException();
         }
-        if (activity == mActivityToRunTransition &&
-                TextUtils.equals(sharedElementName, mSharedElementName)) {
+        if (activity == mActivityToRunTransition
+                && TextUtils.equals(sharedElementName, mSharedElementName)) {
             return;
         }
         mActivityToRunTransition = activity;
@@ -80,15 +91,7 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
         setAutoStartSharedElementTransition(transition != null);
         ActivityCompat.postponeEnterTransition(mActivityToRunTransition);
         if (timeoutMs > 0) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (DEBUG) {
-                        Log.d(TAG, "timeout " + mActivityToRunTransition);
-                    }
-                    startPostponedEnterTransitionInternal();
-                }
-            }, timeoutMs);
+            new Handler().postDelayed(new TransitionTimeOutRunnable(this), timeoutMs);
         }
     }
 

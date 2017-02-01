@@ -18,7 +18,6 @@
 package android.support.v4.os;
 
 import android.os.Build.VERSION;
-import android.text.TextUtils;
 
 /**
  * BuildCompat contains additional platform version checking methods for
@@ -44,5 +43,15 @@ public class BuildCompat {
      */
     public static boolean isAtLeastNMR1() {
         return VERSION.SDK_INT >= 25;
+    }
+
+    /**
+     * Check if the device is running on the Android O release or newer.
+     *
+     * @return {@code true} if O APIs are available for use
+     */
+    public static boolean isAtLeastO() {
+        return !"REL".equals(VERSION.CODENAME)
+                && ("O".equals(VERSION.CODENAME) || VERSION.CODENAME.startsWith("OMR"));
     }
 }

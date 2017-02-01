@@ -16,18 +16,19 @@
 
 package android.support.design.internal;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.view.menu.MenuItemImpl;
 import android.view.MenuItem;
 import android.view.SubMenu;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * @hide
  */
-@RestrictTo(GROUP_ID)
+@RestrictTo(LIBRARY_GROUP)
 public final class BottomNavigationMenu extends MenuBuilder {
     public static final int MAX_ITEM_COUNT = 5;
 
@@ -47,6 +48,12 @@ public final class BottomNavigationMenu extends MenuBuilder {
                     "Maximum number of items supported by BottomNavigationView is " + MAX_ITEM_COUNT
                             + ". Limit can be checked with BottomNavigationView#getMaxItemCount()");
         }
-        return super.addInternal(group, id, categoryOrder, title);
+        stopDispatchingItemsChanged();
+        final MenuItem item = super.addInternal(group, id, categoryOrder, title);
+        if (item instanceof MenuItemImpl) {
+            ((MenuItemImpl) item).setExclusiveCheckable(true);
+        }
+        startDispatchingItemsChanged();
+        return item;
     }
 }

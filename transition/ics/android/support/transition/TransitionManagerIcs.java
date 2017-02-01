@@ -16,6 +16,11 @@
 
 package android.support.transition;
 
+import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
+
+@RequiresApi(14)
+@TargetApi(14)
 class TransitionManagerIcs extends TransitionManagerImpl {
 
     private final TransitionManagerPort mTransitionManager = new TransitionManagerPort();

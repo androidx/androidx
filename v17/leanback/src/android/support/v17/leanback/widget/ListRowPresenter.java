@@ -122,6 +122,21 @@ public class ListRowPresenter extends RowPresenter {
             }
             return ibvh.getViewHolder();
         }
+
+        @Override
+        public Presenter.ViewHolder getSelectedItemViewHolder() {
+            return getItemViewHolder(getSelectedPosition());
+        }
+
+        @Override
+        public Object getSelectedItem() {
+            ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) mGridView
+                    .findViewHolderForAdapterPosition(getSelectedPosition());
+            if (ibvh == null) {
+                return null;
+            }
+            return ibvh.getItem();
+        }
     }
 
     /**
@@ -435,16 +450,13 @@ public class ListRowPresenter extends RowPresenter {
         });
         rowViewHolder.mGridView.setOnUnhandledKeyListener(
                 new BaseGridView.OnUnhandledKeyListener() {
-            @Override
-            public boolean onUnhandledKey(KeyEvent event) {
-                if (rowViewHolder.getOnKeyListener() != null &&
-                        rowViewHolder.getOnKeyListener().onKey(
-                                rowViewHolder.view, event.getKeyCode(), event)) {
-                    return true;
+                @Override
+                public boolean onUnhandledKey(KeyEvent event) {
+                    return rowViewHolder.getOnKeyListener() != null
+                            && rowViewHolder.getOnKeyListener().onKey(
+                                    rowViewHolder.view, event.getKeyCode(), event);
                 }
-                return false;
-            }
-        });
+            });
         rowViewHolder.mGridView.setNumRows(mNumRows);
     }
 
@@ -538,10 +550,10 @@ public class ListRowPresenter extends RowPresenter {
         if (vh.isExpanded()) {
             int headerSpaceUnderBaseline = getSpaceUnderBaseline(vh);
             if (DEBUG) Log.v(TAG, "headerSpaceUnderBaseline " + headerSpaceUnderBaseline);
-            paddingTop = (vh.isSelected() ? sExpandedSelectedRowTopPadding : vh.mPaddingTop) -
-                    headerSpaceUnderBaseline;
-            paddingBottom = mHoverCardPresenterSelector == null ?
-                    sExpandedRowNoHovercardBottomPadding : vh.mPaddingBottom;
+            paddingTop = (vh.isSelected() ? sExpandedSelectedRowTopPadding : vh.mPaddingTop)
+                    - headerSpaceUnderBaseline;
+            paddingBottom = mHoverCardPresenterSelector == null
+                    ? sExpandedRowNoHovercardBottomPadding : vh.mPaddingBottom;
         } else if (vh.isSelected()) {
             paddingTop = sSelectedRowTopPadding - vh.mPaddingBottom;
             paddingBottom = sSelectedRowTopPadding;

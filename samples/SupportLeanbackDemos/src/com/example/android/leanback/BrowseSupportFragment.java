@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from BrowseFragment.java.  DO NOT MODIFY. */
 
 /*
@@ -16,6 +17,7 @@
 package com.example.android.leanback;
 
 import android.support.v4.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +37,7 @@ import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SectionRow;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +53,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
     private static final long HEADER_ID3 = 1003;
 
     private ArrayObjectAdapter mRowsAdapter;
-    private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
+    private BackgroundHelper mBackgroundHelper;
 
     // For good performance, it's important to use a single instance of
     // a card presenter for all rows using that presenter.
@@ -66,7 +69,11 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
+        mBackgroundHelper = new BackgroundHelper(getActivity());
+        mBackgroundHelper.attachToWindow();
+
+        setBadgeDrawable(ResourcesCompat.getDrawable(getActivity().getResources(),
+                R.drawable.ic_title, getActivity().getTheme()));
         setTitle("Leanback Sample App");
         setHeadersState(HEADERS_ENABLED);
         setOnSearchClickedListener(new View.OnClickListener() {
@@ -84,12 +91,13 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
                     RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemSelected: " + item + " row " + row);
 
-                if (isShowingHeaders()) {
-                    mBackgroundHelper.setBackground(getActivity(), null);
-                } else if (item instanceof PhotoItem) {
-                    mBackgroundHelper.setBackground(
-                            getActivity(), ((PhotoItem) item).getImageResourceId());
-                }
+                updateBackgroundToSelection();
+            }
+        });
+        setBrowseTransitionListener(new BrowseTransitionListener() {
+            @Override
+            public void onHeadersTransitionStop(boolean withHeaders) {
+                updateBackgroundToSelection();
             }
         });
         if (TEST_ENTRANCE_TRANSITION) {
@@ -110,6 +118,26 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        updateBackgroundToSelection();
+    }
+
+    void updateBackgroundToSelection() {
+        if (!isShowingHeaders()) {
+            RowPresenter.ViewHolder rowViewHolder = getSelectedRowViewHolder();
+            Object item = rowViewHolder == null ? null : rowViewHolder.getSelectedItem();
+            if (item != null) {
+                mBackgroundHelper.setBackground(((PhotoItem) item).getImageResourceId());
+            } else {
+                mBackgroundHelper.clearDrawable();
+            }
+        } else {
+            mBackgroundHelper.clearDrawable();
+        }
+    }
+
+    @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return super.onCreateView(inflater, container, savedInstanceState);
@@ -117,7 +145,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
 
     private void setupRows() {
         ListRowPresenter listRowPresenter = new ListRowPresenter();
-        listRowPresenter.setNumRows(2);
+        listRowPresenter.setNumRows(1);
         mRowsAdapter = new ArrayObjectAdapter(listRowPresenter);
         setAdapter(mRowsAdapter);
     }
@@ -130,7 +158,9 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
 
         mRowsAdapter.add(new SectionRow(new HeaderItem("section 0")));
         for (; i < NUM_ROWS; ++i) {
-            mRowsAdapter.add(new ListRow(new HeaderItem(i, "Row " + i), createListRowAdapter(i)));
+            HeaderItem headerItem = new HeaderItem(i, "Row " + i);
+            headerItem.setDescription("Description for Row "+i);
+            mRowsAdapter.add(new ListRow(headerItem, createListRowAdapter(i)));
         }
 
         mRowsAdapter.add(new DividerRow());

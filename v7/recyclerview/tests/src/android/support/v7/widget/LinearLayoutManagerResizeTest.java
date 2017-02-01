@@ -16,21 +16,19 @@
 
 package android.support.v7.widget;
 
-import org.junit.After;
-import org.junit.Before;
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+
+import static org.junit.Assert.assertEquals;
+
+import android.support.test.filters.MediumTest;
+import android.widget.FrameLayout;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import android.support.test.InstrumentationRegistry;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.widget.FrameLayout;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class LinearLayoutManagerResizeTest extends BaseLinearLayoutManagerTest {
@@ -56,7 +54,7 @@ public class LinearLayoutManagerResizeTest extends BaseLinearLayoutManagerTest {
     public void resize() throws Throwable {
         final Config config = (Config) mConfig.clone();
         final FrameLayout container = getRecyclerViewContainer();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 container.setPadding(0, 0, 0, 0);
@@ -72,7 +70,7 @@ public class LinearLayoutManagerResizeTest extends BaseLinearLayoutManagerTest {
                 .findFirstCompletelyVisibleItemPosition();
         mLayoutManager.expectLayouts(1);
         // resize the recycler view to half
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (config.mOrientation == HORIZONTAL) {

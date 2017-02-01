@@ -19,6 +19,7 @@ package android.support.v7.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -29,10 +30,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v7.media.MediaRouter;
 import android.support.v7.media.MediaRouteSelector;
+import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -98,6 +98,7 @@ public class MediaRouteButton extends View {
     private boolean mCheatSheetEnabled;
     private boolean mIsConnecting;
 
+    private ColorStateList mButtonTint;
     private int mMinWidth;
     private int mMinHeight;
 
@@ -129,6 +130,7 @@ public class MediaRouteButton extends View {
 
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.MediaRouteButton, defStyleAttr, 0);
+        mButtonTint = a.getColorStateList(R.styleable.MediaRouteButton_buttonTint);
         setRemoteIndicatorDrawable(a.getDrawable(
                 R.styleable.MediaRouteButton_externalRouteEnabledDrawable));
         mMinWidth = a.getDimensionPixelSize(
@@ -362,6 +364,10 @@ public class MediaRouteButton extends View {
             mRemoteIndicator.setCallback(null);
             unscheduleDrawable(mRemoteIndicator);
         }
+        if (mButtonTint != null) {
+            d = DrawableCompat.wrap(d.mutate());
+            DrawableCompat.setTintList(d, mButtonTint);
+        }
         mRemoteIndicator = d;
         if (d != null) {
             d.setCallback(this);
@@ -513,6 +519,9 @@ public class MediaRouteButton extends View {
                     }
                 }
             }
+
+            setEnabled(mRouter.isRouteAvailable(mSelector,
+                    MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE));
         }
     }
 

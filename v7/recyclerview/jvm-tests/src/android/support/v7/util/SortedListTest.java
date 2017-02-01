@@ -16,14 +16,14 @@
 
 package android.support.v7.util;
 
+import android.support.test.filters.SmallTest;
+
 import junit.framework.TestCase;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.ArrayList;
 import java.util.Collection;

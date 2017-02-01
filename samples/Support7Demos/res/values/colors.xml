@@ -23,4 +23,8 @@
     <color name="card_tropical">#56C4E8</color>
 
     <color name="drawer_sample_metal_blue">#FF505080</color>
+
+    <color name="color_sky_day">#90F0FF</color>
+    <color name="color_sky_night">#3050CF</color>
+    <color name="color_sky">@color/color_sky_day</color>
 </resources>

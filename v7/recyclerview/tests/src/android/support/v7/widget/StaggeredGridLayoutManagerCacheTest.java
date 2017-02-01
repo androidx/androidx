@@ -16,9 +16,15 @@
 
 package android.support.v7.widget;
 
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+
 import android.os.Build;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
-import android.test.suitebuilder.annotation.MediumTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,11 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
@@ -48,7 +49,7 @@ public class StaggeredGridLayoutManagerCacheTest extends BaseStaggeredGridLayout
         mDy = dy;
     }
 
-    @Parameterized.Parameters(name = "config:{0}, dx:{1}, dy: {2}")
+    @Parameterized.Parameters(name = "config:{0},dx:{1},dy:{2}")
     public static List<Object[]> getParams() {
         List<Object[]> result = new ArrayList<>();
         List<Config> configs = createBaseVariations();
@@ -95,7 +96,7 @@ public class StaggeredGridLayoutManagerCacheTest extends BaseStaggeredGridLayout
         setupByConfig(config);
         waitFirstLayout();
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // pretend to have an extra 5s before next frame so prefetch won't abort early
@@ -109,20 +110,20 @@ public class StaggeredGridLayoutManagerCacheTest extends BaseStaggeredGridLayout
         mRecyclerView.setItemViewCacheSize(0);
         {
             mLayoutManager.expectPrefetch(1);
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     mRecyclerView.mRecycler.recycleAndClearCachedViews();
-                    mRecyclerView.mViewPrefetcher.postFromTraversal(mDx, mDy);
+                    mRecyclerView.mGapWorker.postFromTraversal(mRecyclerView, mDx, mDy);
 
                     // Lie about post time, so prefetch executes even if it is delayed
-                    mRecyclerView.mViewPrefetcher.mPostTimeNanos += TimeUnit.SECONDS.toNanos(5);
+                    mRecyclerView.mGapWorker.mPostTimeNs += TimeUnit.SECONDS.toNanos(5);
                 }
             });
             mLayoutManager.waitForPrefetch(1);
         }
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // validate cache state on UI thread

@@ -23,6 +23,8 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.InsetDrawable;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.util.AttributeSet;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -33,6 +35,9 @@ import java.io.IOException;
 /**
  * Implementation of drawable compatibility that can call L APIs.
  */
+
+@RequiresApi(21)
+@TargetApi(21)
 class DrawableCompatLollipop {
 
     public static void setHotspot(Drawable drawable, float x, float y) {

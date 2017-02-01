@@ -15,19 +15,20 @@
  */
 package android.support.v4.content.res;
 
+import static org.junit.Assert.assertEquals;
+
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.compat.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.v4.testutils.TestUtils;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.util.DisplayMetrics;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 @SmallTest
 public class ResourcesCompatTest {

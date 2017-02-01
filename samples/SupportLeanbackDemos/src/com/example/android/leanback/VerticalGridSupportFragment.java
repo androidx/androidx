@@ -1,4 +1,5 @@
-/* This file is auto-generated from VerticalGridFragment.  DO NOT MODIFY. */
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from VerticalGridFragment.java.  DO NOT MODIFY. */
 
 /*
  * Copyright (C) 2014 The Android Open Source Project
@@ -15,21 +16,20 @@
  */
 package com.example.android.leanback;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.RowPresenter;
-import android.support.v17.leanback.widget.VerticalGridPresenter;
-import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.VerticalGridPresenter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 public class VerticalGridSupportFragment extends android.support.v17.leanback.app.VerticalGridSupportFragment {
     private static final String TAG = "leanback.VerticalGridSupportFragment";
@@ -54,7 +54,9 @@ public class VerticalGridSupportFragment extends android.support.v17.leanback.ap
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
+        final Context context = getActivity();
+        setBadgeDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                R.drawable.ic_title, context.getTheme()));
         setTitle("Leanback Vertical Grid Demo");
 
         setupFragment();

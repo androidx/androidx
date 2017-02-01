@@ -1,9 +1,11 @@
 apply plugin: 'com.android.library'
-
 archivesBaseName = 'leanback-v17'
 
 dependencies {
-    compile project(':support-v4')
+    compile project(':support-compat')
+    compile project(':support-core-ui')
+    compile project(':support-media-compat')
+    compile project(':support-fragment')
     compile project(':support-recyclerview-v7')
     androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
         exclude module: 'support-annotations'
@@ -18,22 +20,24 @@ dependencies {
 }
 
 android {
-    // WARNING: should be 17
     compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
         minSdkVersion 17
-        // TODO: get target from branch
-        //targetSdkVersion 19
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['common', 'jbmr2', 'kitkat', 'api21', 'api23', 'src']
-        main.aidl.srcDirs = ['common', 'jbmr2', 'kitkat', 'api21', 'api23', 'src']
-        main.res.srcDirs = ['res']
+        main.java.srcDirs = [
+                'common',
+                'jbmr2',
+                'kitkat',
+                'api21',
+                'api23',
+                'src'
+        ]
+        main.res.srcDir 'res'
 
         androidTest.setRoot('tests')
         androidTest.java.srcDir 'tests/java'
@@ -41,14 +45,14 @@ android {
         androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
+    lintOptions {
+        // Remove this once all NewApi breakages have been fixed.
+        disable "NewApi"
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
-    }
-
-    lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
     }
 }
 

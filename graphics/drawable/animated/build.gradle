@@ -14,7 +14,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion project.ext.currentSdk
     defaultConfig {
         minSdkVersion 11
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -37,10 +37,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
-    lintOptions {
-        abortOnError false
-    }
-
     aaptOptions {
         additionalParameters "--no-version-vectors"
     }
@@ -51,6 +47,10 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
+    }
+
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
     }
 }
 

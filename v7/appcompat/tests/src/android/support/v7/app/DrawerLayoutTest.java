@@ -15,31 +15,48 @@
  */
 package android.support.v7.app;
 
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.v7.testutils.DrawerLayoutActions.closeDrawer;
+import static android.support.v7.testutils.DrawerLayoutActions.openDrawer;
+import static android.support.v7.testutils.DrawerLayoutActions.setDrawerLockMode;
+import static android.support.v7.testutils.DrawerLayoutActions.wrap;
+import static android.support.v7.testutils.TestUtilsMatchers.inAscendingOrder;
+import static android.support.v7.testutils.TestUtilsMatchers.inDescendingOrder;
+import static android.support.v7.testutils.TestUtilsMatchers.inRange;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import android.os.Build;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.action.GeneralLocation;
 import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.Swipe;
+import android.support.test.filters.LargeTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.filters.SmallTest;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.custom.CustomDrawerLayout;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
-
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.v7.testutils.DrawerLayoutActions.*;
-import static android.support.v7.testutils.TestUtilsMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutActivity> {
     private CustomDrawerLayout mDrawerLayout;
@@ -95,10 +112,10 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
 
     @Test
     @MediumTest
-    public void testDrawerOpenCloseFocus() {
+    public void testDrawerOpenCloseFocus() throws Throwable {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mContentView.setFocusableInTouchMode(true);
@@ -191,7 +208,7 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDrawerOpenCloseWithRedundancyViaSwipes() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 

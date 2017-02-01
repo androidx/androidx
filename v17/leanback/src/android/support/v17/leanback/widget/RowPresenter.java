@@ -290,6 +290,21 @@ public abstract class RowPresenter extends Presenter {
         public final BaseOnItemViewClickedListener getOnItemViewClickedListener() {
             return mOnItemViewClickedListener;
         }
+        /**
+         * Return {@link ViewHolder} of currently selected item inside a row ViewHolder.
+         * @return The selected item's ViewHolder.
+         */
+        public Presenter.ViewHolder getSelectedItemViewHolder() {
+            return null;
+        }
+
+        /**
+         * Return currently selected item inside a row ViewHolder.
+         * @return The selected item.
+         */
+        public Object getSelectedItem() {
+            return null;
+        }
     }
 
     private RowHeaderPresenter mHeaderPresenter = new RowHeaderPresenter();
@@ -663,10 +678,10 @@ public abstract class RowPresenter extends Presenter {
      *                       should be set to visible, false otherwise.
      */
     public void setEntranceTransitionState(ViewHolder holder, boolean afterEntrance) {
-        if (holder.mHeaderViewHolder != null &&
-                holder.mHeaderViewHolder.view.getVisibility() != View.GONE) {
-            holder.mHeaderViewHolder.view.setVisibility(afterEntrance ?
-                    View.VISIBLE : View.INVISIBLE);
+        if (holder.mHeaderViewHolder != null
+                && holder.mHeaderViewHolder.view.getVisibility() != View.GONE) {
+            holder.mHeaderViewHolder.view.setVisibility(afterEntrance
+                    ? View.VISIBLE : View.INVISIBLE);
         }
     }
 }

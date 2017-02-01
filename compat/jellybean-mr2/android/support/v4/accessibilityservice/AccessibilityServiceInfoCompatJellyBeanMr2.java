@@ -17,11 +17,15 @@
 package android.support.v4.accessibilityservice;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.content.pm.ResolveInfo;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
 /**
  * ICS implementation of the new APIs in AccessibilityServiceInfo.
  */
+
+@RequiresApi(18)
+@TargetApi(18)
 class AccessibilityServiceInfoCompatJellyBeanMr2 {
 
     public static int getCapabilities(AccessibilityServiceInfo info) {

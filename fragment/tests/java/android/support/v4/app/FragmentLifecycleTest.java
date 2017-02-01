@@ -17,6 +17,19 @@
 
 package android.support.v4.app;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertSame;
+import static junit.framework.Assert.assertTrue;
+
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,17 +38,18 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.fragment.test.R;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.app.FragmentManager.FragmentLifecycleCallbacks;
 import android.support.v4.app.test.EmptyFragmentTestActivity;
 import android.support.v4.view.ViewCompat;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-
 import android.widget.TextView;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,15 +57,6 @@ import org.junit.runner.RunWith;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNotSame;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertSame;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNotEquals;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -436,6 +441,69 @@ public class FragmentLifecycleTest {
         fc.attachHost(null);
         fc.dispatchCreate();
 
+        FragmentLifecycleCallbacks mockLc = mock(FragmentLifecycleCallbacks.class);
+        FragmentLifecycleCallbacks mockRecursiveLc = mock(FragmentLifecycleCallbacks.class);
+
+        FragmentManager fm = fc.getSupportFragmentManager();
+        fm.registerFragmentLifecycleCallbacks(mockLc, false);
+        fm.registerFragmentLifecycleCallbacks(mockRecursiveLc, true);
+
+        ChildFragmentManagerFragment fragment = new ChildFragmentManagerFragment();
+        fm.beginTransaction()
+                .add(android.R.id.content, fragment)
+                .commitNow();
+
+        verify(mockLc, times(1)).onFragmentCreated(fm, fragment, null);
+
+        fc.dispatchActivityCreated();
+
+        Fragment childFragment = fragment.getChildFragment();
+
+        verify(mockLc, times(1)).onFragmentActivityCreated(fm, fragment, null);
+        verify(mockRecursiveLc, times(1)).onFragmentActivityCreated(fm, fragment, null);
+        verify(mockRecursiveLc, times(1)).onFragmentActivityCreated(fm, childFragment, null);
+
+        fc.dispatchStart();
+
+        verify(mockLc, times(1)).onFragmentStarted(fm, fragment);
+        verify(mockRecursiveLc, times(1)).onFragmentStarted(fm, fragment);
+        verify(mockRecursiveLc, times(1)).onFragmentStarted(fm, childFragment);
+
+        fc.dispatchResume();
+
+        verify(mockLc, times(1)).onFragmentResumed(fm, fragment);
+        verify(mockRecursiveLc, times(1)).onFragmentResumed(fm, fragment);
+        verify(mockRecursiveLc, times(1)).onFragmentResumed(fm, childFragment);
+
+        // Confirm that the parent fragment received onAttachFragment
+        assertTrue("parent fragment did not receive onAttachFragment",
+                fragment.mCalledOnAttachFragment);
+
+        fc.dispatchStop();
+
+        verify(mockLc, times(1)).onFragmentStopped(fm, fragment);
+        verify(mockRecursiveLc, times(1)).onFragmentStopped(fm, fragment);
+        verify(mockRecursiveLc, times(1)).onFragmentStopped(fm, childFragment);
+
+        fc.dispatchReallyStop();
+        fc.dispatchDestroy();
+
+        verify(mockLc, times(1)).onFragmentDestroyed(fm, fragment);
+        verify(mockRecursiveLc, times(1)).onFragmentDestroyed(fm, fragment);
+        verify(mockRecursiveLc, times(1)).onFragmentDestroyed(fm, childFragment);
+    }
+
+    /**
+     * This test checks that FragmentLifecycleCallbacks are invoked when expected.
+     */
+    @Test
+    @UiThreadTest
+    public void fragmentLifecycleCallbacks() throws Throwable {
+        FragmentController fc = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+        fc.attachHost(null);
+        fc.dispatchCreate();
+
         FragmentManager fm = fc.getSupportFragmentManager();
 
         ChildFragmentManagerFragment fragment = new ChildFragmentManagerFragment();
@@ -455,6 +523,67 @@ public class FragmentLifecycleTest {
         fc.dispatchStop();
         fc.dispatchReallyStop();
         fc.dispatchDestroy();
+    }
+
+    /**
+     * This tests that fragments call onDestroy when the activity finishes.
+     */
+    @Test
+    @UiThreadTest
+    public void fragmentDestroyedOnFinish() throws Throwable {
+        FragmentController fc = startupFragmentController(null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        StrictViewFragment fragmentA = StrictViewFragment.create(R.layout.fragment_a);
+        StrictViewFragment fragmentB = StrictViewFragment.create(R.layout.fragment_b);
+        fm.beginTransaction()
+                .add(android.R.id.content, fragmentA)
+                .commit();
+        fm.executePendingTransactions();
+        fm.beginTransaction()
+                .replace(android.R.id.content, fragmentB)
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+        shutdownFragmentController(fc);
+        assertTrue(fragmentB.mCalledOnDestroy);
+        assertTrue(fragmentA.mCalledOnDestroy);
+    }
+
+    /**
+     * Test to ensure that when dispatch* is called that the fragment manager
+     * doesn't cause the contained fragment states to change even if no state changes.
+     */
+    @Test
+    @UiThreadTest
+    public void noPrematureStateChange() throws Throwable {
+        FragmentController fc = startupFragmentController(null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        fm.beginTransaction()
+                .add(new StrictFragment(), "1")
+                .commitNow();
+
+        Parcelable savedState = shutdownFragmentController(fc);
+        fc = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        fc.attachHost(null);
+        fc.dispatchCreate();
+        fc.dispatchActivityCreated();
+        fc.noteStateNotSaved();
+        fc.execPendingActions();
+        fc.doLoaderStart();
+        fc.dispatchStart();
+        fc.reportLoaderStart();
+        fc.dispatchResume();
+        fc.restoreAllState(savedState, (FragmentManagerNonConfig) null);
+        fc.dispatchResume();
+        fm = fc.getSupportFragmentManager();
+
+        StrictFragment fragment1 = (StrictFragment) fm.findFragmentByTag("1");
+
+        assertFalse(fragment1.mCalledOnResume);
     }
 
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
@@ -545,8 +674,14 @@ public class FragmentLifecycleTest {
         }
     }
 
+    /**
+     * This tests a deliberately odd use of a child fragment, added in onCreateView instead
+     * of elsewhere. It simulates creating a UI child fragment added to the view hierarchy
+     * created by this fragment.
+     */
     public static class ChildFragmentManagerFragment extends StrictFragment {
         private FragmentManager mSavedChildFragmentManager;
+        private ChildFragmentManagerChildFragment mChildFragment;
 
         @Override
         public void onAttach(Context context) {
@@ -560,12 +695,23 @@ public class FragmentLifecycleTest {
                 @Nullable Bundle savedInstanceState) {
             assertSame("child FragmentManagers not the same instance", mSavedChildFragmentManager,
                     getChildFragmentManager());
-            ChildFragmentManagerChildFragment child = new ChildFragmentManagerChildFragment("foo");
-            mSavedChildFragmentManager.beginTransaction()
-                    .add(child, "tag")
-                    .commitNow();
-            assertEquals("argument strings don't match", "foo", child.getString());
+            ChildFragmentManagerChildFragment child =
+                    (ChildFragmentManagerChildFragment) mSavedChildFragmentManager
+                            .findFragmentByTag("tag");
+            if (child == null) {
+                child = new ChildFragmentManagerChildFragment("foo");
+                mSavedChildFragmentManager.beginTransaction()
+                        .add(child, "tag")
+                        .commitNow();
+                assertEquals("argument strings don't match", "foo", child.getString());
+            }
+            mChildFragment = child;
             return new TextView(container.getContext());
+        }
+
+        @Nullable
+        public Fragment getChildFragment() {
+            return mChildFragment;
         }
     }
 

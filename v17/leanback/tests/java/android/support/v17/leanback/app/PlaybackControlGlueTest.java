@@ -13,32 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.support.v17.leanback.app;
 
-import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.v17.leanback.widget.PlaybackControlsRow;
+import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
+import android.view.KeyEvent;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-
-import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
-
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-import android.support.annotation.UiThread;
-
-import android.test.suitebuilder.annotation.SmallTest;
-import android.view.KeyEvent;
-
-@SmallTest
 @RunWith(AndroidJUnit4.class)
+@MediumTest
 public class PlaybackControlGlueTest {
 
 

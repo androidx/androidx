@@ -16,22 +16,23 @@
 
 package android.support.v7.widget;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.junit.Assert.assertEquals;
 
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.test.InstrumentationRegistry;
-import android.test.suitebuilder.annotation.LargeTest;
+import android.support.test.filters.LargeTest;
 import android.util.Log;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 @LargeTest
@@ -76,8 +77,8 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
         };
     }
 
-    @Parameterized.Parameters(name = "{0}_waitForLayout:{1}_loadDataAfterRestore:{2}"
-            + "_postLayout:{3}_postRestore:{4}")
+    @Parameterized.Parameters(name = "{0},waitForLayout:{1},loadDataAfterRestore:{2}"
+            + ",postLayout:{3},postRestore:{4}")
     public static Iterable<Object[]> params()
             throws IllegalAccessException, CloneNotSupportedException, NoSuchFieldException {
         PostLayoutRunnable[] postLayoutOptions = new PostLayoutRunnable[]{

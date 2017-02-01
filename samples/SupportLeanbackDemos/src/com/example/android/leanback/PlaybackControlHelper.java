@@ -19,19 +19,17 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.support.v17.leanback.app.PlaybackControlGlue;
+import android.support.v17.leanback.media.MediaPlayerGlue;
+import android.support.v17.leanback.media.PlaybackControlGlue;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
-import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
-abstract class PlaybackControlHelper extends PlaybackControlGlue {
+abstract class PlaybackControlHelper extends MediaPlayerGlue {
     /**
      * Change the location of the thumbs up/down controls
      */
@@ -54,17 +52,17 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     private PlaybackControlsRow.ThumbsDownAction mThumbsDownAction;
     private PlaybackControlsRow.PictureInPictureAction mPipAction;
 
-    private Handler mHandler = new Handler();
+    private static Handler sHandler = new Handler();
     private final Runnable mUpdateProgressRunnable = new Runnable() {
         @Override
         public void run() {
             updateProgress();
-            mHandler.postDelayed(this, getUpdatePeriod());
+            sHandler.postDelayed(this, getUpdatePeriod());
         }
     };
 
-    public PlaybackControlHelper(Context context, PlaybackOverlayFragment fragment) {
-        super(context, fragment, sFastForwardSpeeds);
+    PlaybackControlHelper(Context context) {
+        super(context, sFastForwardSpeeds, sFastForwardSpeeds);
         mThumbsUpAction = new PlaybackControlsRow.ThumbsUpAction(context);
         mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsUpAction.OUTLINE);
         mThumbsDownAction = new PlaybackControlsRow.ThumbsDownAction(context);
@@ -74,34 +72,26 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     }
 
     @Override
-    public PlaybackControlsRowPresenter createControlsRowAndPresenter() {
-        PlaybackControlsRowPresenter presenter = super.createControlsRowAndPresenter();
-
-        ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ControlButtonPresenterSelector());
-        getControlsRow().setSecondaryActionsAdapter(adapter);
+    protected void onCreateSecondaryActions(ArrayObjectAdapter secondaryActionsAdapter) {
         if (!THUMBS_PRIMARY) {
-            adapter.add(mThumbsDownAction);
+            secondaryActionsAdapter.add(mThumbsDownAction);
         }
         if (android.os.Build.VERSION.SDK_INT > 23) {
-            adapter.add(mPipAction);
+            secondaryActionsAdapter.add(mPipAction);
         }
-        adapter.add(mRepeatAction);
+        secondaryActionsAdapter.add(mRepeatAction);
         if (!THUMBS_PRIMARY) {
-            adapter.add(mThumbsUpAction);
+            secondaryActionsAdapter.add(mThumbsUpAction);
         }
-
-        return presenter;
     }
 
     @Override
-    protected SparseArrayObjectAdapter createPrimaryActionsAdapter(
-            PresenterSelector presenterSelector) {
-        SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter(presenterSelector);
+    protected void onCreatePrimaryActions(SparseArrayObjectAdapter adapter) {
+        super.onCreatePrimaryActions(adapter);
         if (THUMBS_PRIMARY) {
             adapter.set(PlaybackControlGlue.ACTION_CUSTOM_LEFT_FIRST, mThumbsUpAction);
             adapter.set(PlaybackControlGlue.ACTION_CUSTOM_RIGHT_FIRST, mThumbsDownAction);
         }
-        return adapter;
     }
 
     @Override
@@ -228,13 +218,13 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     }
 
     void onPlaybackComplete(final boolean ended) {
-        mHandler.post(new Runnable() {
+        sHandler.post(new Runnable() {
             @Override
             public void run() {
                 if (mRepeatAction.getIndex() == PlaybackControlsRow.RepeatAction.NONE) {
-                    pausePlayback();
+                    pause();
                 } else {
-                    startPlayback(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL);
+                    play(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL);
                 }
                 mStartPosition = 0;
                 onStateChanged();
@@ -243,7 +233,7 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     }
 
     @Override
-    protected void startPlayback(int speed) {
+    public void play(int speed) {
         if (speed == mSpeed) {
             return;
         }
@@ -254,7 +244,7 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     }
 
     @Override
-    protected void pausePlayback() {
+    public void pause() {
         if (mSpeed == PlaybackControlGlue.PLAYBACK_SPEED_PAUSED) {
             return;
         }
@@ -264,20 +254,20 @@ abstract class PlaybackControlHelper extends PlaybackControlGlue {
     }
 
     @Override
-    protected void skipToNext() {
+    public void next() {
         // Not supported
     }
 
     @Override
-    protected void skipToPrevious() {
+    public void previous() {
         // Not supported
     }
 
     @Override
     public void enableProgressUpdating(boolean enable) {
-        mHandler.removeCallbacks(mUpdateProgressRunnable);
+        sHandler.removeCallbacks(mUpdateProgressRunnable);
         if (enable) {
             mUpdateProgressRunnable.run();
         }
     }
-};
+}

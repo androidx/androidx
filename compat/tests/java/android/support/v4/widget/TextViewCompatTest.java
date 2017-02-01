@@ -14,29 +14,38 @@
  * limitations under the License.
  */
 
-
 package android.support.v4.widget;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.v4.testutils.LayoutDirectionActions.setLayoutDirection;
+import static android.support.v4.testutils.TextViewActions.setCompoundDrawablesRelative;
+import static android.support.v4.testutils.TextViewActions
+        .setCompoundDrawablesRelativeWithIntrinsicBounds;
+import static android.support.v4.testutils.TextViewActions.setMaxLines;
+import static android.support.v4.testutils.TextViewActions.setMinLines;
+import static android.support.v4.testutils.TextViewActions.setText;
+import static android.support.v4.testutils.TextViewActions.setTextAppearance;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.compat.test.R;
+import android.support.test.filters.SmallTest;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.testutils.TestUtils;
 import android.support.v4.view.ViewCompat;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.widget.TextView;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.v4.testutils.LayoutDirectionActions.setLayoutDirection;
-import static android.support.v4.testutils.TextViewActions.*;
-import static org.junit.Assert.*;
-
+@SmallTest
 public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTestActivity> {
     private static final String TAG = "TextViewCompatTest";
 
@@ -73,7 +82,6 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
     }
 
     @Test
-    @SmallTest
     public void testMaxLines() throws Throwable {
         final int maxLinesCount = 4;
         onView(withId(R.id.text_view)).perform(setMaxLines(maxLinesCount));
@@ -95,7 +103,6 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
     }
 
     @Test
-    @SmallTest
     public void testMinLines() throws Throwable {
         final int minLinesCount = 3;
         onView(withId(R.id.text_view)).perform(setMinLines(minLinesCount));
@@ -117,7 +124,6 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
     }
 
     @Test
-    @SmallTest
     public void testStyle() throws Throwable {
         onView(withId(R.id.text_view)).perform(setTextAppearance(R.style.TextMediumStyle));
 
@@ -131,7 +137,6 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
     }
 
     @Test
-    @SmallTest
     public void testCompoundDrawablesRelative() throws Throwable {
         final Drawable drawableStart = new ColorDrawable(0xFFFF0000);
         drawableStart.setBounds(0, 0, 20, 20);
@@ -168,7 +173,6 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
     }
 
     @Test
-    @SmallTest
     public void testCompoundDrawablesRelativeRtl() throws Throwable {
         onView(withId(R.id.text_view)).perform(setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
@@ -215,7 +219,6 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
     }
 
     @Test
-    @SmallTest
     public void testCompoundDrawablesRelativeWithIntrinsicBounds() throws Throwable {
         final Drawable drawableStart = new TestDrawable(0xFFFF0000, 30, 20);
         final Drawable drawableEnd = new TestDrawable(0xFF0000FF, 25, 45);
@@ -249,7 +252,6 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
     }
 
     @Test
-    @SmallTest
     public void testCompoundDrawablesRelativeWithIntrinsicBoundsRtl() throws Throwable {
         onView(withId(R.id.text_view)).perform(setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
@@ -293,7 +295,6 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
     }
 
     @Test
-    @MediumTest
     public void testCompoundDrawablesRelativeWithIntrinsicBoundsById() throws Throwable {
         onView(withId(R.id.text_view)).perform(setText(R.string.test_text_long));
         onView(withId(R.id.text_view)).perform(setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -337,7 +338,6 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
     }
 
     @Test
-    @MediumTest
     public void testCompoundDrawablesRelativeWithIntrinsicBoundsByIdRtl() throws Throwable {
         onView(withId(R.id.text_view)).perform(setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
@@ -389,7 +389,6 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
     }
 
     @Test
-    @SmallTest
     public void testCompoundDrawablesRelativeGetterAndSetter() {
         final Drawable drawableStart = new TestDrawable(0xFFFF0000, 20, 20);
         final Drawable drawableTop = new TestDrawable(0xFFFFFF00, 20, 20);

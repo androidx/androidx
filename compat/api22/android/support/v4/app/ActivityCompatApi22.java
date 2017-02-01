@@ -18,7 +18,11 @@ package android.support.v4.app;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 
+@RequiresApi(22)
+@TargetApi(22)
 class ActivityCompatApi22 {
     public static Uri getReferrer(Activity activity) {
         return activity.getReferrer();

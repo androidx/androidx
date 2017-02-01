@@ -17,25 +17,25 @@
 
 package android.support.v4.app;
 
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNotSame;
+import static junit.framework.TestCase.assertTrue;
+
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.FragmentTestActivity.ChildFragment;
 import android.support.v4.app.test.FragmentTestActivity.ChildFragment.OnAttachListener;
 import android.support.v4.app.test.FragmentTestActivity.ParentFragment;
-import android.test.suitebuilder.annotation.SmallTest;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNotSame;
-import static junit.framework.TestCase.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class NestedFragmentRestoreTest {
@@ -51,7 +51,7 @@ public class NestedFragmentRestoreTest {
     @SmallTest
     public void recreateActivity() throws Throwable {
         final FragmentTestActivity activity = mActivityRule.getActivity();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 FragmentTestActivity.ParentFragment parent = new ParentFragment();
@@ -77,7 +77,7 @@ public class NestedFragmentRestoreTest {
             }
         });
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 activity.recreate();

@@ -17,17 +17,20 @@
 package android.support.v4.animation;
 
 import android.animation.Animator;
-import android.animation.PropertyValuesHolder;
 import android.animation.TimeInterpolator;
-import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
+import android.support.annotation.RequiresApi;
+import android.annotation.TargetApi;
 import android.view.View;
 
 /**
  * Uses framework Animators to provide ValueAnimatorCompat interface.
- * <p>
+ * <p/>
  * This is not a fully implemented API which is why it is not public.
  */
+
+@RequiresApi(12)
+@TargetApi(12)
 class HoneycombMr1AnimatorCompatProvider implements AnimatorProvider {
 
     private TimeInterpolator mDefaultInterpolator;

@@ -16,23 +16,22 @@
 
 package android.support.v7.widget;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import android.support.annotation.Nullable;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.view.View;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
+
+import android.support.annotation.Nullable;
+import android.support.test.filters.MediumTest;
+import android.view.View;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RunWith(Parameterized.class)
 public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest {
@@ -45,7 +44,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         mReverseScroll = reverseScroll;
     }
 
-    @Parameterized.Parameters(name = "config:{0}, reverseScroll:{1}")
+    @Parameterized.Parameters(name = "config:{0},reverseScroll:{1}")
     public static List<Object[]> getParams() {
         List<Object[]> result = new ArrayList<>();
         List<Config> configs = createBaseVariations();
@@ -243,7 +242,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
 
     private boolean fling(final int velocityX, final int velocityY) throws Throwable {
         final AtomicBoolean didStart = new AtomicBoolean(false);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 boolean result = mRecyclerView.fling(velocityX, velocityY);

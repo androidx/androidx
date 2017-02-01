@@ -19,11 +19,8 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION;
-import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Implements foreground drawable before M and falls back to M's foreground implementation.
@@ -60,6 +57,7 @@ class NonOverlappingLinearLayoutWithForeground extends LinearLayout {
             if (d != null) {
                 setForegroundCompat(d);
             }
+            a.recycle();
         }
     }
 

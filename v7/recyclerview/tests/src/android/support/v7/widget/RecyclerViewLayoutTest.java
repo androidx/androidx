@@ -51,11 +51,11 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.util.TouchUtils;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -94,6 +94,64 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public RecyclerViewLayoutTest() {
         super(DEBUG);
+    }
+
+    @Test
+    public void triggerFocusSearchInOnRecycledCallback() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity()) {
+            @Override
+            void consumePendingUpdateOperations() {
+                try {
+                    super.consumePendingUpdateOperations();
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                }
+            }
+        };
+        final AtomicBoolean receivedOnRecycled = new AtomicBoolean(false);
+        final TestAdapter adapter = new TestAdapter(20) {
+            @Override
+            public void onViewRecycled(TestViewHolder holder) {
+                super.onViewRecycled(holder);
+                if (receivedOnRecycled.getAndSet(true)) {
+                    return;
+                }
+                rv.focusSearch(rv.getChildAt(0), View.FOCUS_FORWARD);
+            }
+        };
+        final AtomicInteger layoutCnt = new AtomicInteger(5);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                layoutRange(recycler, 0, layoutCnt.get());
+                layoutLatch.countDown();
+            }
+        };
+        rv.setLayoutManager(tlm);
+        rv.setAdapter(adapter);
+        tlm.expectLayouts(1);
+        setRecyclerView(rv);
+        tlm.waitForLayout(2);
+
+        layoutCnt.set(4);
+        tlm.expectLayouts(1);
+        requestLayoutOnUIThread(rv);
+        tlm.waitForLayout(1);
+
+        assertThat("test sanity", rv.mRecycler.mCachedViews.size(), is(1));
+        tlm.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyItemChanged(4);
+                rv.smoothScrollBy(0, 1);
+            }
+        });
+        checkForMainThreadException();
+        tlm.waitForLayout(2);
+        assertThat("test sanity", rv.mRecycler.mCachedViews.size(), is(0));
+        assertThat(receivedOnRecycled.get(), is(true));
     }
 
     @Test
@@ -144,14 +202,14 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         rv.setLayoutManager(layoutManager);
         rv.setAdapter(new TestAdapter(10));
         layoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 getActivity().getContainer().addView(ll1);
             }
         });
         layoutManager.waitForLayout(2);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 ll1.removeView(ll2);
@@ -168,7 +226,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         }
         final boolean requireLayout = requestLayoutOnDetach || removeAdapter || removeLayoutManager;
         layoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 ll1.addView(ll2);
@@ -242,7 +300,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
         final TestLayoutManager replacement = new LayoutAllLayoutManager(true);
         replacement.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 rv.setLayoutManager(replacement);
@@ -294,6 +352,24 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                         child0.getBottom() + getDecoratedMeasuredHeight(view));
                 return view;
             }
+
+            @Override
+            public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+                                            RecyclerView.State state) {
+                super.scrollHorizontallyBy(dx, recycler, state);
+                // offset by -dx because the views translate opposite of the scrolling direction
+                mRecyclerView.offsetChildrenHorizontal(-dx);
+                return dx;
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                                          RecyclerView.State state) {
+                super.scrollVerticallyBy(dy, recycler, state);
+                // offset by -dy because the views translate opposite of the scrolling direction
+                mRecyclerView.offsetChildrenVertical(-dy);
+                return dy;
+            }
         };
         tlm.setAutoMeasureEnabled(true);
         rv.setLayoutManager(tlm);
@@ -307,7 +383,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         viewBelow.setFocusableInTouchMode(true);
         container.addView(viewBelow);
         tlm.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 getActivity().getContainer().addView(container);
@@ -501,7 +577,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         tlm.waitForLayout(1);
         final View child = recyclerView.getChildAt(0);
         assertThat(child.getScrollY(), CoreMatchers.is(scrollY));
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 recyclerView.requestChildRectangleOnScreen(child, new Rect(3, 4, 5, 6), true);
@@ -544,7 +620,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
         setRecyclerView(recyclerView);
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 getActivity().getContainer().removeView(recyclerView);
@@ -675,7 +751,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         tlm.expectLayouts(1);
         setRecyclerView(recyclerView);
         tlm.waitForLayout(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 adapter.mItems.remove(9);
@@ -707,7 +783,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         final RecyclerView.ViewHolder toFocus = recyclerView.findViewHolderForAdapterPosition(9);
         requestFocus(toFocus.itemView, true);
         assertThat("test sanity", toFocus.itemView.hasFocus(), is(true));
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 adapter.mItems.remove(9);
@@ -771,7 +847,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     public View focusSearch(final ViewGroup parent, final View focused, final int direction)
             throws Throwable {
         final View[] result = new View[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 result[0] = parent.focusSearch(focused, direction);
@@ -896,7 +972,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         tlm.waitForLayout(1);
         // ready
         tlm.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -1306,7 +1382,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     private boolean fling(final int velocityX, final int velocityY) throws Throwable {
         final AtomicBoolean didStart = new AtomicBoolean(false);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 boolean result = mRecyclerView.fling(velocityX, velocityY);
@@ -1326,7 +1402,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         final TestAdapter testAdapter = new TestAdapter(10);
         setupBasic(recyclerView, layoutManager, testAdapter, false);
         layoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -1443,8 +1519,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         final List<View> recycled = new ArrayList<>();
         TestAdapter testAdapter = new TestAdapter(10) {
             @Override
-            public boolean onFailedToRecycleView(
-                    TestViewHolder holder) {
+            public boolean onFailedToRecycleView(TestViewHolder holder) {
                 failedToRecycle.add(holder.itemView);
                 if (unsetTransientState) {
                     setHasTransientState(holder.itemView, false);
@@ -1506,7 +1581,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         tlm.expectLayouts(1);
         setRecyclerView(recyclerView);
         tlm.waitForLayout(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < tlm.getChildCount(); i++) {
@@ -1627,7 +1702,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         setRecyclerView(rv);
         tlm.waitForLayout(1);
         final RecyclerView.ViewHolder vh = rv.getChildViewHolder(rv.getChildAt(0));
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 ViewCompat.setHasTransientState(vh.itemView, true);
@@ -1726,7 +1801,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         testAdapter.changeAndNotify(2, 1);
         tlm.waitForLayout(2);
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 assertThat("test sanity", recyclerView.getChildCount(), CoreMatchers.is(11));
@@ -1846,7 +1921,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         tlm.expectLayouts(1);
         setRecyclerView(recyclerView);
         tlm.waitForLayout(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -1911,7 +1986,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 latch.countDown();
             }
         });
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.smoothScrollBy(0, 500);
@@ -1942,14 +2017,14 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 latch.countDown();
             }
         });
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.smoothScrollBy(0, 500);
             }
         });
         latch.await(5, TimeUnit.SECONDS);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.stopScroll();
@@ -1983,7 +2058,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         final ViewConfiguration vc = ViewConfiguration.get(getActivity());
         final float fling = vc.getScaledMinimumFlingVelocity()
                 + (vc.getScaledMaximumFlingVelocity() - vc.getScaledMinimumFlingVelocity()) * .1f;
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.fling(0, Math.round(fling));
@@ -2017,14 +2092,14 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         final ViewConfiguration vc = ViewConfiguration.get(getActivity());
         final float fling = vc.getScaledMinimumFlingVelocity()
                 + (vc.getScaledMaximumFlingVelocity() - vc.getScaledMinimumFlingVelocity()) * .8f;
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.fling(0, Math.round(fling));
             }
         });
         latch.await(5, TimeUnit.SECONDS);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.stopScroll();
@@ -2088,7 +2163,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     private void sendTouch(final ViewGroup view, final MotionEvent event) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (view.onInterceptTouchEvent(event)) {
@@ -2258,7 +2333,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         lm.waitForLayout(1);
         // regular scroll
         final int targetPosition = visibleChildCount * (removeItem ? 30 : 4);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 rv.smoothScrollToPosition(targetPosition);
@@ -2272,7 +2347,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             final int newTarget = targetPosition - 10;
             testAdapter.deleteAndNotify(newTarget + 1, testAdapter.getItemCount() - newTarget - 1);
             final CountDownLatch targetCheck = new CountDownLatch(1);
-            runTestOnUiThread(new Runnable() {
+            mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     ViewCompat.postOnAnimationDelayed(rv, new Runnable() {
@@ -2341,7 +2416,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         lm.expectLayouts(1);
         setRecyclerView(rv);
         lm.waitForLayout(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 rv.smoothScrollBy(0, 2000);
@@ -2349,7 +2424,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
         Thread.sleep(250);
         final AtomicInteger scrollAmt = new AtomicInteger();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final int soFar = totalScrolled.get();
@@ -2530,7 +2605,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         lm.expectLayouts(1);
         setRecyclerView(recyclerView);
         lm.waitForLayout(2);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 View child1 = lm.findViewByPosition(0);
@@ -2576,7 +2651,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         Thread.sleep(5000);
         final int pos = 1;
         final View[] ignored = new View[1];
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 View child = lm.findViewByPosition(pos);
@@ -2643,7 +2718,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         preLayoutData.clear();
         postLayoutData.clear();
         lm.expectLayouts(2);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 adapter.notifyItemChanged(3, changePayload);
@@ -2772,7 +2847,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public void addItemDecoration(final RecyclerView recyclerView, final
     RecyclerView.ItemDecoration itemDecoration) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 recyclerView.addItemDecoration(itemDecoration);
@@ -2782,7 +2857,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public void removeItemDecoration(final RecyclerView recyclerView, final
     RecyclerView.ItemDecoration itemDecoration) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 recyclerView.removeItemDecoration(itemDecoration);
@@ -2791,7 +2866,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     public void invalidateDecorOffsets(final RecyclerView recyclerView) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 recyclerView.invalidateItemDecorations();
@@ -2944,7 +3019,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         movedView[0] = recyclerView.getChildAt(movedViewFromIndex);
         test.set(true);
         lm.expectLayouts(supportsPredictive ? 2 : 1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Item item = testAdapter.mItems.remove(movedViewFromIndex);
@@ -3197,7 +3272,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         lm.waitForLayout(2);
         lm.expectLayouts(1);
         final int prevLayoutCount = layoutCount.get();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -3295,7 +3370,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         lm.waitForLayout(2);
         validate.set(true);
         lm.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -3533,7 +3608,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         adapter.mItems.remove(1);
         adapter.dispatchDataSetChanged();
         lm.waitForLayout(2);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 for (int i = 2; i < 4; i++) {
@@ -3622,7 +3697,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         };
         recyclerView.setLayoutManager(testLayoutManager);
         testLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 getActivity().getContainer().addView(recyclerView);
@@ -3636,7 +3711,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 structureChanged.get());
         Thread.sleep(1000); //wait for other layouts.
         testLayoutManager.expectLayouts(1);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 recyclerView.requestLayout();
@@ -3667,7 +3742,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     @Test
     public void detachWithoutLayoutManager() throws Throwable {
         final RecyclerView recyclerView = new RecyclerView(getActivity());
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -3743,7 +3818,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         disappearingPositions.clear();
         // now that item should be moving, invalidate it and delete it.
         enableGetViewTest.set(true);
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -3933,7 +4008,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         tlm.expectLayouts(1);
         tlm.assertNoLayout("test sanity, layout should not run", 1);
         getInstrumentation().waitForIdleSync();
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -4128,7 +4203,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
         recyclerView.setAdapter(adapter);
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -4208,7 +4283,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         setRecyclerView(rv);
         tlm.waitForLayout(2);
 
-        runTestOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 rv.smoothScrollToPosition(150);

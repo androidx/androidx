@@ -33,9 +33,9 @@ class TestUtils {
     }
 
     static void assertCloseColors(int expected, int actual) {
-        assertEquals(Color.red(expected), Color.red(actual), 2);
-        assertEquals(Color.green(expected), Color.green(actual), 2);
-        assertEquals(Color.blue(expected), Color.blue(actual), 2);
+        assertEquals(Color.red(expected), Color.red(actual), 8);
+        assertEquals(Color.green(expected), Color.green(actual), 8);
+        assertEquals(Color.blue(expected), Color.blue(actual), 8);
     }
 
 }

@@ -40,6 +40,22 @@
                 android:text="@string/mode_night_auto"
                 android:onClick="setModeNightAuto"/>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp" />
+
+        <TextView
+            android:id="@+id/text_night_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/night_mode" />
+
+        <View
+            android:id="@+id/view_background"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/test_night_color_conversion_background" />
+
     </LinearLayout>
 
 </ScrollView>

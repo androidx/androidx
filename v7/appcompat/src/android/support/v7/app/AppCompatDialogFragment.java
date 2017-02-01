@@ -17,14 +17,14 @@
 package android.support.v7.app;
 
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.DialogFragment;
 import android.view.Window;
 import android.view.WindowManager;
-
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A special version of {@link DialogFragment} which uses an {@link AppCompatDialog} in place of a
@@ -40,7 +40,7 @@ public class AppCompatDialogFragment extends DialogFragment {
     }
 
     /** @hide */
-    @RestrictTo(GROUP_ID)
+    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setupDialog(Dialog dialog, int style) {
         if (dialog instanceof AppCompatDialog) {

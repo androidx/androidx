@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from ErrorFragment.java.  DO NOT MODIFY. */
 
 /*
@@ -15,15 +16,9 @@
  */
 package com.example.android.leanback;
 
-import android.content.Intent;
-import android.content.res.Resources;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.HeaderItem;
-import android.support.v17.leanback.widget.ListRow;
-import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.SearchOrbView;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.View;
 
@@ -37,10 +32,9 @@ public class ErrorSupportFragment extends android.support.v17.leanback.app.Error
         super.onCreate(savedInstanceState);
 
         setTitle("Leanback Sample App");
-    }
-
-    void setErrorContent(Resources resources) {
-        setImageDrawable(resources.getDrawable(R.drawable.lb_ic_sad_cloud));
+        final Context context = getActivity();
+        setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                R.drawable.lb_ic_sad_cloud, context.getTheme()));
         setMessage("An error occurred.");
         setDefaultBackground(TRANSLUCENT);
 
