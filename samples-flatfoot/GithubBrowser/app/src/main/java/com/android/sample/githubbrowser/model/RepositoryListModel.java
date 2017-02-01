@@ -207,6 +207,15 @@ public class RepositoryListModel implements ViewModel {
      * Fetches data at specified index if data does not exist yet.
      */
     public void fetchAtIndexIfNecessary(int index) {
+        if (mSearchQueryData == null) {
+            // If we're here, we've been asked to start fetching items before we've retrieved
+            // the top-level metadata for our search. Save the requested index and return. Once
+            // that metadata is fetched off the main thread in the AsyncTask executed in
+            // setSearchTerms, we'll call fetchNextPage().
+            mLastRequestedIndex.set(index);
+            return;
+        }
+
         if (mHasNetworkRequestPending.get() || mSearchQueryData.hasNoMoreData) {
             // Previous request still processing or no more results
             return;

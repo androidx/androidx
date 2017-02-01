@@ -38,7 +38,7 @@ public interface GithubDao {
      * Load full data for a person based on the login.
      */
     @Query("select * from persondata where login = ?")
-    PersonData loadPerson(String login);
+    LiveData<PersonData> loadPerson(String login);
 
     /**
      * Insert or update full data for a person.

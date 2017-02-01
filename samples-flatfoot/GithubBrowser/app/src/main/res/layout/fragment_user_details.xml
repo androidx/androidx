@@ -9,7 +9,6 @@
         <import type="android.view.View"/>
         <import type="com.android.sample.githubbrowser.R"/>
         <import type="com.android.sample.githubbrowser.Utils"/>
-        <variable name="userPartial" type="com.android.sample.githubbrowser.data.ContributorData"/>
         <variable name="user" type="com.android.sample.githubbrowser.data.PersonData"/>
         <variable name="fragment" type="com.android.support.lifecycle.LifecycleFragment"/>
     </data>
@@ -30,7 +29,7 @@
                 android:layout_height="96dp"
                 android:background="#FAFAFA"
                 app:fragment="@{fragment}"
-                app:url="@{userPartial.avatar_url}"/>
+                app:url="@{user.avatar_url}"/>
 
             <TextView
                 android:id="@+id/name"
@@ -58,7 +57,7 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:paddingTop="4dp"
-                android:text="@{userPartial.login}"
+                android:text="@{user.login}"
                 android:textColor="#444"
                 android:textSize="18sp"/>
 

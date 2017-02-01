@@ -18,7 +18,6 @@ package com.android.sample.githubbrowser;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -67,11 +66,12 @@ public class EditUserDetailsFragment extends DialogFragment implements Lifecycle
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent edited = new Intent();
-                        edited.putExtra(KEY_EMAIL, getCurrentEmail());
-                        edited.putExtra(KEY_LOCATION, getCurrentLocation());
+                        // Ask the model to update the two fields on the user
+                        mPersonDataModel.update(getContext(), getCurrentEmail(),
+                                getCurrentLocation());
                         getTargetFragment().onActivityResult(getTargetRequestCode(),
-                                Activity.RESULT_OK, edited);                    }
+                                Activity.RESULT_OK, null);
+                    }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
@@ -93,6 +93,11 @@ public class EditUserDetailsFragment extends DialogFragment implements Lifecycle
         // user data. When a change is reported, update all UI elements based on the new
         // data.
         mPersonDataModel = ViewModelStore.get(this, login, PersonDataModel.class);
+        // Ask the model to load the data for this user. When the data becomes available (either
+        // immediately from the previous load or later on when it's fetched from remote API call),
+        // we will be notified since this fragment registered itself as an observer on the matching
+        // live data object.
+        mPersonDataModel.loadData(getContext(), login, false);
         mPersonDataModel.getPersonData().observe(this, new Observer<PersonData>() {
             @Override
             public void onChanged(@Nullable PersonData personData) {
@@ -104,12 +109,6 @@ public class EditUserDetailsFragment extends DialogFragment implements Lifecycle
                 }
             }
         });
-
-        // Ask the model to load the data for this user. When the data becomes available (either
-        // immediately from the previous load or later on when it's fetched from remote API call),
-        // we will be notified since this fragment registered itself as an observer on the matching
-        // live data object.
-        mPersonDataModel.loadData(getContext(), login);
 
         return result;
     }

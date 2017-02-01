@@ -15,12 +15,9 @@
  */
 package com.android.sample.githubbrowser;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -28,7 +25,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.sample.githubbrowser.adapter.RepositoryListAdapter;
-import com.android.sample.githubbrowser.data.ContributorData;
 import com.android.sample.githubbrowser.data.PersonData;
 import com.android.sample.githubbrowser.databinding.FragmentUserDetailsBinding;
 import com.android.sample.githubbrowser.model.PersonDataModel;
@@ -41,7 +37,7 @@ import com.android.support.lifecycle.ViewModelStore;
  * Fragment that shows details of a single user, including the list of their repositories.
  */
 public class UserDetailsFragment extends LifecycleFragment {
-    public static final String INITIAL = "userDetails.INITIAL";
+    public static final String USER_LOGIN = "userDetails.login";
     public static final int CODE_EDIT = 1;
 
     private String mLogin;
@@ -57,61 +53,58 @@ public class UserDetailsFragment extends LifecycleFragment {
                 inflater, R.layout.fragment_user_details, container, false);
         final View result = binding.getRoot();
 
-        final ContributorData initialData = getArguments().getParcelable(INITIAL);
-        mLogin = initialData.login;
-
-        // Use the initial / partial data to populate as much info on this user as we can
-        binding.setUserPartial(initialData);
-        binding.setFragment(this);
-        binding.executePendingBindings();
-
-        // Load the list of repositories for this user (based on the login from the partial data)
-        final RepositoryListModel repositoriesListModel = ViewModelStore.get(
-                UserDetailsFragment.this, "repositoriesListModel", RepositoryListModel.class);
-        if (!repositoriesListModel.hasSearchTerm()) {
-            repositoriesListModel.setSearchTerm(this.getContext(), initialData.login, null);
-        }
-
-        final RecyclerView repositoriesRecycler = (RecyclerView) result.findViewById(
-                R.id.repositories);
-        repositoriesRecycler.setAdapter(new RepositoryListAdapter(this, repositoriesListModel));
-        final int columnCount = getContext().getResources().getInteger(R.integer.column_count);
-        repositoriesRecycler.setLayoutManager(new GridLayoutManager(getContext(), columnCount));
+        mLogin = getArguments().getString(USER_LOGIN);
 
         // Get our view model instance and register ourselves to observe change to the
         // full user data. When a change is reported, update all UI elements based on the new
         // data.
         mPersonDataModel = ViewModelStore.get(this, mLogin, PersonDataModel.class);
-        mPersonDataModel.getPersonData().observe(this, new Observer<PersonData>() {
-            @Override
-            public void onChanged(@Nullable final PersonData personData) {
-                if (personData != null) {
-                    binding.setUser(personData);
-                    binding.executePendingBindings();
-                }
-            }
-        });
-
         // Ask the model to load the data for this user. When the data becomes available (either
         // immediately from the previous load or later on when it's fetched from remote API call),
         // we will be notified since this fragment registered itself as an observer on the matching
         // live data object.
-        mPersonDataModel.loadData(getContext(), mLogin);
+        // Note that the last parameter specifies that we're fine with getting partial data as
+        // quickly as possible.
+        mPersonDataModel.loadData(getContext(), mLogin, false);
+        mPersonDataModel.getPersonData().observe(this, new Observer<PersonData>() {
+            @Override
+            public void onChanged(@Nullable final PersonData personData) {
+                if (personData == null) {
+                    return;
+                }
+
+                // Populate as much info on this user as we can
+                binding.setUser(personData);
+                binding.setFragment(UserDetailsFragment.this);
+                binding.executePendingBindings();
+
+                final RecyclerView repositoriesRecycler = (RecyclerView) result.findViewById(
+                        R.id.repositories);
+                if (repositoriesRecycler.getAdapter() == null) {
+                    // Load the list of repositories for this user based on the passed login.
+                    final RepositoryListModel repositoriesListModel = ViewModelStore.get(
+                            UserDetailsFragment.this, "repositoriesListModel",
+                            RepositoryListModel.class);
+                    if (!repositoriesListModel.hasSearchTerm()) {
+                        repositoriesListModel.setSearchTerm(getContext(), mLogin, null);
+                    }
+
+                    repositoriesRecycler.setAdapter(
+                            new RepositoryListAdapter(UserDetailsFragment.this,
+                                    repositoriesListModel));
+                    final int columnCount = getContext().getResources().getInteger(
+                            R.integer.column_count);
+                    repositoriesRecycler.setLayoutManager(
+                            new GridLayoutManager(getContext(), columnCount));
+                }
+
+                if (!Utils.isFullData(personData)) {
+                    // If we only have partial data, initiate a full load.
+                    mPersonDataModel.loadData(getContext(), mLogin, true);
+                }
+            }
+        });
 
         return result;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // If the result matches the requested edit code, ask the view model to update itself
-        // with the new data. As this fragment already registered itself as to observe changes
-        // to the underlying data, we will update the UI as the side-result of the .update()
-        // call.
-        if ((requestCode == CODE_EDIT) && (resultCode == Activity.RESULT_OK)) {
-            Snackbar.make(getView(), "Updating after edit", Snackbar.LENGTH_SHORT).show();
-            mPersonDataModel.update(getContext(),
-                    data.getStringExtra(EditUserDetailsFragment.KEY_EMAIL),
-                    data.getStringExtra(EditUserDetailsFragment.KEY_LOCATION));
-        }
     }
 }

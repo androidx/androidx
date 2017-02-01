@@ -19,18 +19,22 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.MainThread;
 
+import com.android.sample.githubbrowser.Utils;
 import com.android.sample.githubbrowser.data.PersonData;
 import com.android.sample.githubbrowser.db.GithubDatabase;
 import com.android.sample.githubbrowser.db.GithubDatabaseHelper;
 import com.android.sample.githubbrowser.network.GithubNetworkManager;
+import com.android.sample.githubbrowser.network.GithubNetworkManager.NetworkCallListener;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * View model for the full person data.
  */
 public class PersonDataModel implements ViewModel {
-    private LiveData<Boolean> mFetching = new LiveData<>();
+    private AtomicBoolean mHasNetworkRequestPending = new AtomicBoolean(false);
     private LiveData<PersonData> mPersonData = new LiveData<>();
 
     /**
@@ -44,61 +48,48 @@ public class PersonDataModel implements ViewModel {
      * Sets the login for fetching the full person data.
      */
     @MainThread
-    public synchronized void loadData(final Context context, final String login) {
+    public synchronized void loadData(final Context context, final String login,
+            final boolean forceFullLoad) {
         // Note that the usage of this view model class guarantees that we're always calling
         // with the same login. So checking the value of fetching field is enough to prevent
         // multiple concurrent remote / local DB fetches.
-        boolean isFetching = (mFetching.getValue() != null)
-                && mFetching.getValue().booleanValue();
-        if (isFetching || mPersonData.getValue() != null) {
+        boolean isFetching = mHasNetworkRequestPending.get();
+        boolean havePersonDataAlready = (mPersonData.getValue() != null)
+                && (!forceFullLoad || Utils.isFullData(mPersonData.getValue()));
+        if (isFetching || havePersonDataAlready) {
             // We are either fetching the data or have the data already
             return;
         }
 
-        mFetching.setValue(true);
-
         final GithubDatabase db = GithubDatabaseHelper.getDatabase(context);
-        // Wrap a DB query call in an AsyncTask. Otherwise we'd be doing a disk IO operation on
-        // the UI thread.
-        new AsyncTask<String, Void, PersonData>() {
-            @Override
-            protected PersonData doInBackground(String... params) {
-                return db.getGithubDao().loadPerson(params[0]);
-            }
+        mPersonData = db.getGithubDao().loadPerson(login);
+        if (mPersonData == null || forceFullLoad) {
+            // Issue the network request to bring in the data
+            mHasNetworkRequestPending.set(true);
 
-            @Override
-            protected void onPostExecute(PersonData personData) {
-                if (personData != null) {
-                    android.util.Log.e("GithubBrowser", "Got data from local DB");
-                    mPersonData.setValue(personData);
-                    mFetching.setValue(false);
-                } else {
-                    GithubNetworkManager.getInstance().getUser(login,
-                            new GithubNetworkManager.NetworkCallListener<PersonData>() {
-                                @Override
-                                public void onLoadEmpty(int httpCode) {
-                                    mFetching.setValue(false);
-                                }
+            GithubNetworkManager.getInstance().getUser(login,
+                    new NetworkCallListener<PersonData>() {
+                        @Override
+                        public void onLoadEmpty(int httpCode) {
+                            mHasNetworkRequestPending.set(false);
+                        }
 
-                                @Override
-                                public void onLoadSuccess(PersonData data) {
-                                    onDataLoadedFromNetwork(data, db);
-                                }
+                        @Override
+                        public void onLoadSuccess(PersonData data) {
+                            onDataLoadedFromNetwork(data, db);
+                        }
 
-                                @Override
-                                public void onLoadFailure() {
-                                    mFetching.setValue(false);
-                                }
-                            });
-                }
-            }
-        }.execute(login);
+                        @Override
+                        public void onLoadFailure() {
+                            mHasNetworkRequestPending.set(false);
+                        }
+                    });
+        }
     }
 
     @MainThread
     private void onDataLoadedFromNetwork(PersonData data, final GithubDatabase db) {
-        mPersonData.setValue(data);
-        mFetching.setValue(false);
+        mHasNetworkRequestPending.set(false);
 
         // Wrap a DB insert call with another AsyncTask. Otherwise we'd
         // be doing a disk IO operation on the UI thread.
@@ -121,11 +112,8 @@ public class PersonDataModel implements ViewModel {
         // Update the relevant fields
         newData.email = email;
         newData.location = location;
-        // And set the new data as our wrapper's value. At this point the observer(s) registered
-        // on this live data will get notified of the underlying changes, updating their state
-        mPersonData.setValue(newData);
 
-        // And finally update the entry for this person in our database so that it's reflected
+        // And update the entry for this person in our database so that it's reflected
         // in the UI the next time it's fetched and displayed
         final GithubDatabase db = GithubDatabaseHelper.getDatabase(context);
         // Wrap a DB update call with an AsyncTask. Otherwise we'd be doing a disk IO operation on
@@ -137,5 +125,8 @@ public class PersonDataModel implements ViewModel {
                 return null;
             }
         }.execute(newData);
+
+        // Note - this is where you would also issue a network request to update user data
+        // on the remote backend.
     }
 }

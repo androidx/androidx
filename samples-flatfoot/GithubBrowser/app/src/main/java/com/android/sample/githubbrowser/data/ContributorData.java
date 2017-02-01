@@ -15,8 +15,6 @@
  */
 package com.android.sample.githubbrowser.data;
 
-import android.os.Parcel;
-
 import com.android.support.room.Entity;
 
 /**
@@ -27,32 +25,6 @@ public class ContributorData extends PersonData {
     public int contributions;
 
     public ContributorData() {
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        super.writeToParcel(out, flags);
-        out.writeInt(contributions);
-    }
-
-    public static final Creator<ContributorData> CREATOR = new Creator<ContributorData>() {
-        public ContributorData createFromParcel(Parcel in) {
-            return new ContributorData(in);
-        }
-
-        public ContributorData[] newArray(int size) {
-            return new ContributorData[size];
-        }
-    };
-
-    private ContributorData(Parcel in) {
-        super(in);
-        contributions = in.readInt();
     }
 
     @Override

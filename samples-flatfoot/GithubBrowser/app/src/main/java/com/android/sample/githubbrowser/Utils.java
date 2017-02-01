@@ -25,7 +25,7 @@ import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.sample.githubbrowser.data.ContributorData;
+import com.android.sample.githubbrowser.data.PersonData;
 import com.android.sample.githubbrowser.data.RepositoryData;
 
 import com.bumptech.glide.Glide;
@@ -52,7 +52,9 @@ public class Utils {
      */
     @BindingAdapter({"url", "fragment"})
     public static void loadImage(ImageView imageView, String url, Fragment fragment) {
-        Glide.with(fragment).load(url).fitCenter().crossFade().into(imageView);
+        if (!TextUtils.isEmpty(url)) {
+            Glide.with(fragment).load(url).fitCenter().crossFade().into(imageView);
+        }
     }
 
     /**
@@ -113,10 +115,10 @@ public class Utils {
     /**
      * Shows full details of the specific user.
      */
-    public static void showUserDetails(Fragment fragment, ContributorData data) {
+    public static void showUserDetails(Fragment fragment, PersonData data) {
         UserDetailsFragment userDetailsFragment = new UserDetailsFragment();
         Bundle detailsFragmentArgs = new Bundle();
-        detailsFragmentArgs.putParcelable(UserDetailsFragment.INITIAL, data);
+        detailsFragmentArgs.putString(UserDetailsFragment.USER_LOGIN, data.login);
         userDetailsFragment.setArguments(detailsFragmentArgs);
 
         FragmentManager fragmentManager = fragment.getActivity()
@@ -141,5 +143,10 @@ public class Utils {
         FragmentManager fragmentManager = fragment.getActivity()
                 .getSupportFragmentManager();
         editUserDetailsFragment.show(fragmentManager, "editUser:" + login);
+    }
+
+    /** Checks whether we have full data on the specific user. */
+    public static boolean isFullData(PersonData personData) {
+        return !TextUtils.isEmpty(personData.created_at);
     }
 }
