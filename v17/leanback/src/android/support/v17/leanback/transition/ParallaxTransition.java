@@ -25,7 +25,7 @@ import android.content.Context;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.widget.ParallaxSource;
+import android.support.v17.leanback.widget.Parallax;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
 import android.util.AttributeSet;
@@ -57,7 +57,7 @@ public class ParallaxTransition extends Visibility {
     }
 
     Animator createAnimator(View view) {
-        final ParallaxSource<?> source = (ParallaxSource) view.getTag(R.id.lb_parallax_source);
+        final Parallax<?> source = (Parallax) view.getTag(R.id.lb_parallax_source);
         if (source == null) {
             return null;
         }

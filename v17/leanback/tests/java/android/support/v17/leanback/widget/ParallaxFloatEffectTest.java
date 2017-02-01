@@ -36,21 +36,18 @@ import org.mockito.MockitoAnnotations;
 @SmallTest
 public class ParallaxFloatEffectTest {
 
-    ParallaxSource.FloatSource source;
-    float screenMax;
-    ParallaxEffect.FloatEffect effect;
-    @Mock ParallaxTarget target;
+    Parallax.FloatParallax mSource;
+    int mScreenMax;
+    ParallaxEffect.FloatEffect mEffect;
+    @Mock ParallaxTarget mTarget;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        source = new ParallaxSource.FloatSource<ParallaxSource.FloatProperty>() {
+        mSource = new Parallax.FloatParallax<Parallax.FloatProperty>() {
 
-            public void setListener(ParallaxSource.Listener listener) {
-            }
-
-            public float getMaxParentVisibleSize() {
-                return screenMax;
+            public float getMaxValue() {
+                return mScreenMax;
             }
 
             @Override
@@ -58,182 +55,182 @@ public class ParallaxFloatEffectTest {
                 return new FloatProperty(name, index);
             }
         };
-        effect = new ParallaxEffect.FloatEffect();
+        mEffect = new ParallaxEffect.FloatEffect();
     }
 
     @Test
     public void testOneVariable() {
-        screenMax = 1080;
-        ParallaxSource.FloatProperty var1 = source.addProperty("var1");
+        mScreenMax = 1080;
+        Parallax.FloatProperty var1 = mSource.addProperty("var1");
 
-        effect.setPropertyRanges(var1.atAbsolute(540), var1.atAbsolute(0));
-        effect.target(target);
+        mEffect.setPropertyRanges(var1.atAbsolute(540), var1.atAbsolute(0));
+        mEffect.target(mTarget);
 
         // start
-        var1.setFloatValue(source, 540);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 540);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // 25% complete
-        var1.setFloatValue(source, 405);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0.25f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 405);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0.25f);
+        Mockito.reset(mTarget);
 
         // middle
-        var1.setFloatValue(source, 270);
-        effect.performMapping(source);
-        verify(target, times(1)).update(.5f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 270);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(.5f);
+        Mockito.reset(mTarget);
 
         // 75% complete
-        var1.setFloatValue(source, 135);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0.75f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 135);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0.75f);
+        Mockito.reset(mTarget);
 
         // end
-        var1.setFloatValue(source, 0);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 0);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // after end
-        var1.setFloatValue(source, -1000);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, -1000);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // before start
-        var1.setFloatValue(source, 1000);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 1000);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // unknown_before
-        var1.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_BEFORE);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_BEFORE);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // unknown_after
-        var1.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_AFTER);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_AFTER);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
     }
 
     @Test(expected=IllegalStateException.class)
     public void testVerifyKeyValueOfSameVariableInDesendantOrder() {
-        screenMax = 1080;
-        ParallaxSource.FloatProperty var1 = source.addProperty("var1");
+        mScreenMax = 1080;
+        Parallax.FloatProperty var1 = mSource.addProperty("var1");
 
-        effect.setPropertyRanges(var1.atAbsolute(540), var1.atAbsolute(550));
-        effect.target(target);
-        var1.setFloatValue(source, 0);
-        effect.performMapping(source);
+        mEffect.setPropertyRanges(var1.atAbsolute(540), var1.atAbsolute(550));
+        mEffect.target(mTarget);
+        var1.setFloatValue(mSource, 0);
+        mEffect.performMapping(mSource);
     }
 
     @Test
     public void testTwoVariable() {
-        screenMax = 1080;
-        ParallaxSource.FloatProperty var1 = source.addProperty("var1");
-        ParallaxSource.FloatProperty var2 = source.addProperty("var2");
+        mScreenMax = 1080;
+        Parallax.FloatProperty var1 = mSource.addProperty("var1");
+        Parallax.FloatProperty var2 = mSource.addProperty("var2");
 
-        effect.setPropertyRanges(var1.atAbsolute(540), var2.atAbsolute(540));
-        effect.target(target);
+        mEffect.setPropertyRanges(var1.atAbsolute(540), var2.atAbsolute(540));
+        mEffect.target(mTarget);
 
         // start
-        var1.setFloatValue(source, 540);
-        var2.setFloatValue(source, 840);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 540);
+        var2.setFloatValue(mSource, 840);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // middle
-        var1.setFloatValue(source, 390);
-        var2.setFloatValue(source, 690);
-        effect.performMapping(source);
-        verify(target, times(1)).update(.5f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 390);
+        var2.setFloatValue(mSource, 690);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(.5f);
+        Mockito.reset(mTarget);
 
         // end
-        var1.setFloatValue(source, 240);
-        var2.setFloatValue(source, 540);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 240);
+        var2.setFloatValue(mSource, 540);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // after end
-        var1.setFloatValue(source, 200);
-        var2.setFloatValue(source, 500);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 200);
+        var2.setFloatValue(mSource, 500);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // before start
-        var1.setFloatValue(source, 1000);
-        var2.setFloatValue(source, 1300);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 1000);
+        var2.setFloatValue(mSource, 1300);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // unknown_before
-        var1.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_BEFORE);
-        var2.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_BEFORE);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_BEFORE);
+        var2.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_BEFORE);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // unknown_before
-        var1.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_BEFORE);
-        var2.setFloatValue(source, -1000);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_BEFORE);
+        var2.setFloatValue(mSource, -1000);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // unknown_after
-        var1.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_AFTER);
-        var2.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_AFTER);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_AFTER);
+        var2.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_AFTER);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // unknown_after
-        var1.setFloatValue(source, 1000);
-        var2.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_AFTER);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 1000);
+        var2.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_AFTER);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0f);
+        Mockito.reset(mTarget);
 
         // unknown_before and less
-        var1.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_BEFORE);
-        var2.setFloatValue(source, 500);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_BEFORE);
+        var2.setFloatValue(mSource, 500);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // unknown_before and hit second
-        var1.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_BEFORE);
-        var2.setFloatValue(source, 540);
-        effect.performMapping(source);
-        verify(target, times(1)).update(1f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_BEFORE);
+        var2.setFloatValue(mSource, 540);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(1f);
+        Mockito.reset(mTarget);
 
         // unknown_before with estimation
-        var1.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_BEFORE);
-        var2.setFloatValue(source, 1080);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0.5f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_BEFORE);
+        var2.setFloatValue(mSource, 1080);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0.5f);
+        Mockito.reset(mTarget);
 
         // unknown_after with estimation
-        var1.setFloatValue(source, 0);
-        var2.setFloatValue(source, ParallaxSource.FloatProperty.UNKNOWN_AFTER);
-        effect.performMapping(source);
-        verify(target, times(1)).update(0.5f);
-        Mockito.reset(target);
+        var1.setFloatValue(mSource, 0);
+        var2.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_AFTER);
+        mEffect.performMapping(mSource);
+        verify(mTarget, times(1)).update(0.5f);
+        Mockito.reset(mTarget);
     }
 
 }

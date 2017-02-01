@@ -24,9 +24,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.graphics.CompositeDrawable;
 import android.support.v17.leanback.graphics.FitWidthBitmapDrawable;
 import android.support.v17.leanback.testutils.PollingCheck;
+import android.support.v17.leanback.widget.DetailsParallaxDrawable;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.view.View;
 
@@ -55,10 +55,10 @@ public class DetailsFragmentTest {
         mActivity = activityTestRule.launchActivity(intent);
 
         final DetailsTestFragment detailsFragment = mActivity.getDetailsFragment();
-        DetailsBackgroundParallaxHelper parallaxHelper = detailsFragment.getParallaxHelper();
-        final CompositeDrawable drawable = (CompositeDrawable) parallaxHelper.getDrawable();
+        DetailsParallaxDrawable drawable =
+                detailsFragment.getParallaxDrawable();
         final FitWidthBitmapDrawable bitmapDrawable = (FitWidthBitmapDrawable)
-                (drawable.getChildAt(0).getDrawable());
+                drawable.getCoverDrawable();
 
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
