@@ -20,8 +20,8 @@ import android.os.AsyncTask;
 import android.support.annotation.MainThread;
 
 import com.android.sample.githubbrowser.data.RepositoryData;
-import com.android.sample.githubbrowser.db.PersonDataDatabase;
-import com.android.sample.githubbrowser.db.PersonDataDatabaseHelper;
+import com.android.sample.githubbrowser.db.GithubDatabase;
+import com.android.sample.githubbrowser.db.GithubDatabaseHelper;
 import com.android.sample.githubbrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
@@ -58,13 +58,13 @@ public class RepositoryDataModel implements ViewModel {
 
         mFetching.setValue(true);
 
-        final PersonDataDatabase db = PersonDataDatabaseHelper.getDatabase(context);
+        final GithubDatabase db = GithubDatabaseHelper.getDatabase(context);
         // Wrap a DB query call in an AsyncTask. Otherwise we'd be doing a disk IO operation on
         // the UI thread.
         new AsyncTask<String, Void, RepositoryData>() {
             @Override
             protected RepositoryData doInBackground(String... params) {
-                return db.getPersonDataDao().loadRepository(params[0]);
+                return db.getGithubDao().loadRepository(params[0]);
             }
 
             @Override
@@ -100,7 +100,7 @@ public class RepositoryDataModel implements ViewModel {
     }
 
     @MainThread
-    private void onDataLoadedFromNetwork(RepositoryData data, final PersonDataDatabase db) {
+    private void onDataLoadedFromNetwork(RepositoryData data, final GithubDatabase db) {
         mRepositoryData.setValue(data);
         mFetching.setValue(false);
 
@@ -109,7 +109,7 @@ public class RepositoryDataModel implements ViewModel {
         new AsyncTask<RepositoryData, Void, Void>() {
             @Override
             protected Void doInBackground(RepositoryData... params) {
-                db.getPersonDataDao().insertOrReplaceRepository(params[0]);
+                db.getGithubDao().insertOrReplaceRepository(params[0]);
                 return null;
             }
         }.execute(data);

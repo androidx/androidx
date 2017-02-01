@@ -16,6 +16,7 @@
 
 package com.android.sample.githubbrowser.db;
 
+import com.android.sample.githubbrowser.data.ContributorSearchData;
 import com.android.sample.githubbrowser.data.GeneralRepoSearchData;
 import com.android.sample.githubbrowser.data.PersonData;
 import com.android.sample.githubbrowser.data.RepositoryData;
@@ -24,13 +25,13 @@ import com.android.support.room.Database;
 import com.android.support.room.RoomDatabase;
 
 /**
- * Database for Github person entities.
+ * Database for Github entities.
  */
 @Database(entities = {PersonData.class, SearchQueryData.class, GeneralRepoSearchData.class,
-        RepositoryData.class})
-public abstract class PersonDataDatabase extends RoomDatabase {
+        RepositoryData.class, ContributorSearchData.class})
+public abstract class GithubDatabase extends RoomDatabase {
     /**
      * Gets the data access object.
      */
-    public abstract PersonDataDao getPersonDataDao();
+    public abstract GithubDao getGithubDao();
 }

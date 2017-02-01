@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.githubbrowser.db;
+package com.android.sample.githubbrowser.data;
 
-import android.content.Context;
-
-import com.android.support.room.Room;
+import com.android.support.room.Entity;
+import com.android.support.room.PrimaryKey;
 
 /**
- * Database helper.
+ * Contains information on a single locally persisted entry from contributor list.
  */
-public class PersonDataDatabaseHelper {
-    private static PersonDataDatabase sInstance;
+@Entity
+public class ContributorSearchData {
+    @PrimaryKey public String searchQuery;
+    @PrimaryKey public int resultIndex;
+    @PrimaryKey public String contributorId;
+    public int contributions;
 
-    /**
-     * Gets a database instance.
-     */
-    public static synchronized PersonDataDatabase getDatabase(Context context) {
-        if (sInstance == null) {
-            sInstance = Room.databaseBuilder(context, PersonDataDatabase.class, "person.db")
-                    .build();
-        }
-        return sInstance;
+    public ContributorSearchData() {
     }
 }

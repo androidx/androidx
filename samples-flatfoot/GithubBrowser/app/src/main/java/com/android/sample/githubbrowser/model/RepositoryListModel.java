@@ -25,9 +25,9 @@ import com.android.sample.githubbrowser.AuthTokenLifecycle;
 import com.android.sample.githubbrowser.data.GeneralRepoSearchData;
 import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.data.SearchQueryData;
-import com.android.sample.githubbrowser.db.PersonDataDao;
-import com.android.sample.githubbrowser.db.PersonDataDatabase;
-import com.android.sample.githubbrowser.db.PersonDataDatabaseHelper;
+import com.android.sample.githubbrowser.db.GithubDao;
+import com.android.sample.githubbrowser.db.GithubDatabase;
+import com.android.sample.githubbrowser.db.GithubDatabaseHelper;
 import com.android.sample.githubbrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
@@ -47,7 +47,7 @@ public class RepositoryListModel implements ViewModel {
     private AtomicBoolean mHasNetworkRequestPending = new AtomicBoolean(false);
     private GithubNetworkManager.Cancelable mCurrentNetworkCall;
 
-    private PersonDataDatabase mDatabase;
+    private GithubDatabase mDatabase;
     private SearchQueryData mSearchQueryData;
     private AtomicInteger mLastRequestedIndex = new AtomicInteger(0);
 
@@ -65,7 +65,7 @@ public class RepositoryListModel implements ViewModel {
     public void setSearchTerm(Context context, String searchTerm,
             AuthTokenLifecycle authTokenLifecycle) {
         if (mDatabase == null) {
-            mDatabase = PersonDataDatabaseHelper.getDatabase(context);
+            mDatabase = GithubDatabaseHelper.getDatabase(context);
         }
         mSearchTerm = searchTerm;
         mAuthTokenLifecycle = authTokenLifecycle;
@@ -74,12 +74,12 @@ public class RepositoryListModel implements ViewModel {
             mCurrentNetworkCall.cancel();
         }
 
-        final PersonDataDao personDataDao = mDatabase.getPersonDataDao();
+        final GithubDao githubDao = mDatabase.getGithubDao();
 
         // Get the LiveData wrapper around the list of repositories that match our current
         // search query. The wrapped list will be updated on every successful network request
         // that is performed for data that is not available in our database.
-        mRepositoryListLiveData = personDataDao.getRepositories(mSearchTerm);
+        mRepositoryListLiveData = githubDao.getRepositories(mSearchTerm);
 
         mHasNetworkRequestPending.set(false);
 
@@ -89,16 +89,16 @@ public class RepositoryListModel implements ViewModel {
                 // Get data about locally persisted results of our current search query. Note that
                 // since this is working with a disk-based database, we're running off the main
                 // thread.
-                mSearchQueryData = personDataDao.getSearchQueryData(
+                mSearchQueryData = githubDao.getSearchQueryData(
                         params[0], SearchQueryData.GENERAL_REPOSITORIES);
                 if (mSearchQueryData == null) {
                     // This query has not been performed before - initialize an entry in the
                     // database. TODO - consult the timestamp of network requests for staleness.
                     mSearchQueryData = new SearchQueryData();
-                    mSearchQueryData.searchQuery = mSearchTerm;
+                    mSearchQueryData.searchQuery = params[0];
                     mSearchQueryData.searchKind = SearchQueryData.GENERAL_REPOSITORIES;
                     mSearchQueryData.numberOfFetchedItems = -1;
-                    mDatabase.getPersonDataDao().update(mSearchQueryData);
+                    githubDao.update(mSearchQueryData);
                 }
                 return null;
             }
@@ -115,6 +115,11 @@ public class RepositoryListModel implements ViewModel {
     }
 
     private void fetchNextPage() {
+        if (mSearchQueryData == null) {
+            // Not ready to fetch yet.
+            return;
+        }
+
         // Do we have data in the database?
         if (mSearchQueryData.numberOfFetchedItems >= mLastRequestedIndex.get()) {
             // We already have the data stored (and retrieved) from database.
@@ -163,7 +168,7 @@ public class RepositoryListModel implements ViewModel {
     private void processNewPageOfData(RepositoryData... data) {
         int newDataCount = data.length;
 
-        final PersonDataDao personDataDao = mDatabase.getPersonDataDao();
+        final GithubDao githubDao = mDatabase.getGithubDao();
         final int indexOfFirstData = mSearchQueryData.numberOfFetchedItems;
         // Update the metadata about our current search query (in the database)
         if (newDataCount == 0) {
@@ -175,7 +180,7 @@ public class RepositoryListModel implements ViewModel {
             mSearchQueryData.indexOfLastFetchedPage++;
             mSearchQueryData.numberOfFetchedItems += newDataCount;
         }
-        personDataDao.update(mSearchQueryData);
+        githubDao.update(mSearchQueryData);
 
         if (newDataCount > 0) {
             // Insert entries for the newly loaded repositories in two places:
@@ -191,8 +196,8 @@ public class RepositoryListModel implements ViewModel {
                 generalRepoSearchDataArray[i].resultIndex = indexOfFirstData + i;
                 generalRepoSearchDataArray[i].repoId = data[i].id;
             }
-            personDataDao.insert(generalRepoSearchDataArray);
-            personDataDao.insert(data);
+            githubDao.insert(generalRepoSearchDataArray);
+            githubDao.insert(data);
         }
 
         mHasNetworkRequestPending.set(false);

@@ -20,8 +20,8 @@ import android.os.AsyncTask;
 import android.support.annotation.MainThread;
 
 import com.android.sample.githubbrowser.data.PersonData;
-import com.android.sample.githubbrowser.db.PersonDataDatabase;
-import com.android.sample.githubbrowser.db.PersonDataDatabaseHelper;
+import com.android.sample.githubbrowser.db.GithubDatabase;
+import com.android.sample.githubbrowser.db.GithubDatabaseHelper;
 import com.android.sample.githubbrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
@@ -57,13 +57,13 @@ public class PersonDataModel implements ViewModel {
 
         mFetching.setValue(true);
 
-        final PersonDataDatabase db = PersonDataDatabaseHelper.getDatabase(context);
+        final GithubDatabase db = GithubDatabaseHelper.getDatabase(context);
         // Wrap a DB query call in an AsyncTask. Otherwise we'd be doing a disk IO operation on
         // the UI thread.
         new AsyncTask<String, Void, PersonData>() {
             @Override
             protected PersonData doInBackground(String... params) {
-                return db.getPersonDataDao().loadPerson(params[0]);
+                return db.getGithubDao().loadPerson(params[0]);
             }
 
             @Override
@@ -96,7 +96,7 @@ public class PersonDataModel implements ViewModel {
     }
 
     @MainThread
-    private void onDataLoadedFromNetwork(PersonData data, final PersonDataDatabase db) {
+    private void onDataLoadedFromNetwork(PersonData data, final GithubDatabase db) {
         mPersonData.setValue(data);
         mFetching.setValue(false);
 
@@ -105,7 +105,7 @@ public class PersonDataModel implements ViewModel {
         new AsyncTask<PersonData, Void, Void>() {
             @Override
             protected Void doInBackground(PersonData... params) {
-                db.getPersonDataDao().insertOrReplacePerson(params[0]);
+                db.getGithubDao().insertOrReplacePerson(params[0]);
                 return null;
             }
         }.execute(data);
@@ -127,13 +127,13 @@ public class PersonDataModel implements ViewModel {
 
         // And finally update the entry for this person in our database so that it's reflected
         // in the UI the next time it's fetched and displayed
-        final PersonDataDatabase db = PersonDataDatabaseHelper.getDatabase(context);
+        final GithubDatabase db = GithubDatabaseHelper.getDatabase(context);
         // Wrap a DB update call with an AsyncTask. Otherwise we'd be doing a disk IO operation on
         // the UI thread.
         new AsyncTask<PersonData, Void, Void>() {
             @Override
             protected Void doInBackground(PersonData... params) {
-                db.getPersonDataDao().insertOrReplacePerson(params[0]);
+                db.getGithubDao().insertOrReplacePerson(params[0]);
                 return null;
             }
         }.execute(newData);

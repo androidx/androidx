@@ -16,6 +16,8 @@
 
 package com.android.sample.githubbrowser.db;
 
+import com.android.sample.githubbrowser.data.ContributorData;
+import com.android.sample.githubbrowser.data.ContributorSearchData;
 import com.android.sample.githubbrowser.data.GeneralRepoSearchData;
 import com.android.sample.githubbrowser.data.PersonData;
 import com.android.sample.githubbrowser.data.RepositoryData;
@@ -28,10 +30,10 @@ import com.android.support.room.Query;
 import java.util.List;
 
 /**
- * Data access object for person table.
+ * Data access object for github data table.
  */
 @Dao
-public interface PersonDataDao {
+public interface GithubDao {
     /**
      * Load full data for a person based on the login.
      */
@@ -43,19 +45,6 @@ public interface PersonDataDao {
      */
     @Insert(onConflict = Insert.REPLACE)
     void insertOrReplacePerson(PersonData personData);
-
-    /**
-     * Loads repository results for the specified query.
-     */
-    @Query("SELECT r.*, MIN(qr.resultIndex) as resultIndex from repositorydata r, "
-            + "generalreposearchdata qr, searchquerydata q"
-            + "    WHERE q.searchQuery = qr.searchQuery"
-            + "          AND q.searchKind = " + SearchQueryData.GENERAL_REPOSITORIES
-            + "          AND r.id = qr.repoId"
-            + "          AND q.searchQuery = ?"
-            + "          GROUP BY r.id"
-            + "          ORDER BY resultIndex")
-    LiveData<List<RepositoryData>> getRepositories(String searchQuery);
 
     /** Load search data for the specified query. */
     @Query("select * from searchquerydata where searchQuery = :searchQuery"
@@ -81,4 +70,38 @@ public interface PersonDataDao {
     /** Loads full data for a repository. */
     @Query("select * from repositorydata where id = ?")
     RepositoryData loadRepository(String id);
+
+    /** Inserts or updates metadata for results of contributor search. */
+    @Insert(onConflict = Insert.REPLACE)
+    void insert(ContributorSearchData[] contributorSearchDataArray);
+
+    /** Inserts or updates the person data objects. */
+    @Insert(onConflict = Insert.REPLACE)
+    void insert(PersonData[] personDataArray);
+
+    /**
+     * Loads repository results for the specified query.
+     */
+    @Query("SELECT r.*, MIN(qr.resultIndex) as resultIndex from repositorydata r, "
+            + "generalreposearchdata qr, searchquerydata q"
+            + "    WHERE q.searchQuery = qr.searchQuery"
+            + "          AND q.searchKind = " + SearchQueryData.GENERAL_REPOSITORIES
+            + "          AND r.id = qr.repoId"
+            + "          AND q.searchQuery = ?"
+            + "          GROUP BY r.id"
+            + "          ORDER BY resultIndex")
+    LiveData<List<RepositoryData>> getRepositories(String searchQuery);
+
+    /**
+     * Loads contributor results for the specified repository.
+     */
+    @Query("SELECT p.*, qr.contributions, MIN(qr.resultIndex) as resultIndex from persondata p, "
+            + "contributorsearchdata qr, searchquerydata q"
+            + "    WHERE q.searchQuery = qr.searchQuery"
+            + "          AND q.searchKind = " + SearchQueryData.REPOSITORY_CONTRIBUTORS
+            + "          AND p.id = qr.contributorId"
+            + "          AND q.searchQuery = ?"
+            + "          GROUP BY p.id"
+            + "          ORDER BY resultIndex")
+    LiveData<List<ContributorData>> getContributors(String repoName);
 }

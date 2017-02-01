@@ -29,14 +29,14 @@ public class RepositoryData implements Parcelable {
     @PrimaryKey public String id;
     public String name;
     public String full_name;
-    public ContributorData owner;
+    public PersonData owner;
     public String description;
     public String created_at;
     public int stargazers_count;
     public String language;
     public int forks_count;
     public int open_issues_count;
-    public ContributorData organization;
+    public PersonData organization;
     public int subscribers_count;
 
     public RepositoryData() {

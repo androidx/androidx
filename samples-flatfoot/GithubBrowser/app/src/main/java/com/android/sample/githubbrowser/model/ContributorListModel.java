@@ -15,15 +15,22 @@
  */
 package com.android.sample.githubbrowser.model;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.support.annotation.MainThread;
+import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import com.android.sample.githubbrowser.data.ContributorData;
+import com.android.sample.githubbrowser.data.ContributorSearchData;
+import com.android.sample.githubbrowser.data.SearchQueryData;
+import com.android.sample.githubbrowser.db.GithubDao;
+import com.android.sample.githubbrowser.db.GithubDatabase;
+import com.android.sample.githubbrowser.db.GithubDatabaseHelper;
 import com.android.sample.githubbrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,11 +42,13 @@ public class ContributorListModel implements ViewModel {
     private String mOwner;
     private String mProject;
 
-    private LiveData<List<ContributorData>> mRepositoryListLiveData = new LiveData<>();
-    private AtomicBoolean mHasNoMoreDataToLoad = new AtomicBoolean(false);
-    private AtomicInteger mLastRequestedPage = new AtomicInteger(0);
-    private AtomicBoolean mHasRequestPending = new AtomicBoolean(false);
-    private GithubNetworkManager.Cancelable mCurrentCall;
+    private LiveData<List<ContributorData>> mContributorListLiveData = new LiveData<>();
+    private AtomicBoolean mHasNetworkRequestPending = new AtomicBoolean(false);
+    private GithubNetworkManager.Cancelable mCurrentNetworkCall;
+
+    private GithubDatabase mDatabase;
+    private SearchQueryData mSearchQueryData;
+    private AtomicInteger mLastRequestedIndex = new AtomicInteger(0);
 
     /**
      * Returns true if the current search term is not empty.
@@ -52,24 +61,73 @@ public class ContributorListModel implements ViewModel {
      * Sets new search terms.
      */
     @MainThread
-    public void setSearchTerms(String owner, String project) {
+    public void setSearchTerms(Context context, String owner, String project) {
+        if (mDatabase == null) {
+            mDatabase = GithubDatabaseHelper.getDatabase(context);
+        }
         mOwner = owner;
         mProject = project;
 
-        if (mCurrentCall != null) {
-            mCurrentCall.cancel();
+        if (mCurrentNetworkCall != null) {
+            mCurrentNetworkCall.cancel();
         }
-        mRepositoryListLiveData.setValue(new ArrayList<ContributorData>());
-        mHasRequestPending.set(false);
-        mLastRequestedPage.set(0);
 
-        fetchNextPage();
+        final GithubDao githubDao = mDatabase.getGithubDao();
+
+        // Get the LiveData wrapper around the list of contributors that match our current
+        // search query. The wrapped list will be updated on every successful network request
+        // that is performed for data that is not available in our database.
+        mContributorListLiveData = githubDao.getContributors(mOwner + "/" + mProject);
+
+        mHasNetworkRequestPending.set(false);
+
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... params) {
+                // Get data about locally persisted results of our current search query. Note that
+                // since this is working with a disk-based database, we're running off the main
+                // thread.
+                mSearchQueryData = githubDao.getSearchQueryData(
+                        params[0], SearchQueryData.REPOSITORY_CONTRIBUTORS);
+                if (mSearchQueryData == null) {
+                    // This query has not been performed before - initialize an entry in the
+                    // database. TODO - consult the timestamp of network requests for staleness.
+                    mSearchQueryData = new SearchQueryData();
+                    mSearchQueryData.searchQuery = params[0];
+                    mSearchQueryData.searchKind = SearchQueryData.REPOSITORY_CONTRIBUTORS;
+                    mSearchQueryData.numberOfFetchedItems = -1;
+                    githubDao.update(mSearchQueryData);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                fetchNextPage();
+            }
+        }.execute(mOwner + "/" + mProject);
     }
 
     private void fetchNextPage() {
-        mHasRequestPending.set(true);
-        mCurrentCall = GithubNetworkManager.getInstance().getContributors(
-                mOwner, mProject, mLastRequestedPage.get() + 1,
+        if (mSearchQueryData == null) {
+            // Not ready to fetch yet.
+            return;
+        }
+
+        // Do we have data in the database?
+        if (mSearchQueryData.numberOfFetchedItems >= mLastRequestedIndex.get()) {
+            // We already have the data stored (and retrieved) from database.
+            return;
+        }
+
+        if (mHasNetworkRequestPending.get() || mSearchQueryData.hasNoMoreData) {
+            // Previous request still processing or no more results
+            return;
+        }
+
+        mHasNetworkRequestPending.set(true);
+        mCurrentNetworkCall = GithubNetworkManager.getInstance().getContributors(
+                mOwner, mProject, mSearchQueryData.indexOfLastFetchedPage + 1,
                 new GithubNetworkManager.NetworkCallListener<List<ContributorData>>() {
                     @Override
                     public void onLoadEmpty(int httpCode) {
@@ -78,22 +136,15 @@ public class ContributorListModel implements ViewModel {
                     @Override
                     public void onLoadSuccess(List<ContributorData> data) {
                         int newDataCount = data.size();
-                        if (newDataCount == 0) {
-                            mHasNoMoreDataToLoad.set(true);
-                            return;
-                        }
-
-                        // Create a new list that will contain the previous pages and the new one
-                        int prevDataCount = mRepositoryListLiveData.getValue().size();
-                        ArrayList<ContributorData> newList =
-                                new ArrayList<>(prevDataCount + newDataCount);
-                        newList.addAll(mRepositoryListLiveData.getValue());
-                        newList.addAll(data);
-                        // Set it on our LiveData object - our observer will update the adapter
-                        mRepositoryListLiveData.setValue(newList);
-
-                        mLastRequestedPage.incrementAndGet();
-                        mHasRequestPending.set(false);
+                        new AsyncTask<ContributorData, Void, Void>() {
+                            @Override
+                            protected Void doInBackground(ContributorData... params) {
+                                // Note that since we're going to be inserting data into disk-based
+                                // database, we need to be running off the main thread.
+                                processNewPageOfData(params);
+                                return null;
+                            }
+                        }.execute(data.toArray(new ContributorData[data.size()]));
                     }
 
                     @Override
@@ -102,15 +153,56 @@ public class ContributorListModel implements ViewModel {
                 });
     }
 
+    @WorkerThread
+    private void processNewPageOfData(ContributorData... data) {
+        int newDataCount = data.length;
+
+        final GithubDao githubDao = mDatabase.getGithubDao();
+        final int indexOfFirstData = mSearchQueryData.numberOfFetchedItems;
+        // Update the metadata about our current search query (in the database)
+        if (newDataCount == 0) {
+            mSearchQueryData.hasNoMoreData = true;
+        } else {
+            if (mSearchQueryData.indexOfLastFetchedPage == 0) {
+                mSearchQueryData.timestamp = System.currentTimeMillis();
+            }
+            mSearchQueryData.indexOfLastFetchedPage++;
+            mSearchQueryData.numberOfFetchedItems += newDataCount;
+        }
+        githubDao.update(mSearchQueryData);
+
+        if (newDataCount > 0) {
+            // Insert entries for the newly loaded contributors in two places:
+            // 1. The table that stores contributor IDs that match a specific query.
+            // 2. The table that stores full data on each individual contributor.
+            // This way we don't store multiple full entries for the same contributor
+            // that happens to match two or more search queries.
+            ContributorSearchData[] contributorSearchDataArray =
+                    new ContributorSearchData[newDataCount];
+            for (int i = 0; i < newDataCount; i++) {
+                contributorSearchDataArray[i] = new ContributorSearchData();
+                contributorSearchDataArray[i].searchQuery = mOwner + "/" + mProject;
+                contributorSearchDataArray[i].resultIndex = indexOfFirstData + i;
+                contributorSearchDataArray[i].contributorId = data[i].id;
+                contributorSearchDataArray[i].contributions = data[i].contributions;
+            }
+            githubDao.insert(contributorSearchDataArray);
+            githubDao.insert(data);
+        }
+
+        mHasNetworkRequestPending.set(false);
+    }
+
     /**
-     * Fetches the next page of search data if necessary.
+     * Fetches data at specified index if data does not exist yet.
      */
-    @MainThread
-    public void fetchMoreIfNecessary() {
-        if (mHasRequestPending.get() || mHasNoMoreDataToLoad.get()) {
+    public void fetchAtIndexIfNecessary(int index) {
+        if (mHasNetworkRequestPending.get() || mSearchQueryData.hasNoMoreData) {
             // Previous request still processing or no more results
             return;
         }
+
+        mLastRequestedIndex.set(index);
 
         fetchNextPage();
     }
@@ -120,6 +212,6 @@ public class ContributorListModel implements ViewModel {
      * last set search terms.
      */
     public LiveData<List<ContributorData>> getContributorListLiveData() {
-        return mRepositoryListLiveData;
+        return mContributorListLiveData;
     }
 }

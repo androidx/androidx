@@ -128,11 +128,13 @@ public class ContibutorListAdapter extends RecyclerView.Adapter<ContributorBindi
             return;
         }
 
-        mSearchModel.fetchMoreIfNecessary();
+        mSearchModel.fetchAtIndexIfNecessary(contributorDataList.size());
     }
 
     @Override
     public int getItemCount() {
-        return mSearchModel.getContributorListLiveData().getValue().size();
+        List<ContributorData> contributorDataList =
+                mSearchModel.getContributorListLiveData().getValue();
+        return (contributorDataList == null) ? 0 : contributorDataList.size();
     }
 }

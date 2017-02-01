@@ -89,7 +89,7 @@ public class RepositoryDetailsFragment extends LifecycleFragment {
             // TODO - this is temporary until Room persists non-primitive fields. Until
             // then we split full name into user and name manually
             String[] split = repositoryData.full_name.split("/");
-            contributorListModel.setSearchTerms(split[0], repositoryData.name);
+            contributorListModel.setSearchTerms(getContext(), split[0], repositoryData.name);
         }
 
         final RecyclerView contributorsRecycler = (RecyclerView) binding.getRoot().findViewById(

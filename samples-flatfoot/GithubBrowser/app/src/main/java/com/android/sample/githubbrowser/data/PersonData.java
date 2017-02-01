@@ -91,7 +91,7 @@ public class PersonData implements Parcelable {
         }
     };
 
-    private PersonData(Parcel in) {
+    protected PersonData(Parcel in) {
         login = in.readString();
         id = in.readString();
         avatar_url = in.readString();
@@ -105,5 +105,52 @@ public class PersonData implements Parcelable {
         followers = in.readInt();
         following = in.readInt();
         created_at = in.readString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PersonData that = (PersonData) o;
+
+        if (public_repos != that.public_repos) return false;
+        if (followers != that.followers) return false;
+        if (following != that.following) return false;
+        if (login != null ? !login.equals(that.login) : that.login != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (avatar_url != null ? !avatar_url.equals(that.avatar_url) : that.avatar_url != null) {
+            return false;
+        }
+        if (repos_url != null ? !repos_url.equals(that.repos_url) : that.repos_url != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (company != null ? !company.equals(that.company) : that.company != null) return false;
+        if (blog != null ? !blog.equals(that.blog) : that.blog != null) return false;
+        if (location != null ? !location.equals(that.location) : that.location != null) {
+            return false;
+        }
+        if (email != null ? !email.equals(that.email) : that.email != null) return false;
+        return created_at != null ? created_at.equals(that.created_at) : that.created_at == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = login != null ? login.hashCode() : 0;
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (avatar_url != null ? avatar_url.hashCode() : 0);
+        result = 31 * result + (repos_url != null ? repos_url.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (company != null ? company.hashCode() : 0);
+        result = 31 * result + (blog != null ? blog.hashCode() : 0);
+        result = 31 * result + (location != null ? location.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
+        result = 31 * result + public_repos;
+        result = 31 * result + followers;
+        result = 31 * result + following;
+        result = 31 * result + (created_at != null ? created_at.hashCode() : 0);
+        return result;
     }
 }
