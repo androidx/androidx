@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -119,6 +120,7 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestSupportActi
         verifyIntentHasTextResults(intent, charSequence);
     }
 
+    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testRemoteInputBuilder_addAndGetDataAndTextResultsFromIntentDataFirst()
             throws Throwable {
@@ -144,6 +146,7 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestSupportActi
         verifyIntentHasDataResults(intent, uri);
     }
 
+    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testRemoteInputBuilder_addAndGetDataAndTextResultsFromIntentTextFirst()
             throws Throwable {
