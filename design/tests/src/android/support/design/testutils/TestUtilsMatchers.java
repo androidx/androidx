@@ -18,19 +18,23 @@ package android.support.design.testutils;
 
 import static org.junit.Assert.assertEquals;
 
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.ColorInt;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.test.espresso.matcher.BoundedMatcher;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v7.view.menu.MenuItemImpl;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -495,4 +499,36 @@ public class TestUtilsMatchers {
             }
         };
     }
+
+    /**
+     * Returns a matcher that matches the action view of the specified menu item.
+     *
+     * @param menu The menu
+     * @param id   The ID of the menu item
+     */
+    public static Matcher<View> isActionViewOf(@NonNull final Menu menu, @IdRes final int id) {
+        return new TypeSafeMatcher<View>() {
+
+            private Resources mResources;
+
+            @Override
+            protected boolean matchesSafely(View view) {
+                mResources = view.getResources();
+                MenuItemImpl item = (MenuItemImpl) menu.findItem(id);
+                return item != null && item.getActionView() == view;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                String name;
+                if (mResources != null) {
+                    name = mResources.getResourceName(id);
+                } else {
+                    name = Integer.toString(id);
+                }
+                description.appendText("is action view of menu item " + name);
+            }
+        };
+    }
+
 }

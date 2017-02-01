@@ -16,6 +16,9 @@
 
 package android.support.design.testutils;
 
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
@@ -29,9 +32,8 @@ import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.view.LayoutInflater;
 import android.view.View;
-import org.hamcrest.Matcher;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import org.hamcrest.Matcher;
 
 public class NavigationViewActions {
     /**
@@ -305,4 +307,32 @@ public class NavigationViewActions {
             }
         };
     }
+
+    /**
+     * Removes the specified menu item from the navigation view.
+     *
+     * @param menuItemId The ID of the menu item to be removed.
+     */
+    public static ViewAction removeMenuItem(final @IdRes int menuItemId) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(NavigationView.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Remove menu item " + menuItemId;
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+                NavigationView navigationView = (NavigationView) view;
+                navigationView.getMenu().removeItem(menuItemId);
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
 }
