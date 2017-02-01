@@ -1049,7 +1049,6 @@ package android.support.media.instantvideo.widget {
     ctor public InstantVideoView(android.content.Context);
     ctor public InstantVideoView(android.content.Context, android.util.AttributeSet);
     ctor public InstantVideoView(android.content.Context, android.util.AttributeSet, int);
-    ctor public InstantVideoView(android.content.Context, android.util.AttributeSet, int, int);
     method public int getCurrentPosition();
     method public void seekTo(int);
     method public void setImageDrawable(android.graphics.drawable.Drawable);
