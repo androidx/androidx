@@ -420,6 +420,16 @@ public class SearchSupportFragment extends Fragment {
         super.onDestroy();
     }
 
+    /**
+     * Returns RowsSupportFragment that shows result rows. RowsSupportFragment is initialized after
+     * SearchSupportFragment.onCreateView().
+     *
+     * @return RowsSupportFragment that shows result rows.
+     */
+    public RowsSupportFragment getRowsSupportFragment() {
+        return mRowsSupportFragment;
+    }
+
     private void releaseRecognizer() {
         if (null != mSpeechRecognizer) {
             mSearchBar.setSpeechRecognizer(null);
