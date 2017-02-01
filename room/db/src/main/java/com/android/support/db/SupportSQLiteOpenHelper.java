@@ -18,6 +18,7 @@ package com.android.support.db;
 
 import android.content.Context;
 import android.database.DatabaseErrorHandler;
+import android.database.DefaultDatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
@@ -276,6 +277,9 @@ public interface SupportSQLiteOpenHelper {
                 if (mContext == null) {
                     throw new IllegalArgumentException("Must set a non-null context to create"
                             + " the configuration.");
+                }
+                if (mErrorHandler == null) {
+                    mErrorHandler = new DefaultDatabaseErrorHandler();
                 }
                 return new Configuration(mContext, mName, mFactory, mVersion, mErrorHandler,
                         mCallback);
