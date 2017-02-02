@@ -20,6 +20,7 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.VideoView;
@@ -41,26 +42,21 @@ public class InstantVideoView extends FrameLayout {
     private final ImageView mImageView;
 
     public InstantVideoView(Context context) {
-        this(context, null, 0, 0);
+        this(context, null, 0);
     }
 
     public InstantVideoView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0, 0);
+        this(context, attrs, 0);
     }
 
     public InstantVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
-    }
-
-    public InstantVideoView(Context context, AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        mVideoView = new VideoView(context, attrs, defStyleAttr, defStyleRes);
-        mImageView = new ImageView(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs, defStyleAttr);
+        mVideoView = new VideoView(context, attrs, defStyleAttr);
+        mImageView = new ImageView(context, attrs, defStyleAttr);
         addView(mVideoView, new FrameLayout.LayoutParams(
-                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
         addView(mImageView, new FrameLayout.LayoutParams(
-                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
         mVideoView.setVisibility(GONE);
     }
 
