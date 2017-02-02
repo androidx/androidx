@@ -64,7 +64,7 @@ import android.support.design.testutils.TestUtils;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.ViewAssertion;
-import android.support.test.filters.SmallTest;
+import android.support.test.filters.MediumTest;
 import android.support.v4.widget.TextViewCompat;
 import android.util.AttributeSet;
 import android.util.SparseArray;
@@ -75,7 +75,7 @@ import android.widget.EditText;
 
 import org.junit.Test;
 
-@SmallTest
+@MediumTest
 public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLayoutActivity> {
 
     private static final String ERROR_MESSAGE_1 = "An error has occured";
