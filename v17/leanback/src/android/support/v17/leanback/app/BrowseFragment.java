@@ -1102,12 +1102,23 @@ public class BrowseFragment extends BaseFragment {
         super.onDestroy();
     }
 
+    /**
+     * Creates a new {@link HeadersFragment} instance. Subclass of BrowseFragment may override and
+     * return an instance of subclass of HeadersFragment, e.g. when app wants to replace presenter
+     * to render HeaderItem.
+     *
+     * @return A new instance of {@link HeadersFragment} or its subclass.
+     */
+    public HeadersFragment onCreateHeadersFragment() {
+        return new HeadersFragment();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
         if (getChildFragmentManager().findFragmentById(R.id.scale_frame) == null) {
-            mHeadersFragment = new HeadersFragment();
+            mHeadersFragment = onCreateHeadersFragment();
 
             createMainFragment(mAdapter, mSelectedPosition);
             FragmentTransaction ft = getChildFragmentManager().beginTransaction()
