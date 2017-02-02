@@ -5,13 +5,15 @@ dependencies {
     compile project(':support-annotations')
     compile project(':support-core-ui')
     compile project(':support-recyclerview-v7')
-
     androidTestCompile (libs.test_runner) {
         exclude module: 'support-annotations'
     }
     androidTestCompile (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
+    androidTestCompile libs.mockito_core
+    androidTestCompile libs.dexmaker
+    androidTestCompile libs.dexmaker_mockito
 }
 
 android {

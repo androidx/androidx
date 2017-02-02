@@ -11885,6 +11885,12 @@ package android.support.wearable.view {
     field public int boxedEdges;
   }
 
+  public class CurvedOffsettingHelper extends android.support.wearable.view.WearableRecyclerView.OffsettingHelper {
+    ctor public CurvedOffsettingHelper();
+    method public void adjustAnchorOffsetXY(android.view.View, float[]);
+    method public void updateChild(android.view.View, android.support.wearable.view.WearableRecyclerView);
+  }
+
   public class SwipeDismissFrameLayout extends android.widget.FrameLayout {
     ctor public SwipeDismissFrameLayout(android.content.Context);
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet);
@@ -11900,6 +11906,28 @@ package android.support.wearable.view {
     method public void onDismissed(android.support.wearable.view.SwipeDismissFrameLayout);
     method public void onSwipeCancelled();
     method public void onSwipeStarted();
+  }
+
+  public class WearableRecyclerView extends android.support.v7.widget.RecyclerView {
+    ctor public WearableRecyclerView(android.content.Context);
+    ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet);
+    ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet, int);
+    ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet, int, int);
+    method public float getBezelWidthFraction();
+    method public boolean getEdgeItemsCenteringEnabled();
+    method public android.support.wearable.view.WearableRecyclerView.OffsettingHelper getOffsettingHelper();
+    method public float getScrollDegreesPerScreen();
+    method public boolean isCircularScrollingGestureEnabled();
+    method public void setBezelWidthFraction(float);
+    method public void setCircularScrollingGestureEnabled(boolean);
+    method public void setEdgeItemsCenteringEnabled(boolean);
+    method public void setOffsettingHelper(android.support.wearable.view.WearableRecyclerView.OffsettingHelper);
+    method public void setScrollDegreesPerScreen(float);
+  }
+
+  public static abstract class WearableRecyclerView.OffsettingHelper {
+    ctor public WearableRecyclerView.OffsettingHelper();
+    method public abstract void updateChild(android.view.View, android.support.wearable.view.WearableRecyclerView);
   }
 
 }

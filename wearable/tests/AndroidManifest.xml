@@ -19,13 +19,12 @@
           package="android.support.wearable.test">
     <uses-sdk android:minSdkVersion="20"
               android:targetSdkVersion="23"
-              tools:overrideLibrary="android.support.test,
-                      android.app, android.support.test.rule, android.support.test.espresso,
-                      android.support.test.espresso.idling"/>
+              tools:overrideLibrary="android.support.test, android.app, android.support.test.rule,
+                      android.support.test.espresso, android.support.test.espresso.idling"/>
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <application android:supportsRtl="true" >
+    <application android:supportsRtl="true">
         <activity android:name="android.support.wearable.view.LayoutTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,6 +32,13 @@
             </intent-filter>
         </activity>
         <activity android:name="android.support.wearable.view.SwipeDismissFrameLayoutTestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.support.wearable.view.WearableRecyclerViewTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

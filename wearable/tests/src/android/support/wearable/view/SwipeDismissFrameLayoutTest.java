@@ -218,8 +218,7 @@ public class SwipeDismissFrameLayoutTest {
     @SmallTest
     public void testSwipeDoesNotDismissViewIfStartsInWrongPosition() {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned on, but only for an
-      // inner
-        // circle.
+        // inner circle.
         setUpSwipeableRegion();
         // WHEN we perform a swipe to dismiss from the left edge of the screen.
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromLeftEdge());
@@ -231,8 +230,7 @@ public class SwipeDismissFrameLayoutTest {
     @SmallTest
     public void testSwipeDoesDismissViewIfStartsInRightPosition() {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned on, but only for an
-      // inner
-        // circle.
+        // inner circle.
         setUpSwipeableRegion();
         // WHEN we perform a swipe to dismiss from the center of the screen.
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromCenter());

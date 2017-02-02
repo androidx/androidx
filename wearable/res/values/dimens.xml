@@ -13,14 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<!-- Definitions of attributes to be exposed as public -->
 <resources>
-    <!-- BoxInsetLayout -->
-    <public type="attr" name="boxedEdges" />
-
-    <!-- WearableRecyclerView -->
-    <public type="attr" name="bezelWidth" />
-    <public type="attr" name="circularScrollingGestureEnabled" />
-    <public type="attr" name="scrollDegreesPerScreen" />
+    <!-- Values for the WearableRecyclerView. -->
+    <dimen name="wrv_curve_default_x_offset">24dp</dimen>
 </resources>
