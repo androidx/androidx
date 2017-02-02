@@ -30,7 +30,7 @@ public class GithubDatabaseHelper {
      */
     public static synchronized GithubDatabase getDatabase(Context context) {
         if (sInstance == null) {
-            sInstance = Room.databaseBuilder(context, GithubDatabase.class, "person.db")
+            sInstance = Room.databaseBuilder(context, GithubDatabase.class, "github.db")
                     .build();
         }
         return sInstance;

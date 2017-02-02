@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class PersonDataModel implements ViewModel {
     private AtomicBoolean mHasNetworkRequestPending = new AtomicBoolean(false);
-    private LiveData<PersonData> mPersonData = new LiveData<>();
+    private LiveData<PersonData> mPersonData;
 
     /**
      * Returns the {@LiveData} object that wraps the full person data.
@@ -54,7 +54,7 @@ public class PersonDataModel implements ViewModel {
         // with the same login. So checking the value of fetching field is enough to prevent
         // multiple concurrent remote / local DB fetches.
         boolean isFetching = mHasNetworkRequestPending.get();
-        boolean havePersonDataAlready = (mPersonData.getValue() != null)
+        boolean havePersonDataAlready = (mPersonData != null) && (mPersonData.getValue() != null)
                 && (!forceFullLoad || Utils.isFullData(mPersonData.getValue()));
         if (isFetching || havePersonDataAlready) {
             // We are either fetching the data or have the data already

@@ -26,12 +26,14 @@ import com.android.sample.githubbrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * View model for the full repository data.
  */
 public class RepositoryDataModel implements ViewModel {
-    private LiveData<Boolean> mFetching = new LiveData<>();
-    private LiveData<RepositoryData> mRepositoryData = new LiveData<>();
+    private AtomicBoolean mHasNetworkRequestPending = new AtomicBoolean(false);
+    private LiveData<RepositoryData> mRepositoryData;
 
     /**
      * Returns the {@LiveData} object that wraps the full repository data.
@@ -49,60 +51,47 @@ public class RepositoryDataModel implements ViewModel {
         // Note that the usage of this view model class guarantees that we're always calling
         // with the same info. So checking the value of fetching field is enough to prevent
         // multiple concurrent remote / local DB fetches.
-        boolean isFetching = (mFetching.getValue() != null)
-                && mFetching.getValue().booleanValue();
-        if (isFetching || mRepositoryData.getValue() != null) {
+        boolean isFetching = mHasNetworkRequestPending.get();
+        boolean haveRepoDataAlready = (mRepositoryData != null)
+                && (mRepositoryData.getValue() != null);
+        if (isFetching || haveRepoDataAlready) {
             // We are either fetching the data or have the data already
             return;
         }
 
-        mFetching.setValue(true);
-
         final GithubDatabase db = GithubDatabaseHelper.getDatabase(context);
-        // Wrap a DB query call in an AsyncTask. Otherwise we'd be doing a disk IO operation on
-        // the UI thread.
-        new AsyncTask<String, Void, RepositoryData>() {
-            @Override
-            protected RepositoryData doInBackground(String... params) {
-                return db.getGithubDao().loadRepository(params[0]);
-            }
+        mRepositoryData = db.getGithubDao().loadRepository(id);
+        if (mRepositoryData == null) {
+            // Issue the network request to bring in the data
+            mHasNetworkRequestPending.set(true);
 
-            @Override
-            protected void onPostExecute(RepositoryData repositoryData) {
-                if (repositoryData != null) {
-                    android.util.Log.e("GithubBrowser", "Got data from local DB");
-                    mRepositoryData.setValue(repositoryData);
-                    mFetching.setValue(false);
-                } else {
-                    // TODO - this is temporary until Room persists non-primitive fields. Until
-                    // then we split full name into user and name manually
-                    String[] split = fullName.split("/");
-                    GithubNetworkManager.getInstance().getRepository(split[0], split[1],
-                            new GithubNetworkManager.NetworkCallListener<RepositoryData>() {
-                                @Override
-                                public void onLoadEmpty(int httpCode) {
-                                    mFetching.setValue(false);
-                                }
+            // TODO - this is temporary until Room persists non-primitive fields. Until
+            // then we split full name into user and name manually
+            String[] split = fullName.split("/");
+            GithubNetworkManager.getInstance().getRepository(split[0], split[1],
+                    new GithubNetworkManager.NetworkCallListener<RepositoryData>() {
+                        @Override
+                        public void onLoadEmpty(int httpCode) {
+                            mHasNetworkRequestPending.set(false);
+                        }
 
-                                @Override
-                                public void onLoadSuccess(RepositoryData data) {
-                                    onDataLoadedFromNetwork(data, db);
-                                }
+                        @Override
+                        public void onLoadSuccess(RepositoryData data) {
+                            onDataLoadedFromNetwork(data, db);
+                        }
 
-                                @Override
-                                public void onLoadFailure() {
-                                    mFetching.setValue(false);
-                                }
-                            });
-                }
-            }
-        }.execute(id);
+                        @Override
+                        public void onLoadFailure() {
+                            mHasNetworkRequestPending.set(false);
+                        }
+                    });
+        }
     }
 
     @MainThread
     private void onDataLoadedFromNetwork(RepositoryData data, final GithubDatabase db) {
         mRepositoryData.setValue(data);
-        mFetching.setValue(false);
+        mHasNetworkRequestPending.set(false);
 
         // Wrap a DB insert call with another AsyncTask. Otherwise we'd
         // be doing a disk IO operation on the UI thread.

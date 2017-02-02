@@ -69,7 +69,7 @@ public interface GithubDao {
 
     /** Loads full data for a repository. */
     @Query("select * from repositorydata where id = ?")
-    RepositoryData loadRepository(String id);
+    LiveData<RepositoryData> loadRepository(String id);
 
     /** Inserts or updates metadata for results of contributor search. */
     @Insert(onConflict = Insert.REPLACE)

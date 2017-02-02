@@ -58,6 +58,12 @@ public class RepositoryDetailsFragment extends LifecycleFragment {
         // data.
         RepositoryDataModel repositoryDataModel = ViewModelStore.get(this, repoId,
                 RepositoryDataModel.class);
+        // Ask the model to load the data for this repository. When the data becomes available
+        // (either immediately from the previous load or later on when it's fetched from
+        // remote API call), we will be notified since this fragment registered itself as an
+        // observer on the matching live data object.
+        repositoryDataModel.loadData(getContext(), repoId, repoFullName);
+
         repositoryDataModel.getRepositoryData().observe(this, new Observer<RepositoryData>() {
             @Override
             public void onChanged(@Nullable final RepositoryData repositoryData) {
@@ -67,12 +73,6 @@ public class RepositoryDetailsFragment extends LifecycleFragment {
                 }
             }
         });
-
-        // Ask the model to load the data for this repository. When the data becomes available
-        // (either immediately from the previous load or later on when it's fetched from
-        // remote API call), we will be notified since this fragment registered itself as an
-        // observer on the matching live data object.
-        repositoryDataModel.loadData(getContext(), repoId, repoFullName);
 
         return result;
     }

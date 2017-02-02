@@ -41,8 +41,6 @@ import com.android.support.lifecycle.ViewModelStore;
  */
 public class EditUserDetailsFragment extends DialogFragment implements LifecycleRegistryProvider {
     public static final String LOGIN = "editUser.login";
-    public static final String KEY_EMAIL = "edit.email";
-    public static final String KEY_LOCATION = "edit.location";
 
     private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
     private PersonDataModel mPersonDataModel;
@@ -101,7 +99,7 @@ public class EditUserDetailsFragment extends DialogFragment implements Lifecycle
         mPersonDataModel.getPersonData().observe(this, new Observer<PersonData>() {
             @Override
             public void onChanged(@Nullable PersonData personData) {
-                if (personData != null) {
+                if (!isDetached() && (personData != null)) {
                     android.util.Log.e("GithubBrowser", "Got data for editing from model");
                     getDialog().setTitle(personData.name);
                     binding.setUser(personData);
