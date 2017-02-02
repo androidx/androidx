@@ -136,6 +136,8 @@ public class TransitionInflater {
                 transition = new ChangeBounds(mContext, attrs);
             } else if ("explode".equals(name)) {
                 transition = new Explode(mContext, attrs);
+            } else if ("changeTransform".equals(name)) {
+                transition = new ChangeTransform(mContext, attrs);
             } else if ("changeClipBounds".equals(name)) {
                 transition = new ChangeClipBounds(mContext, attrs);
             } else if ("autoTransition".equals(name)) {

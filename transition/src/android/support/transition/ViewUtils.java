@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.util.Property;
 import android.view.View;
-import android.view.ViewParent;
 
 /**
  * Compatibility utilities for platform features of {@link View}.
@@ -33,7 +32,9 @@ class ViewUtils {
     private static final ViewUtilsImpl IMPL;
 
     static {
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            IMPL = new ViewUtilsApi21();
+        } else if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new ViewUtilsApi19();
         } else if (Build.VERSION.SDK_INT >= 18) {
             IMPL = new ViewUtilsApi18();
@@ -101,45 +102,42 @@ class ViewUtils {
      * Modifies the input matrix such that it maps view-local coordinates to
      * on-screen coordinates.
      *
-     * @param view target view
+     * <p>On API Level 21 and above, this includes transformation matrix applied to {@code
+     * ViewRootImpl}, but not on older platforms. This difference is balanced out by the
+     * implementation difference in other related platform APIs and their backport, such as
+     * GhostView.</p>
+     *
+     * @param view   target view
      * @param matrix input matrix to modify
      */
     static void transformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix) {
-        final ViewParent parent = view.getParent();
-        if (parent instanceof View) {
-            final View vp = (View) parent;
-            transformMatrixToGlobal(vp, matrix);
-            matrix.preTranslate(-vp.getScrollX(), -vp.getScrollY());
-        }
-        matrix.preTranslate(view.getLeft(), view.getTop());
-        final Matrix vm = view.getMatrix();
-        if (!vm.isIdentity()) {
-            matrix.preConcat(vm);
-        }
+        IMPL.transformMatrixToGlobal(view, matrix);
     }
 
     /**
      * Modifies the input matrix such that it maps on-screen coordinates to
      * view-local coordinates.
      *
-     * @param view target view
+     * <p>On API Level 21 and above, this includes transformation matrix applied to {@code
+     * ViewRootImpl}, but not on older platforms. This difference is balanced out by the
+     * implementation difference in other related platform APIs and their backport, such as
+     * GhostView.</p>
+     *
+     * @param view   target view
      * @param matrix input matrix to modify
      */
     static void transformMatrixToLocal(@NonNull View view, @NonNull Matrix matrix) {
-        final ViewParent parent = view.getParent();
-        if (parent instanceof View) {
-            final View vp = (View) parent;
-            transformMatrixToLocal(vp, matrix);
-            matrix.postTranslate(vp.getScrollX(), vp.getScrollY());
-        }
-        matrix.postTranslate(view.getLeft(), view.getTop());
-        final Matrix vm = view.getMatrix();
-        if (!vm.isIdentity()) {
-            final Matrix inverted = new Matrix();
-            if (vm.invert(inverted)) {
-                matrix.postConcat(inverted);
-            }
-        }
+        IMPL.transformMatrixToLocal(view, matrix);
+    }
+
+    /**
+     * Sets the transformation matrix for animation.
+     *
+     * @param v The view
+     * @param m The matrix
+     */
+    static void setAnimationMatrix(@NonNull View v, @NonNull Matrix m) {
+        IMPL.setAnimationMatrix(v, m);
     }
 
 }

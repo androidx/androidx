@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,27 @@
 package android.support.transition;
 
 import android.graphics.Matrix;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.view.View;
+import android.view.ViewGroup;
 
 @RequiresApi(14)
-interface ViewUtilsImpl {
+interface GhostViewImpl {
 
-    ViewOverlayImpl getOverlay(@NonNull View view);
+    interface Creator {
 
-    WindowIdImpl getWindowId(@NonNull View view);
+        GhostViewImpl addGhost(View view, ViewGroup viewGroup, Matrix matrix);
 
-    void setTransitionAlpha(@NonNull View view, float alpha);
+        void removeGhost(View view);
 
-    float getTransitionAlpha(@NonNull View view);
+    }
 
-    void transformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix);
+    void setVisibility(int visibility);
 
-    void transformMatrixToLocal(@NonNull View view, @NonNull Matrix matrix);
-
-    void setAnimationMatrix(@NonNull View view, Matrix matrix);
-
+    /**
+     * Reserves a call to {@link ViewGroup#endViewTransition(View)} at the time when the GhostView
+     * starts drawing its real view.
+     */
+    void reserveEndViewTransition(ViewGroup viewGroup, View view);
 
 }

@@ -16,6 +16,8 @@
 
 package android.support.transition;
 
+import static junit.framework.TestCase.assertFalse;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -52,6 +54,7 @@ public class TransitionInflaterTest extends BaseTest {
         // TODO: Add more Transition types
         verifyFadeProperties(inflater.inflateTransition(R.transition.fade));
         verifyExplodeProperties(inflater.inflateTransition(R.transition.explode));
+        verifyChangeTransformProperties(inflater.inflateTransition(R.transition.change_transform));
         verifyChangeClipBoundsProperties(
                 inflater.inflateTransition(R.transition.change_clip_bounds));
         verifyAutoTransitionProperties(inflater.inflateTransition(R.transition.auto_transition));
@@ -75,6 +78,13 @@ public class TransitionInflaterTest extends BaseTest {
         assertTrue(transition instanceof Explode);
         Visibility visibility = (Visibility) transition;
         assertEquals(Visibility.MODE_IN, visibility.getMode());
+    }
+
+    private void verifyChangeTransformProperties(Transition transition) {
+        assertTrue(transition instanceof ChangeTransform);
+        ChangeTransform changeTransform = (ChangeTransform) transition;
+        assertFalse(changeTransform.getReparent());
+        assertFalse(changeTransform.getReparentWithOverlay());
     }
 
     private void verifyChangeClipBoundsProperties(Transition transition) {

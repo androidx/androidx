@@ -22,6 +22,7 @@
     <string name="arcMotion">Arc Motion</string>
     <string name="explode">Explode</string>
     <string name="clipBounds">Change Clip Bounds</string>
+    <string name="changeTransform">Change Transform</string>
     <string name="toggle">Toggle</string>
     <string name="begin">Begin</string>
     <string name="hello_world">Hello, world!</string>

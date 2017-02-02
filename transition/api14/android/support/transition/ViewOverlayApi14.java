@@ -107,8 +107,8 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
 
     /**
      * OverlayViewGroup is a container that View and ViewGroup use to host
-     * drawables and views added to their overlays  ({@link ViewOverlay} and
-     * {@link ViewGroupOverlay}, respectively). Drawables are added to the overlay
+     * drawables and views added to their overlays  ({@code ViewOverlay} and
+     * {@code ViewGroupOverlay}, respectively). Drawables are added to the overlay
      * via the add/remove methods in ViewOverlay, Views are added/removed via
      * ViewGroupOverlay. These drawable and view objects are
      * drawn whenever the view itself is drawn; first the view draws its own
