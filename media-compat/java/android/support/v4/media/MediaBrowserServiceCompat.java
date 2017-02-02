@@ -842,11 +842,16 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * {@link Result#detach result.detach} may be called before returning from
      * this function, and then {@link Result#sendResult result.sendResult}
      * called when the loading is complete.
+     * </p><p>
+     * In case the media item does not have any children, call {@link Result#sendResult}
+     * with an empty list. When the given {@code parentId} is invalid, implementations must
+     * call {@link Result#sendResult result.sendResult} with {@code null}, which will invoke
+     * {@link MediaBrowserCompat.SubscriptionCallback#onError}.
+     * </p>
      *
      * @param parentId The id of the parent media item whose children are to be
      *            queried.
-     * @param result The Result to send the list of children to, or null if the
-     *            id is invalid.
+     * @param result The Result to send the list of children to.
      */
     public abstract void onLoadChildren(@NonNull String parentId,
             @NonNull Result<List<MediaBrowserCompat.MediaItem>> result);
@@ -860,11 +865,16 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * {@link Result#detach result.detach} may be called before returning from
      * this function, and then {@link Result#sendResult result.sendResult}
      * called when the loading is complete.
+     * </p><p>
+     * In case the media item does not have any children, call {@link Result#sendResult}
+     * with an empty list. When the given {@code parentId} is invalid, implementations must
+     * call {@link Result#sendResult result.sendResult} with {@code null}, which will invoke
+     * {@link MediaBrowserCompat.SubscriptionCallback#onError}.
+     * </p>
      *
      * @param parentId The id of the parent media item whose children are to be
      *            queried.
-     * @param result The Result to send the list of children to, or null if the
-     *            id is invalid.
+     * @param result The Result to send the list of children to.
      * @param options A bundle of service-specific arguments sent from the media
      *            browse. The information returned through the result should be
      *            affected by the contents of this bundle.

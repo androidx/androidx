@@ -52,7 +52,7 @@ public class BottomNavigationViewUsage extends AppCompatActivity {
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (bottom.getMenu().size() < 5) {
+                if (bottom.getMenu().size() < bottom.getMaxItemCount()) {
                     MenuItem item = bottom.getMenu().add("Bananas");
                     item.setIcon(android.R.drawable.ic_lock_power_off);
                 }
@@ -62,7 +62,9 @@ public class BottomNavigationViewUsage extends AppCompatActivity {
         buttonRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                bottom.getMenu().removeItem(0);
+                if (bottom.getMenu().size() > 0) {
+                    bottom.getMenu().removeItem(bottom.getMenu().getItem(0).getItemId());
+                }
             }
         });
         Button buttonTint = (Button) findViewById(R.id.button_tint);
@@ -81,13 +83,18 @@ public class BottomNavigationViewUsage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 final int menuSize = bottom.getMenu().size();
+                if (menuSize < 1) {
+                    return;
+                }
                 int currentlySelected = 0;
                 for (int i = 0; i < menuSize; i++) {
                     if (bottom.getMenu().getItem(i).isChecked()) {
                         currentlySelected = i;
+                        break;
                     }
                 }
-                bottom.getMenu().getItem((currentlySelected + 1) % menuSize).setChecked(true);
+                int next = (currentlySelected + 1) % menuSize;
+                bottom.setSelectedItemId(bottom.getMenu().getItem(next).getItemId());
             }
         });
         final TextView selectedItem = (TextView) findViewById(R.id.selected_item);
@@ -109,6 +116,13 @@ public class BottomNavigationViewUsage extends AppCompatActivity {
                                 selectedItem.setText("Selected " + item.getTitle());
                         }
                         return true;
+                    }
+                });
+        bottom.setOnNavigationItemReselectedListener(
+                new BottomNavigationView.OnNavigationItemReselectedListener() {
+                    @Override
+                    public void onNavigationItemReselected(@NonNull MenuItem item) {
+                        selectedItem.setText("Reselected " + item.getTitle());
                     }
                 });
     }

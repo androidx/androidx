@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package android.support.v17.leanback.app;
@@ -20,19 +20,21 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.media.PlaybackGlue;
+import android.support.v17.leanback.widget.DetailsParallax;
 import android.support.v17.leanback.widget.Parallax;
-import android.support.v17.leanback.widget.ParallaxRecyclerViewSource;
 import android.support.v17.leanback.widget.ParallaxTarget;
 
 /**
- * Helper class responsible for setting up video playback in {@link DetailsFragment}. This
- * takes {@link DetailsFragment} and {@link PlaybackGlue} as input and configures them. This
- * class is also responsible for implementing
- * {@link android.support.v17.leanback.widget.BrowseFrameLayout.OnFocusSearchListener} and
- * {@link android.support.v7.widget.RecyclerView.OnScrollListener} in {@link DetailsFragment}.
- * @hide
+ * Helper class responsible for controlling video playback in {@link DetailsFragment}. This
+ * takes {@link DetailsParallax}, {@link PlaybackGlue} and a drawable as input.
+ * Video is played when {@link DetailsParallax#getOverviewRowTop()} moved bellow top edge of screen.
+ * Video is stopped when {@link DetailsParallax#getOverviewRowTop()} reaches or scrolls above top
+ * edge of screen. The drawable will change alpha to 0 when video is ready to play.
+ * App does not directly use this class.
+ * @see DetailsFragmentBackgroundController
+ * @see DetailsSupportFragmentBackgroundController
  */
-public class DetailsFragmentVideoHelper {
+final class DetailsBackgroundVideoHelper {
     private static final long BACKGROUND_CROSS_FADE_DURATION = 500;
     private static final long CROSSFADE_DELAY = 1000;
 
@@ -45,7 +47,7 @@ public class DetailsFragmentVideoHelper {
         NO_VIDEO
     }
 
-    private final DetailsParallaxManager mParallaxManager;
+    private final DetailsParallax mDetailsParallax;
     private STATE mCurrentState = STATE.INITIAL;
 
     private ValueAnimator mBackgroundAnimator;
@@ -53,22 +55,32 @@ public class DetailsFragmentVideoHelper {
     private PlaybackGlue mPlaybackGlue;
 
     /**
-     * Constructor.
+     * Constructor to setup a Helper for controlling video playback in DetailsFragment.
+     * @param playbackGlue The PlaybackGlue used to control underlying player.
+     * @param detailsParallax The DetailsParallax to add special parallax effect to control video
+     *                        start/stop. Video is played when
+     *                        {@link DetailsParallax#getOverviewRowTop()} moved bellow top edge of
+     *                        screen. Video is stopped when
+     *                        {@link DetailsParallax#getOverviewRowTop()} reaches or scrolls above
+     *                        top edge of screen.
+     * @param backgroundDrawable The drawable will change alpha to 0 when video is ready to play.
      */
-    public DetailsFragmentVideoHelper(
+    DetailsBackgroundVideoHelper(
             PlaybackGlue playbackGlue,
-            DetailsParallaxManager parallaxManager) {
+            DetailsParallax detailsParallax,
+            Drawable backgroundDrawable) {
         this.mPlaybackGlue = playbackGlue;
-        this.mParallaxManager = parallaxManager;
+        this.mDetailsParallax = detailsParallax;
+        this.mBackgroundDrawable = backgroundDrawable;
         setupParallax();
     }
 
     void setupParallax() {
-        Parallax parallax = mParallaxManager.getParallax();
-        ParallaxRecyclerViewSource.ChildPositionProperty frameTop = mParallaxManager.getFrameTop();
+        Parallax.IntProperty frameTop = mDetailsParallax.getOverviewRowTop();
         final float maxFrameTop = 1f;
         final float minFrameTop = 0f;
-        parallax.addEffect(frameTop.atFraction(maxFrameTop), frameTop.atFraction(minFrameTop))
+        mDetailsParallax
+                .addEffect(frameTop.atFraction(maxFrameTop), frameTop.atFraction(minFrameTop))
                 .target(new ParallaxTarget() {
 
                     float mFraction;
@@ -112,7 +124,7 @@ public class DetailsFragmentVideoHelper {
 
     private void internalStartPlayback() {
         mPlaybackGlue.play();
-        mParallaxManager.getRecyclerView().postDelayed(new Runnable() {
+        mDetailsParallax.getRecyclerView().postDelayed(new Runnable() {
             @Override
             public void run() {
                 crossFadeBackgroundToVideo(true);
@@ -123,11 +135,15 @@ public class DetailsFragmentVideoHelper {
     private void crossFadeBackgroundToVideo(final boolean crossFadeToVideo) {
         if (mBackgroundAnimator != null) {
             mBackgroundAnimator.cancel();
+            mBackgroundAnimator = null;
         }
 
         float startAlpha = crossFadeToVideo ? 1f : 0f;
         float endAlpha = crossFadeToVideo ? 0f : 1f;
 
+        if (mBackgroundDrawable == null) {
+            return;
+        }
         mBackgroundAnimator = ValueAnimator.ofFloat(startAlpha, endAlpha);
         mBackgroundAnimator.setDuration(BACKGROUND_CROSS_FADE_DURATION);
         mBackgroundAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -158,14 +174,6 @@ public class DetailsFragmentVideoHelper {
         });
 
         mBackgroundAnimator.start();
-    }
-
-    /**
-     * Sets the drawable to be used as background image for {@link DetailsFragment}. If set,
-     * we will cross fade from the background drawable to the video.
-     */
-    public void setBackgroundDrawable(Drawable drawable) {
-        this.mBackgroundDrawable = drawable;
     }
 
     private class PlaybackControlStateCallback extends PlaybackGlue.PlayerCallback {

@@ -591,21 +591,21 @@ public final class MediaBrowserCompat {
          * Called when the list of children is loaded or updated.
          *
          * @param parentId The media id of the parent media item.
-         * @param children The children which were loaded, or null if the id is invalid.
+         * @param children The children which were loaded.
          */
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
         }
 
         /**
          * Called when the list of children is loaded or updated.
          *
          * @param parentId The media id of the parent media item.
-         * @param children The children which were loaded, or null if the id is invalid.
+         * @param children The children which were loaded.
          * @param options A bundle of service-specific arguments to send to the media
          *            browse service. The contents of this bundle may affect the
          *            information returned when browsing.
          */
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children,
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children,
                 @NonNull Bundle options) {
         }
 
@@ -979,13 +979,14 @@ public final class MediaBrowserCompat {
                 sub = new Subscription();
                 mSubscriptions.put(parentId, sub);
             }
-            sub.putCallback(options, callback);
+            Bundle copiedOptions = options == null ? null : new Bundle(options);
+            sub.putCallback(copiedOptions, callback);
 
             // If we are connected, tell the service that we are watching. If we aren't
             // connected, the service will be told when we connect.
             if (mState == CONNECT_STATE_CONNECTED) {
                 try {
-                    mServiceBinderWrapper.addSubscription(parentId, callback.mToken, options,
+                    mServiceBinderWrapper.addSubscription(parentId, callback.mToken, copiedOptions,
                             mCallbacksMessenger);
                 } catch (RemoteException e) {
                     // Process is crashing. We will disconnect, and upon reconnect we will
@@ -1141,7 +1142,6 @@ public final class MediaBrowserCompat {
                 return;
             }
 
-            List<MediaItem> data = list;
             if (DEBUG) {
                 Log.d(TAG, "onLoadChildren for " + mServiceComponent + " id=" + parentId);
             }
@@ -1159,9 +1159,17 @@ public final class MediaBrowserCompat {
             SubscriptionCallback subscriptionCallback = subscription.getCallback(options);
             if (subscriptionCallback != null) {
                 if (options == null) {
-                    subscriptionCallback.onChildrenLoaded(parentId, data);
+                    if (list == null) {
+                        subscriptionCallback.onError(parentId);
+                    } else {
+                        subscriptionCallback.onChildrenLoaded(parentId, list);
+                    }
                 } else {
-                    subscriptionCallback.onChildrenLoaded(parentId, data, options);
+                    if (list == null) {
+                        subscriptionCallback.onError(parentId, options);
+                    } else {
+                        subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                    }
                 }
             }
         }
@@ -1410,7 +1418,8 @@ public final class MediaBrowserCompat {
                 mSubscriptions.put(parentId, sub);
             }
             callback.setSubscription(sub);
-            sub.putCallback(options, callback);
+            Bundle copiedOptions = options == null ? null : new Bundle(options);
+            sub.putCallback(copiedOptions, callback);
 
             if (mServiceBinderWrapper == null) {
                 MediaBrowserCompatApi21.subscribe(
@@ -1418,7 +1427,7 @@ public final class MediaBrowserCompat {
             } else {
                 try {
                     mServiceBinderWrapper.addSubscription(
-                            parentId, callback.mToken, options, mCallbacksMessenger);
+                            parentId, callback.mToken, copiedOptions, mCallbacksMessenger);
                 } catch (RemoteException e) {
                     // Process is crashing. We will disconnect, and upon reconnect we will
                     // automatically reregister. So nothing to do here.
@@ -1584,9 +1593,17 @@ public final class MediaBrowserCompat {
             SubscriptionCallback subscriptionCallback = subscription.getCallback(options);
             if (subscriptionCallback != null) {
                 if (options == null) {
-                    subscriptionCallback.onChildrenLoaded(parentId, list);
+                    if (list == null) {
+                        subscriptionCallback.onError(parentId);
+                    } else {
+                        subscriptionCallback.onChildrenLoaded(parentId, list);
+                    }
                 } else {
-                    subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                    if (list == null) {
+                        subscriptionCallback.onError(parentId, options);
+                    } else {
+                        subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                    }
                 }
             }
         }

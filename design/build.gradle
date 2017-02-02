@@ -73,6 +73,12 @@ android {
     aaptOptions {
         additionalParameters "--no-version-vectors"
     }
+
+    buildTypes {
+        debug {
+            pseudoLocalesEnabled true
+        }
+    }
 }
 
 android.libraryVariants.all { variant ->

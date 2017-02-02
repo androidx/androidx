@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.R;
@@ -104,7 +105,8 @@ public class BottomNavigationView extends FrameLayout {
     private final BottomNavigationPresenter mPresenter = new BottomNavigationPresenter();
     private MenuInflater mMenuInflater;
 
-    private OnNavigationItemSelectedListener mListener;
+    private OnNavigationItemSelectedListener mSelectedListener;
+    private OnNavigationItemReselectedListener mReselectedListener;
 
     public BottomNavigationView(Context context) {
         this(context, null);
@@ -174,7 +176,12 @@ public class BottomNavigationView extends FrameLayout {
         mMenu.setCallback(new MenuBuilder.Callback() {
             @Override
             public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-                return mListener != null && !mListener.onNavigationItemSelected(item);
+                if (mReselectedListener != null && item.getItemId() == getSelectedItemId()) {
+                    mReselectedListener.onNavigationItemReselected(item);
+                    return true; // item is already selected
+                }
+                return mSelectedListener != null
+                        && !mSelectedListener.onNavigationItemSelected(item);
             }
 
             @Override
@@ -183,13 +190,30 @@ public class BottomNavigationView extends FrameLayout {
     }
 
     /**
-     * Set a listener that will be notified when a bottom navigation item is selected.
+     * Set a listener that will be notified when a bottom navigation item is selected. This listener
+     * will also be notified when the currently selected item is reselected, unless an
+     * {@link OnNavigationItemReselectedListener} has also been set.
      *
      * @param listener The listener to notify
+     *
+     * @see #setOnNavigationItemReselectedListener(OnNavigationItemReselectedListener)
      */
     public void setOnNavigationItemSelectedListener(
             @Nullable OnNavigationItemSelectedListener listener) {
-        mListener = listener;
+        mSelectedListener = listener;
+    }
+
+    /**
+     * Set a listener that will be notified when the currently selected bottom navigation item is
+     * reselected. This does not require an {@link OnNavigationItemSelectedListener} to be set.
+     *
+     * @param listener The listener to notify
+     *
+     * @see #setOnNavigationItemSelectedListener(OnNavigationItemSelectedListener)
+     */
+    public void setOnNavigationItemReselectedListener(
+            @Nullable OnNavigationItemReselectedListener listener) {
+        mReselectedListener = listener;
     }
 
     /**
@@ -295,7 +319,33 @@ public class BottomNavigationView extends FrameLayout {
     }
 
     /**
-     * Listener for handling events on bottom navigation items.
+     * Returns the currently selected menu item ID, or zero if there is no menu.
+     *
+     * @see #setSelectedItemId(int)
+     */
+    @IdRes
+    public int getSelectedItemId() {
+        return mMenuView.getSelectedItemId();
+    }
+
+    /**
+     * Set the selected menu item ID. This behaves the same as tapping on an item.
+     *
+     * @param itemId The menu item ID. If no item has this ID, the current selection is unchanged.
+     *
+     * @see #getSelectedItemId()
+     */
+    public void setSelectedItemId(@IdRes int itemId) {
+        MenuItem item = mMenu.findItem(itemId);
+        if (item != null) {
+            if (!mMenu.performItemAction(item, mPresenter, 0)) {
+                item.setChecked(true);
+            }
+        }
+    }
+
+    /**
+     * Listener for handling selection events on bottom navigation items.
      */
     public interface OnNavigationItemSelectedListener {
 
@@ -309,6 +359,19 @@ public class BottomNavigationView extends FrameLayout {
          *         make them appear non-interactive.
          */
         boolean onNavigationItemSelected(@NonNull MenuItem item);
+    }
+
+    /**
+     * Listener for handling reselection events on bottom navigation items.
+     */
+    public interface OnNavigationItemReselectedListener {
+
+        /**
+         * Called when the currently selected item in the bottom navigation menu is selected again.
+         *
+         * @param item The selected item
+         */
+        void onNavigationItemReselected(@NonNull MenuItem item);
     }
 
     private void addCompatibilityTopDivider(Context context) {
