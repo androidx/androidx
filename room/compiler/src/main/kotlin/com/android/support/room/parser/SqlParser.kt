@@ -16,6 +16,7 @@
 
 package com.android.support.room.parser
 
+import com.android.support.room.ColumnInfo
 import org.antlr.v4.runtime.ANTLRInputStream
 import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.CommonTokenStream
@@ -24,6 +25,9 @@ import org.antlr.v4.runtime.Recognizer
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
 import java.util.ArrayList
+import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.type.TypeKind
+import javax.lang.model.type.TypeMirror
 
 class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
                    statement: ParseTree) : SQLiteBaseVisitor<Void?>() {
@@ -148,5 +152,34 @@ enum class SQLTypeAffinity {
     TEXT,
     INTEGER,
     REAL,
-    BLOB
+    BLOB;
+    fun getTypeMirrors(env : ProcessingEnvironment) : List<TypeMirror>? {
+        val typeUtils = env.typeUtils
+        return when(this) {
+            TEXT -> listOf(env.elementUtils.getTypeElement("java.lang.String").asType())
+            INTEGER -> listOf(typeUtils.getPrimitiveType(TypeKind.INT),
+                    typeUtils.getPrimitiveType(TypeKind.BYTE),
+                    typeUtils.getPrimitiveType(TypeKind.CHAR),
+                    typeUtils.getPrimitiveType(TypeKind.BOOLEAN),
+                    typeUtils.getPrimitiveType(TypeKind.LONG),
+                    typeUtils.getPrimitiveType(TypeKind.SHORT))
+            REAL -> listOf(typeUtils.getPrimitiveType(TypeKind.DOUBLE),
+                    typeUtils.getPrimitiveType(TypeKind.FLOAT))
+            BLOB -> listOf(typeUtils.getArrayType(
+                    typeUtils.getPrimitiveType(TypeKind.BYTE)))
+            else -> emptyList()
+        }
+    }
+    companion object {
+        // converts from ColumnInfo#SQLiteTypeAffinity
+        fun fromAnnotationValue(value : Int) : SQLTypeAffinity? {
+            return when(value) {
+                ColumnInfo.BLOB -> BLOB
+                ColumnInfo.INTEGER -> INTEGER
+                ColumnInfo.REAL -> REAL
+                ColumnInfo.TEXT -> TEXT
+                else -> null
+            }
+        }
+    }
 }

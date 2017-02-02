@@ -16,8 +16,9 @@
 
 package com.android.support.room.processor
 
-import com.android.support.room.ColumnName
+import com.android.support.room.ColumnInfo
 import com.android.support.room.PrimaryKey
+import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.vo.Field
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -25,29 +26,81 @@ import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.type.DeclaredType
 
-class FieldProcessor(baseContext: Context, val containing : DeclaredType, val element : Element) {
+class FieldProcessor(baseContext: Context, val containing: DeclaredType, val element: Element,
+                     val bindingScope: BindingScope) {
     val context = baseContext.fork(element)
-    fun process() : Field {
+    fun process(): Field {
         val member = context.processingEnv.typeUtils.asMemberOf(containing, element)
         val type = TypeName.get(member)
-        val columnNameAnnotation = MoreElements.getAnnotationMirror(element,
-                ColumnName::class.java)
+        val columnInfoAnnotation = MoreElements.getAnnotationMirror(element,
+                ColumnInfo::class.java)
         val name = element.simpleName.toString()
-        val columnName : String
-        if (columnNameAnnotation.isPresent) {
-            columnName = AnnotationMirrors
-                    .getAnnotationValue(columnNameAnnotation.get(), "value").value.toString()
+        val columnName: String
+        val affinity : SQLTypeAffinity?
+        if (columnInfoAnnotation.isPresent) {
+            val nameInAnnotation = AnnotationMirrors
+                    .getAnnotationValue(columnInfoAnnotation.get(), "name").value.toString()
+            columnName = if (nameInAnnotation == ColumnInfo.INHERIT_FIELD_NAME) {
+                name
+            } else {
+                nameInAnnotation
+            }
+
+            affinity = try {
+                val userDefinedAffinity = AnnotationMirrors
+                        .getAnnotationValue(columnInfoAnnotation.get(), "affinity").value.toString()
+                        .toInt()
+                SQLTypeAffinity.fromAnnotationValue(userDefinedAffinity)
+            } catch (ex : NumberFormatException) {
+                null
+            }
         } else {
             columnName = name
+            affinity = null
         }
         context.checker.notBlank(columnName, element,
                 ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY)
         context.checker.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS)
-        return Field(name = name,
+        val field = Field(name = name,
                 type = member,
                 primaryKey = MoreElements.isAnnotationPresent(element, PrimaryKey::class.java),
                 element = element,
-                columnName = columnName)
+                columnName = columnName,
+                affinity = affinity)
+
+        when (bindingScope) {
+            BindingScope.TWO_WAY -> {
+                val adapter = context.typeAdapterStore.findColumnTypeAdapter(field.type,
+                        field.affinity)
+                field.statementBinder = adapter
+                field.cursorValueReader = adapter
+                field.affinity = adapter?.typeAffinity ?: field.affinity
+                context.checker.check(adapter != null, field.element,
+                        ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER)
+            }
+            BindingScope.BIND_TO_STMT -> {
+                field.statementBinder = context.typeAdapterStore
+                        .findStatementValueBinder(field.type, field.affinity)
+                context.checker.check(field.statementBinder != null, field.element,
+                        ProcessorErrors.CANNOT_FIND_STMT_BINDER)
+            }
+            BindingScope.READ_FROM_CURSOR -> {
+                field.cursorValueReader = context.typeAdapterStore
+                        .findCursorValueReader(field.type, field.affinity)
+                context.checker.check(field.cursorValueReader != null, field.element,
+                        ProcessorErrors.CANNOT_FIND_CURSOR_READER)
+            }
+        }
+        return field
+    }
+
+    /**
+     * Defines what we need to assign
+     */
+    enum class BindingScope {
+        TWO_WAY, // both bind and read.
+        BIND_TO_STMT, // just value to statement
+        READ_FROM_CURSOR // just cursor to value
     }
 }

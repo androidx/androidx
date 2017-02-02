@@ -17,25 +17,18 @@
 package com.android.support.room.solver.query.result
 
 import com.android.support.room.ext.L
-import com.android.support.room.ext.RoomTypeNames
-import com.android.support.room.ext.T
-import com.android.support.room.ext.typeName
+import com.android.support.room.ext.N
 import com.android.support.room.solver.CodeGenScope
-import com.squareup.javapoet.ParameterizedTypeName
-import javax.lang.model.type.TypeMirror
+import com.android.support.room.vo.Entity
+import com.android.support.room.writer.EntityCursorConverterWriter
 
-class EntityRowAdapter(type : TypeMirror) : RowAdapter(type) {
+class EntityRowAdapter(val entity : Entity) : RowAdapter(entity.type) {
     override fun init(cursorVarName: String, scope : CodeGenScope) : RowConverter {
-        val converterVar = scope.getTmpVar("_converter")
-        scope.builder()
-                .addStatement("final $T $L = $T.getConverter($T.class)",
-                ParameterizedTypeName.get(RoomTypeNames.CURSOR_CONVERTER, out.typeName()),
-                converterVar, RoomTypeNames.ROOM, out.typeName())
+        val methodSpec = scope.writer.getOrCreateMethod(EntityCursorConverterWriter(entity))
         return object : RowConverter {
             override fun convert(outVarName: String, cursorVarName: String) {
                 scope.builder()
-                        .addStatement("$L = $L.convert($L)", outVarName, converterVar,
-                                cursorVarName)
+                        .addStatement("$L = $N($L)", outVarName, methodSpec, cursorVarName)
             }
         }
     }

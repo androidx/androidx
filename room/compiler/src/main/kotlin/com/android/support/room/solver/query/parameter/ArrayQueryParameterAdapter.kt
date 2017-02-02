@@ -20,7 +20,6 @@ import com.android.support.room.ext.L
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
 import com.android.support.room.solver.CodeGenScope
-import com.android.support.room.solver.types.ColumnTypeAdapter
 import com.android.support.room.solver.types.StatementValueBinder
 import com.squareup.javapoet.TypeName
 
@@ -33,8 +32,8 @@ class ArrayQueryParameterAdapter(val bindAdapter : StatementValueBinder)
                             scope: CodeGenScope) {
         scope.builder().apply {
             val itrVar = scope.getTmpVar("_item")
-            beginControlFlow("for ($T $L : $L)", bindAdapter.out().typeName(), itrVar, inputVarName)
-                    .apply {
+            beginControlFlow("for ($T $L : $L)", bindAdapter.typeMirror().typeName(), itrVar,
+                    inputVarName).apply {
                         bindAdapter.bindToStmt(stmtVarName, startIndexVarName, itrVar, scope)
                         addStatement("$L ++", startIndexVarName)
             }

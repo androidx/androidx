@@ -20,7 +20,10 @@ import com.android.support.room.Entity
 import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.parser.ParsedQuery
+import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.processor.Context
+import com.android.support.room.processor.EntityProcessor
+import com.android.support.room.processor.FieldProcessor
 import com.android.support.room.processor.PojoProcessor
 import com.android.support.room.solver.query.parameter.ArrayQueryParameterAdapter
 import com.android.support.room.solver.query.parameter.BasicQueryParameterAdapter
@@ -44,6 +47,7 @@ import com.android.support.room.solver.types.ByteArrayColumnTypeAdapter
 import com.android.support.room.solver.types.ColumnTypeAdapter
 import com.android.support.room.solver.types.CompositeAdapter
 import com.android.support.room.solver.types.CompositeTypeConverter
+import com.android.support.room.solver.types.CursorValueReader
 import com.android.support.room.solver.types.NoOpConverter
 import com.android.support.room.solver.types.PrimitiveBooleanToIntConverter
 import com.android.support.room.solver.types.PrimitiveColumnTypeAdapter
@@ -66,9 +70,14 @@ import javax.lang.model.util.Types
  * Holds all type adapters and can create on demand composite type adapters to convert a type into a
  * database column.
  */
-class TypeAdapterStore(val context: Context,
-                       @VisibleForTesting vararg extras: Any) {
+class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: Any) {
+    /**
+     * first type adapter has the highest priority
+     */
     private val columnTypeAdapters: List<ColumnTypeAdapter>
+    /**
+     * first converter has the highest priority
+     */
     private val typeConverters: List<TypeConverter>
 
     init {
@@ -121,13 +130,43 @@ class TypeAdapterStore(val context: Context,
     /**
      * Searches 1 way to bind a value into a statement.
      */
-    fun findStatementValueBinder(input : TypeMirror) : StatementValueBinder? {
-        val adapters = getAllColumnAdapters(input)
-        if (adapters.isNotEmpty()) {
-            return adapters.first()
+    fun findStatementValueBinder(input : TypeMirror, affinity: SQLTypeAffinity?)
+            : StatementValueBinder? {
+        val adapter = findDirectAdapterFor(input, affinity)
+        if (adapter != null) {
+            return adapter
         }
-        val binder = findTypeConverter(input, knownColumnTypeMirrors) ?: return null
+        val targetTypes = targetTypeMirrorsFor(affinity)
+        val binder = findTypeConverter(input, targetTypes) ?: return null
         return CompositeAdapter(input, getAllColumnAdapters(binder.to).first(), binder, null)
+    }
+
+    /**
+     * Returns which entities targets the given affinity.
+     */
+    private fun targetTypeMirrorsFor(affinity: SQLTypeAffinity?) : List<TypeMirror> {
+        val specifiedTargets = affinity?.getTypeMirrors(context.processingEnv)
+        return if(specifiedTargets == null || specifiedTargets.isEmpty()) {
+            knownColumnTypeMirrors
+        } else {
+            specifiedTargets
+        }
+    }
+
+    /**
+     * Searches 1 way to read it from cursor
+     */
+    fun findCursorValueReader(output: TypeMirror, affinity: SQLTypeAffinity?) : CursorValueReader? {
+        val adapter = findColumnTypeAdapter(output, affinity)
+        if (adapter != null) {
+            // two way is better
+            return adapter
+        }
+        // we could not find a two way version, search for anything
+        val targetTypes = targetTypeMirrorsFor(affinity)
+        val converter = findTypeConverter(targetTypes, output) ?: return null
+        return CompositeAdapter(output,
+                getAllColumnAdapters(converter.from).first(), null, converter)
     }
 
     /**
@@ -156,18 +195,27 @@ class TypeAdapterStore(val context: Context,
      * Finds a two way converter, if you need 1 way, use findStatementValueBinder or
      * findCursorValueReader.
      */
-    fun findColumnTypeAdapter(out: TypeMirror): ColumnTypeAdapter? {
-        val adapters = getAllColumnAdapters(out)
-        if (adapters.isNotEmpty()) {
-            return adapters.first()
+    fun findColumnTypeAdapter(out: TypeMirror, affinity: SQLTypeAffinity?)
+            : ColumnTypeAdapter? {
+        val adapter = findDirectAdapterFor(out, affinity)
+        if (adapter != null) {
+            return adapter
         }
-        val intoStatement = findTypeConverter(out, knownColumnTypeMirrors)
-                ?: return null
+        val targetTypes = targetTypeMirrorsFor(affinity)
+        val intoStatement = findTypeConverter(out, targetTypes) ?: return null
         // ok found a converter, try the reverse now
         val fromCursor = reverse(intoStatement) ?: findTypeConverter(intoStatement.to, out)
                 ?: return null
         return CompositeAdapter(out, getAllColumnAdapters(intoStatement.to).first(), intoStatement,
                 fromCursor)
+    }
+
+    private fun findDirectAdapterFor(out: TypeMirror, affinity: SQLTypeAffinity?)
+            : ColumnTypeAdapter? {
+        val adapter = getAllColumnAdapters(out).firstOrNull {
+            affinity == null || it.typeAffinity == affinity
+        }
+        return adapter
     }
 
     fun findTypeConverter(input: TypeMirror, output: TypeMirror): TypeConverter? {
@@ -241,12 +289,16 @@ class TypeAdapterStore(val context: Context,
             }
             val asElement = MoreTypes.asElement(typeMirror)
             if (asElement.hasAnnotation(Entity::class)) {
-                return EntityRowAdapter(typeMirror)
+                // TODO we might parse this too much, would be nice to scope these parsers
+                // at least for entities.
+                return EntityRowAdapter(EntityProcessor(context,
+                        MoreElements.asType(asElement)).process())
             }
             // if result is unknown, we are fine w/ single column result
             val resultInfo = query.resultInfo
             if ((resultInfo?.columns?.size ?: 1) == 1) {
-                val singleColumn = findColumnTypeAdapter(typeMirror)
+                val singleColumn = findColumnTypeAdapter(typeMirror,
+                        resultInfo?.columns?.get(0)?.type)
                 if (singleColumn != null) {
                     return SingleColumnRowAdapter(singleColumn)
                 }
@@ -255,7 +307,8 @@ class TypeAdapterStore(val context: Context,
             if (resultInfo != null && resultInfo.error == null) {
                 val pojo = PojoProcessor(
                         baseContext = context,
-                        element = MoreTypes.asTypeElement(typeMirror)
+                        element = MoreTypes.asTypeElement(typeMirror),
+                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR
                 ).process()
                 return PojoRowAdapter(
                         context = context,
@@ -265,7 +318,7 @@ class TypeAdapterStore(val context: Context,
             }
             return null
         } else {
-            val singleColumn = findColumnTypeAdapter(typeMirror) ?: return null
+            val singleColumn = findColumnTypeAdapter(typeMirror, null) ?: return null
             return SingleColumnRowAdapter(singleColumn)
         }
     }
@@ -275,14 +328,15 @@ class TypeAdapterStore(val context: Context,
                 && (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)
                 || MoreTypes.isTypeOf(java.util.Set::class.java, typeMirror))) {
             val declared = MoreTypes.asDeclared(typeMirror)
-            val binder = findStatementValueBinder(declared.typeArguments.first()) ?: return null
+            val binder = findStatementValueBinder(declared.typeArguments.first(),
+                    null) ?: return null
             return CollectionQueryParameterAdapter(binder)
         } else if (typeMirror is ArrayType) {
             val component = typeMirror.componentType
-            val binder = findStatementValueBinder(component) ?: return null
+            val binder = findStatementValueBinder(component, null) ?: return null
             return ArrayQueryParameterAdapter(binder)
         } else {
-            val binder = findStatementValueBinder(typeMirror) ?: return null
+            val binder = findStatementValueBinder(typeMirror, null) ?: return null
             return BasicQueryParameterAdapter(binder)
         }
     }

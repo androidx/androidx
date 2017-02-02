@@ -21,7 +21,6 @@ import com.android.support.room.Query
 import com.android.support.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import com.android.support.room.ext.RoomTypeNames.STRING_UTIL
 import com.android.support.room.processor.QueryMethodProcessor
-import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.writer.QueryWriter
 import com.google.auto.common.MoreElements

@@ -59,13 +59,13 @@ class EntityDeletionAdapterWriter(val entity: Entity) {
                 returns(TypeName.VOID)
                 addModifiers(PUBLIC)
                 entity.primaryKeys.forEachIndexed { index, field ->
-                    field.getter.columnAdapter?.let { adapter ->
+                    field.statementBinder?.let { binder ->
                         val varName = if (field.getter.callType == CallType.FIELD) {
                             "$valueParam.${field.name}"
                         } else {
                             "$valueParam.${field.getter.name}()"
                         }
-                        adapter.bindToStmt(stmtParam, "${index + 1}", varName, bindScope)
+                        binder.bindToStmt(stmtParam, "${index + 1}", varName, bindScope)
                     }
                 }
                 addCode(bindScope.builder().build())

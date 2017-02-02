@@ -84,16 +84,17 @@ class PojoRowAdapter(context : Context, val info: QueryResultInfo,
                     mapping.associations.forEach { mapping ->
                         val field = mapping.field
                         val index = mapping.index
-                        val columnAdapter = field.getter.columnAdapter
+                        val cursorValueReader = field.cursorValueReader
                         when (field.setter.callType) {
                             CallType.FIELD -> {
-                                columnAdapter?.readFromCursor("$outVarName.${field.getter.name}",
+                                cursorValueReader
+                                        ?.readFromCursor("$outVarName.${field.getter.name}",
                                         cursorVarName, index.toString(), scope)
                             }
                             CallType.METHOD -> {
                                 val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
                                 addStatement("final $T $L", field.getter.type.typeName(), tmpField)
-                                columnAdapter?.readFromCursor(tmpField, cursorVarName,
+                                cursorValueReader?.readFromCursor(tmpField, cursorVarName,
                                         index.toString(), scope)
                                 addStatement("$L.$L($L)", outVarName, field.setter.name, tmpField)
                             }

@@ -359,7 +359,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
             return "${entity.typeName} $onConflictText"
         }
 
-        override fun prepare(builder: FieldSpec.Builder) {
+        override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
             builder.addModifiers(FINAL, PRIVATE)
         }
     }
@@ -367,7 +367,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
     class DeleteOrUpdateAdapterField(val entity: Entity) : SharedFieldSpec(
             "deletionAdapterOf${Companion.typeNameToFieldName(entity.typeName)}",
             RoomTypeNames.DELETE_OR_UPDATE_ADAPTER) {
-        override fun prepare(builder: FieldSpec.Builder) {
+        override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
             builder.addModifiers(PRIVATE, FINAL)
         }
 
@@ -378,7 +378,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
 
     class PreparedStatementField(val method: QueryMethod) : SharedFieldSpec(
             "preparedStmtOf${method.name.capitalize()}", RoomTypeNames.SHARED_SQLITE_STMT) {
-        override fun prepare(builder: FieldSpec.Builder) {
+        override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
             builder.addModifiers(PRIVATE, FINAL)
         }
 

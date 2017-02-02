@@ -29,7 +29,7 @@ class QueryParameterProcessor(baseContext: Context,
         val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
         val parameterAdapter = context.typeAdapterStore.findQueryParameterAdapter(asMember)
         context.checker.check(parameterAdapter != null, element,
-                ProcessorErrors.CANNOT_CONVERT_QUERY_PARAMETER_TO_STRING)
+                ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
 
         val name = element.simpleName.toString()
         context.checker.check(!name.startsWith("_"), element,

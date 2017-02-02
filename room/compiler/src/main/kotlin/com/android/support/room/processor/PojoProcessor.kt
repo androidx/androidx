@@ -43,7 +43,8 @@ import javax.lang.model.type.TypeMirror
 /**
  * Processes any class as if it is a Pojo.
  */
-class PojoProcessor(baseContext : Context, val element: TypeElement) {
+class PojoProcessor(baseContext : Context, val element: TypeElement,
+                    val bindingScope : FieldProcessor.BindingScope) {
     val context = baseContext.fork(element)
     fun process(): Pojo {
         val declaredType = MoreTypes.asDeclared(element.asType())
@@ -57,7 +58,8 @@ class PojoProcessor(baseContext : Context, val element: TypeElement) {
                 .map { FieldProcessor(
                         baseContext = context,
                         containing = declaredType,
-                        element = it).process() }
+                        element = it,
+                        bindingScope = bindingScope).process() }
 
         val methods = allMembers
                 .filter {
@@ -77,7 +79,6 @@ class PojoProcessor(baseContext : Context, val element: TypeElement) {
 
         assignGetters(fields, getterCandidates)
         assignSetters(fields, setterCandidates)
-
         val pojo = Pojo(element, declaredType, fields)
         return pojo
     }
@@ -94,17 +95,13 @@ class PojoProcessor(baseContext : Context, val element: TypeElement) {
                         field.getter = FieldGetter(
                                 name = field.name,
                                 type = field.type,
-                                callType = CallType.FIELD,
-                                columnAdapter = context.typeAdapterStore
-                                        .findColumnTypeAdapter(field.type))
+                                callType = CallType.FIELD)
                     },
                     assignFromMethod = { match ->
                         field.getter = FieldGetter(
                                 name = match.simpleName.toString(),
                                 type = match.returnType,
-                                callType = CallType.METHOD,
-                                columnAdapter = context.typeAdapterStore
-                                        .findColumnTypeAdapter(match.returnType))
+                                callType = CallType.METHOD)
                     },
                     reportAmbiguity = { matching ->
                         context.logger.e(field.element,
@@ -126,18 +123,14 @@ class PojoProcessor(baseContext : Context, val element: TypeElement) {
                         field.setter = FieldSetter(
                                 name = field.name,
                                 type = field.type,
-                                callType = CallType.FIELD,
-                                columnAdapter = context.typeAdapterStore
-                                        .findColumnTypeAdapter(field.type))
+                                callType = CallType.FIELD)
                     },
                     assignFromMethod = { match ->
                         val paramType = match.parameters.first().asType()
                         field.setter = FieldSetter(
                                 name = match.simpleName.toString(),
                                 type = paramType,
-                                callType = CallType.METHOD,
-                                columnAdapter = context.typeAdapterStore
-                                        .findColumnTypeAdapter(paramType))
+                                callType = CallType.METHOD)
                     },
                     reportAmbiguity = { matching ->
                         context.logger.e(field.element,

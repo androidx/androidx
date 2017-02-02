@@ -16,6 +16,7 @@
 
 package com.android.support.room.processor
 
+import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
@@ -46,11 +47,10 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     name = "id",
                     type = intType,
                     primaryKey = true,
-                    columnName = "id")))
-            assertThat(field.setter, `is`(FieldSetter("setId", intType, CallType.METHOD,
-                    field.setter.columnAdapter)))
-            assertThat(field.getter, `is`(FieldGetter("getId", intType, CallType.METHOD,
-                    field.getter.columnAdapter)))
+                    columnName = "id",
+                    affinity = SQLTypeAffinity.INTEGER)))
+            assertThat(field.setter, `is`(FieldSetter("setId", intType, CallType.METHOD)))
+            assertThat(field.getter, `is`(FieldGetter("getId", intType, CallType.METHOD)))
             assertThat(entity.primaryKeys, `is`(listOf(field)))
         }.compilesWithoutError()
     }
@@ -231,5 +231,15 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """) { entity, invocation ->
         }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.MISSING_PRIMARY_KEY)
+    }
+
+    @Test
+    fun missingColumnAdapter() {
+        singleEntity("""
+                @PrimaryKey
+                public java.util.Date myDate;
+                """) { entity, invocation ->
+
+        }.failsToCompile().withErrorContaining(ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER)
     }
 }

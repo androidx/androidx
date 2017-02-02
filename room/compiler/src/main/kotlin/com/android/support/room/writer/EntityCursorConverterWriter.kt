@@ -19,7 +19,6 @@ package com.android.support.room.writer
 import com.android.support.room.ext.AndroidTypeNames
 import com.android.support.room.ext.L
 import com.android.support.room.ext.N
-import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.S
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
@@ -28,39 +27,34 @@ import com.android.support.room.vo.CallType.FIELD
 import com.android.support.room.vo.CallType.METHOD
 import com.android.support.room.vo.Entity
 import com.android.support.room.vo.Field
-import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier.PUBLIC
+import stripNonJava
+import javax.lang.model.element.Modifier.PRIVATE
 
-class EntityCursorConverterWriter(val entity: Entity) : ClassWriter(entity.typeName as ClassName) {
-    override fun createTypeSpecBuilder(): TypeSpec.Builder {
-        return TypeSpec.classBuilder(entity.converterClassName)
-                .apply {
-                    addSuperinterface(ParameterizedTypeName.get(RoomTypeNames.CURSOR_CONVERTER,
-                            entity.typeName))
-                    addModifiers(PUBLIC)
-                    addMethod(
-                            MethodSpec.methodBuilder("convert").apply {
-                                val cursorParam = ParameterSpec
-                                        .builder(AndroidTypeNames.CURSOR, "cursor").build()
-                                addParameter(cursorParam)
-                                addAnnotation(Override::class.java)
-                                addModifiers(PUBLIC)
-                                returns(entity.typeName)
-                                addCode(buildConvertMethodBody(cursorParam))
-                            }.build()
-                    )
-                }
+class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethodSpec(
+        "entityCursorConverter_${entity.typeName.toString().stripNonJava()}") {
+    override fun getUniqueKey(): String {
+        return "generic_entity_converter_of_${entity.element.qualifiedName}"
     }
 
-    private fun buildConvertMethodBody(cursorParam: ParameterSpec) : CodeBlock {
+    override fun prepare(writer: ClassWriter, builder: MethodSpec.Builder) {
+        builder.apply {
+            val cursorParam = ParameterSpec
+                    .builder(AndroidTypeNames.CURSOR, "cursor").build()
+            addParameter(cursorParam)
+            addModifiers(PRIVATE)
+            returns(entity.typeName)
+            addCode(buildConvertMethodBody(writer, cursorParam))
+        }
+    }
+
+    private fun buildConvertMethodBody(writer: ClassWriter, cursorParam: ParameterSpec)
+            : CodeBlock {
         // TODO support arg constructor
-        val scope = CodeGenScope(this)
+        val scope = CodeGenScope(writer)
         val entityVar = scope.getTmpVar("_entity")
         scope.builder().apply {
             addStatement("$T $L = new $T()", entity.typeName, entityVar, entity.typeName)
@@ -76,7 +70,7 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter(entity.typeN
                             val fields = it.value
                             fields.forEach { field ->
                                 beginControlFlow("if ($S.equals($L))", field.name, colNameVar)
-                                    readField(field, cursorParam, colIndexVar, entityVar, scope)
+                                readField(field, cursorParam, colIndexVar, entityVar, scope)
                                 endControlFlow()
                             }
                         }
@@ -92,20 +86,19 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter(entity.typeN
         return scope.builder().build()
     }
 
-    private fun readField(field : Field, cursorParam: ParameterSpec,
-                          indexVar : String, entityVar : String, scope: CodeGenScope) {
+    private fun readField(field: Field, cursorParam: ParameterSpec,
+                          indexVar: String, entityVar: String, scope: CodeGenScope) {
         scope.builder().apply {
-            val columnAdapter = field.getter.columnAdapter
+            val reader = field.cursorValueReader
             when (field.setter.callType) {
                 FIELD -> {
-                    columnAdapter
-                            ?.readFromCursor("$entityVar.${field.getter.name}", cursorParam.name,
+                    reader?.readFromCursor("$entityVar.${field.getter.name}", cursorParam.name,
                                     indexVar, scope)
                 }
                 METHOD -> {
                     val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
                     addStatement("final $T $L", field.getter.type.typeName(), tmpField)
-                    columnAdapter?.readFromCursor(tmpField, cursorParam.name,
+                    reader?.readFromCursor(tmpField, cursorParam.name,
                             indexVar, scope)
                     addStatement("$L.$L($L)", entityVar, field.setter.name, tmpField)
                 }

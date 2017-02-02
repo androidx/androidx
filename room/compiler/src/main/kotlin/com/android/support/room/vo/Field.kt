@@ -18,14 +18,22 @@ package com.android.support.room.vo
 
 import com.android.support.room.ext.typeName
 import com.android.support.room.parser.SQLTypeAffinity
+import com.android.support.room.solver.types.ColumnTypeAdapter
+import com.android.support.room.solver.types.CursorValueReader
+import com.android.support.room.solver.types.StatementValueBinder
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
 
 data class Field(val element: Element, val name: String, val type: TypeMirror,
-                 val primaryKey: Boolean, val columnName: String = name) {
+                 val primaryKey: Boolean, var affinity : SQLTypeAffinity?,
+                 val columnName: String = name) {
     lateinit var getter: FieldGetter
     lateinit var setter: FieldSetter
+    // binds the field into a statement
+    var statementBinder: StatementValueBinder? = null
+    // reads this field from a cursor column
+    var cursorValueReader: CursorValueReader? = null
     val typeName: TypeName by lazy { type.typeName() }
     /**
      * List of names that include variations.
@@ -73,10 +81,6 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
      * definition to be used in create query
      */
     val databaseDefinition by lazy {
-        val affinity = let {
-            val adapter = getter.columnAdapter ?: setter.columnAdapter
-            adapter?.typeAffinity ?: SQLTypeAffinity.TEXT
-        }
-        "`$columnName` ${affinity.name}"
+        "`$columnName` ${(affinity ?: SQLTypeAffinity.TEXT).name}"
     }
 }

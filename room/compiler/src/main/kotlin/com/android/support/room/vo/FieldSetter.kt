@@ -19,5 +19,4 @@ package com.android.support.room.vo
 import com.android.support.room.solver.types.ColumnTypeAdapter
 import javax.lang.model.type.TypeMirror
 
-data class FieldSetter(val name : String, val type : TypeMirror, val callType: CallType,
-                       val columnAdapter : ColumnTypeAdapter?)
+data class FieldSetter(val name : String, val type : TypeMirror, val callType: CallType)

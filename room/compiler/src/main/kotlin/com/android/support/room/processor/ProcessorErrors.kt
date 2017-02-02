@@ -20,8 +20,10 @@ import com.android.support.room.Delete
 import com.android.support.room.Insert
 import com.android.support.room.Query
 import com.android.support.room.ext.RoomTypeNames
+import com.android.support.room.vo.CustomTypeConverter
 import com.android.support.room.vo.Field
 import com.squareup.javapoet.TypeName
+import javax.lang.model.element.Element
 
 object ProcessorErrors {
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
@@ -56,13 +58,14 @@ object ProcessorErrors {
     val DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES = "@Database annotation must specify list" +
             " of entities"
     val COLUMN_NAME_CANNOT_BE_EMPTY = "Column name cannot be blank. If you don't want to set it" +
-            ", just remove the @ColumnName annotation."
+            ", just remove the @ColumnInfo annotation or use @ColumnInfo.INHERIT_FIELD_NAME."
 
     val ENTITY_TABLE_NAME_CANNOT_BE_EMPTY = "Entity table name cannot be blank. If you don't want" +
             " to set it, just remove the tableName property."
 
-    val CANNOT_CONVERT_QUERY_PARAMETER_TO_STRING = "Query method parameters should either be a" +
-            " type that can be converted into String or a List / Array that contains such type."
+    val CANNOT_BIND_QUERY_PARAMETER_INTO_STMT = "Query method parameters should either be a" +
+            " type that can be converted into a database column or a List / Array that contains" +
+            " such type. You can consider adding a Type Adapter for this."
 
     val QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE = "Query/Insert method parameters cannot " +
             "start with underscore (_)."
@@ -107,6 +110,13 @@ object ProcessorErrors {
         return TOO_MANY_MATCHING_SETTERS.format(field, methodNames.joinToString(", "))
     }
 
+    val CANNOT_FIND_COLUMN_TYPE_ADAPTER = "Cannot figure out how to save this field into" +
+            " database. You can consider adding a type converter for it."
+
+    val CANNOT_FIND_STMT_BINDER = "Cannot figure out how to bind this field into a statement."
+
+    val CANNOT_FIND_CURSOR_READER = "Cannot figure out how to read this field from a cursor."
+
     private val MISSING_PARAMETER_FOR_BIND = "Each bind variable in the query must have a" +
             " matching method parameter. Cannot find method parameters for %s."
 
@@ -133,8 +143,8 @@ object ProcessorErrors {
 
     fun duplicateDao(dao: TypeName, methodNames: List<String>): String {
         return """
-                All of these functions (${methodNames.joinToString(", ")}) return the same DAO
-                class ($dao).
+                All of these functions [${methodNames.joinToString(", ")}] return the same DAO
+                class [$dao].
                 A database can use a DAO only once so you should remove ${methodNames.size - 1} of
                 these conflicting DAO methods. If you are implementing any of these to fulfill an
                 interface, don't make it abstract, instead, implement the code that calls the
@@ -146,8 +156,8 @@ object ProcessorErrors {
                            unusedColumns: List<String>, allColumns: List<String>,
                            unusedFields: List<Field>, allFields: List<Field>): String {
         val unusedColumnsWarning = if (unusedColumns.isNotEmpty()) { """
-                The query returns some columns (${unusedColumns.joinToString(", ")}) which are not
-                use by $pojoTypeName. You can use @ColumnName annotation on the fields to specify
+                The query returns some columns [${unusedColumns.joinToString(", ")}] which are not
+                use by $pojoTypeName. You can use @ColumnInfo annotation on the fields to specify
                 the mapping.
             """.trimIndent().replace(System.lineSeparator(), " ")
         } else {
@@ -155,7 +165,7 @@ object ProcessorErrors {
         }
         val unusedFieldsWarning = if (unusedFields.isNotEmpty()) { """
                 $pojoTypeName has some fields
-                (${unusedFields.joinToString(", ") { it.columnName }}) which are not returned by the
+                [${unusedFields.joinToString(", ") { it.columnName }}] which are not returned by the
                 query. If they are not supposed to be read from the result, you can mark them with
                 @Ignore annotation.
             """.trimIndent().replace(System.lineSeparator(), " ")
@@ -172,4 +182,17 @@ object ProcessorErrors {
             """.trimIndent().replace(System.lineSeparator(), " ")
     }
 
+    val TYPE_CONVERTER_UNBOUND_GENERIC = "Cannot use unbound generics in Type Converters."
+    val TYPE_CONVERTER_BAD_RETURN_TYPE = "Invalid return type for a type converter."
+    val TYPE_CONVERTER_MUST_RECEIVE_1_PARAM = "Type converters must receive 1 parameter."
+    val TYPE_CONVERTER_EMPTY_CLASS = "Class is referenced as a converter but it does not have any" +
+            " converter methods."
+    val TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR = "Classes that are used as TypeConverters must" +
+            " have no-argument public constructors."
+    val TYPE_CONVERTER_MUST_BE_PUBLIC = "Type converters must be public."
+
+    fun duplicateTypeConverters(converters : List<CustomTypeConverter>) : String {
+        return "Multiple methods define the same conversion. Conflicts with these:" +
+                " ${converters.joinToString(", ") { it.toString() }}"
+    }
 }

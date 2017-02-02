@@ -18,10 +18,33 @@ package com.android.support.room.integration.testapp;
 
 import com.android.support.room.Database;
 import com.android.support.room.RoomDatabase;
+import com.android.support.room.TypeConverter;
+import com.android.support.room.TypeConverters;
 import com.android.support.room.integration.testapp.dao.UserDao;
 import com.android.support.room.integration.testapp.vo.User;
 
+import java.util.Date;
+
 @Database(entities = User.class)
+@TypeConverters(TestDatabase.Converters.class)
 public abstract class TestDatabase extends RoomDatabase {
     public abstract UserDao getUserDao();
+
+    @SuppressWarnings("unused")
+    public static class Converters {
+        @TypeConverter
+        public Date fromTimestamp(Long value) {
+            return value == null ? null : new Date(value);
+        }
+
+        @TypeConverter
+        public Long dateToTimestamp(Date date) {
+            if (date == null) {
+                return null;
+            } else {
+                return date.getTime();
+            }
+        }
+    }
+
 }

@@ -27,7 +27,7 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
     fun process(): Entity {
         context.checker.hasAnnotation(element, com.android.support.room.Entity::class,
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
-        val pojo = PojoProcessor(context, element).process()
+        val pojo = PojoProcessor(context, element, FieldProcessor.BindingScope.TWO_WAY).process()
         val annotation = MoreElements.getAnnotationMirror(element,
                 com.android.support.room.Entity::class.java).orNull()
         val tableName : String

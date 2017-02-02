@@ -61,7 +61,7 @@ class DatabaseVerifierTest {
         }.compilesWithoutError()
     }
 
-    fun createVerifier(invocation : TestInvocation) : DatabaseVerifier {
+    fun createVerifier(invocation: TestInvocation): DatabaseVerifier {
         return DatabaseVerifier.create(invocation.context, mock(Element::class.java),
                 userDb(invocation.context).entities)!!
     }
@@ -168,10 +168,10 @@ class DatabaseVerifierTest {
 
     private fun userDb(context: Context): Database {
         return database(entity("User",
-                primaryField(context, "id", primitive(context, TypeKind.INT)),
-                field(context, "name", context.COMMON_TYPES.STRING),
-                field(context, "lastName", context.COMMON_TYPES.STRING),
-                field(context, "ratio", primitive(context, TypeKind.FLOAT))))
+                primaryField("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
+                field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
+                field("lastName", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
+                field("ratio", primitive(context, TypeKind.FLOAT), SQLTypeAffinity.REAL)))
     }
 
     private fun database(vararg entities: Entity): Database {
@@ -182,7 +182,8 @@ class DatabaseVerifierTest {
                 daoMethods = emptyList())
     }
 
-    private fun entity(tableName: String, vararg fields: Field): Entity {
+    private fun entity(tableName: String, vararg fields: Field)
+            : Entity {
         return Entity(
                 element = mock(TypeElement::class.java),
                 tableName = tableName,
@@ -191,35 +192,35 @@ class DatabaseVerifierTest {
         )
     }
 
-    private fun field(context: Context, name: String, type: TypeMirror): Field {
+    private fun field(name: String, type: TypeMirror, affinity: SQLTypeAffinity): Field {
         val f = Field(
                 element = mock(Element::class.java),
                 name = name,
                 type = type,
                 primaryKey = false,
-                columnName = name
+                columnName = name,
+                affinity = affinity
         )
-        assignGetterSetter(context, f, name, type)
+        assignGetterSetter(f, name, type)
         return f
     }
 
-    private fun primaryField(context: Context, name: String, type: TypeMirror): Field {
+    private fun primaryField(name: String, type: TypeMirror, affinity: SQLTypeAffinity): Field {
         val f = Field(
                 element = mock(Element::class.java),
                 name = name,
                 type = type,
                 primaryKey = true,
-                columnName = name
+                columnName = name,
+                affinity = affinity
         )
-        assignGetterSetter(context, f, name, type)
+        assignGetterSetter(f, name, type)
         return f
     }
 
-    private fun assignGetterSetter(context: Context, f: Field, name: String, type: TypeMirror) {
-        f.getter = FieldGetter(name, type, CallType.FIELD,
-                context.typeAdapterStore.findColumnTypeAdapter(f.type))
-        f.setter = FieldSetter(name, type, CallType.FIELD,
-                context.typeAdapterStore.findColumnTypeAdapter(f.type))
+    private fun assignGetterSetter(f: Field, name: String, type: TypeMirror) {
+        f.getter = FieldGetter(name, type, CallType.FIELD)
+        f.setter = FieldSetter(name, type, CallType.FIELD)
     }
 
     private fun primitive(context: Context, kind: TypeKind): PrimitiveType {

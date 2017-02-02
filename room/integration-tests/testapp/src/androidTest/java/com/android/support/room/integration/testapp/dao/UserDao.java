@@ -24,6 +24,7 @@ import com.android.support.room.Query;
 import com.android.support.room.integration.testapp.vo.AvgWeightByAge;
 import com.android.support.room.integration.testapp.vo.User;
 
+import java.util.Date;
 import java.util.List;
 
 @SuppressWarnings("SameParameterValue")
@@ -91,4 +92,7 @@ public interface UserDao {
 
     @Query("select mAge, AVG(mWeight) from user GROUP BY mAge ORDER BY 2 DESC LIMIT 1")
     LiveData<AvgWeightByAge> maxWeightByAgeGroup();
+
+    @Query("select * from user where mBirthday > :from AND mBirthday < :to")
+    List<User> findByBirthdayRange(Date from, Date to);
 }

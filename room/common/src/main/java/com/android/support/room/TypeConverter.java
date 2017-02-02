@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,18 +22,30 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Sets the column name of an entity field.
+ * Marks a method as a type converter. A class can have as many @Converter methods as it needs.
  * <p>
- * By default, Room uses the field name as the column name in the database. You can override this
- * behavior by using this annotation on an Entity field.
+ * Each converter method should receive 1 parameter and have non-void return type.
+ *
+ * <pre>
+ * // example converter for java.util.Date
+ * public static class Converters {
+ *    {@literal @}TypeConverter
+ *    public Date fromTimestamp(Long value) {
+ *        return value == null ? null : new Date(value);
+ *    }
+ *
+ *    {@literal @}TypeConverter
+ *    public Long dateToTimestamp(Date date) {
+ *        if (date == null) {
+ *            return null;
+ *        } else {
+ *            return date.getTime();
+ *        }
+ *    }
+ *}
+ * </pre>
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.SOURCE)
-public @interface ColumnName {
-    /**
-     * Name of the column in the database. Defaults to the field name if not set.
-     *
-     * @return Name of the column in the database.
-     */
-    String value();
+public @interface TypeConverter {
 }

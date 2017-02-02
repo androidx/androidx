@@ -24,8 +24,5 @@ import javax.lang.model.type.TypeMirror
  * A code generator that can convert from 1 type to another
  */
 abstract class TypeConverter(val from: TypeMirror, val to: TypeMirror) {
-    val fromTypeName: TypeName by lazy { TypeName.get(from) }
-    val toTypeName: TypeName by lazy { TypeName.get(to) }
-    abstract fun convert(inputVarName: String, outputVarName: String,
-                                scope: CodeGenScope)
+    abstract fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope)
 }

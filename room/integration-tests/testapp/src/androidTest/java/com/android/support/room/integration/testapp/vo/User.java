@@ -18,8 +18,13 @@ package com.android.support.room.integration.testapp.vo;
 
 import com.android.support.room.Entity;
 import com.android.support.room.PrimaryKey;
+import com.android.support.room.TypeConverters;
+import com.android.support.room.integration.testapp.TestDatabase;
+
+import java.util.Date;
 
 @Entity
+@TypeConverters({TestDatabase.Converters.class})
 public class User {
 
     @PrimaryKey
@@ -34,6 +39,8 @@ public class User {
     private boolean mAdmin;
 
     private float mWeight;
+
+    private Date mBirthday;
 
     public int getId() {
         return mId;
@@ -83,6 +90,14 @@ public class User {
         mWeight = weight;
     }
 
+    public Date getBirthday() {
+        return mBirthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        mBirthday = birthday;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -110,7 +125,10 @@ public class User {
         if (mName != null ? !mName.equals(user.mName) : user.mName != null) {
             return false;
         }
-        return mLastName != null ? mLastName.equals(user.mLastName) : user.mLastName == null;
+        if (mLastName != null ? !mLastName.equals(user.mLastName) : user.mLastName != null) {
+            return false;
+        }
+        return mBirthday != null ? mBirthday.equals(user.mBirthday) : user.mBirthday == null;
     }
 
     @Override
@@ -121,6 +139,7 @@ public class User {
         result = 31 * result + mAge;
         result = 31 * result + (mAdmin ? 1 : 0);
         result = 31 * result + (mWeight != +0.0f ? Float.floatToIntBits(mWeight) : 0);
+        result = 31 * result + (mBirthday != null ? mBirthday.hashCode() : 0);
         return result;
     }
 
@@ -133,6 +152,7 @@ public class User {
                 + ", mAge=" + mAge
                 + ", mAdmin=" + mAdmin
                 + ", mWeight=" + mWeight
+                + ", mBirthday=" + mBirthday
                 + '}';
     }
 }

@@ -41,6 +41,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
@@ -195,5 +196,17 @@ public class SimpleEntityReadWriteTest {
         user.setAge(19);
         mUserDao.insert(user);
         assertThat(mUserDao.findByAge(19), is(Collections.singletonList(user)));
+    }
+
+    @Test
+    public void customConverterField() {
+        User user = TestUtil.createUser(20);
+        Date theDate = new Date(System.currentTimeMillis() - 200);
+        user.setBirthday(theDate);
+        mUserDao.insert(user);
+        assertThat(mUserDao.findByBirthdayRange(new Date(theDate.getTime() - 100),
+                new Date(theDate.getTime() + 1)).get(0), is(user));
+        assertThat(mUserDao.findByBirthdayRange(new Date(theDate.getTime()),
+                new Date(theDate.getTime() + 1)).size(), is(0));
     }
 }

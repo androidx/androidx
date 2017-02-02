@@ -53,7 +53,7 @@ class TypeAdapterStoreTest {
         singleRun { invocation ->
             val store = TypeAdapterStore(Context(invocation.processingEnv))
             val primitiveType = invocation.processingEnv.typeUtils.getPrimitiveType(TypeKind.INT)
-            val adapter = store.findColumnTypeAdapter(primitiveType)
+            val adapter = store.findColumnTypeAdapter(primitiveType, null)
             assertThat(adapter, notNullValue())
         }.compilesWithoutError()
     }
@@ -64,7 +64,7 @@ class TypeAdapterStoreTest {
             val store = TypeAdapterStore(Context(invocation.processingEnv))
             val booleanType = invocation.processingEnv.typeUtils
                     .getPrimitiveType(TypeKind.BOOLEAN)
-            val adapter = store.findColumnTypeAdapter(booleanType)
+            val adapter = store.findColumnTypeAdapter(booleanType, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val bindScope = testCodeGenScope()
@@ -92,7 +92,7 @@ class TypeAdapterStoreTest {
                     pointTypeConverters(invocation.processingEnv))
             val pointType = invocation.processingEnv.elementUtils
                     .getTypeElement("foo.bar.Point").asType()
-            val adapter = store.findColumnTypeAdapter(pointType)
+            val adapter = store.findColumnTypeAdapter(pointType, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
 
@@ -125,7 +125,7 @@ class TypeAdapterStoreTest {
             val store = TypeAdapterStore(Context(invocation.processingEnv), binders[0],
                     binders[1])
 
-            val adapter = store.findColumnTypeAdapter(binders[0].from)
+            val adapter = store.findColumnTypeAdapter(binders[0].from, null)
             assertThat(adapter, notNullValue())
 
             val bindScope = testCodeGenScope()
@@ -153,10 +153,10 @@ class TypeAdapterStoreTest {
         singleRun { invocation ->
             val binders = createIntListToStringBinders(invocation)
             val store = TypeAdapterStore(Context(invocation.processingEnv), binders[0])
-            val adapter = store.findColumnTypeAdapter(binders[0].from)
+            val adapter = store.findColumnTypeAdapter(binders[0].from, null)
             assertThat(adapter, nullValue())
 
-            val stmtBinder = store.findStatementValueBinder(binders[0].from)
+            val stmtBinder = store.findStatementValueBinder(binders[0].from, null)
             assertThat(stmtBinder, notNullValue())
 
             val converter = store.findTypeConverter(binders[0].from,

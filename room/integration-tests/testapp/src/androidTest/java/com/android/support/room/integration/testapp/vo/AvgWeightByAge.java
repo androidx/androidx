@@ -16,14 +16,14 @@
 
 package com.android.support.room.integration.testapp.vo;
 
-import com.android.support.room.ColumnName;
+import com.android.support.room.ColumnInfo;
 
 @SuppressWarnings("unused")
 public class AvgWeightByAge {
 
     private int mAge;
 
-    @ColumnName("AVG(mWeight)")
+    @ColumnInfo(name = "AVG(mWeight)")
     private float mWeight;
 
     public AvgWeightByAge() {

@@ -20,6 +20,7 @@ import com.android.support.room.SkipQueryVerification
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
+import com.android.support.room.ext.toListOfClassTypes
 import com.android.support.room.verifier.DatabaseVerifier
 import com.android.support.room.vo.DaoMethod
 import com.android.support.room.vo.Database
@@ -29,12 +30,10 @@ import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.AnnotationMirror
-import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
-import javax.lang.model.util.SimpleAnnotationValueVisitor6
 
 
 class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
@@ -128,41 +127,11 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         }
 
         val entityList = AnnotationMirrors.getAnnotationValue(dbAnnotation, "entities")
-        val listOfTypes = TO_LIST_OF_TYPES.visit(entityList, "entities")
+        val listOfTypes = entityList.toListOfClassTypes()
         context.checker.check(listOfTypes.isNotEmpty(), element,
                 ProcessorErrors.DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES)
         return listOfTypes.map {
             EntityProcessor(context, MoreTypes.asTypeElement(it)).process()
         }
     }
-
-    // code below taken from dagger2
-    // compiler/src/main/java/dagger/internal/codegen/ConfigurationAnnotations.java
-    private val TO_LIST_OF_TYPES = object
-        : SimpleAnnotationValueVisitor6<List<TypeMirror>, String>() {
-
-        override fun visitArray(values: List<AnnotationValue>, elementName: String)
-                : List<TypeMirror> {
-            return values.map {
-                val tmp = TO_TYPE.visit(it)
-                tmp
-            }
-        }
-
-        override fun defaultAction(o: Any?, elementName: String?): List<TypeMirror> {
-            throw IllegalArgumentException(elementName + " is not an array: " + o)
-        }
-    }
-
-    private val TO_TYPE = object : SimpleAnnotationValueVisitor6<TypeMirror, Void>() {
-
-        override fun visitType(t: TypeMirror, p: Void?): TypeMirror {
-            return t
-        }
-
-        override fun defaultAction(o: Any?, p: Void?): TypeMirror {
-            throw TypeNotPresentException(o!!.toString(), null)
-        }
-    }
-
 }

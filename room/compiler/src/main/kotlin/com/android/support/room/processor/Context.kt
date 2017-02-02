@@ -43,8 +43,9 @@ data class Context private constructor(val processingEnv: ProcessingEnvironment,
 
     fun fork(element: Element) : Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
+        val converters = CustomConverterProcessor.findConverters(this, element)
         return Context(processingEnv,
                 RLog(processingEnv, logger.suppressedWarnings + suppressedWarnings, element),
-                this.typeConverters)
+                converters + this.typeConverters)
     }
 }

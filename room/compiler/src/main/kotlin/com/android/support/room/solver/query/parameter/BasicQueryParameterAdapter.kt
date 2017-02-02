@@ -17,7 +17,6 @@
 package com.android.support.room.solver.query.parameter
 
 import com.android.support.room.solver.CodeGenScope
-import com.android.support.room.solver.types.ColumnTypeAdapter
 import com.android.support.room.solver.types.StatementValueBinder
 
 /**

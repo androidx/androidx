@@ -27,9 +27,8 @@ import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourceSubjectFactory
+import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeSpec
 import org.mockito.Mockito
 import java.io.File
 import javax.lang.model.element.Element
@@ -59,14 +58,13 @@ object COMMON {
                 LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.toString())
     }
 }
-
 fun testCodeGenScope(): CodeGenScope {
     return CodeGenScope(Mockito.mock(ClassWriter::class.java))
 }
 
-fun simpleRun(f: (TestInvocation) -> Unit): CompileTester {
-    return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
-            .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
+fun simpleRun(vararg jfos : JavaFileObject, f: (TestInvocation) -> Unit): CompileTester {
+    return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+            .that(jfos.toList() + JavaFileObjects.forSourceString("foo.bar.MyClass",
                     """
                     package foo.bar;
                     abstract public class MyClass {

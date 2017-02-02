@@ -63,24 +63,25 @@ abstract class ClassWriter(val className: ClassName) {
 
     fun getOrCreateField(sharedField: SharedFieldSpec): FieldSpec {
         return sharedFieldSpecs.getOrPut(sharedField.getUniqueKey(), {
-            sharedField.build(makeUnique(sharedFieldNames, sharedField.baseName))
+            sharedField.build(this, makeUnique(sharedFieldNames, sharedField.baseName))
         })
     }
 
     fun getOrCreateMethod(sharedMethod: SharedMethodSpec): MethodSpec {
         return sharedMethodSpecs.getOrPut(sharedMethod.getUniqueKey(), {
-            sharedMethod.build(makeUnique(sharedMethodNames, sharedMethod.baseName))
+            sharedMethod.build(this, makeUnique(sharedMethodNames, sharedMethod.baseName))
         })
     }
 
     abstract class SharedFieldSpec(val baseName: String, val type: TypeName) {
 
         abstract fun getUniqueKey(): String
-        abstract fun prepare(builder: FieldSpec.Builder)
 
-        fun build(name: String): FieldSpec {
+        abstract fun prepare(writer: ClassWriter, builder: FieldSpec.Builder)
+
+        fun build(classWriter: ClassWriter, name: String): FieldSpec {
             val builder = FieldSpec.builder(type, name)
-            prepare(builder)
+            prepare(classWriter, builder)
             return builder.build()
         }
     }
@@ -88,11 +89,11 @@ abstract class ClassWriter(val className: ClassName) {
     abstract class SharedMethodSpec(val baseName: String) {
 
         abstract fun getUniqueKey(): String
-        abstract fun prepare(builder: MethodSpec.Builder)
+        abstract fun prepare(writer: ClassWriter, builder: MethodSpec.Builder)
 
-        fun build(name: String): MethodSpec {
+        fun build(writer: ClassWriter, name: String): MethodSpec {
             val builder = MethodSpec.methodBuilder(name)
-            prepare(builder)
+            prepare(writer, builder)
             return builder.build()
         }
     }

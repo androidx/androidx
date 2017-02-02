@@ -3,9 +3,7 @@ package foo.bar;
 import android.database.Cursor;
 import com.android.support.lifecycle.ComputableLiveData;
 import com.android.support.lifecycle.LiveData;
-import com.android.support.room.CursorConverter;
 import com.android.support.room.InvalidationTracker.Observer;
-import com.android.support.room.Room;
 import com.android.support.room.RoomDatabase;
 import com.android.support.room.RoomSQLiteQuery;
 import com.android.support.room.util.StringUtil;
@@ -54,10 +52,9 @@ public class ComplexDao_Impl extends ComplexDao {
         _statement.bindLong(_argIndex, id);
         final Cursor _cursor = __db.query(_statement);
         try {
-            final CursorConverter<User> _converter = Room.getConverter(User.class);
             final User _result;
             if(_cursor.moveToFirst()) {
-                _result = _converter.convert(_cursor);
+                _result = __entityCursorConverter_fooBarUser(_cursor);
             } else {
                 _result = null;
             }
@@ -86,10 +83,9 @@ public class ComplexDao_Impl extends ComplexDao {
         }
         final Cursor _cursor = __db.query(_statement);
         try {
-            final CursorConverter<User> _converter = Room.getConverter(User.class);
             final User _result;
             if(_cursor.moveToFirst()) {
-                _result = _converter.convert(_cursor);
+                _result = __entityCursorConverter_fooBarUser(_cursor);
             } else {
                 _result = null;
             }
@@ -117,11 +113,10 @@ public class ComplexDao_Impl extends ComplexDao {
         }
         final Cursor _cursor = __db.query(_statement);
         try {
-            final CursorConverter<User> _converter = Room.getConverter(User.class);
             final List<User> _result = new ArrayList<User>(_cursor.getCount());
             while(_cursor.moveToNext()) {
                 final User _item_1;
-                _item_1 = _converter.convert(_cursor);
+                _item_1 = __entityCursorConverter_fooBarUser(_cursor);
                 _result.add(_item_1);
             }
             return _result;
@@ -244,10 +239,9 @@ public class ComplexDao_Impl extends ComplexDao {
                 }
                 final Cursor _cursor = __db.query(_statement);
                 try {
-                    final CursorConverter<User> _converter = Room.getConverter(User.class);
                     final User _result;
                     if(_cursor.moveToFirst()) {
-                        _result = _converter.convert(_cursor);
+                        _result = __entityCursorConverter_fooBarUser(_cursor);
                     } else {
                         _result = null;
                     }
@@ -295,11 +289,10 @@ public class ComplexDao_Impl extends ComplexDao {
                 }
                 final Cursor _cursor = __db.query(_statement);
                 try {
-                    final CursorConverter<User> _converter = Room.getConverter(User.class);
                     final List<User> _result = new ArrayList<User>(_cursor.getCount());
                     while(_cursor.moveToNext()) {
                         final User _item_1;
-                        _item_1 = _converter.convert(_cursor);
+                        _item_1 = __entityCursorConverter_fooBarUser(_cursor);
                         _result.add(_item_1);
                     }
                     return _result;
@@ -313,5 +306,38 @@ public class ComplexDao_Impl extends ComplexDao {
                 _statement.release();
             }
         }.getLiveData();
+    }
+
+    private User __entityCursorConverter_fooBarUser(Cursor cursor) {
+        User _entity = new User();
+        int _columnIndex = 0;
+        for (String _columnName : cursor.getColumnNames()) {
+            switch(_columnName.hashCode()) {
+                case 115792: {
+                    if ("uid".equals(_columnName)) {
+                        _entity.uid = cursor.getInt(_columnIndex);
+                    }
+                }
+                case 3373707: {
+                    if ("name".equals(_columnName)) {
+                        _entity.name = cursor.getString(_columnIndex);
+                    }
+                }
+                case -1459599807: {
+                    if ("lastName".equals(_columnName)) {
+                        final String _tmpLastName;
+                        _tmpLastName = cursor.getString(_columnIndex);
+                        _entity.setLastName(_tmpLastName);
+                    }
+                }
+                case 1358970165: {
+                    if ("age".equals(_columnName)) {
+                        _entity.age = cursor.getInt(_columnIndex);
+                    }
+                }
+            }
+            _columnIndex ++;
+        }
+        return _entity;
     }
 }

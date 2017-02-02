@@ -22,7 +22,7 @@ public class User {
     int uid;
     String name;
     private String lastName;
-    @ColumnName("ageColumn")
+    @ColumnInfo(name = "ageColumn")
     public int age;
 
     public String getLastName() {

@@ -19,9 +19,12 @@ package com.android.support.room.writer
 import com.android.support.room.processor.BaseEntityParserTest
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeSpec
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.lang.model.element.Modifier
 
 @RunWith(JUnit4::class)
 class EntityCursorConverterWriterTest : BaseEntityParserTest() {
@@ -29,10 +32,8 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
         val OUT_PREFIX = """
             package foo.bar;
             import android.database.Cursor;
-            import com.android.support.room.CursorConverter;
-            import java.lang.Override;
             import java.lang.String;
-            public class MyEntity_CursorConverter implements CursorConverter<MyEntity> {
+            public class MyContainerClass {
             """.trimIndent()
         const val OUT_SUFFIX = "}"
     }
@@ -50,8 +51,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                 public void setId(int id) { this.id = id; }
                 """,
                 """
-                @Override
-                public MyEntity convert(Cursor cursor) {
+                private MyEntity __entityCursorConverter_fooBarMyEntity(Cursor cursor) {
                   MyEntity _entity = new MyEntity();
                   int _columnIndex = 0;
                   for (String _columnName : cursor.getColumnNames()) {
@@ -88,7 +88,6 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
 
     fun generateAndMatch(input: String, output : String,
                          attributes: Map<String, String> = mapOf()) {
-
         generate(input, attributes)
                 .compilesWithoutError()
                 .and()
@@ -99,7 +98,16 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
 
     fun generate(input: String, attributes: Map<String, String> = mapOf()) : CompileTester {
         return singleEntity(input, attributes) { entity, invocation ->
-            EntityCursorConverterWriter(entity).write(invocation.processingEnv)
+            val className = ClassName.get("foo.bar","MyContainerClass")
+            val writer = object : ClassWriter(className){
+                override fun createTypeSpecBuilder(): TypeSpec.Builder {
+                    getOrCreateMethod(EntityCursorConverterWriter(entity))
+                    return TypeSpec.classBuilder(className).apply {
+                        addModifiers(Modifier.PUBLIC)
+                    }
+                }
+            }
+            writer.write(invocation.processingEnv)
         }
     }
 }

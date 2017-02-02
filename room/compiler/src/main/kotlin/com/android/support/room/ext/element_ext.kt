@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
+@file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+
 package com.android.support.room.ext
 
 import com.google.auto.common.MoreElements
+import com.google.auto.common.MoreTypes
+import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
+import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.SimpleAnnotationValueVisitor6
 import kotlin.reflect.KClass
 
 fun Element.hasAnyOf(vararg modifiers: Modifier) : Boolean {
@@ -34,4 +40,47 @@ fun Element.hasAnnotation(klass : KClass<out Annotation>) : Boolean {
  */
 fun Element.hasAllOf(vararg klasses : KClass<out Annotation>) : Boolean {
     return !klasses.any { !hasAnnotation(it) }
+}
+
+// code below taken from dagger2
+// compiler/src/main/java/dagger/internal/codegen/ConfigurationAnnotations.java
+private val TO_LIST_OF_TYPES = object
+    : SimpleAnnotationValueVisitor6<List<TypeMirror>, Void?>() {
+    override fun visitArray(values: MutableList<out AnnotationValue>?, p: Void?)
+            : List<TypeMirror> {
+        return values?.map {
+            val tmp = TO_TYPE.visit(it)
+            tmp
+        }?.filterNotNull() ?: emptyList()
+    }
+
+
+    override fun defaultAction(o: Any?, p: Void?): List<TypeMirror>? {
+        return emptyList()
+    }
+}
+
+private val TO_TYPE = object : SimpleAnnotationValueVisitor6<TypeMirror, Void>() {
+
+    override fun visitType(t: TypeMirror, p: Void?): TypeMirror {
+        return t
+    }
+
+    override fun defaultAction(o: Any?, p: Void?): TypeMirror {
+        throw TypeNotPresentException(o!!.toString(), null)
+    }
+}
+
+fun AnnotationValue.toListOfClassTypes(): List<TypeMirror> {
+    return TO_LIST_OF_TYPES.visit(this)
+}
+
+fun AnnotationValue.toClassType(): TypeMirror? {
+    return TO_TYPE.visit(this)
+}
+
+fun TypeMirror.isCollection() : Boolean {
+    return MoreTypes.isType(this)
+            && (MoreTypes.isTypeOf(java.util.List::class.java, this)
+            || MoreTypes.isTypeOf(java.util.Set::class.java, this))
 }

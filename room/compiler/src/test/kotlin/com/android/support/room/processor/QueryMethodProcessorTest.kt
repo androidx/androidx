@@ -17,7 +17,7 @@
 package com.android.support.room.processor
 
 import COMMON
-import com.android.support.room.ColumnName
+import com.android.support.room.ColumnInfo
 import com.android.support.room.Dao
 import com.android.support.room.Entity
 import com.android.support.room.PrimaryKey
@@ -82,7 +82,8 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     name = name,
                     type = Mockito.mock(TypeMirror::class.java),
                     primaryKey = false,
-                    columnName = columnName ?: name
+                    columnName = columnName ?: name,
+                    affinity = null
             )
         }
     }
@@ -459,7 +460,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             String name;
             String lastName;
             int uid;
-            @ColumnName("ageColumn")
+            @ColumnInfo(name = "ageColumn")
             int age;
         """, listOf("*")) { adapter, queryMethod, invocation ->
             assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
@@ -470,7 +471,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     @Test
     fun pojo_nonJavaName() {
         pojoTest("""
-            @ColumnName("MAX(ageColumn)")
+            @ColumnInfo(name = "MAX(ageColumn)")
             int maxAge;
             String name;
             """, listOf("MAX(ageColumn)", "name")) { adapter, queryMethod, invocation ->
@@ -506,7 +507,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     fun pojo_badQuery() {
         // do not report mismatch if query is broken
         pojoTest("""
-            @ColumnName("MAX(ageColumn)")
+            @ColumnInfo(name = "MAX(ageColumn)")
             int maxAge;
             String name;
             """, listOf("MAX(age)", "name")) { adapter, queryMethod, invocation ->
@@ -613,7 +614,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
                 ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER))
                 .processedWith(TestProcessor.builder()
-                        .forAnnotations(Query::class, Dao::class, ColumnName::class,
+                        .forAnnotations(Query::class, Dao::class, ColumnInfo::class,
                                 Entity::class, PrimaryKey::class)
                         .nextRunHandler { invocation ->
                             val (owner, methods) = invocation.roundEnv

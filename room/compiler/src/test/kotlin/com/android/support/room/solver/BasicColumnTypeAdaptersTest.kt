@@ -42,7 +42,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
     val scope = testCodeGenScope()
 
     companion object {
-        val SQLITE_STMT : TypeName = ClassName.get("android.database.sqlite", "SQLiteStatement")
+        val SQLITE_STMT: TypeName = ClassName.get("android.database.sqlite", "SQLiteStatement")
         val CURSOR: TypeName = ClassName.get("android.database", "Cursor")
 
         @Parameterized.Parameters(name = "kind:{0},bind:_{1},cursor:_{2}")
@@ -87,7 +87,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
     fun bind() {
         simpleRun { invocation ->
             val adapter = TypeAdapterStore(Context(invocation.processingEnv))
-                    .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv))!!
+                    .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(scope.generate().trim(), `is`(bindCode))
             generateCode(invocation, false)
@@ -101,7 +101,8 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
         }
         simpleRun { invocation ->
             val adapter = TypeAdapterStore(Context(invocation.processingEnv))
-                    .findColumnTypeAdapter(input.getBoxedTypeMirror(invocation.processingEnv))!!
+                    .findColumnTypeAdapter(
+                            input.getBoxedTypeMirror(invocation.processingEnv), null)!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
@@ -116,9 +117,9 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
         }.compilesWithoutError()
     }
 
-    private fun generateCode(invocation: TestInvocation, boxed : Boolean) {
+    private fun generateCode(invocation: TestInvocation, boxed: Boolean) {
         val typeMirror = if (boxed) input.getBoxedTypeMirror(invocation.processingEnv)
-                         else input.getTypeMirror(invocation.processingEnv)
+        else input.getTypeMirror(invocation.processingEnv)
         val spec = TypeSpec.classBuilder("OutClass")
                 .addField(FieldSpec.builder(SQLITE_STMT, "st").build())
                 .addField(FieldSpec.builder(CURSOR, "crs").build())
@@ -137,7 +138,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
     fun read() {
         simpleRun { invocation ->
             val adapter = TypeAdapterStore(Context(invocation.processingEnv))
-                    .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv))!!
+                    .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(scope.generate().trim(), `is`(cursorCode))
             generateCode(invocation, false)
@@ -151,7 +152,8 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
         }
         simpleRun { invocation ->
             val adapter = TypeAdapterStore(Context(invocation.processingEnv))
-                    .findColumnTypeAdapter(input.getBoxedTypeMirror(invocation.processingEnv))!!
+                    .findColumnTypeAdapter(
+                            input.getBoxedTypeMirror(invocation.processingEnv), null)!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
@@ -166,8 +168,8 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
         }.compilesWithoutError()
     }
 
-    data class Input(val typeKind: TypeKind, val qName : String? = null) {
-        fun getTypeMirror(processingEnv: ProcessingEnvironment) : TypeMirror {
+    data class Input(val typeKind: TypeKind, val qName: String? = null) {
+        fun getTypeMirror(processingEnv: ProcessingEnvironment): TypeMirror {
             return if (typeKind.isPrimitive) {
                 processingEnv.typeUtils.getPrimitiveType(typeKind)
             } else {
@@ -175,7 +177,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
             }
         }
 
-        fun getBoxedTypeMirror(processingEnv: ProcessingEnvironment) : TypeMirror {
+        fun getBoxedTypeMirror(processingEnv: ProcessingEnvironment): TypeMirror {
             return if (typeKind.isPrimitive) {
                 processingEnv.typeUtils
                         .boxedClass(getTypeMirror(processingEnv) as PrimitiveType)
