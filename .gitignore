@@ -1,6 +1,14 @@
 .classpath
 .gradle
-.idea/
+.idea/dictionaries/
+.idea/libraries/
+.idea/modules/
+.idea/compiler.xml
+.idea/gradle.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/runConfigurations.xml
+.idea/workspace.xml
 .project
 .settings/
 project.properties
