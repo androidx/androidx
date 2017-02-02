@@ -25,7 +25,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.support.design.test.R;
-import android.support.test.filters.SmallTest;
+import android.support.test.filters.MediumTest;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -33,7 +33,7 @@ import org.junit.Test;
 
 import java.util.Locale;
 
-@SmallTest
+@MediumTest
 public class TextInputLayoutPseudoLocaleTest extends
         BaseInstrumentationTestCase<TextInputLayoutActivity> {
 
