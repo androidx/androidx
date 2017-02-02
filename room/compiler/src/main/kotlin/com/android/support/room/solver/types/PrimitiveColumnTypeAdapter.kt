@@ -23,7 +23,6 @@ import com.android.support.room.parser.SQLTypeAffinity.REAL
 import com.android.support.room.solver.CodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.PrimitiveType
-import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeKind.BYTE
 import javax.lang.model.type.TypeKind.CHAR
 import javax.lang.model.type.TypeKind.DOUBLE

@@ -43,10 +43,9 @@ import javax.lang.model.type.TypeMirror
 /**
  * Processes any class as if it is a Pojo.
  */
-class PojoProcessor(val context: Context) {
-    val fieldParser = FieldProcessor(context)
-
-    fun parse(element: TypeElement): Pojo {
+class PojoProcessor(baseContext : Context, val element: TypeElement) {
+    val context = baseContext.fork(element)
+    fun process(): Pojo {
         val declaredType = MoreTypes.asDeclared(element.asType())
         val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
         val fields = allMembers
@@ -55,7 +54,10 @@ class PojoProcessor(val context: Context) {
                             && !it.hasAnnotation(Ignore::class)
                             && !it.hasAnyOf(Modifier.STATIC)
                 }
-                .map { fieldParser.parse(declaredType, it) }
+                .map { FieldProcessor(
+                        baseContext = context,
+                        containing = declaredType,
+                        element = it).process() }
 
         val methods = allMembers
                 .filter {

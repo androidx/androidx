@@ -19,18 +19,12 @@ package com.android.support.room.solver.query.result
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
-import com.android.support.room.processor.Context
 import com.android.support.room.solver.CodeGenScope
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import java.util.ArrayList
-import javax.lang.model.element.Element
 
 class ListQueryResultAdapter(val rowAdapter: RowAdapter) : QueryResultAdapter() {
-    override fun reportErrors(context: Context, element: Element, suppressedWarnings: Set<String>) {
-        rowAdapter.reportErrors(context, element, suppressedWarnings)
-    }
-
     val type = rowAdapter.out
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {

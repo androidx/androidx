@@ -35,13 +35,13 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 
-class QueryMethodProcessor(val context: Context) {
-    val parameterParser = QueryParameterProcessor(context)
-    // not enforced
-    var dbVerifier: DatabaseVerifier? = null
+class QueryMethodProcessor(baseContext: Context,
+                           val containing: DeclaredType,
+                           val executableElement: ExecutableElement,
+                           val dbVerifier: DatabaseVerifier? = null) {
+    val context = baseContext.fork(executableElement)
 
-    fun parse(containing: DeclaredType, executableElement: ExecutableElement,
-              inheritedSuppressedWarnings: Set<String>): QueryMethod {
+    fun process(): QueryMethod {
         val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
         val executableType = MoreTypes.asExecutable(asMember)
 
@@ -82,8 +82,6 @@ class QueryMethodProcessor(val context: Context) {
                     ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
             )
         }
-        val suppressedWarnings = inheritedSuppressedWarnings +
-                SuppressWarningProcessor.getSuppressedWarnings(executableElement)
         val resultBinder = context.typeAdapterStore
                 .findQueryResultBinder(executableType.returnType, query)
         context.checker.check(resultBinder.adapter != null || query.type != QueryType.SELECT,
@@ -92,10 +90,6 @@ class QueryMethodProcessor(val context: Context) {
             context.checker.check(query.type == QueryType.SELECT, executableElement,
                     ProcessorErrors.LIVE_DATA_QUERY_WITHOUT_SELECT)
         }
-        // report adapter errors only if query makes sense or verification is off.
-        if (query.resultInfo?.error == null) {
-            resultBinder.reportErrors(context, executableElement, suppressedWarnings)
-        }
 
         val queryMethod = QueryMethod(
                 element = executableElement,
@@ -103,9 +97,11 @@ class QueryMethodProcessor(val context: Context) {
                 name = executableElement.simpleName.toString(),
                 returnType = executableType.returnType,
                 parameters = executableElement.parameters
-                        .map { parameterParser.parse(containing, it) },
-                queryResultBinder = resultBinder,
-                suppressedWarnings = suppressedWarnings)
+                        .map { QueryParameterProcessor(
+                                baseContext = context,
+                                containing = containing,
+                                element = it).process() },
+                queryResultBinder = resultBinder)
 
         val missing = queryMethod.sectionToParamMapping
                 .filter { it.second == null }
@@ -120,8 +116,7 @@ class QueryMethodProcessor(val context: Context) {
         }.map(QueryParameter::name)
 
         if (unused.isNotEmpty()) {
-            context.logger.w(executableElement,
-                    ProcessorErrors.unusedQueryMethodParameter(unused))
+            context.logger.e(executableElement, ProcessorErrors.unusedQueryMethodParameter(unused))
         }
         return queryMethod
     }

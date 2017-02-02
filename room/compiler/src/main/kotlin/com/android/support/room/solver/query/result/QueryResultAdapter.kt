@@ -16,14 +16,11 @@
 
 package com.android.support.room.solver.query.result
 
-import com.android.support.room.processor.Context
 import com.android.support.room.solver.CodeGenScope
-import javax.lang.model.element.Element
 
 /**
  * Gets a Cursor and converts it into the return type of a method annotated with @Query.
  */
 abstract class QueryResultAdapter {
     abstract fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope)
-    abstract fun reportErrors(context: Context, element: Element, suppressedWarnings: Set<String>)
 }

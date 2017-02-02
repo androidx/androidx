@@ -16,19 +16,13 @@
 
 package com.android.support.room.solver.query.result
 
-import com.android.support.room.processor.Context
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.solver.types.ColumnTypeAdapter
-import javax.lang.model.element.Element
 
 /**
  * Wraps a row adapter when there is only 1 item  with 1 column in the response.
  */
 class SingleColumnRowAdapter(val adapter : ColumnTypeAdapter) : RowAdapter(adapter.out) {
-    override fun reportErrors(context: Context, element: Element, suppressedWarnings: Set<String>) {
-        // we just assume it matches so no errors to report
-    }
-
     override fun init(cursorVarName: String, scope: CodeGenScope) : RowConverter {
         return object : RowConverter {
             override fun convert(outVarName: String, cursorVarName: String) {

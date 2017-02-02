@@ -22,7 +22,6 @@ import com.android.support.room.Dao
 import com.android.support.room.Entity
 import com.android.support.room.PrimaryKey
 import com.android.support.room.Query
-import com.android.support.room.RoomWarnings
 import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.typeName
@@ -34,6 +33,7 @@ import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.QueryMethod
+import com.android.support.room.vo.Warning
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertAbout
@@ -56,6 +56,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito
 import javax.lang.model.element.Element
+import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind.INT
 import javax.lang.model.type.TypeMirror
 
@@ -104,7 +105,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     fun testSingleParam() {
         singleQueryMethod(
                 """
-                @Query("SELECT * from User")
+                @Query("SELECT * from User where uid = :x")
                 abstract public long foo(int x);
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
@@ -241,7 +242,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(barParam, notNullValue())
             assertThat(parsedQuery.sectionToParamMapping,
                     `is`(listOf(Pair(bar, barParam))))
-        }.compilesWithoutError().withWarningContaining(
+        }.failsToCompile().withErrorContaining(
                 ProcessorErrors.unusedQueryMethodParameter(listOf("whyNotUseMe")))
     }
 
@@ -421,7 +422,12 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 @Query("SELECT uid from User")
                 abstract public int[] foo();
                 """) { method, invocation ->
-            assertThat(method.suppressedWarnings, `is`(setOf(RoomWarnings.CURSOR_MISMATCH)))
+            assertThat(QueryMethodProcessor(
+                    baseContext = invocation.context,
+                    containing = Mockito.mock(DeclaredType::class.java),
+                    executableElement = method.element,
+                    dbVerifier = null).context.logger.suppressedWarnings
+                    , `is`(setOf(Warning.CURSOR_MISMATCH)))
         }.compilesWithoutError()
     }
 
@@ -626,10 +632,12 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                             } else {
                                 null
                             }
-                            val parser = QueryMethodProcessor(invocation.context)
-                            parser.dbVerifier = verifier
-                            val parsedQuery = parser.parse(MoreTypes.asDeclared(owner.asType()),
-                                    MoreElements.asExecutable(methods.first()), emptySet())
+                            val parser = QueryMethodProcessor(
+                                    baseContext = invocation.context,
+                                    containing = MoreTypes.asDeclared(owner.asType()),
+                                    executableElement = MoreElements.asExecutable(methods.first()),
+                                    dbVerifier = verifier)
+                            val parsedQuery = parser.process()
                             handler(parsedQuery, invocation)
                             true
                         }

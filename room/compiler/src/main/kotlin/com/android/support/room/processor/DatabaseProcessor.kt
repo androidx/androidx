@@ -37,9 +37,8 @@ import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
 
 
-class DatabaseProcessor(val context: Context) {
-    val entityParser = EntityProcessor(context)
-    val daoParser = DaoProcessor(context)
+class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
+    val context = baseContext.fork(element)
 
     val baseClassElement: TypeMirror by lazy {
         context.processingEnv.elementUtils.getTypeElement(
@@ -47,7 +46,7 @@ class DatabaseProcessor(val context: Context) {
                 .asType()
     }
 
-    fun parse(element: TypeElement): Database {
+    fun process(): Database {
         val dbAnnotation = MoreElements
                 .getAnnotationMirror(element, com.android.support.room.Database::class.java)
                 .orNull()
@@ -59,8 +58,10 @@ class DatabaseProcessor(val context: Context) {
 
         val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
 
-        if (!element.hasAnnotation(SkipQueryVerification::class)) {
-            daoParser.dbVerifier = DatabaseVerifier.create(context, element, entities)
+        val dbVerifier = if (element.hasAnnotation(SkipQueryVerification::class)) {
+            null
+        } else {
+            DatabaseVerifier.create(context, element, entities)
         }
 
         val daoMethods = allMembers.filter {
@@ -74,15 +75,15 @@ class DatabaseProcessor(val context: Context) {
             val executable = MoreElements.asExecutable(it)
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
-            val dao = daoParser.parse(MoreTypes.asTypeElement(executable.returnType))
+            val dao = DaoProcessor(context, MoreTypes.asTypeElement(executable.returnType),
+                    dbVerifier).process()
             DaoMethod(executable, executable.simpleName.toString(), dao)
         }
         validateUniqueDaoClasses(element, daoMethods)
         val database = Database(element = element,
                 type = MoreElements.asType(element).asType(),
                 entities = entities,
-                daoMethods = daoMethods,
-                suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element))
+                daoMethods = daoMethods)
         return database
     }
 
@@ -131,7 +132,7 @@ class DatabaseProcessor(val context: Context) {
         context.checker.check(listOfTypes.isNotEmpty(), element,
                 ProcessorErrors.DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES)
         return listOfTypes.map {
-            entityParser.parse(MoreTypes.asTypeElement(it))
+            EntityProcessor(context, MoreTypes.asTypeElement(it)).process()
         }
     }
 

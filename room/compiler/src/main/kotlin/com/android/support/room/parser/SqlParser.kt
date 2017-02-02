@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
-import java.util.*
+import java.util.ArrayList
 
 class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
                    statement: ParseTree) : SQLiteBaseVisitor<Void?>() {

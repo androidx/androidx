@@ -16,6 +16,7 @@
 
 package com.android.support.room.writer
 
+import COMMON
 import com.android.support.room.processor.DaoProcessor
 import com.android.support.room.testing.TestProcessor
 import com.google.auto.common.MoreElements
@@ -69,9 +70,11 @@ class DaoWriterTest {
                                     .getElementsAnnotatedWith(
                                             com.android.support.room.Dao::class.java)
                                     .first()
-                            val parser = DaoProcessor(invocation.context)
-                            parser.dbVerifier = createVerifierFromEntities(invocation)
-                            val parsedDao = parser.parse(MoreElements.asType(dao))
+                            val parser = DaoProcessor(
+                                    baseContext = invocation.context,
+                                    element = MoreElements.asType(dao),
+                                    dbVerifier = createVerifierFromEntities(invocation))
+                            val parsedDao = parser.process()
                             DaoWriter(parsedDao).write(invocation.processingEnv)
                             true
                         }

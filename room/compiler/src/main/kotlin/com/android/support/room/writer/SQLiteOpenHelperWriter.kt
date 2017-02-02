@@ -22,11 +22,9 @@ import com.android.support.room.ext.N
 import com.android.support.room.ext.S
 import com.android.support.room.ext.SupportDbTypeNames
 import com.android.support.room.ext.T
-import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.vo.Database
 import com.android.support.room.vo.Entity
-import com.android.support.room.vo.Field
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName

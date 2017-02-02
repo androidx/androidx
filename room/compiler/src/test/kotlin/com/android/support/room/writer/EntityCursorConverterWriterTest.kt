@@ -19,8 +19,6 @@ package com.android.support.room.writer
 import com.android.support.room.processor.BaseEntityParserTest
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
-import com.squareup.javapoet.JavaFile
-
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

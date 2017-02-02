@@ -29,11 +29,10 @@ import kotlin.reflect.KClass
 /**
  * Common functionality for shortcut method processors
  */
-class ShortcutMethodProcessor(val context : Context,
+class ShortcutMethodProcessor(baseContext : Context,
                               val containing: DeclaredType,
-                              val executableElement: ExecutableElement,
-                              val entityProcessor: EntityProcessor) {
-    private val parameterProcessor = ShortcutParameterProcessor(context)
+                              val executableElement: ExecutableElement) {
+    val context = baseContext.fork(executableElement)
     private val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
     private val executableType = MoreTypes.asExecutable(asMember)
 
@@ -52,7 +51,10 @@ class ShortcutMethodProcessor(val context : Context,
     fun extractParams(missingParamError : String, multipleEntitiesError : String)
             : Pair<Entity?, List<ShortcutQueryParameter>> {
         val params = executableElement.parameters
-                .map { parameterProcessor.parse(containing, it) }
+                .map { ShortcutParameterProcessor(
+                        baseContext = context,
+                        containing = containing,
+                        element = it).process() }
         context.checker.check(params.isNotEmpty(), executableElement, missingParamError)
         val distinctTypes = params
                 .map { it.entityType }
@@ -63,7 +65,9 @@ class ShortcutMethodProcessor(val context : Context,
         val entity = if (entityTypeMirror == null) {
             null
         } else {
-            entityProcessor.parse(MoreTypes.asTypeElement(entityTypeMirror))
+            EntityProcessor(
+                    baseContext = context,
+                    element = MoreTypes.asTypeElement(entityTypeMirror)).process()
         }
         return Pair(entity, params)
     }

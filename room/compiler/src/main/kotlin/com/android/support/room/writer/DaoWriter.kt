@@ -38,7 +38,9 @@ import com.squareup.javapoet.TypeSpec
 import stripNonJava
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier.*
+import javax.lang.model.element.Modifier.FINAL
+import javax.lang.model.element.Modifier.PRIVATE
+import javax.lang.model.element.Modifier.PUBLIC
 
 /**
  * Creates the implementation for a class annotated with Dao.

@@ -15,6 +15,7 @@
  */
 package com.android.support.room.processor
 
+import COMMON
 import com.android.support.room.Dao
 import com.android.support.room.Delete
 import com.android.support.room.ext.typeName
@@ -230,9 +231,11 @@ class DeletionMethodProcessorTest {
                                                         }
                                         )
                                     }.filter { it.second.isNotEmpty() }.first()
-                            val processor = DeletionMethodProcessor(invocation.context)
-                            val processed = processor.parse(MoreTypes.asDeclared(owner.asType()),
-                                    MoreElements.asExecutable(methods.first()))
+                            val processor = DeletionMethodProcessor(
+                                    baseContext = invocation.context,
+                                    containing = MoreTypes.asDeclared(owner.asType()),
+                                    executableElement = MoreElements.asExecutable(methods.first()))
+                            val processed = processor.process()
                             handler(processed, invocation)
                             true
                         }

@@ -19,7 +19,6 @@ package com.android.support.room.solver.types
 import com.android.support.room.ext.L
 import com.android.support.room.solver.CodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeKind.BOOLEAN
 import javax.lang.model.type.TypeKind.INT
 

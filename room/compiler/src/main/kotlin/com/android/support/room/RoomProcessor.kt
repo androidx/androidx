@@ -47,7 +47,7 @@ class RoomProcessor : BasicAnnotationProcessor() {
             // TODO multi step support
             val databases = elementsByAnnotation[Database::class.java]
                     ?.map {
-                        DatabaseProcessor(context).parse(MoreElements.asType(it))
+                        DatabaseProcessor(context, MoreElements.asType(it)).process()
                     }
             val allDaoMethods = databases?.flatMap { it.daoMethods }
             allDaoMethods?.let {
@@ -103,7 +103,7 @@ class RoomProcessor : BasicAnnotationProcessor() {
                 : MutableSet<Element> {
             elementsByAnnotation[Entity::class.java]
                     ?.map {
-                        EntityProcessor(context).parse(MoreElements.asType(it))
+                        EntityProcessor(context, MoreElements.asType(it)).process()
                     }
                     ?.forEach {
                         EntityCursorConverterWriter(it).write(context.processingEnv)

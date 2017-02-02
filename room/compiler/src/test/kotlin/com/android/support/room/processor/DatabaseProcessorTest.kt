@@ -17,10 +17,10 @@
 package com.android.support.room.processor
 
 import com.android.support.room.RoomProcessor
-import com.android.support.room.RoomWarnings
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.vo.Database
+import com.android.support.room.vo.Warning
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
@@ -269,7 +269,8 @@ class DatabaseProcessorTest {
                     abstract UserDao userDao();
                 }
                 """, USER, USER_DAO) {db, invocation ->
-            assertThat(db.suppressedWarnings, `is`(setOf(RoomWarnings.CURSOR_MISMATCH)))
+            assertThat(DatabaseProcessor(invocation.context, db.element)
+                    .context.logger.suppressedWarnings, `is`(setOf(Warning.CURSOR_MISMATCH)))
         }.compilesWithoutError()
     }
 
@@ -287,8 +288,9 @@ class DatabaseProcessorTest {
                                     .getElementsAnnotatedWith(
                                             com.android.support.room.Database::class.java)
                                     .first()
-                            val parser = DatabaseProcessor(invocation.context)
-                            val parsedDb = parser.parse(MoreElements.asType(entity))
+                            val parser = DatabaseProcessor(invocation.context,
+                                    MoreElements.asType(entity))
+                            val parsedDb = parser.process()
                             handler(parsedDb, invocation)
                             true
                         }

@@ -31,19 +31,15 @@ import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.TypeElement
 
-class DaoProcessor(val context : Context) {
-    // TODO we should start injecting these to avoid parsing the same class multiple times
-    val queryProcessor = QueryMethodProcessor(context)
-    val insertionProcessor = InsertionMethodProcessor(context)
-    val deletionProcessor = DeletionMethodProcessor(context)
-
-    var dbVerifier: DatabaseVerifier? = null
+class DaoProcessor(baseContext : Context, val element: TypeElement,
+                   val dbVerifier : DatabaseVerifier?) {
+    val context = baseContext.fork(element)
 
     companion object {
         val PROCESSED_ANNOTATIONS = listOf(Insert::class, Delete::class, Query::class)
     }
 
-    fun parse(element: TypeElement) : Dao {
+    fun process() : Dao {
         context.checker.hasAnnotation(element, com.android.support.room.Dao::class,
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO)
         context.checker.check(element.hasAnyOf(ABSTRACT) || element.kind == ElementKind.INTERFACE,
@@ -70,24 +66,32 @@ class DaoProcessor(val context : Context) {
                     Any::class
                 }
             }
-        queryProcessor.dbVerifier = if (element.hasAnnotation(SkipQueryVerification::class)) {
+        val processorVerifier = if (element.hasAnnotation(SkipQueryVerification::class)) {
             null
         } else {
             dbVerifier
         }
 
-        val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
-
         val queryMethods = methods[Query::class]?.map {
-            queryProcessor.parse(declaredType, it, suppressedWarnings)
+            QueryMethodProcessor(
+                    baseContext = context,
+                    containing = declaredType,
+                    executableElement = it,
+                    dbVerifier = processorVerifier).process()
         } ?: emptyList()
 
         val insertionMethods = methods[Insert::class]?.map {
-            insertionProcessor.parse(declaredType, it)
+            InsertionMethodProcessor(
+                    baseContext = context,
+                    containing = declaredType,
+                    executableElement = it).process()
         } ?: emptyList()
 
         val deletionMethods = methods[Delete::class]?.map {
-            deletionProcessor.parse(declaredType, it)
+            DeletionMethodProcessor(
+                    baseContext = context,
+                    containing = declaredType,
+                    executableElement = it).process()
         } ?: emptyList()
 
         context.checker.check(methods[Any::class] == null, element,
@@ -101,7 +105,6 @@ class DaoProcessor(val context : Context) {
                 type = declaredType,
                 queryMethods = queryMethods,
                 insertionMethods = insertionMethods,
-                deletionMethods = deletionMethods,
-                suppressedWarnings = suppressedWarnings)
+                deletionMethods = deletionMethods)
     }
 }

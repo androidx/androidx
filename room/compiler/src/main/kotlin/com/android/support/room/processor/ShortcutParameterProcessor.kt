@@ -28,8 +28,11 @@ import javax.lang.model.type.TypeMirror
 /**
  * Processes parameters of methods that are annotated with Insert, Delete.
  */
-class ShortcutParameterProcessor(val context : Context) {
-    fun parse(containing: DeclaredType, element: VariableElement): ShortcutQueryParameter {
+class ShortcutParameterProcessor(baseContext : Context,
+                                 val containing: DeclaredType,
+                                 val element: VariableElement) {
+    val context = baseContext.fork(element)
+    fun process(): ShortcutQueryParameter {
         val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
         val name = element.simpleName.toString()
         context.checker.check(!name.startsWith("_"), element,

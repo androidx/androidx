@@ -18,7 +18,6 @@ package com.android.support.room.processor
 
 import com.android.support.room.ColumnName
 import com.android.support.room.PrimaryKey
-import com.android.support.room.preconditions.Checks
 import com.android.support.room.vo.Field
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -26,8 +25,9 @@ import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.type.DeclaredType
 
-class FieldProcessor(val context: Context) {
-    fun parse(containing : DeclaredType, element : Element) : Field {
+class FieldProcessor(baseContext: Context, val containing : DeclaredType, val element : Element) {
+    val context = baseContext.fork(element)
+    fun process() : Field {
         val member = context.processingEnv.typeUtils.asMemberOf(containing, element)
         val type = TypeName.get(member)
         val columnNameAnnotation = MoreElements.getAnnotationMirror(element,

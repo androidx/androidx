@@ -17,14 +17,13 @@
 package com.android.support.room.vo
 
 import com.squareup.javapoet.ClassName
-import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
-data class Dao(val element : Element, val type : DeclaredType,
+data class Dao(val element : TypeElement, val type : DeclaredType,
                val queryMethods: List<QueryMethod>,
                val insertionMethods : List<InsertionMethod>,
-               val deletionMethods : List<DeletionMethod>,
-               val suppressedWarnings : Set<String> = emptySet()) {
+               val deletionMethods : List<DeletionMethod>) {
     // parsed dao might have a suffix if it is used in multiple databases.
     private var suffix : String? = null
     fun setSuffix(newSuffix : String) {

@@ -17,14 +17,11 @@
 package com.android.support.room.writer
 
 import com.android.support.room.ext.L
-import com.android.support.room.ext.RoomTypeNames.ROOM_DB
 import com.android.support.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import com.android.support.room.ext.RoomTypeNames.STRING_UTIL
 import com.android.support.room.ext.S
 import com.android.support.room.ext.T
-import com.android.support.room.ext.arrayTypeName
 import com.android.support.room.ext.typeName
-import com.android.support.room.parser.QueryType
 import com.android.support.room.parser.SectionType.BIND_VAR
 import com.android.support.room.parser.SectionType.NEWLINE
 import com.android.support.room.parser.SectionType.TEXT

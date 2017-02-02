@@ -18,10 +18,8 @@ package com.android.support.room.solver.query.parameter
 
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
-import com.android.support.room.ext.typeName
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.solver.types.ColumnTypeAdapter
-import com.android.support.room.solver.types.TypeConverter
 import com.squareup.javapoet.TypeName
 
 /**

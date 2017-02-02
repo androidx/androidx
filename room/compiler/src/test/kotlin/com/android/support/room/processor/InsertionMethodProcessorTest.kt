@@ -299,9 +299,11 @@ class InsertionMethodProcessorTest {
                                                         }
                                         )
                                     }.filter { it.second.isNotEmpty() }.first()
-                            val processor = InsertionMethodProcessor(invocation.context)
-                            val processed = processor.parse(MoreTypes.asDeclared(owner.asType()),
-                                    MoreElements.asExecutable(methods.first()))
+                            val processor = InsertionMethodProcessor(
+                                    baseContext = invocation.context,
+                                    containing = MoreTypes.asDeclared(owner.asType()),
+                                    executableElement = MoreElements.asExecutable(methods.first()))
+                            val processed = processor.process()
                             handler(processed, invocation)
                             true
                         }

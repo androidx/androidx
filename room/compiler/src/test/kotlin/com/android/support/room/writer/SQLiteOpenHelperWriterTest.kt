@@ -100,7 +100,7 @@ class SQLiteOpenHelperWriterTest {
                                     .getElementsAnnotatedWith(
                                             com.android.support.room.Database::class.java)
                                     .first())
-                            handler(DatabaseProcessor(invocation.context).parse(db), invocation)
+                            handler(DatabaseProcessor(invocation.context, db).process(), invocation)
                             true
                         }
                         .build())

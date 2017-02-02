@@ -21,9 +21,7 @@ import com.android.support.room.Insert
 import com.android.support.room.Query
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.vo.Field
-import com.android.support.room.vo.Pojo
 import com.squareup.javapoet.TypeName
-import javax.lang.model.type.TypeMirror
 
 object ProcessorErrors {
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"

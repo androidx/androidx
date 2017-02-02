@@ -17,11 +17,9 @@
 package com.android.support.room.solver.types
 
 import com.android.support.room.ext.L
-import com.android.support.room.ext.N
 import com.android.support.room.ext.RoomTypeNames.STRING_UTIL
 import com.android.support.room.ext.T
 import com.android.support.room.solver.CodeGenScope
-import com.squareup.javapoet.ClassName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeMirror
 

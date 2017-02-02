@@ -18,10 +18,8 @@ package com.android.support.room.solver
 
 import com.android.support.room.Entity
 import com.android.support.room.ext.LifecyclesTypeNames
-import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.parser.ParsedQuery
-import com.android.support.room.parser.Table
 import com.android.support.room.processor.Context
 import com.android.support.room.processor.PojoProcessor
 import com.android.support.room.solver.query.parameter.ArrayQueryParameterAdapter
@@ -53,8 +51,6 @@ import com.android.support.room.solver.types.PrimitiveToStringConverter
 import com.android.support.room.solver.types.ReverseTypeConverter
 import com.android.support.room.solver.types.StringColumnTypeAdapter
 import com.android.support.room.solver.types.TypeConverter
-import com.android.support.room.verifier.QueryResultInfo
-import com.android.support.room.vo.Pojo
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
@@ -77,13 +73,17 @@ class TypeAdapterStore(val context: Context,
     init {
         val adapters = arrayListOf<ColumnTypeAdapter>()
         val converters = arrayListOf<TypeConverter>()
-        extras.forEach {
-            when (it) {
-                is TypeConverter -> converters.add(it)
-                is ColumnTypeAdapter -> adapters.add(it)
+
+        fun addAny(extra : Any?) {
+            when (extra) {
+                is TypeConverter -> converters.add(extra)
+                is ColumnTypeAdapter -> adapters.add(extra)
+                is List<*> -> extra.forEach(::addAny)
                 else -> throw IllegalArgumentException("unknown extra")
             }
         }
+
+        extras.forEach(::addAny)
         fun addTypeConverter(converter: TypeConverter) {
             converters.add(converter)
             converters.add(ReverseTypeConverter(converter))
@@ -211,9 +211,14 @@ class TypeAdapterStore(val context: Context,
                     return SingleColumnRowAdapter(singleColumn)
                 }
             }
-            if (resultInfo != null) {
-                val pojo = PojoProcessor(context).parse(MoreTypes.asTypeElement(typeMirror))
+            // try to map the result only if the query is valid
+            if (resultInfo != null && resultInfo.error == null) {
+                val pojo = PojoProcessor(
+                        baseContext = context,
+                        element = MoreTypes.asTypeElement(typeMirror)
+                ).process()
                 return PojoRowAdapter(
+                        context = context,
                         info = resultInfo,
                         pojo = pojo,
                         out = typeMirror)

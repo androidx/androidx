@@ -29,4 +29,19 @@ public class RoomWarnings {
      */
     // if you change this, don't forget to change SurpressWarningsVisitor
     public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
+
+    /**
+     * Reported when Room cannot verify database queries during compilation due to lack of
+     * tmp dir access in JVM.
+     */
+    public static final String MISSING_JAVA_TMP_DIR = "ROOM_MISSING_JAVA_TMP_DIR";
+
+    /**
+     * Reported when Room cannot verify database queries during compilation. This usually happens
+     * when it cannot find the SQLite JDBC driver on the host machine.
+     * <p>
+     * Room can function without query verification but its functionality will be limited.
+     */
+    public static final String CANNOT_CREATE_VERIFICATION_DATABASE =
+            "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
 }

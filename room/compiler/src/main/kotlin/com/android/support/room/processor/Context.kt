@@ -19,20 +19,32 @@ package com.android.support.room.processor
 import com.android.support.room.log.RLog
 import com.android.support.room.preconditions.Checks
 import com.android.support.room.solver.TypeAdapterStore
-import com.android.support.room.vo.Dao
-import com.android.support.room.vo.Database
-import com.android.support.room.vo.Entity
+import com.android.support.room.solver.types.TypeConverter
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.Element
+import javax.lang.model.type.TypeMirror
 
-data class Context(val processingEnv: ProcessingEnvironment) {
-    val logger = RLog(processingEnv)
-    val checker = Checks(logger)
-    val COMMON_TYPES = CommonTypes(processingEnv)
-    val typeAdapterStore by lazy { TypeAdapterStore(this) }
+data class Context private constructor(val processingEnv: ProcessingEnvironment,
+                   val logger : RLog, val typeConverters: List<TypeConverter>) {
+    val checker : Checks = Checks(logger)
+    val COMMON_TYPES : Context.CommonTypes = Context.CommonTypes(processingEnv)
+
+    val typeAdapterStore by lazy { TypeAdapterStore(this, typeConverters) }
+
+    constructor(processingEnv: ProcessingEnvironment) : this(processingEnv,
+            RLog(processingEnv, emptySet(), null), emptyList()) {
+    }
 
     class CommonTypes(val processingEnv: ProcessingEnvironment) {
-        val STRING by lazy {
+        val STRING: TypeMirror by lazy {
             processingEnv.elementUtils.getTypeElement("java.lang.String").asType()
         }
+    }
+
+    fun fork(element: Element) : Context {
+        val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
+        return Context(processingEnv,
+                RLog(processingEnv, logger.suppressedWarnings + suppressedWarnings, element),
+                this.typeConverters)
     }
 }

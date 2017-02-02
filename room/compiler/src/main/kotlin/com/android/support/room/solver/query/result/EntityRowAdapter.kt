@@ -20,17 +20,11 @@ import com.android.support.room.ext.L
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
-import com.android.support.room.processor.Context
 import com.android.support.room.solver.CodeGenScope
 import com.squareup.javapoet.ParameterizedTypeName
-import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
 
 class EntityRowAdapter(type : TypeMirror) : RowAdapter(type) {
-    override fun reportErrors(context: Context, element: Element, suppressedWarnings: Set<String>) {
-        // we don't know much so no errors to report
-    }
-
     override fun init(cursorVarName: String, scope : CodeGenScope) : RowConverter {
         val converterVar = scope.getTmpVar("_converter")
         scope.builder()

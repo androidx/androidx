@@ -16,19 +16,17 @@
 
 package com.android.support.room.solver.query.result
 
-import com.android.support.room.RoomWarnings
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
 import com.android.support.room.processor.Context
 import com.android.support.room.processor.ProcessorErrors
-import com.android.support.room.processor.SuppressWarningProcessor
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.verifier.QueryResultInfo
 import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.Pojo
-import javax.lang.model.element.Element
+import com.android.support.room.vo.Warning
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -36,7 +34,8 @@ import javax.lang.model.type.TypeMirror
  * <p>
  * The info comes from the query processor so we know about the order of columns in the result etc.
  */
-class PojoRowAdapter(val info: QueryResultInfo, val pojo: Pojo, out: TypeMirror) : RowAdapter(out) {
+class PojoRowAdapter(context : Context, val info: QueryResultInfo,
+                     val pojo: Pojo, out: TypeMirror) : RowAdapter(out) {
     val mapping: Mapping
 
     init {
@@ -56,28 +55,25 @@ class PojoRowAdapter(val info: QueryResultInfo, val pojo: Pojo, out: TypeMirror)
                 Association(index, field)
             }
         }.filterNotNull()
+        if (unusedColumns.isNotEmpty() || remainingFields.isNotEmpty()) {
+            val warningMsg = ProcessorErrors.cursorPojoMismatch(
+                    pojoTypeName = pojo.typeName,
+                    unusedColumns = unusedColumns,
+                    allColumns = info.columns.map { it.name },
+                    unusedFields = remainingFields,
+                    allFields = pojo.fields
+            )
+            context.logger.w(Warning.CURSOR_MISMATCH, null, warningMsg)
+        }
+        if (associations.isEmpty()) {
+            context.logger.e(ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
+        }
+
         mapping = Mapping(
                 associations = associations,
                 unusedColumns = unusedColumns,
                 unusedFields = remainingFields
         )
-    }
-
-    override fun reportErrors(context: Context, element: Element, suppressedWarnings: Set<String>) {
-        if (!SuppressWarningProcessor.isSuppressed(RoomWarnings.CURSOR_MISMATCH, suppressedWarnings)
-                && (mapping.unusedColumns.isNotEmpty() || mapping.unusedFields.isNotEmpty())) {
-            context.logger.w(element, ProcessorErrors.cursorPojoMismatch(
-                    pojoTypeName = pojo.typeName,
-                    unusedColumns = mapping.unusedColumns,
-                    allColumns = info.columns.map { it.name },
-                    unusedFields = mapping.unusedFields,
-                    allFields = pojo.fields
-            ))
-        }
-        if (mapping.associations.isEmpty()) {
-            // Nothing matched. Clearly an error.
-            context.logger.e(element, ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
-        }
     }
 
     override fun init(cursorVarName: String, scope: CodeGenScope): RowConverter {

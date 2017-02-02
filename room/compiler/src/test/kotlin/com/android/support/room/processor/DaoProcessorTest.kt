@@ -17,12 +17,12 @@
 package com.android.support.room.processor
 
 import COMMON
-import com.android.support.room.Room
-import com.android.support.room.RoomWarnings
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.vo.Dao
+import com.android.support.room.vo.Warning
 import com.google.auto.common.MoreElements
+import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -147,9 +147,17 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                 abstract User users();
             }
             """) { dao, invocation ->
-            assertThat(dao.suppressedWarnings, `is`(setOf("ALL", RoomWarnings.CURSOR_MISMATCH)))
+            val daoProcessor = DaoProcessor(invocation.context, dao.element, null)
+            assertThat(daoProcessor.context.logger
+                    .suppressedWarnings, `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
+
             dao.queryMethods.forEach {
-                assertThat(it.suppressedWarnings, `is`(setOf("ALL", RoomWarnings.CURSOR_MISMATCH)))
+                assertThat(QueryMethodProcessor(
+                        baseContext = daoProcessor.context,
+                        containing = MoreTypes.asDeclared(dao.element.asType()),
+                        executableElement = it.element,
+                        dbVerifier = null).context.logger.suppressedWarnings,
+                        `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
             }
         }.compilesWithoutError()
     }
@@ -164,9 +172,17 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                 abstract User users();
             }
             """) { dao, invocation ->
-            assertThat(dao.suppressedWarnings, `is`(setOf(RoomWarnings.CURSOR_MISMATCH)))
+            val daoProcessor = DaoProcessor(invocation.context, dao.element, null)
+            assertThat(daoProcessor.context.logger
+                    .suppressedWarnings, `is`(setOf(Warning.CURSOR_MISMATCH)))
+
             dao.queryMethods.forEach {
-                assertThat(it.suppressedWarnings, `is`(setOf("ALL", RoomWarnings.CURSOR_MISMATCH)))
+                assertThat(QueryMethodProcessor(
+                        baseContext = daoProcessor.context,
+                        containing = MoreTypes.asDeclared(dao.element.asType()),
+                        executableElement = it.element,
+                        dbVerifier = null).context.logger.suppressedWarnings,
+                        `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
             }
         }.compilesWithoutError()
     }
@@ -185,13 +201,15 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                                     .getElementsAnnotatedWith(
                                             com.android.support.room.Dao::class.java)
                                     .first()
-                            val parser = DaoProcessor(invocation.context)
-                            parser.dbVerifier = if (enableVerification) {
+                            val dbVerifier = if (enableVerification) {
                                 createVerifierFromEntities(invocation)
                             } else {
                                 null
                             }
-                            val parsedDao = parser.parse(MoreElements.asType(dao))
+                            val parser = DaoProcessor(invocation.context,
+                                    MoreElements.asType(dao), dbVerifier)
+
+                            val parsedDao = parser.process()
                             handler(parsedDao, invocation)
                             true
                         }

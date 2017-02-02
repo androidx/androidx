@@ -33,11 +33,12 @@ import javax.lang.model.type.TypeKind.LONG
 import javax.lang.model.type.TypeKind.VOID
 import javax.lang.model.type.TypeMirror
 
-class InsertionMethodProcessor(val context: Context) {
-    val entityProcessor = EntityProcessor(context)
-    fun parse(containing: DeclaredType, executableElement: ExecutableElement): InsertionMethod {
-        val delegate = ShortcutMethodProcessor(context, containing, executableElement,
-                entityProcessor)
+class InsertionMethodProcessor(baseContext: Context,
+                               val containing: DeclaredType,
+                               val executableElement: ExecutableElement) {
+    val context = baseContext.fork(executableElement)
+    fun process(): InsertionMethod {
+        val delegate = ShortcutMethodProcessor(context, containing, executableElement)
         val annotation = delegate.extractAnnotation(Insert::class,
                 ProcessorErrors.MISSING_INSERT_ANNOTATION)
 

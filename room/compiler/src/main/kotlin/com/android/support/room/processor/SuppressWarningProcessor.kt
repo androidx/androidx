@@ -16,7 +16,7 @@
 
 package com.android.support.room.processor
 
-import com.android.support.room.RoomWarnings
+import com.android.support.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import javax.lang.model.element.AnnotationValue
@@ -27,38 +27,31 @@ import javax.lang.model.util.SimpleAnnotationValueVisitor6
  * A visitor that reads SuppressWarnings annotations and keeps the ones we know about.
  */
 object SuppressWarningProcessor {
-    private const val ALL = "ALL"
-    private val KNOWN_WARNINGS = setOf(ALL, RoomWarnings.CURSOR_MISMATCH)
-    fun getSuppressedWarnings(element: Element): Set<String> {
+
+    fun getSuppressedWarnings(element: Element): Set<Warning> {
         val annotation = MoreElements.getAnnotationMirror(element,
                 SuppressWarnings::class.java).orNull()
         return if (annotation == null) {
-            emptySet<String>()
+            emptySet<Warning>()
         } else {
             val value = AnnotationMirrors.getAnnotationValue(annotation, "value")
             if (value == null) {
-                emptySet<String>()
+                emptySet<Warning>()
             } else {
                 VISITOR.visit(value)
             }
         }
     }
 
-    fun isSuppressed(warning: String, suppressedWarnings: Set<String>): Boolean {
-        return suppressedWarnings.contains(ALL) || suppressedWarnings.contains(warning)
-    }
-
-    private object VISITOR : SimpleAnnotationValueVisitor6<Set<String>, String>() {
+    private object VISITOR : SimpleAnnotationValueVisitor6<Set<Warning>, String>() {
         override fun visitArray(values: List<AnnotationValue>?, elementName: String?)
-                : Set<String> {
+                : Set<Warning> {
             return values?.map {
-                it.value.toString()
-            }?.filter {
-                KNOWN_WARNINGS.contains(it)
-            }?.toSet() ?: emptySet()
+                Warning.fromPublicKey(it.value.toString())
+            }?.filterNotNull()?.toSet() ?: emptySet()
         }
 
-        override fun defaultAction(o: Any?, p: String?): Set<String> {
+        override fun defaultAction(o: Any?, p: String?): Set<Warning> {
             return emptySet()
         }
     }

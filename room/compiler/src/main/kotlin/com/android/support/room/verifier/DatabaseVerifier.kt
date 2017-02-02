@@ -19,6 +19,7 @@ package com.android.support.room.verifier
 import columnInfo
 import com.android.support.room.processor.Context
 import com.android.support.room.vo.Entity
+import com.android.support.room.vo.Warning
 import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
@@ -41,7 +42,8 @@ class DatabaseVerifier private constructor(
                 // see: https://github.com/xerial/sqlite-jdbc/issues/97
                 val tmpDir = System.getProperty("java.io.tmpdir")
                 if (tmpDir == null) {
-                    context.logger.w(element, DatabaseVerificaitonErrors.CANNOT_GET_TMP_JAVA_DIR)
+                    context.logger.w(Warning.MISSING_JAVA_TMP_DIR,
+                            element, DatabaseVerificaitonErrors.CANNOT_GET_TMP_JAVA_DIR)
                     return null
                 }
                 val outDir = File(tmpDir, "room-${UUID.randomUUID()}")
@@ -53,7 +55,8 @@ class DatabaseVerifier private constructor(
                 val connection = DriverManager.getConnection("jdbc:sqlite::memory:")
                 DatabaseVerifier(connection, context, entities)
             } catch (ex : Exception) {
-                context.logger.w(element, DatabaseVerificaitonErrors.cannotCreateConnection(ex))
+                context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
+                        DatabaseVerificaitonErrors.cannotCreateConnection(ex))
                 null
             }
         }

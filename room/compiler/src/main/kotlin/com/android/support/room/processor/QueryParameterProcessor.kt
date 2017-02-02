@@ -21,8 +21,11 @@ import com.google.auto.common.MoreTypes
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 
-class QueryParameterProcessor(val context: Context) {
-    fun parse(containing: DeclaredType, element: VariableElement): QueryParameter {
+class QueryParameterProcessor(baseContext: Context,
+                              val containing: DeclaredType,
+                              val element: VariableElement) {
+    val context = baseContext.fork(element)
+    fun process(): QueryParameter {
         val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
         val parameterAdapter = context.typeAdapterStore.findQueryParameterAdapter(asMember)
         context.checker.check(parameterAdapter != null, element,

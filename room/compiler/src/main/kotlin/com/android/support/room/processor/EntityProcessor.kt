@@ -21,13 +21,13 @@ import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import javax.lang.model.element.TypeElement
 
-class EntityProcessor(val context: Context) {
-    val pojoProcessor = PojoProcessor(context)
+class EntityProcessor(baseContext: Context, val element: TypeElement) {
+    val context = baseContext.fork(element)
 
-    fun parse(element: TypeElement): Entity {
+    fun process(): Entity {
         context.checker.hasAnnotation(element, com.android.support.room.Entity::class,
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
-        val pojo = pojoProcessor.parse(element)
+        val pojo = PojoProcessor(context, element).process()
         val annotation = MoreElements.getAnnotationMirror(element,
                 com.android.support.room.Entity::class.java).orNull()
         val tableName : String

@@ -17,7 +17,6 @@
 import com.android.support.room.Entity
 import com.android.support.room.Query
 import com.android.support.room.ext.LifecyclesTypeNames
-import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.processor.EntityProcessor
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
@@ -83,7 +82,7 @@ fun loadJavaCode(fileName : String, qName : String) : JavaFileObject {
 
 fun createVerifierFromEntities(invocation: TestInvocation) : DatabaseVerifier {
     val entities = invocation.roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
-        EntityProcessor(invocation.context).parse(MoreElements.asType(it))
+        EntityProcessor(invocation.context, MoreElements.asType(it)).process()
     }
     return DatabaseVerifier.create(invocation.context, Mockito.mock(Element::class.java),
             entities)!!

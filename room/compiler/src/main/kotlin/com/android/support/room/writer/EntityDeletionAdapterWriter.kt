@@ -17,7 +17,6 @@
 package com.android.support.room.writer
 
 import com.android.support.room.ext.L
-import com.android.support.room.ext.N
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.S
 import com.android.support.room.ext.SupportDbTypeNames

@@ -176,7 +176,7 @@ class DatabaseVerifierTest {
 
     private fun database(vararg entities: Entity): Database {
         return Database(
-                element = mock(Element::class.java),
+                element = mock(TypeElement::class.java),
                 type = mock(TypeMirror::class.java),
                 entities = entities.toList(),
                 daoMethods = emptyList())

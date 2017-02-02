@@ -22,12 +22,13 @@ import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 
-class DeletionMethodProcessor(val context: Context) {
-    val entityProcessor = EntityProcessor(context)
+class DeletionMethodProcessor(baseContext: Context,
+                              val containing: DeclaredType,
+                              val executableElement: ExecutableElement) {
+    val context = baseContext.fork(executableElement)
 
-    fun parse(containing: DeclaredType, executableElement: ExecutableElement): DeletionMethod {
-        val delegate = ShortcutMethodProcessor(context, containing, executableElement,
-                entityProcessor)
+    fun process(): DeletionMethod {
+        val delegate = ShortcutMethodProcessor(context, containing, executableElement)
         delegate.extractAnnotation(Delete::class, ProcessorErrors.MISSING_DELETE_ANNOTATION)
 
         val returnTypeName = delegate.extractReturnType().typeName()

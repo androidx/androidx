@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,19 @@
 
 package com.android.support.room.vo
 
-import com.android.support.room.solver.query.parameter.QueryParameterAdapter
-import javax.lang.model.type.TypeMirror
-
 /**
- * Holds the parameter for a {@link QueryMethod}.
+ * Internal representation of supported warnings
  */
-data class QueryParameter(val name: String, val type: TypeMirror,
-                          val queryParamAdapter : QueryParameterAdapter?)
+enum class Warning(val publicKey: String) {
+    ALL("ALL"),
+    CURSOR_MISMATCH("ROOM_CURSOR_MISMATCH"),
+    MISSING_JAVA_TMP_DIR("ROOM_MISSING_JAVA_TMP_DIR"),
+    CANNOT_CREATE_VERIFICATION_DATABASE("ROOM_CANNOT_CREATE_VERIFICATION_DATABASE");
+
+    companion object {
+        val PUBLIC_KEY_MAP = Warning.values().associateBy { it.publicKey }
+        fun fromPublicKey(publicKey: String): Warning? {
+            return PUBLIC_KEY_MAP[publicKey.toUpperCase()]
+        }
+    }
+}

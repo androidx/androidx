@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.TypeKind.BOOLEAN
 import javax.lang.model.type.TypeKind.BYTE
-import javax.lang.model.type.TypeKind.SHORT
+import javax.lang.model.type.TypeKind.CHAR
+import javax.lang.model.type.TypeKind.DOUBLE
+import javax.lang.model.type.TypeKind.FLOAT
 import javax.lang.model.type.TypeKind.INT
 import javax.lang.model.type.TypeKind.LONG
-import javax.lang.model.type.TypeKind.CHAR
-import javax.lang.model.type.TypeKind.FLOAT
-import javax.lang.model.type.TypeKind.DOUBLE
+import javax.lang.model.type.TypeKind.SHORT
+import javax.lang.model.type.TypeMirror
 
 fun TypeMirror.defaultValue() : String {
     return when(this.kind) {

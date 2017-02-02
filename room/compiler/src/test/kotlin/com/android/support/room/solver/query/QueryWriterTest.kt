@@ -18,7 +18,6 @@ package com.android.support.room.solver.query
 
 import com.android.support.room.Dao
 import com.android.support.room.Query
-import com.android.support.room.RoomSQLiteQuery
 import com.android.support.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import com.android.support.room.ext.RoomTypeNames.STRING_UTIL
 import com.android.support.room.processor.QueryMethodProcessor
@@ -298,9 +297,11 @@ class QueryWriterTest {
                                                         }
                                         )
                                     }.filter { it.second.isNotEmpty() }.first()
-                            val parser = QueryMethodProcessor(invocation.context)
-                            val parsedQuery = parser.parse(MoreTypes.asDeclared(owner.asType()),
-                                    MoreElements.asExecutable(methods.first()), emptySet())
+                            val parser = QueryMethodProcessor(
+                                    baseContext = invocation.context,
+                                    containing = MoreTypes.asDeclared(owner.asType()),
+                                    executableElement = MoreElements.asExecutable(methods.first()))
+                            val parsedQuery = parser.process()
                             handler(QueryWriter(parsedQuery))
                             true
                         }

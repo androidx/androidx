@@ -18,7 +18,6 @@ package com.android.support.room.vo
 
 import com.android.support.room.ext.typeName
 import com.squareup.javapoet.ClassName
-import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 

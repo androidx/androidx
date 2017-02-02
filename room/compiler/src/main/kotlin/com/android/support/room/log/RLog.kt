@@ -18,6 +18,7 @@
 
 package com.android.support.room.log
 
+import com.android.support.room.vo.Warning
 import java.util.UnknownFormatConversionException
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
@@ -25,7 +26,8 @@ import javax.tools.Diagnostic.Kind.ERROR
 import javax.tools.Diagnostic.Kind.NOTE
 import javax.tools.Diagnostic.Kind.WARNING
 
-class RLog(val processingEnv: ProcessingEnvironment) {
+class RLog(val processingEnv: ProcessingEnvironment,
+           val suppressedWarnings : Set<Warning>, val defaultElement : Element?) {
     private fun String.safeFormat(vararg args: Any): String {
         try {
             return format(args)
@@ -48,7 +50,22 @@ class RLog(val processingEnv: ProcessingEnvironment) {
         processingEnv.messager.printMessage(ERROR, msg.safeFormat(args), element)
     }
 
-    fun w(element: Element, msg: String, vararg args: Any) {
-        processingEnv.messager.printMessage(WARNING, msg.safeFormat(args), element)
+    fun e(msg: String, vararg args: Any) {
+        processingEnv.messager.printMessage(ERROR, msg.safeFormat(args), defaultElement)
+    }
+
+    fun w(warning: Warning, element: Element? = null, msg: String, vararg args: Any) {
+        if (suppressedWarnings.contains(warning)) {
+            return
+        }
+        processingEnv.messager.printMessage(WARNING, msg.safeFormat(args),
+                element ?: defaultElement)
+    }
+
+    fun w(warning: Warning, msg: String, vararg args: Any) {
+        if (suppressedWarnings.contains(warning)) {
+            return
+        }
+        processingEnv.messager.printMessage(WARNING, msg.safeFormat(args), defaultElement)
     }
 }
