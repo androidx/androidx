@@ -15,9 +15,17 @@
  */
 package android.support.media.instantvideo.preload;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
+
 import android.net.Uri;
+import android.support.media.instantvideo.preload.InstantVideoPreloadManager.VideoPreloader;
+import android.support.media.instantvideo.preload.InstantVideoPreloadManager.VideoPreloaderFactory;
 import android.support.test.filters.SmallTest;
 import android.test.AndroidTestCase;
+
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 /**
  * Tests for IntentVideoPreloadManager.
@@ -28,15 +36,22 @@ public class InstantVideoPreloadManagerTest extends AndroidTestCase {
     private static final Uri PRELOAD_VIDEO_URI_2 = Uri.parse("http://test/test2.mp4");
 
     private InstantVideoPreloadManager mPreloadManager;
+    @Mock private VideoPreloaderFactory mMockVideoPreloaderFactory;
+    @Mock private VideoPreloader mMockVideoPreloader;
 
     @Override
-    public void setUp() {
-        mPreloadManager = new InstantVideoPreloadManager(getContext());
+    public void setUp() throws Exception {
+        super.setUp();
+        MockitoAnnotations.initMocks(this);
+        when(mMockVideoPreloaderFactory.createVideoPreloader(any(Uri.class)))
+                .thenReturn(mMockVideoPreloader);
+        mPreloadManager = new InstantVideoPreloadManager(getContext(), mMockVideoPreloaderFactory);
     }
 
     @Override
-    public void tearDown() {
+    public void tearDown() throws Exception {
         mPreloadManager.clearCache();
+        super.tearDown();
     }
 
     public void testPreload() {

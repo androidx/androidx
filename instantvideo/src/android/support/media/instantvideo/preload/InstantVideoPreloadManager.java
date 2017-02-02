@@ -20,8 +20,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.util.LruCache;
 import android.util.Log;
-import android.util.LruCache;
 
 /**
  * A singleton to present a simple interface for preloading videos.
@@ -42,28 +42,32 @@ public class InstantVideoPreloadManager {
      */
     public static synchronized InstantVideoPreloadManager getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new InstantVideoPreloadManager(context);
+            sInstance =
+                    new InstantVideoPreloadManager(context, new InternalVideoPreloaderFactory());
         }
         return sInstance;
     }
 
-    private final LruCache<Uri, VideoPreloadTask> mVideoCache =
-            new LruCache<Uri, VideoPreloadTask>(DEFAULT_MAX_VIDEO_COUNT) {
+    private final LruCache<Uri, VideoPreloader> mVideoCache =
+            new LruCache<Uri, VideoPreloader>(DEFAULT_MAX_VIDEO_COUNT) {
                 @Override
-                protected void entryRemoved(boolean evicted, Uri key, VideoPreloadTask oldValue,
-                        VideoPreloadTask newValue) {
+                protected void entryRemoved(boolean evicted, Uri key, VideoPreloader oldValue,
+                        VideoPreloader newValue) {
                     if (newValue != null) {
                         onEntryRemovedFromCache(key, oldValue);
                     }
                 }
             };
 
-    private Context mAppContext;
+    private final Context mAppContext;
+    private final VideoPreloaderFactory mVideoPreloaderFactory;
+
     private int mMaxVideoCount = DEFAULT_MAX_VIDEO_COUNT;
 
     @VisibleForTesting
-    InstantVideoPreloadManager(Context context) {
+    InstantVideoPreloadManager(Context context, VideoPreloaderFactory factory) {
         mAppContext = context.getApplicationContext();
+        mVideoPreloaderFactory = factory;
     }
 
     /**
@@ -76,11 +80,11 @@ public class InstantVideoPreloadManager {
             throw new IllegalArgumentException("The video URI shouldn't be null.");
         }
         if (DEBUG) Log.d(TAG, "Preload " + videoUri);
-        VideoPreloadTask task = mVideoCache.get(videoUri);
-        if (task == null) {
-            mVideoCache.put(videoUri, startVideoPreloadTask(videoUri));
+        VideoPreloader preloader = mVideoCache.get(videoUri);
+        if (preloader == null) {
+            mVideoCache.put(videoUri, startVideoPreloading(videoUri));
         } else {
-            mVideoCache.put(videoUri, task);
+            mVideoCache.put(videoUri, preloader);
         }
         if (mVideoCache.size() > mMaxVideoCount) {
             if (DEBUG) {
@@ -95,8 +99,8 @@ public class InstantVideoPreloadManager {
         return mVideoCache.size();
     }
 
-    private void onEntryRemovedFromCache(Uri videoUri, VideoPreloadTask task) {
-        task.cancel(true);
+    private void onEntryRemovedFromCache(Uri videoUri, VideoPreloader preloader) {
+        preloader.stop();
     }
 
     /**
@@ -131,17 +135,46 @@ public class InstantVideoPreloadManager {
         mVideoCache.resize(count);
     }
 
-    private VideoPreloadTask startVideoPreloadTask(Uri videoUri) {
-        VideoPreloadTask task = new VideoPreloadTask(videoUri);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        return task;
+    private VideoPreloader startVideoPreloading(Uri videoUri) {
+        VideoPreloader preloader = mVideoPreloaderFactory.createVideoPreloader(videoUri);
+        preloader.start();
+        return preloader;
     }
 
-    private static class VideoPreloadTask extends AsyncTask<Void, Void, Void> {
+    @VisibleForTesting
+    interface VideoPreloaderFactory {
+        VideoPreloader createVideoPreloader(Uri videoUri);
+    }
+
+    @VisibleForTesting
+    interface VideoPreloader {
+        void start();
+        void stop();
+    }
+
+    private static class InternalVideoPreloaderFactory implements VideoPreloaderFactory {
+        @Override
+        public VideoPreloader createVideoPreloader(Uri videoUri) {
+            return new AsyncTaskVideoPreloader(videoUri);
+        }
+    }
+
+    private static class AsyncTaskVideoPreloader extends AsyncTask<Void, Void, Void>
+            implements VideoPreloader {
         private Uri mVideoUri;
 
-        private VideoPreloadTask(Uri videoUri) {
+        private AsyncTaskVideoPreloader(Uri videoUri) {
             mVideoUri = videoUri;
+        }
+
+        @Override
+        public void start() {
+            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+
+        @Override
+        public void stop() {
+            cancel(true);
         }
 
         @Override
@@ -151,4 +184,3 @@ public class InstantVideoPreloadManager {
         }
     }
 }
-
