@@ -43,8 +43,8 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
-import android.support.test.filters.SmallTest;
 import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
 import android.view.LayoutInflater;
@@ -98,7 +98,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBasicContent() {
         Builder popupBuilder = new Builder();
         popupBuilder.wireToActionButton();
@@ -126,7 +126,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testAnchoring() {
         Builder popupBuilder = new Builder();
         popupBuilder.wireToActionButton();
@@ -151,7 +151,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDismissalViaAPI() throws Throwable {
         Builder popupBuilder = new Builder().withDismissListener();
         popupBuilder.wireToActionButton();
@@ -238,19 +238,19 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDismissalOutsideNonModal() throws Throwable {
         testDismissalViaTouch(false);
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDismissalOutsideModal() throws Throwable {
         testDismissalViaTouch(true);
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testItemClickViaEvent() {
         Builder popupBuilder = new Builder().withItemClickListener();
         popupBuilder.wireToActionButton();
@@ -277,7 +277,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testItemClickViaAPI() throws Throwable {
         Builder popupBuilder = new Builder().withItemClickListener();
         popupBuilder.wireToActionButton();

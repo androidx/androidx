@@ -61,8 +61,8 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.support.coreui.test.R;
 import android.support.test.espresso.ViewAction;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
-import android.support.test.filters.SmallTest;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.testutils.TestUtilsMatchers;
 import android.text.TextUtils;
@@ -282,13 +282,13 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testPageSelectionsImmediate() {
         verifyPageSelections(false);
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testPageSelectionsSmooth() {
         verifyPageSelections(true);
     }
@@ -355,7 +355,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testPageSwipes() {
         verifyPageChangeViewActions(wrap(swipeLeft()), wrap(swipeRight()));
     }
@@ -367,7 +367,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testPageSwipesComposite() {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
 
@@ -425,13 +425,13 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testPageContentImmediate() {
         verifyPageContent(false);
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testPageContentSmooth() {
         verifyPageContent(true);
     }
@@ -504,13 +504,13 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testAdapterChangeImmediate() {
         verifyAdapterChange(false);
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testAdapterChangeSmooth() {
         verifyAdapterChange(true);
     }
@@ -603,13 +603,13 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testPagerStripImmediate() {
         verifyPagerStrip(false);
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testPagerStripSmooth() {
         verifyPagerStrip(true);
     }
@@ -660,7 +660,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testPageScrollStateChangedImmediate() {
         // Note that all the actions tested in this method are immediate (no scrolling) and
         // as such we test that we do not get any calls to onPageScrollStateChanged in any of them
@@ -984,7 +984,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testPageScrollPositionChangesImmediate() {
         // Scroll one page to the right
         verifyScrollCallbacksToHigherPage(scrollRight(false), 1);

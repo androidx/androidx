@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
@@ -72,7 +73,7 @@ public class FragmentTest {
         assertEquals(1, fragment2.createOrder);
     }
 
-    @SmallTest
+    @LargeTest
     @Test
     public void testChildFragmentManagerGone() throws Throwable {
         final FragmentA fragmentA = new FragmentA();

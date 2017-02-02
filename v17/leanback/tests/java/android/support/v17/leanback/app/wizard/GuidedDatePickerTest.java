@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.app.GuidedStepFragment;
@@ -45,7 +45,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class GuidedDatePickerTest {
 

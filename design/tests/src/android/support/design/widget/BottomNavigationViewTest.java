@@ -47,6 +47,7 @@ import android.support.design.test.R;
 import android.support.design.testutils.TestDrawable;
 import android.support.design.testutils.TestUtilsMatchers;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.v4.content.res.ResourcesCompat;
@@ -116,7 +117,7 @@ public class BottomNavigationViewTest
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testNavigationSelectionListener() {
         BottomNavigationView.OnNavigationItemSelectedListener mockedListener =
                 mock(BottomNavigationView.OnNavigationItemSelectedListener.class);

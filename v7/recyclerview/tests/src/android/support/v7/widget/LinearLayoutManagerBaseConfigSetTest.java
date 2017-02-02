@@ -29,7 +29,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import android.graphics.Rect;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
@@ -46,7 +46,7 @@ import java.util.Map;
  * Tests that rely on the basic configuration and does not do any additions / removals
  */
 @RunWith(Parameterized.class)
-@MediumTest
+@LargeTest
 public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManagerTest {
 
     private final Config mConfig;

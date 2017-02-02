@@ -17,7 +17,7 @@ package android.support.v17.leanback.app;
 
 import static org.junit.Assert.assertEquals;
 
-import android.support.test.filters.SmallTest;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v17.leanback.widget.DetailsParallax;
 import android.support.v17.leanback.widget.RecyclerViewParallax;
@@ -32,7 +32,7 @@ import org.junit.runners.JUnit4;
  * Unit tests for {@link DetailsParallax}.
  */
 @RunWith(JUnit4.class)
-@SmallTest
+@MediumTest
 public class DetailsParallaxTest {
 
     @Rule

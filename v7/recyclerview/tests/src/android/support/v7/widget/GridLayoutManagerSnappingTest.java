@@ -22,7 +22,7 @@ import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
 
 import android.support.annotation.Nullable;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.view.View;
 import android.widget.TextView;
 
@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@LargeTest
 @RunWith(Parameterized.class)
 public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
 
@@ -57,7 +58,6 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         return result;
     }
 
-    @MediumTest
     @Test
     public void snapOnScrollSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -80,7 +80,6 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         assertCenterAligned(viewAfterFling);
     }
 
-    @MediumTest
     @Test
     public void snapOnScrollNextItem() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -104,7 +103,6 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         assertCenterAligned(viewAfterScroll);
     }
 
-    @MediumTest
     @Test
     public void snapOnFlingSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -131,8 +129,6 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         assertCenterAligned(viewAfterFling);
     }
 
-
-    @MediumTest
     @Test
     public void snapOnFlingNextView() throws Throwable {
         final Config config = (Config) mConfig.clone();

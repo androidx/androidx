@@ -20,13 +20,13 @@ import static org.junit.Assert.assertEquals;
 
 import android.support.design.test.R;
 import android.support.design.testutils.SnackbarUtils;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.view.View;
 
 import org.junit.Before;
 import org.junit.Test;
 
-@MediumTest
+@LargeTest
 public class SnackbarTestWithFAB extends BaseInstrumentationTestCase<SnackbarActivityWithFAB> {
 
     private static final String MESSAGE_TEXT = "Test Message";

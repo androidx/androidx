@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 
 import android.support.coreui.test.R;
 import android.support.test.espresso.action.ViewActions;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -141,7 +142,7 @@ public class SwipeRefreshLayoutTest
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testSwipeDownToRefreshInitiallyDisabled() throws Throwable {
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override

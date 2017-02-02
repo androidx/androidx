@@ -40,8 +40,8 @@ import android.support.design.test.R;
 import android.support.design.testutils.SnackbarUtils;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.ViewInteraction;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
-import android.support.test.filters.SmallTest;
 import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 
@@ -114,7 +114,7 @@ public class CustomSnackbarTest extends BaseInstrumentationTestCase<SnackbarActi
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testBasicContent() throws Throwable {
         // Verify different combinations of snackbar content (title / subtitle and action)
         // and duration

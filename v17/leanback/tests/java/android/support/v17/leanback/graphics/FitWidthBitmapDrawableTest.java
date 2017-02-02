@@ -25,6 +25,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -37,7 +38,6 @@ import org.mockito.Mockito;
  * Unit test for {@link FitWidthBitmapDrawable}
  */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
 public class FitWidthBitmapDrawableTest {
     private final static int SCREEN_WIDTH = 1600;
     private final static int SCREEN_HEIGHT = 1080;
@@ -45,6 +45,7 @@ public class FitWidthBitmapDrawableTest {
     private final static int HEIGHT = 600;
     private Bitmap bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
 
+    @MediumTest
     @Test
     public void draw_withOffset() {
         int offset = 600;
@@ -66,6 +67,7 @@ public class FitWidthBitmapDrawableTest {
         verify(canvas).drawBitmap(eq(bitmap), eq(bitmapBounds), eq(expectedDest), any(Paint.class));
     }
 
+    @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     public void constantState() {

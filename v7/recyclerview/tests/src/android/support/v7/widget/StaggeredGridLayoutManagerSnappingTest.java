@@ -22,7 +22,7 @@ import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
 
 import android.support.annotation.Nullable;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.view.View;
 
 import org.junit.Test;
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@MediumTest
+@LargeTest
 @RunWith(Parameterized.class)
 public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLayoutManagerTest {
 

@@ -22,7 +22,7 @@ import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
 
 import android.support.annotation.Nullable;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.view.View;
 
 import org.junit.Test;
@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@LargeTest
 @RunWith(Parameterized.class)
 public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest {
 
@@ -56,7 +57,6 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         return result;
     }
 
-    @MediumTest
     @Test
     public void snapOnScrollSameViewEdge() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -82,7 +82,6 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         mLayoutManager.assertNoCallbacks("There should be no callbacks after some time", 3);
     }
 
-    @MediumTest
     @Test
     public void snapOnScrollSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -105,7 +104,6 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         assertCenterAligned(viewAfterFling);
     }
 
-    @MediumTest
     @Test
     public void snapOnScrollNextView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -128,7 +126,6 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         assertCenterAligned(viewAfterFling);
     }
 
-    @MediumTest
     @Test
     public void snapOnFlingSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -154,7 +151,6 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         assertCenterAligned(viewAfterFling);
     }
 
-    @MediumTest
     @Test
     public void snapOnFlingNextView() throws Throwable {
         final Config config = (Config) mConfig.clone();

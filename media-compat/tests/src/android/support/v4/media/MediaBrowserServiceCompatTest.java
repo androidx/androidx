@@ -24,6 +24,7 @@ import static junit.framework.Assert.assertTrue;
 
 import android.content.ComponentName;
 import android.os.Bundle;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -122,7 +123,7 @@ public class MediaBrowserServiceCompatTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDelayedNotifyChildrenChanged() throws Exception {
         synchronized (mWaitLock) {
             mSubscriptionCallback.reset();
@@ -148,7 +149,7 @@ public class MediaBrowserServiceCompatTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDelayedItem() throws Exception {
         synchronized (mWaitLock) {
             mItemCallback.reset();

@@ -30,7 +30,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.AccessibilityDelegateCompat;
@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 

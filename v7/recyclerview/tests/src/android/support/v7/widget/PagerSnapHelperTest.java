@@ -22,7 +22,7 @@ import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
 
 import android.support.annotation.Nullable;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@LargeTest
 @RunWith(Parameterized.class)
 public class PagerSnapHelperTest extends BaseLinearLayoutManagerTest {
 
@@ -58,7 +59,6 @@ public class PagerSnapHelperTest extends BaseLinearLayoutManagerTest {
         return result;
     }
 
-    @MediumTest
     @Test
     public void snapOnScrollSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -85,7 +85,6 @@ public class PagerSnapHelperTest extends BaseLinearLayoutManagerTest {
         assertCenterAligned(viewAfterFling);
     }
 
-    @MediumTest
     @Test
     public void snapOnScrollNextView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -116,7 +115,6 @@ public class PagerSnapHelperTest extends BaseLinearLayoutManagerTest {
         assertCenterAligned(viewAfterFling);
     }
 
-    @MediumTest
     @Test
     public void snapOnFlingSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -154,7 +152,6 @@ public class PagerSnapHelperTest extends BaseLinearLayoutManagerTest {
         assertCenterAligned(viewAfterFling);
     }
 
-    @MediumTest
     @Test
     public void snapOnFlingNextView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -167,7 +164,6 @@ public class PagerSnapHelperTest extends BaseLinearLayoutManagerTest {
         runSnapOnMaxFlingNextView((int) (0.2 * mRecyclerView.getMaxFlingVelocity()));
     }
 
-    @MediumTest
     @Test
     public void snapOnMaxFlingNextView() throws Throwable {
         final Config config = (Config) mConfig.clone();
