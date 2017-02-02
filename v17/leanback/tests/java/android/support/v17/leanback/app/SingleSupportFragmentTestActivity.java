@@ -15,18 +15,18 @@
  */
 package android.support.v17.leanback.app;
 
-import android.app.Activity;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.test.R;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 
-public class RowsFragmentTestActivity extends Activity {
+public class SingleSupportFragmentTestActivity extends android.support.v4.app.FragmentActivity {
 
-    public static final String EXTRA_NUM_ROWS = "numRows";
-    public static final String EXTRA_REPEAT_PER_ROW = "repeatPerRow";
-    public static final String EXTRA_LOAD_DATA_DELAY = "loadDataDelay";
-    public final static String EXTRA_SET_ADAPTER_AFTER_DATA_LOAD = "set_adapter_after_data_load";
+    /**
+     * Fragment that will be added to activity
+     */
+    public static final String EXTRA_FRAGMENT_NAME = "fragmentName";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,19 +35,20 @@ public class RowsFragmentTestActivity extends Activity {
 
         setContentView(R.layout.rows);
         if (savedInstanceState == null) {
-            RowsTestFragment fragment = new RowsTestFragment();
-            Bundle arguments = new Bundle();
-            if (intent.getExtras() != null) {
-                arguments.putAll(intent.getExtras());
+            try {
+                Fragment fragment = (Fragment) Class.forName(
+                        intent.getStringExtra(EXTRA_FRAGMENT_NAME)).newInstance();
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.main_frame, fragment);
+                ft.commit();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                finish();
             }
-            fragment.setArguments(arguments);
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.main_frame, fragment);
-            ft.commit();
         }
     }
 
-    public RowsTestFragment getRowsTestFragment() {
-        return (RowsTestFragment) getFragmentManager().findFragmentById(R.id.main_frame);
+    public Fragment getTestFragment() {
+        return getSupportFragmentManager().findFragmentById(R.id.main_frame);
     }
 }

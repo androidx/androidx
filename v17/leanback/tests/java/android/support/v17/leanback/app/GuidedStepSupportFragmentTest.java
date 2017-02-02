@@ -28,7 +28,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.os.Bundle;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v17.leanback.widget.GuidedAction;
@@ -47,10 +47,7 @@ import org.mockito.stubbing.Answer;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @hide from javadoc
- */
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class GuidedStepSupportFragmentTest extends GuidedStepSupportFragmentTestBase {
 
