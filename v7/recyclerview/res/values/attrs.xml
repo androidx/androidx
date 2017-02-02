@@ -37,5 +37,10 @@
         <attr name="spanCount" format="integer"/>
         <attr name="reverseLayout" format="boolean" />
         <attr name="stackFromEnd" format="boolean" />
+        <attr name="fastScrollEnabled" format="boolean" />
+        <attr name="fastScrollVerticalThumbDrawable" format="reference" />
+        <attr name="fastScrollVerticalTrackDrawable" format="reference" />
+        <attr name="fastScrollHorizontalThumbDrawable" format="reference" />
+        <attr name="fastScrollHorizontalTrackDrawable" format="reference" />
     </declare-styleable>
 </resources>

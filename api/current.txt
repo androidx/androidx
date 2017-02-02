@@ -10733,6 +10733,7 @@ package android.support.v7.widget {
     method public android.support.v7.widget.RecyclerViewAccessibilityDelegate getCompatAccessibilityDelegate();
     method public void getDecoratedBoundsWithMargins(android.view.View, android.graphics.Rect);
     method public android.support.v7.widget.RecyclerView.ItemAnimator getItemAnimator();
+    method public android.support.v7.widget.RecyclerView.ItemDecoration getItemDecorationAt(int);
     method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
     method public int getMaxFlingVelocity();
     method public int getMinFlingVelocity();

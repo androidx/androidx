@@ -20,6 +20,7 @@ package android.support.v7.widget;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.Observable;
 import android.graphics.Canvas;
@@ -27,6 +28,8 @@ import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -354,6 +357,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private OnItemTouchListener mActiveOnItemTouchListener;
     boolean mIsAttached;
     boolean mHasFixedSize;
+    boolean mEnableFastScroller;
     @VisibleForTesting boolean mFirstLayoutComplete;
 
     // Counting lock to control whether we should ignore requestLayout calls from children or not.
@@ -591,6 +595,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     R.styleable.RecyclerView_android_descendantFocusability, -1);
             if (descendantFocusability == -1) {
                 setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+            }
+            mEnableFastScroller = a.getBoolean(R.styleable.RecyclerView_fastScrollEnabled, false);
+            if (mEnableFastScroller) {
+                StateListDrawable verticalThumbDrawable = (StateListDrawable) a
+                        .getDrawable(R.styleable.RecyclerView_fastScrollVerticalThumbDrawable);
+                Drawable verticalTrackDrawable = a
+                        .getDrawable(R.styleable.RecyclerView_fastScrollVerticalTrackDrawable);
+                StateListDrawable horizontalThumbDrawable = (StateListDrawable) a
+                        .getDrawable(R.styleable.RecyclerView_fastScrollHorizontalThumbDrawable);
+                Drawable horizontalTrackDrawable = a
+                        .getDrawable(R.styleable.RecyclerView_fastScrollHorizontalTrackDrawable);
+                initFastScroller(verticalThumbDrawable, verticalTrackDrawable,
+                        horizontalThumbDrawable, horizontalTrackDrawable);
             }
             a.recycle();
             createLayoutManager(context, layoutManagerName, attrs, defStyle, defStyleRes);
@@ -1430,6 +1447,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     public void addItemDecoration(ItemDecoration decor) {
         addItemDecoration(decor, -1);
+    }
+
+    /**
+     * Returns an {@link ItemDecoration} previously added to this RecyclerView.
+     *
+     * @param index The index position of the desired ItemDecoration.
+     * @return the ItemDecoration at index position, or null if invalid index.
+     */
+    public ItemDecoration getItemDecorationAt(int index) {
+        if (index < 0 || index > mItemDecorations.size()) {
+            return null;
+        }
+
+        return mItemDecorations.get(index);
     }
 
     /**
@@ -10475,6 +10506,24 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return RecyclerView.NO_POSITION;
         }
         return mAdapterHelper.applyPendingUpdatesToPosition(viewHolder.mPosition);
+    }
+
+    @VisibleForTesting
+    void initFastScroller(StateListDrawable verticalThumbDrawable,
+            Drawable verticalTrackDrawable, StateListDrawable horizontalThumbDrawable,
+            Drawable horizontalTrackDrawable) {
+        if (verticalThumbDrawable == null || verticalTrackDrawable == null
+                || horizontalThumbDrawable == null || horizontalTrackDrawable == null) {
+            throw new IllegalArgumentException(
+                "Trying to set fast scroller without both required drawables.");
+        }
+
+        Resources resources = getContext().getResources();
+        new FastScroller(this, verticalThumbDrawable, verticalTrackDrawable,
+                horizontalThumbDrawable, horizontalTrackDrawable,
+                resources.getDimensionPixelSize(R.dimen.fastscroll_default_thickness),
+                resources.getDimensionPixelSize(R.dimen.fastscroll_minimum_range),
+                resources.getDimensionPixelOffset(R.dimen.fastscroll_margin));
     }
 
     // NestedScrollingChild

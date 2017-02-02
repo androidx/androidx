@@ -19,4 +19,9 @@
     <public type="attr" name="spanCount" format="integer"/>
     <public type="attr" name="reverseLayout"/>
     <public type="attr" name="stackFromEnd"/>
+    <public type="attr" name="fastScrollEnabled" format="boolean" />
+    <public type="attr" name="fastScrollVerticalThumbDrawable" format="reference" />
+    <public type="attr" name="fastScrollVerticalTrackDrawable" format="reference" />
+    <public type="attr" name="fastScrollHorizontalThumbDrawable" format="reference" />
+    <public type="attr" name="fastScrollHorizontalTrackDrawable" format="reference" />
 </resources>
