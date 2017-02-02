@@ -29,7 +29,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.android.sample.githubbrowser.model.AuthTokenModel;
-import com.android.sample.githubbrowser.model.RepositoryListModel;
+import com.android.sample.githubbrowser.model.RepositorySearchModel;
 import com.android.sample.githubbrowser.network.GithubNetworkManager;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
@@ -39,7 +39,6 @@ import com.android.support.lifecycle.ViewModelStore;
  */
 public class MainActivity extends BaseActivity {
     private static final String AUTH_TOKEN_KEY = "auth_token";
-    private AuthTokenLifecycle mAuthTokenLifecycle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +66,7 @@ public class MainActivity extends BaseActivity {
                     sharedPreferences.getString(AUTH_TOKEN_KEY, ""));
         }
 
-        mAuthTokenLifecycle = new AuthTokenLifecycle() {
+        authTokenModel.setAuthTokenLifecycle(new AuthTokenLifecycle() {
             @Override
             public boolean doWeNeedAuthToken() {
                 return TextUtils.isEmpty(authTokenModel.getAuthTokenData().getValue());
@@ -89,13 +88,11 @@ public class MainActivity extends BaseActivity {
                 GetAuthTokenFragment getAuthTokenFragment = new GetAuthTokenFragment();
                 getAuthTokenFragment.show(fragmentManager, "get_auth_token");
             }
-        };
+        });
 
-        final RepositoryListModel mainModel = ViewModelStore.get(this, "mainRepoModel",
-                RepositoryListModel.class);
-        if (!mainModel.hasSearchTerm()) {
-            mainModel.setSearchTerm(this, "google", mAuthTokenLifecycle);
-        }
+        final RepositorySearchModel mainSearchModel = ViewModelStore.get(this, "mainSearchModel",
+                RepositorySearchModel.class);
+        mainSearchModel.setQuery("google", true);
 
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
@@ -140,7 +137,7 @@ public class MainActivity extends BaseActivity {
                     }
 
                     // Perform search action on key press
-                    mainModel.setSearchTerm(v.getContext(), query, mAuthTokenLifecycle);
+                    mainSearchModel.setQuery(query, false);
                     return true;
                 }
                 return false;

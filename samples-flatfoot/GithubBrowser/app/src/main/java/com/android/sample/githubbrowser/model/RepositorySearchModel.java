@@ -15,31 +15,33 @@
  */
 package com.android.sample.githubbrowser.model;
 
-import com.android.sample.githubbrowser.AuthTokenLifecycle;
+import android.text.TextUtils;
+
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.ViewModel;
 
 /**
- * Model for the auth token.
+ * Model for the top-level search.
  */
-public class AuthTokenModel implements ViewModel {
-    private LiveData<String> mAuthToken = new LiveData<>();
-    private AuthTokenLifecycle mAuthTokenLifecycle;
+public class RepositorySearchModel implements ViewModel {
+    private LiveData<String> mSearchQuery = new LiveData<>();
 
-    /** Sets the auth token lifecycle callback. */
-    public void setAuthTokenLifecycle(AuthTokenLifecycle authTokenLifecycle) {
-        mAuthTokenLifecycle = authTokenLifecycle;
-    }
+    /**
+     * Sets new search query. The second parameter should be used to specify whether
+     * the currently set query should be overwritten.
+     */
+    public void setQuery(String query, boolean ignoreIfAlreadySet) {
+        if (ignoreIfAlreadySet && !TextUtils.isEmpty(mSearchQuery.getValue())) {
+            return;
+        }
 
-    /** Returns the current auth token lifecycle callback. */
-    public AuthTokenLifecycle getAuthTokenLifecycle() {
-        return mAuthTokenLifecycle;
+        mSearchQuery.setValue(query);
     }
 
     /**
-     * Returns the {@LiveData} object that wraps the auth token.
+     * Returns the {@LiveData} object that wraps the top-level search query.
      */
-    public LiveData<String> getAuthTokenData() {
-        return mAuthToken;
+    public LiveData<String> getSearchQueryData() {
+        return mSearchQuery;
     }
 }

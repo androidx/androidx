@@ -54,19 +54,19 @@ public class RepositoryListAdapter extends RecyclerView.Adapter<RepositoryBindin
     }
 
     private LifecycleFragment mFragment;
-    private RepositoryListModel mSearchModel;
+    private RepositoryListModel mListModel;
     private List<RepositoryData> mCurrList;
 
     /**
      * Creates an adapter.
      */
-    public RepositoryListAdapter(LifecycleFragment fragment, RepositoryListModel searchModel) {
+    public RepositoryListAdapter(LifecycleFragment fragment, RepositoryListModel listModel) {
         mFragment = fragment;
-        mSearchModel = searchModel;
+        mListModel = listModel;
 
         // Register an observer on the LiveData that wraps the list of repositories
         // to calculate the content diff and update ourselves.
-        mSearchModel.getRepositoryListLiveData().observe(fragment,
+        mListModel.getRepositoryListLiveData().observe(mFragment,
                 new Observer<List<RepositoryData>>() {
                     @Override
                     public void onChanged(@Nullable final List<RepositoryData> repositoryDataList) {
@@ -112,7 +112,7 @@ public class RepositoryListAdapter extends RecyclerView.Adapter<RepositoryBindin
     @Override
     public void onBindViewHolder(RepositoryBindingHolder holder, final int position) {
         List<RepositoryData> repositoryDataList =
-                mSearchModel.getRepositoryListLiveData().getValue();
+                mListModel.getRepositoryListLiveData().getValue();
         final RepositoryData data = repositoryDataList.get(position);
 
         // Use data binding for wiring the data and the click handler
@@ -127,13 +127,13 @@ public class RepositoryListAdapter extends RecyclerView.Adapter<RepositoryBindin
             return;
         }
 
-        mSearchModel.fetchAtIndexIfNecessary(repositoryDataList.size());
+        mListModel.fetchAtIndexIfNecessary(repositoryDataList.size());
     }
 
     @Override
     public int getItemCount() {
         List<RepositoryData> repositoryDataList =
-                mSearchModel.getRepositoryListLiveData().getValue();
+                mListModel.getRepositoryListLiveData().getValue();
         return (repositoryDataList == null) ? 0 : repositoryDataList.size();
     }
 }
