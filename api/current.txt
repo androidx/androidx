@@ -6597,6 +6597,7 @@ package android.support.v4.media.session {
     method public long getActiveQueueItemId();
     method public long getBufferedPosition();
     method public java.util.List<android.support.v4.media.session.PlaybackStateCompat.CustomAction> getCustomActions();
+    method public int getErrorCode();
     method public java.lang.CharSequence getErrorMessage();
     method public android.os.Bundle getExtras();
     method public long getLastPositionUpdateTime();
@@ -6627,6 +6628,18 @@ package android.support.v4.media.session {
     field public static final long ACTION_SKIP_TO_QUEUE_ITEM = 4096L; // 0x1000L
     field public static final long ACTION_STOP = 1L; // 0x1L
     field public static final android.os.Parcelable.Creator<android.support.v4.media.session.PlaybackStateCompat> CREATOR;
+    field public static final int ERROR_CODE_ACTION_ABORTED = 10; // 0xa
+    field public static final int ERROR_CODE_APP_ERROR = 1; // 0x1
+    field public static final int ERROR_CODE_AUTHENTICATION_EXPIRED = 3; // 0x3
+    field public static final int ERROR_CODE_CONCURRENT_STREAM_LIMIT = 5; // 0x5
+    field public static final int ERROR_CODE_CONTENT_ALREADY_PLAYING = 8; // 0x8
+    field public static final int ERROR_CODE_END_OF_QUEUE = 11; // 0xb
+    field public static final int ERROR_CODE_NOT_AVAILABLE_IN_REGION = 7; // 0x7
+    field public static final int ERROR_CODE_NOT_SUPPORTED = 2; // 0x2
+    field public static final int ERROR_CODE_PARENTAL_CONTROL_RESTRICTED = 6; // 0x6
+    field public static final int ERROR_CODE_PREMIUM_ACCOUNT_REQUIRED = 4; // 0x4
+    field public static final int ERROR_CODE_SKIP_LIMIT_REACHED = 9; // 0x9
+    field public static final int ERROR_CODE_UNKNOWN_ERROR = 0; // 0x0
     field public static final long PLAYBACK_POSITION_UNKNOWN = -1L; // 0xffffffffffffffffL
     field public static final int REPEAT_MODE_ALL = 2; // 0x2
     field public static final int REPEAT_MODE_NONE = 0; // 0x0
@@ -6654,7 +6667,8 @@ package android.support.v4.media.session {
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setActions(long);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setActiveQueueItemId(long);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setBufferedPosition(long);
-    method public android.support.v4.media.session.PlaybackStateCompat.Builder setErrorMessage(java.lang.CharSequence);
+    method public deprecated android.support.v4.media.session.PlaybackStateCompat.Builder setErrorMessage(java.lang.CharSequence);
+    method public android.support.v4.media.session.PlaybackStateCompat.Builder setErrorMessage(int, java.lang.CharSequence);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setExtras(android.os.Bundle);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setState(int, long, float);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setState(int, long, float, long);
