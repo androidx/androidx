@@ -30,12 +30,7 @@ import javax.lang.model.type.TypeMirror
  */
 class NoOpConverter(type : TypeMirror) : TypeConverter(
         type, type) {
-    override fun convertForward(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder()
-                .addStatement("$L = $L", outputVarName, inputVarName)
-    }
-
-    override fun convertBackward(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
+    override fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder()
                 .addStatement("$L = $L", outputVarName, inputVarName)
     }

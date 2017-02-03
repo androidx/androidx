@@ -24,50 +24,66 @@ import com.android.support.room.solver.CodeGenScope
 import javax.lang.model.type.TypeMirror
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-open class BoxedPrimitiveToStringConverter(val boxed: TypeMirror,
-                                           val parseMethod: String,
-                                           stringType: TypeMirror)
-        : TypeConverter(boxed, stringType) {
-    companion object {
-        fun createBoxedPrimitives(context : Context): List<TypeConverter> {
-            val elmUtils = context.processingEnv.elementUtils
-            val stringType = context.COMMON_TYPES.STRING
-            return listOf(
-                    Pair(java.lang.Integer::class, "parseInt"),
-                    Pair(java.lang.Long::class, "parseLong"),
-                    Pair(java.lang.Short::class, "parseShort"),
-                    Pair(java.lang.Byte::class, "parseByte"),
-                    Pair(java.lang.Float::class, "parseFloat"),
-                    Pair(java.lang.Double::class, "parseDouble")
-            ).map {
-                BoxedPrimitiveToStringConverter(
-                        boxed = elmUtils.getTypeElement(it.first.java.canonicalName).asType(),
-                        parseMethod = it.second,
-                        stringType = stringType
-                )
-            } + object : BoxedPrimitiveToStringConverter(
-                    boxed = elmUtils.getTypeElement("java.lang.Character").asType(),
-                    parseMethod = "",
+object BoxedPrimitiveToStringConverter {
+    fun createBoxedPrimitives(context : Context): List<TypeConverter> {
+        val elmUtils = context.processingEnv.elementUtils
+        val stringType = context.COMMON_TYPES.STRING
+        return listOf(
+                Pair(java.lang.Integer::class, "parseInt"),
+                Pair(java.lang.Long::class, "parseLong"),
+                Pair(java.lang.Short::class, "parseShort"),
+                Pair(java.lang.Byte::class, "parseByte"),
+                Pair(java.lang.Float::class, "parseFloat"),
+                Pair(java.lang.Double::class, "parseDouble")
+        ).flatMap {
+            create(
+                    boxed = elmUtils.getTypeElement(it.first.java.canonicalName).asType(),
+                    parseMethod = it.second,
                     stringType = stringType
-            ) {
-                override fun convertBackward(inputVarName: String, outputVarName: String,
-                                             scope: CodeGenScope) {
-                    scope.builder().addStatement("$L = $L == null ? null : $L.charAt(0)",
-                            outputVarName, inputVarName, inputVarName)
+            )
+        } + createChar(
+                boxedChar = elmUtils.getTypeElement("java.lang.Character").asType(),
+                stringType = stringType)
+    }
+
+    private fun create(boxed: TypeMirror, parseMethod: String, stringType: TypeMirror)
+            : List<TypeConverter> {
+        return listOf(
+                object : TypeConverter(boxed, stringType) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $L == null ? null : $T.toString($L)",
+                                outputVarName, inputVarName, boxed.typeName(), inputVarName)
+                    }
+                },
+                object : TypeConverter(stringType, boxed) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $L == null ? null : $T.$L($L)",
+                                outputVarName, inputVarName, boxed.typeName(), parseMethod,
+                                inputVarName)
+                    }
                 }
-            }
-        }
+        )
     }
 
-    override fun convertForward(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder()
-                .addStatement("$L = $L == null ? null : $T.toString($L)", outputVarName,
-                        inputVarName, boxed.typeName(), inputVarName)
-    }
-
-    override fun convertBackward(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder()
-                .addStatement("$L = $L == null ? null : $T.$L($L)", outputVarName, inputVarName,
-                        boxed.typeName(), parseMethod, inputVarName)
+    private fun createChar(boxedChar: TypeMirror, stringType: TypeMirror)
+            : List<TypeConverter> {
+        return listOf(
+                object : TypeConverter(boxedChar, stringType) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $L == null ? null : $T.toString($L)",
+                                outputVarName, inputVarName, boxedChar.typeName(), inputVarName)
+                    }
+                },
+                object : TypeConverter(stringType, boxedChar) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $L == null ? null : $L.charAt(0)",
+                                outputVarName, inputVarName, inputVarName)
+                    }
+                }
+        )
     }
 }

@@ -23,18 +23,28 @@ import javax.annotation.processing.ProcessingEnvironment
 /**
  * int to boolean adapter.
  */
-class BoxedBooleanToBoxedIntConverter(processingEnvironment: ProcessingEnvironment) : TypeConverter(
-        from = processingEnvironment.elementUtils.getTypeElement("java.lang.Boolean").asType(),
-        to = processingEnvironment.elementUtils.getTypeElement("java.lang.Integer").asType()) {
-    override fun convertForward(inputVarName: String, outputVarName: String,
-                                scope: CodeGenScope) {
-        scope.builder().addStatement("$L = $L == null ? null : ($L ? 1 : 0)",
-                outputVarName, inputVarName, inputVarName)
-    }
+object BoxedBooleanToBoxedIntConverter {
+    fun create(processingEnvironment: ProcessingEnvironment): List<TypeConverter> {
+        val tBoolean = processingEnvironment.elementUtils.getTypeElement("java.lang.Boolean")
+                .asType()
+        val tInt = processingEnvironment.elementUtils.getTypeElement("java.lang.Integer")
+                .asType()
+        return listOf(
+                object : TypeConverter(tBoolean, tInt) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $L == null ? null : ($L ? 1 : 0)",
+                                outputVarName, inputVarName, inputVarName)
+                    }
+                },
+                object : TypeConverter(tInt, tBoolean) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $L == null ? null : $L != 0",
+                                outputVarName, inputVarName, inputVarName)
+                    }
 
-    override fun convertBackward(inputVarName: String, outputVarName: String,
-                                 scope: CodeGenScope) {
-        scope.builder().addStatement("$L = $L == null ? null : $L != 0", outputVarName,
-                inputVarName, inputVarName)
+                }
+        )
     }
 }

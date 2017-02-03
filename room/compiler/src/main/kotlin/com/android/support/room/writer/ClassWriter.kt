@@ -61,13 +61,13 @@ abstract class ClassWriter(val className: ClassName) {
         }
     }
 
-    fun addSharedField(sharedField: SharedFieldSpec): FieldSpec {
+    fun getOrCreateField(sharedField: SharedFieldSpec): FieldSpec {
         return sharedFieldSpecs.getOrPut(sharedField.getUniqueKey(), {
             sharedField.build(makeUnique(sharedFieldNames, sharedField.baseName))
         })
     }
 
-    fun addSharedMethod(sharedMethod: SharedMethodSpec): MethodSpec {
+    fun getOrCreateMethod(sharedMethod: SharedMethodSpec): MethodSpec {
         return sharedMethodSpecs.getOrPut(sharedMethod.getUniqueKey(), {
             sharedMethod.build(makeUnique(sharedMethodNames, sharedMethod.baseName))
         })

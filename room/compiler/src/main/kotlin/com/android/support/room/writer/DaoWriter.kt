@@ -109,7 +109,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
     private fun createPreparedDeleteOrUpdateQueries(preparedDeleteQueries: List<QueryMethod>)
             : List<PreparedStmtQuery> {
         return preparedDeleteQueries.map { method ->
-            val fieldSpec = addSharedField(PreparedStatementField(method))
+            val fieldSpec = getOrCreateField(PreparedStatementField(method))
             val queryWriter = QueryWriter(method)
             val fieldImpl = PreparedStatementWriter(queryWriter)
                     .createAnonymous(this@DaoWriter, dbField)
@@ -194,7 +194,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
                     if (entity == null) {
                         null
                     } else {
-                        val fieldSpec = addSharedField(
+                        val fieldSpec = getOrCreateField(
                                 InsertionMethodField(entity, onConflict))
                         val implSpec = EntityInsertionAdapterWriter(entity, onConflict)
                                 .createAnonymous(this@DaoWriter, dbField.name)
@@ -244,7 +244,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
                     if (entity == null) {
                         null
                     } else {
-                        val fieldSpec = addSharedField(DeleteOrUpdateAdapterField(entity))
+                        val fieldSpec = getOrCreateField(DeleteOrUpdateAdapterField(entity))
                         val implSpec = EntityDeletionAdapterWriter(entity)
                                 .createAnonymous(this@DaoWriter, dbField.name)
                         val methodSpec = overrideWithoutAnnotations(method.element).apply {

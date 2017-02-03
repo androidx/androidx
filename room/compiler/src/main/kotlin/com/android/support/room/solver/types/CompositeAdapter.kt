@@ -26,24 +26,31 @@ import javax.lang.model.type.TypeMirror
  * a composite one.
  */
 class CompositeAdapter(out: TypeMirror, val columnTypeAdapter: ColumnTypeAdapter,
-                       val typeConverter : TypeConverter)
-            : ColumnTypeAdapter(out, columnTypeAdapter.typeAffinity) {
+                       val intoStatementConverter: TypeConverter?,
+                       val fromCursorConverter: TypeConverter?)
+    : ColumnTypeAdapter(out, columnTypeAdapter.typeAffinity) {
     override fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,
                                 scope: CodeGenScope) {
+        if (fromCursorConverter == null) {
+            return
+        }
         scope.builder().apply {
             val tmpCursorValue = scope.getTmpVar()
             addStatement("final $T $L", columnTypeAdapter.outTypeName, tmpCursorValue)
             columnTypeAdapter.readFromCursor(tmpCursorValue, cursorVarName, indexVarName, scope)
-            typeConverter.convertBackward(tmpCursorValue, outVarName, scope)
+            fromCursorConverter.convert(tmpCursorValue, outVarName, scope)
         }
     }
 
     override fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
                             scope: CodeGenScope) {
+        if (intoStatementConverter == null) {
+            return
+        }
         scope.builder().apply {
             val tmpVar = scope.getTmpVar()
             addStatement("final $T $L", columnTypeAdapter.out, tmpVar)
-            typeConverter.convertForward(valueVarName, tmpVar, scope)
+            intoStatementConverter.convert(valueVarName, tmpVar, scope)
             columnTypeAdapter.bindToStmt(stmtName, indexVarName, tmpVar, scope)
         }
     }

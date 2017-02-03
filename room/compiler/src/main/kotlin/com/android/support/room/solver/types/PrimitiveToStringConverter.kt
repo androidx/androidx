@@ -22,8 +22,8 @@ import com.android.support.room.ext.typeName
 import com.android.support.room.processor.Context
 import com.android.support.room.solver.CodeGenScope
 import javax.lang.model.type.PrimitiveType
+import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeKind.BYTE
-import javax.lang.model.type.TypeKind.CHAR
 import javax.lang.model.type.TypeKind.DOUBLE
 import javax.lang.model.type.TypeKind.FLOAT
 import javax.lang.model.type.TypeKind.INT
@@ -32,55 +32,69 @@ import javax.lang.model.type.TypeKind.SHORT
 import javax.lang.model.type.TypeMirror
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-open class PrimitiveToStringConverter(val boxed: TypeMirror,
-                                      val parseMethod: String?,
-                                      val primitiveType: PrimitiveType,
-                                      val stringType: TypeMirror) :
-        TypeConverter(primitiveType, stringType) {
-    companion object {
-        fun createPrimitives(context: Context): List<TypeConverter> {
-            val elmUtils = context.processingEnv.elementUtils
-            val typeUtils = context.processingEnv.typeUtils
-            val stringType = context.COMMON_TYPES.STRING
+object PrimitiveToStringConverter {
+    fun createPrimitives(context: Context): List<TypeConverter> {
+        val elmUtils = context.processingEnv.elementUtils
+        val typeUtils = context.processingEnv.typeUtils
+        val stringType = context.COMMON_TYPES.STRING
 
-            return listOf(
-                    Triple(java.lang.Integer::class, "parseInt", INT),
-                    Triple(java.lang.Long::class, "parseLong", LONG),
-                    Triple(java.lang.Short::class, "parseShort", SHORT),
-                    Triple(java.lang.Byte::class, "parseByte", BYTE),
-                    Triple(java.lang.Float::class, "parseFloat", FLOAT),
-                    Triple(java.lang.Double::class, "parseDouble", DOUBLE)
-            ).map {
-                PrimitiveToStringConverter(
-                        boxed = elmUtils.getTypeElement(it.first.java.canonicalName).asType(),
-                        parseMethod = it.second,
-                        primitiveType = typeUtils.getPrimitiveType(it.third),
-                        stringType = stringType
-                )
-            } + object : PrimitiveToStringConverter(
-                    boxed = elmUtils.getTypeElement("java.lang.Character").asType(),
-                    parseMethod = null,
-                    primitiveType = typeUtils.getPrimitiveType(CHAR),
+        return listOf(
+                Triple(java.lang.Integer::class, "parseInt", INT),
+                Triple(java.lang.Long::class, "parseLong", LONG),
+                Triple(java.lang.Short::class, "parseShort", SHORT),
+                Triple(java.lang.Byte::class, "parseByte", BYTE),
+                Triple(java.lang.Float::class, "parseFloat", FLOAT),
+                Triple(java.lang.Double::class, "parseDouble", DOUBLE)
+        ).flatMap {
+            create(
+                    boxed = elmUtils.getTypeElement(it.first.java.canonicalName).asType(),
+                    parseMethod = it.second,
+                    primitiveType = typeUtils.getPrimitiveType(it.third),
                     stringType = stringType
-            ) {
-                override fun convertBackward(inputVarName: String, outputVarName: String,
-                                             scope: CodeGenScope) {
-                    scope.builder().addStatement("$L = $L.charAt(0)", outputVarName,
-                            inputVarName)
-                }
-            }
-
-        }
+            )
+        } + createChar(stringType = stringType,
+                boxed = elmUtils.getTypeElement("java.lang.Character").asType(),
+                charType = typeUtils.getPrimitiveType(TypeKind.CHAR))
     }
 
-    override fun convertForward(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder()
-                .addStatement("$L = $T.toString($L)", outputVarName, boxed.typeName(), inputVarName)
+    private fun createChar(stringType: TypeMirror, boxed: TypeMirror,
+                           charType: PrimitiveType): List<TypeConverter> {
+        return listOf(
+                object : TypeConverter(charType, stringType) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $T.toString($L)",
+                                outputVarName, boxed.typeName(), inputVarName)
+                    }
+                },
+                object : TypeConverter(stringType, charType) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $L.charAt(0)",
+                                outputVarName, inputVarName)
+                    }
+                })
     }
 
-    override fun convertBackward(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder()
-                .addStatement("$L = $T.$L($L)", outputVarName, boxed.typeName(), parseMethod,
-                        inputVarName)
+    private fun create(boxed: TypeMirror,
+                       parseMethod: String?,
+                       primitiveType: PrimitiveType,
+                       stringType: TypeMirror): List<TypeConverter> {
+        return listOf(
+                object : TypeConverter(primitiveType, stringType) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $T.toString($L)",
+                                outputVarName, boxed.typeName(), inputVarName)
+                    }
+                },
+                object : TypeConverter(stringType, primitiveType) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $T.$L($L)",
+                                outputVarName, boxed.typeName(), parseMethod, inputVarName)
+                    }
+
+                })
     }
 }

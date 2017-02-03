@@ -25,16 +25,22 @@ import javax.lang.model.type.TypeKind.INT
 /**
  * int to boolean adapter.
  */
-class PrimitiveBooleanToIntConverter(processingEnvironment: ProcessingEnvironment) : TypeConverter(
-        from = processingEnvironment.typeUtils.getPrimitiveType(BOOLEAN),
-        to = processingEnvironment.typeUtils.getPrimitiveType(INT)) {
-    override fun convertForward(inputVarName: String, outputVarName: String,
-                                scope: CodeGenScope) {
-        scope.builder().addStatement("$L = $L ? 1 : 0", outputVarName, inputVarName)
-    }
-
-    override fun convertBackward(inputVarName: String, outputVarName: String,
-                                 scope: CodeGenScope) {
-        scope.builder().addStatement("$L = $L != 0", outputVarName, inputVarName)
+object PrimitiveBooleanToIntConverter {
+    fun create(processingEnvironment: ProcessingEnvironment): List<TypeConverter> {
+        val tBoolean = processingEnvironment.typeUtils.getPrimitiveType(BOOLEAN)
+        val tInt = processingEnvironment.typeUtils.getPrimitiveType(INT)
+        return listOf(
+                object : TypeConverter(tBoolean, tInt) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $L ? 1 : 0", outputVarName, inputVarName)
+                    }
+                },
+                object : TypeConverter(tInt, tBoolean) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().addStatement("$L = $L != 0", outputVarName, inputVarName)
+                    }
+                })
     }
 }

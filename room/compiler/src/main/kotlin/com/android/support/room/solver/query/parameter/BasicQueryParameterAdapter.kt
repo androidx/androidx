@@ -18,11 +18,12 @@ package com.android.support.room.solver.query.parameter
 
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.solver.types.ColumnTypeAdapter
+import com.android.support.room.solver.types.StatementValueBinder
 
 /**
  * Knows how to convert a query parameter into arguments
  */
-class BasicQueryParameterAdapter(val bindAdapter : ColumnTypeAdapter)
+class BasicQueryParameterAdapter(val bindAdapter : StatementValueBinder)
             : QueryParameterAdapter(false) {
     override fun bindToStmt(inputVarName: String, stmtVarName: String, startIndexVarName: String,
                             scope: CodeGenScope) {

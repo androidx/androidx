@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,14 @@
 package com.android.support.room.solver.types
 
 import com.android.support.room.solver.CodeGenScope
+import javax.lang.model.type.TypeMirror
 
 /**
- * Takes a type adapter and reverses it.
+ * Binds a value into a statement
+ * see: CursorValueReader
  */
-class ReverseTypeConverter(val delegate: TypeConverter) : TypeConverter(delegate.to,
-        delegate.from) {
-    override fun convertForward(inputVarName: String, outputVarName: String,
-                                scope: CodeGenScope) {
-        return delegate.convertBackward(inputVarName, outputVarName, scope)
-    }
-
-    override fun convertBackward(inputVarName: String, outputVarName: String,
-                                 scope: CodeGenScope) {
-        return delegate.convertForward(inputVarName, outputVarName, scope)
-    }
+interface StatementValueBinder {
+    fun out() : TypeMirror
+    fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
+                            scope: CodeGenScope)
 }

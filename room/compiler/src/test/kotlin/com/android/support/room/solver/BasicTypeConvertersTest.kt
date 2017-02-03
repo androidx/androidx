@@ -119,7 +119,7 @@ class BasicTypeConvertersTest(val input: Input, val forwardCode: String,
             val converter = TypeAdapterStore(Context(invocation.processingEnv))
                     .findTypeConverter(input.getTypeMirror(invocation.processingEnv),
                             stringTypeMirror)!!
-            converter.convertForward("inp", "out", scope)
+            converter.convert("inp", "out", scope)
             assertThat(scope.generate().trim(), `is`(forwardCode))
             generateCode(invocation, input.getTypeMirror(invocation.processingEnv),
                     stringTypeMirror)
@@ -131,9 +131,9 @@ class BasicTypeConvertersTest(val input: Input, val forwardCode: String,
         simpleRun { invocation ->
             val stringTypeMirror = invocation.context.COMMON_TYPES.STRING
             val converter = TypeAdapterStore(Context(invocation.processingEnv))
-                    .findTypeConverter(input.getTypeMirror(invocation.processingEnv),
-                            stringTypeMirror)!!
-            converter.convertBackward("inp", "out", scope)
+                    .findTypeConverter(stringTypeMirror,
+                            input.getTypeMirror(invocation.processingEnv))!!
+            converter.convert("inp", "out", scope)
             assertThat(scope.generate().trim(), `is`(backwardCode))
             generateCode(invocation, stringTypeMirror,
                     input.getTypeMirror(invocation.processingEnv))

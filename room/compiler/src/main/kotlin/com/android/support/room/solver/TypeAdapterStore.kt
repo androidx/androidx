@@ -40,15 +40,15 @@ import com.android.support.room.solver.query.result.SingleEntityQueryResultAdapt
 import com.android.support.room.solver.types.BoxedBooleanToBoxedIntConverter
 import com.android.support.room.solver.types.BoxedPrimitiveColumnTypeAdapter
 import com.android.support.room.solver.types.BoxedPrimitiveToStringConverter
+import com.android.support.room.solver.types.ByteArrayColumnTypeAdapter
 import com.android.support.room.solver.types.ColumnTypeAdapter
 import com.android.support.room.solver.types.CompositeAdapter
 import com.android.support.room.solver.types.CompositeTypeConverter
-import com.android.support.room.solver.types.IntListConverter
 import com.android.support.room.solver.types.NoOpConverter
 import com.android.support.room.solver.types.PrimitiveBooleanToIntConverter
 import com.android.support.room.solver.types.PrimitiveColumnTypeAdapter
 import com.android.support.room.solver.types.PrimitiveToStringConverter
-import com.android.support.room.solver.types.ReverseTypeConverter
+import com.android.support.room.solver.types.StatementValueBinder
 import com.android.support.room.solver.types.StringColumnTypeAdapter
 import com.android.support.room.solver.types.TypeConverter
 import com.google.auto.common.MoreElements
@@ -59,6 +59,7 @@ import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.Types
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 /**
@@ -86,7 +87,6 @@ class TypeAdapterStore(val context: Context,
         extras.forEach(::addAny)
         fun addTypeConverter(converter: TypeConverter) {
             converters.add(converter)
-            converters.add(ReverseTypeConverter(converter))
         }
 
         fun addColumnAdapter(adapter: ColumnTypeAdapter) {
@@ -100,15 +100,15 @@ class TypeAdapterStore(val context: Context,
                 .createBoxedPrimitiveAdapters(context.processingEnv, primitives)
                 .forEach(::addColumnAdapter)
         addColumnAdapter(StringColumnTypeAdapter(context.processingEnv))
-        addTypeConverter(IntListConverter.create(context.processingEnv))
-        addTypeConverter(PrimitiveBooleanToIntConverter(context.processingEnv))
+        addColumnAdapter(ByteArrayColumnTypeAdapter(context.processingEnv))
+        PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
         PrimitiveToStringConverter
                 .createPrimitives(context)
                 .forEach(::addTypeConverter)
         BoxedPrimitiveToStringConverter
                 .createBoxedPrimitives(context)
                 .forEach(::addTypeConverter)
-        addTypeConverter(BoxedBooleanToBoxedIntConverter(context.processingEnv))
+        BoxedBooleanToBoxedIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
         columnTypeAdapters = adapters
         typeConverters = converters
     }
@@ -118,20 +118,60 @@ class TypeAdapterStore(val context: Context,
         columnTypeAdapters.map { it.out }
     }
 
+    /**
+     * Searches 1 way to bind a value into a statement.
+     */
+    fun findStatementValueBinder(input : TypeMirror) : StatementValueBinder? {
+        val adapters = getAllColumnAdapters(input)
+        if (adapters.isNotEmpty()) {
+            return adapters.first()
+        }
+        val binder = findTypeConverter(input, knownColumnTypeMirrors) ?: return null
+        return CompositeAdapter(input, getAllColumnAdapters(binder.to).first(), binder, null)
+    }
+
+    /**
+     * Tries to reverse the converter going through the same nodes, if possible.
+     */
+    @VisibleForTesting
+    fun reverse(converter : TypeConverter) : TypeConverter? {
+        return when(converter) {
+            is NoOpConverter -> converter
+            is CompositeTypeConverter ->  {
+                val r1 = reverse(converter.conv1) ?: return null
+                val r2 = reverse(converter.conv2) ?: return null
+                CompositeTypeConverter(r2, r1)
+            }
+            else -> {
+                val types = context.processingEnv.typeUtils
+                typeConverters.firstOrNull {
+                    types.isSameType(it.from, converter.to) && types
+                            .isSameType(it.to, converter.from)
+                }
+            }
+        }
+    }
+
+    /**
+     * Finds a two way converter, if you need 1 way, use findStatementValueBinder or
+     * findCursorValueReader.
+     */
     fun findColumnTypeAdapter(out: TypeMirror): ColumnTypeAdapter? {
         val adapters = getAllColumnAdapters(out)
         if (adapters.isNotEmpty()) {
-            return adapters.last()
+            return adapters.first()
         }
-        val converter = findTypeConverter(out, knownColumnTypeMirrors)
-        if (converter != null) {
-            return CompositeAdapter(out, getAllColumnAdapters(converter.to).first(), converter)
-        }
-        return null
+        val intoStatement = findTypeConverter(out, knownColumnTypeMirrors)
+                ?: return null
+        // ok found a converter, try the reverse now
+        val fromCursor = reverse(intoStatement) ?: findTypeConverter(intoStatement.to, out)
+                ?: return null
+        return CompositeAdapter(out, getAllColumnAdapters(intoStatement.to).first(), intoStatement,
+                fromCursor)
     }
 
     fun findTypeConverter(input: TypeMirror, output: TypeMirror): TypeConverter? {
-        return findTypeConverter(input, listOf(output))
+        return findTypeConverter(listOf(input), listOf(output))
     }
 
     private fun isLiveData(declared: DeclaredType): Boolean {
@@ -235,44 +275,72 @@ class TypeAdapterStore(val context: Context,
                 && (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)
                 || MoreTypes.isTypeOf(java.util.Set::class.java, typeMirror))) {
             val declared = MoreTypes.asDeclared(typeMirror)
-            val bindAdapter = findColumnTypeAdapter(declared.typeArguments.first()) ?: return null
-            return CollectionQueryParameterAdapter(bindAdapter)
+            val binder = findStatementValueBinder(declared.typeArguments.first()) ?: return null
+            return CollectionQueryParameterAdapter(binder)
         } else if (typeMirror is ArrayType) {
             val component = typeMirror.componentType
-            val bindAdapter = findColumnTypeAdapter(component) ?: return null
-            return ArrayQueryParameterAdapter(bindAdapter)
+            val binder = findStatementValueBinder(component) ?: return null
+            return ArrayQueryParameterAdapter(binder)
         } else {
-            val bindAdapter = findColumnTypeAdapter(typeMirror) ?: return null
-            return BasicQueryParameterAdapter(bindAdapter)
+            val binder = findStatementValueBinder(typeMirror) ?: return null
+            return BasicQueryParameterAdapter(binder)
         }
     }
 
     private fun findTypeConverter(input: TypeMirror, outputs: List<TypeMirror>): TypeConverter? {
-        val types = context.processingEnv.typeUtils
-        // if same type, return no-op
-        if (outputs.any { types.isSameType(input, it) }) {
-            return NoOpConverter(input)
+        return findTypeConverter(listOf(input), outputs)
+    }
+
+    private fun findTypeConverter(input: List<TypeMirror>, output : TypeMirror): TypeConverter? {
+        return findTypeConverter(input, listOf(output))
+    }
+
+    private fun findTypeConverter(inputs: List<TypeMirror>, outputs: List<TypeMirror>)
+            : TypeConverter? {
+        if (inputs.isEmpty()) {
+            return null
         }
+        val types = context.processingEnv.typeUtils
+        inputs.forEach { input ->
+            if (outputs.any { output -> types.isSameType(input, output) }) {
+                return NoOpConverter(input)
+            }
+        }
+
         val excludes = arrayListOf<TypeMirror>()
-        excludes.add(input)
+
         val queue = LinkedList<TypeConverter>()
-        do {
-            val prev = if (queue.isEmpty()) null else queue.pop()
-            val from = prev?.to ?: input
-            val candidates = getAllTypeConverters(from, excludes)
-            val match = candidates.firstOrNull {
+        fun exactMatch(candidates: List<TypeConverter>, outputs: List<TypeMirror>, types: Types)
+                : TypeConverter? {
+            return candidates.firstOrNull {
                 outputs.any { output -> types.isSameType(output, it.to) }
             }
+        }
+        inputs.forEach { input ->
+            val candidates = getAllTypeConverters(input, excludes)
+            val match = exactMatch(candidates, outputs, types)
             if (match != null) {
-                return if (prev == null) match else CompositeTypeConverter(prev, match)
+                return match
             }
             candidates.forEach {
                 excludes.add(it.to)
-                queue.add(
-                        if (prev == null) it else CompositeTypeConverter(prev, it)
-                )
+                queue.add(it)
             }
-        } while (queue.isNotEmpty())
+        }
+        excludes.addAll(inputs)
+        while (queue.isNotEmpty()) {
+            val prev = queue.pop()
+            val from = prev.to
+            val candidates = getAllTypeConverters(from, excludes)
+            val match = exactMatch(candidates, outputs, types)
+            if (match != null) {
+                return CompositeTypeConverter(prev, match)
+            }
+            candidates.forEach {
+                excludes.add(it.to)
+                queue.add(CompositeTypeConverter(prev, it))
+            }
+        }
         return null
     }
 

@@ -24,11 +24,8 @@ import javax.lang.model.type.TypeMirror
 /**
  * A code generator that can read a field from Cursor and write a field to a Statement
  */
-abstract class ColumnTypeAdapter(val out: TypeMirror, val typeAffinity: SQLTypeAffinity) {
+abstract class ColumnTypeAdapter(val out: TypeMirror, val typeAffinity: SQLTypeAffinity) :
+        StatementValueBinder, CursorValueReader {
     val outTypeName: TypeName by lazy { TypeName.get(out) }
-    abstract fun readFromCursor(outVarName : String, cursorVarName: String, indexVarName: String,
-                                scope: CodeGenScope)
-
-    abstract fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
-                            scope: CodeGenScope)
+    override fun out() = out
 }

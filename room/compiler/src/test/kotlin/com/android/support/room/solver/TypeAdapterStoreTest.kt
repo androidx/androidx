@@ -18,6 +18,7 @@ package com.android.support.room.solver
 
 import com.android.support.room.Entity
 import com.android.support.room.ext.L
+import com.android.support.room.ext.RoomTypeNames.STRING_UTIL
 import com.android.support.room.ext.T
 import com.android.support.room.processor.Context
 import com.android.support.room.solver.types.CompositeAdapter
@@ -31,6 +32,7 @@ import com.google.testing.compile.JavaSourcesSubjectFactory
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -87,7 +89,7 @@ class TypeAdapterStoreTest {
     fun testVia2TypeAdapters() {
         singleRun { invocation ->
             val store = TypeAdapterStore(Context(invocation.processingEnv),
-                    PointTypeConverter(invocation.processingEnv))
+                    pointTypeConverters(invocation.processingEnv))
             val pointType = invocation.processingEnv.elementUtils
                     .getTypeElement("foo.bar.Point").asType()
             val adapter = store.findColumnTypeAdapter(pointType)
@@ -119,14 +121,11 @@ class TypeAdapterStoreTest {
     @Test
     fun testIntList() {
         singleRun { invocation ->
-            val store = TypeAdapterStore(Context(invocation.processingEnv))
-            val intType = invocation.processingEnv.elementUtils
-                    .getTypeElement(Integer::class.java.canonicalName)
-                    .asType()
-            val listType = invocation.processingEnv.elementUtils
-                    .getTypeElement(java.util.List::class.java.canonicalName)
-            val listOfInts = invocation.processingEnv.typeUtils.getDeclaredType(listType, intType)
-            val adapter = store.findColumnTypeAdapter(listOfInts)
+            val binders = createIntListToStringBinders(invocation)
+            val store = TypeAdapterStore(Context(invocation.processingEnv), binders[0],
+                    binders[1])
+
+            val adapter = store.findColumnTypeAdapter(binders[0].from)
             assertThat(adapter, notNullValue())
 
             val bindScope = testCodeGenScope()
@@ -140,7 +139,63 @@ class TypeAdapterStoreTest {
                       stmt.bindString(41, ${tmp(0)});
                     }
                     """.trimIndent()))
+
+            val converter = store.findTypeConverter(binders[0].from,
+                    invocation.context.COMMON_TYPES.STRING)
+            assertThat(converter, notNullValue())
+            assertThat(store.reverse(converter!!), `is`(binders[1]))
+
         }.compilesWithoutError()
+    }
+
+    @Test
+    fun testOneWayConversion() {
+        singleRun { invocation ->
+            val binders = createIntListToStringBinders(invocation)
+            val store = TypeAdapterStore(Context(invocation.processingEnv), binders[0])
+            val adapter = store.findColumnTypeAdapter(binders[0].from)
+            assertThat(adapter, nullValue())
+
+            val stmtBinder = store.findStatementValueBinder(binders[0].from)
+            assertThat(stmtBinder, notNullValue())
+
+            val converter = store.findTypeConverter(binders[0].from,
+                    invocation.context.COMMON_TYPES.STRING)
+            assertThat(converter, notNullValue())
+            assertThat(store.reverse(converter!!), nullValue())
+        }
+    }
+
+    private fun createIntListToStringBinders(invocation: TestInvocation): List<TypeConverter> {
+        val intType = invocation.processingEnv.elementUtils
+                .getTypeElement(Integer::class.java.canonicalName)
+                .asType()
+        val listType = invocation.processingEnv.elementUtils
+                .getTypeElement(java.util.List::class.java.canonicalName)
+        val listOfInts = invocation.processingEnv.typeUtils.getDeclaredType(listType, intType)
+
+        val intListConverter = object : TypeConverter(listOfInts,
+                invocation.context.COMMON_TYPES.STRING) {
+            override fun convert(inputVarName: String, outputVarName: String,
+                                 scope: CodeGenScope) {
+                scope.builder().apply {
+                    addStatement("$L = $T.joinIntoString($L)", outputVarName, STRING_UTIL,
+                            inputVarName)
+                }
+            }
+        }
+
+        val stringToIntListConverter = object : TypeConverter(
+                invocation.context.COMMON_TYPES.STRING, listOfInts) {
+            override fun convert(inputVarName: String, outputVarName: String,
+                                 scope: CodeGenScope) {
+                scope.builder().apply {
+                    addStatement("$L = $T.splitToIntList($L)", outputVarName, STRING_UTIL,
+                            inputVarName)
+                }
+            }
+        }
+        return listOf(intListConverter, stringToIntListConverter)
     }
 
     fun singleRun(handler: (TestInvocation) -> Unit): CompileTester {
@@ -181,21 +236,28 @@ class TypeAdapterStoreTest {
                         .build())
     }
 
-    class PointTypeConverter(processingEnv: ProcessingEnvironment) : TypeConverter(
-            from = processingEnv.elementUtils.getTypeElement("foo.bar.Point").asType(),
-            to = processingEnv.typeUtils.getPrimitiveType(TypeKind.BOOLEAN)) {
-        override fun convertForward(inputVarName: String, outputVarName: String,
-                                    scope: CodeGenScope) {
-            scope.builder().apply {
-                addStatement("$L = $T.toBoolean($L)", outputVarName, from, inputVarName)
-            }
-        }
+    fun pointTypeConverters(env: ProcessingEnvironment): List<TypeConverter> {
+        val tPoint = env.elementUtils.getTypeElement("foo.bar.Point").asType()
+        val tBoolean = env.typeUtils.getPrimitiveType(TypeKind.BOOLEAN)
+        return listOf(
+                object : TypeConverter(tPoint, tBoolean) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().apply {
+                            addStatement("$L = $T.toBoolean($L)", outputVarName, from, inputVarName)
+                        }
+                    }
 
-        override fun convertBackward(inputVarName: String, outputVarName: String,
-                                     scope: CodeGenScope) {
-            scope.builder().apply {
-                addStatement("$L = $T.fromBoolean($L)", outputVarName, from, inputVarName)
-            }
-        }
+                },
+                object : TypeConverter(tBoolean, tPoint) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().apply {
+                            addStatement("$L = $T.fromBoolean($L)", outputVarName, tPoint,
+                                    inputVarName)
+                        }
+                    }
+                }
+        )
     }
 }

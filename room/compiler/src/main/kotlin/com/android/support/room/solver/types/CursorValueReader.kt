@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,14 @@
 package com.android.support.room.solver.types
 
 import com.android.support.room.solver.CodeGenScope
-import com.squareup.javapoet.TypeName
 import javax.lang.model.type.TypeMirror
 
 /**
- * A code generator that can convert from 1 type to another
+ * Reads value from a cursor at the given index.
+ * see: StatementValueBinder
  */
-abstract class TypeConverter(val from: TypeMirror, val to: TypeMirror) {
-    val fromTypeName: TypeName by lazy { TypeName.get(from) }
-    val toTypeName: TypeName by lazy { TypeName.get(to) }
-    abstract fun convert(inputVarName: String, outputVarName: String,
+interface CursorValueReader {
+    fun out() : TypeMirror
+    fun readFromCursor(outVarName : String, cursorVarName: String, indexVarName: String,
                                 scope: CodeGenScope)
 }

@@ -18,20 +18,22 @@ package com.android.support.room.solver.query.parameter
 
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
+import com.android.support.room.ext.typeName
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.solver.types.ColumnTypeAdapter
+import com.android.support.room.solver.types.StatementValueBinder
 import com.squareup.javapoet.TypeName
 
 /**
  * Binds ARRAY(T) (e.g. int[]) into String[] args of a query.
  */
-class ArrayQueryParameterAdapter(val bindAdapter : ColumnTypeAdapter)
+class ArrayQueryParameterAdapter(val bindAdapter : StatementValueBinder)
             : QueryParameterAdapter(true) {
     override fun bindToStmt(inputVarName: String, stmtVarName: String, startIndexVarName: String,
                             scope: CodeGenScope) {
         scope.builder().apply {
             val itrVar = scope.getTmpVar("_item")
-            beginControlFlow("for ($T $L : $L)", bindAdapter.outTypeName, itrVar, inputVarName)
+            beginControlFlow("for ($T $L : $L)", bindAdapter.out().typeName(), itrVar, inputVarName)
                     .apply {
                         bindAdapter.bindToStmt(stmtVarName, startIndexVarName, itrVar, scope)
                         addStatement("$L ++", startIndexVarName)
