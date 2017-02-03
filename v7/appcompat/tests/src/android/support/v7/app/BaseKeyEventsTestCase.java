@@ -29,6 +29,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.test.R;
@@ -91,7 +92,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testBackCollapsesSearchView() throws InterruptedException {
         // Click on the Search menu item
         onView(withId(R.id.action_search)).perform(click());
