@@ -1,5 +1,5 @@
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'support-instantvideo'
+archivesBaseName = 'instantvideo'
 
 dependencies {
     compile project(':support-annotations')
