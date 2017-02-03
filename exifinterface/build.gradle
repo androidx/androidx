@@ -3,6 +3,10 @@ archivesBaseName = 'exifinterface'
 
 dependencies {
     compile project(':support-annotations')
+
+    androidTestCompile (libs.test_runner) {
+        exclude module: 'support-annotations'
+    }
 }
 
 android {
@@ -12,7 +16,7 @@ android {
 
     sourceSets {
         main.java.srcDirs = ['src']
-        main.res.srcDir 'res'
+        main.res.srcDirs = ['res']
     }
 }
 
