@@ -26,6 +26,13 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.Programs;
+import android.support.media.tv.TvContractCompat.Programs.AspectRatio;
+import android.support.media.tv.TvContractCompat.Programs.Availability;
+import android.support.media.tv.TvContractCompat.Programs.Genres.Genre;
+import android.support.media.tv.TvContractCompat.Programs.InteractionType;
+import android.support.media.tv.TvContractCompat.Programs.ReviewRatingStyle;
+import android.support.media.tv.TvContractCompat.Programs.Type;
+import android.support.media.tv.TvContractCompat.Programs.WatchNextType;
 import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 
@@ -248,7 +255,7 @@ public final class Program implements Comparable<Program> {
     /**
      * @return The value of {@link Programs#COLUMN_CANONICAL_GENRE} for the program.
      */
-    public String[] getCanonicalGenres() {
+    public @Genre String[] getCanonicalGenres() {
         return mCanonicalGenres;
     }
 
@@ -397,28 +404,28 @@ public final class Program implements Comparable<Program> {
     /**
      * @return The value of {@link Programs#COLUMN_TYPE} for the program.
      */
-    public String getType() {
+    public @Type String getType() {
         return mType;
     }
 
     /**
      * @return The value of {@link Programs#COLUMN_WATCH_NEXT_TYPE} for the program.
      */
-    public String getWatchNextType() {
+    public @WatchNextType String getWatchNextType() {
         return mWatchNextType;
     }
 
     /**
      * @return The value of {@link Programs#COLUMN_POSTER_ART_ASPECT_RATIO} for the program.
      */
-    public String getPosterArtAspectRatio() {
+    public @AspectRatio String getPosterArtAspectRatio() {
         return mPosterArtAspectRatio;
     }
 
     /**
      * @return The value of {@link Programs#COLUMN_THUMBNAIL_ASPECT_RATIO} for the program.
      */
-    public String getThumbnailAspectRatio() {
+    public @AspectRatio String getThumbnailAspectRatio() {
         return mThumbnailAspectRatio;
     }
 
@@ -432,7 +439,7 @@ public final class Program implements Comparable<Program> {
     /**
      * @return The value of {@link Programs#COLUMN_AVAILABILITY} for the program.
      */
-    public String getAvailability() {
+    public @Availability String getAvailability() {
         return mAvailability;
     }
 
@@ -474,7 +481,7 @@ public final class Program implements Comparable<Program> {
     /**
      * @return The value of {@link Programs#COLUMN_INTERACTION_TYPE} for the program.
      */
-    public String getInteractionType() {
+    public @InteractionType String getInteractionType() {
         return mInteractionType;
     }
 
@@ -495,7 +502,7 @@ public final class Program implements Comparable<Program> {
     /**
      * @return The value of {@link Programs#COLUMN_REVIEW_RATING_STYLE} for the program.
      */
-    public String getReviewRatingStyle() {
+    public @ReviewRatingStyle String getReviewRatingStyle() {
         return mReviewRatingStyle;
     }
 
@@ -1468,7 +1475,7 @@ public final class Program implements Comparable<Program> {
          * @return This Builder object to allow for chaining of calls to builder methods.
          * @see Programs#COLUMN_CANONICAL_GENRE
          */
-        public Builder setCanonicalGenres(String[] genres) {
+        public Builder setCanonicalGenres(@Genre String[] genres) {
             mCanonicalGenres = genres;
             return this;
         }
@@ -1687,7 +1694,7 @@ public final class Program implements Comparable<Program> {
          * @param type The value of {@link Programs#COLUMN_TYPE} for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setType(String type) {
+        public Builder setType(@Type String type) {
             mType = type;
             return this;
         }
@@ -1704,7 +1711,7 @@ public final class Program implements Comparable<Program> {
          *                      program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setWatchNextType(String watchNextType) {
+        public Builder setWatchNextType(@WatchNextType String watchNextType) {
             mWatchNextType = watchNextType;
             return this;
         }
@@ -1722,7 +1729,7 @@ public final class Program implements Comparable<Program> {
          *              program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setPosterArtAspectRatio(String ratio) {
+        public Builder setPosterArtAspectRatio(@AspectRatio String ratio) {
             mPosterArtAspectRatio = ratio;
             return this;
         }
@@ -1740,7 +1747,7 @@ public final class Program implements Comparable<Program> {
          *              program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setThumbnailAspectRatio(String ratio) {
+        public Builder setThumbnailAspectRatio(@AspectRatio String ratio) {
             mThumbnailAspectRatio = ratio;
             return this;
         }
@@ -1767,7 +1774,7 @@ public final class Program implements Comparable<Program> {
          * @param availability The value of {@link Programs#COLUMN_AVAILABILITY} for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setAvailability(String availability) {
+        public Builder setAvailability(@Availability String availability) {
             mAvailability = availability;
             return this;
         }
@@ -1855,7 +1862,7 @@ public final class Program implements Comparable<Program> {
          * @param interactionType The value of {@link Programs#COLUMN_AVAILABILITY} for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setInteractionType(String interactionType) {
+        public Builder setInteractionType(@InteractionType String interactionType) {
             mInteractionType = interactionType;
             return this;
         }
@@ -1895,7 +1902,7 @@ public final class Program implements Comparable<Program> {
          *                          program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setReviewRatingStyle(String reviewRatingStyle) {
+        public Builder setReviewRatingStyle(@ReviewRatingStyle String reviewRatingStyle) {
             mReviewRatingStyle = reviewRatingStyle;
             return this;
         }

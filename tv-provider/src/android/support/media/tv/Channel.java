@@ -24,6 +24,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.Channels;
+import android.support.media.tv.TvContractCompat.Channels.ServiceType;
+import android.support.media.tv.TvContractCompat.Channels.Type;
+import android.support.media.tv.TvContractCompat.Channels.VideoFormat;
 import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 
@@ -124,7 +127,7 @@ public final class Channel {
     /**
      * @return The value of {@link Channels#COLUMN_TYPE} for the channel.
      */
-    public String getType() {
+    public @Type String getType() {
         return mType;
     }
 
@@ -152,7 +155,7 @@ public final class Channel {
     /**
      * @return The value of {@link Channels#COLUMN_VIDEO_FORMAT} for the channel.
      */
-    public String getVideoFormat() {
+    public @VideoFormat String getVideoFormat() {
         return mVideoFormat;
     }
 
@@ -254,7 +257,7 @@ public final class Channel {
      * <p>Returns {@link Channels#SERVICE_TYPE_AUDIO}, {@link Channels#SERVICE_TYPE_AUDIO_VIDEO}, or
      * {@link Channels#SERVICE_TYPE_OTHER}.
      */
-    public String getServiceType() {
+    public @ServiceType String getServiceType() {
         return mServiceType;
     }
 
@@ -668,7 +671,7 @@ public final class Channel {
          * @param type The value of {@link Channels#COLUMN_TYPE} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setType(String type) {
+        public Builder setType(@Type String type) {
             mType = type;
             return this;
         }
@@ -724,7 +727,7 @@ public final class Channel {
          * @param videoFormat The value of {@link Channels#COLUMN_VIDEO_FORMAT} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setVideoFormat(String videoFormat) {
+        public Builder setVideoFormat(@VideoFormat String videoFormat) {
             mVideoFormat = videoFormat;
             return this;
         }
@@ -889,7 +892,7 @@ public final class Channel {
          * @param serviceType The value of {@link Channels#COLUMN_SERVICE_TYPE} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setServiceType(String serviceType) {
+        public Builder setServiceType(@ServiceType String serviceType) {
             mServiceType = serviceType;
             return this;
         }
