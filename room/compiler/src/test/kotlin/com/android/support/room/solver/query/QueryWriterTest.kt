@@ -35,6 +35,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import testCodeGenScope
 
 @RunWith(JUnit4::class)
 class QueryWriterTest {
@@ -56,7 +57,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users")
                 abstract java.util.List<Integer> selectAllIds();
                 """) { writer ->
-            val scope = CodeGenScope()
+            val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`("""
                     final java.lang.String _sql = "SELECT id FROM users";
@@ -71,7 +72,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE name LIKE ?")
                 abstract java.util.List<Integer> selectAllIds(String name);
                 """) { writer ->
-            val scope = CodeGenScope()
+            val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
@@ -93,7 +94,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE id IN(:id1,:id2)")
                 abstract java.util.List<Integer> selectAllIds(int id1, int id2);
                 """) { writer ->
-            val scope = CodeGenScope()
+            val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
@@ -113,7 +114,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
                 abstract java.util.List<Integer> selectAllIds(long time, int... ids);
                 """) { writer ->
-            val scope = CodeGenScope()
+            val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`(
                     """
@@ -166,7 +167,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
                 abstract List<Integer> selectAllIds(long time, List<Integer> ids);
                 """) { writer ->
-            val scope = CodeGenScope()
+            val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`(collectionOut))
         }.compilesWithoutError()
@@ -178,7 +179,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
                 abstract List<Integer> selectAllIds(long time, Set<Integer> ids);
                 """) { writer ->
-            val scope = CodeGenScope()
+            val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`(collectionOut))
         }.compilesWithoutError()
@@ -190,7 +191,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE age > :age OR bage > :age")
                 abstract List<Integer> selectAllIds(int age);
                 """) { writer ->
-            val scope = CodeGenScope()
+            val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`("""
                     final java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
@@ -209,7 +210,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE age > :age OR bage > :age OR fage IN(:ages)")
                 abstract List<Integer> selectAllIds(int age, int... ages);
                 """) { writer ->
-            val scope = CodeGenScope()
+            val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`("""
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
@@ -243,7 +244,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE age IN (:ages) OR bage > :age OR fage IN(:ages)")
                 abstract List<Integer> selectAllIds(int age, int... ages);
                 """) { writer ->
-            val scope = CodeGenScope()
+            val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().trim(), `is`("""
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();

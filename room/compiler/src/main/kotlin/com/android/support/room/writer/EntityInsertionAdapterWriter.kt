@@ -32,7 +32,7 @@ import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier.PUBLIC
 
 class EntityInsertionAdapterWriter(val entity: Entity, val onConflict: String) {
-    fun createAnonymous(dbParam : String): TypeSpec {
+    fun createAnonymous(classWriter: ClassWriter, dbParam : String): TypeSpec {
         @Suppress("RemoveSingleExpressionStringTemplate")
         return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {
             superclass(
@@ -53,7 +53,7 @@ class EntityInsertionAdapterWriter(val entity: Entity, val onConflict: String) {
                 addStatement("return $S", query)
             }.build())
             addMethod(MethodSpec.methodBuilder("bind").apply {
-                val bindScope = CodeGenScope()
+                val bindScope = CodeGenScope(classWriter)
                 addAnnotation(Override::class.java)
                 val stmtParam = "stmt"
                 addParameter(ParameterSpec.builder(SupportDbTypeNames.SQLITE_STMT,

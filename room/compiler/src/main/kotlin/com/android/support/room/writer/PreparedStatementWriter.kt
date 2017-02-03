@@ -29,8 +29,8 @@ import javax.lang.model.element.Modifier
  * Creates anonymous classes for RoomTypeNames#SHARED_SQLITE_STMT.
  */
 class PreparedStatementWriter(val queryWriter: QueryWriter) {
-    fun createAnonymous(dbParam : FieldSpec): TypeSpec {
-        val scope = CodeGenScope()
+    fun createAnonymous(classWriter: ClassWriter, dbParam : FieldSpec): TypeSpec {
+        val scope = CodeGenScope(classWriter)
         @Suppress("RemoveSingleExpressionStringTemplate")
         return TypeSpec.anonymousClassBuilder("$N", dbParam).apply {
             superclass(RoomTypeNames.SHARED_SQLITE_STMT)

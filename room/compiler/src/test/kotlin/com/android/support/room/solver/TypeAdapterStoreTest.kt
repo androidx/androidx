@@ -35,6 +35,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import testCodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeKind
 
@@ -64,7 +65,7 @@ class TypeAdapterStoreTest {
             val adapter = store.findColumnTypeAdapter(booleanType)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
-            val bindScope = CodeGenScope()
+            val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
             assertThat(bindScope.generate().trim(), `is`("""
                     final int ${tmp(0)};
@@ -72,7 +73,7 @@ class TypeAdapterStoreTest {
                     stmt.bindLong(41, ${tmp(0)});
                     """.trimIndent()))
 
-            val cursorScope = CodeGenScope()
+            val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "7", cursorScope)
             assertThat(cursorScope.generate().trim(), `is`("""
                     final int ${tmp(0)};
@@ -93,7 +94,7 @@ class TypeAdapterStoreTest {
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
 
-            val bindScope = CodeGenScope()
+            val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
             assertThat(bindScope.generate().trim(), `is`("""
                     final int ${tmp(0)};
@@ -103,7 +104,7 @@ class TypeAdapterStoreTest {
                     stmt.bindLong(41, ${tmp(0)});
                     """.trimIndent()))
 
-            val cursorScope = CodeGenScope()
+            val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "11", cursorScope).toString()
             assertThat(cursorScope.generate().trim(), `is`("""
                     final int ${tmp(0)};
@@ -128,7 +129,7 @@ class TypeAdapterStoreTest {
             val adapter = store.findColumnTypeAdapter(listOfInts)
             assertThat(adapter, notNullValue())
 
-            val bindScope = CodeGenScope()
+            val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
             assertThat(bindScope.generate().trim(), `is`("""
                     final java.lang.String ${tmp(0)};

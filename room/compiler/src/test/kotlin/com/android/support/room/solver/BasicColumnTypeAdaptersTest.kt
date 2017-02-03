@@ -30,6 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import simpleRun
+import testCodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.PrimitiveType
 import javax.lang.model.type.TypeKind
@@ -38,7 +39,7 @@ import javax.lang.model.type.TypeMirror
 @RunWith(Parameterized::class)
 class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
                                   val cursorCode: String) {
-    val scope = CodeGenScope()
+    val scope = testCodeGenScope()
 
     companion object {
         val SQLITE_STMT : TypeName = ClassName.get("android.database.sqlite", "SQLiteStatement")

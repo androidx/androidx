@@ -18,15 +18,18 @@ import com.android.support.room.Entity
 import com.android.support.room.Query
 import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.processor.EntityProcessor
+import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.verifier.DatabaseVerifier
+import com.android.support.room.writer.ClassWriter
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeSpec
 import org.mockito.Mockito
 import java.io.File
 import javax.lang.model.element.Element
@@ -56,6 +59,11 @@ object COMMON {
                 LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.toString())
     }
 }
+
+fun testCodeGenScope(): CodeGenScope {
+    return CodeGenScope(Mockito.mock(ClassWriter::class.java))
+}
+
 fun simpleRun(f: (TestInvocation) -> Unit): CompileTester {
     return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
             .that(JavaFileObjects.forSourceString("foo.bar.MyClass",

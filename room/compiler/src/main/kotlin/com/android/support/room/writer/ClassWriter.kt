@@ -16,8 +16,12 @@
 
 package com.android.support.room.writer
 
+import com.android.support.room.solver.CodeGenScope.Companion.CLASS_PROPERTY_PREFIX
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.annotation.processing.ProcessingEnvironment
 
@@ -25,12 +29,71 @@ import javax.annotation.processing.ProcessingEnvironment
  * Base class for all writers that can produce a class.
  */
 abstract class ClassWriter(val className: ClassName) {
+    private val sharedFieldSpecs = mutableMapOf<String, FieldSpec>()
+    private val sharedMethodSpecs = mutableMapOf<String, MethodSpec>()
+    private val sharedFieldNames = mutableSetOf<String>()
+    private val sharedMethodNames = mutableSetOf<String>()
 
-    abstract fun createTypeSpec(): TypeSpec
+    abstract fun createTypeSpecBuilder(): TypeSpec.Builder
 
     fun write(processingEnv: ProcessingEnvironment) {
-        JavaFile.builder(className.packageName(), createTypeSpec())
+        val builder = createTypeSpecBuilder()
+        sharedFieldSpecs.values.forEach { builder.addField(it) }
+        sharedMethodSpecs.values.forEach { builder.addMethod(it) }
+        JavaFile.builder(className.packageName(), builder.build())
                 .build()
                 .writeTo(processingEnv.filer)
+    }
+
+    private fun makeUnique(set: MutableSet<String>, value: String): String {
+        if (!value.startsWith(CLASS_PROPERTY_PREFIX)) {
+            return makeUnique(set, "$CLASS_PROPERTY_PREFIX$value")
+        }
+        if (set.add(value)) {
+            return value
+        }
+        var index = 1
+        while (true) {
+            if (set.add("${value}_$index")) {
+                return "${value}_$index"
+            }
+            index++
+        }
+    }
+
+    fun addSharedField(sharedField: SharedFieldSpec): FieldSpec {
+        return sharedFieldSpecs.getOrPut(sharedField.getUniqueKey(), {
+            sharedField.build(makeUnique(sharedFieldNames, sharedField.baseName))
+        })
+    }
+
+    fun addSharedMethod(sharedMethod: SharedMethodSpec): MethodSpec {
+        return sharedMethodSpecs.getOrPut(sharedMethod.getUniqueKey(), {
+            sharedMethod.build(makeUnique(sharedMethodNames, sharedMethod.baseName))
+        })
+    }
+
+    abstract class SharedFieldSpec(val baseName: String, val type: TypeName) {
+
+        abstract fun getUniqueKey(): String
+        abstract fun prepare(builder: FieldSpec.Builder)
+
+        fun build(name: String): FieldSpec {
+            val builder = FieldSpec.builder(type, name)
+            prepare(builder)
+            return builder.build()
+        }
+    }
+
+    abstract class SharedMethodSpec(val baseName: String) {
+
+        abstract fun getUniqueKey(): String
+        abstract fun prepare(builder: MethodSpec.Builder)
+
+        fun build(name: String): MethodSpec {
+            val builder = MethodSpec.methodBuilder(name)
+            prepare(builder)
+            return builder.build()
+        }
     }
 }

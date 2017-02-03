@@ -29,6 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import simpleRun
+import testCodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeKind.DECLARED
@@ -37,7 +38,7 @@ import javax.lang.model.type.TypeMirror
 @RunWith(Parameterized::class)
 class BasicTypeConvertersTest(val input: Input, val forwardCode: String,
                                   val backwardCode: String) {
-    val scope = CodeGenScope()
+    val scope = testCodeGenScope()
 
     companion object {
         @Parameterized.Parameters(name = "kind:{0},bind:_{1},cursor:_{2}")

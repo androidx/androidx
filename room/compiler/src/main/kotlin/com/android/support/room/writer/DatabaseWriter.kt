@@ -40,7 +40,7 @@ import javax.lang.model.element.Modifier.VOLATILE
  * Writes implementation of classes that were annotated with @Database.
  */
 class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeName) {
-    override fun createTypeSpec(): TypeSpec {
+    override fun createTypeSpecBuilder(): TypeSpec.Builder {
         val builder = TypeSpec.classBuilder(database.implTypeName)
         builder.apply {
             addModifiers(PUBLIC)
@@ -49,7 +49,7 @@ class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeNam
             addMethod(createCreateInvalidationTracker())
         }
         addDaoImpls(builder)
-        return builder.build()
+        return builder
     }
 
     private fun createCreateInvalidationTracker(): MethodSpec {
@@ -65,7 +65,7 @@ class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeNam
     }
 
     private fun  addDaoImpls(builder: TypeSpec.Builder) {
-        val scope = CodeGenScope()
+        val scope = CodeGenScope(this)
         builder.apply {
             database.daoMethods.forEach { method ->
                 val name = method.dao.typeName.simpleName().decapitalize().stripNonJava()
@@ -98,7 +98,7 @@ class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeNam
     }
 
     private fun createCreateOpenHelper() : MethodSpec {
-        val scope = CodeGenScope()
+        val scope = CodeGenScope(this)
         return MethodSpec.methodBuilder("createOpenHelper").apply {
             addModifiers(Modifier.PROTECTED)
             returns(SupportDbTypeNames.SQLITE_OPEN_HELPER)

@@ -32,7 +32,7 @@ import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier.PUBLIC
 
 class EntityDeletionAdapterWriter(val entity: Entity) {
-    fun createAnonymous(dbParam: String): TypeSpec {
+    fun createAnonymous(classWriter: ClassWriter, dbParam: String): TypeSpec {
         @Suppress("RemoveSingleExpressionStringTemplate")
         return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {
             superclass(ParameterizedTypeName.get(RoomTypeNames.DELETE_OR_UPDATE_ADAPTER,
@@ -49,7 +49,7 @@ class EntityDeletionAdapterWriter(val entity: Entity) {
                 addStatement("return $S", query)
             }.build())
             addMethod(MethodSpec.methodBuilder("bind").apply {
-                val bindScope = CodeGenScope()
+                val bindScope = CodeGenScope(classWriter)
                 addAnnotation(Override::class.java)
                 val stmtParam = "stmt"
                 addParameter(ParameterSpec.builder(SupportDbTypeNames.SQLITE_STMT,

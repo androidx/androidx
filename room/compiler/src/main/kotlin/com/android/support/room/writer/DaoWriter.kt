@@ -26,6 +26,7 @@ import com.android.support.room.parser.QueryType
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.vo.Dao
 import com.android.support.room.vo.DeletionMethod
+import com.android.support.room.vo.Entity
 import com.android.support.room.vo.InsertionMethod
 import com.android.support.room.vo.QueryMethod
 import com.squareup.javapoet.ClassName
@@ -47,15 +48,22 @@ import javax.lang.model.element.Modifier.PUBLIC
  */
 class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName) {
     companion object {
+        // TODO nothing prevents this from conflicting, we should fix.
         val dbField: FieldSpec = FieldSpec
                 .builder(RoomTypeNames.ROOM_DB, "__db", PRIVATE, FINAL)
                 .build()
+
+        private fun typeNameToFieldName(typeName: TypeName?): String {
+            if (typeName is ClassName) {
+                return typeName.simpleName()
+            } else {
+                return typeName.toString().replace('.', '_').stripNonJava()
+            }
+        }
     }
 
-    override fun createTypeSpec(): TypeSpec {
+    override fun createTypeSpecBuilder(): TypeSpec.Builder {
         val builder = TypeSpec.classBuilder(dao.implTypeName)
-        val scope = CodeGenScope()
-
         /**
          * if delete / update query method wants to return modified rows, we need prepared query.
          * in that case, if args are dynamic, we cannot re-use the query, if not, we should re-use
@@ -68,9 +76,9 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
         val preparedDeleteOrUpdateQueries = groupedDeleteUpdate[false] ?: emptyList()
         // delete queries that must be rebuild every single time
         val oneOffDeleteOrUpdateQueries = groupedDeleteUpdate[true] ?: emptyList()
-        val shortcutMethods = groupAndCreateInsertionMethods(scope) +
-                groupAndCreateDeletionMethods(scope) +
-                createPreparedDeleteOrUpdateQueries(preparedDeleteOrUpdateQueries, scope)
+        val shortcutMethods = createInsertionMethods() +
+                createDeletionMethods() +
+                createPreparedDeleteOrUpdateQueries(preparedDeleteOrUpdateQueries)
 
         builder.apply {
             addModifiers(PUBLIC)
@@ -85,10 +93,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
             addMethod(createConstructor(dbParam, shortcutMethods))
 
             shortcutMethods.forEach {
-                addMethods(it.methodImpls)
-                if (it.field != null) {
-                    addField(it.field)
-                }
+                addMethod(it.methodImpl)
             }
 
             dao.queryMethods.filter { it.query.type == QueryType.SELECT }.forEach { method ->
@@ -98,26 +103,25 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
                 addMethod(createDeleteOrUpdateQueryMethod(it))
             }
         }
-        return builder.build()
+        return builder
     }
 
-    private fun createPreparedDeleteOrUpdateQueries(preparedDeleteQueries: List<QueryMethod>,
-                                                    scope: CodeGenScope): List<PreparedStmtQuery> {
+    private fun createPreparedDeleteOrUpdateQueries(preparedDeleteQueries: List<QueryMethod>)
+            : List<PreparedStmtQuery> {
         return preparedDeleteQueries.map { method ->
-            val fieldName = scope.getTmpVar("_preparedStmtOf${method.name.capitalize()}")
-            val fieldSpec =  FieldSpec.builder(RoomTypeNames.SHARED_SQLITE_STMT, fieldName,
-                    PRIVATE, FINAL).build()
+            val fieldSpec = addSharedField(PreparedStatementField(method))
             val queryWriter = QueryWriter(method)
-            val fieldImpl = PreparedStatementWriter(queryWriter).createAnonymous(dbField)
+            val fieldImpl = PreparedStatementWriter(queryWriter)
+                    .createAnonymous(this@DaoWriter, dbField)
             val methodBody = createPreparedDeleteQueryMethodBody(method, fieldSpec, queryWriter)
-            PreparedStmtQuery(fieldSpec, fieldImpl, listOf(methodBody))
+            PreparedStmtQuery(fieldSpec, fieldImpl, methodBody)
         }
     }
 
     private fun createPreparedDeleteQueryMethodBody(method: QueryMethod,
-                                                    preparedStmtField : FieldSpec,
+                                                    preparedStmtField: FieldSpec,
                                                     queryWriter: QueryWriter): MethodSpec {
-        val scope = CodeGenScope()
+        val scope = CodeGenScope(this)
         val methodBuilder = overrideWithoutAnnotations(method.element).apply {
             val stmtName = scope.getTmpVar("_stmt")
             addStatement("final $T $L = $N.acquire()",
@@ -155,19 +159,23 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
             addStatement("this.$N = $N", dbField, dbParam)
             shortcutMethods.filterNot {
                 it.field == null || it.fieldImpl == null
+            }.groupBy {
+                it.field?.name
+            }.map {
+                it.value.first()
             }.forEach {
                 addStatement("this.$N = $L", it.field, it.fieldImpl)
             }
         }.build()
     }
 
-    private fun createSelectMethod(method : QueryMethod) : MethodSpec {
+    private fun createSelectMethod(method: QueryMethod): MethodSpec {
         return overrideWithoutAnnotations(method.element).apply {
             addCode(createQueryMethodBody(method))
         }.build()
     }
 
-    private fun createDeleteOrUpdateQueryMethod(method : QueryMethod) : MethodSpec {
+    private fun createDeleteOrUpdateQueryMethod(method: QueryMethod): MethodSpec {
         return overrideWithoutAnnotations(method.element).apply {
             addCode(createDeleteOrUpdateQueryMethodBody(method))
         }.build()
@@ -177,35 +185,25 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
      * Groups all insertion methods based on the insert statement they will use then creates all
      * field specs, EntityInsertionAdapterWriter and actual insert methods.
      */
-    private fun groupAndCreateInsertionMethods(scope : CodeGenScope): List<PreparedStmtQuery> {
+    private fun createInsertionMethods(): List<PreparedStmtQuery> {
         return dao.insertionMethods
-                .groupBy {
-                    Pair(it.entity?.typeName, it.onConflictText)
-                }.map { entry ->
-            val onConflict = entry.key.second
-            val methods = entry.value
-            val entity = methods.first().entity
+                .map { insertionMethod ->
+                    val onConflict = insertionMethod.onConflictText
+                    val entity = insertionMethod.entity
 
-            val fieldSpec : FieldSpec?
-            val implSpec : TypeSpec?
-            if (entity == null) {
-                fieldSpec = null
-                implSpec = null
-            } else {
-                val fieldName = scope
-                        .getTmpVar("__insertionAdapterOf${typeNameToFieldName(entity.typeName)}")
-                fieldSpec = FieldSpec.builder(RoomTypeNames.INSERTION_ADAPTER, fieldName,
-                        FINAL, PRIVATE).build()
-                implSpec = EntityInsertionAdapterWriter(entity, onConflict)
-                        .createAnonymous(dbField.name)
-            }
-            val insertionMethodImpls = methods.map { method ->
-                overrideWithoutAnnotations(method.element).apply {
-                    addCode(createInsertionMethodBody(method, fieldSpec))
-                }.build()
-            }
-            PreparedStmtQuery(fieldSpec, implSpec, insertionMethodImpls)
-        }
+                    if (entity == null) {
+                        null
+                    } else {
+                        val fieldSpec = addSharedField(
+                                InsertionMethodField(entity, onConflict))
+                        val implSpec = EntityInsertionAdapterWriter(entity, onConflict)
+                                .createAnonymous(this@DaoWriter, dbField.name)
+                        val methodImpl = overrideWithoutAnnotations(insertionMethod.element).apply {
+                            addCode(createInsertionMethodBody(insertionMethod, fieldSpec))
+                        }.build()
+                        PreparedStmtQuery(fieldSpec, implSpec, methodImpl)
+                    }
+                }.filterNotNull()
     }
 
     private fun createInsertionMethodBody(method: InsertionMethod,
@@ -214,7 +212,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
         if (insertionAdapter == null || insertionType == null) {
             return CodeBlock.builder().build()
         }
-        val scope = CodeGenScope()
+        val scope = CodeGenScope(this)
 
         return scope.builder().apply {
             // TODO assert thread
@@ -238,42 +236,32 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
      * Groups all deletion methods based on the delete statement they will use then creates all
      * field specs, EntityDeletionAdapterWriter and actual deletion methods.
      */
-    private fun groupAndCreateDeletionMethods(scope : CodeGenScope): List<PreparedStmtQuery> {
+    private fun createDeletionMethods(): List<PreparedStmtQuery> {
         return dao.deletionMethods
-                .groupBy {
-                    it.entity?.typeName
-                }.map { entry ->
-            val methods = entry.value
-            val entity = methods.first().entity
+                .map { method ->
+                    val entity = method.entity
 
-            val fieldSpec : FieldSpec?
-            val implSpec : TypeSpec?
-            if (entity == null) {
-                fieldSpec = null
-                implSpec = null
-            } else {
-                val fieldName = scope
-                        .getTmpVar("__deletionAdapterOf${typeNameToFieldName(entity.typeName)}")
-                fieldSpec = FieldSpec.builder(RoomTypeNames.DELETE_OR_UPDATE_ADAPTER, fieldName,
-                        FINAL, PRIVATE).build()
-                implSpec = EntityDeletionAdapterWriter(entity)
-                        .createAnonymous(dbField.name)
-            }
-            val deletionMethodImpls = methods.map { method ->
-                overrideWithoutAnnotations(method.element).apply {
-                    addCode(createDeletionMethodBody(method, fieldSpec))
-                }.build()
-            }
-            PreparedStmtQuery(fieldSpec, implSpec, deletionMethodImpls)
-        }
+                    if (entity == null) {
+                        null
+                    } else {
+                        val fieldSpec = addSharedField(DeleteOrUpdateAdapterField(entity))
+                        val implSpec = EntityDeletionAdapterWriter(entity)
+                                .createAnonymous(this@DaoWriter, dbField.name)
+                        val methodSpec = overrideWithoutAnnotations(method.element).apply {
+                            addCode(createDeletionMethodBody(method, fieldSpec))
+                        }.build()
+                        PreparedStmtQuery(fieldSpec, implSpec, methodSpec)
+                    }
+
+                }.filterNotNull()
     }
 
     private fun createDeletionMethodBody(method: DeletionMethod,
-                                          deletionAdapter: FieldSpec?): CodeBlock {
+                                         deletionAdapter: FieldSpec?): CodeBlock {
         if (deletionAdapter == null) {
             return CodeBlock.builder().build()
         }
-        val scope = CodeGenScope()
+        val scope = CodeGenScope(this)
         val resultVar = if (method.returnCount) {
             scope.getTmpVar("_total")
         } else {
@@ -307,7 +295,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
      */
     private fun createDeleteOrUpdateQueryMethodBody(method: QueryMethod): CodeBlock {
         val queryWriter = QueryWriter(method)
-        val scope = CodeGenScope()
+        val scope = CodeGenScope(this)
         val sqlVar = scope.getTmpVar("_sql")
         val stmtVar = scope.getTmpVar("_stmt")
         queryWriter.prepareQuery(sqlVar, scope)
@@ -339,7 +327,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
 
     private fun createQueryMethodBody(method: QueryMethod): CodeBlock {
         val queryWriter = QueryWriter(method)
-        val scope = CodeGenScope()
+        val scope = CodeGenScope(this)
         val sqlVar = scope.getTmpVar("_sql")
         val roomSQLiteQueryVar = scope.getTmpVar("_statement")
         queryWriter.prepareReadAndBind(sqlVar, roomSQLiteQueryVar, scope)
@@ -358,15 +346,44 @@ class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName
         }
     }
 
-    private fun typeNameToFieldName(typeName: TypeName): String {
-        if (typeName is ClassName) {
-            return typeName.simpleName()
-        } else {
-            return typeName.toString().replace('.', '_').stripNonJava()
+    data class PreparedStmtQuery(val field: FieldSpec?,
+                                 val fieldImpl: TypeSpec?,
+                                 val methodImpl: MethodSpec)
+
+    private class InsertionMethodField(val entity: Entity, val onConflictText: String)
+        : SharedFieldSpec(
+            "insertionAdapterOf${Companion.typeNameToFieldName(entity.typeName)}",
+            RoomTypeNames.INSERTION_ADAPTER) {
+
+        override fun getUniqueKey(): String {
+            return "${entity.typeName} $onConflictText"
+        }
+
+        override fun prepare(builder: FieldSpec.Builder) {
+            builder.addModifiers(FINAL, PRIVATE)
         }
     }
 
-    data class PreparedStmtQuery(val field: FieldSpec?,
-                                 val fieldImpl: TypeSpec?,
-                                 val methodImpls: List<MethodSpec>)
+    class DeleteOrUpdateAdapterField(val entity: Entity) : SharedFieldSpec(
+            "deletionAdapterOf${Companion.typeNameToFieldName(entity.typeName)}",
+            RoomTypeNames.DELETE_OR_UPDATE_ADAPTER) {
+        override fun prepare(builder: FieldSpec.Builder) {
+            builder.addModifiers(PRIVATE, FINAL)
+        }
+
+        override fun getUniqueKey(): String {
+            return entity.typeName.toString()
+        }
+    }
+
+    class PreparedStatementField(val method: QueryMethod) : SharedFieldSpec(
+            "preparedStmtOf${method.name.capitalize()}", RoomTypeNames.SHARED_SQLITE_STMT) {
+        override fun prepare(builder: FieldSpec.Builder) {
+            builder.addModifiers(PRIVATE, FINAL)
+        }
+
+        override fun getUniqueKey(): String {
+            return method.query.original
+        }
+    }
 }

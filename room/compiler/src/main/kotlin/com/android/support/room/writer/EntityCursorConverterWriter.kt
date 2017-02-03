@@ -38,7 +38,7 @@ import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier.PUBLIC
 
 class EntityCursorConverterWriter(val entity: Entity) : ClassWriter(entity.typeName as ClassName) {
-    override fun createTypeSpec(): TypeSpec {
+    override fun createTypeSpecBuilder(): TypeSpec.Builder {
         return TypeSpec.classBuilder(entity.converterClassName)
                 .apply {
                     addSuperinterface(ParameterizedTypeName.get(RoomTypeNames.CURSOR_CONVERTER,
@@ -56,12 +56,11 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter(entity.typeN
                             }.build()
                     )
                 }
-                .build()
     }
 
     private fun buildConvertMethodBody(cursorParam: ParameterSpec) : CodeBlock {
         // TODO support arg constructor
-        val scope = CodeGenScope()
+        val scope = CodeGenScope(this)
         val entityVar = scope.getTmpVar("_entity")
         scope.builder().apply {
             addStatement("$T $L = new $T()", entity.typeName, entityVar, entity.typeName)
