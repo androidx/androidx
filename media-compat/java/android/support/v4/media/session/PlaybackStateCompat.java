@@ -251,9 +251,10 @@ public final class PlaybackStateCompat implements Parcelable {
 
     /**
      * State indicating this item is currently in an error state. The error
-     * message should also be set when entering this state.
+     * code should also be set when entering this state.
      *
      * @see Builder#setState
+     * @see Builder#setErrorMessage(int, CharSequence)
      */
     public final static int STATE_ERROR = 7;
 
@@ -299,6 +300,91 @@ public final class PlaybackStateCompat implements Parcelable {
      * Use this value for the position to indicate the position is not known.
      */
     public final static long PLAYBACK_POSITION_UNKNOWN = -1;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({ERROR_CODE_UNKNOWN_ERROR, ERROR_CODE_APP_ERROR, ERROR_CODE_NOT_SUPPORTED,
+            ERROR_CODE_AUTHENTICATION_EXPIRED, ERROR_CODE_PREMIUM_ACCOUNT_REQUIRED,
+            ERROR_CODE_CONCURRENT_STREAM_LIMIT, ERROR_CODE_PARENTAL_CONTROL_RESTRICTED,
+            ERROR_CODE_NOT_AVAILABLE_IN_REGION, ERROR_CODE_CONTENT_ALREADY_PLAYING,
+            ERROR_CODE_SKIP_LIMIT_REACHED, ERROR_CODE_ACTION_ABORTED, ERROR_CODE_END_OF_QUEUE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ErrorCode {}
+
+    /**
+     * This is the default error code and indicates that none of the other error codes applies.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_UNKNOWN_ERROR = 0;
+
+    /**
+     * Error code when the application state is invalid to fulfill the request.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_APP_ERROR = 1;
+
+    /**
+     * Error code when the request is not supported by the application.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_NOT_SUPPORTED = 2;
+
+    /**
+     * Error code when the request cannot be performed because authentication has expired.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_AUTHENTICATION_EXPIRED = 3;
+
+    /**
+     * Error code when a premium account is required for the request to succeed.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_PREMIUM_ACCOUNT_REQUIRED = 4;
+
+    /**
+     * Error code when too many concurrent streams are detected.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_CONCURRENT_STREAM_LIMIT = 5;
+
+    /**
+     * Error code when the content is blocked due to parental controls.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_PARENTAL_CONTROL_RESTRICTED = 6;
+
+    /**
+     * Error code when the content is blocked due to being regionally unavailable.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_NOT_AVAILABLE_IN_REGION = 7;
+
+    /**
+     * Error code when the requested content is already playing.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_CONTENT_ALREADY_PLAYING = 8;
+
+    /**
+     * Error code when the application cannot skip any more songs because skip limit is reached.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_SKIP_LIMIT_REACHED = 9;
+
+    /**
+     * Error code when the action is interrupted due to some external event.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_ACTION_ABORTED = 10;
+
+    /**
+     * Error code when the playback navigation (previous, next) is not possible because the queue
+     * was exhausted.
+     * The error code should be set when entering {@link #STATE_ERROR}.
+     */
+    public static final int ERROR_CODE_END_OF_QUEUE = 11;
 
     // KeyEvent constants only available on API 11+
     private static final int KEYCODE_MEDIA_PAUSE = 127;
@@ -348,6 +434,7 @@ public final class PlaybackStateCompat implements Parcelable {
     final long mBufferedPosition;
     final float mSpeed;
     final long mActions;
+    final int mErrorCode;
     final CharSequence mErrorMessage;
     final long mUpdateTime;
     List<PlaybackStateCompat.CustomAction> mCustomActions;
@@ -357,7 +444,7 @@ public final class PlaybackStateCompat implements Parcelable {
     private Object mStateObj;
 
     PlaybackStateCompat(int state, long position, long bufferedPosition,
-            float rate, long actions, CharSequence errorMessage, long updateTime,
+            float rate, long actions, int errorCode, CharSequence errorMessage, long updateTime,
             List<PlaybackStateCompat.CustomAction> customActions,
             long activeItemId, Bundle extras) {
         mState = state;
@@ -365,6 +452,7 @@ public final class PlaybackStateCompat implements Parcelable {
         mBufferedPosition = bufferedPosition;
         mSpeed = rate;
         mActions = actions;
+        mErrorCode = errorCode;
         mErrorMessage = errorMessage;
         mUpdateTime = updateTime;
         mCustomActions = new ArrayList<>(customActions);
@@ -383,6 +471,8 @@ public final class PlaybackStateCompat implements Parcelable {
         mCustomActions = in.createTypedArrayList(CustomAction.CREATOR);
         mActiveItemId = in.readLong();
         mExtras = in.readBundle();
+        // New attributes should be added at the end for backward compatibility.
+        mErrorCode = in.readInt();
     }
 
     @Override
@@ -394,7 +484,8 @@ public final class PlaybackStateCompat implements Parcelable {
         bob.append(", speed=").append(mSpeed);
         bob.append(", updated=").append(mUpdateTime);
         bob.append(", actions=").append(mActions);
-        bob.append(", error=").append(mErrorMessage);
+        bob.append(", error code=").append(mErrorCode);
+        bob.append(", error message=").append(mErrorMessage);
         bob.append(", custom actions=").append(mCustomActions);
         bob.append(", active item id=").append(mActiveItemId);
         bob.append("}");
@@ -418,6 +509,8 @@ public final class PlaybackStateCompat implements Parcelable {
         dest.writeTypedList(mCustomActions);
         dest.writeLong(mActiveItemId);
         dest.writeBundle(mExtras);
+        // New attributes should be added at the end for backward compatibility.
+        dest.writeInt(mErrorCode);
     }
 
     /**
@@ -505,8 +598,33 @@ public final class PlaybackStateCompat implements Parcelable {
     }
 
     /**
-     * Get a user readable error message. This should be set when the state is
+     * Get the error code. This should be set when the state is
      * {@link PlaybackStateCompat#STATE_ERROR}.
+     *
+     * @see #ERROR_CODE_UNKNOWN_ERROR
+     * @see #ERROR_CODE_APP_ERROR
+     * @see #ERROR_CODE_NOT_SUPPORTED
+     * @see #ERROR_CODE_AUTHENTICATION_EXPIRED
+     * @see #ERROR_CODE_PREMIUM_ACCOUNT_REQUIRED
+     * @see #ERROR_CODE_CONCURRENT_STREAM_LIMIT
+     * @see #ERROR_CODE_PARENTAL_CONTROL_RESTRICTED
+     * @see #ERROR_CODE_NOT_AVAILABLE_IN_REGION
+     * @see #ERROR_CODE_CONTENT_ALREADY_PLAYING
+     * @see #ERROR_CODE_SKIP_LIMIT_REACHED
+     * @see #ERROR_CODE_ACTION_ABORTED
+     * @see #ERROR_CODE_END_OF_QUEUE
+     * @see #getErrorMessage()
+     */
+    @ErrorCode
+    public int getErrorCode() {
+        return mErrorCode;
+    }
+
+    /**
+     * Get the user readable optional error message. This may be set when the state is
+     * {@link PlaybackStateCompat#STATE_ERROR}.
+     *
+     * @see #getErrorCode()
      */
     public CharSequence getErrorMessage() {
         return mErrorMessage;
@@ -574,6 +692,7 @@ public final class PlaybackStateCompat implements Parcelable {
                 PlaybackStateCompatApi21.getBufferedPosition(stateObj),
                 PlaybackStateCompatApi21.getPlaybackSpeed(stateObj),
                 PlaybackStateCompatApi21.getActions(stateObj),
+                ERROR_CODE_UNKNOWN_ERROR,
                 PlaybackStateCompatApi21.getErrorMessage(stateObj),
                 PlaybackStateCompatApi21.getLastPositionUpdateTime(stateObj),
                 customActions,
@@ -856,6 +975,7 @@ public final class PlaybackStateCompat implements Parcelable {
         private long mBufferedPosition;
         private float mRate;
         private long mActions;
+        private int mErrorCode;
         private CharSequence mErrorMessage;
         private long mUpdateTime;
         private long mActiveItemId = MediaSessionCompat.QueueItem.UNKNOWN_ID;
@@ -880,6 +1000,7 @@ public final class PlaybackStateCompat implements Parcelable {
             mUpdateTime = source.mUpdateTime;
             mBufferedPosition = source.mBufferedPosition;
             mActions = source.mActions;
+            mErrorCode = source.mErrorCode;
             mErrorMessage = source.mErrorMessage;
             if (source.mCustomActions != null) {
                 mCustomActions.addAll(source.mCustomActions);
@@ -1070,8 +1191,23 @@ public final class PlaybackStateCompat implements Parcelable {
          * is {@link PlaybackStateCompat#STATE_ERROR}.
          *
          * @return this
+         * @deprecated Use {@link #setErrorMessage(int, CharSequence)} instead.
          */
         public Builder setErrorMessage(CharSequence errorMessage) {
+            mErrorMessage = errorMessage;
+            return this;
+        }
+
+        /**
+         * Set the error code with an optional user readable error message. This should be set when
+         * the state is {@link PlaybackStateCompat#STATE_ERROR}.
+         *
+         * @param errorCode The errorCode to set.
+         * @param errorMessage The user readable error message. Can be null.
+         * @return this
+         */
+        public Builder setErrorMessage(@ErrorCode int errorCode, CharSequence errorMessage) {
+            mErrorCode = errorCode;
             mErrorMessage = errorMessage;
             return this;
         }
@@ -1092,7 +1228,7 @@ public final class PlaybackStateCompat implements Parcelable {
          */
         public PlaybackStateCompat build() {
             return new PlaybackStateCompat(mState, mPosition, mBufferedPosition,
-                    mRate, mActions, mErrorMessage, mUpdateTime,
+                    mRate, mActions, mErrorCode, mErrorMessage, mUpdateTime,
                     mCustomActions, mActiveItemId, mExtras);
         }
     }
