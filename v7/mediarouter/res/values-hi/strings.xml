@@ -19,12 +19,12 @@
     <string name="mr_system_route_name" msgid="5441529851481176817">"सिस्टम"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"डिवाइस"</string>
     <string name="mr_button_content_description" msgid="3698378085901466129">"कास्ट करें बटन"</string>
-    <string name="mr_cast_button_disconnected" msgid="816305490427819240">"कास्ट करें बटन. डिस्कनेक्ट है"</string>
+    <string name="mr_cast_button_disconnected" msgid="816305490427819240">"कास्ट करें बटन. डिसकनेक्ट है"</string>
     <string name="mr_cast_button_connecting" msgid="2187642765091873834">"कास्ट करें बटन. कनेक्ट हो रहा है"</string>
     <string name="mr_cast_button_connected" msgid="5088427771788648085">"कास्ट करें बटन. कनेक्ट है"</string>
     <string name="mr_chooser_title" msgid="414301941546135990">"इस पर कास्‍ट करें"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"डिवाइस ढूंढ रहा है"</string>
-    <string name="mr_controller_disconnect" msgid="1227264889412989580">"डिस्कनेक्ट करें"</string>
+    <string name="mr_controller_disconnect" msgid="1227264889412989580">"डिसकनेक्ट करें"</string>
     <string name="mr_controller_stop" msgid="4570331844078181931">"कास्ट करना बंद करें"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"बंद करें"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"चलाएं"</string>

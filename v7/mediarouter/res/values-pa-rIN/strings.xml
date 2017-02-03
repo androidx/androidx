@@ -25,7 +25,7 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"ਇਸ ਨਾਲ ਕਾਸਟ ਕਰੋ"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"ਡਿਵਾਈਸਾਂ ਲੱਭ ਰਿਹਾ ਹੈ"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"ਡਿਸਕਨੈਕਟ ਕਰੋ"</string>
-    <string name="mr_controller_stop" msgid="4570331844078181931">"ਜੋੜਨਾ ਰੋਕੋ"</string>
+    <string name="mr_controller_stop" msgid="4570331844078181931">"ਕਾਸਟ ਕਰਨਾ ਰੋਕੋ"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"ਬੰਦ ਕਰੋ"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"ਪਲੇ ਕਰੋ"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"ਰੋਕੋ"</string>
