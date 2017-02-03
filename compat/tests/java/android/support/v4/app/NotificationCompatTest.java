@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.Notification;
 import android.content.Context;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -106,6 +107,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         assertFalse(a.getAllowGeneratedReplies());
     }
 
+    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesTrue()
             throws Throwable {
@@ -118,6 +120,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 .getAllowGeneratedReplies());
     }
 
+    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesFalse()
             throws Throwable {
@@ -128,6 +131,20 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         Notification notification = newNotificationBuilder().extend(extender).build();
         assertFalse(new NotificationCompat.WearableExtender(notification).getActions().get(0)
                 .getAllowGeneratedReplies());
+    }
+
+
+    @SdkSuppress(maxSdkVersion = 16)
+    @SmallTest
+    @Test
+    public void testNotificationWearableExtenderAction_noActions()
+            throws Throwable {
+        NotificationCompat.Action a = newActionBuilder()
+                .setAllowGeneratedReplies(true).build();
+        NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
+                .addAction(a);
+        Notification notification = newNotificationBuilder().extend(extender).build();
+        assertTrue(new NotificationCompat.WearableExtender(notification).getActions().size() == 0);
     }
 
     @Test
