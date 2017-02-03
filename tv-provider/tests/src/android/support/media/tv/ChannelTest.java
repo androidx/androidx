@@ -18,6 +18,7 @@ package android.support.media.tv;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.MatrixCursor;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
@@ -52,7 +53,8 @@ public class ChannelTest extends TestCase {
                 .setDisplayNumber("3")
                 .setDescription("This is a sample channel")
                 .setOriginalNetworkId(1)
-                .setAppLinkIntentUri(new Intent().toUri(Intent.URI_INTENT_SCHEME))
+                .setAppLinkIntentUri(Uri.parse(new Intent(Intent.ACTION_VIEW).toUri(
+                        Intent.URI_INTENT_SCHEME)))
                 .setOriginalNetworkId(0)
                 .build();
         ContentValues contentValues = sampleChannel.toContentValues();
@@ -66,9 +68,9 @@ public class ChannelTest extends TestCase {
     public void testFullyPopulatedChannel() {
         Channel fullyPopulatedChannel = new Channel.Builder()
                 .setAppLinkColor(0x00FF0000)
-                .setAppLinkIconUri("http://example.com/icon.png")
+                .setAppLinkIconUri(Uri.parse("http://example.com/icon.png"))
                 .setAppLinkIntent(new Intent())
-                .setAppLinkPosterArtUri("http://example.com/poster.png")
+                .setAppLinkPosterArtUri(Uri.parse("http://example.com/poster.png"))
                 .setAppLinkText("Open an intent")
                 .setDescription("Channel description")
                 .setDisplayName("Display Name")

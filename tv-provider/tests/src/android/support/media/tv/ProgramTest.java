@@ -16,15 +16,19 @@
 package android.support.media.tv;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.MatrixCursor;
 import android.media.tv.TvContentRating;
+import android.net.Uri;
 import android.os.Build;
+import android.support.v4.os.BuildCompat;
 
 import junit.framework.TestCase;
 
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -49,7 +53,7 @@ public class ProgramTest extends TestCase {
                 .setChannelId(3)
                 .setEpisodeNumber(5)
                 .setSeasonNumber("The Final Season", 7)
-                .setThumbnailUri("http://www.example.com/programs/poster.png")
+                .setThumbnailUri(Uri.parse("http://www.example.com/programs/poster.png"))
                 .setStartTimeUtcMillis(0)
                 .setEndTimeUtcMillis(1000)
                 .build();
@@ -66,7 +70,7 @@ public class ProgramTest extends TestCase {
         Program fullyPopulatedProgram = new Program.Builder()
                 .setSearchable(false)
                 .setChannelId(3)
-                .setThumbnailUri("http://example.com/thumbnail.png")
+                .setThumbnailUri(Uri.parse("http://example.com/thumbnail.png"))
                 .setAudioLanguages(new String [] {"eng", "kor"})
                 .setBroadcastGenres(new String[] {"Music", "Family"})
                 .setCanonicalGenres(new String[] {TvContractCompat.Programs.Genres.MOVIES})
@@ -77,7 +81,7 @@ public class ProgramTest extends TestCase {
                 .setEpisodeNumber("Pilot", 0)
                 .setEpisodeTitle("Hello World")
                 .setLongDescription("This is a longer description than the previous description")
-                .setPosterArtUri("http://example.com/poster.png")
+                .setPosterArtUri(Uri.parse("http://example.com/poster.png"))
                 .setRecordingProhibited(false)
                 .setSeasonNumber("The Final Season", 7)
                 .setSeasonTitle("The Final Season")
@@ -86,16 +90,33 @@ public class ProgramTest extends TestCase {
                 .setVideoHeight(1080)
                 .setVideoWidth(1920)
                 .setInternalProviderId("ID-4321")
-                .setPreviewVideoUri("http://example.com/preview-video.mpg")
-                .setPreviewLastPlaybackPosition(0)
-                .setPreviewDuration(60 * 1000)
-                .setPreviewIntentUri("app_link_intent")
-                .setPreviewWeight(100)
+                .setPreviewVideoUri(Uri.parse("http://example.com/preview-video.mpg"))
+                .setLastPlaybackPositionMillis(0)
+                .setDurationMillis(60 * 1000)
+                .setAppLinkIntentUri(Uri.parse(new Intent(Intent.ACTION_VIEW).toUri(
+                        Intent.URI_INTENT_SCHEME)))
+                .setWeight(100)
                 .setInternalProviderFlag1(0x4)
                 .setInternalProviderFlag2(0x3)
                 .setInternalProviderFlag3(0x2)
                 .setInternalProviderFlag4(0x1)
                 .setTransient(false)
+                .setType(TvContractCompat.Programs.TYPE_MOVIE)
+                .setWatchNextType(TvContractCompat.Programs.WATCH_NEXT_TYPE_NEW)
+                .setPosterArtAspectRatio(TvContractCompat.Programs.ASPECT_RATIO_2_3)
+                .setThumbnailAspectRatio(TvContractCompat.Programs.ASPECT_RATIO_16_9)
+                .setLogoUri(Uri.parse("http://example.com/program-logo.mpg"))
+                .setAvailability(TvContractCompat.Programs.AVAILABILITY_AVAILABLE)
+                .setStartingPrice("12.99 USD")
+                .setOfferPrice("4.99 USD")
+                .setReleaseDate("1997")
+                .setItemCount(3)
+                .setLive(false)
+                .setInteractionType(TvContractCompat.Programs.INTERACTION_TYPE_LIKES)
+                .setInteractionCount(10200)
+                .setAuthor("author_name")
+                .setReviewRatingStyle(TvContractCompat.Programs.REVIEW_RATING_STYLE_STARS)
+                .setReviewRating("4.5")
                 .build();
 
         ContentValues contentValues = fullyPopulatedProgram.toContentValues();
@@ -113,15 +134,31 @@ public class ProgramTest extends TestCase {
                 .setChannelId(3)
                 .setTitle("Recommended Video 1")
                 .setDescription("You should watch this!")
-                .setPosterArtUri("http://example.com/poster.png")
+                .setPosterArtUri(Uri.parse("http://example.com/poster.png"))
                 .setInternalProviderFlag2(0x0010010084108410L)
                 .setInternalProviderId("ID-4321")
-                .setPreviewVideoUri("http://example.com/preview-video.mpg")
-                .setPreviewLastPlaybackPosition(0)
-                .setPreviewDuration(60 * 1000)
-                .setPreviewIntentUri("app_link_intent")
-                .setPreviewWeight(100)
+                .setPreviewVideoUri(Uri.parse("http://example.com/preview-video.mpg"))
+                .setLastPlaybackPositionMillis(0)
+                .setDurationMillis(60 * 1000)
+                .setAppLinkIntentUri(Uri.parse(new Intent(Intent.ACTION_VIEW).toUri(
+                        Intent.URI_INTENT_SCHEME)))
+                .setWeight(100)
                 .setTransient(false)
+                .setType(TvContractCompat.Programs.TYPE_TV_EPISODE)
+                .setWatchNextType(TvContractCompat.Programs.WATCH_NEXT_TYPE_CONTINUE)
+                .setPosterArtAspectRatio(TvContractCompat.Programs.ASPECT_RATIO_3_2)
+                .setThumbnailAspectRatio(TvContractCompat.Programs.ASPECT_RATIO_16_9)
+                .setLogoUri(Uri.parse("http://example.com/program-logo.mpg"))
+                .setAvailability(TvContractCompat.Programs.AVAILABILITY_FREE_WITH_SUBSCRIPTION)
+                .setStartingPrice("9.99 USD")
+                .setOfferPrice("3.99 USD")
+                .setReleaseDate(new Date(97, 2, 8))
+                .setLive(false)
+                .setInteractionType(TvContractCompat.Programs.INTERACTION_TYPE_VIEWS)
+                .setInteractionCount(99200)
+                .setAuthor("author_name")
+                .setReviewRatingStyle(TvContractCompat.Programs.REVIEW_RATING_STYLE_PERCENTAGE)
+                .setReviewRating("83.9")
                 .build();
 
         String[] partialProjection = {
@@ -133,11 +170,27 @@ public class ProgramTest extends TestCase {
                 TvContractCompat.Programs.COLUMN_INTERNAL_PROVIDER_FLAG2,
                 TvContractCompat.Programs.COLUMN_INTERNAL_PROVIDER_ID,
                 TvContractCompat.Programs.COLUMN_PREVIEW_VIDEO_URI,
-                TvContractCompat.Programs.COLUMN_PREVIEW_LAST_PLAYBACK_POSITION,
-                TvContractCompat.Programs.COLUMN_PREVIEW_DURATION,
-                TvContractCompat.Programs.COLUMN_PREVIEW_INTENT_URI,
-                TvContractCompat.Programs.COLUMN_PREVIEW_WEIGHT,
+                TvContractCompat.Programs.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
+                TvContractCompat.Programs.COLUMN_DURATION_MILLIS,
+                TvContractCompat.Programs.COLUMN_APP_LINK_INTENT_URI,
+                TvContractCompat.Programs.COLUMN_WEIGHT,
                 TvContractCompat.Programs.COLUMN_TRANSIENT,
+                TvContractCompat.Programs.COLUMN_TYPE,
+                TvContractCompat.Programs.COLUMN_WATCH_NEXT_TYPE,
+                TvContractCompat.Programs.COLUMN_POSTER_ART_ASPECT_RATIO,
+                TvContractCompat.Programs.COLUMN_THUMBNAIL_ASPECT_RATIO,
+                TvContractCompat.Programs.COLUMN_LOGO_URI,
+                TvContractCompat.Programs.COLUMN_AVAILABILITY,
+                TvContractCompat.Programs.COLUMN_STARTING_PRICE,
+                TvContractCompat.Programs.COLUMN_OFFER_PRICE,
+                TvContractCompat.Programs.COLUMN_RELEASE_DATE,
+                TvContractCompat.Programs.COLUMN_ITEM_COUNT,
+                TvContractCompat.Programs.COLUMN_LIVE,
+                TvContractCompat.Programs.COLUMN_INTERACTION_TYPE,
+                TvContractCompat.Programs.COLUMN_INTERACTION_COUNT,
+                TvContractCompat.Programs.COLUMN_AUTHOR,
+                TvContractCompat.Programs.COLUMN_REVIEW_RATING_STYLE,
+                TvContractCompat.Programs.COLUMN_REVIEW_RATING,
         };
 
         ContentValues contentValues = previewProgram.toContentValues();
@@ -178,6 +231,32 @@ public class ProgramTest extends TestCase {
             assertTrue(Objects.equals(programA.getSeasonTitle(), programB.getSeasonTitle()));
             assertTrue(Objects.equals(programA.isRecordingProhibited(),
                     programB.isRecordingProhibited()));
+        }
+        if (BuildCompat.isAtLeastO()) {
+            assertEquals(programA.getInternalProviderId(), programB.getInternalProviderId());
+            assertEquals(programA.getPreviewVideoUri(), programB.getPreviewVideoUri());
+            assertEquals(programA.getLastPlaybackPositionMillis(),
+                    programB.getLastPlaybackPositionMillis());
+            assertEquals(programA.getDurationMillis(), programB.getDurationMillis());
+            assertEquals(programA.getAppLinkIntentUri(), programB.getAppLinkIntentUri());
+            assertEquals(programA.getWeight(), programB.getWeight());
+            assertEquals(programA.isTransient(), programB.isTransient());
+            assertEquals(programA.getType(), programB.getType());
+            assertEquals(programA.getWatchNextType(), programB.getWatchNextType());
+            assertEquals(programA.getPosterArtAspectRatio(), programB.getPosterArtAspectRatio());
+            assertEquals(programA.getThumbnailAspectRatio(), programB.getThumbnailAspectRatio());
+            assertEquals(programA.getLogoUri(), programB.getLogoUri());
+            assertEquals(programA.getAvailability(), programB.getAvailability());
+            assertEquals(programA.getStartingPrice(), programB.getStartingPrice());
+            assertEquals(programA.getOfferPrice(), programB.getOfferPrice());
+            assertEquals(programA.getReleaseDate(), programB.getReleaseDate());
+            assertEquals(programA.getItemCount(), programB.getItemCount());
+            assertEquals(programA.isLive(), programB.isLive());
+            assertEquals(programA.getInteractionType(), programB.getInteractionType());
+            assertEquals(programA.getInteractionCount(), programB.getInteractionCount());
+            assertEquals(programA.getAuthor(), programB.getAuthor());
+            assertEquals(programA.getReviewRatingStyle(), programB.getReviewRatingStyle());
+            assertEquals(programA.getReviewRating(), programB.getReviewRating());
         }
         assertEquals(programA.toContentValues(), programB.toContentValues());
         assertEquals(programA.toString(), programB.toString());
