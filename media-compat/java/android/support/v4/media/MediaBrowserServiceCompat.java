@@ -355,6 +355,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
+    // TODO: Rename to MediaBrowserServiceImplApi26 once O is released
     class MediaBrowserServiceImplApi24 extends MediaBrowserServiceImplApi23 implements
             MediaBrowserServiceCompatApi24.ServiceCompatProxy {
         @Override
@@ -786,7 +787,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (Build.VERSION.SDK_INT >= 24 || BuildCompat.isAtLeastN()) {
+        if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
             mImpl = new MediaBrowserServiceImplApi24();
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserServiceImplApi23();
