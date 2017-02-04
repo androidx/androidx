@@ -17,7 +17,6 @@ package android.support.v17.leanback.app;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
@@ -122,7 +121,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
         final VerticalGridView gridView = ((RowsFragment) mActivity.getTestFragment())
                 .getVerticalGridView();
-        assertNull(gridView.findViewHolderForAdapterPosition(0));
         assertEquals(7, gridView.getSelectedPosition());
         assertNotNull(gridView.findViewHolderForAdapterPosition(7));
     }
@@ -150,7 +148,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
         final VerticalGridView gridView = ((RowsFragment) mActivity.getTestFragment())
                 .getVerticalGridView();
-        assertNull(gridView.findViewHolderForAdapterPosition(0));
         assertEquals(7, gridView.getSelectedPosition());
         assertNotNull(gridView.findViewHolderForAdapterPosition(7));
     }
@@ -178,7 +175,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
         final VerticalGridView gridView = ((RowsFragment) mActivity.getTestFragment())
                 .getVerticalGridView();
-        assertNull(gridView.findViewHolderForAdapterPosition(0));
         assertEquals(7, gridView.getSelectedPosition());
         assertNotNull(gridView.findViewHolderForAdapterPosition(7));
     }
@@ -220,7 +216,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         // but we could get Fragment from static variable.
         RowsFragment fragment = sLastF_restoreSelection.get();
         final VerticalGridView gridView = fragment.getVerticalGridView();
-        assertNull(gridView.findViewHolderForAdapterPosition(0));
         assertEquals(7, gridView.getSelectedPosition());
         assertNotNull(gridView.findViewHolderForAdapterPosition(7));
 
