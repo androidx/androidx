@@ -175,9 +175,8 @@ public class MediaBrowserCompatTest {
         assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
     }
 
-    // TODO(hdmoon): Uncomment after fixing failing tests. (Fails on API 24, 25)
-    // @Test
-    // @SmallTest
+    @Test
+    @SmallTest
     public void testSubscribeWithOptions() {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
