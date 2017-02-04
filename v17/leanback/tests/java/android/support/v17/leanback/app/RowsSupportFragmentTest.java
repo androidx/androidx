@@ -118,7 +118,6 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @Test
     public void selectBeforeSetAdapter() throws InterruptedException {
         launchAndWaitActivity(2000);
 
@@ -145,7 +144,6 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @Test
     public void selectBeforeAddData() throws InterruptedException {
         launchAndWaitActivity(2000);
 
@@ -172,7 +170,6 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @Test
     public void selectAfterAddData() throws InterruptedException {
         launchAndWaitActivity(2000);
 
@@ -202,7 +199,6 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @Test
     public void restoreSelection() {
         launchAndWaitActivity(1000);
 
