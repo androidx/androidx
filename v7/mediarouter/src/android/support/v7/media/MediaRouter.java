@@ -18,6 +18,7 @@ package android.support.v7.media;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -2249,30 +2250,20 @@ public final class MediaRouter {
             }
         }
 
+        @TargetApi(16)
         void syncSystemRoutes() {
             Object routerObj = MediaRouterJellybean.getMediaRouter(mApplicationContext);
-            // If a2dp is enabled, this means a BT route is the selected route, otherwise
-            // the default route is the selected one.
-            boolean a2dpEnabled = MediaRouterJellybean.isBluetoothA2dpOn(routerObj);
+            boolean routedToBluetooth = MediaRouterJellybean.checkRoutedToBluetooth(
+                mApplicationContext);
             Object selectedRouteObj = MediaRouterJellybean.getSelectedRoute(
                     routerObj, MediaRouterJellybean.ALL_ROUTE_TYPES);
             Object defaultRouteObj = mSystemProvider.getDefaultRoute();
+            Object bluetoothRouteObj = mSystemProvider.getSystemRoute(mBluetoothRoute);
 
-            if (a2dpEnabled && selectedRouteObj == defaultRouteObj) {
-                // A BT route is the currently selected route, but MediaRouter think the default
-                // route is the selected one. By selecting the BT route via framework MediaRouter,
-                // MediaRouter could correct its selected route information.
-                for (Object routeObj : MediaRouterJellybean.getRoutes(routerObj)) {
-                    if (routeObj != defaultRouteObj) {
-                        MediaRouterJellybean.selectRoute(routerObj,
-                                MediaRouterJellybean.ALL_ROUTE_TYPES, routeObj);
-                        break;
-                    }
-                }
-            } else if (!a2dpEnabled && selectedRouteObj != defaultRouteObj) {
-                // The default route is the currently selected route, but MediaRouter think a BT
-                // route is the selected one. By selecting the default route via framework
-                // MediaRouter, MediaRouter could correct its selected route information.
+            if (routedToBluetooth && selectedRouteObj == defaultRouteObj) {
+                MediaRouterJellybean.selectRoute(routerObj,
+                    MediaRouterJellybean.ALL_ROUTE_TYPES, bluetoothRouteObj);
+            } else if (!routedToBluetooth && selectedRouteObj == bluetoothRouteObj) {
                 MediaRouterJellybean.selectRoute(routerObj,
                         MediaRouterJellybean.ALL_ROUTE_TYPES, defaultRouteObj);
             }
@@ -2507,7 +2498,7 @@ public final class MediaRouter {
             }
             if (mBluetoothRoute == null && !mRoutes.isEmpty()) {
                 for (RouteInfo route : mRoutes) {
-                    if (isSystemBluetoothRoute(route) && isRouteSelectable(route)) {
+                    if (isSystemLiveAudioOnlyRoute(route) && isRouteSelectable(route)) {
                         mBluetoothRoute = route;
                         Log.i(TAG, "Found bluetooth route: " + mBluetoothRoute);
                         break;
@@ -2596,12 +2587,6 @@ public final class MediaRouter {
         private boolean isSystemDefaultRoute(RouteInfo route) {
             return route.getProviderInstance() == mSystemProvider
                     && route.mDescriptorId.equals(
-                            SystemMediaRouteProvider.DEFAULT_ROUTE_ID);
-        }
-
-        private boolean isSystemBluetoothRoute(RouteInfo route) {
-            return route.getProviderInstance() == mSystemProvider
-                    && !route.mDescriptorId.equals(
                             SystemMediaRouteProvider.DEFAULT_ROUTE_ID);
         }
 
