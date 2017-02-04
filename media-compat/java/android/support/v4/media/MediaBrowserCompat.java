@@ -121,7 +121,9 @@ public final class MediaBrowserCompat {
      */
     public MediaBrowserCompat(Context context, ComponentName serviceComponent,
             ConnectionCallback callback, Bundle rootHints) {
-        if (Build.VERSION.SDK_INT >= 24 || BuildCompat.isAtLeastN()) {
+        // To workaround an issue of {@link #unsubscribe(String, SubscriptionCallback)} on API 24
+        // and 25 devices, use the support library version of implementation on those devices.
+        if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
             mImpl = new MediaBrowserImplApi24(context, serviceComponent, callback, rootHints);
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserImplApi23(context, serviceComponent, callback, rootHints);
@@ -573,7 +575,7 @@ public final class MediaBrowserCompat {
         WeakReference<Subscription> mSubscriptionRef;
 
         public SubscriptionCallback() {
-            if (Build.VERSION.SDK_INT >= 24 || BuildCompat.isAtLeastN()) {
+            if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
                 mSubscriptionCallbackObj =
                         MediaBrowserCompatApi24.createSubscriptionCallback(new StubApi24());
                 mToken = null;
@@ -1346,9 +1348,9 @@ public final class MediaBrowserCompat {
 
         public MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
-            // Do not send the client version for API 25 and higher, since we don't need to use
-            // EXTRA_MESSENGER_BINDER for API 24 and higher.
-            if (Build.VERSION.SDK_INT < 25) {
+            // Do not send the client version for API 26 and higher, since we don't need to use
+            // EXTRA_MESSENGER_BINDER for API 26 and higher.
+            if (Build.VERSION.SDK_INT <= 25) {
                 if (rootHints == null) {
                     rootHints = new Bundle();
                 }
@@ -1422,6 +1424,8 @@ public final class MediaBrowserCompat {
             sub.putCallback(copiedOptions, callback);
 
             if (mServiceBinderWrapper == null) {
+                // TODO: When MediaBrowser is connected to framework's MediaBrowserService,
+                // subscribe with options won't work properly.
                 MediaBrowserCompatApi21.subscribe(
                         mBrowserObj, parentId, callback.mSubscriptionCallbackObj);
             } else {
@@ -1625,6 +1629,7 @@ public final class MediaBrowserCompat {
         }
     }
 
+    // TODO: Rename to MediaBrowserImplApi26 once O is released
     static class MediaBrowserImplApi24 extends MediaBrowserImplApi23 {
         public MediaBrowserImplApi24(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
