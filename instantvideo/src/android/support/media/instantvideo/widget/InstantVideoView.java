@@ -82,13 +82,6 @@ public class InstantVideoView extends FrameLayout {
         mImageView.setImageDrawable(drawable);
     }
 
-    private void reset() {
-        mVideoView.setOnPreparedListener(null);
-        mVideoView.stopPlayback();
-        mVideoView.setVisibility(GONE);
-        mImageView.setVisibility(VISIBLE);
-    }
-
     /**
      * Starts the video playback.
      */
@@ -135,5 +128,17 @@ public class InstantVideoView extends FrameLayout {
      */
     public int getCurrentPosition() {
         return mVideoView.getCurrentPosition();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        // In case the view is recycled, reset the view when it's detached.
+        reset();
+        super.onDetachedFromWindow();
+    }
+
+    private void reset() {
+        mVideoView.setOnPreparedListener(null);
+        stop();
     }
 }
