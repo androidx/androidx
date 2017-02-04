@@ -43,6 +43,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.v7.app.BaseInstrumentationTestCase;
@@ -125,8 +126,9 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
                 .check(matches(isDisplayed()));
     }
 
+    @FlakyTest(bugId = 33669575)
     @Test
-    @MediumTest
+    @LargeTest
     public void testAnchoring() {
         Builder popupBuilder = new Builder();
         popupBuilder.wireToActionButton();
