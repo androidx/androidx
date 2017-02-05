@@ -41,16 +41,16 @@ class MetadataListReader {
      * Meta tag for emoji metadata. This string is used by the font update script to insert the
      * emoji meta into the font. This meta table contains the list of all emojis which are stored in
      * binary format using FlatBuffers. This flat list is later converted by the system into a trie.
-     * {@code int} representation for "emji"
+     * {@code int} representation for "Emji"
      *
      * @see MetadataRepo
      */
-    private static final int EMJI_TAG = 0x656D6A69;
+    private static final int EMJI_TAG = 'E' << 24 | 'm' << 16 | 'j' << 8 | 'i';
 
     /**
      * The name of the meta table in the font. int representation for "meta"
      */
-    private static final int META_TABLE_NAME = 0x6D657461;
+    private static final int META_TABLE_NAME = 'm' << 24 | 'e' << 16 | 't' << 8 | 'a';
 
     /**
      * Construct MetadataList from an input stream. Does not close the given InputStream, therefore
