@@ -1587,6 +1587,68 @@ package android.support.percent {
 
 }
 
+package android.support.text.emoji {
+
+  public class EmojiCompat {
+    method public static android.support.text.emoji.EmojiCompat get();
+    method public static boolean handleDeleteSurroundingText(android.view.inputmethod.InputConnection, android.text.Editable, int, int, boolean);
+    method public static boolean handleOnKeyDown(android.text.Editable, int, android.view.KeyEvent);
+    method public boolean hasEmojiGlyph(java.lang.CharSequence);
+    method public boolean hasEmojiGlyph(java.lang.CharSequence, int);
+    method public static android.support.text.emoji.EmojiCompat init(android.support.text.emoji.EmojiCompat.Config);
+    method public boolean isInitialized();
+    method public java.lang.CharSequence process(java.lang.CharSequence);
+    method public java.lang.CharSequence process(java.lang.CharSequence, int, int);
+    method public void registerInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
+    method public void unregisterInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
+    field public static final java.lang.String EDITOR_INFO_METAVERSION_KEY = "android.support.text.emoji.emojiCompat_metadataVersion";
+    field public static final java.lang.String EDITOR_INFO_REPLACE_ALL_KEY = "android.support.text.emoji.emojiCompat_replaceAll";
+  }
+
+  public static abstract class EmojiCompat.Config {
+    ctor protected EmojiCompat.Config(android.support.text.emoji.EmojiCompat.MetadataLoader);
+    method public android.support.text.emoji.EmojiCompat.Config registerInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
+    method public android.support.text.emoji.EmojiCompat.Config setMaxEmojiPerText(int);
+    method public android.support.text.emoji.EmojiCompat.Config setReplaceAll(boolean);
+    method public android.support.text.emoji.EmojiCompat.Config unregisterInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
+  }
+
+  public static abstract class EmojiCompat.InitCallback {
+    ctor public EmojiCompat.InitCallback();
+    method public void onFailed(java.lang.Throwable);
+    method public void onInitialized();
+  }
+
+  public static abstract class EmojiCompat.LoaderCallback {
+    ctor public EmojiCompat.LoaderCallback();
+    method public abstract void onFailed(java.lang.Throwable);
+    method public abstract void onLoaded(android.support.text.emoji.MetadataRepo);
+  }
+
+  public static abstract interface EmojiCompat.MetadataLoader {
+    method public abstract void load(android.support.text.emoji.EmojiCompat.LoaderCallback);
+  }
+
+  public abstract class EmojiSpan extends android.text.style.ReplacementSpan {
+    method public int getSize(android.graphics.Paint, java.lang.CharSequence, int, int, android.graphics.Paint.FontMetricsInt);
+  }
+
+  public final class MetadataRepo {
+    method public static android.support.text.emoji.MetadataRepo create(android.graphics.Typeface, java.io.InputStream) throws java.io.IOException;
+    method public static android.support.text.emoji.MetadataRepo create(android.graphics.Typeface, java.nio.ByteBuffer) throws java.io.IOException;
+    method public static android.support.text.emoji.MetadataRepo create(android.content.res.AssetManager, java.lang.String) throws java.io.IOException;
+  }
+
+}
+
+package android.support.text.emoji.bundled {
+
+  public class BundledEmojiCompatConfig extends android.support.text.emoji.EmojiCompat.Config {
+    ctor public BundledEmojiCompatConfig(android.content.Context);
+  }
+
+}
+
 package android.support.transition {
 
   public class AutoTransition extends android.support.transition.TransitionSet {
