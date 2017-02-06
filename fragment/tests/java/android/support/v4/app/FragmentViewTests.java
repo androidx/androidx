@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import android.app.Instrumentation;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
@@ -1002,6 +1003,56 @@ public class FragmentViewTests {
         FragmentTestUtil.assertChildren(innerContainer, fragment2);
     }
 
+    // Popping the backstack with non-optimized fragments should execute the operations together.
+    // When a non-backstack fragment will be raised, it should not be destroyed.
+    @Test
+    public void popToNonBackStackFragment() throws Throwable {
+        FragmentTestUtil.setContentView(mActivityRule, R.layout.simple_container);
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        final SimpleViewFragment fragment1 = new SimpleViewFragment();
+
+        fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .commit();
+
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+
+        final SimpleViewFragment fragment2 = new SimpleViewFragment();
+
+        fm.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2)
+                .addToBackStack("two")
+                .commit();
+
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+
+        final SimpleViewFragment fragment3 = new SimpleViewFragment();
+
+        fm.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment3)
+                .addToBackStack("three")
+                .commit();
+
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+
+        assertEquals(1, fragment1.onCreateViewCount);
+        assertEquals(1, fragment2.onCreateViewCount);
+        assertEquals(1, fragment3.onCreateViewCount);
+
+        FragmentTestUtil.popBackStackImmediate(mActivityRule, "two",
+                FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+        ViewGroup container = (ViewGroup)
+                mActivityRule.getActivity().findViewById(R.id.fragmentContainer);
+
+        FragmentTestUtil.assertChildren(container, fragment1);
+
+        assertEquals(2, fragment1.onCreateViewCount);
+        assertEquals(1, fragment2.onCreateViewCount);
+        assertEquals(1, fragment3.onCreateViewCount);
+    }
+
     private View findViewById(int viewId) {
         return mActivityRule.getActivity().findViewById(viewId);
     }
@@ -1044,6 +1095,17 @@ public class FragmentViewTests {
                     .commit();
             getChildFragmentManager().executePendingTransactions();
             return view;
+        }
+    }
+
+    public static class SimpleViewFragment extends Fragment {
+        public int onCreateViewCount;
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
+            onCreateViewCount++;
+            return inflater.inflate(R.layout.fragment_a, container, false);
         }
     }
 }

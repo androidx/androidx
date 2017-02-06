@@ -2232,7 +2232,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 if (isPop) {
                     record.executeOps();
                 } else {
-                    record.executePopOps();
+                    record.executePopOps(false);
                 }
 
                 // move to the end
@@ -2350,7 +2350,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             final BackStackRecord record = records.get(i);
             final boolean isPop = isRecordPop.get(i);
             if (isPop) {
-                record.executePopOps();
+                // Only execute the add operations at the end of
+                // all transactions.
+                boolean moveToState = i == (endIndex - 1);
+                record.executePopOps(moveToState);
             } else {
                 record.executeOps();
             }
