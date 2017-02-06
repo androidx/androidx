@@ -18,7 +18,6 @@ package android.support.v4.widget;
 
 import android.content.res.Resources;
 import android.os.SystemClock;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -457,7 +456,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
             return false;
         }
 
-        final int action = MotionEventCompat.getActionMasked(event);
+        final int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mNeedsCancel = true;

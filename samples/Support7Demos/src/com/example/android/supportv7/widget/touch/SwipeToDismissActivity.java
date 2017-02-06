@@ -16,19 +16,18 @@
 
 package com.example.android.supportv7.widget.touch;
 
-import com.example.android.supportv7.R;
-import com.example.android.supportv7.widget.util.ConfigToggle;
-
 import android.annotation.TargetApi;
 import android.graphics.Canvas;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.android.supportv7.R;
+import com.example.android.supportv7.widget.util.ConfigToggle;
 
 public class SwipeToDismissActivity extends ItemTouchHelperActivity {
     boolean mSwipeStartEnabled = true;
@@ -153,7 +152,7 @@ public class SwipeToDismissActivity extends ItemTouchHelperActivity {
         vh.actionButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                     mItemTouchHelper.startSwipe(vh);
                 }
                 return false;

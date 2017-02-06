@@ -19,7 +19,6 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
@@ -91,7 +90,7 @@ abstract class AbsActionBarView extends ViewGroup {
         // eat the rest of the gesture without reporting the events to the default implementation
         // since that's what it expects.
 
-        final int action = MotionEventCompat.getActionMasked(ev);
+        final int action = ev.getActionMasked();
         if (action == MotionEvent.ACTION_DOWN) {
             mEatingTouch = false;
         }
@@ -115,19 +114,19 @@ abstract class AbsActionBarView extends ViewGroup {
         // Same deal as onTouchEvent() above. Eat all hover events, but still
         // respect the touch event dispatch contract.
 
-        final int action = MotionEventCompat.getActionMasked(ev);
-        if (action == MotionEventCompat.ACTION_HOVER_ENTER) {
+        final int action = ev.getActionMasked();
+        if (action == MotionEvent.ACTION_HOVER_ENTER) {
             mEatingHover = false;
         }
 
         if (!mEatingHover) {
             final boolean handled = super.onHoverEvent(ev);
-            if (action == MotionEventCompat.ACTION_HOVER_ENTER && !handled) {
+            if (action == MotionEvent.ACTION_HOVER_ENTER && !handled) {
                 mEatingHover = true;
             }
         }
 
-        if (action == MotionEventCompat.ACTION_HOVER_EXIT
+        if (action == MotionEvent.ACTION_HOVER_EXIT
                 || action == MotionEvent.ACTION_CANCEL) {
             mEatingHover = false;
         }

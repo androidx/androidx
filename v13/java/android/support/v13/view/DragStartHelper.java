@@ -140,8 +140,8 @@ public class DragStartHelper {
 
             case MotionEvent.ACTION_MOVE:
                 if (!MotionEventCompat.isFromSource(event, InputDeviceCompat.SOURCE_MOUSE)
-                        || (MotionEventCompat.getButtonState(event)
-                                & MotionEventCompat.BUTTON_PRIMARY) == 0) {
+                        || (event.getButtonState()
+                                & MotionEvent.BUTTON_PRIMARY) == 0) {
                     break;
                 }
                 if (mDragging) {

@@ -233,8 +233,8 @@ public final class GestureDetectorCompat {
             mVelocityTracker.addMovement(ev);
 
             final boolean pointerUp =
-                    (action & MotionEventCompat.ACTION_MASK) == MotionEventCompat.ACTION_POINTER_UP;
-            final int skipIndex = pointerUp ? MotionEventCompat.getActionIndex(ev) : -1;
+                    (action & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP;
+            final int skipIndex = pointerUp ? ev.getActionIndex() : -1;
 
             // Determine focal point
             float sumX = 0, sumY = 0;
@@ -250,22 +250,22 @@ public final class GestureDetectorCompat {
 
             boolean handled = false;
 
-            switch (action & MotionEventCompat.ACTION_MASK) {
-                case MotionEventCompat.ACTION_POINTER_DOWN:
+            switch (action & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_POINTER_DOWN:
                     mDownFocusX = mLastFocusX = focusX;
                     mDownFocusY = mLastFocusY = focusY;
                     // Cancel long press and taps
                     cancelTaps();
                     break;
 
-                case MotionEventCompat.ACTION_POINTER_UP:
+                case MotionEvent.ACTION_POINTER_UP:
                     mDownFocusX = mLastFocusX = focusX;
                     mDownFocusY = mLastFocusY = focusY;
 
                     // Check the dot product of current velocities.
                     // If the pointer that left was opposing another velocity vector, clear.
                     mVelocityTracker.computeCurrentVelocity(1000, mMaximumFlingVelocity);
-                    final int upIndex = MotionEventCompat.getActionIndex(ev);
+                    final int upIndex = ev.getActionIndex();
                     final int id1 = ev.getPointerId(upIndex);
                     final float x1 = mVelocityTracker.getXVelocity(id1);
                     final float y1 = mVelocityTracker.getYVelocity(id1);

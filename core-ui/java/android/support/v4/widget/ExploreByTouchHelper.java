@@ -24,7 +24,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.KeyEventCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewCompat.FocusDirection;
 import android.support.v4.view.ViewCompat.FocusRealDirection;
@@ -185,12 +184,12 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         }
 
         switch (event.getAction()) {
-            case MotionEventCompat.ACTION_HOVER_MOVE:
-            case MotionEventCompat.ACTION_HOVER_ENTER:
+            case MotionEvent.ACTION_HOVER_MOVE:
+            case MotionEvent.ACTION_HOVER_ENTER:
                 final int virtualViewId = getVirtualViewAt(event.getX(), event.getY());
                 updateHoveredVirtualView(virtualViewId);
                 return (virtualViewId != INVALID_ID);
-            case MotionEventCompat.ACTION_HOVER_EXIT:
+            case MotionEvent.ACTION_HOVER_EXIT:
                 if (mAccessibilityFocusedVirtualViewId != INVALID_ID) {
                     updateHoveredVirtualView(INVALID_ID);
                     return true;

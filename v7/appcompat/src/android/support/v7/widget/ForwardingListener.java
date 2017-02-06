@@ -22,7 +22,6 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.view.menu.ShowableListMenu;
 import android.view.MotionEvent;
@@ -204,7 +203,7 @@ public abstract class ForwardingListener implements View.OnTouchListener {
             return false;
         }
 
-        final int actionMasked = MotionEventCompat.getActionMasked(srcEvent);
+        final int actionMasked = srcEvent.getActionMasked();
         switch (actionMasked) {
             case MotionEvent.ACTION_DOWN:
                 mActivePointerId = srcEvent.getPointerId(0);
@@ -309,7 +308,7 @@ public abstract class ForwardingListener implements View.OnTouchListener {
         dstEvent.recycle();
 
         // Always cancel forwarding when the touch stream ends.
-        final int action = MotionEventCompat.getActionMasked(srcEvent);
+        final int action = srcEvent.getActionMasked();
         final boolean keepForwarding = action != MotionEvent.ACTION_UP
                 && action != MotionEvent.ACTION_CANCEL;
 
