@@ -313,7 +313,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      * the new task stack will be created in its entirety.</p>
      *
      * @param options Additional options for how the Activity should be started.
-     * See {@link android.content.Context#startActivity(Intent, Bundle)
+     * See {@link android.content.Context#startActivity(Intent, Bundle)}
      */
     public void startActivities(Bundle options) {
         if (mIntents.isEmpty()) {
@@ -357,7 +357,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      *              {@link Intent#fillIn(Intent, int)} to control which unspecified parts of the
      *              intent that can be supplied when the actual send happens.
      * @param options Additional options for how the Activity should be started.
-     * See {@link android.content.Context#startActivity(Intent, Bundle)
+     * See {@link android.content.Context#startActivity(Intent, Bundle)}
      * @return The obtained PendingIntent
      */
     public PendingIntent getPendingIntent(int requestCode, int flags, Bundle options) {
