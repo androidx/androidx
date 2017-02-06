@@ -133,6 +133,7 @@ public class Picker extends FrameLayout {
         super(context, attrs, defStyleAttr);
         // Make it enabled and clickable to receive Click event.
         setEnabled(true);
+        setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
         mFocusedAlpha = 1f; //getFloat(R.dimen.list_item_selected_title_text_alpha);
         mUnfocusedAlpha = 1f; //getFloat(R.dimen.list_item_unselected_text_alpha);
@@ -147,7 +148,6 @@ public class Picker extends FrameLayout {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         mRootView = (ViewGroup) inflater.inflate(R.layout.lb_picker, this, true);
         mPickerView = (ViewGroup) mRootView.findViewById(R.id.picker);
-
     }
 
     /**
@@ -196,6 +196,7 @@ public class Picker extends FrameLayout {
             columnView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
             // Width is dynamic, so has fixed size is false.
             columnView.setHasFixedSize(false);
+            columnView.setFocusable(isActivated());
             mColumnViews.add(columnView);
 
             // add view to root
@@ -549,13 +550,43 @@ public class Picker extends FrameLayout {
 
     @Override
     public void setActivated(boolean activated) {
-        if (activated != isActivated()) {
-            super.setActivated(activated);
-            updateColumnSize();
-            updateItemFocusable();
-        } else {
-            super.setActivated(activated);
+        if (activated && !isFocusable()) {
+            throw new IllegalStateException("Cannot activate an unfocusable Picker widget.");
         }
+        if (activated == isActivated()) {
+            super.setActivated(activated);
+            return;
+        }
+        super.setActivated(activated);
+        boolean hadFocus = hasFocus();
+        int column = getSelectedColumn();
+        // To avoid temporary focus loss in both the following cases, we set Picker's flag to
+        // FOCUS_BEFORE_DESCENDANTS first, and then back to FOCUS_AFTER_DESCENDANTS once done with
+        // the focus logic.
+        // 1. When changing from activated to deactivated, the Picker should grab the focus
+        // back if it's focusable. However, calling requestFocus on it will transfer the focus down
+        // to its children if it's flag is FOCUS_AFTER_DESCENDANTS.
+        // 2. When changing from deactivated to activated, while setting focusable flags on each
+        // column VerticalGridView, that column will call requestFocus (regardless of which column
+        // is the selected column) since the currently focused view (Picker) has a flag of
+        // FOCUS_AFTER_DESCENDANTS.
+        setDescendantFocusability(FOCUS_BEFORE_DESCENDANTS);
+        if (!activated && hadFocus && isFocusable()) {
+            // When picker widget that originally had focus is deactivated and it is focusable, we
+            // should not pass the focus down to the children. The Picker itself will capture focus.
+            requestFocus();
+        }
+
+        for (int i = 0; i < getColumnsCount(); i++) {
+            mColumnViews.get(i).setFocusable(activated);
+        }
+
+        updateColumnSize();
+        updateItemFocusable();
+        if (activated && hadFocus && (column >= 0)) {
+            mColumnViews.get(column).requestFocus();
+        }
+        setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
     }
 
     @Override
