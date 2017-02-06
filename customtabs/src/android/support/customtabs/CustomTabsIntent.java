@@ -393,8 +393,8 @@ public final class CustomTabsIntent {
         /**
          * Sets the action button that is displayed in the Toolbar with default tinting behavior.
          *
-         * @see {@link CustomTabsIntent.Builder#setActionButton(
-         * Bitmap, String, PendingIntent, boolean)}
+         * @see CustomTabsIntent.Builder#setActionButton(
+         * Bitmap, String, PendingIntent, boolean)
          */
         public Builder setActionButton(@NonNull Bitmap icon, @NonNull String description,
                 @NonNull PendingIntent pendingIntent) {
