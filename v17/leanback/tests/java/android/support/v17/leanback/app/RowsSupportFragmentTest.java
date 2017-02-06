@@ -109,6 +109,12 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    getVerticalGridView().requestLayout();
+                }
+            }, 100);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
                     ListRowPresenter lrp = new ListRowPresenter();
                     ArrayObjectAdapter adapter = new ArrayObjectAdapter(lrp);
                     setAdapter(adapter);
@@ -118,6 +124,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
+    @Test
     public void selectBeforeSetAdapter() throws InterruptedException {
         launchAndWaitActivity(2000);
 
@@ -138,12 +145,19 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    getVerticalGridView().requestLayout();
+                }
+            }, 100);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
                     loadData(adapter, 10, 1);
                 }
             }, 1000);
         }
     }
 
+    @Test
     public void selectBeforeAddData() throws InterruptedException {
         launchAndWaitActivity(2000);
 
@@ -170,6 +184,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
+    @Test
     public void selectAfterAddData() throws InterruptedException {
         launchAndWaitActivity(2000);
 
@@ -199,6 +214,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
+    @Test
     public void restoreSelection() {
         launchAndWaitActivity(1000);
 

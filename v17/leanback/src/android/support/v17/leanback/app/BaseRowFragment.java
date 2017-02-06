@@ -47,8 +47,10 @@ abstract class BaseRowFragment extends Fragment {
                 @Override
                 public void onChildViewHolderSelected(RecyclerView parent,
                         RecyclerView.ViewHolder view, int position, int subposition) {
-                    mSelectedPosition = position;
-                    onRowSelected(parent, view, position, subposition);
+                    if (!mLateSelectionObserver.mIsLateSelection) {
+                        mSelectedPosition = position;
+                        onRowSelected(parent, view, position, subposition);
+                    }
                 }
             };
 
