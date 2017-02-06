@@ -1340,7 +1340,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      *
      * @param extension ViewCacheExtension to be used or null if you want to clear the existing one.
      *
-     * @see {@link ViewCacheExtension#getViewForPositionAndType(Recycler, int, int)}
+     * @see ViewCacheExtension#getViewForPositionAndType(Recycler, int, int)
      */
     public void setViewCacheExtension(ViewCacheExtension extension) {
         mRecycler.setViewCacheExtension(extension);
