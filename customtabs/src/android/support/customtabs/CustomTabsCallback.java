@@ -19,7 +19,8 @@ package android.support.customtabs;
 import android.os.Bundle;
 
 /**
- * A callback class for custom tabs client to get messages regarding events in their custom tabs.
+ * A callback class for custom tabs client to get messages regarding events in their custom tabs. In
+ * the implementation, all callbacks are sent to the UI thread for the client.
  */
 public class CustomTabsCallback {
     /**
@@ -76,4 +77,25 @@ public class CustomTabsCallback {
      * @param args Arguments for the calback
      */
     public void extraCallback(String callbackName, Bundle args) {}
+
+    /**
+     * Called when {@link CustomTabsSession} has requested a postMessage channel through
+     * {@link CustomTabsService#requestPostMessageChannel(
+     * CustomTabsSessionToken, android.net.Uri)} and the channel
+     * is ready for sending and receiving messages on both ends.
+     *
+     * @param extras Reserved for future use.
+     */
+    public void onMessageChannelReady(Bundle extras) {}
+
+    /**
+     * Called when a tab controlled by this {@link CustomTabsSession} has sent a postMessage.
+     * If postMessage() is called from a single thread, then the messages will be posted in the
+     * same order. When received on the client side, it is the client's responsibility to preserve
+     * the ordering further.
+     *
+     * @param message The message sent.
+     * @param extras Reserved for future use.
+     */
+    public void onPostMessage(String message, Bundle extras) {}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 
 package android.support.customtabs;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.customtabs.ICustomTabsCallback;
 
 /**
- * Interface to a CustomTabsCallback.
+ * Interface to a PostMessageService.
  * @hide
  */
-interface ICustomTabsCallback {
-    void onNavigationEvent(int navigationEvent, in Bundle extras) = 1;
-    void extraCallback(String callbackName, in Bundle args) = 2;
-    void onMessageChannelReady(in Bundle extras) = 3;
-    void onPostMessage(String message, in Bundle extras) = 4;
+interface IPostMessageService {
+    void onMessageChannelReady(in ICustomTabsCallback callback, in Bundle extras) = 1;
+    void onPostMessage(in ICustomTabsCallback callback, String message, in Bundle extras) = 2;
 }

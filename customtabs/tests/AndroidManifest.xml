@@ -23,9 +23,12 @@
         tools:overrideLibrary="android.support.test, android.app, android.support.test.rule,
               android.support.test.espresso, android.support.test.espresso.idling" />
 
-    <application/>
+    <application>
+        <uses-library android:name="android.test.runner" />
+        <activity   android:name="android.support.customtabs.TestActivity"/>
 
-    <instrumentation
-            android:name="android.test.InstrumentationTestRunner"
-            android:targetPackage="android.support.customtabs.test"/>
+        <service    android:name="android.support.customtabs.PostMessageService"/>
+
+        <service    android:name="android.support.customtabs.TestCustomTabsService"/>
+    </application>
 </manifest>
