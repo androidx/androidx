@@ -16,6 +16,8 @@
 
 package android.support.v4.net;
 
+import static android.net.ConnectivityManager.TYPE_BLUETOOTH;
+import static android.net.ConnectivityManager.TYPE_ETHERNET;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_MOBILE_DUN;
 import static android.net.ConnectivityManager.TYPE_MOBILE_HIPRI;
@@ -30,6 +32,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.IntDef;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -51,7 +54,7 @@ public final class ConnectivityManagerCompat {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef(flag = false, value = {
+    @IntDef(value = {
             RESTRICT_BACKGROUND_STATUS_DISABLED,
             RESTRICT_BACKGROUND_STATUS_WHITELISTED,
             RESTRICT_BACKGROUND_STATUS_ENABLED,
@@ -82,7 +85,8 @@ public final class ConnectivityManagerCompat {
      */
     public static final int RESTRICT_BACKGROUND_STATUS_ENABLED = 3;
 
-    static class BaseConnectivityManagerCompatImpl implements ConnectivityManagerCompatImpl {
+    static class ConnectivityManagerCompatBaseImpl implements ConnectivityManagerCompatImpl {
+        @SuppressWarnings("deprecation")
         @Override
         public boolean isActiveNetworkMetered(ConnectivityManager cm) {
             final NetworkInfo info = cm.getActiveNetworkInfo();
@@ -101,6 +105,8 @@ public final class ConnectivityManagerCompat {
                 case TYPE_WIMAX:
                     return true;
                 case TYPE_WIFI:
+                case TYPE_BLUETOOTH:
+                case TYPE_ETHERNET:
                     return false;
                 default:
                     // err on side of caution
@@ -114,28 +120,20 @@ public final class ConnectivityManagerCompat {
         }
     }
 
-    static class HoneycombMR2ConnectivityManagerCompatImpl
-            extends BaseConnectivityManagerCompatImpl {
+    @RequiresApi(16)
+    static class ConnectivityManagerCompatApi16Impl extends ConnectivityManagerCompatBaseImpl {
         @Override
         public boolean isActiveNetworkMetered(ConnectivityManager cm) {
-            return ConnectivityManagerCompatHoneycombMR2.isActiveNetworkMetered(cm);
+            return cm.isActiveNetworkMetered();
         }
     }
 
-    static class JellyBeanConnectivityManagerCompatImpl
-            extends HoneycombMR2ConnectivityManagerCompatImpl {
-        @Override
-        public boolean isActiveNetworkMetered(ConnectivityManager cm) {
-            return ConnectivityManagerCompatJellyBean.isActiveNetworkMetered(cm);
-        }
-    }
-
-    static class Api24ConnectivityManagerCompatImpl
-            extends JellyBeanConnectivityManagerCompatImpl {
+    @RequiresApi(24)
+    static class ConnectivityManagerCompatApi24Impl extends ConnectivityManagerCompatApi16Impl {
         @Override
         public int getRestrictBackgroundStatus(ConnectivityManager cm) {
             //noinspection ResourceType
-            return ConnectivityManagerCompatApi24.getRestrictBackgroundStatus(cm);
+            return cm.getRestrictBackgroundStatus();
         }
     }
 
@@ -143,13 +141,11 @@ public final class ConnectivityManagerCompat {
 
     static {
         if (Build.VERSION.SDK_INT >= 24) {
-            IMPL = new Api24ConnectivityManagerCompatImpl();
+            IMPL = new ConnectivityManagerCompatApi24Impl();
         } else if (Build.VERSION.SDK_INT >= 16) {
-            IMPL = new JellyBeanConnectivityManagerCompatImpl();
-        } else if (Build.VERSION.SDK_INT >= 13) {
-            IMPL = new HoneycombMR2ConnectivityManagerCompatImpl();
+            IMPL = new ConnectivityManagerCompatApi16Impl();
         } else {
-            IMPL = new BaseConnectivityManagerCompatImpl();
+            IMPL = new ConnectivityManagerCompatBaseImpl();
         }
     }
 
