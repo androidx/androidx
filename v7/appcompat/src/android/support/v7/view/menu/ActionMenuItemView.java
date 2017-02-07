@@ -25,7 +25,6 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
-import android.support.v4.content.res.ConfigurationHelper;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.widget.ActionMenuView;
@@ -100,8 +99,8 @@ public class ActionMenuItemView extends AppCompatTextView
      */
     private boolean shouldAllowTextWithIcon() {
         final Configuration config = getContext().getResources().getConfiguration();
-        final int widthDp = ConfigurationHelper.getScreenWidthDp(getResources());
-        final int heightDp = ConfigurationHelper.getScreenHeightDp(getResources());
+        final int widthDp = config.screenWidthDp;
+        final int heightDp = config.screenHeightDp;
 
         return widthDp >= 480 || (widthDp >= 640 && heightDp >= 480)
                 || config.orientation == Configuration.ORIENTATION_LANDSCAPE;

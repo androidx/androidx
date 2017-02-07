@@ -6018,9 +6018,9 @@ package android.support.v4.content.res {
 
   public final class ConfigurationHelper {
     method public static int getDensityDpi(android.content.res.Resources);
-    method public static int getScreenHeightDp(android.content.res.Resources);
-    method public static int getScreenWidthDp(android.content.res.Resources);
-    method public static int getSmallestScreenWidthDp(android.content.res.Resources);
+    method public static deprecated int getScreenHeightDp(android.content.res.Resources);
+    method public static deprecated int getScreenWidthDp(android.content.res.Resources);
+    method public static deprecated int getSmallestScreenWidthDp(android.content.res.Resources);
   }
 
   public final class ResourcesCompat {
