@@ -30,6 +30,7 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.app.SupportActivity;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
@@ -62,6 +63,19 @@ public final class MediaControllerCompat {
 
     static final String COMMAND_GET_EXTRA_BINDER =
             "android.support.v4.media.session.command.GET_EXTRA_BINDER";
+    static final String COMMAND_ADD_QUEUE_ITEM =
+            "android.support.v4.media.session.command.ADD_QUEUE_ITEM";
+    static final String COMMAND_ADD_QUEUE_ITEM_AT =
+            "android.support.v4.media.session.command.ADD_QUEUE_ITEM_AT";
+    static final String COMMAND_REMOVE_QUEUE_ITEM =
+            "android.support.v4.media.session.command.REMOVE_QUEUE_ITEM";
+    static final String COMMAND_REMOVE_QUEUE_ITEM_AT =
+            "android.support.v4.media.session.command.REMOVE_QUEUE_ITEM_AT";
+
+    static final String COMMAND_ARGUMENT_MEDIA_DESCRIPTION =
+            "android.support.v4.media.session.command.ARGUMENT_MEDIA_DESCRIPTION";
+    static final String COMMAND_ARGUMENT_INDEX =
+            "android.support.v4.media.session.command.ARGUMENT_INDEX";
 
     private static class MediaControllerExtraData extends SupportActivity.ExtraData {
         private final MediaControllerCompat mMediaController;
@@ -234,6 +248,62 @@ public final class MediaControllerCompat {
      */
     public List<MediaSessionCompat.QueueItem> getQueue() {
         return mImpl.getQueue();
+    }
+
+    /**
+     * Add a queue item from the given {@code description} at the end of the play queue
+     * of this session. Not all sessions may support this.
+     *
+     * @param description The {@link MediaDescriptionCompat} for creating the
+     *            {@link MediaSessionCompat.QueueItem} to be inserted.
+     * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
+     */
+    public void addQueueItem(MediaDescriptionCompat description) {
+        mImpl.addQueueItem(description);
+    }
+
+    /**
+     * Add a queue item from the given {@code description} at the specified position
+     * in the play queue of this session. Shifts the queue item currently at that position
+     * (if any) and any subsequent queue items to the right (adds one to their indices).
+     * Not all sessions may support this.
+     *
+     * @param description The {@link MediaDescriptionCompat} for creating the
+     *            {@link MediaSessionCompat.QueueItem} to be inserted.
+     * @param index The index at which the created {@link MediaSessionCompat.QueueItem}
+     *            is to be inserted.
+     * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
+     */
+    public void addQueueItem(MediaDescriptionCompat description, int index) {
+        mImpl.addQueueItem(description, index);
+    }
+
+    /**
+     * Remove the first occurrence of the specified {@link MediaSessionCompat.QueueItem}
+     * with the given {@link MediaDescriptionCompat description} in the play queue of the
+     * associated session. Not all sessions may support this.
+     *
+     * @param description The {@link MediaDescriptionCompat} for denoting the
+     *            {@link MediaSessionCompat.QueueItem} to be removed.
+     * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
+     */
+    public void removeQueueItem(MediaDescriptionCompat description) {
+        mImpl.removeQueueItem(description);
+    }
+
+    /**
+     * Remove an queue item at the specified position in the play queue
+     * of this session. Not all sessions may support this.
+     *
+     * @param index The index of the element to be removed.
+     * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
+     */
+    public void removeQueueItemAt(int index) {
+        mImpl.removeQueueItemAt(index);
     }
 
     /**
@@ -1033,6 +1103,10 @@ public final class MediaControllerCompat {
         MediaMetadataCompat getMetadata();
 
         List<MediaSessionCompat.QueueItem> getQueue();
+        void addQueueItem(MediaDescriptionCompat description);
+        void addQueueItem(MediaDescriptionCompat description, int index);
+        void removeQueueItem(MediaDescriptionCompat description);
+        void removeQueueItemAt(int index);
         CharSequence getQueueTitle();
         Bundle getExtras();
         int getRatingType();
@@ -1141,6 +1215,62 @@ public final class MediaControllerCompat {
                 Log.e(TAG, "Dead object in getQueue. " + e);
             }
             return null;
+        }
+
+        @Override
+        public void addQueueItem(MediaDescriptionCompat description) {
+            try {
+                long flags = mBinder.getFlags();
+                if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                    throw new UnsupportedOperationException(
+                            "This session doesn't support queue management operations");
+                }
+                mBinder.addQueueItem(description);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in addQueueItem. " + e);
+            }
+        }
+
+        @Override
+        public void addQueueItem(MediaDescriptionCompat description, int index) {
+            try {
+                long flags = mBinder.getFlags();
+                if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                    throw new UnsupportedOperationException(
+                            "This session doesn't support queue management operations");
+                }
+                mBinder.addQueueItemAt(description, index);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in addQueueItemAt. " + e);
+            }
+        }
+
+        @Override
+        public void removeQueueItem(MediaDescriptionCompat description) {
+            try {
+                long flags = mBinder.getFlags();
+                if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                    throw new UnsupportedOperationException(
+                            "This session doesn't support queue management operations");
+                }
+                mBinder.removeQueueItem(description);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in removeQueueItem. " + e);
+            }
+        }
+
+        @Override
+        public void removeQueueItemAt(int index) {
+            try {
+                long flags = mBinder.getFlags();
+                if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                    throw new UnsupportedOperationException(
+                            "This session doesn't support queue management operations");
+                }
+                mBinder.removeQueueItemAt(index);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in removeQueueItemAt. " + e);
+            }
         }
 
         @Override
@@ -1564,6 +1694,35 @@ public final class MediaControllerCompat {
             List<Object> queueObjs = MediaControllerCompatApi21.getQueue(mControllerObj);
             return queueObjs != null ? MediaSessionCompat.QueueItem.fromQueueItemList(queueObjs)
                     : null;
+        }
+
+        @Override
+        public void addQueueItem(MediaDescriptionCompat description) {
+            Bundle params = new Bundle();
+            params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
+            sendCommand(COMMAND_ADD_QUEUE_ITEM, params, null);
+        }
+
+        @Override
+        public void addQueueItem(MediaDescriptionCompat description, int index) {
+            Bundle params = new Bundle();
+            params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
+            params.putInt(COMMAND_ARGUMENT_INDEX, index);
+            sendCommand(COMMAND_ADD_QUEUE_ITEM_AT, params, null);
+        }
+
+        @Override
+        public void removeQueueItem(MediaDescriptionCompat description) {
+            Bundle params = new Bundle();
+            params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
+            sendCommand(COMMAND_REMOVE_QUEUE_ITEM, params, null);
+        }
+
+        @Override
+        public void removeQueueItemAt(int index) {
+            Bundle params = new Bundle();
+            params.putInt(COMMAND_ARGUMENT_INDEX, index);
+            sendCommand(COMMAND_REMOVE_QUEUE_ITEM_AT, params, null);
         }
 
         @Override

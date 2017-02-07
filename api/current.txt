@@ -5991,6 +5991,8 @@ package android.support.v4.media.session {
   public final class MediaControllerCompat {
     ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat);
     ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token) throws android.os.RemoteException;
+    method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat, int);
     method public void adjustVolume(int, int);
     method public boolean dispatchMediaButtonEvent(android.view.KeyEvent);
     method public android.os.Bundle getExtras();
@@ -6011,6 +6013,8 @@ package android.support.v4.media.session {
     method public boolean isShuffleModeEnabled();
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback, android.os.Handler);
+    method public void removeQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void removeQueueItemAt(int);
     method public void sendCommand(java.lang.String, android.os.Bundle, android.os.ResultReceiver);
     method public static void setMediaController(android.app.Activity, android.support.v4.media.session.MediaControllerCompat);
     method public void setVolumeTo(int, int);
@@ -6097,11 +6101,14 @@ package android.support.v4.media.session {
     method public void setSessionActivity(android.app.PendingIntent);
     method public void setShuffleModeEnabled(boolean);
     field public static final int FLAG_HANDLES_MEDIA_BUTTONS = 1; // 0x1
+    field public static final int FLAG_HANDLES_QUEUE_COMMANDS = 4; // 0x4
     field public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 2; // 0x2
   }
 
   public static abstract class MediaSessionCompat.Callback {
     ctor public MediaSessionCompat.Callback();
+    method public void onAddQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void onAddQueueItem(android.support.v4.media.MediaDescriptionCompat, int);
     method public void onCommand(java.lang.String, android.os.Bundle, android.os.ResultReceiver);
     method public void onCustomAction(java.lang.String, android.os.Bundle);
     method public void onFastForward();
@@ -6115,6 +6122,8 @@ package android.support.v4.media.session {
     method public void onPrepareFromMediaId(java.lang.String, android.os.Bundle);
     method public void onPrepareFromSearch(java.lang.String, android.os.Bundle);
     method public void onPrepareFromUri(android.net.Uri, android.os.Bundle);
+    method public void onRemoveQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void onRemoveQueueItemAt(int);
     method public void onRewind();
     method public void onSeekTo(long);
     method public void onSetRating(android.support.v4.media.RatingCompat);
