@@ -25,7 +25,7 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"اس میں کاسٹ کریں"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"آلات تلاش ہو رہے ہیں"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"غیر منسلک کریں"</string>
-    <string name="mr_controller_stop" msgid="4570331844078181931">"کاسٹ کرنا بند کریں"</string>
+    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"کاسٹ کرنا بند کریں"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"بند کریں"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"چلائیں"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"موقوف کریں"</string>

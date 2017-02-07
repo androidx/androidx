@@ -25,7 +25,7 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"దీనికి ప్రసారం చేయండి"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"పరికరాలను కనుగొంటోంది"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"డిస్‌కనెక్ట్ చేయి"</string>
-    <string name="mr_controller_stop" msgid="4570331844078181931">"ప్రసారాన్ని ఆపివేయి"</string>
+    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"ప్రసారాన్ని ఆపివేయి"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"మూసివేస్తుంది"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"ప్లే చేస్తుంది"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"పాజ్ చేస్తుంది"</string>

@@ -47,7 +47,7 @@
     <string name="mr_controller_disconnect">Disconnect</string>
 
     <!-- Button to stop playback and disconnect from a media route. [CHAR LIMIT=30] -->
-    <string name="mr_controller_stop">Stop casting</string>
+    <string name="mr_controller_stop_casting">Stop casting</string>
 
     <!-- Content description for accessibility (not shown on the screen): dialog close button. [CHAR LIMIT=NONE] -->
     <string name="mr_controller_close_description">Close</string>
@@ -57,6 +57,9 @@
 
     <!-- Content description for accessibility (not shown on the screen): media pause button. [CHAR LIMIT=NONE] -->
     <string name="mr_controller_pause">Pause</string>
+
+    <!-- Content description for accessibility (not shown on the screen): media stop button. [CHAR LIMIT=NONE] -->
+    <string name="mr_controller_stop">Stop</string>
 
     <!-- Content description for accessibility (not shown on the screen): group expand button. Pressing button shows group members of a selected route group. [CHAR LIMIT=NONE] -->
     <string name="mr_controller_expand_group">Expand</string>
