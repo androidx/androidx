@@ -6821,15 +6821,15 @@ package android.support.v4.net {
   }
 
   public final class TrafficStatsCompat {
-    method public static void clearThreadStatsTag();
-    method public static int getThreadStatsTag();
-    method public static void incrementOperationCount(int);
-    method public static void incrementOperationCount(int, int);
-    method public static void setThreadStatsTag(int);
+    method public static deprecated void clearThreadStatsTag();
+    method public static deprecated int getThreadStatsTag();
+    method public static deprecated void incrementOperationCount(int);
+    method public static deprecated void incrementOperationCount(int, int);
+    method public static deprecated void setThreadStatsTag(int);
     method public static void tagDatagramSocket(java.net.DatagramSocket) throws java.net.SocketException;
-    method public static void tagSocket(java.net.Socket) throws java.net.SocketException;
+    method public static deprecated void tagSocket(java.net.Socket) throws java.net.SocketException;
     method public static void untagDatagramSocket(java.net.DatagramSocket) throws java.net.SocketException;
-    method public static void untagSocket(java.net.Socket) throws java.net.SocketException;
+    method public static deprecated void untagSocket(java.net.Socket) throws java.net.SocketException;
   }
 
 }

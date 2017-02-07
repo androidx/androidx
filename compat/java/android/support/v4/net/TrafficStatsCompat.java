@@ -16,171 +16,86 @@
 
 package android.support.v4.net;
 
+import android.annotation.TargetApi;
+import android.net.TrafficStats;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
 
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
 /**
- * Helper for accessing features in TrafficStats introduced after API level 14
+ * Helper for accessing features in {@link TrafficStats} introduced after API level 14
  * in a backwards compatible fashion.
  */
 public final class TrafficStatsCompat {
-
-    interface TrafficStatsCompatImpl {
-        void clearThreadStatsTag();
-        int getThreadStatsTag();
-        void incrementOperationCount(int operationCount);
-        void incrementOperationCount(int tag, int operationCount);
-        void setThreadStatsTag(int tag);
-        void tagSocket(Socket socket) throws SocketException;
-        void untagSocket(Socket socket) throws SocketException;
-        void tagDatagramSocket(DatagramSocket socket) throws SocketException;
-        void untagDatagramSocket(DatagramSocket socket) throws SocketException;
-    }
-
-    static class BaseTrafficStatsCompatImpl implements TrafficStatsCompatImpl {
-        private static class SocketTags {
-            public int statsTag = -1;
-
-            SocketTags() {
-            }
+    static class TrafficStatsCompatBaseImpl {
+        public void tagDatagramSocket(DatagramSocket socket) throws SocketException {
+            final ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
+            TrafficStats.tagSocket(new DatagramSocketWrapper(socket, pfd.getFileDescriptor()));
+            // The developer is still using the FD, so we need to detach it to
+            // prevent the PFD finalizer from closing it in their face. We had to
+            // wait until after the tagging call above, since detaching clears out
+            // the getFileDescriptor() result which tagging depends on.
+            pfd.detachFd();
         }
 
-        private ThreadLocal<SocketTags> mThreadSocketTags = new ThreadLocal<SocketTags>() {
-            @Override
-            protected SocketTags initialValue() {
-                return new SocketTags();
-            }
-        };
-
-        @Override
-        public void clearThreadStatsTag() {
-            mThreadSocketTags.get().statsTag = -1;
-        }
-
-        @Override
-        public int getThreadStatsTag() {
-            return mThreadSocketTags.get().statsTag;
-        }
-
-        @Override
-        public void incrementOperationCount(int operationCount) {
-        }
-
-        @Override
-        public void incrementOperationCount(int tag, int operationCount) {
-        }
-
-        @Override
-        public void setThreadStatsTag(int tag) {
-            mThreadSocketTags.get().statsTag = tag;
-        }
-
-        @Override
-        public void tagSocket(Socket socket) {
-        }
-
-        @Override
-        public void untagSocket(Socket socket) {
-        }
-
-        @Override
-        public void tagDatagramSocket(DatagramSocket socket) {
-        }
-
-        @Override
-        public void untagDatagramSocket(DatagramSocket socket) {
+        public void untagDatagramSocket(DatagramSocket socket) throws SocketException {
+            final ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
+            TrafficStats.untagSocket(new DatagramSocketWrapper(socket, pfd.getFileDescriptor()));
+            // The developer is still using the FD, so we need to detach it to
+            // prevent the PFD finalizer from closing it in their face. We had to
+            // wait until after the tagging call above, since detaching clears out
+            // the getFileDescriptor() result which tagging depends on.
+            pfd.detachFd();
         }
     }
 
-    static class IcsTrafficStatsCompatImpl implements TrafficStatsCompatImpl {
-        @Override
-        public void clearThreadStatsTag() {
-            TrafficStatsCompatIcs.clearThreadStatsTag();
-        }
-
-        @Override
-        public int getThreadStatsTag() {
-            return TrafficStatsCompatIcs.getThreadStatsTag();
-        }
-
-        @Override
-        public void incrementOperationCount(int operationCount) {
-            TrafficStatsCompatIcs.incrementOperationCount(operationCount);
-        }
-
-        @Override
-        public void incrementOperationCount(int tag, int operationCount) {
-            TrafficStatsCompatIcs.incrementOperationCount(tag, operationCount);
-        }
-
-        @Override
-        public void setThreadStatsTag(int tag) {
-            TrafficStatsCompatIcs.setThreadStatsTag(tag);
-        }
-
-        @Override
-        public void tagSocket(Socket socket) throws SocketException {
-            TrafficStatsCompatIcs.tagSocket(socket);
-        }
-
-        @Override
-        public void untagSocket(Socket socket) throws SocketException {
-            TrafficStatsCompatIcs.untagSocket(socket);
-        }
-
+    @TargetApi(24)
+    static class TrafficStatsCompatApi24Impl extends TrafficStatsCompatBaseImpl {
         @Override
         public void tagDatagramSocket(DatagramSocket socket) throws SocketException {
-            TrafficStatsCompatIcs.tagDatagramSocket(socket);
+            TrafficStats.tagDatagramSocket(socket);
         }
 
         @Override
         public void untagDatagramSocket(DatagramSocket socket) throws SocketException {
-            TrafficStatsCompatIcs.untagDatagramSocket(socket);
+            TrafficStats.untagDatagramSocket(socket);
         }
     }
 
-    static class Api24TrafficStatsCompatImpl extends IcsTrafficStatsCompatImpl {
-        @Override
-        public void tagDatagramSocket(DatagramSocket socket) throws SocketException {
-            TrafficStatsCompatApi24.tagDatagramSocket(socket);
-        }
-
-        @Override
-        public void untagDatagramSocket(DatagramSocket socket) throws SocketException {
-            TrafficStatsCompatApi24.untagDatagramSocket(socket);
-        }
-    }
-
-    private static final TrafficStatsCompatImpl IMPL;
+    private static final TrafficStatsCompatBaseImpl IMPL;
 
     static {
-        if ("N".equals(Build.VERSION.CODENAME)) {
-            IMPL = new Api24TrafficStatsCompatImpl();
-        } else if (Build.VERSION.SDK_INT >= 14) {
-            IMPL = new IcsTrafficStatsCompatImpl();
+        if (Build.VERSION.SDK_INT >= 24) {
+            IMPL = new TrafficStatsCompatApi24Impl();
         } else {
-            IMPL = new BaseTrafficStatsCompatImpl();
+            IMPL = new TrafficStatsCompatBaseImpl();
         }
     }
 
     /**
      * Clear active tag used when accounting {@link Socket} traffic originating
      * from the current thread.
+     *
+     * @deprecated Use {@link TrafficStats#clearThreadStatsTag()} directly.
      */
+    @Deprecated
     public static void clearThreadStatsTag() {
-        IMPL.clearThreadStatsTag();
+        TrafficStats.clearThreadStatsTag();
     }
 
     /**
      * Get the active tag used when accounting {@link Socket} traffic originating
      * from the current thread. Only one active tag per thread is supported.
      * {@link #tagSocket(Socket)}.
+     *
+     * @deprecated Use {@link TrafficStats#getThreadStatsTag()} directly.
      */
+    @Deprecated
     public static int getThreadStatsTag() {
-        return IMPL.getThreadStatsTag();
+        return TrafficStats.getThreadStatsTag();
     }
 
     /**
@@ -189,9 +104,12 @@ public final class TrafficStatsCompat {
      * bytes-per-operation.
      *
      * @param operationCount Number of operations to increment count by.
+     *
+     * @deprecated Use {@link TrafficStats#incrementOperationCount(int)} directly.
      */
+    @Deprecated
     public static void incrementOperationCount(int operationCount) {
-        IMPL.incrementOperationCount(operationCount);
+        TrafficStats.incrementOperationCount(operationCount);
     }
 
     /**
@@ -200,9 +118,12 @@ public final class TrafficStatsCompat {
      *
      * @param tag Accounting tag used in {@link #setThreadStatsTag(int)}.
      * @param operationCount Number of operations to increment count by.
+     *
+     * @deprecated Use {@link TrafficStats#incrementOperationCount(int, int)} directly.
      */
+    @Deprecated
     public static void incrementOperationCount(int tag, int operationCount) {
-        IMPL.incrementOperationCount(tag, operationCount);
+        TrafficStats.incrementOperationCount(tag, operationCount);
     }
 
     /**
@@ -215,9 +136,12 @@ public final class TrafficStatsCompat {
      * Tags between {@code 0xFFFFFF00} and {@code 0xFFFFFFFF} are reserved and
      * used internally by system services like DownloadManager when performing
      * traffic on behalf of an application.
+     *
+     * @deprecated Use {@link TrafficStats#setThreadStatsTag(int)} directly.
      */
+    @Deprecated
     public static void setThreadStatsTag(int tag) {
-        IMPL.setThreadStatsTag(tag);
+        TrafficStats.setThreadStatsTag(tag);
     }
 
     /**
@@ -227,16 +151,22 @@ public final class TrafficStatsCompat {
      * statistics parameters.
      *
      * @see #setThreadStatsTag(int)
+     *
+     * @deprecated Use {@link TrafficStats#tagSocket(Socket)} directly.
      */
+    @Deprecated
     public static void tagSocket(Socket socket) throws SocketException {
-        IMPL.tagSocket(socket);
+        TrafficStats.tagSocket(socket);
     }
 
     /**
      * Remove any statistics parameters from the given {@link Socket}.
+     *
+     * @deprecated Use {@link TrafficStats#untagSocket(Socket)} directly.
      */
+    @Deprecated
     public static void untagSocket(Socket socket) throws SocketException {
-        IMPL.untagSocket(socket);
+        TrafficStats.untagSocket(socket);
     }
 
     /**
