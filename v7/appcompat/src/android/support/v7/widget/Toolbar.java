@@ -37,7 +37,6 @@ import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
@@ -1460,7 +1459,7 @@ public class Toolbar extends ViewGroup {
         // eat the rest of the gesture without reporting the events to the default implementation
         // since that's what it expects.
 
-        final int action = MotionEventCompat.getActionMasked(ev);
+        final int action = ev.getActionMasked();
         if (action == MotionEvent.ACTION_DOWN) {
             mEatingTouch = false;
         }
@@ -1484,7 +1483,7 @@ public class Toolbar extends ViewGroup {
         // Same deal as onTouchEvent() above. Eat all hover events, but still
         // respect the touch event dispatch contract.
 
-        final int action = MotionEventCompat.getActionMasked(ev);
+        final int action = ev.getActionMasked();
         if (action == MotionEvent.ACTION_HOVER_ENTER) {
             mEatingHover = false;
         }

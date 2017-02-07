@@ -7385,71 +7385,71 @@ package android.support.v4.view {
 
   public final class MotionEventCompat {
     method public static deprecated int findPointerIndex(android.view.MotionEvent, int);
-    method public static int getActionIndex(android.view.MotionEvent);
-    method public static int getActionMasked(android.view.MotionEvent);
-    method public static float getAxisValue(android.view.MotionEvent, int);
-    method public static float getAxisValue(android.view.MotionEvent, int, int);
-    method public static int getButtonState(android.view.MotionEvent);
+    method public static deprecated int getActionIndex(android.view.MotionEvent);
+    method public static deprecated int getActionMasked(android.view.MotionEvent);
+    method public static deprecated float getAxisValue(android.view.MotionEvent, int);
+    method public static deprecated float getAxisValue(android.view.MotionEvent, int, int);
+    method public static deprecated int getButtonState(android.view.MotionEvent);
     method public static deprecated int getPointerCount(android.view.MotionEvent);
     method public static deprecated int getPointerId(android.view.MotionEvent, int);
     method public static deprecated int getSource(android.view.MotionEvent);
     method public static deprecated float getX(android.view.MotionEvent, int);
     method public static deprecated float getY(android.view.MotionEvent, int);
     method public static boolean isFromSource(android.view.MotionEvent, int);
-    field public static final int ACTION_HOVER_ENTER = 9; // 0x9
-    field public static final int ACTION_HOVER_EXIT = 10; // 0xa
-    field public static final int ACTION_HOVER_MOVE = 7; // 0x7
-    field public static final int ACTION_MASK = 255; // 0xff
-    field public static final int ACTION_POINTER_DOWN = 5; // 0x5
-    field public static final int ACTION_POINTER_INDEX_MASK = 65280; // 0xff00
-    field public static final int ACTION_POINTER_INDEX_SHIFT = 8; // 0x8
-    field public static final int ACTION_POINTER_UP = 6; // 0x6
-    field public static final int ACTION_SCROLL = 8; // 0x8
-    field public static final int AXIS_BRAKE = 23; // 0x17
-    field public static final int AXIS_DISTANCE = 24; // 0x18
-    field public static final int AXIS_GAS = 22; // 0x16
-    field public static final int AXIS_GENERIC_1 = 32; // 0x20
-    field public static final int AXIS_GENERIC_10 = 41; // 0x29
-    field public static final int AXIS_GENERIC_11 = 42; // 0x2a
-    field public static final int AXIS_GENERIC_12 = 43; // 0x2b
-    field public static final int AXIS_GENERIC_13 = 44; // 0x2c
-    field public static final int AXIS_GENERIC_14 = 45; // 0x2d
-    field public static final int AXIS_GENERIC_15 = 46; // 0x2e
-    field public static final int AXIS_GENERIC_16 = 47; // 0x2f
-    field public static final int AXIS_GENERIC_2 = 33; // 0x21
-    field public static final int AXIS_GENERIC_3 = 34; // 0x22
-    field public static final int AXIS_GENERIC_4 = 35; // 0x23
-    field public static final int AXIS_GENERIC_5 = 36; // 0x24
-    field public static final int AXIS_GENERIC_6 = 37; // 0x25
-    field public static final int AXIS_GENERIC_7 = 38; // 0x26
-    field public static final int AXIS_GENERIC_8 = 39; // 0x27
-    field public static final int AXIS_GENERIC_9 = 40; // 0x28
-    field public static final int AXIS_HAT_X = 15; // 0xf
-    field public static final int AXIS_HAT_Y = 16; // 0x10
-    field public static final int AXIS_HSCROLL = 10; // 0xa
-    field public static final int AXIS_LTRIGGER = 17; // 0x11
-    field public static final int AXIS_ORIENTATION = 8; // 0x8
-    field public static final int AXIS_PRESSURE = 2; // 0x2
+    field public static final deprecated int ACTION_HOVER_ENTER = 9; // 0x9
+    field public static final deprecated int ACTION_HOVER_EXIT = 10; // 0xa
+    field public static final deprecated int ACTION_HOVER_MOVE = 7; // 0x7
+    field public static final deprecated int ACTION_MASK = 255; // 0xff
+    field public static final deprecated int ACTION_POINTER_DOWN = 5; // 0x5
+    field public static final deprecated int ACTION_POINTER_INDEX_MASK = 65280; // 0xff00
+    field public static final deprecated int ACTION_POINTER_INDEX_SHIFT = 8; // 0x8
+    field public static final deprecated int ACTION_POINTER_UP = 6; // 0x6
+    field public static final deprecated int ACTION_SCROLL = 8; // 0x8
+    field public static final deprecated int AXIS_BRAKE = 23; // 0x17
+    field public static final deprecated int AXIS_DISTANCE = 24; // 0x18
+    field public static final deprecated int AXIS_GAS = 22; // 0x16
+    field public static final deprecated int AXIS_GENERIC_1 = 32; // 0x20
+    field public static final deprecated int AXIS_GENERIC_10 = 41; // 0x29
+    field public static final deprecated int AXIS_GENERIC_11 = 42; // 0x2a
+    field public static final deprecated int AXIS_GENERIC_12 = 43; // 0x2b
+    field public static final deprecated int AXIS_GENERIC_13 = 44; // 0x2c
+    field public static final deprecated int AXIS_GENERIC_14 = 45; // 0x2d
+    field public static final deprecated int AXIS_GENERIC_15 = 46; // 0x2e
+    field public static final deprecated int AXIS_GENERIC_16 = 47; // 0x2f
+    field public static final deprecated int AXIS_GENERIC_2 = 33; // 0x21
+    field public static final deprecated int AXIS_GENERIC_3 = 34; // 0x22
+    field public static final deprecated int AXIS_GENERIC_4 = 35; // 0x23
+    field public static final deprecated int AXIS_GENERIC_5 = 36; // 0x24
+    field public static final deprecated int AXIS_GENERIC_6 = 37; // 0x25
+    field public static final deprecated int AXIS_GENERIC_7 = 38; // 0x26
+    field public static final deprecated int AXIS_GENERIC_8 = 39; // 0x27
+    field public static final deprecated int AXIS_GENERIC_9 = 40; // 0x28
+    field public static final deprecated int AXIS_HAT_X = 15; // 0xf
+    field public static final deprecated int AXIS_HAT_Y = 16; // 0x10
+    field public static final deprecated int AXIS_HSCROLL = 10; // 0xa
+    field public static final deprecated int AXIS_LTRIGGER = 17; // 0x11
+    field public static final deprecated int AXIS_ORIENTATION = 8; // 0x8
+    field public static final deprecated int AXIS_PRESSURE = 2; // 0x2
     field public static final int AXIS_RELATIVE_X = 27; // 0x1b
     field public static final int AXIS_RELATIVE_Y = 28; // 0x1c
-    field public static final int AXIS_RTRIGGER = 18; // 0x12
-    field public static final int AXIS_RUDDER = 20; // 0x14
-    field public static final int AXIS_RX = 12; // 0xc
-    field public static final int AXIS_RY = 13; // 0xd
-    field public static final int AXIS_RZ = 14; // 0xe
-    field public static final int AXIS_SIZE = 3; // 0x3
-    field public static final int AXIS_THROTTLE = 19; // 0x13
-    field public static final int AXIS_TILT = 25; // 0x19
-    field public static final int AXIS_TOOL_MAJOR = 6; // 0x6
-    field public static final int AXIS_TOOL_MINOR = 7; // 0x7
-    field public static final int AXIS_TOUCH_MAJOR = 4; // 0x4
-    field public static final int AXIS_TOUCH_MINOR = 5; // 0x5
-    field public static final int AXIS_VSCROLL = 9; // 0x9
-    field public static final int AXIS_WHEEL = 21; // 0x15
-    field public static final int AXIS_X = 0; // 0x0
-    field public static final int AXIS_Y = 1; // 0x1
-    field public static final int AXIS_Z = 11; // 0xb
-    field public static final int BUTTON_PRIMARY = 1; // 0x1
+    field public static final deprecated int AXIS_RTRIGGER = 18; // 0x12
+    field public static final deprecated int AXIS_RUDDER = 20; // 0x14
+    field public static final deprecated int AXIS_RX = 12; // 0xc
+    field public static final deprecated int AXIS_RY = 13; // 0xd
+    field public static final deprecated int AXIS_RZ = 14; // 0xe
+    field public static final deprecated int AXIS_SIZE = 3; // 0x3
+    field public static final deprecated int AXIS_THROTTLE = 19; // 0x13
+    field public static final deprecated int AXIS_TILT = 25; // 0x19
+    field public static final deprecated int AXIS_TOOL_MAJOR = 6; // 0x6
+    field public static final deprecated int AXIS_TOOL_MINOR = 7; // 0x7
+    field public static final deprecated int AXIS_TOUCH_MAJOR = 4; // 0x4
+    field public static final deprecated int AXIS_TOUCH_MINOR = 5; // 0x5
+    field public static final deprecated int AXIS_VSCROLL = 9; // 0x9
+    field public static final deprecated int AXIS_WHEEL = 21; // 0x15
+    field public static final deprecated int AXIS_X = 0; // 0x0
+    field public static final deprecated int AXIS_Y = 1; // 0x1
+    field public static final deprecated int AXIS_Z = 11; // 0xb
+    field public static final deprecated int BUTTON_PRIMARY = 1; // 0x1
   }
 
   public abstract interface NestedScrollingChild {

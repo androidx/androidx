@@ -18,7 +18,6 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.widget.ListViewAutoScrollHelper;
 import android.support.v7.appcompat.R;
@@ -98,7 +97,7 @@ class DropDownListView extends ListViewCompat {
         boolean handledEvent = true;
         boolean clearPressedItem = false;
 
-        final int actionMasked = MotionEventCompat.getActionMasked(event);
+        final int actionMasked = event.getActionMasked();
         switch (actionMasked) {
             case MotionEvent.ACTION_CANCEL:
                 handledEvent = false;

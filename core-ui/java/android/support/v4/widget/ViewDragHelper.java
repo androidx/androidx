@@ -18,7 +18,6 @@
 package android.support.v4.widget;
 
 import android.content.Context;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -950,8 +949,8 @@ public class ViewDragHelper {
      * @return true if the parent view should return true from onInterceptTouchEvent
      */
     public boolean shouldInterceptTouchEvent(MotionEvent ev) {
-        final int action = MotionEventCompat.getActionMasked(ev);
-        final int actionIndex = MotionEventCompat.getActionIndex(ev);
+        final int action = ev.getActionMasked();
+        final int actionIndex = ev.getActionIndex();
 
         if (action == MotionEvent.ACTION_DOWN) {
             // Reset things for a new event stream, just in case we didn't get
@@ -985,7 +984,7 @@ public class ViewDragHelper {
                 break;
             }
 
-            case MotionEventCompat.ACTION_POINTER_DOWN: {
+            case MotionEvent.ACTION_POINTER_DOWN: {
                 final int pointerId = ev.getPointerId(actionIndex);
                 final float x = ev.getX(actionIndex);
                 final float y = ev.getY(actionIndex);
@@ -1063,7 +1062,7 @@ public class ViewDragHelper {
                 break;
             }
 
-            case MotionEventCompat.ACTION_POINTER_UP: {
+            case MotionEvent.ACTION_POINTER_UP: {
                 final int pointerId = ev.getPointerId(actionIndex);
                 clearMotionHistory(pointerId);
                 break;
@@ -1086,8 +1085,8 @@ public class ViewDragHelper {
      * @param ev The touch event received by the parent view
      */
     public void processTouchEvent(MotionEvent ev) {
-        final int action = MotionEventCompat.getActionMasked(ev);
-        final int actionIndex = MotionEventCompat.getActionIndex(ev);
+        final int action = ev.getActionMasked();
+        final int actionIndex = ev.getActionIndex();
 
         if (action == MotionEvent.ACTION_DOWN) {
             // Reset things for a new event stream, just in case we didn't get
@@ -1121,7 +1120,7 @@ public class ViewDragHelper {
                 break;
             }
 
-            case MotionEventCompat.ACTION_POINTER_DOWN: {
+            case MotionEvent.ACTION_POINTER_DOWN: {
                 final int pointerId = ev.getPointerId(actionIndex);
                 final float x = ev.getX(actionIndex);
                 final float y = ev.getY(actionIndex);
@@ -1194,7 +1193,7 @@ public class ViewDragHelper {
                 break;
             }
 
-            case MotionEventCompat.ACTION_POINTER_UP: {
+            case MotionEvent.ACTION_POINTER_UP: {
                 final int pointerId = ev.getPointerId(actionIndex);
                 if (mDragState == STATE_DRAGGING && pointerId == mActivePointerId) {
                     // Try to find another pointer that's still holding on to the captured view.

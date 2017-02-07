@@ -28,7 +28,6 @@ import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.ViewAssertion;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.filters.MediumTest;
-import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -52,7 +51,7 @@ public class BottomSheetBehaviorTouchTest extends
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            switch (MotionEventCompat.getActionMasked(event)) {
+            switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     mDown = true;
                     break;

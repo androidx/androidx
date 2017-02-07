@@ -36,7 +36,6 @@ import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.AttributeSet;
@@ -766,7 +765,7 @@ public class SlidingPaneLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        final int action = MotionEventCompat.getActionMasked(ev);
+        final int action = ev.getActionMasked();
 
         // Preserve the open state based on the last view that was touched.
         if (!mCanSlide && action == MotionEvent.ACTION_DOWN && getChildCount() > 1) {
@@ -832,10 +831,9 @@ public class SlidingPaneLayout extends ViewGroup {
 
         mDragHelper.processTouchEvent(ev);
 
-        final int action = ev.getAction();
         boolean wantTouchEvents = true;
 
-        switch (action & MotionEventCompat.ACTION_MASK) {
+        switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
                 final float x = ev.getX();
                 final float y = ev.getY();

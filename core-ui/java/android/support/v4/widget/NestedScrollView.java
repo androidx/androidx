@@ -29,7 +29,6 @@ import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.InputDeviceCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.NestedScrollingParent;
@@ -623,7 +622,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             return true;
         }
 
-        switch (action & MotionEventCompat.ACTION_MASK) {
+        switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_MOVE: {
                 /*
                  * mIsBeingDragged == false, otherwise the shortcut would have caught it. Check
@@ -704,7 +703,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 }
                 stopNestedScroll();
                 break;
-            case MotionEventCompat.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_POINTER_UP:
                 onSecondaryPointerUp(ev);
                 break;
         }
@@ -722,7 +721,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
         MotionEvent vtev = MotionEvent.obtain(ev);
 
-        final int actionMasked = MotionEventCompat.getActionMasked(ev);
+        final int actionMasked = ev.getActionMasked();
 
         if (actionMasked == MotionEvent.ACTION_DOWN) {
             mNestedYOffset = 0;
@@ -855,13 +854,13 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 mActivePointerId = INVALID_POINTER;
                 endDrag();
                 break;
-            case MotionEventCompat.ACTION_POINTER_DOWN: {
-                final int index = MotionEventCompat.getActionIndex(ev);
+            case MotionEvent.ACTION_POINTER_DOWN: {
+                final int index = ev.getActionIndex();
                 mLastMotionY = (int) ev.getY(index);
                 mActivePointerId = ev.getPointerId(index);
                 break;
             }
-            case MotionEventCompat.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_POINTER_UP:
                 onSecondaryPointerUp(ev);
                 mLastMotionY = (int) ev.getY(ev.findPointerIndex(mActivePointerId));
                 break;
@@ -875,8 +874,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     private void onSecondaryPointerUp(MotionEvent ev) {
-        final int pointerIndex = (ev.getAction() & MotionEventCompat.ACTION_POINTER_INDEX_MASK)
-                >> MotionEventCompat.ACTION_POINTER_INDEX_SHIFT;
+        final int pointerIndex = ev.getActionIndex();
         final int pointerId = ev.getPointerId(pointerIndex);
         if (pointerId == mActivePointerId) {
             // This was our active pointer going up. Choose a new
@@ -894,10 +892,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     public boolean onGenericMotionEvent(MotionEvent event) {
         if ((event.getSource() & InputDeviceCompat.SOURCE_CLASS_POINTER) != 0) {
             switch (event.getAction()) {
-                case MotionEventCompat.ACTION_SCROLL: {
+                case MotionEvent.ACTION_SCROLL: {
                     if (!mIsBeingDragged) {
-                        final float vscroll = MotionEventCompat.getAxisValue(event,
-                                MotionEventCompat.AXIS_VSCROLL);
+                        final float vscroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
                         if (vscroll != 0) {
                             final int delta = (int) (vscroll * getVerticalScrollFactorCompat());
                             final int range = getScrollRange();
