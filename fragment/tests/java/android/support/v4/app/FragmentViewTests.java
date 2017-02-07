@@ -1036,6 +1036,10 @@ public class FragmentViewTests {
 
         FragmentTestUtil.executePendingTransactions(mActivityRule);
 
+        assertEquals(1, fragment1.onCreateViewCount);
+        assertEquals(1, fragment2.onCreateViewCount);
+        assertEquals(1, fragment3.onCreateViewCount);
+
         FragmentTestUtil.popBackStackImmediate(mActivityRule, "two",
                 FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
@@ -1043,6 +1047,10 @@ public class FragmentViewTests {
                 mActivityRule.getActivity().findViewById(R.id.fragmentContainer);
 
         FragmentTestUtil.assertChildren(container, fragment1);
+
+        assertEquals(2, fragment1.onCreateViewCount);
+        assertEquals(1, fragment2.onCreateViewCount);
+        assertEquals(1, fragment3.onCreateViewCount);
     }
 
     private View findViewById(int viewId) {
@@ -1091,10 +1099,13 @@ public class FragmentViewTests {
     }
 
     public static class SimpleViewFragment extends Fragment {
+        public int onCreateViewCount;
+
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                 @Nullable Bundle savedInstanceState) {
+            onCreateViewCount++;
             return inflater.inflate(R.layout.fragment_a, container, false);
         }
     }
