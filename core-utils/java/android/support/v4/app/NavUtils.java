@@ -16,6 +16,7 @@
 
 package android.support.v4.app;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -24,7 +25,6 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.support.annotation.Nullable;
-import android.support.v4.content.IntentCompat;
 import android.util.Log;
 
 /**
@@ -58,7 +58,7 @@ public final class NavUtils {
             try {
                 final String grandparent = NavUtils.getParentActivityName(activity, target);
                 final Intent parentIntent = grandparent == null
-                        ? IntentCompat.makeMainActivity(target)
+                        ? Intent.makeMainActivity(target)
                         : new Intent().setComponent(target);
                 return parentIntent;
             } catch (NameNotFoundException e) {
@@ -93,6 +93,7 @@ public final class NavUtils {
         }
     }
 
+    @TargetApi(16)
     static class NavUtilsImplJB extends NavUtilsImplBase {
 
         @Override
@@ -236,7 +237,7 @@ public final class NavUtils {
         final ComponentName target = new ComponentName(context, parentActivity);
         final String grandparent = getParentActivityName(context, target);
         final Intent parentIntent = grandparent == null
-                ? IntentCompat.makeMainActivity(target)
+                ? Intent.makeMainActivity(target)
                 : new Intent().setComponent(target);
         return parentIntent;
     }
@@ -261,7 +262,7 @@ public final class NavUtils {
                 componentName.getPackageName(), parentActivity);
         final String grandparent = getParentActivityName(context, target);
         final Intent parentIntent = grandparent == null
-                ? IntentCompat.makeMainActivity(target)
+                ? Intent.makeMainActivity(target)
                 : new Intent().setComponent(target);
         return parentIntent;
     }
