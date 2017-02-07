@@ -20,7 +20,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.RestrictTo;
-import android.support.v4.content.res.ConfigurationHelper;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
@@ -50,8 +49,7 @@ public class ButtonBarLayout extends LinearLayout {
     public ButtonBarLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         final boolean allowStackingDefault =
-                ConfigurationHelper.getScreenHeightDp(getResources())
-                        >= ALLOW_STACKING_MIN_HEIGHT_DP;
+                getResources().getConfiguration().screenHeightDp >= ALLOW_STACKING_MIN_HEIGHT_DP;
         final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ButtonBarLayout);
         mAllowStacking = ta.getBoolean(R.styleable.ButtonBarLayout_allowStacking,
                 allowStackingDefault);
