@@ -19,14 +19,14 @@ package android.support.wearable.view.util;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 
 import android.support.test.espresso.NoMatchingViewException;
-
 import android.support.test.espresso.ViewAssertion;
 import android.support.test.espresso.util.HumanReadables;
-
 import android.util.Log;
 import android.view.View;
 
+import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 
 public class MoreViewAssertions {
 
@@ -167,6 +167,20 @@ public class MoreViewAssertions {
                 view.getLocationInWindow(screenXy);
                 assertThat("View screenBottom: " + HumanReadables.describe(view),
                         screenXy[1] + view.getHeight(), matcher);
+            }
+        };
+    }
+
+    public static Matcher<View> withTranslationX(final int xTranslation) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with x translation == " + xTranslation);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                return view.getTranslationX() == xTranslation;
             }
         };
     }
