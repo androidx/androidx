@@ -33,7 +33,6 @@ import android.support.annotation.RestrictTo;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.view.WindowCompat;
-import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
@@ -391,7 +390,7 @@ public abstract class AppCompatDelegate {
 
     /**
      * This should be called from a
-     * {@link android.support.v4.view.LayoutInflaterFactory LayoutInflaterFactory} in order
+     * {@link android.view.LayoutInflater.Factory2 LayoutInflater.Factory2} in order
      * to return tint-aware widgets.
      * <p>
      * This is only needed if you are using your own
@@ -426,7 +425,8 @@ public abstract class AppCompatDelegate {
      * Allow AppCompat to apply the {@code night} and {@code notnight} resource qualifiers.
      *
      * <p>Doing this enables the
-     * {@link R.style#Theme_AppCompat_DayNight Theme.AppCompat.DayNight}
+     * {@link
+     * android.support.v7.appcompat.R.style#Theme_AppCompat_DayNight Theme.AppCompat.DayNight}
      * family of themes to work, using the computed twilight to automatically select a dark or
      * light theme.</p>
      *

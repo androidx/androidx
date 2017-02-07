@@ -36,7 +36,6 @@ import android.support.v4.util.ArraySet;
 import android.support.v4.util.DebugUtils;
 import android.support.v4.util.LogWriter;
 import android.support.v4.util.Pair;
-import android.support.v4.view.LayoutInflaterFactory;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -598,7 +597,7 @@ final class FragmentManagerState implements Parcelable {
 /**
  * Container for fragments associated with an activity.
  */
-final class FragmentManagerImpl extends FragmentManager implements LayoutInflaterFactory {
+final class FragmentManagerImpl extends FragmentManager implements LayoutInflater.Factory2 {
     static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
 
@@ -3529,7 +3528,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return fragment.mView;
     }
 
-    LayoutInflaterFactory getLayoutInflaterFactory() {
+    @Override
+    public View onCreateView(String name, Context context, AttributeSet attrs) {
+        return onCreateView(null, name, context, attrs);
+    }
+
+    LayoutInflater.Factory2 getLayoutInflaterFactory() {
         return this;
     }
 
