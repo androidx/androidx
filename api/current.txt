@@ -7319,16 +7319,16 @@ package android.support.v4.view {
     field public static final int SOURCE_UNKNOWN = 0; // 0x0
   }
 
-  public final class KeyEventCompat {
+  public final deprecated class KeyEventCompat {
     method public static deprecated boolean dispatch(android.view.KeyEvent, android.view.KeyEvent.Callback, java.lang.Object, java.lang.Object);
     method public static deprecated java.lang.Object getKeyDispatcherState(android.view.View);
-    method public static boolean hasModifiers(android.view.KeyEvent, int);
-    method public static boolean hasNoModifiers(android.view.KeyEvent);
-    method public static boolean isCtrlPressed(android.view.KeyEvent);
+    method public static deprecated boolean hasModifiers(android.view.KeyEvent, int);
+    method public static deprecated boolean hasNoModifiers(android.view.KeyEvent);
+    method public static deprecated boolean isCtrlPressed(android.view.KeyEvent);
     method public static deprecated boolean isTracking(android.view.KeyEvent);
-    method public static boolean metaStateHasModifiers(int, int);
-    method public static boolean metaStateHasNoModifiers(int);
-    method public static int normalizeMetaState(int);
+    method public static deprecated boolean metaStateHasModifiers(int, int);
+    method public static deprecated boolean metaStateHasNoModifiers(int);
+    method public static deprecated int normalizeMetaState(int);
     method public static deprecated void startTracking(android.view.KeyEvent);
   }
 

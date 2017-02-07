@@ -22,137 +22,54 @@ import android.view.View;
 /**
  * Helper for accessing features in {@link KeyEvent} introduced after
  * API level 4 in a backwards compatible fashion.
+ *
+ * @deprecated Use {@link KeyEvent} directly.
  */
+@Deprecated
 public final class KeyEventCompat {
     /**
-     * Interface for the full API.
+     * @deprecated Call {@link KeyEvent#normalizeMetaState(int)} directly. This method will
+     * be removed in a future release.
      */
-    interface KeyEventVersionImpl {
-        int normalizeMetaState(int metaState);
-        boolean metaStateHasModifiers(int metaState, int modifiers);
-        boolean metaStateHasNoModifiers(int metaState);
-        boolean isCtrlPressed(KeyEvent event);
-    }
-
-    /**
-     * Interface implementation that doesn't use anything about v4 APIs.
-     */
-    static class BaseKeyEventVersionImpl implements KeyEventVersionImpl {
-        private static final int META_MODIFIER_MASK =
-                KeyEvent.META_SHIFT_ON | KeyEvent.META_SHIFT_LEFT_ON | KeyEvent.META_SHIFT_RIGHT_ON
-                | KeyEvent.META_ALT_ON | KeyEvent.META_ALT_LEFT_ON | KeyEvent.META_ALT_RIGHT_ON
-                | KeyEvent.META_SYM_ON;
-
-        // Mask of all lock key meta states.
-        private static final int META_ALL_MASK = META_MODIFIER_MASK;
-
-        private static int metaStateFilterDirectionalModifiers(int metaState,
-                int modifiers, int basic, int left, int right) {
-            final boolean wantBasic = (modifiers & basic) != 0;
-            final int directional = left | right;
-            final boolean wantLeftOrRight = (modifiers & directional) != 0;
-
-            if (wantBasic) {
-                if (wantLeftOrRight) {
-                    throw new IllegalArgumentException("bad arguments");
-                }
-                return metaState & ~directional;
-            } else if (wantLeftOrRight) {
-                return metaState & ~basic;
-            } else {
-                return metaState;
-            }
-        }
-
-        @Override
-        public int normalizeMetaState(int metaState) {
-            if ((metaState & (KeyEvent.META_SHIFT_LEFT_ON | KeyEvent.META_SHIFT_RIGHT_ON)) != 0) {
-                metaState |= KeyEvent.META_SHIFT_ON;
-            }
-            if ((metaState & (KeyEvent.META_ALT_LEFT_ON | KeyEvent.META_ALT_RIGHT_ON)) != 0) {
-                metaState |= KeyEvent.META_ALT_ON;
-            }
-            return metaState & META_ALL_MASK;
-        }
- 
-        @Override
-        public boolean metaStateHasModifiers(int metaState, int modifiers) {
-            metaState = normalizeMetaState(metaState) & META_MODIFIER_MASK;
-            metaState = metaStateFilterDirectionalModifiers(metaState, modifiers,
-                    KeyEvent.META_SHIFT_ON, KeyEvent.META_SHIFT_LEFT_ON, KeyEvent.META_SHIFT_RIGHT_ON);
-            metaState = metaStateFilterDirectionalModifiers(metaState, modifiers,
-                    KeyEvent.META_ALT_ON, KeyEvent.META_ALT_LEFT_ON, KeyEvent.META_ALT_RIGHT_ON);
-            return metaState == modifiers;
-        }
-
-        @Override
-        public boolean metaStateHasNoModifiers(int metaState) {
-            return (normalizeMetaState(metaState) & META_MODIFIER_MASK) == 0;
-        }
-
-        @Override
-        public boolean isCtrlPressed(KeyEvent event) {
-            return false;
-        }
-    }
-
-    /**
-     * Interface implementation for devices with at least v11 APIs.
-     */
-    static class HoneycombKeyEventVersionImpl extends BaseKeyEventVersionImpl {
-        @Override
-        public int normalizeMetaState(int metaState) {
-            return KeyEventCompatHoneycomb.normalizeMetaState(metaState);
-        }
-        
-        @Override
-        public boolean metaStateHasModifiers(int metaState, int modifiers) {
-            return KeyEventCompatHoneycomb.metaStateHasModifiers(metaState, modifiers);
-        }
-
-        @Override
-        public boolean metaStateHasNoModifiers(int metaState) {
-            return KeyEventCompatHoneycomb.metaStateHasNoModifiers(metaState);
-        }
-
-        @Override
-        public boolean isCtrlPressed(KeyEvent event) {
-            return KeyEventCompatHoneycomb.isCtrlPressed(event);
-        }
-    }
-
-    /**
-     * Select the correct implementation to use for the current platform.
-     */
-    static final KeyEventVersionImpl IMPL;
-    static {
-        if (android.os.Build.VERSION.SDK_INT >= 11) {
-            IMPL = new HoneycombKeyEventVersionImpl();
-        } else {
-            IMPL = new BaseKeyEventVersionImpl();
-        }
-    }
-
-    // -------------------------------------------------------------------
-
+    @Deprecated
     public static int normalizeMetaState(int metaState) {
-        return IMPL.normalizeMetaState(metaState);
+        return KeyEvent.normalizeMetaState(metaState);
     }
 
+    /**
+     * @deprecated Call {@link KeyEvent#metaStateHasModifiers(int, int)} directly. This method will
+     * be removed in a future release.
+     */
+    @Deprecated
     public static boolean metaStateHasModifiers(int metaState, int modifiers) {
-        return IMPL.metaStateHasModifiers(metaState, modifiers);
+        return KeyEvent.metaStateHasModifiers(metaState, modifiers);
     }
 
+    /**
+     * @deprecated Call {@link KeyEvent#metaStateHasNoModifiers(int)} directly. This method will be
+     * removed in a future release.
+     */
+    @Deprecated
     public static boolean metaStateHasNoModifiers(int metaState) {
-        return IMPL.metaStateHasNoModifiers(metaState);
+        return KeyEvent.metaStateHasNoModifiers(metaState);
     }
 
+    /**
+     * @deprecated Call {@link KeyEvent#hasModifiers(int)} directly. This method will be removed in
+     * a future release.
+     */
+    @Deprecated
     public static boolean hasModifiers(KeyEvent event, int modifiers) {
-        return IMPL.metaStateHasModifiers(event.getMetaState(), modifiers);
+        return event.hasModifiers(modifiers);
     }
 
+    /**
+     * @deprecated Call {@link KeyEvent#hasNoModifiers()} directly. This method will be removed in a
+     * future release.
+     */
+    @Deprecated
     public static boolean hasNoModifiers(KeyEvent event) {
-        return IMPL.metaStateHasNoModifiers(event.getMetaState());
+        return event.hasNoModifiers();
     }
 
     /**
@@ -190,11 +107,16 @@ public final class KeyEventCompat {
     @Deprecated
     public static boolean dispatch(KeyEvent event, KeyEvent.Callback receiver, Object state,
                 Object target) {
-        return event.dispatch(receiver, (KeyEvent.DispatcherState)state, target);
+        return event.dispatch(receiver, (KeyEvent.DispatcherState) state, target);
     }
 
+    /**
+     * @deprecated Call {@link KeyEvent#isCtrlPressed()} directly. This method will be removed
+     * in a future release.
+     */
+    @Deprecated
     public static boolean isCtrlPressed(KeyEvent event) {
-        return IMPL.isCtrlPressed(event);
+        return event.isCtrlPressed();
     }
 
     private KeyEventCompat() {}

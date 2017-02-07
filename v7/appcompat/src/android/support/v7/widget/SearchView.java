@@ -45,7 +45,6 @@ import android.support.annotation.RestrictTo;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.AbsSavedState;
-import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.appcompat.R;
@@ -1068,7 +1067,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
             // If there is text in the query box, handle enter, and action keys
             // The search key is handled by the dialog's onKeyDown().
-            if (!mSearchSrcTextView.isEmpty() && KeyEventCompat.hasNoModifiers(event)) {
+            if (!mSearchSrcTextView.isEmpty() && event.hasNoModifiers()) {
                 if (event.getAction() == KeyEvent.ACTION_UP) {
                     if (keyCode == KeyEvent.KEYCODE_ENTER) {
                         v.cancelLongPress();
@@ -1097,7 +1096,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         if (mSuggestionsAdapter == null) {
             return false;
         }
-        if (event.getAction() == KeyEvent.ACTION_DOWN && KeyEventCompat.hasNoModifiers(event)) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN && event.hasNoModifiers()) {
             // First, check for enter or search (both of which we'll treat as a
             // "click")
             if (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_SEARCH
