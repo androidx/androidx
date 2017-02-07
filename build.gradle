@@ -499,6 +499,7 @@ subprojects {
                         from v.testedVariant.javaCompile.destinationDir
                         exclude "**/R.class"
                         exclude "**/R\$*.class"
+                        exclude "**/BuildConfig.class"
                         destinationDir file(project.distDir)
                         archiveName "${project.archivesBaseName}-${v.baseName}-allclasses.jar"
                     }
@@ -519,6 +520,7 @@ subprojects {
                         destinationDir file(project.distDir)
                         archiveName "jacocoant-" + version  + ".jar"
                     }
+                    jarifyTask.dependsOn v.getJavaCompiler()
                     v.assemble.dependsOn jarifyTask, collectJacocoAntPackages
                 }
             }
