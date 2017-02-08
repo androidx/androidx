@@ -16,13 +16,14 @@
 
 package android.support.v4.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -39,13 +40,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 /**
  * Base class for activities that want to use the support-based
@@ -115,7 +113,6 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
     boolean mReallyStopped;
     boolean mRetaining;
 
-    boolean mOptionsMenuInvalidated;
     boolean mRequestedPermissionsFromFragment;
 
     // A hint for the next candidate request index. Request indicies are ints between 0 and 2^16-1
@@ -322,13 +319,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
             boolean show = super.onCreatePanelMenu(featureId, menu);
             show |= mFragments.dispatchCreateOptionsMenu(menu, getMenuInflater());
-            if (android.os.Build.VERSION.SDK_INT >= 11) {
-                return show;
-            }
-            // Prior to Honeycomb, the framework can't invalidate the options
-            // menu, so we must always say we have one in case the app later
-            // invalidates it and needs to have it shown.
-            return true;
+            return show;
         }
         return super.onCreatePanelMenu(featureId, menu);
     }
@@ -476,11 +467,6 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
     @Override
     public boolean onPreparePanel(int featureId, View view, Menu menu) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL && menu != null) {
-            if (mOptionsMenuInvalidated) {
-                mOptionsMenuInvalidated = false;
-                menu.clear();
-                onCreatePanelMenu(featureId, menu);
-            }
             boolean goforit = onPrepareOptionsPanel(view, menu);
             goforit |= mFragments.dispatchPrepareOptionsMenu(menu);
             return goforit;
@@ -617,18 +603,12 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      * <p>Invalidate the activity's options menu. This will cause relevant presentations
      * of the menu to fully update via calls to onCreateOptionsMenu and
      * onPrepareOptionsMenu the next time the menu is requested.
+     *
+     * @deprecated Call {@link Activity#invalidateOptionsMenu} directly.
      */
+    @Deprecated
     public void supportInvalidateOptionsMenu() {
-        if (android.os.Build.VERSION.SDK_INT >= 11) {
-            // If we are running on HC or greater, we can use the framework
-            // API to invalidate the options menu.
-            ActivityCompatHoneycomb.invalidateOptionsMenu(this);
-            return;
-        }
-
-        // Whoops, older platform...  we'll use a hack, to manually rebuild
-        // the options menu the next time it is prepared.
-        mOptionsMenuInvalidated = true;
+        invalidateOptionsMenu();
     }
 
     /**
