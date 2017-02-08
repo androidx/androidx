@@ -19,10 +19,8 @@ package android.support.wearable.view.util;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 
 import android.support.test.espresso.NoMatchingViewException;
-
 import android.support.test.espresso.ViewAssertion;
 import android.support.test.espresso.util.HumanReadables;
-
 import android.util.Log;
 import android.view.View;
 
@@ -36,7 +34,7 @@ public class MoreViewAssertions {
         return new ViewAssertion() {
             @Override
             public void check(View view, NoMatchingViewException noViewException) {
-                Log.d(TAG, "l: " + view.getPaddingLeft());
+                Log.d(TAG, "l: " + view.getLeft());
                 assertThat("View left: " + HumanReadables.describe(view), view.getLeft(), matcher);
             }
         };
