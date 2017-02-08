@@ -2863,6 +2863,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return result;
         }
 
+        if (mBaseGridView.getDescendantFocusability() == ViewGroup.FOCUS_BLOCK_DESCENDANTS) {
+            return mBaseGridView.getParent().focusSearch(focused, direction);
+        }
+
         if (DEBUG) Log.v(getTag(), "regular focusSearch failed direction " + direction);
         int movement = getMovement(direction);
         final boolean isScroll = mBaseGridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE;
