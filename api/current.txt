@@ -904,7 +904,8 @@ package android.support.media {
     method public java.lang.String getAttribute(java.lang.String);
     method public double getAttributeDouble(java.lang.String, double);
     method public int getAttributeInt(java.lang.String, int);
-    method public boolean getLatLong(float[]);
+    method public deprecated boolean getLatLong(float[]);
+    method public double[] getLatLong();
     method public byte[] getThumbnail();
     method public android.graphics.Bitmap getThumbnailBitmap();
     method public byte[] getThumbnailBytes();
@@ -913,6 +914,7 @@ package android.support.media {
     method public boolean isThumbnailCompressed();
     method public void saveAttributes() throws java.io.IOException;
     method public void setAttribute(java.lang.String, java.lang.String);
+    method public void setLatLong(double, double);
     field public static final int ORIENTATION_FLIP_HORIZONTAL = 2; // 0x2
     field public static final int ORIENTATION_FLIP_VERTICAL = 4; // 0x4
     field public static final int ORIENTATION_NORMAL = 1; // 0x1
