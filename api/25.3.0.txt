@@ -354,11 +354,18 @@ package android.support.design.widget {
     method public android.content.res.ColorStateList getItemTextColor();
     method public int getMaxItemCount();
     method public android.view.Menu getMenu();
+    method public int getSelectedItemId();
     method public void inflateMenu(int);
     method public void setItemBackgroundResource(int);
     method public void setItemIconTintList(android.content.res.ColorStateList);
     method public void setItemTextColor(android.content.res.ColorStateList);
+    method public void setOnNavigationItemReselectedListener(android.support.design.widget.BottomNavigationView.OnNavigationItemReselectedListener);
     method public void setOnNavigationItemSelectedListener(android.support.design.widget.BottomNavigationView.OnNavigationItemSelectedListener);
+    method public void setSelectedItemId(int);
+  }
+
+  public static abstract interface BottomNavigationView.OnNavigationItemReselectedListener {
+    method public abstract void onNavigationItemReselected(android.view.MenuItem);
   }
 
   public static abstract interface BottomNavigationView.OnNavigationItemSelectedListener {
@@ -1707,6 +1714,7 @@ package android.support.v17.leanback.app {
     method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.widget.DetailsParallax getParallax();
     method public android.support.v17.leanback.app.RowsFragment getRowsFragment();
     method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
@@ -1724,11 +1732,30 @@ package android.support.v17.leanback.app {
     method protected void setupPresenter(android.support.v17.leanback.widget.Presenter);
   }
 
+  public class DetailsFragmentBackgroundController {
+    ctor public DetailsFragmentBackgroundController(android.support.v17.leanback.app.DetailsFragment);
+    method public void enableParallax();
+    method public void enableParallax(android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.support.v17.leanback.widget.ParallaxTarget.PropertyValuesHolderTarget);
+    method public final android.app.Fragment findOrCreateVideoFragment();
+    method public final android.graphics.drawable.Drawable getBottomDrawable();
+    method public final android.graphics.Bitmap getCoverBitmap();
+    method public final android.graphics.drawable.Drawable getCoverDrawable();
+    method public final int getParallaxDrawableMaxOffset();
+    method public final int getSolidColor();
+    method public android.support.v17.leanback.media.PlaybackGlueHost onCreateGlueHost();
+    method public android.app.Fragment onCreateVideoFragment();
+    method public final void setCoverBitmap(android.graphics.Bitmap);
+    method public final void setParallaxDrawableMaxOffset(int);
+    method public final void setSolidColor(int);
+    method public void setupVideoPlayback(android.support.v17.leanback.media.PlaybackGlue);
+  }
+
   public class DetailsSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
     ctor public DetailsSupportFragment();
     method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.widget.DetailsParallax getParallax();
     method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
     method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
@@ -1744,6 +1771,24 @@ package android.support.v17.leanback.app {
     method public void setSelectedPosition(int, boolean);
     method protected void setupDetailsOverviewRowPresenter(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter);
     method protected void setupPresenter(android.support.v17.leanback.widget.Presenter);
+  }
+
+  public class DetailsSupportFragmentBackgroundController {
+    ctor public DetailsSupportFragmentBackgroundController(android.support.v17.leanback.app.DetailsSupportFragment);
+    method public void enableParallax();
+    method public void enableParallax(android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.support.v17.leanback.widget.ParallaxTarget.PropertyValuesHolderTarget);
+    method public final android.support.v4.app.Fragment findOrCreateVideoSupportFragment();
+    method public final android.graphics.drawable.Drawable getBottomDrawable();
+    method public final android.graphics.Bitmap getCoverBitmap();
+    method public final android.graphics.drawable.Drawable getCoverDrawable();
+    method public final int getParallaxDrawableMaxOffset();
+    method public final int getSolidColor();
+    method public android.support.v17.leanback.media.PlaybackGlueHost onCreateGlueHost();
+    method public android.support.v4.app.Fragment onCreateVideoSupportFragment();
+    method public final void setCoverBitmap(android.graphics.Bitmap);
+    method public final void setParallaxDrawableMaxOffset(int);
+    method public final void setSolidColor(int);
+    method public void setupVideoPlayback(android.support.v17.leanback.media.PlaybackGlue);
   }
 
   public class ErrorFragment extends android.support.v17.leanback.app.BrandedFragment {
@@ -2040,6 +2085,7 @@ package android.support.v17.leanback.app {
     method public void setFadingEnabled(boolean);
     method public void setHostCallback(android.support.v17.leanback.media.PlaybackGlueHost.HostCallback);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
+    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.BaseOnItemViewSelectedListener);
     method public final void setOnKeyInterceptListener(android.view.View.OnKeyListener);
     method public void setOnPlaybackItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
     method public void setPlaybackRow(android.support.v17.leanback.widget.Row);
@@ -2124,6 +2170,7 @@ package android.support.v17.leanback.app {
     method public void setFadingEnabled(boolean);
     method public void setHostCallback(android.support.v17.leanback.media.PlaybackGlueHost.HostCallback);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
+    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.BaseOnItemViewSelectedListener);
     method public final void setOnKeyInterceptListener(android.view.View.OnKeyListener);
     method public void setOnPlaybackItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
     method public void setPlaybackRow(android.support.v17.leanback.widget.Row);
@@ -2290,6 +2337,28 @@ package android.support.v17.leanback.app {
     method public void setSelectedPosition(int);
   }
 
+  public class VideoFragment extends android.support.v17.leanback.app.PlaybackFragment {
+    ctor public VideoFragment();
+    method public android.view.SurfaceView getSurfaceView();
+    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
+  }
+
+  public class VideoFragmentGlueHost extends android.support.v17.leanback.app.PlaybackFragmentGlueHost implements android.support.v17.leanback.media.SurfaceHolderGlueHost {
+    ctor public VideoFragmentGlueHost(android.support.v17.leanback.app.VideoFragment);
+    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
+  }
+
+  public class VideoSupportFragment extends android.support.v17.leanback.app.PlaybackSupportFragment {
+    ctor public VideoSupportFragment();
+    method public android.view.SurfaceView getSurfaceView();
+    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
+  }
+
+  public class VideoSupportFragmentGlueHost extends android.support.v17.leanback.app.PlaybackSupportFragmentGlueHost implements android.support.v17.leanback.media.SurfaceHolderGlueHost {
+    ctor public VideoSupportFragmentGlueHost(android.support.v17.leanback.app.VideoSupportFragment);
+    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
+  }
+
 }
 
 package android.support.v17.leanback.database {
@@ -2304,6 +2373,26 @@ package android.support.v17.leanback.database {
 }
 
 package android.support.v17.leanback.graphics {
+
+  public class BoundsRule {
+    ctor public BoundsRule();
+    ctor public BoundsRule(android.support.v17.leanback.graphics.BoundsRule);
+    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule absoluteValue(int);
+    method public void calculateBounds(android.graphics.Rect, android.graphics.Rect);
+    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParent(float);
+    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParentWithOffset(float, int);
+    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule bottom;
+    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule left;
+    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule right;
+    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule top;
+  }
+
+  public static final class BoundsRule.ValueRule {
+    method public int getAbsoluteValue();
+    method public float getFraction();
+    method public void setAbsoluteValue(int);
+    method public void setFraction(float);
+  }
 
   public final class ColorFilterCache {
     method public static android.support.v17.leanback.graphics.ColorFilterCache getColorFilterCache(int);
@@ -2329,6 +2418,54 @@ package android.support.v17.leanback.graphics {
     method public android.graphics.Paint getPaint();
     method public boolean needsDraw();
     method public void setActiveLevel(float);
+  }
+
+  public class CompositeDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
+    ctor public CompositeDrawable();
+    method public void addChildDrawable(android.graphics.drawable.Drawable);
+    method public void draw(android.graphics.Canvas);
+    method public android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable getChildAt(int);
+    method public int getChildCount();
+    method public android.graphics.drawable.Drawable getDrawable(int);
+    method public int getOpacity();
+    method public void invalidateDrawable(android.graphics.drawable.Drawable);
+    method public void removeChild(int);
+    method public void removeDrawable(android.graphics.drawable.Drawable);
+    method public void scheduleDrawable(android.graphics.drawable.Drawable, java.lang.Runnable, long);
+    method public void setAlpha(int);
+    method public void setChildDrawableAt(int, android.graphics.drawable.Drawable);
+    method public void setColorFilter(android.graphics.ColorFilter);
+    method public void unscheduleDrawable(android.graphics.drawable.Drawable, java.lang.Runnable);
+  }
+
+  public static final class CompositeDrawable.ChildDrawable {
+    ctor public CompositeDrawable.ChildDrawable(android.graphics.drawable.Drawable, android.support.v17.leanback.graphics.CompositeDrawable);
+    method public android.support.v17.leanback.graphics.BoundsRule getBoundsRule();
+    method public android.graphics.drawable.Drawable getDrawable();
+    method public void recomputeBounds();
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> BOTTOM_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> BOTTOM_FRACTION;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> LEFT_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> LEFT_FRACTION;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> RIGHT_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> RIGHT_FRACTION;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> TOP_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> TOP_FRACTION;
+  }
+
+  public class FitWidthBitmapDrawable extends android.graphics.drawable.Drawable {
+    ctor public FitWidthBitmapDrawable();
+    method public void draw(android.graphics.Canvas);
+    method public android.graphics.Bitmap getBitmap();
+    method public int getOpacity();
+    method public android.graphics.Rect getSource();
+    method public int getVerticalOffset();
+    method public void setAlpha(int);
+    method public void setBitmap(android.graphics.Bitmap);
+    method public void setColorFilter(android.graphics.ColorFilter);
+    method public void setSource(android.graphics.Rect);
+    method public void setVerticalOffset(int);
+    field public static final android.util.Property<android.support.v17.leanback.graphics.FitWidthBitmapDrawable, java.lang.Integer> PROPERTY_VERTICAL_OFFSET;
   }
 
 }
@@ -2725,6 +2862,12 @@ package android.support.v17.leanback.widget {
   public final class DetailsOverviewRowPresenter.ViewHolder extends android.support.v17.leanback.widget.RowPresenter.ViewHolder {
     ctor public DetailsOverviewRowPresenter.ViewHolder(android.view.View, android.support.v17.leanback.widget.Presenter);
     field public final android.support.v17.leanback.widget.Presenter.ViewHolder mDetailsDescriptionViewHolder;
+  }
+
+  public class DetailsParallax extends android.support.v17.leanback.widget.RecyclerViewParallax {
+    ctor public DetailsParallax();
+    method public android.support.v17.leanback.widget.Parallax.IntProperty getOverviewRowBottom();
+    method public android.support.v17.leanback.widget.Parallax.IntProperty getOverviewRowTop();
   }
 
   public class DividerPresenter extends android.support.v17.leanback.widget.Presenter {
@@ -3347,6 +3490,115 @@ package android.support.v17.leanback.widget {
     method public final boolean isRenderedAsRowView();
   }
 
+  public abstract class Parallax<PropertyT extends android.util.Property> {
+    ctor public Parallax();
+    method public void addEffect(android.support.v17.leanback.widget.ParallaxEffect);
+    method public android.support.v17.leanback.widget.ParallaxEffect addEffect(android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue...);
+    method public android.support.v17.leanback.widget.ParallaxEffect addEffect(android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue...);
+    method public abstract PropertyT addProperty(java.lang.String);
+    method public abstract PropertyT createProperty(java.lang.String, int);
+    method public java.util.List<android.support.v17.leanback.widget.ParallaxEffect> getEffects();
+    method public final java.util.List<PropertyT> getProperties();
+    method public void removeAllEffects();
+    method public void removeEffect(android.support.v17.leanback.widget.ParallaxEffect);
+    method public void updateValues();
+    method public abstract void verifyProperties() throws java.lang.IllegalStateException;
+  }
+
+  public static abstract class Parallax.FloatParallax<FloatPropertyT extends android.support.v17.leanback.widget.Parallax.FloatProperty> extends android.support.v17.leanback.widget.Parallax {
+    ctor public Parallax.FloatParallax();
+    method public final FloatPropertyT addProperty(java.lang.String);
+    method public abstract float getMaxValue();
+    method public final float getPropertyValue(int);
+    method public final void setPropertyValue(int, float);
+    method public final void verifyProperties() throws java.lang.IllegalStateException;
+  }
+
+  public static class Parallax.FloatProperty extends android.util.Property {
+    ctor public Parallax.FloatProperty(java.lang.String, int);
+    method public final android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue at(float, float);
+    method public final android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue atAbsolute(float);
+    method public final android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue atFraction(float);
+    method public final java.lang.Float get(android.support.v17.leanback.widget.Parallax.FloatParallax);
+    method public final int getIndex();
+    method public final void set(android.support.v17.leanback.widget.Parallax.FloatParallax, java.lang.Float);
+    field public static final float UNKNOWN_AFTER = 3.4028235E38f;
+    field public static final float UNKNOWN_BEFORE = -3.4028235E38f;
+  }
+
+  public static class Parallax.FloatPropertyMarkerValue extends android.support.v17.leanback.widget.Parallax.PropertyMarkerValue {
+    ctor public Parallax.FloatPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.FloatProperty, float);
+    ctor public Parallax.FloatPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.FloatProperty, float, float);
+    method public final float getMarkerValue(android.support.v17.leanback.widget.Parallax.FloatParallax);
+  }
+
+  public static abstract class Parallax.IntParallax<IntPropertyT extends android.support.v17.leanback.widget.Parallax.IntProperty> extends android.support.v17.leanback.widget.Parallax {
+    ctor public Parallax.IntParallax();
+    method public final IntPropertyT addProperty(java.lang.String);
+    method public abstract int getMaxValue();
+    method public final int getPropertyValue(int);
+    method public final void setPropertyValue(int, int);
+    method public final void verifyProperties() throws java.lang.IllegalStateException;
+  }
+
+  public static class Parallax.IntProperty extends android.util.Property {
+    ctor public Parallax.IntProperty(java.lang.String, int);
+    method public final android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue at(int, float);
+    method public final android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue atAbsolute(int);
+    method public final android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue atFraction(float);
+    method public final java.lang.Integer get(android.support.v17.leanback.widget.Parallax.IntParallax);
+    method public final int getIndex();
+    method public final void set(android.support.v17.leanback.widget.Parallax.IntParallax, java.lang.Integer);
+    field public static final int UNKNOWN_AFTER = 2147483647; // 0x7fffffff
+    field public static final int UNKNOWN_BEFORE = -2147483648; // 0x80000000
+  }
+
+  public static class Parallax.IntPropertyMarkerValue extends android.support.v17.leanback.widget.Parallax.PropertyMarkerValue {
+    ctor public Parallax.IntPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.IntProperty, int);
+    ctor public Parallax.IntPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.IntProperty, int, float);
+    method public final int getMarkerValue(android.support.v17.leanback.widget.Parallax.IntParallax);
+  }
+
+  public static class Parallax.PropertyMarkerValue<PropertyT> {
+    ctor public Parallax.PropertyMarkerValue(PropertyT);
+    method public PropertyT getProperty();
+  }
+
+  public abstract class ParallaxEffect<ParallaxEffectT extends android.support.v17.leanback.widget.ParallaxEffect, PropertyMarkerValueT extends android.support.v17.leanback.widget.Parallax.PropertyMarkerValue> {
+    ctor public ParallaxEffect();
+    method public final void addTarget(android.support.v17.leanback.widget.ParallaxTarget);
+    method protected abstract float calculateFraction(android.support.v17.leanback.widget.Parallax);
+    method public final java.util.List<PropertyMarkerValueT> getPropertyRanges();
+    method public final java.util.List<android.support.v17.leanback.widget.ParallaxTarget> getTargets();
+    method public final void performMapping(android.support.v17.leanback.widget.Parallax);
+    method public final void removeTarget(android.support.v17.leanback.widget.ParallaxTarget);
+    method public final void setPropertyRanges(PropertyMarkerValueT...);
+    method public final android.support.v17.leanback.widget.ParallaxEffect target(android.support.v17.leanback.widget.ParallaxTarget);
+    method public final android.support.v17.leanback.widget.ParallaxEffect target(java.lang.Object, android.animation.PropertyValuesHolder);
+  }
+
+  public static final class ParallaxEffect.FloatEffect extends android.support.v17.leanback.widget.ParallaxEffect {
+    ctor public ParallaxEffect.FloatEffect();
+    method protected float calculateFraction(android.support.v17.leanback.widget.Parallax);
+  }
+
+  public static final class ParallaxEffect.IntEffect extends android.support.v17.leanback.widget.ParallaxEffect {
+    ctor public ParallaxEffect.IntEffect();
+    method protected float calculateFraction(android.support.v17.leanback.widget.Parallax);
+  }
+
+  public abstract class ParallaxTarget {
+    ctor public ParallaxTarget();
+    method public abstract float getFraction();
+    method public abstract void update(float);
+  }
+
+  public static final class ParallaxTarget.PropertyValuesHolderTarget extends android.support.v17.leanback.widget.ParallaxTarget {
+    ctor public ParallaxTarget.PropertyValuesHolderTarget(java.lang.Object, android.animation.PropertyValuesHolder);
+    method public float getFraction();
+    method public void update(float);
+  }
+
   public class PlaybackControlsRow extends android.support.v17.leanback.widget.Row {
     ctor public PlaybackControlsRow(java.lang.Object);
     ctor public PlaybackControlsRow();
@@ -3534,6 +3786,25 @@ package android.support.v17.leanback.widget {
     method public void select(java.lang.Object);
     method protected void showView(android.view.View, boolean);
     method public void unselect();
+  }
+
+  public class RecyclerViewParallax extends android.support.v17.leanback.widget.Parallax.IntParallax {
+    ctor public RecyclerViewParallax();
+    method public android.support.v17.leanback.widget.RecyclerViewParallax.ChildPositionProperty createProperty(java.lang.String, int);
+    method public int getMaxValue();
+    method public android.support.v7.widget.RecyclerView getRecyclerView();
+    method public void setRecyclerView(android.support.v7.widget.RecyclerView);
+  }
+
+  public static final class RecyclerViewParallax.ChildPositionProperty extends android.support.v17.leanback.widget.Parallax.IntProperty {
+    method public android.support.v17.leanback.widget.RecyclerViewParallax.ChildPositionProperty adapterPosition(int);
+    method public android.support.v17.leanback.widget.RecyclerViewParallax.ChildPositionProperty fraction(float);
+    method public int getAdapterPosition();
+    method public float getFraction();
+    method public int getOffset();
+    method public int getViewId();
+    method public android.support.v17.leanback.widget.RecyclerViewParallax.ChildPositionProperty offset(int);
+    method public android.support.v17.leanback.widget.RecyclerViewParallax.ChildPositionProperty viewId(int);
   }
 
   public class Row {
@@ -5262,6 +5533,10 @@ package android.support.v4.graphics {
     method public static int compositeColors(int, int);
     method public static double distanceEuclidean(double[], double[]);
     method public static int setAlphaComponent(int, int);
+  }
+
+  public final class PaintCompat {
+    method public static boolean hasGlyph(android.graphics.Paint, java.lang.String);
   }
 
 }
