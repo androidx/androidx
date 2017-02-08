@@ -26,9 +26,11 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import android.app.Activity;
 import android.support.design.test.R;
+import android.support.test.filters.LargeTest;
 
 import org.junit.Test;
 
+@LargeTest
 public class AppBarWithCollapsingToolbarStateRestoreTest
         extends BaseInstrumentationTestCase<AppBarLayoutCollapsePinTestActivity> {
 

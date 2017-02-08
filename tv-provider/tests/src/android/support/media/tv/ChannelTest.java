@@ -20,7 +20,8 @@ import android.content.Intent;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.SmallTest;
 
 import junit.framework.TestCase;
 
@@ -30,7 +31,8 @@ import org.junit.Test;
  * Tests that channels can be created using the Builder pattern and correctly obtain
  * values from them
  */
-@RequiresApi(api = Build.VERSION_CODES.M)
+@SmallTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 public class ChannelTest extends TestCase {
     private static final String KEY_SPLASHSCREEN = "splashscreen";
     private static final String KEY_PREMIUM_CHANNEL = "premium";

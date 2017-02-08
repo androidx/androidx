@@ -21,6 +21,7 @@ import android.database.MatrixCursor;
 import android.media.tv.TvContentRating;
 import android.net.Uri;
 import android.os.Build;
+import android.support.test.filters.SmallTest;
 import android.support.v4.os.BuildCompat;
 
 import junit.framework.TestCase;
@@ -35,6 +36,7 @@ import java.util.Objects;
  * Tests that programs can be created using the Builder pattern and correctly obtain
  * values from them.
  */
+@SmallTest
 public class ProgramTest extends TestCase {
     @Test
     public void testEmptyProgram() {
