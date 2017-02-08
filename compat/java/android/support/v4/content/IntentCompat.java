@@ -20,6 +20,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link android.content.Intent}
@@ -27,22 +28,7 @@ import android.os.Build;
  */
 public final class IntentCompat {
 
-    interface IntentCompatImpl {
-        Intent makeMainActivity(ComponentName componentName);
-        Intent makeMainSelectorActivity(String selectorAction, String selectorCategory);
-        Intent makeRestartActivityTask(ComponentName mainActivity);
-    }
-
-    static class IntentCompatImplBase implements IntentCompatImpl {
-        @Override
-        public Intent makeMainActivity(ComponentName componentName) {
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.setComponent(componentName);
-            intent.addCategory(Intent.CATEGORY_LAUNCHER);
-            return intent;
-        }
-
-        @Override
+    static class IntentCompatBaseImpl {
         public Intent makeMainSelectorActivity(String selectorAction,
                 String selectorCategory) {
             // Before api 15 you couldn't set a selector intent.
@@ -52,43 +38,23 @@ public final class IntentCompat {
             intent.addCategory(selectorCategory);
             return intent;
         }
-
-        @Override
-        public Intent makeRestartActivityTask(ComponentName mainActivity) {
-            Intent intent = makeMainActivity(mainActivity);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                    | IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
-            return intent;
-        }
     }
 
-    static class IntentCompatImplHC extends IntentCompatImplBase {
-        @Override
-        public Intent makeMainActivity(ComponentName componentName) {
-            return IntentCompatHoneycomb.makeMainActivity(componentName);
-        }
-        @Override
-        public Intent makeRestartActivityTask(ComponentName componentName) {
-            return IntentCompatHoneycomb.makeRestartActivityTask(componentName);
-        }
-    }
-
-    static class IntentCompatImplIcsMr1 extends IntentCompatImplHC {
+    @RequiresApi(17)
+    static class IntentCompatApi15Impl extends IntentCompatBaseImpl {
         @Override
         public Intent makeMainSelectorActivity(String selectorAction, String selectorCategory) {
-            return IntentCompatIcsMr1.makeMainSelectorActivity(selectorAction, selectorCategory);
+            return Intent.makeMainSelectorActivity(selectorAction, selectorCategory);
         }
     }
 
-    private static final IntentCompatImpl IMPL;
+    private static final IntentCompatBaseImpl IMPL;
     static {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 15) {
-            IMPL = new IntentCompatImplIcsMr1();
-        } else if (version >= 11) {
-            IMPL = new IntentCompatImplHC();
+            IMPL = new IntentCompatApi15Impl();
         } else {
-            IMPL = new IntentCompatImplBase();
+            IMPL = new IntentCompatBaseImpl();
         }
     }
 
@@ -118,7 +84,10 @@ public final class IntentCompat {
      *
      * <p class="note">This is a protected intent that can only be sent
      * by the system.
+     *
+     * @deprecated Use {@link Intent#ACTION_EXTERNAL_APPLICATIONS_AVAILABLE} directly.
      */
+    @Deprecated
     public static final String ACTION_EXTERNAL_APPLICATIONS_AVAILABLE =
         "android.intent.action.EXTERNAL_APPLICATIONS_AVAILABLE";
 
@@ -141,7 +110,10 @@ public final class IntentCompat {
      *
      * <p class="note">This is a protected intent that can only be sent
      * by the system.
+     *
+     * @deprecated Use {@link Intent#ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE} directly.
      */
+    @Deprecated
     public static final String ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE =
         "android.intent.action.EXTERNAL_APPLICATIONS_UNAVAILABLE";
 
@@ -150,7 +122,10 @@ public final class IntentCompat {
      * {@link android.content.Intent#ACTION_EXTERNAL_APPLICATIONS_AVAILABLE},
      * {@link android.content.Intent#ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE}
      * and contains a string array of all of the components that have changed.
+     *
+     * @deprecated Use {@link Intent#EXTRA_CHANGED_PACKAGE_LIST} directly.
      */
+    @Deprecated
     public static final String EXTRA_CHANGED_PACKAGE_LIST =
             "android.intent.extra.changed_package_list";
 
@@ -160,7 +135,10 @@ public final class IntentCompat {
      * {@link android.content.Intent#ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE}
      * and contains an integer array of uids of all of the components
      * that have changed.
+     *
+     * @deprecated Use {@link Intent#EXTRA_CHANGED_UID_LIST} directly.
      */
+    @Deprecated
     public static final String EXTRA_CHANGED_UID_LIST =
             "android.intent.extra.changed_uid_list";
 
@@ -186,7 +164,10 @@ public final class IntentCompat {
      * will always return the user to home even if that was not the last activity they
      * saw. This can only be used in conjunction with
      * {@link android.content.Intent#FLAG_ACTIVITY_NEW_TASK}.
+     *
+     * @deprecated Use {@link Intent#FLAG_ACTIVITY_TASK_ON_HOME} directly.
      */
+    @Deprecated
     public static final int FLAG_ACTIVITY_TASK_ON_HOME = 0x00004000;
 
     /**
@@ -198,7 +179,10 @@ public final class IntentCompat {
      * {@link android.content.Intent#FLAG_ACTIVITY_NEW_TASK}.
      *
      * <p>This flag will only be obeyed on devices supporting API 11 or higher.</p>
+     *
+     * @deprecated Use {@link Intent#FLAG_ACTIVITY_CLEAR_TASK} directly.
      */
+    @Deprecated
     public static final int FLAG_ACTIVITY_CLEAR_TASK = 0x00008000;
 
     /**
@@ -222,11 +206,13 @@ public final class IntentCompat {
      *
      * @see Intent#setClass
      * @see Intent#setComponent
+     *
+     * @deprecated Use {@link Intent#makeMainActivity(ComponentName)} directly.
      */
+    @Deprecated
     public static Intent makeMainActivity(ComponentName mainActivity) {
-        return IMPL.makeMainActivity(mainActivity);
+        return Intent.makeMainActivity(mainActivity);
     }
-
 
     /**
      * Make an Intent for the main activity of an application, without
@@ -257,7 +243,7 @@ public final class IntentCompat {
      * Make an Intent that can be used to re-launch an application's task
      * in its base state.  This is like {@link #makeMainActivity(ComponentName)},
      * but also sets the flags {@link Intent#FLAG_ACTIVITY_NEW_TASK} and
-     * {@link IntentCompat#FLAG_ACTIVITY_CLEAR_TASK}.
+     * {@link Intent#FLAG_ACTIVITY_CLEAR_TASK}.
      *
      * @param mainActivity The activity component that is the root of the
      * task; this is the activity that has been published in the application's
@@ -265,8 +251,11 @@ public final class IntentCompat {
      *
      * @return Returns a newly created Intent that can be used to relaunch the
      * activity's task in its root state.
+     *
+     * @deprecated Use {@link Intent#makeRestartActivityTask(ComponentName)} directly.
      */
+    @Deprecated
     public static Intent makeRestartActivityTask(ComponentName mainActivity) {
-        return IMPL.makeRestartActivityTask(mainActivity);
+        return Intent.makeRestartActivityTask(mainActivity);
     }
 }
