@@ -1649,6 +1649,63 @@ package android.support.text.emoji.bundled {
 
 }
 
+package android.support.text.emoji.widget {
+
+  public class EmojiAppCompatButton extends android.support.v7.widget.AppCompatButton {
+    ctor public EmojiAppCompatButton(android.content.Context);
+    ctor public EmojiAppCompatButton(android.content.Context, android.util.AttributeSet);
+    ctor public EmojiAppCompatButton(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class EmojiAppCompatEditText extends android.support.v7.widget.AppCompatEditText {
+    ctor public EmojiAppCompatEditText(android.content.Context);
+    ctor public EmojiAppCompatEditText(android.content.Context, android.util.AttributeSet);
+    ctor public EmojiAppCompatEditText(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class EmojiAppCompatTextView extends android.support.v7.widget.AppCompatTextView {
+    ctor public EmojiAppCompatTextView(android.content.Context);
+    ctor public EmojiAppCompatTextView(android.content.Context, android.util.AttributeSet);
+    ctor public EmojiAppCompatTextView(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class EmojiButton extends android.widget.Button {
+    ctor public EmojiButton(android.content.Context);
+    ctor public EmojiButton(android.content.Context, android.util.AttributeSet);
+    ctor public EmojiButton(android.content.Context, android.util.AttributeSet, int);
+    ctor public EmojiButton(android.content.Context, android.util.AttributeSet, int, int);
+  }
+
+  public class EmojiEditText extends android.widget.EditText {
+    ctor public EmojiEditText(android.content.Context);
+    ctor public EmojiEditText(android.content.Context, android.util.AttributeSet);
+    ctor public EmojiEditText(android.content.Context, android.util.AttributeSet, int);
+    ctor public EmojiEditText(android.content.Context, android.util.AttributeSet, int, int);
+  }
+
+  public final class EmojiEditTextHelper {
+    ctor public EmojiEditTextHelper(android.widget.EditText);
+    method public android.text.method.KeyListener getKeyListener(android.text.method.KeyListener);
+    method public android.view.inputmethod.InputConnection onCreateInputConnection(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo);
+  }
+
+  public class EmojiTextView extends android.widget.TextView {
+    ctor public EmojiTextView(android.content.Context);
+    ctor public EmojiTextView(android.content.Context, android.util.AttributeSet);
+    ctor public EmojiTextView(android.content.Context, android.util.AttributeSet, int);
+    ctor public EmojiTextView(android.content.Context, android.util.AttributeSet, int, int);
+  }
+
+  public final class EmojiTextViewHelper {
+    ctor public EmojiTextViewHelper(android.widget.TextView);
+    method public android.text.InputFilter[] getFilters(android.text.InputFilter[]);
+    method public android.text.method.TransformationMethod getTransformationMethod(android.text.method.TransformationMethod);
+    method public void setAllCaps(boolean);
+    method public void updateTransformationMethod();
+  }
+
+}
+
 package android.support.transition {
 
   public class AutoTransition extends android.support.transition.TransitionSet {

@@ -23,6 +23,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.support.text.emoji.widget.SpannableBuilder;
 import android.support.v4.graphics.PaintCompat;
 import android.support.v4.util.Preconditions;
 import android.text.Editable;
@@ -180,92 +181,105 @@ final class EmojiProcessor {
             return charSequence;
         }
 
-        Spannable spannable = null;
-        if (charSequence instanceof Spannable) {
-            spannable = (Spannable) charSequence;
+        final boolean isSpannableBuilder = charSequence instanceof SpannableBuilder;
+        if (isSpannableBuilder) {
+            ((SpannableBuilder) charSequence).beginBatchEdit();
         }
 
-        if (spannable != null) {
-            final EmojiSpan[] spans = spannable.getSpans(start, end, EmojiSpan.class);
-            if (spans != null && spans.length > 0) {
-                // remove existing spans, and realign the start, end according to spans
-                // if start or end is in the middle of an emoji they should be aligned
-                final int length = spans.length;
-                for (int index = 0; index < length; index++) {
-                    final EmojiSpan span = spans[index];
-                    final int spanStart = spannable.getSpanStart(span);
-                    final int spanEnd = spannable.getSpanEnd(span);
-                    // Remove span only when its spanStart is NOT equal to current end.
-                    // During add operation an emoji at index 0 is added with 0-1 as start and
-                    // end indices. Therefore if there are emoji spans at [0-1] and [1-2]
-                    // and end is 1, the span between 0-1 should be deleted, not 1-2.
-                    if (spanStart != end) {
-                        spannable.removeSpan(span);
-                    }
-                    start = Math.min(spanStart, start);
-                    end = Math.max(spanEnd, end);
-                }
+        try {
+            Spannable spannable = null;
+            // if it is a spannable already, use the same instance to add/remove EmojiSpans.
+            // otherwise wait until the the first EmojiSpan found in order to change the result
+            // into a Spannable.
+            if (isSpannableBuilder || charSequence instanceof Spannable) {
+                spannable = (Spannable) charSequence;
             }
-        }
 
-        if (start == end || start >= charSequence.length()) {
-            return charSequence;
-        }
-
-        // add new ones
-        int addedCount = 0;
-        final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode());
-
-        int currentOffset = start;
-        int codePoint = Character.codePointAt(charSequence, currentOffset);
-
-        while (currentOffset < end && addedCount < mMaxEmojiPerText) {
-            final int action = sm.check(codePoint);
-
-            switch (action) {
-                case ACTION_ADVANCE_BOTH:
-                    currentOffset += Character.charCount(codePoint);
-                    start = currentOffset;
-                    if (currentOffset < end) {
-                        codePoint = Character.codePointAt(charSequence, currentOffset);
-                    }
-                    break;
-                case ACTION_ADVANCE_END:
-                    currentOffset += Character.charCount(codePoint);
-                    if (currentOffset < end) {
-                        codePoint = Character.codePointAt(charSequence, currentOffset);
-                    }
-                    break;
-                case ACTION_FLUSH:
-                    if (mReplaceAll || !hasGlyph(charSequence, start, currentOffset,
-                            sm.getFlushMetadata())) {
-                        if (spannable == null) {
-                            spannable = new SpannableString(charSequence);
+            if (spannable != null) {
+                final EmojiSpan[] spans = spannable.getSpans(start, end, EmojiSpan.class);
+                if (spans != null && spans.length > 0) {
+                    // remove existing spans, and realign the start, end according to spans
+                    // if start or end is in the middle of an emoji they should be aligned
+                    final int length = spans.length;
+                    for (int index = 0; index < length; index++) {
+                        final EmojiSpan span = spans[index];
+                        final int spanStart = spannable.getSpanStart(span);
+                        final int spanEnd = spannable.getSpanEnd(span);
+                        // Remove span only when its spanStart is NOT equal to current end.
+                        // During add operation an emoji at index 0 is added with 0-1 as start and
+                        // end indices. Therefore if there are emoji spans at [0-1] and [1-2]
+                        // and end is 1, the span between 0-1 should be deleted, not 1-2.
+                        if (spanStart != end) {
+                            spannable.removeSpan(span);
                         }
-                        addEmoji(spannable, sm.getFlushMetadata(), start, currentOffset);
-                        addedCount++;
+                        start = Math.min(spanStart, start);
+                        end = Math.max(spanEnd, end);
                     }
-                    start = currentOffset;
-                    break;
-            }
-        }
-
-        // After the last codepoint is consumed the state machine might be in a state where it
-        // identified an emoji before. i.e. abc[women-emoji] when the last codepoint is consumed,
-        // state machine is waiting to see if there is an emoji sequence (i.e. ZWJ).
-        // Need to check if it is in such a state.
-        if (sm.isInFlushableState() && addedCount < mMaxEmojiPerText) {
-            if (mReplaceAll || !hasGlyph(charSequence, start, currentOffset,
-                    sm.getCurrentMetadata())) {
-                if (spannable == null) {
-                    spannable = new SpannableString(charSequence);
                 }
-                addEmoji(spannable, sm.getCurrentMetadata(), start, currentOffset);
-                addedCount++;
+            }
+
+            if (start == end || start >= charSequence.length()) {
+                return charSequence;
+            }
+
+            // add new ones
+            int addedCount = 0;
+            final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode());
+
+            int currentOffset = start;
+            int codePoint = Character.codePointAt(charSequence, currentOffset);
+
+            while (currentOffset < end && addedCount < mMaxEmojiPerText) {
+                final int action = sm.check(codePoint);
+
+                switch (action) {
+                    case ACTION_ADVANCE_BOTH:
+                        currentOffset += Character.charCount(codePoint);
+                        start = currentOffset;
+                        if (currentOffset < end) {
+                            codePoint = Character.codePointAt(charSequence, currentOffset);
+                        }
+                        break;
+                    case ACTION_ADVANCE_END:
+                        currentOffset += Character.charCount(codePoint);
+                        if (currentOffset < end) {
+                            codePoint = Character.codePointAt(charSequence, currentOffset);
+                        }
+                        break;
+                    case ACTION_FLUSH:
+                        if (mReplaceAll || !hasGlyph(charSequence, start, currentOffset,
+                                sm.getFlushMetadata())) {
+                            if (spannable == null) {
+                                spannable = new SpannableString(charSequence);
+                            }
+                            addEmoji(spannable, sm.getFlushMetadata(), start, currentOffset);
+                            addedCount++;
+                        }
+                        start = currentOffset;
+                        break;
+                }
+            }
+
+            // After the last codepoint is consumed the state machine might be in a state where it
+            // identified an emoji before. i.e. abc[women-emoji] when the last codepoint is consumed
+            // state machine is waiting to see if there is an emoji sequence (i.e. ZWJ).
+            // Need to check if it is in such a state.
+            if (sm.isInFlushableState() && addedCount < mMaxEmojiPerText) {
+                if (mReplaceAll || !hasGlyph(charSequence, start, currentOffset,
+                        sm.getCurrentMetadata())) {
+                    if (spannable == null) {
+                        spannable = new SpannableString(charSequence);
+                    }
+                    addEmoji(spannable, sm.getCurrentMetadata(), start, currentOffset);
+                    addedCount++;
+                }
+            }
+            return spannable == null ? charSequence : spannable;
+        } finally {
+            if (isSpannableBuilder) {
+                ((SpannableBuilder) charSequence).endBatchEdit();
             }
         }
-
-        return spannable == null ? charSequence : spannable;
     }
 
     /**
