@@ -16,6 +16,13 @@
 
 package android.support.media;
 
+import static android.support.test.InstrumentationRegistry.getContext;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.fail;
+
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.os.Environment;
@@ -40,12 +47,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static android.support.test.InstrumentationRegistry.getContext;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.fail;
-
 /**
  * Test {@link ExifInterface}.
  */
@@ -53,7 +54,6 @@ import static junit.framework.Assert.fail;
 public class ExifInterfaceTest {
     private static final String TAG = ExifInterface.class.getSimpleName();
     private static final boolean VERBOSE = false;  // lots of logging
-
     private static final double DIFFERENCE_TOLERANCE = .001;
 
     private static final String EXIF_BYTE_ORDER_II_JPEG = "image_exif_byte_order_ii.jpg";
@@ -63,6 +63,20 @@ public class ExifInterfaceTest {
             R.raw.image_exif_byte_order_ii, R.raw.image_exif_byte_order_mm, R.raw.lg_g4_iso_800};
     private static final String[] IMAGE_FILENAMES = new String[] {
             EXIF_BYTE_ORDER_II_JPEG, EXIF_BYTE_ORDER_MM_JPEG, LG_G4_ISO_800_DNG};
+
+    private static final String TEST_TEMP_FILE_NAME = "testImage";
+    private static final double DELTA = 1e-8;
+    private static final int TEST_LAT_LONG_VALUES_ARRAY_LENGTH = 8;
+    private static final double[] TEST_LATITUDE_VALID_VALUES = new double[]
+            {0, 45, 90, -60, 0.00000001, -89.999999999, 14.2465923626, -68.3434534737};
+    private static final double[] TEST_LONGITUDE_VALID_VALUES = new double[]
+            {0, -45, 90, -120, 180, 0.00000001, -179.99999999999, -58.57834236352};
+    private static final double[] TEST_LATITUDE_INVALID_VALUES = new double[]
+            {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 90.0000000001,
+                    263.34763236326, -1e5, 347.32525, -176.346347754};
+    private static final double[] TEST_LONGITUDE_INVALID_VALUES = new double[]
+            {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 180.0000000001,
+                    263.34763236326, -1e10, 347.325252623, -4000.346323236};
 
     private static final String[] EXIF_TAGS = {
             ExifInterface.TAG_MAKE,
@@ -235,6 +249,52 @@ public class ExifInterfaceTest {
         }
     }
 
+    @Test
+    @SmallTest
+    public void testSetLatLong_withValidValues() throws IOException {
+        for (int i = 0; i < TEST_LAT_LONG_VALUES_ARRAY_LENGTH; i++) {
+            ExifInterface exif = createTestExifInterface();
+            exif.setLatLong(TEST_LATITUDE_VALID_VALUES[i], TEST_LONGITUDE_VALID_VALUES[i]);
+
+            double[] latLong = exif.getLatLong();
+            assertNotNull(latLong);
+            assertEquals(TEST_LATITUDE_VALID_VALUES[i], latLong[0], DELTA);
+            assertEquals(TEST_LONGITUDE_VALID_VALUES[i], latLong[1], DELTA);
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void testSetLatLong_withInvalidLatitude() throws IOException {
+        for (int i = 0; i < TEST_LAT_LONG_VALUES_ARRAY_LENGTH; i++) {
+            ExifInterface exif = createTestExifInterface();
+            try {
+                exif.setLatLong(TEST_LATITUDE_INVALID_VALUES[i], TEST_LONGITUDE_VALID_VALUES[i]);
+                fail();
+            } catch (IllegalArgumentException e) {
+                // expected
+            }
+            assertNull(exif.getLatLong());
+            assertLatLongValuesAreNotSet(exif);
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void testSetLatLong_withInvalidLongitude() throws IOException {
+        for (int i = 0; i < TEST_LAT_LONG_VALUES_ARRAY_LENGTH; i++) {
+            ExifInterface exif = createTestExifInterface();
+            try {
+                exif.setLatLong(TEST_LATITUDE_VALID_VALUES[i], TEST_LONGITUDE_INVALID_VALUES[i]);
+                fail();
+            } catch (IllegalArgumentException e) {
+                // expected
+            }
+            assertNull(exif.getLatLong());
+            assertLatLongValuesAreNotSet(exif);
+        }
+    }
+
     private void printExifTagsAndValues(String fileName, ExifInterface exifInterface) {
         // Prints thumbnail information.
         if (exifInterface.hasThumbnail()) {
@@ -264,8 +324,8 @@ public class ExifInterfaceTest {
         // Prints GPS information.
         Log.v(TAG, fileName + " Altitude = " + exifInterface.getAltitude(.0));
 
-        float[] latLong = new float[2];
-        if (exifInterface.getLatLong(latLong)) {
+        double[] latLong = exifInterface.getLatLong();
+        if (latLong != null) {
             Log.v(TAG, fileName + " Latitude = " + latLong[0]);
             Log.v(TAG, fileName + " Longitude = " + latLong[1]);
         } else {
@@ -318,8 +378,8 @@ public class ExifInterfaceTest {
         }
 
         // Checks GPS information.
-        float[] latLong = new float[2];
-        assertEquals(expectedValue.hasLatLong, exifInterface.getLatLong(latLong));
+        double[] latLong = exifInterface.getLatLong();
+        assertEquals(expectedValue.hasLatLong, latLong != null);
         if (expectedValue.hasLatLong) {
             assertEquals(expectedValue.latitude, latLong[0], DIFFERENCE_TOLERANCE);
             assertEquals(expectedValue.longitude, latLong[1], DIFFERENCE_TOLERANCE);
@@ -442,5 +502,18 @@ public class ExifInterfaceTest {
             out.write(buffer, 0, c);
         }
         return total;
+    }
+
+    private void assertLatLongValuesAreNotSet(ExifInterface exif) {
+        assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE));
+        assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF));
+        assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE));
+        assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF));
+    }
+
+    private ExifInterface createTestExifInterface() throws IOException {
+        File image = File.createTempFile(TEST_TEMP_FILE_NAME, ".jpg");
+        image.deleteOnExit();
+        return new ExifInterface(image.getAbsolutePath());
     }
 }
