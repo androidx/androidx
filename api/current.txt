@@ -5981,8 +5981,8 @@ package android.support.v4.content {
     method public static java.lang.String[] matchesMany(java.lang.String[], java.lang.String);
   }
 
-  public final class ParallelExecutorCompat {
-    method public static java.util.concurrent.Executor getParallelExecutor();
+  public final deprecated class ParallelExecutorCompat {
+    method public static deprecated java.util.concurrent.Executor getParallelExecutor();
   }
 
   public final class PermissionChecker {
