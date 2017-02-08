@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,20 @@
 
 package android.support.v4.app;
 
-import android.app.Service;
-import android.support.annotation.RequiresApi;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-@RequiresApi(14)
-class NotificationManagerCompatIceCreamSandwich {
-    static final int SIDE_CHANNEL_BIND_FLAGS = Service.BIND_AUTO_CREATE
-            | Service.BIND_WAIVE_PRIORITY;
+import android.app.Notification;
+import android.support.annotation.RestrictTo;
+
+/**
+ * Interface implemented by notification compat builders that support
+ * an accessor for {@link Notification.Builder}. {@link Notification.Builder}
+ * was introduced in HoneyComb.
+ *
+ * @hide
+ */
+@RestrictTo(LIBRARY_GROUP)
+public interface NotificationBuilderWithBuilderAccessor {
+    Notification.Builder getBuilder();
+    Notification build();
 }

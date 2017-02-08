@@ -18,25 +18,16 @@ package android.support.v4.app;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.app.Notification;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@RequiresApi(9)
 public class NotificationCompatBase {
-    private static Method sSetLatestEventInfo;
-
-    public static abstract class Action {
+    public abstract static class Action {
         public abstract int getIcon();
         public abstract CharSequence getTitle();
         public abstract PendingIntent getActionIntent();
@@ -51,11 +42,11 @@ public class NotificationCompatBase {
                     Bundle extras, RemoteInputCompatBase.RemoteInput[] remoteInputs,
                     RemoteInputCompatBase.RemoteInput[] dataOnlyRemoteInputs,
                     boolean allowGeneratedReplies);
-            public Action[] newArray(int length);
+            Action[] newArray(int length);
         }
     }
 
-    public static abstract class UnreadConversation {
+    public abstract static class UnreadConversation {
         abstract String[] getParticipants();
         abstract String getParticipant();
         abstract String[] getMessages();
@@ -70,32 +61,5 @@ public class NotificationCompatBase {
                     PendingIntent replyPendingIntent, PendingIntent readPendingIntent,
                     String[] participants, long latestTimestamp);
         }
-    }
-
-    public static Notification add(Notification notification, Context context,
-            CharSequence contentTitle, CharSequence contentText, PendingIntent contentIntent,
-            PendingIntent fullScreenIntent) {
-        if (sSetLatestEventInfo == null) {
-            try {
-                sSetLatestEventInfo = Notification.class.getMethod("setLatestEventInfo",
-                        Context.class, CharSequence.class, CharSequence.class, PendingIntent.class);
-            } catch (NoSuchMethodException e) {
-                // This method was @removed, so it must exist on later
-                // versions even if it's not in public API.
-                throw new RuntimeException(e);
-            }
-        }
-
-        try {
-            sSetLatestEventInfo.invoke(notification, context,
-                    contentTitle, contentText, contentIntent);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            // This method was @removed, so it must be invokable on later
-            // versions even if it's not in public API.
-            throw new RuntimeException(e);
-        }
-
-        notification.fullScreenIntent = fullScreenIntent;
-        return notification;
     }
 }

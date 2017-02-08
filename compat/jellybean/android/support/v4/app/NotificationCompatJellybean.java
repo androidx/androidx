@@ -53,7 +53,6 @@ class NotificationCompatJellybean {
     private static final String KEY_EXTRAS = "extras";
     private static final String KEY_REMOTE_INPUTS = "remoteInputs";
     private static final String KEY_DATA_ONLY_REMOTE_INPUTS = "dataOnlyRemoteInputs";
-    private static final String KEY_ALLOW_GENERATED_REPLIES = "allowGeneratedReplies";
 
     private static final Object sExtrasLock = new Object();
     private static Field sExtrasField;
