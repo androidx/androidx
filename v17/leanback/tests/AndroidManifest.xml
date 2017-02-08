@@ -33,6 +33,10 @@
         <activity android:name="android.support.v17.leanback.widget.GridActivity"
                   android:exported="true" />
 
+        <activity android:name="android.support.v17.leanback.widget.DatePickerActivity"
+                  android:theme="@style/Theme.Leanback"
+                  android:exported="true" />
+
         <activity
                 android:name="android.support.v17.leanback.app.wizard.GuidedStepAttributesTestActivity"
                 android:theme="@style/Theme.Leanback.GuidedStep"
