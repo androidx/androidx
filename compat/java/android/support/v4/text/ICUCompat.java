@@ -16,47 +16,35 @@
 
 package android.support.v4.text;
 
+import android.annotation.TargetApi;
 import android.os.Build;
+import android.support.annotation.Nullable;
 
 import java.util.Locale;
 
 public final class ICUCompat {
-
-    interface ICUCompatImpl {
-        public String maximizeAndGetScript(Locale locale);
-    }
-
-    static class ICUCompatImplBase implements ICUCompatImpl {
-        @Override
-        public String maximizeAndGetScript(Locale locale) {
-            return null;
-        }
-    }
-
-    static class ICUCompatImplIcs implements ICUCompatImpl {
-        @Override
+    static class ICUCompatBaseImpl {
         public String maximizeAndGetScript(Locale locale) {
             return ICUCompatIcs.maximizeAndGetScript(locale);
         }
     }
 
-    static class ICUCompatImplLollipop implements ICUCompatImpl {
+    @TargetApi(23)
+    static class ICUCompatApi21Impl extends ICUCompatBaseImpl {
         @Override
         public String maximizeAndGetScript(Locale locale) {
-            return ICUCompatApi23.maximizeAndGetScript(locale);
+            return ICUCompatApi21.maximizeAndGetScript(locale);
         }
     }
 
-    private static final ICUCompatImpl IMPL;
+    private static final ICUCompatBaseImpl IMPL;
 
     static {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 21) {
-            IMPL = new ICUCompatImplLollipop();
-        } else if (version >= 14) {
-            IMPL = new ICUCompatImplIcs();
+            IMPL = new ICUCompatApi21Impl();
         } else {
-            IMPL = new ICUCompatImplBase();
+            IMPL = new ICUCompatBaseImpl();
         }
     }
 
@@ -81,8 +69,9 @@ public final class ICUCompat {
      * "sh" maximizes to "sr_Latn_RS" (Note this will not reverse.)
      * "zh_Hani" maximizes to "zh_Hans_CN" (Note this will not reverse.)
      *
-     * @return
+     * @return The script for a given Locale if ICU library is available, otherwise null.
      */
+    @Nullable
     public static String maximizeAndGetScript(Locale locale) {
         return IMPL.maximizeAndGetScript(locale);
     }
