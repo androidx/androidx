@@ -30,10 +30,9 @@ public class InheritanceOk3Base_LifecycleAdapter implements GenericLifecycleObse
     }
 
     @Override
-    public void onStateChanged(LifecycleProvider provider, int previousState) {
-        final int curState = provider.getLifecycle().getCurrentState();
-        if ((curState & 8192) != 0) {
-            mReceiver.onStop(provider, previousState);
+    public void onStateChanged(LifecycleProvider provider, int event) {
+        if ((event & 8192) != 0) {
+            mReceiver.onStop(provider, event);
         }
     }
 

@@ -239,8 +239,7 @@ class LifecycleProcessor : AbstractProcessor() {
 
     private fun writeAdapter(observer: LifecycleObserverInfo) {
         val providerParam = ParameterSpec.builder(LIFECYCLE_PROVIDER, "provider").build()
-        val prevStateParam = ParameterSpec.builder(TypeName.INT, "previousState").build()
-        val curStateName = "curState"
+        val eventParam = ParameterSpec.builder(TypeName.INT, "event").build()
         val receiverName = "mReceiver"
         val receiverField = FieldSpec.builder(ClassName.get(observer.type), receiverName,
                 Modifier.FINAL).build()
@@ -248,24 +247,21 @@ class LifecycleProcessor : AbstractProcessor() {
         val dispatchMethodBuilder = MethodSpec.methodBuilder("onStateChanged")
                 .returns(TypeName.VOID)
                 .addParameter(providerParam)
-                .addParameter(prevStateParam)
+                .addParameter(eventParam)
                 .addModifiers(PUBLIC)
                 .addAnnotation(Override::class.java)
-                .addStatement("final $T $N = $N.getLifecycle().getCurrentState()",
-                        TypeName.INT, curStateName, providerParam)
-
         val dispatchMethod = dispatchMethodBuilder.apply {
             observer.methods.groupBy { it.onLifecycleEvent.value }.forEach { entry ->
                 val onStateValue = entry.key
                 val methods = entry.value
-                beginControlFlow("if (($N & $L) != 0)", curStateName, onStateValue).apply {
+                beginControlFlow("if (($N & $L) != 0)", eventParam, onStateValue).apply {
                     methods.forEach { method ->
                         val count = method.method.parameters.size
                         if (method.syntheticAccess == null) {
                             val paramString = generateParamString(count)
                             addStatement("$N.$L($paramString)", receiverField,
                                     method.method.name(),
-                                    *takeParams(count, providerParam, prevStateParam))
+                                    *takeParams(count, providerParam, eventParam))
 
                         } else {
                             val originalType = method.syntheticAccess
@@ -275,7 +271,7 @@ class LifecycleProcessor : AbstractProcessor() {
                             addStatement("$T.$L($paramString)", className,
                                     syntheticName(method.method),
                                     *takeParams(count + 1, receiverField, providerParam,
-                                            prevStateParam))
+                                            eventParam))
                         }
                     }
                 }
@@ -302,13 +298,13 @@ class LifecycleProcessor : AbstractProcessor() {
                 method.addParameter(providerParam)
             }
             if (it.parameters.size == 2) {
-                method.addParameter(prevStateParam)
+                method.addParameter(eventParam)
             }
 
             val count = it.parameters.size
             val paramString = generateParamString(count)
             method.addStatement("$N.$L($paramString)", receiverParam, it.name(),
-                    *takeParams(count, providerParam, prevStateParam))
+                    *takeParams(count, providerParam, eventParam))
             method.build()
         }
 
@@ -341,7 +337,7 @@ class LifecycleProcessor : AbstractProcessor() {
         val packageElement = type.getPackage()
         val qName = type.qualifiedName.toString()
         val partialName = if (packageElement.isUnnamed) qName else qName.substring(
-                packageElement.toString().length + 1)
+                packageElement.qualifiedName.toString().length + 1)
         return Lifecycling.getAdapterName(partialName)
     }
 

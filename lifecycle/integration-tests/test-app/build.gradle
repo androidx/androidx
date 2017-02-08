@@ -46,6 +46,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(":lifecycle:extensions")
+    annotationProcessor project(":lifecycle:compiler")
+    androidTestAnnotationProcessor project(":lifecycle:compiler")
     androidTestCompile("com.android.support.test:runner:$atsl_version") {
         exclude module: 'support-annotations'
     }

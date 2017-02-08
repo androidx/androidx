@@ -24,10 +24,11 @@ import static com.android.support.lifecycle.testapp.FullLifecycleTestActivity.Te
 import android.os.Bundle;
 import android.util.Pair;
 
-import com.android.support.lifecycle.GenericLifecycleObserver;
 import com.android.support.lifecycle.Lifecycle;
 import com.android.support.lifecycle.LifecycleActivity;
+import com.android.support.lifecycle.LifecycleObserver;
 import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.OnLifecycleEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,19 +42,35 @@ public class FullLifecycleTestActivity extends LifecycleActivity {
 
     public static final long TIMEOUT = 5;
 
-    class TestObserver implements GenericLifecycleObserver {
-        @Override
-        public void onStateChanged(LifecycleProvider lifecycleProvider,
-                @Lifecycle.Event int event) {
+    class TestObserver implements LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.ON_CREATE)
+        void create(LifecycleProvider pr, int event) {
             mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
-            if (event == Lifecycle.ON_DESTROY) {
-                mLatch.countDown();
-            }
         }
 
-        @Override
-        public Object getReceiver() {
-            return null;
+        @OnLifecycleEvent(Lifecycle.ON_START)
+        void start(LifecycleProvider pr, int event) {
+            mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
+        }
+
+        @OnLifecycleEvent(Lifecycle.ON_RESUME)
+        void resume(LifecycleProvider pr, int event) {
+            mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
+        }
+        @OnLifecycleEvent(Lifecycle.ON_PAUSE)
+        void pause(LifecycleProvider pr, int event) {
+            mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
+        }
+
+        @OnLifecycleEvent(Lifecycle.ON_STOP)
+        void stop(LifecycleProvider pr, int event) {
+            mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
+        }
+
+        @OnLifecycleEvent(Lifecycle.ON_DESTROY)
+        void destroy(LifecycleProvider pr, int event) {
+            mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
+            mLatch.countDown();
         }
     }
 

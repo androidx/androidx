@@ -30,10 +30,9 @@ public class InterfaceOk2Interface_LifecycleAdapter implements GenericLifecycleO
     }
 
     @Override
-    public void onStateChanged(LifecycleProvider provider, int previousState) {
-        final int curState = provider.getLifecycle().getCurrentState();
-        if ((curState & 8192) != 0) {
-            mReceiver.onStop2(provider, previousState);
+    public void onStateChanged(LifecycleProvider provider, int event) {
+        if ((event & 8192) != 0) {
+            mReceiver.onStop2(provider, event);
         }
     }
 

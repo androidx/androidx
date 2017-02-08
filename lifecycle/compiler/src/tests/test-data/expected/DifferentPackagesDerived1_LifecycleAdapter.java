@@ -30,11 +30,10 @@ public class DifferentPackagesDerived1_LifecycleAdapter implements GenericLifecy
     }
 
     @Override
-    public void onStateChanged(LifecycleProvider provider, int previousState) {
-        final int curState = provider.getLifecycle().getCurrentState();
-        if ((curState & 8192) != 0) {
-            DifferentPackagesBase1_LifecycleAdapter.__synthetic_onStop(mReceiver, provider, previousState);
-            mReceiver.onStop2(provider, previousState);
+    public void onStateChanged(LifecycleProvider provider, int event) {
+        if ((event & 8192) != 0) {
+            DifferentPackagesBase1_LifecycleAdapter.__synthetic_onStop(mReceiver, provider, event);
+            mReceiver.onStop2(provider, event);
         }
     }
 

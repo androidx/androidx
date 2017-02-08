@@ -14,11 +14,10 @@ public class InheritanceOk2Derived_LifecycleAdapter implements GenericLifecycleO
     }
 
     @Override
-    public void onStateChanged(LifecycleProvider provider, int previousState) {
-        final int curState = provider.getLifecycle().getCurrentState();
-        if ((curState & 8192) != 0) {
-            mReceiver.onStop(provider, previousState);
-            mReceiver.onStop2(provider, previousState);
+    public void onStateChanged(LifecycleProvider provider, int event) {
+        if ((event & 8192) != 0) {
+            mReceiver.onStop(provider, event);
+            mReceiver.onStop2(provider, event);
         }
     }
 

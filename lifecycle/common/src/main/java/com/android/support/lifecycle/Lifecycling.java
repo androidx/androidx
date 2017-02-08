@@ -79,12 +79,19 @@ class Lifecycling {
     private static Constructor<? extends GenericLifecycleObserver> getGeneratedAdapterConstructor(
             Class<?> klass) {
         final String fullPackage = klass.getPackage().getName();
-        final String adapterName = getAdapterName(klass.getSimpleName());
+
+        String name = klass.getCanonicalName();
+        // anonymous class bug:35073837
+        if (name == null) {
+            return null;
+        }
+        final String adapterName = getAdapterName(fullPackage.isEmpty() ? name :
+                name.substring(fullPackage.length() + 1));
         try {
             @SuppressWarnings("unchecked")
             final Class<? extends GenericLifecycleObserver> aClass =
                     (Class<? extends GenericLifecycleObserver>) Class.forName(
-                            fullPackage + "." + adapterName);
+                            fullPackage.isEmpty() ? adapterName : fullPackage + "." + adapterName);
             return aClass.getDeclaredConstructor(klass);
         } catch (ClassNotFoundException e) {
             final Class<?> superclass = klass.getSuperclass();
