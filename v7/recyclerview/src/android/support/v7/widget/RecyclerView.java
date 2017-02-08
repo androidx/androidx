@@ -507,39 +507,38 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     private final ViewInfoStore.ProcessCallback mViewInfoProcessCallback =
             new ViewInfoStore.ProcessCallback() {
-                @Override
-                public void processDisappeared(ViewHolder viewHolder, @NonNull ItemHolderInfo info,
-                        @Nullable ItemHolderInfo postInfo) {
-                    mRecycler.unscrapView(viewHolder);
-                    animateDisappearance(viewHolder, info, postInfo);
-                }
-                @Override
-                public void processAppeared(ViewHolder viewHolder,
-                        ItemHolderInfo preInfo, ItemHolderInfo info) {
-                    animateAppearance(viewHolder, preInfo, info);
-                }
+        @Override
+        public void processDisappeared(ViewHolder viewHolder, @NonNull ItemHolderInfo info,
+                @Nullable ItemHolderInfo postInfo) {
+            mRecycler.unscrapView(viewHolder);
+            animateDisappearance(viewHolder, info, postInfo);
+        }
+        @Override
+        public void processAppeared(ViewHolder viewHolder,
+                ItemHolderInfo preInfo, ItemHolderInfo info) {
+            animateAppearance(viewHolder, preInfo, info);
+        }
 
-                @Override
-                public void processPersistent(ViewHolder viewHolder,
-                        @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
-                    viewHolder.setIsRecyclable(false);
-                    if (mDataSetHasChangedAfterLayout) {
-                        // since it was rebound, use change instead as we'll be mapping them from
-                        // stable ids. If stable ids were false, we would not be running any
-                        // animations
-                        if (mItemAnimator.animateChange(viewHolder, viewHolder, preInfo,
-                                postInfo)) {
-                            postAnimationRunner();
-                        }
-                    } else if (mItemAnimator.animatePersistence(viewHolder, preInfo, postInfo)) {
-                        postAnimationRunner();
-                    }
+        @Override
+        public void processPersistent(ViewHolder viewHolder,
+                @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
+            viewHolder.setIsRecyclable(false);
+            if (mDataSetHasChangedAfterLayout) {
+                // since it was rebound, use change instead as we'll be mapping them from
+                // stable ids. If stable ids were false, we would not be running any
+                // animations
+                if (mItemAnimator.animateChange(viewHolder, viewHolder, preInfo, postInfo)) {
+                    postAnimationRunner();
                 }
-                @Override
-                public void unused(ViewHolder viewHolder) {
-                    mLayout.removeAndRecycleView(viewHolder.itemView, mRecycler);
-                }
-            };
+            } else if (mItemAnimator.animatePersistence(viewHolder, preInfo, postInfo)) {
+                postAnimationRunner();
+            }
+        }
+        @Override
+        public void unused(ViewHolder viewHolder) {
+            mLayout.removeAndRecycleView(viewHolder.itemView, mRecycler);
+        }
+    };
 
     public RecyclerView(Context context) {
         this(context, null);
@@ -2333,13 +2332,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 resumeRequestLayout(false);
             }
         }
-        if (result != null && !result.hasFocusable()) {
-            // If the next view returned by onFocusSearchFailed in layout manager has no focusable
-            // views, we still scroll to that view in order to make it visible on the screen.
-            // If it's focusable, framework already calls RV's requestChildFocus which handles
-            // bringing this newly focused item onto the screen.
-            requestChildOnScreen(result, null);
-        }
         return isPreferredNextFocus(focused, result, direction)
                 ? result : super.focusSearch(focused, direction);
     }
@@ -2410,46 +2402,29 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     @Override
     public void requestChildFocus(View child, View focused) {
         if (!mLayout.onRequestChildFocus(this, mState, child, focused) && focused != null) {
-            requestChildOnScreen(child, focused);
-        }
-        super.requestChildFocus(child, focused);
-    }
+            mTempRect.set(0, 0, focused.getWidth(), focused.getHeight());
 
-    /**
-     * Requests that the given child of the RecyclerView be positioned onto the screen. This method
-     * can be called for both unfocusable and focusable child views. For unfocusable child views,
-     * the {@param focused} parameter passed is null, whereas for a focusable child, this parameter
-     * indicates the actual descendant view within this child view that holds the focus.
-     * @param child The child view of this RecyclerView that wants to come onto the screen.
-     * @param focused The descendant view that actually has the focus if child is focusable, null
-     *                otherwise.
-     */
-    private void requestChildOnScreen(@NonNull View child, @Nullable View focused) {
-        View rectView = (focused != null) ? focused : child;
-        mTempRect.set(0, 0, rectView.getWidth(), rectView.getHeight());
-
-        // get item decor offsets w/o refreshing. If they are invalid, there will be another
-        // layout pass to fix them, then it is LayoutManager's responsibility to keep focused
-        // View in viewport.
-        final ViewGroup.LayoutParams focusedLayoutParams = rectView.getLayoutParams();
-        if (focusedLayoutParams instanceof LayoutParams) {
-            // if focused child has item decors, use them. Otherwise, ignore.
-            final LayoutParams lp = (LayoutParams) focusedLayoutParams;
-            if (!lp.mInsetsDirty) {
-                final Rect insets = lp.mDecorInsets;
-                mTempRect.left -= insets.left;
-                mTempRect.right += insets.right;
-                mTempRect.top -= insets.top;
-                mTempRect.bottom += insets.bottom;
+            // get item decor offsets w/o refreshing. If they are invalid, there will be another
+            // layout pass to fix them, then it is LayoutManager's responsibility to keep focused
+            // View in viewport.
+            final ViewGroup.LayoutParams focusedLayoutParams = focused.getLayoutParams();
+            if (focusedLayoutParams instanceof LayoutParams) {
+                // if focused child has item decors, use them. Otherwise, ignore.
+                final LayoutParams lp = (LayoutParams) focusedLayoutParams;
+                if (!lp.mInsetsDirty) {
+                    final Rect insets = lp.mDecorInsets;
+                    mTempRect.left -= insets.left;
+                    mTempRect.right += insets.right;
+                    mTempRect.top -= insets.top;
+                    mTempRect.bottom += insets.bottom;
+                }
             }
-        }
 
-        if (focused != null) {
             offsetDescendantRectToMyCoords(focused, mTempRect);
             offsetRectIntoDescendantCoords(child, mTempRect);
+            requestChildRectangleOnScreen(child, mTempRect, !mFirstLayoutComplete);
         }
-        mLayout.requestChildRectangleOnScreen(this, child, mTempRect, !mFirstLayoutComplete,
-                (focused == null));
+        super.requestChildFocus(child, focused);
     }
 
     @Override
@@ -2572,11 +2547,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             throw new IllegalStateException(message);
         }
         if (mDispatchScrollCounter > 0) {
-            Log.w(TAG, "Cannot call this method in a scroll callback. Scroll callbacks might"
-                            + "be run during a measure & layout pass where you cannot change the"
-                            + "RecyclerView data. Any method call that might change the structure"
-                            + "of the RecyclerView or the adapter contents should be postponed to"
-                            + "the next frame.",
+            Log.w(TAG, "Cannot call this method in a scroll callback. Scroll callbacks might be run"
+                    + " during a measure & layout pass where you cannot change the RecyclerView"
+                    + " data. Any method call that might change the structure of the RecyclerView"
+                    + " or the adapter contents should be postponed to the next frame.",
                     new IllegalStateException(""));
         }
     }
@@ -3251,10 +3225,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         mState.mRunSimpleAnimations = mFirstLayoutComplete
                 && mItemAnimator != null
                 && (mDataSetHasChangedAfterLayout
-                || animationTypeSupported
-                || mLayout.mRequestedSimpleAnimations)
+                        || animationTypeSupported
+                        || mLayout.mRequestedSimpleAnimations)
                 && (!mDataSetHasChangedAfterLayout
-                || mAdapter.hasStableIds());
+                        || mAdapter.hasStableIds());
         mState.mRunPredictiveAnimations = mState.mRunSimpleAnimations
                 && animationTypeSupported
                 && !mDataSetHasChangedAfterLayout
@@ -5752,9 +5726,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             if (forceRecycle || holder.isRecyclable()) {
                 if (mViewCacheMax > 0
                         && !holder.hasAnyOfTheFlags(ViewHolder.FLAG_INVALID
-                        | ViewHolder.FLAG_REMOVED
-                        | ViewHolder.FLAG_UPDATE
-                        | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN)) {
+                                | ViewHolder.FLAG_REMOVED
+                                | ViewHolder.FLAG_UPDATE
+                                | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN)) {
                     // Retire oldest cached view
                     int cachedViewSize = mCachedViews.size();
                     if (cachedViewSize >= mViewCacheMax && cachedViewSize > 0) {
@@ -6855,109 +6829,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     public abstract static class LayoutManager {
         ChildHelper mChildHelper;
         RecyclerView mRecyclerView;
-
-        /**
-         * The callback used for retrieving information about a RecyclerView and its children in the
-         * horizontal direction.
-         */
-        private final ViewBoundsCheck.Callback mHorizontalBoundCheckCallback =
-                new ViewBoundsCheck.Callback() {
-                    @Override
-                    public int getChildCount() {
-                        return LayoutManager.this.getChildCount();
-                    }
-
-                    @Override
-                    public View getParent() {
-                        return mRecyclerView;
-                    }
-
-                    @Override
-                    public View getChildAt(int index) {
-                        return LayoutManager.this.getChildAt(index);
-                    }
-
-                    @Override
-                    public int getParentStart() {
-                        return LayoutManager.this.getPaddingLeft();
-                    }
-
-                    @Override
-                    public int getParentEnd() {
-                        return LayoutManager.this.getWidth() - LayoutManager.this.getPaddingRight();
-                    }
-
-                    @Override
-                    public int getChildStart(View view) {
-                        final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
-                                view.getLayoutParams();
-                        return LayoutManager.this.getDecoratedLeft(view) - params.leftMargin;
-                    }
-
-                    @Override
-                    public int getChildEnd(View view) {
-                        final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
-                                view.getLayoutParams();
-                        return LayoutManager.this.getDecoratedRight(view) + params.rightMargin;
-                    }
-                };
-
-        /**
-         * The callback used for retrieving information about a RecyclerView and its children in the
-         * vertical direction.
-         */
-        private final ViewBoundsCheck.Callback mVerticalBoundCheckCallback =
-                new ViewBoundsCheck.Callback() {
-                    @Override
-                    public int getChildCount() {
-                        return LayoutManager.this.getChildCount();
-                    }
-
-                    @Override
-                    public View getParent() {
-                        return mRecyclerView;
-                    }
-
-                    @Override
-                    public View getChildAt(int index) {
-                        return LayoutManager.this.getChildAt(index);
-                    }
-
-                    @Override
-                    public int getParentStart() {
-                        return LayoutManager.this.getPaddingTop();
-                    }
-
-                    @Override
-                    public int getParentEnd() {
-                        return LayoutManager.this.getHeight()
-                                - LayoutManager.this.getPaddingBottom();
-                    }
-
-                    @Override
-                    public int getChildStart(View view) {
-                        final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
-                                view.getLayoutParams();
-                        return LayoutManager.this.getDecoratedTop(view) - params.topMargin;
-                    }
-
-                    @Override
-                    public int getChildEnd(View view) {
-                        final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
-                                view.getLayoutParams();
-                        return LayoutManager.this.getDecoratedBottom(view) + params.bottomMargin;
-                    }
-                };
-
-        /**
-         * Utility objects used to check the boundaries of children against their parent
-         * RecyclerView.
-         * @see #isViewPartiallyVisible(View, boolean, boolean),
-         * {@link LinearLayoutManager#findOneVisibleChild(int, int, boolean, boolean)},
-         * and {@link LinearLayoutManager#findOnePartiallyOrCompletelyInvisibleChild(int, int)}.
-         */
-        ViewBoundsCheck mHorizontalBoundCheck = new ViewBoundsCheck(mHorizontalBoundCheckCallback);
-        ViewBoundsCheck mVerticalBoundCheck = new ViewBoundsCheck(mVerticalBoundCheckCallback);
 
         @Nullable
         SmoothScroller mSmoothScroller;
@@ -9025,11 +8896,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * <p>This is the LayoutManager's opportunity to populate views in the given direction
          * to fulfill the request if it can. The LayoutManager should attach and return
-         * the view to be focused, if a focusable view in the given direction is found.
-         * Otherwise, if all the existing (or the newly populated views) are unfocusable, it returns
-         * the next unfocusable view to become visible on the screen. This unfocusable view is
-         * typically the first view that's either partially or fully out of RV's padded bounded
-         * area in the given direction. The default implementation returns null.</p>
+         * the view to be focused. The default implementation returns null.</p>
          *
          * @param focused   The currently focused view
          * @param direction One of {@link View#FOCUS_UP}, {@link View#FOCUS_DOWN},
@@ -9038,8 +8905,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *                  or 0 for not applicable
          * @param recycler  The recycler to use for obtaining views for currently offscreen items
          * @param state     Transient state of RecyclerView
-         * @return The chosen view to be focused if a focusable view is found, otherwise an
-         * unfocusable view to become visible onto the screen, else null.
+         * @return The chosen view to be focused
          */
         @Nullable
         public View onFocusSearchFailed(View focused, int direction, Recycler recycler,
@@ -9068,20 +8934,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * Returns the scroll amount that brings the given rect in child's coordinate system within
-         * the padded area of RecyclerView.
-         * @param parent The parent RecyclerView.
+         * Called when a child of the RecyclerView wants a particular rectangle to be positioned
+         * onto the screen. See {@link ViewParent#requestChildRectangleOnScreen(android.view.View,
+         * android.graphics.Rect, boolean)} for more details.
+         *
+         * <p>The base implementation will attempt to perform a standard programmatic scroll
+         * to bring the given rect into view, within the padded area of the RecyclerView.</p>
+         *
          * @param child The direct child making the request.
-         * @param rect The rectangle in the child's coordinates the child
-         *             wishes to be on the screen.
+         * @param rect  The rectangle in the child's coordinates the child
+         *              wishes to be on the screen.
          * @param immediate True to forbid animated or delayed scrolling,
          *                  false otherwise
-         * @return The array containing the scroll amount in x and y directions that brings the
-         * given rect into RV's padded area.
+         * @return Whether the group scrolled to handle the operation
          */
-        private int[] getChildRectangleOnScreenScrollAmount(RecyclerView parent, View child,
-                Rect rect, boolean immediate) {
-            int[] out = new int[2];
+        public boolean requestChildRectangleOnScreen(RecyclerView parent, View child, Rect rect,
+                boolean immediate) {
             final int parentLeft = getPaddingLeft();
             final int parentTop = getPaddingTop();
             final int parentRight = getWidth() - getPaddingRight();
@@ -9112,119 +8980,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // we should scroll to make bottom visible, make sure top does not go out of bounds.
             final int dy = offScreenTop != 0 ? offScreenTop
                     : Math.min(childTop - parentTop, offScreenBottom);
-            out[0] = dx;
-            out[1] = dy;
-            return out;
-        }
-        /**
-         * Called when a child of the RecyclerView wants a particular rectangle to be positioned
-         * onto the screen. See {@link ViewParent#requestChildRectangleOnScreen(android.view.View,
-         * android.graphics.Rect, boolean)} for more details.
-         *
-         * <p>The base implementation will attempt to perform a standard programmatic scroll
-         * to bring the given rect into view, within the padded area of the RecyclerView.</p>
-         *
-         * @param child The direct child making the request.
-         * @param rect  The rectangle in the child's coordinates the child
-         *              wishes to be on the screen.
-         * @param immediate True to forbid animated or delayed scrolling,
-         *                  false otherwise
-         * @return Whether the group scrolled to handle the operation
-         */
-        public boolean requestChildRectangleOnScreen(RecyclerView parent, View child, Rect rect,
-                boolean immediate) {
-            return requestChildRectangleOnScreen(parent, child, rect, immediate, false);
-        }
 
-        /**
-         * Requests that the given child of the RecyclerView be positioned onto the screen. This
-         * method can be called for both unfocusable and focusable child views. For unfocusable
-         * child views, focusedChildVisible is typically true in which case, layout manager
-         * makes the child view visible only if the currently focused child stays in-bounds of RV.
-         * @param parent The parent RecyclerView.
-         * @param child The direct child making the request.
-         * @param rect The rectangle in the child's coordinates the child
-         *              wishes to be on the screen.
-         * @param immediate True to forbid animated or delayed scrolling,
-         *                  false otherwise
-         * @param focusedChildVisible Whether the currently focused view must stay visible.
-         * @return Whether the group scrolled to handle the operation
-         */
-        public boolean requestChildRectangleOnScreen(RecyclerView parent, View child, Rect rect,
-                boolean immediate,
-                boolean focusedChildVisible) {
-            int[] scrollAmount = getChildRectangleOnScreenScrollAmount(parent, child, rect,
-                    immediate);
-            int dx = scrollAmount[0];
-            int dy = scrollAmount[1];
-            if (!focusedChildVisible || isFocusedChildVisibleAfterScrolling(parent, dx, dy)) {
-                if (dx != 0 || dy != 0) {
-                    if (immediate) {
-                        parent.scrollBy(dx, dy);
-                    } else {
-                        parent.smoothScrollBy(dx, dy);
-                    }
-                    return true;
+            if (dx != 0 || dy != 0) {
+                if (immediate) {
+                    parent.scrollBy(dx, dy);
+                } else {
+                    parent.smoothScrollBy(dx, dy);
                 }
+                return true;
             }
             return false;
-        }
-
-        /**
-         * Returns whether the given child view is partially or fully visible within the padded
-         * bounded area of RecyclerView, depending on the input parameters.
-         * A view is partially visible if it has non-zero overlap with RV's padded bounded area.
-         * If acceptEndPointInclusion flag is set to true, it's also considered partially
-         * visible if it's located outside RV's bounds and it's hitting either RV's start or end
-         * bounds.
-         *
-         * @param child The child view to be examined.
-         * @param completelyVisible If true, the method returns true iff the child is completely
-         *                          visible. If false, the method returns true iff the child is only
-         *                          partially visible (that is it will return false if the child is
-         *                          either completely visible or out of RV's bounds).
-         * @param acceptEndPointInclusion If the view's endpoint intersection with RV's start of end
-         *                                bounds is enough to consider it partially visible,
-         *                                false otherwise.
-         * @return True if the given child is partially or fully visible, false otherwise.
-         */
-        public boolean isViewPartiallyVisible(@NonNull View child, boolean completelyVisible,
-                boolean acceptEndPointInclusion) {
-            int boundsFlag = (ViewBoundsCheck.FLAG_CVS_GT_PVS | ViewBoundsCheck.FLAG_CVS_EQ_PVS
-                    | ViewBoundsCheck.FLAG_CVE_LT_PVE | ViewBoundsCheck.FLAG_CVE_EQ_PVE);
-            boolean isViewFullyVisible = mHorizontalBoundCheck.isViewWithinBoundFlags(child,
-                    boundsFlag)
-                    && mVerticalBoundCheck.isViewWithinBoundFlags(child, boundsFlag);
-            if (completelyVisible) {
-                return isViewFullyVisible;
-            } else {
-                return !isViewFullyVisible;
-            }
-        }
-
-        /**
-         * Returns whether the currently focused child stays within RV's bounds with the given
-         * amount of scrolling.
-         * @param parent The parent RecyclerView.
-         * @param dx The scrolling in x-axis direction to be performed.
-         * @param dy The scrolling in y-axis direction to be performed.
-         * @return Whether after the given scrolling, the currently focused item in still visible
-         * (within RV's bounds).
-         */
-        private boolean isFocusedChildVisibleAfterScrolling(RecyclerView parent, int dx, int dy) {
-            final View focusedChild = parent.getFocusedChild();
-            final int parentLeft = getPaddingLeft();
-            final int parentTop = getPaddingTop();
-            final int parentRight = getWidth() - getPaddingRight();
-            final int parentBottom = getHeight() - getPaddingBottom();
-            final Rect bounds = mRecyclerView.mTempRect;
-            getDecoratedBoundsWithMargins(focusedChild, bounds);
-
-            if (bounds.left - dx >= parentRight || bounds.right - dx <= parentLeft
-                    || bounds.top - dy >= parentBottom || bounds.bottom - dy <= parentTop) {
-                return false;
-            }
-            return true;
         }
 
         /**
