@@ -10525,7 +10525,6 @@ package android.support.v7.widget {
     method public boolean isLayoutHierarchical(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public boolean isMeasurementCacheEnabled();
     method public boolean isSmoothScrolling();
-    method public boolean isViewPartiallyVisible(android.view.View, boolean, boolean);
     method public void layoutDecorated(android.view.View, int, int, int, int);
     method public void layoutDecoratedWithMargins(android.view.View, int, int, int, int);
     method public void measureChild(android.view.View, int, int);
@@ -10570,7 +10569,6 @@ package android.support.v7.widget {
     method public void removeView(android.view.View);
     method public void removeViewAt(int);
     method public boolean requestChildRectangleOnScreen(android.support.v7.widget.RecyclerView, android.view.View, android.graphics.Rect, boolean);
-    method public boolean requestChildRectangleOnScreen(android.support.v7.widget.RecyclerView, android.view.View, android.graphics.Rect, boolean, boolean);
     method public void requestLayout();
     method public void requestSimpleAnimationsInNextLayout();
     method public int scrollHorizontallyBy(int, android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
