@@ -18,6 +18,7 @@ package android.support.v4.widget;
 
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.view.View;
 import android.widget.ListView;
 
 /**
@@ -34,9 +35,20 @@ public final class ListViewCompat {
      */
     public static void scrollListBy(@NonNull ListView listView, int y) {
         if (Build.VERSION.SDK_INT >= 19) {
-            ListViewCompatKitKat.scrollListBy(listView, y);
+            listView.scrollListBy(y);
         } else {
-            ListViewCompatGingerbread.scrollListBy(listView, y);
+            final int firstPosition = listView.getFirstVisiblePosition();
+            if (firstPosition == ListView.INVALID_POSITION) {
+                return;
+            }
+
+            final View firstView = listView.getChildAt(0);
+            if (firstView == null) {
+                return;
+            }
+
+            final int newTop = firstView.getTop() - y;
+            listView.setSelectionFromTop(firstPosition, newTop);
         }
     }
 
