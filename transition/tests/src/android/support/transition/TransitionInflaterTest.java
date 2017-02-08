@@ -54,6 +54,8 @@ public class TransitionInflaterTest extends BaseTest {
         // TODO: Add more Transition types
         verifyFadeProperties(inflater.inflateTransition(R.transition.fade));
         verifyExplodeProperties(inflater.inflateTransition(R.transition.explode));
+        verifyChangeImageTransformProperties(
+                inflater.inflateTransition(R.transition.change_image_transform));
         verifyChangeTransformProperties(inflater.inflateTransition(R.transition.change_transform));
         verifyChangeClipBoundsProperties(
                 inflater.inflateTransition(R.transition.change_clip_bounds));
@@ -78,6 +80,10 @@ public class TransitionInflaterTest extends BaseTest {
         assertTrue(transition instanceof Explode);
         Visibility visibility = (Visibility) transition;
         assertEquals(Visibility.MODE_IN, visibility.getMode());
+    }
+
+    private void verifyChangeImageTransformProperties(Transition transition) {
+        assertTrue(transition instanceof ChangeImageTransform);
     }
 
     private void verifyChangeTransformProperties(Transition transition) {

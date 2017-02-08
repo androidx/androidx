@@ -1894,6 +1894,13 @@ package android.support.transition {
     method public void captureStartValues(android.support.transition.TransitionValues);
   }
 
+  public class ChangeImageTransform extends android.support.transition.Transition {
+    ctor public ChangeImageTransform();
+    ctor public ChangeImageTransform(android.content.Context, android.util.AttributeSet);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+  }
+
   public class ChangeTransform extends android.support.transition.Transition {
     ctor public ChangeTransform();
     ctor public ChangeTransform(android.content.Context, android.util.AttributeSet);

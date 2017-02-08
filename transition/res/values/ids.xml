@@ -22,4 +22,6 @@
     <item name="transition_transform" type="id"/>
     <item name="parent_matrix" type="id"/>
     <item name="ghost_view" type="id"/>
+    <item name="save_scale_type" type="id"/>
+    <item name="save_image_matrix" type="id"/>
 </resources>

@@ -23,8 +23,17 @@
     <string name="explode">Explode</string>
     <string name="clipBounds">Change Clip Bounds</string>
     <string name="changeTransform">Change Transform</string>
+    <string name="changeImageTransform">Change Image Transform</string>
+    <string name="reparentImage">Reparent Image</string>
     <string name="toggle">Toggle</string>
     <string name="begin">Begin</string>
     <string name="hello_world">Hello, world!</string>
     <string name="move">Move</string>
+    <string name="photo">Photo</string>
+    <string name="fit_xy">FIT_XY</string>
+    <string name="center">CENTER</string>
+    <string name="center_crop">CENTER_CROP</string>
+    <string name="fit_start">FIT_START</string>
+    <string name="fit_end">FIT_END</string>
+    <string name="matrix">MATRIX</string>
 </resources>
