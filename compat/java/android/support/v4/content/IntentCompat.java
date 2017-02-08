@@ -40,7 +40,7 @@ public final class IntentCompat {
         }
     }
 
-    @RequiresApi(17)
+    @RequiresApi(15)
     static class IntentCompatApi15Impl extends IntentCompatBaseImpl {
         @Override
         public Intent makeMainSelectorActivity(String selectorAction, String selectorCategory) {
