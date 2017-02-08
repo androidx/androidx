@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2016 The Android Open Source Project
+<!--
+     Copyright (C) 2017 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,17 +14,6 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <resources>
-    <string name="activity_sample_code">Support Transition Demos</string>
-    <string name="scene">Scene</string>
-    <string name="custom">Custom Transition</string>
-    <string name="beginDelayed">Begin Delayed Transition</string>
-    <string name="arcMotion">Arc Motion</string>
-    <string name="explode">Explode</string>
-    <string name="clipBounds">Change Clip Bounds</string>
-    <string name="toggle">Toggle</string>
-    <string name="begin">Begin</string>
-    <string name="hello_world">Hello, world!</string>
-    <string name="move">Move</string>
+    <string name="hello">Hello</string>
 </resources>

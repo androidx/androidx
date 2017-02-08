@@ -89,6 +89,12 @@ public abstract class BaseTransitionTest extends BaseTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
+    void resetListener() {
+        mTransition.removeListener(mListener);
+        mListener = mock(Transition.TransitionListener.class);
+        mTransition.addListener(mListener);
+    }
+
     void setAnimatedValue(float animatedValue) {
         mAnimatedValue = animatedValue;
     }
