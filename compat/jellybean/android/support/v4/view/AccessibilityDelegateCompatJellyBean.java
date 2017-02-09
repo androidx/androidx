@@ -32,20 +32,20 @@ import android.view.accessibility.AccessibilityNodeProvider;
 @RequiresApi(16)
 class AccessibilityDelegateCompatJellyBean {
 
-    public interface AccessibilityDelegateBridgeJellyBean {
-        public boolean dispatchPopulateAccessibilityEvent(View host, AccessibilityEvent event);
-        public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event);
-        public void onInitializeAccessibilityNodeInfo(View host, Object info);
-        public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event);
-        public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
-            AccessibilityEvent event);
-        public void sendAccessibilityEvent(View host, int eventType);
-        public void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event);
-        public Object getAccessibilityNodeProvider(View host);
-        public boolean performAccessibilityAction(View host, int action, Bundle args);
+    interface AccessibilityDelegateBridgeJellyBean {
+        boolean dispatchPopulateAccessibilityEvent(View host, AccessibilityEvent event);
+        void onInitializeAccessibilityEvent(View host, AccessibilityEvent event);
+        void onInitializeAccessibilityNodeInfo(View host, Object info);
+        void onPopulateAccessibilityEvent(View host, AccessibilityEvent event);
+        boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
+                AccessibilityEvent event);
+        void sendAccessibilityEvent(View host, int eventType);
+        void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event);
+        Object getAccessibilityNodeProvider(View host);
+        boolean performAccessibilityAction(View host, int action, Bundle args);
     }
 
-    public static Object newAccessibilityDelegateBridge(
+    public static AccessibilityDelegate newAccessibilityDelegateBridge(
             final AccessibilityDelegateBridgeJellyBean bridge) {
         return new AccessibilityDelegate() {
 
@@ -97,13 +97,13 @@ class AccessibilityDelegateCompatJellyBean {
         };
     }
 
-    public static Object getAccessibilityNodeProvider(Object delegate,
+    public static Object getAccessibilityNodeProvider(AccessibilityDelegate delegate,
             View host) {
-        return ((AccessibilityDelegate) delegate).getAccessibilityNodeProvider(host);
+        return delegate.getAccessibilityNodeProvider(host);
     }
 
-    public static boolean performAccessibilityAction(Object delegate, View host, int action,
-            Bundle args) {
-        return ((AccessibilityDelegate) delegate).performAccessibilityAction(host, action, args);
+    public static boolean performAccessibilityAction(AccessibilityDelegate delegate, View host,
+            int action, Bundle args) {
+        return delegate.performAccessibilityAction(host, action, args);
     }
 }
