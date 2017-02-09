@@ -16,6 +16,8 @@
 
 package android.support.v4.graphics;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static org.junit.Assert.assertEquals;
 
 import android.graphics.Paint;
@@ -37,10 +39,14 @@ public class PaintCompatHasGlyphTest {
         return Arrays.asList(new Object[][]{
                 {"B", true},
                 {"\uDB3F\uDFFD", false},
-                {"☺", true},
+                {"Ō", true},
+                {"£", true},
+                {"⅓", true},
                 {"Hello", false},
                 {"\u0020", true},  // white space
                 {"\t\t\t", false},  // more white space
+                {"☺", SDK_INT >= 16}, // glyph added in API 16
+                {"\uD83D\uDC66\uD83C\uDFFF", SDK_INT >= 24}, // glyph added in API 24
         });
     }
 
@@ -54,6 +60,8 @@ public class PaintCompatHasGlyphTest {
 
     @Test
     public void testHasGlyph() {
-        assertEquals(mExpectedResult, PaintCompat.hasGlyph(new Paint(), mTestString));
+        final boolean hasGlyph = PaintCompat.hasGlyph(new Paint(), mTestString);
+        assertEquals("hasGlyph() returned " + hasGlyph + " for '" + mTestString + "'",
+                mExpectedResult, hasGlyph);
     }
 }
