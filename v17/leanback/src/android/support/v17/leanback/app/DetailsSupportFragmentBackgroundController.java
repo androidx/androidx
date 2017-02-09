@@ -117,6 +117,7 @@ public class DetailsSupportFragmentBackgroundController {
     private DetailsBackgroundVideoHelper mVideoHelper;
     private Bitmap mCoverBitmap;
     private int mSolidColor;
+    private boolean mCanUseHost = false;
 
     /**
      * Creates a DetailsSupportFragmentBackgroundController for a DetailsSupportFragment. Note that
@@ -211,17 +212,47 @@ public class DetailsSupportFragmentBackgroundController {
     /**
      * Enable video playback and set proper {@link PlaybackGlueHost}. This method by default
      * creates a VideoSupportFragment and VideoSupportFragmentGlueHost to host the PlaybackGlue.
-     * This method must be called after calling Fragment super.onCreate().
+     * This method must be called after calling details Fragment super.onCreate().
      *
      * @param playbackGlue
      * @see #onCreateVideoSupportFragment()
      * @see #onCreateGlueHost().
      */
     public void setupVideoPlayback(@NonNull PlaybackGlue playbackGlue) {
+        if (mPlaybackGlue == playbackGlue) {
+            return;
+        }
         mPlaybackGlue = playbackGlue;
-        mPlaybackGlue.setHost(onCreateGlueHost());
         mVideoHelper = new DetailsBackgroundVideoHelper(mPlaybackGlue,
                 mFragment.getParallax(), mParallaxDrawable.getCoverDrawable());
+        if (mCanUseHost) {
+            mPlaybackGlue.setHost(onCreateGlueHost());
+        }
+    }
+
+    /**
+     * Enable Host for PlaybackGlue. This is delayed until: onStart() is called,
+     * activity transitions are finished.
+     */
+    void enablePlaybackHost() {
+        if (!mCanUseHost) {
+            mCanUseHost = true;
+            if (mPlaybackGlue != null) {
+                mPlaybackGlue.setHost(onCreateGlueHost());
+            }
+        }
+    }
+
+    /**
+     * Disable parallax that would auto-start video playback
+     * @return true if video fragment is visible or false otherwise.
+     */
+    boolean disableVideoParallax() {
+        if (mVideoHelper != null) {
+            mVideoHelper.stopParallax();
+            return mVideoHelper.isVideoVisible();
+        }
+        return false;
     }
 
     /**
@@ -363,15 +394,4 @@ public class DetailsSupportFragmentBackgroundController {
         return mParallaxDrawableMaxOffset;
     }
 
-    void onStart() {
-        if (mPlaybackGlue != null) {
-            mPlaybackGlue.play();
-        }
-    }
-
-    void onStop() {
-        if (mPlaybackGlue != null) {
-            mPlaybackGlue.pause();
-        }
-    }
 }
