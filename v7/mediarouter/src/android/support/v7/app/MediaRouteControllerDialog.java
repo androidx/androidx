@@ -16,6 +16,11 @@
 
 package android.support.v7.app;
 
+import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE;
+import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY;
+import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY_PAUSE;
+import static android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP;
+
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -67,7 +72,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -119,7 +123,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private Button mDisconnectButton;
     private Button mStopCastingButton;
-    private ImageButton mPlayPauseButton;
+    private ImageButton mPlaybackControlButton;
     private ImageButton mCloseButton;
     private MediaRouteExpandCollapseButton mGroupExpandCollapseButton;
 
@@ -351,7 +355,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mDisconnectButton.setOnClickListener(listener);
 
         mStopCastingButton = (Button) findViewById(BUTTON_STOP_RES_ID);
-        mStopCastingButton.setText(R.string.mr_controller_stop);
+        mStopCastingButton.setText(R.string.mr_controller_stop_casting);
         mStopCastingButton.setTextColor(color);
         mStopCastingButton.setOnClickListener(listener);
 
@@ -388,8 +392,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mPlaybackControlLayout = (RelativeLayout) findViewById(R.id.mr_playback_control);
         mTitleView = (TextView) findViewById(R.id.mr_control_title);
         mSubtitleView = (TextView) findViewById(R.id.mr_control_subtitle);
-        mPlayPauseButton = (ImageButton) findViewById(R.id.mr_control_play_pause);
-        mPlayPauseButton.setOnClickListener(listener);
+        mPlaybackControlButton = (ImageButton) findViewById(R.id.mr_control_playback_ctrl);
+        mPlaybackControlButton.setOnClickListener(listener);
 
         mVolumeControlLayout = (LinearLayout) findViewById(R.id.mr_volume_control);
         mVolumeControlLayout.setVisibility(View.GONE);
@@ -1006,28 +1010,45 @@ public class MediaRouteControllerDialog extends AlertDialog {
             if (mState != null) {
                 boolean isPlaying = mState.getState() == PlaybackStateCompat.STATE_BUFFERING
                         || mState.getState() == PlaybackStateCompat.STATE_PLAYING;
-                boolean supportsPlay = (mState.getActions() & (PlaybackStateCompat.ACTION_PLAY
-                        | PlaybackStateCompat.ACTION_PLAY_PAUSE)) != 0;
-                boolean supportsPause = (mState.getActions() & (PlaybackStateCompat.ACTION_PAUSE
-                        | PlaybackStateCompat.ACTION_PLAY_PAUSE)) != 0;
-                Context playPauseButtonContext = mPlayPauseButton.getContext();
-                if (isPlaying && supportsPause) {
-                    mPlayPauseButton.setVisibility(View.VISIBLE);
-                    mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
-                            playPauseButtonContext, R.attr.mediaRoutePauseDrawable));
-                    mPlayPauseButton.setContentDescription(playPauseButtonContext.getResources()
-                            .getText(R.string.mr_controller_pause));
-                } else if (!isPlaying && supportsPlay) {
-                    mPlayPauseButton.setVisibility(View.VISIBLE);
-                    mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
-                            playPauseButtonContext, R.attr.mediaRoutePlayDrawable));
-                    mPlayPauseButton.setContentDescription(playPauseButtonContext.getResources()
-                            .getText(R.string.mr_controller_play));
+                Context playbackControlButtonContext = mPlaybackControlButton.getContext();
+                boolean visible = true;
+                int iconDrawableAttr = 0;
+                int iconDescResId = 0;
+                if (isPlaying && isPauseActionSupported()) {
+                    iconDrawableAttr = R.attr.mediaRoutePauseDrawable;
+                    iconDescResId = R.string.mr_controller_pause;
+                } else if (isPlaying && isStopActionSupported()) {
+                    iconDrawableAttr = R.attr.mediaRouteStopDrawable;
+                    iconDescResId = R.string.mr_controller_stop;
+                } else if (!isPlaying && isPlayActionSupported()) {
+                    iconDrawableAttr = R.attr.mediaRoutePlayDrawable;
+                    iconDescResId = R.string.mr_controller_play;
                 } else {
-                    mPlayPauseButton.setVisibility(View.GONE);
+                    visible = false;
+                }
+                mPlaybackControlButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+                if (visible) {
+                    mPlaybackControlButton.setImageResource(
+                            MediaRouterThemeHelper.getThemeResource(
+                                    playbackControlButtonContext, iconDrawableAttr));
+                    mPlaybackControlButton.setContentDescription(
+                            playbackControlButtonContext.getResources()
+                                    .getText(iconDescResId));
                 }
             }
         }
+    }
+
+    private boolean isPlayActionSupported() {
+        return (mState.getActions() & (ACTION_PLAY | ACTION_PLAY_PAUSE)) != 0;
+    }
+
+    private boolean isPauseActionSupported() {
+        return (mState.getActions() & (ACTION_PAUSE | ACTION_PLAY_PAUSE)) != 0;
+    }
+
+    private boolean isStopActionSupported() {
+        return (mState.getActions() & ACTION_STOP) != 0;
     }
 
     boolean isVolumeControlAvailable(MediaRouter.RouteInfo route) {
@@ -1172,23 +1193,28 @@ public class MediaRouteControllerDialog extends AlertDialog {
                             MediaRouter.UNSELECT_REASON_DISCONNECTED);
                 }
                 dismiss();
-            } else if (id == R.id.mr_control_play_pause) {
+            } else if (id == R.id.mr_control_playback_ctrl) {
                 if (mMediaController != null && mState != null) {
                     boolean isPlaying = mState.getState() == PlaybackStateCompat.STATE_PLAYING;
-                    if (isPlaying) {
+                    int actionDescResId = 0;
+                    if (isPlaying && isPauseActionSupported()) {
                         mMediaController.getTransportControls().pause();
-                    } else {
+                        actionDescResId = R.string.mr_controller_pause;
+                    } else if (isPlaying && isStopActionSupported()) {
+                        mMediaController.getTransportControls().stop();
+                        actionDescResId = R.string.mr_controller_stop;
+                    } else if (!isPlaying && isPlayActionSupported()){
                         mMediaController.getTransportControls().play();
+                        actionDescResId = R.string.mr_controller_play;
                     }
                     // Announce the action for accessibility.
-                    if (mAccessibilityManager != null && mAccessibilityManager.isEnabled()) {
+                    if (mAccessibilityManager != null && mAccessibilityManager.isEnabled()
+                            && actionDescResId != 0) {
                         AccessibilityEvent event = AccessibilityEvent.obtain(
                                 AccessibilityEventCompat.TYPE_ANNOUNCEMENT);
                         event.setPackageName(mContext.getPackageName());
                         event.setClassName(getClass().getName());
-                        int resId = isPlaying ?
-                                R.string.mr_controller_pause : R.string.mr_controller_play;
-                        event.getText().add(mContext.getString(resId));
+                        event.getText().add(mContext.getString(actionDescResId));
                         mAccessibilityManager.sendAccessibilityEvent(event);
                     }
                 }
