@@ -26,6 +26,7 @@ import android.view.View.AccessibilityDelegate;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityNodeProvider;
 
 /**
  * Helper for accessing {@link AccessibilityDelegate} introduced after
@@ -45,20 +46,10 @@ import android.view.accessibility.AccessibilityNodeInfo;
  */
 public class AccessibilityDelegateCompat {
 
-    interface AccessibilityDelegateImpl {
-        AccessibilityDelegate newAccessibilityDelegateBridge(AccessibilityDelegateCompat listener);
-        AccessibilityNodeProviderCompat getAccessibilityNodeProvider(AccessibilityDelegate delegate,
-                View host);
-        boolean performAccessibilityAction(AccessibilityDelegate delegate, View host, int action,
-                Bundle args);
-    }
-
-    static class AccessibilityDelegateBaseImpl implements AccessibilityDelegateImpl {
-        @Override
+    static class AccessibilityDelegateBaseImpl {
         public AccessibilityDelegate newAccessibilityDelegateBridge(
                 final AccessibilityDelegateCompat compat) {
-            return AccessibilityDelegateCompatIcs.newAccessibilityDelegateBridge(
-                    new AccessibilityDelegateCompatIcs.AccessibilityDelegateBridge() {
+            return new AccessibilityDelegate() {
                 @Override
                 public boolean dispatchPopulateAccessibilityEvent(View host,
                         AccessibilityEvent event) {
@@ -71,7 +62,8 @@ public class AccessibilityDelegateCompat {
                 }
 
                 @Override
-                public void onInitializeAccessibilityNodeInfo(View host, Object info) {
+                public void onInitializeAccessibilityNodeInfo(
+                        View host, AccessibilityNodeInfo info) {
                     compat.onInitializeAccessibilityNodeInfo(host,
                             new AccessibilityNodeInfoCompat(info));
                 }
@@ -96,17 +88,15 @@ public class AccessibilityDelegateCompat {
                 public void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event) {
                     compat.sendAccessibilityEventUnchecked(host, event);
                 }
-            });
+            };
         }
 
-        @Override
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(
                 AccessibilityDelegate delegate, View host) {
             // Do nothing. Added in API 16.
             return null;
         }
 
-        @Override
         public boolean performAccessibilityAction(AccessibilityDelegate delegate, View host,
                 int action, Bundle args) {
             // Do nothing. Added in API 16.
@@ -119,9 +109,7 @@ public class AccessibilityDelegateCompat {
         @Override
         public AccessibilityDelegate newAccessibilityDelegateBridge(
                 final AccessibilityDelegateCompat compat) {
-            return AccessibilityDelegateCompatJellyBean.newAccessibilityDelegateBridge(
-                    new AccessibilityDelegateCompatJellyBean
-                            .AccessibilityDelegateBridgeJellyBean() {
+            return new AccessibilityDelegate()  {
                 @Override
                 public boolean dispatchPopulateAccessibilityEvent(View host,
                         AccessibilityEvent event) {
@@ -134,7 +122,8 @@ public class AccessibilityDelegateCompat {
                 }
 
                 @Override
-                public void onInitializeAccessibilityNodeInfo(View host, Object info) {
+                public void onInitializeAccessibilityNodeInfo(
+                        View host, AccessibilityNodeInfo info) {
                     compat.onInitializeAccessibilityNodeInfo(host,
                             new AccessibilityNodeInfoCompat(info));
                 }
@@ -161,24 +150,24 @@ public class AccessibilityDelegateCompat {
                 }
 
                 @Override
-                public Object getAccessibilityNodeProvider(View host) {
+                public AccessibilityNodeProvider getAccessibilityNodeProvider(View host) {
                     AccessibilityNodeProviderCompat provider =
                         compat.getAccessibilityNodeProvider(host);
-                    return (provider != null) ? provider.getProvider() : null;
+                    return (provider != null)
+                            ? (AccessibilityNodeProvider) provider.getProvider() : null;
                 }
 
                 @Override
                 public boolean performAccessibilityAction(View host, int action, Bundle args) {
                     return compat.performAccessibilityAction(host, action, args);
                 }
-            });
+            };
         }
 
         @Override
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(
                 AccessibilityDelegate delegate, View host) {
-            Object provider = AccessibilityDelegateCompatJellyBean.getAccessibilityNodeProvider(
-                    delegate, host);
+            Object provider = delegate.getAccessibilityNodeProvider(host);
             if (provider != null) {
                 return new AccessibilityNodeProviderCompat(provider);
             }
@@ -188,12 +177,11 @@ public class AccessibilityDelegateCompat {
         @Override
         public boolean performAccessibilityAction(AccessibilityDelegate delegate, View host,
                 int action, Bundle args) {
-            return AccessibilityDelegateCompatJellyBean.performAccessibilityAction(delegate,
-                    host, action, args);
+            return delegate.performAccessibilityAction(host, action, args);
         }
     }
 
-    private static final AccessibilityDelegateImpl IMPL;
+    private static final AccessibilityDelegateBaseImpl IMPL;
     private static final AccessibilityDelegate DEFAULT_DELEGATE;
 
     static {
