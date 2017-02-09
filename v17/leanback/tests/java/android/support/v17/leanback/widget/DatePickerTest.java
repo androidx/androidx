@@ -18,6 +18,7 @@ package android.support.v17.leanback.widget;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.Intent;
@@ -312,6 +313,66 @@ public class DatePickerTest {
         Thread.sleep(TRANSITION_LENGTH);
         assertThat("The third column of DatePicker should still hold focus after scrolling down",
                 mDatePickerInnerView.getChildAt(4).hasFocus(), is(true));
+    }
+
+    @Test
+    public void testInvisibleColumnsAlpha() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.datepicker_with_other_widgets);
+        initActivity(intent);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mDatePickerView.updateDate(2017, 2, 21, false);
+            }
+        });
+
+        Thread.sleep(TRANSITION_LENGTH);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mDatePickerView.updateDate(2017, 2, 20, false);
+            }
+        });
+        Thread.sleep(TRANSITION_LENGTH);
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        Thread.sleep(TRANSITION_LENGTH);
+        // Click once to activate
+        sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
+        Thread.sleep(TRANSITION_LENGTH);
+
+        int activeColumn = 0;
+        // For the inactive columns: the alpha for all the rows except the selected row should be
+        // zero: Picker#mInvisibleColumnAlpha (they should all be invisible).
+        for (int i = 0; i < 3; i++) {
+            ViewGroup gridView = (ViewGroup) mDatePickerInnerView.getChildAt(2 * i);
+            int childCount = gridView.getChildCount();
+            int alpha1RowsCount = 0;
+            int alphaNonZeroRowsCount = 0;
+            for (int j = 0; j < childCount; j++) {
+                View pickerItem = gridView.getChildAt(j);
+                if (pickerItem.getAlpha() > 0) {
+                    alphaNonZeroRowsCount++;
+                }
+                if (pickerItem.getAlpha() == 1) {
+                    alpha1RowsCount++;
+                }
+            }
+            if (i == activeColumn) {
+                assertThat("The active column "  + i + " should have only one row with an alpha of "
+                                + "1", alpha1RowsCount, is(1));
+                assertTrue("The active column "  + i + " should have more than one view with alpha "
+                        + "greater than 1", alphaNonZeroRowsCount > 1);
+            } else {
+                assertThat("The inactive column " + i + " should have only one row with an alpha of"
+                        + " 1", alpha1RowsCount, is(1));
+                assertThat("The inactive column " + i + " should have only one row with a non-zero"
+                        + " alpha", alphaNonZeroRowsCount, is(1));
+            }
+        }
     }
 
     private void sendKeys(int ...keys) {
