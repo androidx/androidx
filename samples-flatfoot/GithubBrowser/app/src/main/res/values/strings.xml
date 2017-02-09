@@ -23,4 +23,7 @@
     <string name="joined">Joined on %1$s</string>
     <string name="hint_email">Email</string>
     <string name="hint_location">Location</string>
+
+    <string name="no_results">No data for \'%1$s\'</string>
+    <string name="load_error">Couldn\'t load data for \'%1$s\'</string>
 </resources>

@@ -1,10 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/repo_list"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background"
-    tools:context="com.android.sample.githubbrowser.RepositoryListFragment"
-    tools:showIn="@layout/activity_main"/>
+
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <import type="java.lang.String"/>
+        <import type="android.view.View"/>
+        <import type="com.android.sample.githubbrowser.model.RepositoryListModel"/>
+        <variable name="state" type="int"/>
+        <variable name="query" type="String"/>
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background">
+
+        <ProgressBar
+            android:id="@+id/loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="@{state == RepositoryListModel.STATE_INITIAL_LOADING ? View.VISIBLE : View.INVISIBLE}"/>
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:textSize="20sp"
+            android:text="@{String.format(state == RepositoryListModel.STATE_EMPTY ? @string/no_results : @string/load_error, query)}"
+            android:visibility="@{(state == RepositoryListModel.STATE_EMPTY) || (state == RepositoryListModel.STATE_ERROR)  ? View.VISIBLE : View.INVISIBLE}"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/repo_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="@{state == RepositoryListModel.STATE_DATA ? View.VISIBLE : View.INVISIBLE}"/>
+
+    </FrameLayout>
+</layout>

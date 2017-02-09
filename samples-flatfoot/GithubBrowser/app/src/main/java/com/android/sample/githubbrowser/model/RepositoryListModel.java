@@ -40,10 +40,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  * View model for repository list data.
  */
 public class RepositoryListModel implements ViewModel {
+    /** Constant for the initial loading state. */
+    public static final int STATE_INITIAL_LOADING = 0;
+    /** Constant for the empty / no data state. */
+    public static final int STATE_EMPTY = 1;
+    /** Constant for the data state. */
+    public static final int STATE_DATA = 2;
+    /** Constant for the error state. */
+    public static final int STATE_ERROR = 3;
+
     private String mSearchTerm;
     private AuthTokenLifecycle mAuthTokenLifecycle;
 
     private LiveData<List<RepositoryData>> mRepositoryListLiveData = new LiveData<>();
+    private LiveData<Integer> mStateLiveData = new LiveData<>();
     private AtomicBoolean mHasNetworkRequestPending = new AtomicBoolean(false);
     private GithubNetworkManager.Cancelable mCurrentNetworkCall;
 
@@ -81,6 +91,7 @@ public class RepositoryListModel implements ViewModel {
         // that is performed for data that is not available in our database.
         mRepositoryListLiveData = githubDao.getRepositories(mSearchTerm);
 
+        mStateLiveData.setValue(STATE_INITIAL_LOADING);
         mHasNetworkRequestPending.set(false);
 
         new AsyncTask<String, Void, Void>() {
@@ -123,11 +134,20 @@ public class RepositoryListModel implements ViewModel {
         // Do we have data in the database?
         if (mSearchQueryData.numberOfFetchedItems >= mLastRequestedIndex.get()) {
             // We already have the data stored (and retrieved) from database.
+            mStateLiveData.setValue(STATE_DATA);
             return;
         }
 
-        if (mHasNetworkRequestPending.get() || mSearchQueryData.hasNoMoreData) {
-            // Previous request still processing or no more results
+        if (mHasNetworkRequestPending.get()) {
+            // Previous request still processing
+            return;
+        }
+
+        if (mSearchQueryData.hasNoMoreData) {
+            // We don't have any more results
+            if (mSearchQueryData.numberOfFetchedItems <= 0) {
+                mStateLiveData.setValue(STATE_EMPTY);
+            }
             return;
         }
 
@@ -137,11 +157,20 @@ public class RepositoryListModel implements ViewModel {
                 new GithubNetworkManager.NetworkCallListener<List<RepositoryData>>() {
                     @Override
                     public void onLoadEmpty(int httpCode) {
-                        if ((httpCode == 401) || (httpCode == 403)) {
-                            if (mAuthTokenLifecycle != null) {
-                                mAuthTokenLifecycle.invalidateAuthToken();
-                                mAuthTokenLifecycle.getAuthToken();
-                            }
+                        switch (httpCode) {
+                            case 401:case 403:
+                                if (mAuthTokenLifecycle != null) {
+                                    mAuthTokenLifecycle.invalidateAuthToken();
+                                    mAuthTokenLifecycle.getAuthToken();
+                                }
+                                mStateLiveData.setValue(STATE_ERROR);
+                                break;
+                            case 404:
+                                // No such user
+                                mStateLiveData.setValue(STATE_EMPTY);
+                                break;
+                            default:
+                                mStateLiveData.setValue(STATE_ERROR);
                         }
                     }
 
@@ -160,6 +189,7 @@ public class RepositoryListModel implements ViewModel {
 
                     @Override
                     public void onLoadFailure() {
+                        mStateLiveData.setValue(STATE_ERROR);
                     }
                 });
     }
@@ -201,6 +231,9 @@ public class RepositoryListModel implements ViewModel {
         }
 
         mHasNetworkRequestPending.set(false);
+        mStateLiveData.setValue(
+                (mSearchQueryData.numberOfFetchedItems <= 0) && mSearchQueryData.hasNoMoreData
+                    ? STATE_EMPTY : STATE_DATA);
     }
 
     /**
@@ -239,5 +272,12 @@ public class RepositoryListModel implements ViewModel {
      */
     public LiveData<List<RepositoryData>> getRepositoryListLiveData() {
         return mRepositoryListLiveData;
+    }
+
+    /**
+     * Returns the {@LiveData} object that wraps the current data state.
+     */
+    public LiveData<Integer> getStateLiveData() {
+        return mStateLiveData;
     }
 }

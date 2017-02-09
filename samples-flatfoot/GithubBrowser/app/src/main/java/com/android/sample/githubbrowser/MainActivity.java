@@ -90,9 +90,13 @@ public class MainActivity extends BaseActivity {
             }
         });
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        final EditText search = (EditText) toolbar.findViewById(R.id.search);
         final RepositorySearchModel mainSearchModel = ViewModelStore.get(this, "mainSearchModel",
                 RepositorySearchModel.class);
         mainSearchModel.setQuery("google", true);
+        search.setText(mainSearchModel.getSearchQueryData().getValue());
 
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
@@ -113,10 +117,6 @@ public class MainActivity extends BaseActivity {
                     .add(R.id.fragment_container, mainFragment, "main").commit();
         }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        final EditText search = (EditText) toolbar.findViewById(R.id.search);
         search.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN)

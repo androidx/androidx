@@ -15,6 +15,7 @@
  */
 package com.android.sample.githubbrowser;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
@@ -25,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.sample.githubbrowser.adapter.RepositoryListAdapter;
+import com.android.sample.githubbrowser.databinding.FragmentRepoListBinding;
 import com.android.sample.githubbrowser.model.AuthTokenModel;
 import com.android.sample.githubbrowser.model.RepositoryListModel;
 import com.android.sample.githubbrowser.model.RepositorySearchModel;
@@ -40,8 +42,11 @@ public class RepositoryListFragment extends LifecycleFragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        final RecyclerView recyclerView = (RecyclerView) inflater.inflate(
-                R.layout.fragment_repo_list, container, false);
+        final FragmentRepoListBinding binding = DataBindingUtil.inflate(
+                inflater, R.layout.fragment_repo_list, container, false);
+        final View result = binding.getRoot();
+
+        final RecyclerView recyclerView = (RecyclerView) result.findViewById(R.id.repo_list);
 
         // Get all the models that are needed for this fragment
 
@@ -63,7 +68,6 @@ public class RepositoryListFragment extends LifecycleFragment {
             public void onChanged(@Nullable String s) {
                 // When the main search query changes, update the list model with that query
                 // so that it starts loading new data.
-                MainActivity mainActivity = (MainActivity) getActivity();
                 repositoryListModel.setSearchTerm(getContext(), s,
                         authTokenModel.getAuthTokenLifecycle());
                 // Also set a new adapter on our main recycler. This is simpler that updating
@@ -72,6 +76,15 @@ public class RepositoryListFragment extends LifecycleFragment {
                 // a new LiveData instance on new search query.
                 recyclerView.setAdapter(new RepositoryListAdapter(RepositoryListFragment.this,
                         repositoryListModel));
+                binding.setQuery(s);
+            }
+        });
+
+        repositoryListModel.getStateLiveData().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer state) {
+                binding.setState(state);
+                binding.executePendingBindings();
             }
         });
 
@@ -88,6 +101,6 @@ public class RepositoryListFragment extends LifecycleFragment {
             }
         });
 
-        return recyclerView;
+        return result;
     }
 }
