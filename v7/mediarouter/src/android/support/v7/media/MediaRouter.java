@@ -18,7 +18,6 @@ package android.support.v7.media;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -2089,11 +2088,6 @@ public final class MediaRouter {
                 throw new IllegalStateException("There is no currently selected route.  "
                         + "The media router has not yet been fully initialized.");
             }
-            // A workaround for making this method work properly.
-            if (android.os.Build.VERSION.SDK_INT >= 16 && android.os.Build.VERSION.SDK_INT < 25
-                    && RouteInfo.isSystemMediaRouteProvider(mSelectedRoute)) {
-                syncSystemRoutes();
-            }
             return mSelectedRoute;
         }
 
@@ -2109,12 +2103,6 @@ public final class MediaRouter {
             if (!route.mEnabled) {
                 Log.w(TAG, "Ignoring attempt to select disabled route: " + route);
                 return;
-            }
-
-            // A workaround for making this method work properly.
-            if (android.os.Build.VERSION.SDK_INT >= 16 && android.os.Build.VERSION.SDK_INT < 25
-                    && RouteInfo.isSystemMediaRouteProvider(route)) {
-                syncSystemRoutes();
             }
             setSelectedRouteInternal(route, unselectReason);
         }
@@ -2247,25 +2235,6 @@ public final class MediaRouter {
                 }
                 mCallbackHandler.post(CallbackHandler.MSG_PROVIDER_REMOVED, provider);
                 mProviders.remove(index);
-            }
-        }
-
-        @TargetApi(16)
-        void syncSystemRoutes() {
-            Object routerObj = MediaRouterJellybean.getMediaRouter(mApplicationContext);
-            boolean routedToBluetooth = MediaRouterJellybean.checkRoutedToBluetooth(
-                mApplicationContext);
-            Object selectedRouteObj = MediaRouterJellybean.getSelectedRoute(
-                    routerObj, MediaRouterJellybean.ALL_ROUTE_TYPES);
-            Object defaultRouteObj = mSystemProvider.getDefaultRoute();
-            Object bluetoothRouteObj = mSystemProvider.getSystemRoute(mBluetoothRoute);
-
-            if (routedToBluetooth && selectedRouteObj == defaultRouteObj) {
-                MediaRouterJellybean.selectRoute(routerObj,
-                    MediaRouterJellybean.ALL_ROUTE_TYPES, bluetoothRouteObj);
-            } else if (!routedToBluetooth && selectedRouteObj == bluetoothRouteObj) {
-                MediaRouterJellybean.selectRoute(routerObj,
-                        MediaRouterJellybean.ALL_ROUTE_TYPES, defaultRouteObj);
             }
         }
 
