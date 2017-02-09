@@ -29,6 +29,6 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
         android-support-v4 \
         android-support-v7-appcompat \
         android-support-transition
-LOCAL_AAPT_FLAGS := --no-version-vectors
+LOCAL_AAPT_FLAGS := --no-version-vectors --no-version-transitions
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 include $(BUILD_PACKAGE)

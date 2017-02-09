@@ -36,6 +36,10 @@ android {
                 'res-public'
         ]
     }
+
+    aaptOptions {
+        additionalParameters "--no-version-transitions"
+    }
 }
 
 supportLibrary {

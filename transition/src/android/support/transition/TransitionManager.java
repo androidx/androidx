@@ -16,6 +16,7 @@
 
 package android.support.transition;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -39,7 +40,40 @@ import java.util.ArrayList;
  * only necessary if the application wants different transition behavior
  * in these situations.
  *
- * <p>Unlike the platform version, this does not support declaration by XML resources.</p>
+ * <p>TransitionManagers can be declared in XML resource files inside the
+ * <code>res/transition</code> directory. TransitionManager resources consist of
+ * the <code>transitionManager</code>tag name, containing one or more
+ * <code>transition</code> tags, each of which describe the relationship of
+ * that transition to the from/to scene information in that tag.
+ * For example, here is a resource file that declares several scene
+ * transitions:</p>
+ *
+ * <pre>
+ *     &lt;transitionManager xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+ *         &lt;transition android:fromScene="@layout/transition_scene1"
+ *                     android:toScene="@layout/transition_scene2"
+ *                     android:transition="@transition/changebounds"/&gt;
+ *         &lt;transition android:fromScene="@layout/transition_scene2"
+ *                     android:toScene="@layout/transition_scene1"
+ *                     android:transition="@transition/changebounds"/&gt;
+ *         &lt;transition android:toScene="@layout/transition_scene3"
+ *                     android:transition="@transition/changebounds_fadein_together"/&gt;
+ *         &lt;transition android:fromScene="@layout/transition_scene3"
+ *                     android:toScene="@layout/transition_scene1"
+ *                     android:transition="@transition/changebounds_fadeout_sequential"/&gt;
+ *         &lt;transition android:fromScene="@layout/transition_scene3"
+ *                     android:toScene="@layout/transition_scene2"
+ *                     android:transition="@transition/changebounds_fadeout_sequential"/&gt;
+ *     &lt;/transitionManager&gt;
+ * </pre>
+ *
+ * <p>For each of the <code>fromScene</code> and <code>toScene</code> attributes,
+ * there is a reference to a standard XML layout file. This is equivalent to
+ * creating a scene from a layout in code by calling
+ * {@link Scene#getSceneForLayout(ViewGroup, int, Context)}. For the
+ * <code>transition</code> attribute, there is a reference to a resource
+ * file in the <code>res/transition</code> directory which describes that
+ * transition.</p>
  */
 public class TransitionManager {
 

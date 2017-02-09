@@ -19,11 +19,16 @@ package android.support.transition;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.TimeInterpolator;
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.content.res.XmlResourceParser;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.util.AndroidRuntimeException;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -37,7 +42,20 @@ import java.util.ArrayList;
  * uses a TransitionSet to sequentially play a Fade(Fade.OUT), followed by
  * a {@link ChangeBounds}, followed by a Fade(Fade.OUT) transition.
  *
- * <p>Unlike the platform version, this does not support declaration by XML resources.</p>
+ * <p>A TransitionSet can be described in a resource file by using the
+ * tag <code>transitionSet</code>, along with the standard
+ * attributes of {@code TransitionSet} and {@link Transition}. Child transitions of the
+ * TransitionSet object can be loaded by adding those child tags inside the
+ * enclosing <code>transitionSet</code> tag. For example, the following xml
+ * describes a TransitionSet that plays a Fade and then a ChangeBounds
+ * transition on the affected view targets:</p>
+ * <pre>
+ *     &lt;transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
+ *             android:ordering="sequential"&gt;
+ *         &lt;fade/&gt;
+ *         &lt;changeBounds/&gt;
+ *     &lt;/transitionSet&gt;
+ * </pre>
  */
 public class TransitionSet extends Transition {
 
@@ -67,6 +85,16 @@ public class TransitionSet extends Transition {
      * child transitions will play {@link #ORDERING_TOGETHER together}.
      */
     public TransitionSet() {
+    }
+
+    public TransitionSet(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        TypedArray a = context.obtainStyledAttributes(attrs, Styleable.TRANSITION_SET);
+        int ordering = TypedArrayUtils.getNamedInt(a, (XmlResourceParser) attrs,
+                "transitionOrdering", Styleable.TransitionSet.TRANSITION_ORDERING,
+                TransitionSet.ORDERING_TOGETHER);
+        setOrdering(ordering);
+        a.recycle();
     }
 
     /**

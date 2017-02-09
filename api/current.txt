@@ -1674,10 +1674,12 @@ package android.support.transition {
 
   public class AutoTransition extends android.support.transition.TransitionSet {
     ctor public AutoTransition();
+    ctor public AutoTransition(android.content.Context, android.util.AttributeSet);
   }
 
   public class ChangeBounds extends android.support.transition.Transition {
     ctor public ChangeBounds();
+    ctor public ChangeBounds(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
     method public void setResizeClip(boolean);
@@ -1686,6 +1688,7 @@ package android.support.transition {
   public class Fade extends android.support.transition.Visibility {
     ctor public Fade(int);
     ctor public Fade();
+    ctor public Fade(android.content.Context, android.util.AttributeSet);
     field public static final int IN = 1; // 0x1
     field public static final int OUT = 2; // 0x2
   }
@@ -1716,6 +1719,7 @@ package android.support.transition {
 
   public abstract class Transition {
     ctor public Transition();
+    ctor public Transition(android.content.Context, android.util.AttributeSet);
     method public android.support.transition.Transition addListener(android.support.transition.Transition.TransitionListener);
     method public android.support.transition.Transition addTarget(android.view.View);
     method public android.support.transition.Transition addTarget(int);
@@ -1767,6 +1771,12 @@ package android.support.transition {
     method public abstract void onTransitionStart(android.support.transition.Transition);
   }
 
+  public class TransitionInflater {
+    method public static android.support.transition.TransitionInflater from(android.content.Context);
+    method public android.support.transition.Transition inflateTransition(int);
+    method public android.support.transition.TransitionManager inflateTransitionManager(int, android.view.ViewGroup);
+  }
+
   public class TransitionManager {
     ctor public TransitionManager();
     method public static void beginDelayedTransition(android.view.ViewGroup);
@@ -1780,6 +1790,7 @@ package android.support.transition {
 
   public class TransitionSet extends android.support.transition.Transition {
     ctor public TransitionSet();
+    ctor public TransitionSet(android.content.Context, android.util.AttributeSet);
     method public android.support.transition.TransitionSet addTransition(android.support.transition.Transition);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
@@ -1800,6 +1811,7 @@ package android.support.transition {
 
   public abstract class Visibility extends android.support.transition.Transition {
     ctor public Visibility();
+    ctor public Visibility(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
     method public int getMode();
