@@ -18,11 +18,12 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/playback_fragment_root"
         android:layout_width="match_parent"
+        android:transitionGroup="false"
         android:layout_height="match_parent">
 
     <FrameLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/playback_controls_dock"
+            android:transitionGroup="true"
             android:layout_height="match_parent"
             android:layout_width="match_parent"/>
 </FrameLayout>
