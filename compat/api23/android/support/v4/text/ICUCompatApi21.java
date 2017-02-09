@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package android.support.v4.text;
@@ -23,16 +23,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Locale;
 
-@RequiresApi(23)
-class ICUCompatApi23 {
+@RequiresApi(21)
+class ICUCompatApi21 {
 
-    private static final String TAG = "ICUCompatIcs";
+    private static final String TAG = "ICUCompatApi21";
 
     private static Method sAddLikelySubtagsMethod;
 
     static {
         try {
-            // This class should always exist on API-23 since it's CTS tested.
+            // This class should always exist on API-21 since it's CTS tested.
             final Class<?> clazz = Class.forName("libcore.icu.ICU");
             sAddLikelySubtagsMethod = clazz.getMethod("addLikelySubtags",
                     new Class[]{ Locale.class });
@@ -40,7 +40,6 @@ class ICUCompatApi23 {
             throw new IllegalStateException(e);
         }
     }
-
 
     public static String maximizeAndGetScript(Locale locale) {
         try {
