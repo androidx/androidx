@@ -24,6 +24,7 @@
           <target android:excludeId="@id/title_text" />
           <target android:excludeId="@id/title_orb" />
           <target android:excludeId="@id/details_background_view" />
+          <target android:excludeId="@id/video_surface" />
       </targets>
   </transition>
     <!-- The ParallaxTransition runs with with Slide transition, must use same duration
@@ -36,5 +37,8 @@
   </transition>
   <fade
       android:duration="350">
+      <targets>
+          <target android:excludeId="@id/video_surface" />
+      </targets>
   </fade>
 </transitionSet>

@@ -16,13 +16,16 @@
  */
 package android.support.v17.leanback.app;
 
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
+import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
 import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
@@ -40,6 +43,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.lang.ref.WeakReference;
 
 /**
  * A fragment for creating Leanback details screens.
@@ -79,6 +84,23 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     static final String TAG = "DetailsSupportFragment";
     static boolean DEBUG = false;
 
+    /**
+     * Flag for "possibly" having enter transition not finished yet.
+     * @see #mStartAndTransitionFlag
+     */
+    static final int PF_ENTER_TRANSITION_PENDING = 0x1 << 0;
+    /**
+     * Flag for having entrance transition not finished yet.
+     * @see #mStartAndTransitionFlag
+     */
+    static final int PF_ENTRANCE_TRANSITION_PENDING = 0x1 << 1;
+    /**
+     * Flag that onStart() has been called and about to call onSafeStart() when
+     * pending transitions are finished.
+     * @see #mStartAndTransitionFlag
+     */
+    static final int PF_PENDING_START = 0x1 << 2;
+
     private class SetSelectionRunnable implements Runnable {
         int mPosition;
         boolean mSmooth = true;
@@ -95,6 +117,61 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         }
     }
 
+    /**
+     * Start this task when first DetailsOverviewRow is created, if there is no entrance transition
+     * started, it will clear PF_ENTRANCE_TRANSITION_PENDING.
+     * @see #mStartAndTransitionFlag
+     */
+    static class WaitEnterTransitionTimeout implements Runnable {
+        static final long WAIT_ENTERTRANSITION_START = 200;
+
+        final WeakReference<DetailsSupportFragment> mRef;
+
+        WaitEnterTransitionTimeout(DetailsSupportFragment f) {
+            mRef = new WeakReference(f);
+            f.getView().postDelayed(this, WAIT_ENTERTRANSITION_START);
+        }
+
+        @Override
+        public void run() {
+            DetailsSupportFragment f = mRef.get();
+            if (f != null) {
+                f.clearPendingEnterTransition();
+            }
+        }
+    }
+
+    /**
+     * @see #mStartAndTransitionFlag
+     */
+    TransitionListener mEnterTransitionListener = new TransitionListener() {
+        @Override
+        public void onTransitionStart(Object transition) {
+            if (mWaitEnterTransitionTimeout != null) {
+                // cancel task of WaitEnterTransitionTimeout, we will clearPendingEnterTransition
+                // when transition finishes.
+                mWaitEnterTransitionTimeout.mRef.clear();
+            }
+        }
+
+        @Override
+        public void onTransitionCancel(Object transition) {
+            clearPendingEnterTransition();
+        }
+
+        @Override
+        public void onTransitionEnd(Object transition) {
+            clearPendingEnterTransition();
+        }
+    };
+
+    TransitionListener mReturnTransitionListener = new TransitionListener() {
+        @Override
+        public void onTransitionStart(Object transition) {
+            onReturnTransitionStart();
+        }
+    };
+
     BrowseFrameLayout mRootView;
     View mBackgroundView;
     Drawable mBackgroundDrawable;
@@ -106,6 +183,25 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     BaseOnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     BaseOnItemViewClickedListener mOnItemViewClickedListener;
     DetailsSupportFragmentBackgroundController mDetailsBackgroundController;
+
+
+    /**
+     * Flags for enter transition, entrance transition and onStart.  When onStart() is called
+     * and both enter transiton and entrance transition are finished, we could call onSafeStart().
+     * 1. in onCreate:
+     *      if user call prepareEntranceTransition, set PF_ENTRANCE_TRANSITION_PENDING
+     *      if there is enterTransition, set PF_ENTER_TRANSITION_PENDING, but we dont know if
+     *      user will run enterTransition or not.
+     * 2. when user add row, start WaitEnterTransitionTimeout to wait possible enter transition
+     * start. If enter transition onTransitionStart is not invoked with a period, we can assume
+     * there is no enter transition running, then WaitEnterTransitionTimeout will clear
+     * PF_ENTER_TRANSITION_PENDING.
+     * 3. When enterTransition runs (either postponed or not),  we will stop the
+     * WaitEnterTransitionTimeout, and let onTransitionEnd/onTransitionCancel to clear
+     * PF_ENTER_TRANSITION_PENDING.
+     */
+    int mStartAndTransitionFlag = 0;
+    WaitEnterTransitionTimeout mWaitEnterTransitionTimeout;
 
     Object mSceneAfterEntranceTransition;
 
@@ -184,6 +280,19 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         super.onCreate(savedInstanceState);
         mContainerListAlignTop =
             getResources().getDimensionPixelSize(R.dimen.lb_details_rows_align_top);
+
+        FragmentActivity activity = getActivity();
+        if (activity != null) {
+            Object transition = TransitionHelper.getEnterTransition(activity.getWindow());
+            if (transition != null) {
+                mStartAndTransitionFlag |= PF_ENTER_TRANSITION_PENDING;
+                TransitionHelper.addTransitionListener(transition, mEnterTransitionListener);
+            }
+            transition = TransitionHelper.getReturnTransition(activity.getWindow());
+            if (transition != null) {
+                TransitionHelper.addTransitionListener(transition, mReturnTransitionListener);
+            }
+        }
     }
 
     @Override
@@ -372,6 +481,11 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         if (adapter != null && adapter.size() > selectedPosition) {
             final VerticalGridView gridView = getVerticalGridView();
             final int count = gridView.getChildCount();
+            if (count > 0 && (mStartAndTransitionFlag & PF_ENTER_TRANSITION_PENDING) != 0) {
+                if (mWaitEnterTransitionTimeout == null) {
+                    mWaitEnterTransitionTimeout = new WaitEnterTransitionTimeout(this);
+                }
+            }
             for (int i = 0; i < count; i++) {
                 ItemBridgeAdapter.ViewHolder bridgeViewHolder = (ItemBridgeAdapter.ViewHolder)
                         gridView.getChildViewHolder(gridView.getChildAt(i));
@@ -380,6 +494,52 @@ public class DetailsSupportFragment extends BaseSupportFragment {
                         rowPresenter.getRowViewHolder(bridgeViewHolder.getViewHolder()),
                         bridgeViewHolder.getAdapterPosition(),
                         selectedPosition, selectedSubPosition);
+            }
+        }
+    }
+
+    void clearPendingEnterTransition() {
+        if ((mStartAndTransitionFlag & PF_ENTER_TRANSITION_PENDING) != 0) {
+            mStartAndTransitionFlag &= ~PF_ENTER_TRANSITION_PENDING;
+            dispatchOnStartAndTransitionFinished();
+        }
+    }
+
+    void dispatchOnStartAndTransitionFinished() {
+        /**
+         * if onStart() was called and there is no pending enter transition or entrance transition.
+         */
+        if ((mStartAndTransitionFlag & PF_PENDING_START) != 0
+                && (mStartAndTransitionFlag
+                & (PF_ENTER_TRANSITION_PENDING | PF_ENTRANCE_TRANSITION_PENDING)) == 0) {
+            mStartAndTransitionFlag &= ~PF_PENDING_START;
+            onSafeStart();
+        }
+    }
+
+    /**
+     * Called when onStart and enter transition (postponed/none postponed) and entrance transition
+     * are all finished.
+     */
+    @CallSuper
+    void onSafeStart() {
+        if (mDetailsBackgroundController != null) {
+            mDetailsBackgroundController.enablePlaybackHost();
+        }
+    }
+
+    @CallSuper
+    void onReturnTransitionStart() {
+        if (mDetailsBackgroundController != null) {
+            // first disable parallax effect that auto-start PlaybackGlue.
+            boolean isVideoVisible = mDetailsBackgroundController.disableVideoParallax();
+            // if video is not visible we can safely remove VideoSupportFragment,
+            // otherwise let video playing during return transition.
+            if (!isVideoVisible && mVideoSupportFragment != null) {
+                FragmentTransaction ft2 = getChildFragmentManager().beginTransaction();
+                ft2.remove(mVideoSupportFragment);
+                ft2.commit();
+                mVideoSupportFragment = null;
             }
         }
     }
@@ -442,6 +602,10 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     @Override
     public void onStart() {
         super.onStart();
+
+        mStartAndTransitionFlag |= PF_PENDING_START;
+        dispatchOnStartAndTransitionFinished();
+
         setupChildFragmentLayout();
         if (isEntranceTransitionEnabled()) {
             mRowsSupportFragment.setEntranceTransitionState(false);
@@ -465,11 +629,14 @@ public class DetailsSupportFragment extends BaseSupportFragment {
 
     @Override
     protected void onEntranceTransitionEnd() {
+        mStartAndTransitionFlag &= ~PF_ENTRANCE_TRANSITION_PENDING;
+        dispatchOnStartAndTransitionFinished();
         mRowsSupportFragment.onTransitionEnd();
     }
 
     @Override
     protected void onEntranceTransitionPrepare() {
+        mStartAndTransitionFlag |= PF_ENTRANCE_TRANSITION_PENDING;
         mRowsSupportFragment.onTransitionPrepare();
     }
 
