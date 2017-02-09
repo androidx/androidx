@@ -24,12 +24,14 @@ import static org.junit.Assert.assertTrue;
 
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.media.PollingCheck;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
 
@@ -86,6 +88,15 @@ public class MediaControllerCompatTest {
                 RatingCompat.RATING_NONE, mController.getRatingType());
 
         mSession.setRatingType(RatingCompat.RATING_5_STARS);
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
+            // Wait until the extra binder is ready.
+            new PollingCheck(TIME_OUT_MS) {
+                @Override
+                protected boolean check() {
+                    return mController.getRatingType() != RatingCompat.RATING_NONE;
+                }
+            }.run();
+        }
         assertEquals(RatingCompat.RATING_5_STARS, mController.getRatingType());
     }
 
