@@ -517,8 +517,8 @@ public final class Program implements Comparable<Program> {
     public int hashCode() {
         return Objects.hash(mChannelId, mStartTimeUtcMillis, mEndTimeUtcMillis,
                 mTitle, mEpisodeTitle, mDescription, mLongDescription, mVideoWidth, mVideoHeight,
-                mPosterArtUri, mThumbnailUri, mContentRatings, mCanonicalGenres, mSeasonNumber,
-                mEpisodeNumber);
+                mPosterArtUri, mThumbnailUri, Arrays.hashCode(mContentRatings),
+                Arrays.hashCode(mCanonicalGenres), mSeasonNumber, mEpisodeNumber);
     }
 
     @Override
