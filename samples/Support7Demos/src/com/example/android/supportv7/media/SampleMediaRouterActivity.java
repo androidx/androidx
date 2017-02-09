@@ -234,15 +234,13 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         DiscoveryFragment fragment = (DiscoveryFragment) fm.findFragmentByTag(
                 DISCOVERY_FRAGMENT_TAG);
         if (fragment == null) {
-            fragment = new DiscoveryFragment(mMediaRouterCB);
-            fragment.setRouteSelector(mSelector);
+            fragment = new DiscoveryFragment();
             fm.beginTransaction()
                     .add(fragment, DISCOVERY_FRAGMENT_TAG)
                     .commit();
-        } else {
-            fragment.setCallback(mMediaRouterCB);
-            fragment.setRouteSelector(mSelector);
         }
+        fragment.setCallback(mMediaRouterCB);
+        fragment.setRouteSelector(mSelector);
 
         // Populate an array adapter with streaming media items.
         String[] mediaNames = getResources().getStringArray(R.array.media_names);
@@ -638,14 +636,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     public static final class DiscoveryFragment extends MediaRouteDiscoveryFragment {
         private static final String TAG = "DiscoveryFragment";
         private Callback mCallback;
-
-        public DiscoveryFragment() {
-            mCallback = null;
-        }
-
-        public DiscoveryFragment(Callback cb) {
-            mCallback = cb;
-        }
 
         public void setCallback(Callback cb) {
             mCallback = cb;
