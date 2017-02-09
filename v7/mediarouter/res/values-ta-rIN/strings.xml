@@ -25,7 +25,7 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"இதில் திரையிடு"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"சாதனங்களைத் தேடுகிறது"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"தொடர்பைத் துண்டி"</string>
-    <string name="mr_controller_stop" msgid="4570331844078181931">"அனுப்புவதை நிறுத்து"</string>
+    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"அனுப்புவதை நிறுத்து"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"மூடும்"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"இயக்கும்"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"இடைநிறுத்தும்"</string>
