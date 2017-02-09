@@ -22,6 +22,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.media.PlaybackGlue;
 import android.support.v17.leanback.widget.DetailsParallax;
 import android.support.v17.leanback.widget.Parallax;
+import android.support.v17.leanback.widget.ParallaxEffect;
 import android.support.v17.leanback.widget.ParallaxTarget;
 
 /**
@@ -36,19 +37,19 @@ import android.support.v17.leanback.widget.ParallaxTarget;
  */
 final class DetailsBackgroundVideoHelper {
     private static final long BACKGROUND_CROSS_FADE_DURATION = 500;
-    private static final long CROSSFADE_DELAY = 1000;
+    private static final long CROSSFADE_DELAY = 0;
 
     /**
      * Different states {@link DetailsFragment} can be in.
      */
-    enum STATE {
-        INITIAL,
-        PLAY_VIDEO,
-        NO_VIDEO
-    }
+    static final int INITIAL = 0;
+    static final int PLAY_VIDEO = 1;
+    static final int NO_VIDEO = 2;
 
     private final DetailsParallax mDetailsParallax;
-    private STATE mCurrentState = STATE.INITIAL;
+    private ParallaxEffect mParallaxEffect;
+
+    private int mCurrentState = INITIAL;
 
     private ValueAnimator mBackgroundAnimator;
     private Drawable mBackgroundDrawable;
@@ -72,14 +73,17 @@ final class DetailsBackgroundVideoHelper {
         this.mPlaybackGlue = playbackGlue;
         this.mDetailsParallax = detailsParallax;
         this.mBackgroundDrawable = backgroundDrawable;
-        setupParallax();
+        startParallax();
     }
 
-    void setupParallax() {
+    void startParallax() {
+        if (mParallaxEffect != null) {
+            return;
+        }
         Parallax.IntProperty frameTop = mDetailsParallax.getOverviewRowTop();
         final float maxFrameTop = 1f;
         final float minFrameTop = 0f;
-        mDetailsParallax
+        mParallaxEffect = mDetailsParallax
                 .addEffect(frameTop.atFraction(maxFrameTop), frameTop.atFraction(minFrameTop))
                 .target(new ParallaxTarget() {
 
@@ -87,9 +91,9 @@ final class DetailsBackgroundVideoHelper {
                     @Override
                     public void update(float fraction) {
                         if (fraction == maxFrameTop) {
-                            updateState(STATE.NO_VIDEO);
+                            updateState(NO_VIDEO);
                         } else {
-                            updateState(STATE.PLAY_VIDEO);
+                            updateState(PLAY_VIDEO);
                         }
                         mFraction = fraction;
                     }
@@ -101,7 +105,15 @@ final class DetailsBackgroundVideoHelper {
                 });
     }
 
-    private void updateState(STATE state) {
+    void stopParallax() {
+        mDetailsParallax.removeEffect(mParallaxEffect);
+    }
+
+    boolean isVideoVisible() {
+        return mCurrentState == PLAY_VIDEO;
+    }
+
+    private void updateState(int state) {
         if (state == mCurrentState) {
             return;
         }
