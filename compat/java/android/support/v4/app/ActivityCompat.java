@@ -113,11 +113,8 @@ public class ActivityCompat extends ContextCompat {
      * @return true if this operation was supported and it completed; false if it was not available.
      */
     public static boolean invalidateOptionsMenu(Activity activity) {
-        if (Build.VERSION.SDK_INT >= 11) {
-            ActivityCompatHoneycomb.invalidateOptionsMenu(activity);
-            return true;
-        }
-        return false;
+        activity.invalidateOptionsMenu();
+        return true;
     }
 
     /**

@@ -23,7 +23,6 @@ import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Process;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
@@ -44,9 +43,6 @@ import java.io.File;
  */
 public class ContextCompat {
     private static final String TAG = "ContextCompat";
-
-    private static final String DIR_ANDROID = "Android";
-    private static final String DIR_OBB = "obb";
 
     private static final Object sLock = new Object();
 
@@ -116,17 +112,13 @@ public class ContextCompat {
      * See {@link android.content.Context#startActivity(Intent, android.os.Bundle)}
      * @return true if the underlying API was available and the call was successful, false otherwise
      */
-    public static boolean startActivities(Context context, Intent[] intents,
-            Bundle options) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 16) {
+    public static boolean startActivities(Context context, Intent[] intents, Bundle options) {
+        if (Build.VERSION.SDK_INT >= 16) {
             ContextCompatJellybean.startActivities(context, intents, options);
-            return true;
-        } else if (version >= 11) {
-            ContextCompatHoneycomb.startActivities(context, intents);
-            return true;
+        } else {
+            context.startActivities(intents);
         }
-        return false;
+        return true;
     }
 
     /**
@@ -222,18 +214,10 @@ public class ContextCompat {
      * @see EnvironmentCompat#getStorageState(File)
      */
     public static File[] getObbDirs(Context context) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             return ContextCompatKitKat.getObbDirs(context);
         } else {
-            final File single;
-            if (version >= 11) {
-                single = ContextCompatHoneycomb.getObbDir(context);
-            } else {
-                single = buildPath(Environment.getExternalStorageDirectory(), DIR_ANDROID, DIR_OBB,
-                        context.getPackageName());
-            }
-            return new File[] { single };
+            return new File[] { context.getObbDir() };
         }
     }
 
@@ -282,8 +266,7 @@ public class ContextCompat {
      * @see EnvironmentCompat#getStorageState(File)
      */
     public static File[] getExternalFilesDirs(Context context, String type) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             return ContextCompatKitKat.getExternalFilesDirs(context, type);
         } else {
             return new File[] { context.getExternalFilesDir(type) };
@@ -335,8 +318,7 @@ public class ContextCompat {
      * @see EnvironmentCompat#getStorageState(File)
      */
     public static File[] getExternalCacheDirs(Context context) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             return ContextCompatKitKat.getExternalCacheDirs(context);
         } else {
             return new File[] { context.getExternalCacheDir() };
@@ -404,8 +386,7 @@ public class ContextCompat {
      *         does not exist.
      */
     public static final ColorStateList getColorStateList(Context context, @ColorRes int id) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             return ContextCompatApi23.getColorStateList(context, id);
         } else {
             return context.getResources().getColorStateList(id);
@@ -427,8 +408,7 @@ public class ContextCompat {
      */
     @ColorInt
     public static final int getColor(Context context, @ColorRes int id) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             return ContextCompatApi23.getColor(context, id);
         } else {
             return context.getResources().getColor(id);
@@ -468,8 +448,7 @@ public class ContextCompat {
      * @see android.content.Context#getFilesDir()
      */
     public static final File getNoBackupFilesDir(Context context) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             return ContextCompatApi21.getNoBackupFilesDir(context);
         } else {
             ApplicationInfo appInfo = context.getApplicationInfo();
@@ -493,8 +472,7 @@ public class ContextCompat {
      * @return The path of the directory holding application code cache files.
      */
     public static File getCodeCacheDir(Context context) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             return ContextCompatApi21.getCodeCacheDir(context);
         } else {
             ApplicationInfo appInfo = context.getApplicationInfo();
