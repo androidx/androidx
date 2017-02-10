@@ -17,15 +17,17 @@
 package com.android.support.lifecycle;
 
 /**
- * An item that can dispatch lifecycle events. This events can be used by custom components to
- * handle lifecycle changes without implementing a custom Activity or Fragment.
+ * A class that has an Android lifecycle. These events can be used by custom components to
+ * handle lifecycle changes without implementing any code inside the Activity or the Fragment.
+ *
+ * @see Lifecycle
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public interface LifecycleProvider {
     /**
      * Returns the Lifecycle of the provider.
      *
-     * @return The lifecycle of the provider
+     * @return The lifecycle of the provider.
      */
     Lifecycle getLifecycle();
 }

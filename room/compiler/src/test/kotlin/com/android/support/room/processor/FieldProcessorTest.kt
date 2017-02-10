@@ -179,7 +179,7 @@ class FieldProcessorTest {
     @Test
     fun byteArrayWithEnforcedType() {
         singleEntity("@TypeConverters(foo.bar.MyConverter.class)" +
-                "@ColumnInfo(affinity = ColumnInfo.TEXT) byte[] arr;") { field, invocation ->
+                "@ColumnInfo(typeAffinity = ColumnInfo.TEXT) byte[] arr;") { field, invocation ->
             assertThat(field, `is`(Field(name = "arr",
                     type = invocation.processingEnv.typeUtils.getArrayType(
                             TypeKind.BYTE.typeMirror(invocation)),

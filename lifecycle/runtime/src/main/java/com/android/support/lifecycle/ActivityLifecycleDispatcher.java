@@ -32,8 +32,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * Helper class to dispatch lifecycle events for an activity. Use it only if it is impossible
- * to use {@link LifecycleActivity}.
+ * Helper class to dispatch lifecycle events for an activity. Use it only if you activity does not
+ * extend {@link android.support.v4.app.FragmentActivity FragmentActivity}.
+ * <p>
+ * If you decide to use this class, you should carefully read the documentation and call each method
+ * on the right time.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class ActivityLifecycleDispatcher {

@@ -29,9 +29,19 @@ import java.lang.annotation.Target;
  * <p>
  * When a class is marked as an Entity, all of its fields are persisted. If you would like to
  * exclude some of its fields, you can mark them with {@link Ignore}.
+ *
+ * @see Dao
+ * @see Database
+ * @see PrimaryKey
+ * @see ColumnInfo
  */
 @Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 public @interface Entity {
+    /**
+     * The table name in the SQLite database. If not set, defaults to the class name.
+     *
+     * @return The SQLite tableName of the Entity.
+     */
     String tableName() default "";
 }

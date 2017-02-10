@@ -24,17 +24,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Sets the column name of an entity field.
+ * Allows specific customization about the column associated with this field.
  * <p>
- * By default, Room uses the field name as the column name in the database. You can override this
- * behavior by using this annotation on an Entity field.
+ * For example, you can specify a column name for the field or change the column's type affinity.
  */
 @Target(ElementType.FIELD)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 public @interface ColumnInfo {
     /**
      * Name of the column in the database. Defaults to the field name if not set.
-     *
      * @return Name of the column in the database.
      */
     String name() default INHERIT_FIELD_NAME;
@@ -44,13 +42,16 @@ public @interface ColumnInfo {
      * <p>
      * If it is not specified, Room resolves it based on the field's type and available
      * TypeConverters.
+     * <p>
+     * See https://www.sqlite.org/datatype3.html for details.
      *
      * @return The type affinity of the column.
      */
-    @SQLiteTypeAffinity int affinity() default UNDEFINED;
+    @SuppressWarnings("unused") @SQLiteTypeAffinity int typeAffinity() default UNDEFINED;
 
     /**
-     * Default value for name. If used, Room will use the field name as the column name.
+     * Constant to let Room inherit the field name as the column name. If used, Room will use the
+     * field name as the column name.
      */
     String INHERIT_FIELD_NAME = "[field-name]";
 
@@ -58,7 +59,6 @@ public @interface ColumnInfo {
      * Undefined type affinity. Will be resolved based on the type.
      */
     int UNDEFINED = 1;
-
     /**
      * Column affinity constant for strings.
      */
@@ -77,7 +77,7 @@ public @interface ColumnInfo {
     int BLOB = 5;
 
     /**
-     * The SQLite column type for this field.
+     * The SQLite column type constants that can be used in {@link #typeAffinity()}
      */
     @IntDef({UNDEFINED, TEXT, INTEGER, REAL, BLOB})
     @interface SQLiteTypeAffinity {

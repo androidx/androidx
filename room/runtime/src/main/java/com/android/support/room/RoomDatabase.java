@@ -29,7 +29,13 @@ import com.android.support.db.SupportSQLiteStatement;
 import com.android.support.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 /**
- * Base class for all Room databases.
+ * Base class for all Room databases. All classes that are annotated with {@link Database} must
+ * extend this class.
+ * <p>
+ * RoomDatabase provides direct access to the underlying database implementation but you should
+ * prefer using {@link Dao} classes.
+ *
+ * @see Database
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class RoomDatabase {

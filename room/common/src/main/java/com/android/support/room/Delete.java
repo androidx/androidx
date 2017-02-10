@@ -28,8 +28,11 @@ import java.lang.annotation.Target;
  * <p>
  * All of the parameters of the Delete method must either be classes annotated with {@link Entity}
  * or collections/array of it.
+ *
+ * @see Insert
+ * @see Query
  */
 @Target(ElementType.METHOD)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 public @interface Delete {
 }

@@ -17,34 +17,37 @@
 package com.android.support.room;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.android.support.db.SupportSQLiteOpenHelper;
 
 /**
- * Configuration class for {@link RoomDatabase}.
+ * Configuration class for a {@link RoomDatabase}.
  */
+@SuppressWarnings("WeakerAccess")
 public class DatabaseConfiguration {
     /**
      * The factory to use to access the database.
      */
-    @SuppressWarnings("WeakerAccess")
+    @NonNull
     public final SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory;
     /**
-     * The context to you.
+     * The context to use while connecting to the database.
      */
-    @SuppressWarnings("WeakerAccess")
+    @NonNull
     public final Context context;
     /**
-     * The name of the database or null if it is in memory.
+     * The name of the database file or null if it is an in-memory database.
      */
-    @SuppressWarnings("WeakerAccess")
+    @Nullable
     public final String name;
     /**
      * The version of the database.
      */
     public final int version;
 
-    DatabaseConfiguration(Context context, String name, int version,
+    DatabaseConfiguration(@NonNull Context context, @Nullable String name, int version,
                                   SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;

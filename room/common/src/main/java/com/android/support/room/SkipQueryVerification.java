@@ -24,10 +24,10 @@ import java.lang.annotation.Target;
 /**
  * Skips database verification for the annotated element.
  * <p>
- * If it is a class annotated with {@link @Database}, none of the queries for the database will
+ * If it is a class annotated with {@link Database}, none of the queries for the database will
  * be verified at compile time.
  * <p>
- * If it is a class annotated with {@link @Dao}, none of the queries in the Dao class will
+ * If it is a class annotated with {@link Dao}, none of the queries in the Dao class will
  * be verified at compile time.
  * <p>
  * If it is a method in a Dao class, just the method's sql verification will be skipped.
@@ -37,6 +37,6 @@ import java.lang.annotation.Target;
  * able to understand the query response.
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 public @interface SkipQueryVerification {
 }

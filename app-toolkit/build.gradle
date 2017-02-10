@@ -25,3 +25,10 @@ buildscript {
         }
     }
 }
+if (ext.integrateWithSupportLib) {
+    ext.init.loadDefaultVersions()
+    ext.init.setSdkInLocalPropertiesFile()
+    ext.init.setupRepoOutAndBuildNumber()
+    ext.addRepos(repositories)
+    ext.init.enableDoclavaAndJDiff(this)
+}

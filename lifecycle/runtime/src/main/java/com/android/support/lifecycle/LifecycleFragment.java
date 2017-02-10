@@ -20,6 +20,9 @@ import android.support.v4.app.Fragment;
 
 /**
  * A fragment that is also a {@link LifecycleProvider}.
+ * <p>
+ * This class is a temporary implementation detail until Lifecycles are integrated with support
+ * library.
  */
 // This class will be removed once we integrate with Fragment library.
 public class LifecycleFragment extends Fragment implements LifecycleRegistryProvider {

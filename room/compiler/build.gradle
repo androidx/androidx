@@ -30,7 +30,7 @@ sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
     main.java.srcDirs += antlrOut
 }
-
+project.ext.noDocs = true
 dependencies {
     // taken from ButterKnife
     def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)

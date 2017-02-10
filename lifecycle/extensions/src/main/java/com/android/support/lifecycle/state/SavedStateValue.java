@@ -22,13 +22,19 @@ import android.os.Parcelable;
 
 /**
  * Simple wrapper class that holds T value.
- * This class can be obtained from {@link RetainedStateProvider}
+ * <p>
+ * This class can be obtained from {@link RetainedStateProvider}.
  * @param <T> - type of the object.
  */
 public class SavedStateValue<T extends Parcelable> extends Saveable {
 
     private T mValue;
 
+    /**
+     * Initializes a new SavedStateValue with the given initial value.
+     *
+     * @param mValue The initial value of the SavedStateValue.
+     */
     SavedStateValue(T mValue) {
         this.mValue = mValue;
     }

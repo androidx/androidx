@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 import org.gradle.internal.os.OperatingSystem
-
+ext.integrateWithSupportLib = System.getenv("WITH_SUPPORTLIB")
 def root = ext.supportRootFolder
+ext.usePrebuilts = "true" // for doclava
+if (ext.integrateWithSupportLib) {
+    apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
+}
 def checkoutRoot = "${root}/../.."
 ext.checkoutRoot = checkoutRoot
 ext.prebuiltsRoot = "$checkoutRoot/prebuilts"
@@ -92,6 +96,14 @@ subprojects {
         resolutionStrategy {
             force "com.google.guava:guava-jdk5:17.0"
         }
+    }
+    if (project.name == 'doclava' || project.name == 'jdiff') {
+        project.tasks.whenTaskAdded { task ->
+            if (task instanceof org.gradle.api.tasks.testing.Test) {
+                task.enabled = false
+            }
+        }
+        return
     }
     def mavenGroup = project.getPath().split(":")[1]
     project.group = "com.android.support.$mavenGroup"

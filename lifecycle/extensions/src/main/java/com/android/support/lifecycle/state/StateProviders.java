@@ -17,6 +17,8 @@
 package com.android.support.lifecycle.state;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -25,7 +27,15 @@ import android.support.v4.app.FragmentManager;
 import com.android.support.lifecycle.LifecycleProvider;
 
 /**
- *  Factory and utility methods for {@link SavedStateProvider} and {@link RetainedStateProvider}
+ * Factory and utility methods for {@link SavedStateProvider} and {@link RetainedStateProvider}.
+ * <p>
+ * {@link SavedStateProvider} provides a convenient way to create variables that are saved with the
+ * owner Activity or Fragment. Using it is similar to implementing
+ * {@link android.app.Activity#onSaveInstanceState(Bundle)}.
+ * <p>
+ * {@link RetainedStateProvider} provides a convenient way to create variables that are retained
+ * across the configuration changes of the owner Activity or Fragment. Using it is similar to
+ * implementing {@link Activity#onRetainNonConfigurationInstance()}.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class StateProviders {
@@ -69,8 +79,9 @@ public class StateProviders {
 
     /**
      * Returns {@link SavedStateProvider} associated with the given fragment.
-     * if this call was made after fragment saved its state, all later operations on this
-     * {@link SavedStateProvider} may be lost.
+     * <p>
+     * If this call is made after fragment saved its state, all later operations on this
+     * {@link SavedStateProvider} will be lost if the application process is killed.
      */
     @MainThread
     public static SavedStateProvider savedStateProvider(Fragment fragment) {
@@ -79,8 +90,9 @@ public class StateProviders {
 
     /**
      * Returns {@link SavedStateProvider} associated with the given activity.
-     * if this call was made after activity saved its state, all later operations on this
-     * {@link SavedStateProvider} may be lost.
+     * <p>
+     * If this call is made after activity saved its state, all later operations on this
+     * {@link SavedStateProvider} will be lost if the application process is killed.
      */
     @MainThread
     public static SavedStateProvider savedStateProvider(FragmentActivity activity) {
@@ -107,8 +119,9 @@ public class StateProviders {
 
     /**
      * Returns {@link RetainedStateProvider} associated with the given fragment.
-     * if this call was made after fragment saved its state, all later operations on this
-     * {@link RetainedStateProvider} may be lost.
+     * <p>
+     * If this call is made after fragment saved its state, all later operations on this
+     * {@link RetainedStateProvider} will be lost if the application process is killed.
      */
     @MainThread
     public static RetainedStateProvider retainedStateProvider(Fragment fragment) {
@@ -117,8 +130,9 @@ public class StateProviders {
 
     /**
      * Returns {@link RetainedStateProvider} associated with the given fragment.
-     * if this call was made after fragment saved its state, all later operations on this
-     * {@link RetainedStateProvider} may be lost.
+     * <p>
+     * If this call is made after fragment saved its state, all later operations on this
+     * {@link RetainedStateProvider} will be lost if the application process is killed.
      */
     public static RetainedStateProvider retainedStateProvider(FragmentActivity activity) {
         return holderFragmentFor(activity.getSupportFragmentManager()).getRetainedStateProvider();

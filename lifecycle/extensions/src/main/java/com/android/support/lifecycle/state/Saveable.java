@@ -17,7 +17,12 @@
 package com.android.support.lifecycle.state;
 
 import android.os.Bundle;
+import android.support.annotation.RestrictTo;
 
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class Saveable {
     abstract void saveTo(Bundle savedState, String key);
 }

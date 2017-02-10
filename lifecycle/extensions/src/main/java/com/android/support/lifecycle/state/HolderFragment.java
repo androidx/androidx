@@ -18,11 +18,13 @@ package com.android.support.lifecycle.state;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.app.Fragment;
 
 /**
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HolderFragment extends Fragment {
 
     private SavedStateProvider mSavedStateProvider = new SavedStateProvider();

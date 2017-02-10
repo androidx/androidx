@@ -24,14 +24,17 @@ import java.lang.annotation.Target;
 /**
  * Marks a method in a {@link Dao} annotated class as a query method.
  * <p>
- * The value of the annotation includes the query that will be run when this method is called.
+ * The value of the annotation includes the query that will be run when this method is called. This
+ * query is <b>verified at compile time</b> by Room to ensure that it compiles fine against the
+ * database.
  * <p>
  * The arguments of the method will be bound to the bind arguments in the SQL statement. See
- * https://www.sqlite.org/c3ref/bind_blob.html for details of bind arguments in SQLite.
+ * < href="https://www.sqlite.org/c3ref/bind_blob.html">SQLite's binding documentation</> for
+ * details of bind arguments in SQLite.
  * <p>
  * Room supports only 2 types of bind arguments. {@code ?} placeholder and {@code :name}
- * named bind parameter.
- * If there are more than 1 argument, you must use named bind parameters to avoid confusion.
+ * named bind parameter. If there are more than 1 arguments, you must use named bind parameters to
+ * avoid confusion.
  * <p>
  * Room will automatically bind the parameters of the method into the bind arguments. When named
  * bind arguments are used, this is done by matching the name of the parameters to the name of the
@@ -46,8 +49,11 @@ import java.lang.annotation.Target;
  * depending on the number of items in the method parameter.
  * <pre>
  *     {@literal @}Query("SELECT * FROM user WHERE uid IN(?)")
- *     public abstract List&lt;User&gt; findByIds(int[] userIds);
+ *     public abstract List<User> findByIds(int[] userIds);
  * </pre>
+ * For the example above, if the {@code userIds} is an array of 3 elements, Room will run the
+ * query as: {@code SELECT * FROM user WHERE uid IN(?, ?, ?)} and bind each item in the
+ * {@code userIds} array into the statement.
  * <p>
  * There are 3 types of queries supported in {@code Query} methods: SELECT, UPDATE and DELETE.
  * <p>
@@ -57,9 +63,33 @@ import java.lang.annotation.Target;
  * <p>
  * UPDATE or DELETE queries can return {@code void} or {@code int}. If it is an {@code int},
  * the value is the number of rows affected by this query.
+ * <p>
+ * You can return arbitrary POJOs from your query methods as long as the fields of the POJO match
+ * the column names in the query result.
+ * For example, if you have class:
+ * <pre>
+ * class UserName {
+ *     public String name;
+ *     {@literal @}ColumnInfo(name = "last_name")
+ *     public String lastName;
+ * }
+ * </pre>
+ * You can write a query like this:
+ * <pre>
+ *     {@literal @}Query("SELECT last_name, name FROM user WHERE uid = ? LIMIT 1")
+ *     public abstract UserName findOneUserName(int userId);
+ * </pre>
+ * And Room will create the correct implementation to convert the query result into a
+ * {@code UsrName} object. If there is a mismatch between the query result and the fields of the
+ * POJO, Room prints a {@link RoomWarnings#CURSOR_MISMATCH} warning and sets as many fields as it
+ * can.
  */
 @Target(ElementType.METHOD)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 public @interface Query {
+    /**
+     * The SQLite query to be run.
+     * @return The query to be run.
+     */
     String value();
 }

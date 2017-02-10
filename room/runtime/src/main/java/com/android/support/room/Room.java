@@ -20,7 +20,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 /**
- * Utility class for Room runtime.
+ * Utility class for Room.
  */
 @SuppressWarnings("unused")
 public class Room {
@@ -29,7 +29,7 @@ public class Room {
 
     /**
      * Creates a RoomDatabase.Builder for a persistent database. Once a database is built, you
-     * should keep a reference to it and re-use.
+     * should keep a reference to it and re-use it.
      *
      * @param context The context for the database. This is usually the Application context.
      * @param klass   The abstract class which is annotated with {@link Database} and extends
@@ -53,7 +53,7 @@ public class Room {
     /**
      * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory
      * database disappears when the process is killed.
-     * Once a database is built, you should keep a reference to it and re-use.
+     * Once a database is built, you should keep a reference to it and re-use it.
      *
      * @param context The context for the database. This is usually the Application context.
      * @param klass   The abstract class which is annotated with {@link Database} and extends

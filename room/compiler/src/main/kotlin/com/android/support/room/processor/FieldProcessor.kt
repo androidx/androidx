@@ -48,8 +48,8 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
 
             affinity = try {
                 val userDefinedAffinity = AnnotationMirrors
-                        .getAnnotationValue(columnInfoAnnotation.get(), "affinity").value.toString()
-                        .toInt()
+                        .getAnnotationValue(columnInfoAnnotation.get(), "typeAffinity")
+                        .value.toString().toInt()
                 SQLTypeAffinity.fromAnnotationValue(userDefinedAffinity)
             } catch (ex : NumberFormatException) {
                 null

@@ -35,9 +35,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A class that tracks which tables has been modified.
- * <p>
- * Queries can observe this to refresh themselves.
+ * InvalidationTracker keeps a list of tables modified by queries and notifies its callbacks about
+ * these tables.
  */
 // We create an in memory table with (version, table_id) where version is an auto-increment primary
 // key and a table_id (hardcoded int from initialization).
@@ -49,7 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 // new version.
 // Unfortunately, we cannot override the previous row because sqlite uses the conflict resolution
 // of the outer query (the thing that triggered us) so we do a cleanup as we sync instead of letting
-// sqlite override the rows.
+// SQLite override the rows.
 // https://sqlite.org/lang_createtrigger.html:  An ON CONFLICT clause may be specified as part of an
 // UPDATE or INSERT action within the body of the trigger. However if an ON CONFLICT clause is
 // specified as part of the statement causing the trigger to fire, then conflict handling policy of
@@ -109,9 +108,14 @@ public class InvalidationTracker {
 
     // should be accessed with synchronization only.
     @VisibleForTesting
-    SafeIterableMap<Observer, ObserverWrapper> mObserverMap = new SafeIterableMap<>();
+    final SafeIterableMap<Observer, ObserverWrapper> mObserverMap = new SafeIterableMap<>();
 
-    @SuppressWarnings("WeakerAccess") // used by generated code.
+    /**
+     * Used by the generated code.
+     * @hide
+     */
+    @SuppressWarnings("WeakerAccess")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public InvalidationTracker(RoomDatabase database, String... tableNames) {
         mDatabase = database;
         mObservedTableTracker = new ObservedTableTracker(tableNames.length);
@@ -199,8 +203,10 @@ public class InvalidationTracker {
      * Database changes are pulled on another thread so in some race conditions, the observer might
      * be invoked for changes that were done before it is added.
      * <p>
-     * If the observer already exists, this is a no-op.
-     *
+     * If the observer already exists, this is a no-op call.
+     * <p>
+     * If one of the tables in the Observer does not exist in the database, this method throws an
+     * {@link IllegalArgumentException}.
      * @param observer The observer which listens the database for changes.
      */
     public void addObserver(Observer observer) {
@@ -244,7 +250,7 @@ public class InvalidationTracker {
     }
 
     /**
-     * Removes the observer from observers list.
+     * Removes the observer from the observers list.
      *
      * @param observer The observer to remove.
      */
@@ -355,12 +361,11 @@ public class InvalidationTracker {
     };
 
     /**
-     * Refreshes the list of invalidated tables from the database.
+     * Enqueues a task to refresh the list of updated tables.
      * <p>
      * This method is automatically called when {@link RoomDatabase#endTransaction()} is called but
      * if you have another connection to the database or directly use {@link
-     * SupportSQLiteDatabase},
-     * you may need to call this manually.
+     * SupportSQLiteDatabase}, you may need to call this manually.
      */
     @SuppressWarnings("WeakerAccess")
     public void refreshVersionsAsync() {

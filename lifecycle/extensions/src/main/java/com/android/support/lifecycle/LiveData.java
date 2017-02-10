@@ -27,12 +27,30 @@ import com.android.support.apptoolkit.internal.ObserverSet;
 import com.android.support.executors.AppToolkitTaskExecutor;
 
 /**
- * LiveData is a data reference that can be observed withing a given lifecycle.
+ * LiveData is a data holder class that can be observed within a given lifecycle.
+ * This means that an {@link Observer} can be added in a pair with a {@link LifecycleProvider}, and
+ * this observer will be notified about modifications of the wrapped data only if the paired
+ * LifecycleProvider is in active state. LifecycleProvider is considered as active, if its state is
+ * {@link Lifecycle#STARTED} or {@link Lifecycle#RESUMED}. An observer added without a
+ * LifeProvider is consider as always active and thus will be always notified about modifications.
+ *
+ * <p> An observer added with a Lifecycle will be automatically removed if the corresponding
+ * Lifecycle moves to {@link Lifecycle#DESTROYED} state. This is especially useful for activities
+ * and fragments they can safely observe LiveData and not worry about leaks: they will be
+ * instantly unsubscribed when they will be destroyed.
+ *
  * <p>
- * The Observers of LiveData must specify their LifecycleProvider, which allows LiveData to observe
- * the provider's state changes and unsubscribe the observer when necessary.
+ * In addition, LiveData has {@link LiveData#onActive()} and {@link LiveData#onInactive()} methods
+ * to get notified when first active {@link Observer} appears and when last active {@link Observer}
+ * is gone. So LiveData may use highly memory or power consuming services like LocationManager or
+ * SensorManager only when there is an UI in a foreground which is interested in that data.
+ * <p>
+ * This class is designed to hold individual data fields of {@link ViewModel},
+ * but can also be used for sharing data between different modules in your application
+ * in a decoupled fashion.
  *
  * @param <T> The type of data hold by this instance
+ * @see ViewModel
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 // TODO the usage of ObserverSet needs to be cleaned. Maybe we should simplify the rules.

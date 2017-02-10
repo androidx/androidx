@@ -44,8 +44,9 @@ import java.lang.annotation.Target;
  *    }
  *}
  * </pre>
+ * @see TypeConverters
  */
 @Target({ElementType.METHOD})
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 public @interface TypeConverter {
 }

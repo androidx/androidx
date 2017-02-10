@@ -16,6 +16,8 @@
 
 apply plugin: 'com.android.application'
 
+project.ext.noDocs = true
+
 android {
     compileSdkVersion compile_sdk_version
     buildToolsVersion build_tools_version

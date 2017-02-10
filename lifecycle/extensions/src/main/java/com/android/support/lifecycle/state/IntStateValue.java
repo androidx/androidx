@@ -20,13 +20,19 @@ import android.os.Bundle;
 
 /**
  * Simple wrapper class that holds int value.
+ * <p>
  * This class can be obtained from either {@link SavedStateProvider}
- * either {@link RetainedStateProvider}
+ * or {@link RetainedStateProvider}.
  */
 public class IntStateValue extends Saveable {
 
     private int mValue;
 
+    /**
+     * Creates a int state holder with the given initial value.
+     *
+     * @param i The initial value.
+     */
     IntStateValue(int i) {
         mValue = i;
     }
@@ -41,7 +47,7 @@ public class IntStateValue extends Saveable {
     }
 
     /**
-     * @return the current value
+     * @return The current value
      */
     public int get() {
         return mValue;

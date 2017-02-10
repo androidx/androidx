@@ -18,7 +18,9 @@ package com.android.support.lifecycle.state;
 
 /**
  * Simple wrapper class that holds T value.
- * This class can be obtained from {@link RetainedStateProvider}
+ * <p>
+ * This class can be obtained from {@link RetainedStateProvider}.
+ *
  * @param <T> - type of the object.
  */
 public class StateValue<T> {

@@ -25,10 +25,22 @@ import android.support.annotation.VisibleForTesting;
 
 import com.android.support.lifecycle.ReportInitializationFragment.ActivityInitializationListener;
 
-//TODO: write documentation.
-
 /**
- * Class that provides lifecycle for whole application
+ * Class that provides lifecycle for the whole application process.
+ * <p>
+
+ * You can consider this LifecycleProvider as the composite of all of your Activities:
+ * ProcessProvider will dispatch {@link Lifecycle#ON_CREATE}, {@link Lifecycle#ON_START},
+ * {@link Lifecycle#ON_RESUME} events, as a first activity moves through these events.
+ * {@link Lifecycle#ON_PAUSE}, {@link Lifecycle#ON_STOP},
+ * {@link Lifecycle#ON_DESTROY} events will be dispatched with a <b>delay</b> after a last activity
+ * passed through them. This delay is long enough to guarantee that ProcessProvider
+ * won't send any events if activities are destroyed and recreated due to a
+ * configuration change.
+ *
+ * <p>
+ * It is useful for use cases where you would like to react on your app coming to the foreground or
+ * going to the background and you don't need a milliseconds accuracy in receiving lifecycle events.
  */
 @SuppressWarnings("WeakerAccess")
 public class ProcessProvider implements LifecycleProvider {
@@ -78,6 +90,8 @@ public class ProcessProvider implements LifecycleProvider {
     private static final ProcessProvider sInstance = new ProcessProvider();
 
     /**
+     * The LifecycleProvider for the whole application process. Note that if your application
+     * has multiple processes, this provider does not know about other processes.
      *
      * @return {@link LifecycleProvider} for the whole application.
      */

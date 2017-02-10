@@ -24,6 +24,9 @@ import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
 
+/**
+ * Internal class to get some callbacks from the underlying activity.
+ */
 class EmptyCursor implements Cursor {
     @Override
     public int getCount() {

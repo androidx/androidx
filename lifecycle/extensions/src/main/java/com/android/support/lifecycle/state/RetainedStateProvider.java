@@ -22,11 +22,13 @@ import android.support.annotation.NonNull;
 import static com.android.support.lifecycle.state.StateMap.typeWarning;
 
 /**
- * This class facilities work with retained state associated with corresponding
- * fragment or activity.
- *
- * "Retained state" is state which is retained across Activity or Fragment
+ * This class facilities work with retained state associated with corresponding fragment or
+ * activity.
+ * <p>
+ * "Retained state" is the state which is retained across Activity or Fragment
  * re-creation (such as from a configuration change).
+ * <p>
+ * You should <b>never</b> reference the Activity or Fragment from a value you retain.
  */
 @SuppressWarnings("WeakerAccess")
 public class RetainedStateProvider {
@@ -35,14 +37,16 @@ public class RetainedStateProvider {
     /**
      * Returns a {@link StateValue} for the given key. If no value with the given key exists,
      * a new StateValue will be returned.
+     * <p>
      * If a value with the given key exists but it has a different type,
      * it will be overridden by a new one.
      * <p>
      * Changes, that were made to the returned value after onSaveInstanceState in the corresponding
-     * activity or fragment, may be lost.
+     * activity or fragment, may be lost if the application process is kill after the change.
      *
-     * @param key a String, or null
-     * @return {@link StateValue} associated with given key
+     * @param key The unique identifier of the value.
+     *
+     * @return {@link StateValue} associated with the given key
      */
     @MainThread
     @NonNull
@@ -66,16 +70,18 @@ public class RetainedStateProvider {
 
     /**
      * Returns a {@link IntStateValue} for the given key. If no value with the given key exists,
-     * a new IntStateValue will be returned.
-     * If a value with the given key exists but it has a different type,
-     * it will be overridden by a new one.
+     * a new {@link IntStateValue} will be returned.
      * <p>
-     * Resulted {@link IntStateValue} will be initialized with 0.
+     * If a value with the given key exists but it has a different type,
+     * it will be overridden by the new one.
+     * <p>
+     * Resulting {@link IntStateValue} will be initialized with {@code 0}.
      * <p>
      * Changes, that were made to the returned value after onSaveInstanceState in the corresponding
-     * activity or fragment, may be lost.
+     * activity or fragment is called, may be lost if the application process is killed.
      *
-     * @param key a String, or null
+     * @param key The unique identifier of the value.
+     *
      * @return {@link IntStateValue} associated with given key
      */
     @MainThread
@@ -86,16 +92,18 @@ public class RetainedStateProvider {
 
     /**
      * Returns a {@link IntStateValue} for the given key. If no value with the given key exists,
-     * a new IntStateValue will be returned.
-     * If a value with the given key exists but it has a different type,
-     * it will be overridden by a new one.
+     * a new {@link IntStateValue} will be returned.
      * <p>
-     * Resulted {@link IntStateValue} will be initialized with defaultValue.
+     * If a value with the given key exists but it has a different type,
+     * it will be overridden by the new one.
+     * <p>
+     * Resulting {@link IntStateValue} will be initialized with {@code defaultValue}.
      * <p>
      * Changes, that were made to the returned value after onSaveInstanceState in the corresponding
-     * activity or fragment, may be lost.
+     * activity or fragment is called, may be lost if the application process is killed.
      *
-     * @param key a String, or null
+     * @param key The unique identifier of the value.
+     *
      * @return {@link IntStateValue} associated with given key
      */
     @MainThread

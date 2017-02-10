@@ -19,9 +19,11 @@ package com.android.support.lifecycle;
 import android.support.annotation.Nullable;
 
 /**
- * A simple callback that can receive updates from an Observable.
+ * A simple callback that can receive from {@link LiveData}.
  *
  * @param <T> The type of the parameter
+ *
+ * @see LiveData for samples and usage patterns.
  */
 public interface Observer<T> {
     /**

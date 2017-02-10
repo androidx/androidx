@@ -20,7 +20,10 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.support.annotation.IntDef;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Marks a method in a {@link Dao} annotated class as an insert method.
@@ -30,11 +33,28 @@ import java.lang.annotation.Retention;
  * All of the parameters of the Insert method must either be classes annotated with {@link Entity}
  * or collections/array of it.
  */
+@Target({ElementType.METHOD})
+@Retention(RetentionPolicy.CLASS)
 public @interface Insert {
+    /**
+     * OnConflict strategy constant to replace the old data and continue the transaction.
+     */
     int REPLACE = 1;
+    /**
+     * OnConflict strategy constant to rollback the transaction.
+     */
     int ROLLBACK = 2;
+    /**
+     * OnConflict strategy constant to abort the transaction.
+     */
     int ABORT = 3;
+    /**
+     * OnConflict strategy constant to fail the transaction.
+     */
     int FAIL = 4;
+    /**
+     * OnConflict strategy constant to ignore the conflict.
+     */
     int IGNORE = 5;
 
     @Retention(SOURCE)
@@ -43,9 +63,9 @@ public @interface Insert {
 
     /**
      * What to do if a conflict happens.
-     * See: https://sqlite.org/lang_conflict.html
+     * @see <a href="https://sqlite.org/lang_conflict.html">SQLite conflict documentation</a>
      *
-     * @return How to handle conflicts.
+     * @return How to handle conflicts. Defaults to {@link #ABORT}.
      */
     @OnConflict
     int onConflict() default ABORT;

@@ -23,10 +23,10 @@ import java.lang.annotation.Target;
 
 /**
  * Marks a field in an {@link Entity} as the primary key. If there are more than one field annotated
- * with {@code PrimaryKey}, Room creates a composite primary key. The order of the fields in the
- * composite primarykey matches their declaration order in the {@link Entity}.
+ * with {@link PrimaryKey}, Room creates a composite primary key. The order of the fields in the
+ * composite primary key matches their declaration order in the {@link Entity} class.
  */
 @Target(ElementType.FIELD)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 public @interface PrimaryKey {
 }

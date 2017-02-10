@@ -52,3 +52,17 @@ project(':room:db-impl').projectDir = new File("../room/db-impl")
 
 include ':room:integration-tests:testapp'
 project(':room:integration-tests:testapp').projectDir = new File("../room/integration-tests/testapp")
+
+/////////////////////////////
+//
+// External
+//
+/////////////////////////////
+
+File externalRoot = new File(rootDir, '../../../external')
+
+include ':doclava'
+project(':doclava').projectDir = new File(externalRoot, 'doclava')
+
+include ':jdiff'
+project(':jdiff').projectDir = new File(externalRoot, 'jdiff')

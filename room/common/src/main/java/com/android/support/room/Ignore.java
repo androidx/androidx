@@ -23,8 +23,11 @@ import java.lang.annotation.Target;
 
 /**
  * Ignores the marked element from Room's processing logic.
+ * <p>
+ * This annotation can be used in multiple places where Room processor runs. For instance, you can
+ * add it to a field of an {@link Entity} and Room will not persist that field.
  */
 @Target({ElementType.METHOD, ElementType.FIELD})
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 public @interface Ignore {
 }

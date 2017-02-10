@@ -24,7 +24,6 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteTransactionListener;
 import android.os.Build;
 import android.os.CancellationSignal;
-import android.os.OperationCanceledException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -317,7 +316,8 @@ public interface SupportSQLiteDatabase {
      * @param limit Limits the number of rows returned by the query,
      *            formatted as LIMIT clause. Passing null denotes no LIMIT clause.
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     * If the operation is canceled, then {@link OperationCanceledException} will be thrown
+     * If the operation is canceled, then
+     * {@link android.os.OperationCanceledException OperationCanceledException} will be thrown
      * when the query is executed.
      * @return A {@link Cursor} object, which is positioned before the first entry. Note that
      * {@link Cursor}s are not synchronized, see the documentation for more details.
@@ -394,7 +394,8 @@ public interface SupportSQLiteDatabase {
      * @param limit Limits the number of rows returned by the query,
      *            formatted as LIMIT clause. Passing null denotes no LIMIT clause.
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     * If the operation is canceled, then {@link OperationCanceledException} will be thrown
+     * If the operation is canceled, then
+     * {@link android.os.OperationCanceledException OperationCanceledException} will be thrown
      * when the query is executed.
      * @return A {@link Cursor} object, which is positioned before the first entry. Note that
      * {@link Cursor}s are not synchronized, see the documentation for more details.
@@ -492,7 +493,8 @@ public interface SupportSQLiteDatabase {
      *     which will be replaced by the values from selectionArgs. The
      *     values will be bound as Strings.
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     * If the operation is canceled, then {@link OperationCanceledException} will be thrown
+     * If the operation is canceled, then
+     * {@link android.os.OperationCanceledException OperationCanceledException} will be thrown
      * when the query is executed.
      * @return A {@link Cursor} object, which is positioned before the first entry. Note that
      * {@link Cursor}s are not synchronized, see the documentation for more details.
@@ -526,7 +528,8 @@ public interface SupportSQLiteDatabase {
      *     values will be bound as Strings.
      * @param editTable the name of the first table, which is editable
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     * If the operation is canceled, then {@link OperationCanceledException} will be thrown
+     * If the operation is canceled, then
+     * {@link android.os.OperationCanceledException OperationCanceledException} will be thrown
      * when the query is executed.
      * @return A {@link Cursor} object, which is positioned before the first entry. Note that
      * {@link Cursor}s are not synchronized, see the documentation for more details.
@@ -766,7 +769,8 @@ public interface SupportSQLiteDatabase {
      *
      * @param sql SQL to be validated
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     * If the operation is canceled, then {@link OperationCanceledException} will be thrown
+     * If the operation is canceled, then
+     * {@link android.os.OperationCanceledException OperationCanceledException} will be thrown
      * when the query is executed.
      * @throws SQLiteException if {@code sql} is invalid
      */
@@ -827,7 +831,7 @@ public interface SupportSQLiteDatabase {
      * @param cacheSize the size of the cache. can be (0 to
      * {@link SQLiteDatabase#MAX_SQL_CACHE_SIZE})
      * @throws IllegalStateException if input cacheSize gt;
-     * {@link SQLiteDatabase##MAX_SQL_CACHE_SIZE}.
+     * {@link SQLiteDatabase#MAX_SQL_CACHE_SIZE}.
      */
     void setMaxSqlCacheSize(int cacheSize);
 

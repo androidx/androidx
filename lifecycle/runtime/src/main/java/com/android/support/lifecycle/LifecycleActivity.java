@@ -20,7 +20,10 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 /**
- * Activity that implements {@link LifecycleProvider}
+ * Activity that implements {@link LifecycleProvider}.
+ * <p>
+ * This class is a temporary implementation detail until Lifecycles are integrated with support
+ * library.
  */
 public class LifecycleActivity extends FragmentActivity implements LifecycleProvider {
 

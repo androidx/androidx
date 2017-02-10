@@ -18,6 +18,7 @@ package com.android.support.lifecycle;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -26,7 +27,9 @@ import java.util.Map;
 
 /**
  * Internal class to handle lifecycle conversion etc.
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class Lifecycling {
     private static Constructor<? extends GenericLifecycleObserver> sREFLECTIVE;
 
