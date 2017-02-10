@@ -17,267 +17,28 @@
 package android.support.v4.widget;
 
 import android.app.SearchManager;
+import android.app.SearchableInfo;
 import android.content.ComponentName;
 import android.content.Context;
-import android.os.Build;
 import android.view.View;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 /**
- * Helper for accessing features in {@link android.widget.SearchView}
+ * Helper for accessing features in {@link SearchView}
  * introduced after API level 4 in a backwards compatible fashion.
+ *
+ * @deprecated Use {@link SearchView} directly.
  */
+@Deprecated
 public final class SearchViewCompat {
-
-    interface SearchViewCompatImpl {
-        View newSearchView(Context context);
-        void setSearchableInfo(View searchView, ComponentName searchableComponent);
-        void setImeOptions(View searchView, int imeOptions);
-        void setInputType(View searchView, int inputType);
-        Object newOnQueryTextListener(OnQueryTextListener listener);
-        void setOnQueryTextListener(View searchView, OnQueryTextListener listener);
-        Object newOnCloseListener(OnCloseListener listener);
-        void setOnCloseListener(View searchView, OnCloseListener listener);
-        CharSequence getQuery(View searchView);
-        void setQuery(View searchView, CharSequence query, boolean submit);
-        void setQueryHint(View searchView, CharSequence hint);
-        void setIconified(View searchView, boolean iconify);
-        boolean isIconified(View searchView);
-        void setSubmitButtonEnabled(View searchView, boolean enabled);
-        boolean isSubmitButtonEnabled(View searchView);
-        void setQueryRefinementEnabled(View searchView, boolean enable);
-        boolean isQueryRefinementEnabled(View searchView);
-        void setMaxWidth(View searchView, int maxpixels);
-    }
-
-    static class SearchViewCompatStubImpl implements SearchViewCompatImpl {
-
-        @Override
-        public View newSearchView(Context context) {
-            return null;
+    private static void checkIfLegalArg(View searchView) {
+        if (searchView == null) {
+            throw new IllegalArgumentException("searchView must be non-null");
         }
-
-        @Override
-        public void setSearchableInfo(View searchView, ComponentName searchableComponent) {
-        }
-
-        @Override
-        public void setImeOptions(View searchView, int imeOptions) {
-        }
-
-        @Override
-        public void setInputType(View searchView, int inputType) {
-        }
-
-        @Override
-        public Object newOnQueryTextListener(OnQueryTextListener listener) {
-            return null;
-        }
-
-        @Override
-        public void setOnQueryTextListener(View searchView, OnQueryTextListener listener) {
-        }
-
-        @Override
-        public Object newOnCloseListener(OnCloseListener listener) {
-            return null;
-        }
-
-        @Override
-        public void setOnCloseListener(View searchView, OnCloseListener listener) {
-        }
-
-        @Override
-        public CharSequence getQuery(View searchView) {
-            return null;
-        }
-
-        @Override
-        public void setQuery(View searchView, CharSequence query, boolean submit) {
-        }
-
-        @Override
-        public void setQueryHint(View searchView, CharSequence hint) {
-        }
-
-        @Override
-        public void setIconified(View searchView, boolean iconify) {
-        }
-
-        @Override
-        public boolean isIconified(View searchView) {
-            return true;
-        }
-
-        @Override
-        public void setSubmitButtonEnabled(View searchView, boolean enabled) {
-        }
-
-        @Override
-        public boolean isSubmitButtonEnabled(View searchView) {
-            return false;
-        }
-
-        @Override
-        public void setQueryRefinementEnabled(View searchView, boolean enable) {
-        }
-
-        @Override
-        public boolean isQueryRefinementEnabled(View searchView) {
-            return false;
-        }
-
-        @Override
-        public void setMaxWidth(View searchView, int maxpixels) {
-        }
-    }
-
-    static class SearchViewCompatHoneycombImpl extends SearchViewCompatStubImpl {
-
-        @Override
-        public View newSearchView(Context context) {
-            return SearchViewCompatHoneycomb.newSearchView(context);
-        }
-
-        @Override
-        public void setSearchableInfo(View searchView, ComponentName searchableComponent) {
-            checkIfLegalArg(searchView);
-            SearchViewCompatHoneycomb.setSearchableInfo(searchView, searchableComponent);
-        }
-
-        @Override
-        public Object newOnQueryTextListener(final OnQueryTextListener listener) {
-            return SearchViewCompatHoneycomb.newOnQueryTextListener(
-                    new SearchViewCompatHoneycomb.OnQueryTextListenerCompatBridge() {
-                        @Override
-                        public boolean onQueryTextSubmit(String query) {
-                            return listener.onQueryTextSubmit(query);
-                        }
-                        @Override
-                        public boolean onQueryTextChange(String newText) {
-                            return listener.onQueryTextChange(newText);
-                        }
-                    });
-        }
-
-        @Override
-        public void setOnQueryTextListener(View searchView, OnQueryTextListener listener) {
-            checkIfLegalArg(searchView);
-            SearchViewCompatHoneycomb.setOnQueryTextListener(searchView,
-                    newOnQueryTextListener(listener));
-        }
-
-        @Override
-        public Object newOnCloseListener(final OnCloseListener listener) {
-            return SearchViewCompatHoneycomb.newOnCloseListener(
-                    new SearchViewCompatHoneycomb.OnCloseListenerCompatBridge() {
-                        @Override
-                        public boolean onClose() {
-                            return listener.onClose();
-                        }
-                    });
-        }
-
-        @Override
-        public void setOnCloseListener(View searchView, OnCloseListener listener) {
-            checkIfLegalArg(searchView);
-            SearchViewCompatHoneycomb.setOnCloseListener(searchView, newOnCloseListener(listener));
-        }
-
-        @Override
-        public CharSequence getQuery(View searchView) {
-            checkIfLegalArg(searchView);
-            return SearchViewCompatHoneycomb.getQuery(searchView);
-        }
-
-        @Override
-        public void setQuery(View searchView, CharSequence query, boolean submit) {
-            checkIfLegalArg(searchView);
-            SearchViewCompatHoneycomb.setQuery(searchView, query, submit);
-        }
-
-        @Override
-        public void setQueryHint(View searchView, CharSequence hint) {
-            checkIfLegalArg(searchView);
-            SearchViewCompatHoneycomb.setQueryHint(searchView, hint);
-        }
-
-        @Override
-        public void setIconified(View searchView, boolean iconify) {
-            checkIfLegalArg(searchView);
-            SearchViewCompatHoneycomb.setIconified(searchView, iconify);
-        }
-
-        @Override
-        public boolean isIconified(View searchView) {
-            checkIfLegalArg(searchView);
-            return SearchViewCompatHoneycomb.isIconified(searchView);
-        }
-
-        @Override
-        public void setSubmitButtonEnabled(View searchView, boolean enabled) {
-            checkIfLegalArg(searchView);
-            SearchViewCompatHoneycomb.setSubmitButtonEnabled(searchView, enabled);
-        }
-
-        @Override
-        public boolean isSubmitButtonEnabled(View searchView) {
-            checkIfLegalArg(searchView);
-            return SearchViewCompatHoneycomb.isSubmitButtonEnabled(searchView);
-        }
-
-        @Override
-        public void setQueryRefinementEnabled(View searchView, boolean enable) {
-            checkIfLegalArg(searchView);
-            SearchViewCompatHoneycomb.setQueryRefinementEnabled(searchView, enable);
-        }
-
-        @Override
-        public boolean isQueryRefinementEnabled(View searchView) {
-            checkIfLegalArg(searchView);
-            return SearchViewCompatHoneycomb.isQueryRefinementEnabled(searchView);
-        }
-
-        @Override
-        public void setMaxWidth(View searchView, int maxpixels) {
-            checkIfLegalArg(searchView);
-            SearchViewCompatHoneycomb.setMaxWidth(searchView, maxpixels);
-        }
-
-        protected void checkIfLegalArg(View searchView) {
-            SearchViewCompatHoneycomb.checkIfLegalArg(searchView);
-        }
-    }
-
-    static class SearchViewCompatIcsImpl extends SearchViewCompatHoneycombImpl {
-
-        @Override
-        public View newSearchView(Context context) {
-            return SearchViewCompatIcs.newSearchView(context);
-        }
-
-        @Override
-        public void setImeOptions(View searchView, int imeOptions) {
-            checkIfLegalArg(searchView);
-            SearchViewCompatIcs.setImeOptions(searchView, imeOptions);
-        }
-
-        @Override
-        public void setInputType(View searchView, int inputType) {
-            checkIfLegalArg(searchView);
-            SearchViewCompatIcs.setInputType(searchView, inputType);
-        }
-    }
-
-    private static final SearchViewCompatImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 14) { // ICS
-            IMPL = new SearchViewCompatIcsImpl();
-        } else if (Build.VERSION.SDK_INT >= 11) { // Honeycomb
-            IMPL = new SearchViewCompatHoneycombImpl();
-        } else {
-            IMPL = new SearchViewCompatStubImpl();
+        if (!(searchView instanceof SearchView)) {
+            throw new IllegalArgumentException("searchView must be an instance of "
+                    + "android.widget.SearchView");
         }
     }
 
@@ -291,9 +52,12 @@ public final class SearchViewCompat {
      * @param context The Context the view is running in.
      * @return A SearchView instance if the class is present on the current
      *         platform, null otherwise.
+     *
+     * @deprecated Use {@link SearchView} constructor directly.
      */
+    @Deprecated
     public static View newSearchView(Context context) {
-        return IMPL.newSearchView(context);
+        return new SearchView(context);
     }
 
     /**
@@ -305,9 +69,16 @@ public final class SearchViewCompat {
      * @param searchableComponent The application component whose
      * {@link android.app.SearchableInfo} should be loaded and applied to
      * the SearchView.
+     *
+     * @deprecated Use {@link SearchView#setSearchableInfo(SearchableInfo)} directly.
      */
+    @Deprecated
     public static void setSearchableInfo(View searchView, ComponentName searchableComponent) {
-        IMPL.setSearchableInfo(searchView, searchableComponent);
+        checkIfLegalArg(searchView);
+        SearchManager searchManager = (SearchManager)
+                searchView.getContext().getSystemService(Context.SEARCH_SERVICE);
+        ((SearchView) searchView).setSearchableInfo(
+                searchManager.getSearchableInfo(searchableComponent));
     }
 
     /**
@@ -318,9 +89,13 @@ public final class SearchViewCompat {
      * @see TextView#setImeOptions(int)
      * @param searchView The SearchView to operate on.
      * @param imeOptions the options to set on the query text field
+     *
+     * @deprecated Use {@link SearchView#setImeOptions(int)} directly.
      */
+    @Deprecated
     public static void setImeOptions(View searchView, int imeOptions) {
-        IMPL.setImeOptions(searchView, imeOptions);
+        checkIfLegalArg(searchView);
+        ((SearchView) searchView).setImeOptions(imeOptions);
     }
 
     /**
@@ -331,9 +106,13 @@ public final class SearchViewCompat {
      * @see TextView#setInputType(int)
      * @param searchView The SearchView to operate on.
      * @param inputType the input type to set on the query text field
+     *
+     * @deprecated Use {@link SearchView#setInputType(int)} directly.
      */
+    @Deprecated
     public static void setInputType(View searchView, int inputType) {
-        IMPL.setInputType(searchView, inputType);
+        checkIfLegalArg(searchView);
+        ((SearchView) searchView).setInputType(inputType);
     }
 
     /**
@@ -342,13 +121,33 @@ public final class SearchViewCompat {
      * @param searchView The SearchView in which to register the listener.
      * @param listener the listener object that receives callbacks when the user performs
      *     actions in the SearchView such as clicking on buttons or typing a query.
+     *
+     * @deprecated Use {@link SearchView#setOnQueryTextListener(SearchView.OnQueryTextListener)}
+     * directly.
      */
+    @Deprecated
     public static void setOnQueryTextListener(View searchView, OnQueryTextListener listener) {
-        IMPL.setOnQueryTextListener(searchView, listener);
+        checkIfLegalArg(searchView);
+        ((SearchView) searchView).setOnQueryTextListener(newOnQueryTextListener(listener));
+    }
+
+    private static SearchView.OnQueryTextListener newOnQueryTextListener(
+            final OnQueryTextListener listener) {
+        return new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return listener.onQueryTextSubmit(query);
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return listener.onQueryTextChange(newText);
+            }
+        };
     }
 
     /**
-     * @deprecated Use {@link OnQueryTextListener} instead.
+     * @deprecated Use {@link SearchView.OnQueryTextListener} instead.
      */
     @Deprecated
     public static abstract class OnQueryTextListenerCompat implements OnQueryTextListener {
@@ -364,8 +163,9 @@ public final class SearchViewCompat {
     }
 
     /**
-     * Callbacks for changes to the query text.
+     * @deprecated Use {@link SearchView.OnQueryTextListener} instead.
      */
+    @Deprecated
     public interface OnQueryTextListener {
         /**
          * Called when the user submits the query. This could be due to a key press on the
@@ -397,13 +197,26 @@ public final class SearchViewCompat {
      *
      * @param searchView The SearchView in which to register the listener.
      * @param listener the listener to call when the user closes the SearchView.
+     *
+     * @deprecated Use {@link SearchView#setOnCloseListener(SearchView.OnCloseListener)} directly.
      */
+    @Deprecated
     public static void setOnCloseListener(View searchView, OnCloseListener listener) {
-        IMPL.setOnCloseListener(searchView, listener);
+        checkIfLegalArg(searchView);
+        ((SearchView) searchView).setOnCloseListener(newOnCloseListener(listener));
+    }
+
+    private static SearchView.OnCloseListener newOnCloseListener(final OnCloseListener listener) {
+        return new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                return listener.onClose();
+            }
+        };
     }
 
     /**
-     * @deprecated Use {@link OnCloseListener} instead.
+     * @deprecated Use {@link SearchView.OnCloseListener} instead.
      */
     @Deprecated
     public static abstract class OnCloseListenerCompat implements OnCloseListener {
@@ -415,7 +228,10 @@ public final class SearchViewCompat {
 
     /**
      * Callback for closing the query UI.
+     *
+     * @deprecated Use {@link SearchView.OnCloseListener} instead.
      */
+    @Deprecated
     public interface OnCloseListener {
         /**
          * The user is attempting to close the SearchView.
@@ -432,9 +248,13 @@ public final class SearchViewCompat {
      * @param searchView The SearchView to operate on.
      *
      * @return the query string
+     *
+     * @deprecated Use {@link SearchView#getQuery()} directly.
      */
+    @Deprecated
     public static CharSequence getQuery(View searchView) {
-        return IMPL.getQuery(searchView);
+        checkIfLegalArg(searchView);
+        return ((SearchView) searchView).getQuery();
     }
 
     /**
@@ -445,9 +265,13 @@ public final class SearchViewCompat {
      * text field.
      * @param submit whether to submit the query right now or only update the contents of
      * text field.
+     *
+     * @deprecated Use {@link SearchView#setQuery(CharSequence, boolean)} directly.
      */
+    @Deprecated
     public static void setQuery(View searchView, CharSequence query, boolean submit) {
-        IMPL.setQuery(searchView, query, submit);
+        checkIfLegalArg(searchView);
+        ((SearchView) searchView).setQuery(query, submit);
     }
 
     /**
@@ -456,9 +280,13 @@ public final class SearchViewCompat {
      *
      * @param searchView The SearchView to operate on.
      * @param hint the hint text to display
+     *
+     * @deprecated Use {@link SearchView#setQueryHint(CharSequence)} directly.
      */
+    @Deprecated
     public static void setQueryHint(View searchView, CharSequence hint) {
-        IMPL.setQueryHint(searchView, hint);
+        checkIfLegalArg(searchView);
+        ((SearchView) searchView).setQueryHint(hint);
     }
 
     /**
@@ -471,9 +299,13 @@ public final class SearchViewCompat {
      * @param searchView The SearchView to operate on.
      * @param iconify a true value will collapse the SearchView to an icon, while a false will
      * expand it.
+     *
+     * @deprecated Use {@link SearchView#setIconified(boolean)} directly.
      */
+    @Deprecated
     public static void setIconified(View searchView, boolean iconify) {
-        IMPL.setIconified(searchView, iconify);
+        checkIfLegalArg(searchView);
+        ((SearchView) searchView).setIconified(iconify);
     }
 
     /**
@@ -482,9 +314,13 @@ public final class SearchViewCompat {
      * @param searchView The SearchView to operate on.
      * @return true if the SearchView is currently iconified, false if the search field is
      * fully visible.
+     *
+     * @deprecated Use {@link SearchView#isIconified()} directly.
      */
+    @Deprecated
     public static boolean isIconified(View searchView) {
-        return IMPL.isIconified(searchView);
+        checkIfLegalArg(searchView);
+        return ((SearchView) searchView).isIconified();
     }
 
     /**
@@ -495,9 +331,13 @@ public final class SearchViewCompat {
      * @param searchView The SearchView to operate on.
      * @param enabled true to show a submit button for submitting queries, false if a submit
      * button is not required.
+     *
+     * @deprecated Use {@link SearchView#setSubmitButtonEnabled(boolean)} directly.
      */
+    @Deprecated
     public static void setSubmitButtonEnabled(View searchView, boolean enabled) {
-        IMPL.setSubmitButtonEnabled(searchView, enabled);
+        checkIfLegalArg(searchView);
+        ((SearchView) searchView).setSubmitButtonEnabled(enabled);
     }
 
     /**
@@ -505,9 +345,13 @@ public final class SearchViewCompat {
      *
      * @param searchView The SearchView to operate on.
      * @return whether the submit button is enabled automatically when necessary
+     *
+     * @deprecated Use {@link SearchView#isSubmitButtonEnabled()} directly.
      */
+    @Deprecated
     public static boolean isSubmitButtonEnabled(View searchView) {
-        return IMPL.isSubmitButtonEnabled(searchView);
+        checkIfLegalArg(searchView);
+        return ((SearchView) searchView).isSubmitButtonEnabled();
     }
 
     /**
@@ -524,25 +368,37 @@ public final class SearchViewCompat {
      *
      * @see SearchManager#SUGGEST_COLUMN_FLAGS
      * @see SearchManager#FLAG_QUERY_REFINEMENT
+     *
+     * @deprecated Use {@link SearchView#setQueryRefinementEnabled(boolean)} directly.
      */
+    @Deprecated
     public static void setQueryRefinementEnabled(View searchView, boolean enable) {
-        IMPL.setQueryRefinementEnabled(searchView, enable);
+        checkIfLegalArg(searchView);
+        ((SearchView) searchView).setQueryRefinementEnabled(enable);
     }
 
     /**
      * Returns whether query refinement is enabled for all items or only specific ones.
      * @param searchView The SearchView to operate on.
      * @return true if enabled for all items, false otherwise.
+     *
+     * @deprecated Use {@link SearchView#isQueryRefinementEnabled()} directly.
      */
+    @Deprecated
     public static boolean isQueryRefinementEnabled(View searchView) {
-        return IMPL.isQueryRefinementEnabled(searchView);
+        checkIfLegalArg(searchView);
+        return ((SearchView) searchView).isQueryRefinementEnabled();
     }
 
     /**
      * Makes the view at most this many pixels wide
      * @param searchView The SearchView to operate on.
+     *
+     * @deprecated Use {@link SearchView#setMaxWidth(int)} directly.
      */
+    @Deprecated
     public static void setMaxWidth(View searchView, int maxpixels) {
-        IMPL.setMaxWidth(searchView, maxpixels);
+        checkIfLegalArg(searchView);
+        ((SearchView) searchView).setMaxWidth(maxpixels);
     }
 }

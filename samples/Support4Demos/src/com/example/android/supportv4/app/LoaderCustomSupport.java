@@ -36,7 +36,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.content.pm.ActivityInfoCompat;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.SearchViewCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,6 +47,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.example.android.supportv4.R;
@@ -437,36 +437,34 @@ public class LoaderCustomSupport extends FragmentActivity {
             item.setIcon(android.R.drawable.ic_menu_search);
             MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM
                     | MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-            final View searchView = SearchViewCompat.newSearchView(getActivity());
-            if (searchView != null) {
-                SearchViewCompat.setOnQueryTextListener(searchView,
-                        new SearchViewCompat.OnQueryTextListener() {
-                            @Override
-                            public boolean onQueryTextChange(String newText) {
-                                // Called when the action bar search text has changed.  Since this
-                                // is a simple array adapter, we can just have it do the filtering.
-                                mCurFilter = !TextUtils.isEmpty(newText) ? newText : null;
-                                mAdapter.getFilter().filter(mCurFilter);
-                                return true;
-                            }
+            final SearchView searchView = new SearchView(getActivity());
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    // Called when the action bar search text has changed.  Since this
+                    // is a simple array adapter, we can just have it do the filtering.
+                    mCurFilter = !TextUtils.isEmpty(newText) ? newText : null;
+                    mAdapter.getFilter().filter(mCurFilter);
+                    return true;
+                }
 
-                            @Override
-                            public boolean onQueryTextSubmit(String query) {
-                                return false;
-                            }
-                        });
-                SearchViewCompat.setOnCloseListener(searchView,
-                        new SearchViewCompat.OnCloseListener() {
-                            @Override
-                            public boolean onClose() {
-                                if (!TextUtils.isEmpty(SearchViewCompat.getQuery(searchView))) {
-                                    SearchViewCompat.setQuery(searchView, null, true);
-                                }
-                                return true;
-                            }
-                        });
-                MenuItemCompat.setActionView(item, searchView);
-            }
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+            });
+
+            searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+                @Override
+                public boolean onClose() {
+                    if (!TextUtils.isEmpty(searchView.getQuery())) {
+                        searchView.setQuery(null, true);
+                    }
+                    return true;
+                }
+            });
+
+            MenuItemCompat.setActionView(item, searchView);
         }
 
         @Override public void onListItemClick(ListView l, View v, int position, long id) {
