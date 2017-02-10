@@ -41,7 +41,6 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.LayoutInflaterCompat;
-import android.support.v4.view.LayoutInflaterFactory;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
@@ -95,7 +94,7 @@ import org.xmlpull.v1.XmlPullParser;
 
 @RequiresApi(9)
 class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
-        implements MenuBuilder.Callback, LayoutInflaterFactory {
+        implements MenuBuilder.Callback, LayoutInflater.Factory2 {
 
     private static final boolean IS_PRE_LOLLIPOP = Build.VERSION.SDK_INT < 21;
 
@@ -1060,10 +1059,9 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
     public void installViewFactory() {
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
         if (layoutInflater.getFactory() == null) {
-            LayoutInflaterCompat.setFactory(layoutInflater, this);
+            LayoutInflaterCompat.setFactory2(layoutInflater, this);
         } else {
-            if (!(LayoutInflaterCompat.getFactory(layoutInflater)
-                    instanceof AppCompatDelegateImplV9)) {
+            if (!(layoutInflater.getFactory2() instanceof AppCompatDelegateImplV9)) {
                 Log.i(TAG, "The Activity's LayoutInflater already has a Factory installed"
                         + " so we can not install AppCompat's");
             }
@@ -1071,7 +1069,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
     }
 
     /**
-     * From {@link android.support.v4.view.LayoutInflaterFactory}
+     * From {@link LayoutInflater.Factory2}.
      */
     @Override
     public final View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
@@ -1083,6 +1081,14 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
 
         // If the Factory didn't handle it, let our createView() method try
         return createView(parent, name, context, attrs);
+    }
+
+    /**
+     * From {@link LayoutInflater.Factory2}.
+     */
+    @Override
+    public View onCreateView(String name, Context context, AttributeSet attrs) {
+        return onCreateView(null, name, context, attrs);
     }
 
     View callActivityOnCreateView(View parent, String name, Context context, AttributeSet attrs) {

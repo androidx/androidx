@@ -1170,7 +1170,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
         LayoutInflater result = mHost.onGetLayoutInflater();
         getChildFragmentManager(); // Init if needed; use raw implementation below.
-        LayoutInflaterCompat.setFactory(result, mChildFragmentManager.getLayoutInflaterFactory());
+        LayoutInflaterCompat.setFactory2(result, mChildFragmentManager.getLayoutInflaterFactory());
         return result;
     }
 

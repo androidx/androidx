@@ -7335,11 +7335,12 @@ package android.support.v4.view {
   }
 
   public final class LayoutInflaterCompat {
-    method public static android.support.v4.view.LayoutInflaterFactory getFactory(android.view.LayoutInflater);
-    method public static void setFactory(android.view.LayoutInflater, android.support.v4.view.LayoutInflaterFactory);
+    method public static deprecated android.support.v4.view.LayoutInflaterFactory getFactory(android.view.LayoutInflater);
+    method public static deprecated void setFactory(android.view.LayoutInflater, android.support.v4.view.LayoutInflaterFactory);
+    method public static void setFactory2(android.view.LayoutInflater, android.view.LayoutInflater.Factory2);
   }
 
-  public abstract interface LayoutInflaterFactory {
+  public abstract deprecated interface LayoutInflaterFactory {
     method public abstract android.view.View onCreateView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
   }
 
