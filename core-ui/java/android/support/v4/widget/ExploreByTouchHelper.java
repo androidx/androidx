@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewCompat.FocusDirection;
 import android.support.v4.view.ViewCompat.FocusRealDirection;
@@ -223,7 +222,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
                 case KeyEvent.KEYCODE_DPAD_UP:
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
                 case KeyEvent.KEYCODE_DPAD_DOWN:
-                    if (KeyEventCompat.hasNoModifiers(event)) {
+                    if (event.hasNoModifiers()) {
                         final int direction = keyToDirection(keyCode);
                         final int count = 1 + event.getRepeatCount();
                         for (int i = 0; i < count; i++) {
@@ -237,7 +236,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
                     break;
                 case KeyEvent.KEYCODE_DPAD_CENTER:
                 case KeyEvent.KEYCODE_ENTER:
-                    if (KeyEventCompat.hasNoModifiers(event)) {
+                    if (event.hasNoModifiers()) {
                         if (event.getRepeatCount() == 0) {
                             clickKeyboardFocusedVirtualView();
                             handled = true;
@@ -245,9 +244,9 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
                     }
                     break;
                 case KeyEvent.KEYCODE_TAB:
-                    if (KeyEventCompat.hasNoModifiers(event)) {
+                    if (event.hasNoModifiers()) {
                         handled = moveFocus(View.FOCUS_FORWARD, null);
-                    } else if (KeyEventCompat.hasModifiers(event, KeyEvent.META_SHIFT_ON)) {
+                    } else if (event.hasModifiers(KeyEvent.META_SHIFT_ON)) {
                         handled = moveFocus(View.FOCUS_BACKWARD, null);
                     }
                     break;
