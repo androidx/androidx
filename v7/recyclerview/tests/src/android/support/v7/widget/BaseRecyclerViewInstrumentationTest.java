@@ -150,7 +150,11 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         });
     }
 
-    public View focusSearch(final View focused, final int direction)
+    public View focusSearch(final View focused, final int direction) throws Throwable {
+        return focusSearch(focused, direction, false);
+    }
+
+    public View focusSearch(final View focused, final int direction, boolean waitForScroll)
             throws Throwable {
         final View[] result = new View[1];
         mActivityRule.runOnUiThread(new Runnable() {
@@ -163,6 +167,9 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                 result[0] = view;
             }
         });
+        if (waitForScroll && (result[0] != null)) {
+            waitForIdleScroll(mRecyclerView);
+        }
         return result[0];
     }
 
@@ -480,7 +487,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         });
         getInstrumentation().waitForIdleSync();
         assertThat("should be able to scroll in 10 seconds", !assertArrival ||
-                viewAdded.await(10, TimeUnit.SECONDS),
+                        viewAdded.await(10, TimeUnit.SECONDS),
                 CoreMatchers.is(true));
         waitForIdleScroll(mRecyclerView);
         if (mDebug) {
@@ -548,6 +555,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             }
         }
     }
+
     public class TestLayoutManager extends RecyclerView.LayoutManager {
         int mScrollVerticallyAmount;
         int mScrollHorizontallyAmount;
@@ -1182,5 +1190,61 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         public void onDetached(RecyclerView recyclerView) {
             validateRemaining(recyclerView);
         }
+    }
+
+    /**
+     * Returns whether a child of RecyclerView is partially in bound. A child is
+     * partially in-bounds if it's either fully or partially visible on the screen.
+     * @param parent The RecyclerView holding the child.
+     * @param child The child view to be checked whether is partially (or fully) within RV's bounds.
+     * @return True if the child view is partially (or fully) visible; false otherwise.
+     */
+    public static boolean isViewPartiallyInBound(RecyclerView parent, View child) {
+        if (child == null) {
+            return false;
+        }
+        final int parentLeft = parent.getPaddingLeft();
+        final int parentTop = parent.getPaddingTop();
+        final int parentRight = parent.getWidth() - parent.getPaddingRight();
+        final int parentBottom = parent.getHeight() - parent.getPaddingBottom();
+
+        final int childLeft = child.getLeft() - child.getScrollX();
+        final int childTop = child.getTop() - child.getScrollY();
+        final int childRight = child.getRight() - child.getScrollX();
+        final int childBottom = child.getBottom() - child.getScrollY();
+
+        if (childLeft >= parentRight || childRight <= parentLeft
+                || childTop >= parentBottom || childBottom <= parentTop) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns whether a child of RecyclerView is fully in-bounds, that is it's fully visible
+     * on the screen.
+     * @param parent The RecyclerView holding the child.
+     * @param child The child view to be checked whether is fully within RV's bounds.
+     * @return True if the child view is fully visible; false otherwise.
+     */
+    public boolean isViewFullyInBound(RecyclerView parent, View child) {
+        if (child == null) {
+            return false;
+        }
+        final int parentLeft = parent.getPaddingLeft();
+        final int parentTop = parent.getPaddingTop();
+        final int parentRight = parent.getWidth() - parent.getPaddingRight();
+        final int parentBottom = parent.getHeight() - parent.getPaddingBottom();
+
+        final int childLeft = child.getLeft() - child.getScrollX();
+        final int childTop = child.getTop() - child.getScrollY();
+        final int childRight = child.getRight() - child.getScrollX();
+        final int childBottom = child.getBottom() - child.getScrollY();
+
+        if (childLeft >= parentLeft && childRight <= parentRight
+                && childTop >= parentTop && childBottom <= parentBottom) {
+            return true;
+        }
+        return false;
     }
 }
