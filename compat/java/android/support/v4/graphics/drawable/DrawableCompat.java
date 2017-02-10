@@ -125,7 +125,7 @@ public final class DrawableCompat {
         @Override
         public Drawable wrap(Drawable drawable) {
             if (!(drawable instanceof TintAwareDrawable)) {
-                return new DrawableWrapperHoneycomb(drawable);
+                return new DrawableWrapperGingerbread(drawable);
             }
             return drawable;
         }

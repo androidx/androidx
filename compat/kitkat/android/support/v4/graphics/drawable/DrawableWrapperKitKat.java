@@ -23,7 +23,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(19)
-class DrawableWrapperKitKat extends DrawableWrapperHoneycomb {
+class DrawableWrapperKitKat extends DrawableWrapperGingerbread {
 
     DrawableWrapperKitKat(Drawable drawable) {
         super(drawable);
