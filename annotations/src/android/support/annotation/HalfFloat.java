@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 /**
  * <p>Denotes that the annotated element represents a half-precision floating point
  * value. Such values are stored in short data types and can be manipulated with
- * the {@link android.util.Half} class. If applied to an array of short, every
+ * the <code>android.util.Half</code> class. If applied to an array of short, every
  * element in the array represents a half-precision float.</p>
  *
  * <p>Example:</p>
@@ -35,10 +35,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  * <pre>{@code
  * public abstract void setPosition(@HalfFloat short x, @HalfFloat short y, @HalfFloat short z);
  * }</pre>
- *
- * @see android.util.Half
- * @see android.util.Half#valueOf(float)
- * @see android.util.Half#toFloat(short)
  */
 @Retention(SOURCE)
 @Target({PARAMETER, METHOD, LOCAL_VARIABLE, FIELD})
