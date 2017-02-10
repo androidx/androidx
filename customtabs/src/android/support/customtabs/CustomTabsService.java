@@ -26,6 +26,8 @@ import android.os.RemoteException;
 import android.support.annotation.IntDef;
 import android.support.v4.util.ArrayMap;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -51,6 +53,7 @@ public abstract class CustomTabsService extends Service {
     public static final String KEY_URL =
             "android.support.customtabs.otherurls.URL";
 
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({RESULT_SUCCESS, RESULT_FAILURE_DISALLOWED,
             RESULT_FAILURE_REMOTE_ERROR, RESULT_FAILURE_MESSAGING_ERROR})
     public @interface Result {
