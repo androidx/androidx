@@ -94,6 +94,7 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestSupportActi
         assertTrue(input.getAllowedDataTypes().contains(MIME_TYPE));
     }
 
+    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testRemoteInputBuilder_addAndGetDataResultsFromIntent() throws Throwable {
         Uri uri = Uri.parse("Some Uri");
@@ -106,6 +107,7 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestSupportActi
         verifyIntentHasDataResults(intent, uri);
     }
 
+    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testRemoteInputBuilder_addAndGetTextResultsFromIntent() throws Throwable {
         CharSequence charSequence = "value doesn't matter";
