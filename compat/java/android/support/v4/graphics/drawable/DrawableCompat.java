@@ -21,15 +21,21 @@ import android.content.res.Resources;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
+import android.graphics.drawable.InsetDrawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.Log;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 /**
  * Helper for accessing features in {@link android.graphics.drawable.Drawable}
@@ -154,127 +160,208 @@ public final class DrawableCompat {
     static class HoneycombDrawableImpl extends BaseDrawableImpl {
         @Override
         public void jumpToCurrentState(Drawable drawable) {
-            DrawableCompatHoneycomb.jumpToCurrentState(drawable);
+            drawable.jumpToCurrentState();
         }
 
         @Override
         public Drawable wrap(Drawable drawable) {
-            return DrawableCompatHoneycomb.wrapForTinting(drawable);
+            if (!(drawable instanceof TintAwareDrawable)) {
+                return new DrawableWrapperHoneycomb(drawable);
+            }
+            return drawable;
         }
     }
 
+    @RequiresApi(17)
     static class JellybeanMr1DrawableImpl extends HoneycombDrawableImpl {
+        private static final String TAG = "DrawableCompatApi17";
+
+        private static Method sSetLayoutDirectionMethod;
+        private static boolean sSetLayoutDirectionMethodFetched;
+
+        private static Method sGetLayoutDirectionMethod;
+        private static boolean sGetLayoutDirectionMethodFetched;
+
         @Override
         public boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
-            return DrawableCompatJellybeanMr1.setLayoutDirection(drawable, layoutDirection);
+            if (!sSetLayoutDirectionMethodFetched) {
+                try {
+                    sSetLayoutDirectionMethod =
+                            Drawable.class.getDeclaredMethod("setLayoutDirection", int.class);
+                    sSetLayoutDirectionMethod.setAccessible(true);
+                } catch (NoSuchMethodException e) {
+                    Log.i(TAG, "Failed to retrieve setLayoutDirection(int) method", e);
+                }
+                sSetLayoutDirectionMethodFetched = true;
+            }
+
+            if (sSetLayoutDirectionMethod != null) {
+                try {
+                    sSetLayoutDirectionMethod.invoke(drawable, layoutDirection);
+                    return true;
+                } catch (Exception e) {
+                    Log.i(TAG, "Failed to invoke setLayoutDirection(int) via reflection", e);
+                    sSetLayoutDirectionMethod = null;
+                }
+            }
+            return false;
         }
 
         @Override
         public int getLayoutDirection(Drawable drawable) {
-            final int dir = DrawableCompatJellybeanMr1.getLayoutDirection(drawable);
-            return dir >= 0 ? dir : ViewCompat.LAYOUT_DIRECTION_LTR;
+            if (!sGetLayoutDirectionMethodFetched) {
+                try {
+                    sGetLayoutDirectionMethod = Drawable.class.getDeclaredMethod("getLayoutDirection");
+                    sGetLayoutDirectionMethod.setAccessible(true);
+                } catch (NoSuchMethodException e) {
+                    Log.i(TAG, "Failed to retrieve getLayoutDirection() method", e);
+                }
+                sGetLayoutDirectionMethodFetched = true;
+            }
+
+            if (sGetLayoutDirectionMethod != null) {
+                try {
+                    return (int) sGetLayoutDirectionMethod.invoke(drawable);
+                } catch (Exception e) {
+                    Log.i(TAG, "Failed to invoke getLayoutDirection() via reflection", e);
+                    sGetLayoutDirectionMethod = null;
+                }
+            }
+            return ViewCompat.LAYOUT_DIRECTION_LTR;
         }
     }
 
     /**
      * Interface implementation for devices with at least KitKat APIs.
      */
+    @RequiresApi(19)
     static class KitKatDrawableImpl extends JellybeanMr1DrawableImpl {
         @Override
         public void setAutoMirrored(Drawable drawable, boolean mirrored) {
-            DrawableCompatKitKat.setAutoMirrored(drawable, mirrored);
+            drawable.setAutoMirrored(mirrored);
         }
 
         @Override
         public boolean isAutoMirrored(Drawable drawable) {
-            return DrawableCompatKitKat.isAutoMirrored(drawable);
+            return drawable.isAutoMirrored();
         }
 
         @Override
         public Drawable wrap(Drawable drawable) {
-            return DrawableCompatKitKat.wrapForTinting(drawable);
+            if (!(drawable instanceof TintAwareDrawable)) {
+                return new DrawableWrapperKitKat(drawable);
+            }
+            return drawable;
         }
 
         @Override
         public int getAlpha(Drawable drawable) {
-            return DrawableCompatKitKat.getAlpha(drawable);
+            return drawable.getAlpha();
         }
     }
 
     /**
      * Interface implementation for devices with at least L APIs.
      */
+    @RequiresApi(21)
     static class LollipopDrawableImpl extends KitKatDrawableImpl {
         @Override
         public void setHotspot(Drawable drawable, float x, float y) {
-            DrawableCompatLollipop.setHotspot(drawable, x, y);
+            drawable.setHotspot(x, y);
         }
 
         @Override
         public void setHotspotBounds(Drawable drawable, int left, int top, int right, int bottom) {
-            DrawableCompatLollipop.setHotspotBounds(drawable, left, top, right, bottom);
+            drawable.setHotspotBounds(left, top, right, bottom);
         }
 
         @Override
         public void setTint(Drawable drawable, int tint) {
-            DrawableCompatLollipop.setTint(drawable, tint);
+            drawable.setTint(tint);
         }
 
         @Override
         public void setTintList(Drawable drawable, ColorStateList tint) {
-            DrawableCompatLollipop.setTintList(drawable, tint);
+            drawable.setTintList(tint);
         }
 
         @Override
         public void setTintMode(Drawable drawable, PorterDuff.Mode tintMode) {
-            DrawableCompatLollipop.setTintMode(drawable, tintMode);
+            drawable.setTintMode(tintMode);
         }
 
         @Override
         public Drawable wrap(Drawable drawable) {
-            return DrawableCompatLollipop.wrapForTinting(drawable);
+            if (!(drawable instanceof TintAwareDrawable)) {
+                return new DrawableWrapperLollipop(drawable);
+            }
+            return drawable;
         }
 
         @Override
         public void applyTheme(Drawable drawable, Resources.Theme t) {
-            DrawableCompatLollipop.applyTheme(drawable, t);
+            drawable.applyTheme(t);
         }
 
         @Override
         public boolean canApplyTheme(Drawable drawable) {
-            return DrawableCompatLollipop.canApplyTheme(drawable);
+            return drawable.canApplyTheme();
         }
 
         @Override
         public ColorFilter getColorFilter(Drawable drawable) {
-            return DrawableCompatLollipop.getColorFilter(drawable);
+            return drawable.getColorFilter();
         }
 
         @Override
         public void clearColorFilter(Drawable drawable) {
-            DrawableCompatLollipop.clearColorFilter(drawable);
+            drawable.clearColorFilter();
+
+            // API 21 + 22 have an issue where clearing a color filter on a DrawableContainer
+            // will not propagate to all of its children. To workaround this we unwrap the drawable
+            // to find any DrawableContainers, and then unwrap those to clear the filter on its
+            // children manually
+            if (drawable instanceof InsetDrawable) {
+                clearColorFilter(((InsetDrawable) drawable).getDrawable());
+            } else if (drawable instanceof DrawableWrapper) {
+                clearColorFilter(((DrawableWrapper) drawable).getWrappedDrawable());
+            } else if (drawable instanceof DrawableContainer) {
+                final DrawableContainer container = (DrawableContainer) drawable;
+                final DrawableContainer.DrawableContainerState state =
+                        (DrawableContainer.DrawableContainerState) container.getConstantState();
+                if (state != null) {
+                    Drawable child;
+                    for (int i = 0, count = state.getChildCount(); i < count; i++) {
+                        child = state.getChild(i);
+                        if (child != null) {
+                            clearColorFilter(child);
+                        }
+                    }
+                }
+            }
         }
 
         @Override
         public void inflate(Drawable drawable, Resources res, XmlPullParser parser,
                             AttributeSet attrs, Resources.Theme t)
                 throws IOException, XmlPullParserException {
-            DrawableCompatLollipop.inflate(drawable, res, parser, attrs, t);
+            drawable.inflate(res, parser, attrs, t);
         }
     }
 
     /**
      * Interface implementation for devices with at least M APIs.
      */
+    @RequiresApi(23)
     static class MDrawableImpl extends LollipopDrawableImpl {
         @Override
         public boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
-            return DrawableCompatApi23.setLayoutDirection(drawable, layoutDirection);
+            return drawable.setLayoutDirection(layoutDirection);
         }
 
         @Override
         public int getLayoutDirection(Drawable drawable) {
-            return DrawableCompatApi23.getLayoutDirection(drawable);
+            return drawable.getLayoutDirection();
         }
 
         @Override
