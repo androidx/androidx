@@ -20,7 +20,6 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Parcelable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
@@ -63,7 +62,6 @@ import android.view.ViewGroup;
  * {@sample frameworks/support/samples/Support13Demos/res/layout/fragment_pager_list.xml
  *      complete}
  */
-@RequiresApi(13)
 public abstract class FragmentPagerAdapter extends PagerAdapter {
     private static final String TAG = "FragmentPagerAdapter";
     private static final boolean DEBUG = false;
@@ -110,7 +108,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
                     makeFragmentName(container.getId(), itemId));
         }
         if (fragment != mCurrentPrimaryItem) {
-            FragmentCompat.setMenuVisibility(fragment, false);
+            fragment.setMenuVisibility(false);
             FragmentCompat.setUserVisibleHint(fragment, false);
         }
 
@@ -132,11 +130,11 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         Fragment fragment = (Fragment)object;
         if (fragment != mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
-                FragmentCompat.setMenuVisibility(mCurrentPrimaryItem, false);
+                mCurrentPrimaryItem.setMenuVisibility(false);
                 FragmentCompat.setUserVisibleHint(mCurrentPrimaryItem, false);
             }
             if (fragment != null) {
-                FragmentCompat.setMenuVisibility(fragment, true);
+                fragment.setMenuVisibility(true);
                 FragmentCompat.setUserVisibleHint(fragment, true);
             }
             mCurrentPrimaryItem = fragment;

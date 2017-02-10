@@ -25,19 +25,19 @@ import android.view.View;
  * Helper for accessing features in {@link View} introduced after API
  * level 13 in a backwards compatible fashion.
  */
-@RequiresApi(13)
 public class ViewCompat extends android.support.v4.view.ViewCompat {
     interface ViewCompatImpl {
         boolean startDragAndDrop(View v, ClipData data, View.DragShadowBuilder shadowBuilder,
-                                 Object localState, int flags);
+                Object localState, int flags);
         void cancelDragAndDrop(View v);
         void updateDragShadow(View v, View.DragShadowBuilder shadowBuilder);
     }
 
-    private static class BaseViewCompatImpl implements ViewCompatImpl {
-        BaseViewCompatImpl() {
+    private static class ViewCompatBaseImpl implements ViewCompatImpl {
+        ViewCompatBaseImpl() {
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public boolean startDragAndDrop(View v, ClipData data, View.DragShadowBuilder shadowBuilder,
                 Object localState, int flags) {
@@ -55,34 +55,33 @@ public class ViewCompat extends android.support.v4.view.ViewCompat {
         }
     }
 
-    private static class Api24ViewCompatImpl implements ViewCompatImpl {
-        Api24ViewCompatImpl() {
+    @RequiresApi(24)
+    private static class ViewCompatApi24Impl implements ViewCompatImpl {
+        ViewCompatApi24Impl() {}
+
+        @Override
+        public boolean startDragAndDrop(View view, ClipData data,
+                View.DragShadowBuilder shadowBuilder, Object localState, int flags) {
+            return view.startDragAndDrop(data, shadowBuilder, localState, flags);
         }
 
         @Override
-        public boolean startDragAndDrop(View v, ClipData data, View.DragShadowBuilder shadowBuilder,
-                Object localState, int flags) {
-            return ViewCompatApi24.startDragAndDrop(
-                    v, data, shadowBuilder, localState, flags);
+        public void cancelDragAndDrop(View view) {
+            view.cancelDragAndDrop();
         }
 
         @Override
-        public void cancelDragAndDrop(View v) {
-            ViewCompatApi24.cancelDragAndDrop(v);
-        }
-
-        @Override
-        public void updateDragShadow(View v, View.DragShadowBuilder shadowBuilder) {
-            ViewCompatApi24.updateDragShadow(v, shadowBuilder);
+        public void updateDragShadow(View view, View.DragShadowBuilder shadowBuilder) {
+            view.updateDragShadow(shadowBuilder);
         }
     }
 
     static ViewCompatImpl IMPL;
     static {
         if (BuildCompat.isAtLeastN()) {
-            IMPL = new Api24ViewCompatImpl();
+            IMPL = new ViewCompatApi24Impl();
         } else {
-            IMPL = new BaseViewCompatImpl();
+            IMPL = new ViewCompatBaseImpl();
         }
     }
 
