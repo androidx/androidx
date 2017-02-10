@@ -9,6 +9,8 @@
 We **are not** currently accepting new modules, features, or behavior changes.
 
 ## Checking Out the Code
+**NOTE: You will need to use Linux or Mac OS. Building under Windows is not currently supported.**
+
 Follow the [“Downloading the Source”](https://source.android.com/source/downloading.html) guide to install and set up `repo` tool, but instead of running the listed `repo` commands to initialize the repository, run the folowing:
 
     repo init -u https://android.googlesource.com/platform/manifest -b ub-supportlib-master
