@@ -18,6 +18,7 @@ package android.support.v4.view.accessibility;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.TargetApi;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -1812,6 +1813,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    @TargetApi(16)
     static class AccessibilityNodeInfoJellybeanImpl extends AccessibilityNodeInfoIcsImpl {
         @Override
         public Object obtain(View root, int virtualDescendantId) {
@@ -1879,6 +1881,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    @TargetApi(17)
     static class AccessibilityNodeInfoJellybeanMr1Impl extends AccessibilityNodeInfoJellybeanImpl {
 
         @Override
@@ -1912,6 +1915,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    @TargetApi(18)
     static class AccessibilityNodeInfoJellybeanMr2Impl extends
             AccessibilityNodeInfoJellybeanMr1Impl {
 
@@ -1962,6 +1966,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    @TargetApi(19)
     static class AccessibilityNodeInfoKitKatImpl extends AccessibilityNodeInfoJellybeanMr2Impl {
         @Override
         public int getLiveRegion(Object info) {
@@ -2141,6 +2146,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    @TargetApi(21)
     static class AccessibilityNodeInfoApi21Impl extends AccessibilityNodeInfoKitKatImpl {
         @Override
         public Object newAccessibilityAction(int actionId, CharSequence label) {
@@ -2232,6 +2238,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    @TargetApi(22)
     static class AccessibilityNodeInfoApi22Impl extends AccessibilityNodeInfoApi21Impl {
         @Override
         public Object getTraversalBefore(Object info) {
@@ -2264,6 +2271,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    @TargetApi(23)
     static class AccessibilityNodeInfoApi23Impl extends AccessibilityNodeInfoApi22Impl {
         @Override
         public Object getActionScrollToPosition() {
@@ -2311,6 +2319,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    @TargetApi(24)
     static class AccessibilityNodeInfoApi24Impl extends AccessibilityNodeInfoApi23Impl {
         @Override
         public Object getActionSetProgress() {

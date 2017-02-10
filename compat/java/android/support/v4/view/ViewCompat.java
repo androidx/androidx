@@ -19,6 +19,7 @@ package android.support.v4.view;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.content.res.ColorStateList;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -1031,8 +1032,7 @@ public class ViewCompat {
         @Override
         public void setAccessibilityDelegate(View v,
                 @Nullable AccessibilityDelegateCompat delegate) {
-            ViewCompatICS.setAccessibilityDelegate(v,
-                    delegate == null ? null : delegate.getBridge());
+            v.setAccessibilityDelegate(delegate == null ? null : delegate.getBridge());
         }
 
         @Override
@@ -1077,6 +1077,7 @@ public class ViewCompat {
         }
     }
 
+    @TargetApi(15)
     static class ICSMr1ViewCompatImpl extends ICSViewCompatImpl {
         @Override
         public boolean hasOnClickListeners(View view) {
@@ -1084,6 +1085,7 @@ public class ViewCompat {
         }
     }
 
+    @TargetApi(16)
     static class JBViewCompatImpl extends ICSMr1ViewCompatImpl {
         @Override
         public boolean hasTransientState(View view) {
@@ -1172,6 +1174,7 @@ public class ViewCompat {
         }
     }
 
+    @TargetApi(17)
     static class JbMr1ViewCompatImpl extends JBViewCompatImpl {
 
         @Override
@@ -1230,6 +1233,7 @@ public class ViewCompat {
         }
     }
 
+    @TargetApi(18)
     static class JbMr2ViewCompatImpl extends JbMr1ViewCompatImpl {
         @Override
         public void setClipBounds(View view, Rect clipBounds) {
@@ -1247,6 +1251,7 @@ public class ViewCompat {
         }
     }
 
+    @TargetApi(19)
     static class KitKatViewCompatImpl extends JbMr2ViewCompatImpl {
         @Override
         public int getAccessibilityLiveRegion(View view) {
@@ -1279,6 +1284,7 @@ public class ViewCompat {
         }
     }
 
+    @TargetApi(21)
     static class LollipopViewCompatImpl extends KitKatViewCompatImpl {
         @Override
         public void setTransitionName(View view, String transitionName) {
@@ -1444,6 +1450,7 @@ public class ViewCompat {
         }
     }
 
+    @TargetApi(23)
     static class MarshmallowViewCompatImpl extends LollipopViewCompatImpl {
         @Override
         public void setScrollIndicators(View view, int indicators) {
@@ -1472,6 +1479,7 @@ public class ViewCompat {
         }
     }
 
+    @TargetApi(24)
     static class Api24ViewCompatImpl extends MarshmallowViewCompatImpl {
         @Override
         public void dispatchStartTemporaryDetach(View view) {
@@ -1490,6 +1498,7 @@ public class ViewCompat {
         }
     }
 
+    @TargetApi(26)
     static class Api26ViewCompatImpl extends Api24ViewCompatImpl {
         @Override
         public void setTooltipText(View view, CharSequence tooltipText) {
@@ -1684,8 +1693,6 @@ public class ViewCompat {
      * Sets a delegate for implementing accessibility support via composition
      * (as opposed to inheritance). For more details, see
      * {@link AccessibilityDelegateCompat}.
-     * <p>
-     * On platform versions prior to API 14, this method is a no-op.
      * <p>
      * <strong>Note:</strong> On platform versions prior to
      * {@link android.os.Build.VERSION_CODES#M API 23}, delegate methods on

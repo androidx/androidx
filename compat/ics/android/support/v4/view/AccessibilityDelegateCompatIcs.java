@@ -30,22 +30,19 @@ import android.view.accessibility.AccessibilityNodeInfo;
 @RequiresApi(14)
 class AccessibilityDelegateCompatIcs {
 
-    public interface AccessibilityDelegateBridge {
-        public boolean dispatchPopulateAccessibilityEvent(View host, AccessibilityEvent event);
-        public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event);
-        public void onInitializeAccessibilityNodeInfo(View host, Object info);
-        public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event);
-        public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
+    interface AccessibilityDelegateBridge {
+        boolean dispatchPopulateAccessibilityEvent(View host, AccessibilityEvent event);
+        void onInitializeAccessibilityEvent(View host, AccessibilityEvent event);
+        void onInitializeAccessibilityNodeInfo(View host, Object info);
+        void onPopulateAccessibilityEvent(View host, AccessibilityEvent event);
+        boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
             AccessibilityEvent event);
-        public void sendAccessibilityEvent(View host, int eventType);
-        public void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event);
+        void sendAccessibilityEvent(View host, int eventType);
+        void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event);
     }
 
-    public static Object newAccessibilityDelegateDefaultImpl() {
-        return new AccessibilityDelegate();
-    }
-
-    public static Object newAccessibilityDelegateBridge(final AccessibilityDelegateBridge bridge) {
+    public static AccessibilityDelegate newAccessibilityDelegateBridge(
+            final AccessibilityDelegateBridge bridge) {
         return new AccessibilityDelegate() {
             @Override
             public boolean dispatchPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
@@ -83,40 +80,5 @@ class AccessibilityDelegateCompatIcs {
                 bridge.sendAccessibilityEventUnchecked(host, event);
             }
         };
-    }
-
-    public static boolean dispatchPopulateAccessibilityEvent(Object delegate, View host,
-            AccessibilityEvent event) {
-        return ((AccessibilityDelegate) delegate).dispatchPopulateAccessibilityEvent(host, event);
-    }
-
-    public static void onInitializeAccessibilityEvent(Object delegate, View host,
-            AccessibilityEvent event) {
-        ((AccessibilityDelegate) delegate).onInitializeAccessibilityEvent(host, event);
-    }
-
-    public static void onInitializeAccessibilityNodeInfo(Object delegate, View host, Object info) {
-        ((AccessibilityDelegate) delegate).onInitializeAccessibilityNodeInfo(host,
-                (AccessibilityNodeInfo) info);
-    }
-
-    public static void onPopulateAccessibilityEvent(Object delegate, View host,
-            AccessibilityEvent event) {
-        ((AccessibilityDelegate) delegate).onPopulateAccessibilityEvent(host, event);
-    }
-
-    public static boolean onRequestSendAccessibilityEvent(Object delegate, ViewGroup host,
-            View child, AccessibilityEvent event) {
-        return ((AccessibilityDelegate) delegate).onRequestSendAccessibilityEvent(host, child,
-                event);
-    }
-
-    public static void sendAccessibilityEvent(Object delegate, View host, int eventType) {
-        ((AccessibilityDelegate) delegate).sendAccessibilityEvent(host, eventType);
-    }
-
-    public static void sendAccessibilityEventUnchecked(Object delegate, View host,
-            AccessibilityEvent event) {
-        ((AccessibilityDelegate) delegate).sendAccessibilityEventUnchecked(host, event);
     }
 }
