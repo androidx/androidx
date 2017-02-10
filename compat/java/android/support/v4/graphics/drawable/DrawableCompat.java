@@ -43,110 +43,69 @@ import java.lang.reflect.Method;
  */
 public final class DrawableCompat {
     /**
-     * Interface for the full API.
-     */
-    interface DrawableImpl {
-        void jumpToCurrentState(Drawable drawable);
-        void setAutoMirrored(Drawable drawable, boolean mirrored);
-        boolean isAutoMirrored(Drawable drawable);
-        void setHotspot(Drawable drawable, float x, float y);
-        void setHotspotBounds(Drawable drawable, int left, int top, int right, int bottom);
-        void setTint(Drawable drawable, int tint);
-        void setTintList(Drawable drawable, ColorStateList tint);
-        void setTintMode(Drawable drawable, PorterDuff.Mode tintMode);
-        Drawable wrap(Drawable drawable);
-        boolean setLayoutDirection(Drawable drawable, int layoutDirection);
-        int getLayoutDirection(Drawable drawable);
-        int getAlpha(Drawable drawable);
-        void applyTheme(Drawable drawable, Resources.Theme t);
-        boolean canApplyTheme(Drawable drawable);
-        ColorFilter getColorFilter(Drawable drawable);
-        void clearColorFilter(Drawable drawable);
-        void inflate(Drawable drawable, Resources res, XmlPullParser parser, AttributeSet attrs,
-                     Resources.Theme t) throws IOException, XmlPullParserException;
-    }
-
-    /**
      * Interface implementation that doesn't use anything about v4 APIs.
      */
-    static class BaseDrawableImpl implements DrawableImpl {
-        @Override
+    static class BaseDrawableImpl {
         public void jumpToCurrentState(Drawable drawable) {
         }
 
-        @Override
         public void setAutoMirrored(Drawable drawable, boolean mirrored) {
         }
 
-        @Override
         public boolean isAutoMirrored(Drawable drawable) {
             return false;
         }
 
-        @Override
         public void setHotspot(Drawable drawable, float x, float y) {
         }
 
-        @Override
         public void setHotspotBounds(Drawable drawable, int left, int top, int right, int bottom) {
         }
 
-        @Override
         public void setTint(Drawable drawable, int tint) {
             DrawableCompatBase.setTint(drawable, tint);
         }
 
-        @Override
         public void setTintList(Drawable drawable, ColorStateList tint) {
             DrawableCompatBase.setTintList(drawable, tint);
         }
 
-        @Override
         public void setTintMode(Drawable drawable, PorterDuff.Mode tintMode) {
             DrawableCompatBase.setTintMode(drawable, tintMode);
         }
 
-        @Override
         public Drawable wrap(Drawable drawable) {
             return DrawableCompatBase.wrapForTinting(drawable);
         }
 
-        @Override
         public boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
             // No op for API < 23
             return false;
         }
 
-        @Override
         public int getLayoutDirection(Drawable drawable) {
             return ViewCompat.LAYOUT_DIRECTION_LTR;
         }
 
-        @Override
         public int getAlpha(Drawable drawable) {
             return 0;
         }
 
-        @Override
         public void applyTheme(Drawable drawable, Resources.Theme t) {
         }
 
-        @Override
         public boolean canApplyTheme(Drawable drawable) {
             return false;
         }
 
-        @Override
         public ColorFilter getColorFilter(Drawable drawable) {
             return null;
         }
 
-        @Override
         public void clearColorFilter(Drawable drawable) {
             drawable.clearColorFilter();
         }
 
-        @Override
         public void inflate(Drawable drawable, Resources res, XmlPullParser parser,
                             AttributeSet attrs, Resources.Theme t)
                 throws IOException, XmlPullParserException {
@@ -380,7 +339,7 @@ public final class DrawableCompat {
     /**
      * Select the correct implementation to use for the current platform.
      */
-    static final DrawableImpl IMPL;
+    static final BaseDrawableImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
         if (version >= 23) {
