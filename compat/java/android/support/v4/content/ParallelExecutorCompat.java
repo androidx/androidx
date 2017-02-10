@@ -16,22 +16,25 @@
 
 package android.support.v4.content;
 
-import android.os.Build;
+import android.os.AsyncTask;
 
 import java.util.concurrent.Executor;
 
 /**
  * Helper for accessing a shared parallel Executor instance
  * introduced after API level 4 in a backwards compatible fashion.
+ *
+ * @deprecated Use {@link AsyncTask} directly.
  */
+@Deprecated
 public final class ParallelExecutorCompat {
+
+    /**
+     * @deprecated Use {@link AsyncTask#THREAD_POOL_EXECUTOR} directly.
+     */
+    @Deprecated
     public static Executor getParallelExecutor() {
-        if (Build.VERSION.SDK_INT >= 11) {
-            // From API 11 onwards, return AsyncTask.THREAD_POOL_EXECUTOR
-            return ExecutorCompatHoneycomb.getParallelExecutor();
-        } else {
-            return ModernAsyncTask.THREAD_POOL_EXECUTOR;
-        }
+        return AsyncTask.THREAD_POOL_EXECUTOR;
     }
 
     private ParallelExecutorCompat() {}
