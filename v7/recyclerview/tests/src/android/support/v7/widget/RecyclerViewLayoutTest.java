@@ -326,7 +326,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 holder.itemView.setFocusableInTouchMode(true);
                 holder.itemView.setLayoutParams(
                         new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                                ViewGroup.LayoutParams.WRAP_CONTENT));
             }
         });
         TestLayoutManager tlm = new TestLayoutManager() {
@@ -355,7 +355,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
             @Override
             public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
-                                            RecyclerView.State state) {
+                    RecyclerView.State state) {
                 super.scrollHorizontallyBy(dx, recycler, state);
                 // offset by -dx because the views translate opposite of the scrolling direction
                 mRecyclerView.offsetChildrenHorizontal(-dx);
@@ -364,7 +364,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
             @Override
             public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
-                                          RecyclerView.State state) {
+                    RecyclerView.State state) {
                 super.scrollVerticallyBy(dy, recycler, state);
                 // offset by -dy because the views translate opposite of the scrolling direction
                 mRecyclerView.offsetChildrenVertical(-dy);
@@ -604,7 +604,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
             @Override
             public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
-                                          RecyclerView.State state) {
+                    RecyclerView.State state) {
                 // Access views in the state (that might have been deleted).
                 for (int  i = 10; i < state.getItemCount(); i++) {
                     recycler.getViewForPosition(i);
@@ -728,8 +728,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             @Nullable
             @Override
             public View onFocusSearchFailed(View focused, int direction,
-                                            RecyclerView.Recycler recycler,
-                                            RecyclerView.State state) {
+                    RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
                 try {
                     recycler.getViewForPosition(state.getItemCount() - 1);
                 } catch (Throwable t) {
@@ -4246,7 +4246,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
                             @Override
                             protected void onTargetFound(View targetView, RecyclerView.State state,
-                                                         Action action) {
+                                    Action action) {
                                 super.onTargetFound(targetView, state, action);
                                 mTargetFound.set(true);
                             }
