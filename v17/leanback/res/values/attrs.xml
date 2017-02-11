@@ -522,6 +522,14 @@
         <attr name="guidedActionContentWidthNoIcon" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="lbTimePicker">
+        <!-- attr indicating whether time is in 24 hour format (true) or AM/PM format (false). -->
+        <attr name="is24HourFormat" format="boolean" />
+        <!-- attr indicating whether time fields should be initially set to the current time.
+         By default, it's true i.e. TimePicker initializes fields with the current time. -->
+        <attr name="useCurrentTime" format="boolean" />
+    </declare-styleable>
+
     <declare-styleable name="lbDatePicker">
         <attr name="android:minDate" />
         <attr name="android:maxDate" />
