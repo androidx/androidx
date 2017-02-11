@@ -4748,6 +4748,18 @@ package android.support.v17.leanback.widget.picker {
     method public void setStaticLabels(java.lang.CharSequence[]);
   }
 
+  public class TimePicker extends android.support.v17.leanback.widget.picker.Picker {
+    ctor public TimePicker(android.content.Context, android.util.AttributeSet);
+    ctor public TimePicker(android.content.Context, android.util.AttributeSet, int);
+    method public int getHour();
+    method public int getMinute();
+    method public boolean is24Hour();
+    method public boolean isPm();
+    method public void setHour(int);
+    method public void setIs24Hour(boolean);
+    method public void setMinute(int);
+  }
+
 }
 
 package android.support.v17.preference {
