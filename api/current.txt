@@ -3093,6 +3093,7 @@ package android.support.v17.leanback.media {
 
   public static abstract class PlaybackGlueHost.HostCallback {
     ctor public PlaybackGlueHost.HostCallback();
+    method public void onHostDestroy();
     method public void onHostPause();
     method public void onHostResume();
     method public void onHostStart();
