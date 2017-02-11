@@ -134,20 +134,22 @@ class MediaSessionCompatApi21 {
         ((MediaSession) sessionObj).setExtras(extras);
     }
 
-    interface Callback extends MediaSessionCompatApi19.Callback {
-        public void onCommand(String command, Bundle extras, ResultReceiver cb);
-        public boolean onMediaButtonEvent(Intent mediaButtonIntent);
-        public void onPlay();
-        public void onPlayFromMediaId(String mediaId, Bundle extras);
-        public void onPlayFromSearch(String search, Bundle extras);
-        public void onSkipToQueueItem(long id);
-        public void onPause();
-        public void onSkipToNext();
-        public void onSkipToPrevious();
-        public void onFastForward();
-        public void onRewind();
-        public void onStop();
-        public void onCustomAction(String action, Bundle extras);
+    interface Callback {
+        void onCommand(String command, Bundle extras, ResultReceiver cb);
+        boolean onMediaButtonEvent(Intent mediaButtonIntent);
+        void onPlay();
+        void onPlayFromMediaId(String mediaId, Bundle extras);
+        void onPlayFromSearch(String search, Bundle extras);
+        void onSkipToQueueItem(long id);
+        void onPause();
+        void onSkipToNext();
+        void onSkipToPrevious();
+        void onFastForward();
+        void onRewind();
+        void onStop();
+        void onSeekTo(long position);
+        void onSetRating(Object ratingObject);
+        void onCustomAction(String action, Bundle extras);
     }
 
     static class CallbackProxy<T extends Callback> extends MediaSession.Callback {
