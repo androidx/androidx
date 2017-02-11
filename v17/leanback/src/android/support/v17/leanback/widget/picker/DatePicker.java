@@ -59,7 +59,7 @@ public class DatePicker extends Picker {
 
     final static String DATE_FORMAT = "MM/dd/yyyy";
     final DateFormat mDateFormat = new SimpleDateFormat(DATE_FORMAT);
-    PickerConstant mConstant;
+    PickerUtility.DateConstant mConstant;
 
     Calendar mMinDate;
     Calendar mMaxDate;
@@ -179,23 +179,13 @@ public class DatePicker extends Picker {
         return mDatePickerFormat;
     }
 
-    private Calendar getCalendarForLocale(Calendar oldCalendar, Locale locale) {
-        if (oldCalendar == null) {
-            return Calendar.getInstance(locale);
-        } else {
-            final long currentTimeMillis = oldCalendar.getTimeInMillis();
-            Calendar newCalendar = Calendar.getInstance(locale);
-            newCalendar.setTimeInMillis(currentTimeMillis);
-            return newCalendar;
-        }
-    }
-
     private void updateCurrentLocale() {
-        mConstant = new PickerConstant(Locale.getDefault(), getContext().getResources());
-        mTempDate = getCalendarForLocale(mTempDate, mConstant.locale);
-        mMinDate = getCalendarForLocale(mMinDate, mConstant.locale);
-        mMaxDate = getCalendarForLocale(mMaxDate, mConstant.locale);
-        mCurrentDate = getCalendarForLocale(mCurrentDate, mConstant.locale);
+        mConstant = PickerUtility.getDateConstantInstance(Locale.getDefault(),
+                getContext().getResources());
+        mTempDate = PickerUtility.getCalendarForLocale(mTempDate, mConstant.locale);
+        mMinDate = PickerUtility.getCalendarForLocale(mMinDate, mConstant.locale);
+        mMaxDate = PickerUtility.getCalendarForLocale(mMaxDate, mConstant.locale);
+        mCurrentDate = PickerUtility.getCalendarForLocale(mCurrentDate, mConstant.locale);
 
         if (mMonthColumn != null) {
             mMonthColumn.setStaticLabels(mConstant.months);
