@@ -15,7 +15,7 @@ Follow the [“Downloading the Source”](https://source.android.com/source/down
 
     repo init -u https://android.googlesource.com/platform/manifest -b ub-supportlib-master
 
-Now your repository is set to pull only what you need for building and running support library. Download the code (and grab a coffee while we pull down 10GB):
+Now your repository is set to pull only what you need for building and running support library. Download the code (and grab a coffee while we pull down 7GB):
 
     repo sync -j8 -c
 
