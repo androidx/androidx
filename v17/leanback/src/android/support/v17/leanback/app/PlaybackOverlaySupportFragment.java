@@ -790,6 +790,9 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
     @Override
     public void onDestroyView() {
         mRootView = null;
+        if (mHostCallback != null) {
+            mHostCallback.onHostDestroy();
+        }
         super.onDestroyView();
     }
 

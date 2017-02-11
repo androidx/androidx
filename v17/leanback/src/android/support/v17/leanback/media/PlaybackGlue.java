@@ -21,10 +21,12 @@ import android.support.annotation.CallSuper;
 
 /**
  * Base class for abstraction of media play/pause feature. A subclass of PlaybackGlue will contain
- * implementation of Media Player. App initializes PlaybackGlue subclass, associated it with a
- * {@link PlaybackGlueHost}. {@link PlaybackGlueHost} is typically implemented by a Fragment or
- * an Activity, it provides the environment to render UI for PlaybackGlue object, it optionally
- * provides SurfaceHolder via {@link SurfaceHolderGlueHost} to render video.
+ * implementation of Media Player or a connection to playback Service. App initializes
+ * PlaybackGlue subclass, associated it with a {@link PlaybackGlueHost}. {@link PlaybackGlueHost}
+ * is typically implemented by a Fragment or an Activity, it provides the environment to render UI
+ * for PlaybackGlue object, it optionally provides SurfaceHolder via {@link SurfaceHolderGlueHost}
+ * to render video. A PlaybackGlue should release resources (e.g. MediaPlayer or connection to
+ * playback Service) in {@link #onDetachedFromHost()}.
  *
  * @see PlaybackGlueHost
  */
@@ -58,7 +60,10 @@ public abstract class PlaybackGlue {
 
     /**
      * Returns true when the media player is ready to start media playback. Subclasses must
-     * implement this method correctly.
+     * implement this method correctly. When returning false, app may listen to
+     * {@link PlayerCallback#onReadyForPlayback()} event.
+     *
+     * @see PlayerCallback#onReadyForPlayback()
      */
     public boolean isReadyForPlayback() {
         return true;
@@ -161,13 +166,20 @@ public abstract class PlaybackGlue {
             public void onHostPause() {
                 PlaybackGlue.this.onHostPause();
             }
+
+            @Override
+            public void onHostDestroy() {
+                if (mPlaybackGlueHost != null) {
+                    mPlaybackGlueHost.attachToGlue(null);
+                }
+            }
         });
     }
 
     /**
      * This method is called when current associated {@link PlaybackGlueHost} is attached to a
-     * different {@link PlaybackGlue}. Subclass may override and call super.onDetachedFromHost()
-     * at last.
+     * different {@link PlaybackGlue} or {@link PlaybackGlueHost} is destroyed . Subclass may
+     * override and call super.onDetachedFromHost() at last.
      */
     @CallSuper
     protected void onDetachedFromHost() {
