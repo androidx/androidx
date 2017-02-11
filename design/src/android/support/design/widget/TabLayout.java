@@ -1787,6 +1787,8 @@ public class TabLayout extends HorizontalScrollView {
         int mSelectedPosition = -1;
         float mSelectionOffset;
 
+        private int mLayoutDirection = -1;
+
         private int mIndicatorLeft = -1;
         private int mIndicatorRight = -1;
 
@@ -1834,6 +1836,21 @@ public class TabLayout extends HorizontalScrollView {
 
         float getIndicatorPosition() {
             return mSelectedPosition + mSelectionOffset;
+        }
+
+        @Override
+        public void onRtlPropertiesChanged(int layoutDirection) {
+            super.onRtlPropertiesChanged(layoutDirection);
+
+            // Workaround for a bug before Android M where LinearLayout did not relayout itself when
+            // layout direction changed.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                //noinspection WrongConstant
+                if (mLayoutDirection != layoutDirection) {
+                    requestLayout();
+                    mLayoutDirection = layoutDirection;
+                }
+            }
         }
 
         @Override
