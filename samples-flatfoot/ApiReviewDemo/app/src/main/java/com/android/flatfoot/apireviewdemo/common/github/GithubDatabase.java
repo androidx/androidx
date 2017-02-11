@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle;
+package com.android.flatfoot.apireviewdemo.common.github;
+
+import com.android.flatfoot.apireviewdemo.common.entity.Person;
+import com.android.support.room.Database;
+import com.android.support.room.RoomDatabase;
 
 /**
- * Marks a class as a LifecycleObserver. It does not have any methods, instead, relies on
- * {@link OnLifecycleEvent} annotated methods.
- * <p>
- * @see Lifecycle Lifecycle - for samples and usage patterns.
+ * Database for Github entities.
  */
-@SuppressWarnings("WeakerAccess")
-public interface LifecycleObserver {
-
+@Database(entities = {Person.class})
+public abstract class GithubDatabase extends RoomDatabase {
+    /**
+     * Gets the data access object.
+     */
+    public abstract GithubDao getGithubDao();
 }

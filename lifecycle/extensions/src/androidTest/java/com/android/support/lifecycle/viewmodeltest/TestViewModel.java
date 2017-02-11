@@ -18,5 +18,5 @@ package com.android.support.lifecycle.viewmodeltest;
 
 import com.android.support.lifecycle.ViewModel;
 
-public class TestViewModel implements ViewModel {
+public class TestViewModel extends ViewModel {
 }

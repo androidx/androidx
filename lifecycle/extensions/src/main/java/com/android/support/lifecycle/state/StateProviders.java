@@ -59,7 +59,21 @@ public class StateProviders {
         return holder;
     }
 
+    /**
+     * @hide
+     */
+    public static HolderFragment holderFragmentFor(LifecycleProvider scope) {
+        if (scope instanceof Fragment) {
+            return holderFragmentFor(((Fragment) scope).getChildFragmentManager());
+        }
+        if (scope instanceof FragmentActivity) {
+            return holderFragmentFor(((FragmentActivity) scope).getSupportFragmentManager());
+        }
+        throw new IllegalArgumentException();
+    }
+
     //TODO: figure out how to handle LifecycleProvider
+
     /**
      * Returns {@link SavedStateProvider} associated with the given LifecycleProvider.
      *

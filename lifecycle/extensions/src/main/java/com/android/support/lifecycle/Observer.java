@@ -23,7 +23,7 @@ import android.support.annotation.Nullable;
  *
  * @param <T> The type of the parameter
  *
- * @see LiveData for samples and usage patterns.
+ * @see LiveData LiveData - for a usage description.
  */
 public interface Observer<T> {
     /**

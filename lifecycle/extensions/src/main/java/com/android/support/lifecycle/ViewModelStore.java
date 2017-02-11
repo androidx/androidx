@@ -18,13 +18,23 @@ package com.android.support.lifecycle;
 
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 
+import com.android.support.lifecycle.state.HolderFragment;
 import com.android.support.lifecycle.state.RetainedStateProvider;
 import com.android.support.lifecycle.state.StateProviders;
 import com.android.support.lifecycle.state.StateValue;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Utility class to create managed ViewModels.
+ *
+ * @see ViewModel ViewModel - for samples and usage patterns.
  */
 public class ViewModelStore {
     /**
@@ -33,7 +43,7 @@ public class ViewModelStore {
     private static final String KEY_PREFIX = "com.android.support.lifecycle.extensions.viewModel.";
 
     /**
-     * Returns an existing ViewModel or create a new one for the given scope with the given key.
+     * Returns an existing ViewModel or creates a new one for the given scope with the given key.
      * <p>
      * The created ViewModel is associated with the given LifecycleProvider and will be retained
      * as long as the scope (LifecycleProvider) is alive (e.g. if it is an activity, until it is
@@ -44,6 +54,7 @@ public class ViewModelStore {
      * @param modelClass The class of the ViewModel to create an instance of it if it is not
      *                   present.
      * @param <T> The type parameter for the ViewModel.
+     *
      * @return A ViewModel that is an instance of the given type {@code T}.
      */
     @NonNull
@@ -58,6 +69,16 @@ public class ViewModelStore {
             try {
                 viewModel = createViewModel(modelClass);
                 stateValue.set(viewModel);
+                HolderFragment holderFragment = StateProviders.holderFragmentFor(scope);
+                add(holderFragment, viewModel);
+                holderFragment.getFragmentManager().registerFragmentLifecycleCallbacks(
+                        new FragmentManager.FragmentLifecycleCallbacks() {
+                            @Override
+                            public void onFragmentDestroyed(FragmentManager fm, Fragment f) {
+                                removeAndClear(f);
+                            }
+                        }, false);
+
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Cannot create an instance of " + modelClass, e);
             } catch (InstantiationException e) {
@@ -65,6 +86,27 @@ public class ViewModelStore {
             }
         }
         return viewModel;
+    }
+
+    private static Map<Fragment, List<ViewModel>> holderToVm = new HashMap<>();
+
+    private static void add(Fragment fragment, ViewModel vm) {
+        List<ViewModel> viewModels = holderToVm.get(fragment);
+        if (viewModels == null) {
+            viewModels = new ArrayList<>();
+            holderToVm.put(fragment, viewModels);
+        }
+        viewModels.add(vm);
+    }
+
+    private static  void removeAndClear(Fragment fragment) {
+        List<ViewModel> remove = holderToVm.remove(fragment);
+        if (remove == null) {
+            return;
+        }
+        for (ViewModel vm: remove) {
+            vm.onCleared();
+        }
     }
 
     private static <T extends ViewModel> T createViewModel(Class<T> modelClass)

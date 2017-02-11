@@ -291,6 +291,22 @@ public class LiveDataTest {
         assertThat(mLiveData.getActiveObserverCount(), is(2));
     }
 
+    @Test
+    public void testObserverWithoutLifecycleProvider() {
+        Observer<String> observer = (Observer<String>) mock(Observer.class);
+        mLiveData.setValue("boring");
+        mLiveData.observe(observer);
+        verify(mActiveObserversChanged).onCall(true);
+        verify(observer).onChanged("boring");
+        mLiveData.setValue("tihs");
+        verify(observer).onChanged("tihs");
+        mLiveData.removeObserver(observer);
+        verify(mActiveObserversChanged).onCall(false);
+        mLiveData.setValue("boring");
+        reset(observer);
+        verify(observer, never()).onChanged(anyString());
+    }
+
     @SuppressWarnings("WeakerAccess")
     static class PublicLiveData<T> extends LiveData<T> {
         // cannot spy due to internal calls

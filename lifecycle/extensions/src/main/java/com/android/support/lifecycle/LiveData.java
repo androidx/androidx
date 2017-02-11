@@ -62,6 +62,24 @@ public class LiveData<T> {
     private static final Object NOT_SET = new Object();
     private boolean mPendingActiveChanges = false;
 
+    private static final LifecycleProvider ALWAYS_ON = new LifecycleProvider() {
+
+        private LifecycleRegistry mRegistry = init();
+
+        private LifecycleRegistry init() {
+            LifecycleRegistry registry = new LifecycleRegistry(this);
+            registry.handleLifecycleEvent(Lifecycle.ON_CREATE);
+            registry.handleLifecycleEvent(Lifecycle.ON_START);
+            registry.handleLifecycleEvent(Lifecycle.ON_RESUME);
+            return registry;
+        }
+
+        @Override
+        public Lifecycle getLifecycle() {
+            return mRegistry;
+        }
+    };
+
     @VisibleForTesting
     ObserverSet<LifecycleBoundObserver> mObservers =
             new ObserverSet<LifecycleBoundObserver>() {
@@ -200,6 +218,25 @@ public class LiveData<T> {
         }
         final LifecycleBoundObserver wrapper = new LifecycleBoundObserver(provider, observer);
         mObservers.add(wrapper);
+    }
+
+    /**
+     * Adds the given observer to the observers list. This call is similar to
+     * {@link LiveData#observe(LifecycleProvider, Observer)} with a LifecycleProvider, which
+     * is always active. This means that the given observer will receive all events and will never
+     * be automatically removed. You should manually call {@link #removeObserver(Observer)} to stop
+     * observing this LiveData.
+     * While LiveData has one of such observers, it will be considered
+     * as active.
+     * <p>
+     * If the observer was already added with a provider to this LiveData, LiveData throws an
+     * {@link IllegalArgumentException}.
+
+     * @param observer The observer that will receive the events
+     */
+    @MainThread
+    public void observe(Observer<T> observer) {
+        observe(ALWAYS_ON, observer);
     }
 
     /**

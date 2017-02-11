@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ApiReviewDemo</string>
+    <string name="location_sample">Location Sample</string>
+    <string name="live_location_sample">LiveLocation Sample</string>
+    <string name="one_account_github">One Account</string>
+    <string name="force_refresh">Force refresh</string>
+    <string name="switch_account">Switch Account</string>
+    <string name="current_chosen_color">Current chosen color:</string>
+    <string name="none">None</string>
+    <string name="shapes_label">Shapes Activity</string>
+</resources>
