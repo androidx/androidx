@@ -15,6 +15,7 @@
  */
 package android.support.v17.leanback.app;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -27,6 +28,8 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.media.PlaybackControlGlue;
+import android.support.v17.leanback.media.PlaybackGlue;
+import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
@@ -54,6 +57,26 @@ public class PlaybackFragmentTest {
     public ActivityTestRule<PlaybackTestActivity> activityTestRule =
             new ActivityTestRule<>(PlaybackTestActivity.class, false, false);
     private PlaybackTestActivity mActivity;
+
+    @Test
+    public void testDetachCalledWhenDestroyFragment() throws Throwable {
+        Intent intent = new Intent();
+        mActivity = activityTestRule.launchActivity(intent);
+        PlaybackTestFragment fragment = mActivity.getPlaybackFragment();
+        PlaybackGlue glue = fragment.getGlue();
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.finish();
+            }
+        });
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mActivity.isDestroyed();
+            }
+        });
+        assertNull(glue.getHost());
+    }
 
     @Test
     public void testSelectedListener() throws Throwable {
