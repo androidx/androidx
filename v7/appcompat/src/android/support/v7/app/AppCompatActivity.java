@@ -491,7 +491,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     /**
      * {@inheritDoc}
      *
-     * <p>Please note: AppCompat uses it's own feature id for the action bar:
+     * <p>Please note: AppCompat uses its own feature id for the action bar:
      * {@link AppCompatDelegate#FEATURE_SUPPORT_ACTION_BAR FEATURE_SUPPORT_ACTION_BAR}.</p>
      */
     @Override
@@ -502,7 +502,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     /**
      * {@inheritDoc}
      *
-     * <p>Please note: AppCompat uses it's own feature id for the action bar:
+     * <p>Please note: AppCompat uses its own feature id for the action bar:
      * {@link AppCompatDelegate#FEATURE_SUPPORT_ACTION_BAR FEATURE_SUPPORT_ACTION_BAR}.</p>
      */
     @Override

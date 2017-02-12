@@ -1129,7 +1129,7 @@ public class ListPopupWindow implements ShowableListMenu {
              * This Runnable exists for the sole purpose of checking if the view layout has got
              * completed and if so call showDropDown to display the drop down. This is used to show
              * the drop down as soon as possible after user opens up the search dialog, without
-             * waiting for the normal UI pipeline to do it's job which is slower than this method.
+             * waiting for the normal UI pipeline to do its job which is slower than this method.
              */
             mShowDropDownRunnable = new Runnable() {
                 @Override

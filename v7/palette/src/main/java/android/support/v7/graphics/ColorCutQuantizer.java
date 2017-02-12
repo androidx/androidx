@@ -289,7 +289,7 @@ final class ColorCutQuantizer {
         }
 
         /**
-         * Split this color box at the mid-point along it's longest dimension
+         * Split this color box at the mid-point along its longest dimension
          *
          * @return the new ColorBox
          */
@@ -343,7 +343,7 @@ final class ColorCutQuantizer {
 
             // We need to sort the colors in this box based on the longest color dimension.
             // As we can't use a Comparator to define the sort logic, we modify each color so that
-            // it's most significant is the desired dimension
+            // its most significant is the desired dimension
             modifySignificantOctet(colors, longestDimension, mLowerIndex, mUpperIndex);
 
             // Now sort... Arrays.sort uses a exclusive toIndex so we need to add 1

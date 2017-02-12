@@ -230,7 +230,7 @@ public class ListViewCompat extends ListView {
 
         try {
             // AbsListView.mIsChildViewEnabled controls the selector's state so we need to
-            // modify it's value
+            // modify its value
             final boolean isChildViewEnabled = mIsChildViewEnabled.getBoolean(this);
             if (sel.isEnabled() != isChildViewEnabled) {
                 mIsChildViewEnabled.set(this, !isChildViewEnabled);
