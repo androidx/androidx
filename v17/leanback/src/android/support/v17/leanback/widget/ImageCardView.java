@@ -259,7 +259,7 @@ public class ImageCardView extends BaseCardView {
             setInfoAreaBackground(background);
         }
         // Backward compatibility: There has to be an icon in the default
-        // version. If there is one, we have to set it's visibility to 'GONE'.
+        // version. If there is one, we have to set its visibility to 'GONE'.
         // Disabling 'adjustIconVisibility' allows the user to set the icon's
         // visibility state in XML rather than code.
         if (mBadgeImage != null && mBadgeImage.getDrawable() == null) {

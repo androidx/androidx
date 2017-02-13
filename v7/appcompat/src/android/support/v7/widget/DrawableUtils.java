@@ -135,7 +135,7 @@ public class DrawableUtils {
         }
 
         if (drawable instanceof DrawableContainer) {
-            // If we have a DrawableContainer, let's traverse it's child array
+            // If we have a DrawableContainer, let's traverse its child array
             final Drawable.ConstantState state = drawable.getConstantState();
             if (state instanceof DrawableContainer.DrawableContainerState) {
                 final DrawableContainer.DrawableContainerState containerState =
@@ -163,7 +163,7 @@ public class DrawableUtils {
 
     /**
      * VectorDrawable has an issue on API 21 where it sometimes doesn't create its tint filter.
-     * Fixed by toggling it's state to force a filter creation.
+     * Fixed by toggling its state to force a filter creation.
      */
     private static void fixVectorDrawableTinting(final Drawable drawable) {
         final int[] originalState = drawable.getState();

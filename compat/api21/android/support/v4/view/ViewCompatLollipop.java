@@ -207,7 +207,7 @@ class ViewCompatLollipop {
                     view.getRight(), view.getBottom());
         }
 
-        // Now offset, invoking the API 11+ implementation (which contains it's own workarounds)
+        // Now offset, invoking the API 11+ implementation (which contains its own workarounds)
         ViewCompatHC.offsetTopAndBottom(view, offset);
 
         // The view has now been offset, so let's intersect the Rect and invalidate where
@@ -232,7 +232,7 @@ class ViewCompatLollipop {
                     view.getRight(), view.getBottom());
         }
 
-        // Now offset, invoking the API 11+ implementation (which contains it's own workarounds)
+        // Now offset, invoking the API 11+ implementation (which contains its own workarounds)
         ViewCompatHC.offsetLeftAndRight(view, offset);
 
         // The view has now been offset, so let's intersect the Rect and invalidate where
