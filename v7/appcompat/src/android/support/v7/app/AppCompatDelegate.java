@@ -519,7 +519,7 @@ public abstract class AppCompatDelegate {
      * manually, then you probably do not want to enable this. You have been warned.</p>
      *
      * <p>Even with this disabled, you can still use vector resources through
-     * {@link android.support.v7.widget.AppCompatImageView#setImageResource(int)} and it's
+     * {@link android.support.v7.widget.AppCompatImageView#setImageResource(int)} and its
      * {@code app:srcCompat} attribute. They can also be used in anything which AppCompat inflates
      * for you, such as menu resources.</p>
      *

@@ -335,7 +335,7 @@ public final class ColorUtils {
     }
 
     /**
-     * Convert the ARGB color to it's CIE XYZ representative components.
+     * Convert the ARGB color to its CIE XYZ representative components.
      *
      * <p>The resulting XYZ representation will use the D65 illuminant and the CIE
      * 2° Standard Observer (1931).</p>
@@ -354,7 +354,7 @@ public final class ColorUtils {
     }
 
     /**
-     * Convert RGB components to it's CIE XYZ representative components.
+     * Convert RGB components to its CIE XYZ representative components.
      *
      * <p>The resulting XYZ representation will use the D65 illuminant and the CIE
      * 2° Standard Observer (1931).</p>

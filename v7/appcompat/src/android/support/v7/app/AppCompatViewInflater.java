@@ -56,7 +56,7 @@ import java.util.Map;
  * should only be used when running on those devices.
  * <p>This class two main responsibilities: the first is to 'inject' our tinted views in place of
  * the framework versions in layout inflation; the second is backport the {@code android:theme}
- * functionality for any inflated widgets. This include theme inheritance from it's parent.
+ * functionality for any inflated widgets. This include theme inheritance from its parent.
  */
 class AppCompatViewInflater {
 
@@ -147,7 +147,7 @@ class AppCompatViewInflater {
         }
 
         if (view != null) {
-            // If we have created a view, check it's android:onClick
+            // If we have created a view, check its android:onClick
             checkOnClickListener(view, attrs);
         }
 

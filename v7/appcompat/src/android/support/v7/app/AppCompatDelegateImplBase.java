@@ -300,7 +300,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     abstract void onTitleChanged(CharSequence title);
 
     final CharSequence getTitle() {
-        // If the original window callback is an Activity, we'll use it's title
+        // If the original window callback is an Activity, we'll use its title
         if (mOriginalWindowCallback instanceof Activity) {
             return ((Activity) mOriginalWindowCallback).getTitle();
         }

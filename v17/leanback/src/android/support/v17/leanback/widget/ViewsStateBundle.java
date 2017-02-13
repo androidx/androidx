@@ -34,7 +34,7 @@ import static android.support.v17.leanback.widget.BaseGridView.SAVE_ALL_CHILD;
  * {@link #SAVE_LIMITED_CHILD} {@link #SAVE_ALL_CHILD}.
  * <p>
  * This class serves purpose of nested "listview" e.g.  a vertical list of horizontal list.
- * Vertical list maintains id->bundle mapping of all it's children (even the children is offscreen
+ * Vertical list maintains id->bundle mapping of all its children (even the children is offscreen
  * and being pruned).
  * <p>
  * The class is currently used within {@link GridLayoutManager}, but it might be used by other
