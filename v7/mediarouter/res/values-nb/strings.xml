@@ -25,10 +25,11 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"Cast til"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Finner enheter"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Koble fra"</string>
-    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"Stopp castingen"</string>
+    <string name="mr_controller_stop_casting" msgid="8857886794086583226">"Stopp castingen"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"Lukk"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"Spill av"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"Sett på pause"</string>
+    <string name="mr_controller_stop" msgid="735874641921425123">"Stopp"</string>
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"Utvid"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"Skjul"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"Albumgrafikk"</string>

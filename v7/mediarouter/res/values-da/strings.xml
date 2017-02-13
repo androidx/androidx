@@ -25,10 +25,11 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"Cast til"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Finder enheder"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Afbryd"</string>
-    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"Stop med at caste"</string>
+    <string name="mr_controller_stop_casting" msgid="8857886794086583226">"Stop med at caste"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"Luk"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"Afspil"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"Sæt på pause"</string>
+    <string name="mr_controller_stop" msgid="735874641921425123">"Stop"</string>
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"Udvid"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"Skjul"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"Albumgrafik"</string>

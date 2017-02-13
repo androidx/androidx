@@ -25,10 +25,13 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"ಇದಕ್ಕೆ ಬಿತ್ತರಿಸಿ"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"ಸಾಧನಗಳನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"ಸಂಪರ್ಕ ಕಡಿತಗೊಳಿಸು"</string>
-    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"ಬಿತ್ತರಿಸುವಿಕೆ ನಿಲ್ಲಿಸು"</string>
+    <!-- no translation found for mr_controller_stop_casting (8857886794086583226) -->
+    <skip />
     <string name="mr_controller_close_description" msgid="7333862312480583260">"ಮುಚ್ಚು"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"ಪ್ಲೇ ಮಾಡಿ"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"ವಿರಾಮ"</string>
+    <!-- no translation found for mr_controller_stop (735874641921425123) -->
+    <skip />
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"ವಿಸ್ತರಿಸು"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"ಸಂಕುಚಿಸು"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"ಆಲ್ಬಮ್ ಕಲೆ"</string>

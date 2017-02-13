@@ -25,10 +25,13 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"Ülekandmine seadmesse"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Seadmete otsimine"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Katkesta ühendus"</string>
-    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"Peata ülekanne"</string>
+    <!-- no translation found for mr_controller_stop_casting (8857886794086583226) -->
+    <skip />
     <string name="mr_controller_close_description" msgid="7333862312480583260">"Sulgemine"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"Esitamine"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"Peatamine"</string>
+    <!-- no translation found for mr_controller_stop (735874641921425123) -->
+    <skip />
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"Laiendamine"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"Ahendamine"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"Albumi kujundus"</string>

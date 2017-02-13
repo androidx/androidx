@@ -25,10 +25,11 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"העבר אל"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"מחפש מכשירים"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"נתק"</string>
-    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"עצור העברה"</string>
+    <string name="mr_controller_stop_casting" msgid="8857886794086583226">"הפסק את ההעברה"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"סגור"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"הפעל"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"השהה"</string>
+    <string name="mr_controller_stop" msgid="735874641921425123">"הפסק"</string>
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"הרחב"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"כווץ"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"עטיפת אלבום"</string>

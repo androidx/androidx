@@ -25,10 +25,13 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"આના પર કાસ્ટ કરો"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"ઉપકરણો શોધી રહ્યાં છીએ"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"ડિસ્કનેક્ટ કરો"</string>
-    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"કાસ્ટ કરવાનું રોકો"</string>
+    <!-- no translation found for mr_controller_stop_casting (8857886794086583226) -->
+    <skip />
     <string name="mr_controller_close_description" msgid="7333862312480583260">"બંધ કરો"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"ચલાવો"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"થોભાવો"</string>
+    <!-- no translation found for mr_controller_stop (735874641921425123) -->
+    <skip />
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"વિસ્તૃત કરો"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"સંકુચિત કરો"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"આલ્બમ કલા"</string>

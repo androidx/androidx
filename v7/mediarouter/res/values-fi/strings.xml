@@ -25,10 +25,11 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"Suoratoiston kohde"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Etsitään laitteita"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Katkaise yhteys"</string>
-    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"Lopeta suoratoisto"</string>
+    <string name="mr_controller_stop_casting" msgid="8857886794086583226">"Lopeta suoratoisto"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"Sulje"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"Toista"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"Keskeytä"</string>
+    <string name="mr_controller_stop" msgid="735874641921425123">"Pysäytä"</string>
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"Laajenna"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"Tiivistä"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"Albumin kansikuva"</string>

@@ -25,10 +25,11 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"Предаване към"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Търсят се устройства"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Прекратяване на връзката"</string>
-    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"Спиране на предаването"</string>
+    <string name="mr_controller_stop_casting" msgid="8857886794086583226">"Спиране на предаването"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"Затваряне"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"Пускане"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"Поставяне на пауза"</string>
+    <string name="mr_controller_stop" msgid="735874641921425123">"Спиране"</string>
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"Разгъване"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"Свиване"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"Обложка на албума"</string>
