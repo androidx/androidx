@@ -85,7 +85,7 @@ public class PlaybackGlueTest {
     public void glueAndHostInteraction() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         PlaybackGlue glue = Mockito.spy(new PlaybackGlueImpl(context));
-        PlaybackGlueHostImpl host = Mockito.spy(new PlaybackGlueHostImpl());
+        PlaybackGlueHostImpl host = new PlaybackGlueHostImpl();
 
         glue.setHost(host);
         Mockito.verify(glue, times(1)).onAttachedToHost(host);
