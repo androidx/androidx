@@ -23,7 +23,7 @@ import android.view.View;
  *
  * <p>Apps may choose to implement this interface if they want to apply custom policy
  * to the way that window insets are treated for a view. If an OnApplyWindowInsetsListener
- * is set, it's
+ * is set, its
  * {@link #onApplyWindowInsets(android.view.View, WindowInsetsCompat) onApplyWindowInsets}
  * method will be called instead of the View's own {@code onApplyWindowInsets} method.
  * The listener may optionally call the parameter View's <code>onApplyWindowInsets</code>
