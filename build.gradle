@@ -45,6 +45,7 @@ ext.extraVersion = 43
 ext.supportRepoOut = ''
 ext.buildNumber = Integer.toString(ext.extraVersion)
 
+ext.buildToolsVersion = '25.0.0'
 ext.testRunnerVersion = '0.6-alpha'
 ext.espressoVersion = '2.3-alpha'
 
@@ -52,19 +53,20 @@ ext.espressoVersion = '2.3-alpha'
 // required for the doclava dependency.
 ext.usePrebuilts = "true"
 
+// Prevent the Android Gradle plug-in from automatically downloading SDK dependencies.
+ext['android.builder.sdkDownload'] = false
+
 final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
 System.setProperty('android.dir', "${rootDir}/../../")
 final String fullSdkPath = "${rootDir}/../../prebuilts/fullsdk-${platform}"
 if (file(fullSdkPath).exists()) {
     gradle.ext.currentSdk = 25
-    ext.buildToolsVersion = '24.0.1'
     project.ext.androidJar = files("${fullSdkPath}/platforms/android-${gradle.ext.currentSdk}/android.jar")
     System.setProperty('android.home', "${rootDir}/../../prebuilts/fullsdk-${platform}")
     File props = file("local.properties")
     props.write "sdk.dir=${fullSdkPath}"
 } else {
     gradle.ext.currentSdk = 'current'
-    ext.buildToolsVersion = '24.0.1'
     project.ext.androidJar = files("${project.rootDir}/../../prebuilts/sdk/current/android.jar")
     File props = file("local.properties")
     props.write "android.dir=../../"
