@@ -299,10 +299,10 @@ public class BrowseFragment extends BaseFragment {
     }
 
     /**
-     * Interface that defines the interaction between {@link BrowseFragment} and it's main
+     * Interface that defines the interaction between {@link BrowseFragment} and its main
      * content fragment. The key method is {@link MainFragmentAdapter#getFragment()},
      * it will be used to get the fragment to be shown in the content section. Clients can
-     * provide any implementation of fragment and customize it's interaction with
+     * provide any implementation of fragment and customize its interaction with
      * {@link BrowseFragment} by overriding the necessary methods.
      *
      * <p>
@@ -419,7 +419,7 @@ public class BrowseFragment extends BaseFragment {
     }
 
     /**
-     * Interface to be implemented by {@link RowsFragment} and it's subclasses for providing
+     * Interface to be implemented by {@link RowsFragment} and its subclasses for providing
      * an instance of {@link MainFragmentRowsAdapter}.
      */
     public interface MainFragmentRowsAdapterProvider {
@@ -552,7 +552,7 @@ public class BrowseFragment extends BaseFragment {
 
     /**
      * Factory class responsible for creating fragment given the current item. {@link ListRow}
-     * should returns {@link RowsFragment} or it's subclass whereas {@link PageRow}
+     * should return {@link RowsFragment} or its subclass whereas {@link PageRow}
      * can return any fragment class.
      */
     public abstract static class FragmentFactory<T extends Fragment> {

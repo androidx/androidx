@@ -102,7 +102,7 @@ public final class BitmapCompat {
      * Returns the size of the allocated memory used to store this bitmap's pixels in a backwards
      * compatible way.
      *
-     * @param bitmap the bitmap in which to return it's allocation size
+     * @param bitmap the bitmap in which to return its allocation size
      * @return the allocation size in bytes
      */
     public static int getAllocationByteCount(Bitmap bitmap) {

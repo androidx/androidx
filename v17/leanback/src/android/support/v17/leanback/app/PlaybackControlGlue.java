@@ -65,7 +65,7 @@ import android.view.View;
  * </p>
  *
  * <p>This helper implements a key event handler. If you pass a
- * {@link PlaybackOverlayFragment}, it will configure it's
+ * {@link PlaybackOverlayFragment}, it will configure its
  * fragment to intercept all key events.  Otherwise, you should set the glue object as key event
  * handler to the ViewHolder when bound by your row presenter; see
  * {@link RowPresenter.ViewHolder#setOnKeyListener(android.view.View.OnKeyListener)}.
