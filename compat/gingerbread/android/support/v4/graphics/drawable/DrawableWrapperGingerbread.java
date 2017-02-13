@@ -35,7 +35,7 @@ import android.support.annotation.RequiresApi;
  * This functionality is accessed via static methods in {@code DrawableCompat}.
  */
 
-@RequiresApi(9)
+@RequiresApi(14)
 class DrawableWrapperGingerbread extends Drawable
         implements Drawable.Callback, DrawableWrapper, TintAwareDrawable {
 
@@ -84,6 +84,11 @@ class DrawableWrapperGingerbread extends Drawable
     protected Drawable newDrawableFromState(@NonNull Drawable.ConstantState state,
             @Nullable Resources res) {
         return state.newDrawable(res);
+    }
+
+    @Override
+    public void jumpToCurrentState() {
+        mDrawable.jumpToCurrentState();
     }
 
     @Override
