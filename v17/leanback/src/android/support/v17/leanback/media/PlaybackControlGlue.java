@@ -254,6 +254,12 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
         enableProgressUpdating(false);
     }
 
+    @Override
+    protected void onDetachedFromHost() {
+        enableProgressUpdating(false);
+        super.onDetachedFromHost();
+    }
+
     /**
      * Instantiating a {@link PlaybackControlsRow} and corresponding
      * {@link PlaybackControlsRowPresenter}. Subclass may override.
@@ -393,7 +399,9 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
     public void updateProgress() {
         int position = getCurrentPosition();
         if (DEBUG) Log.v(TAG, "updateProgress " + position);
-        mControlsRow.setCurrentTime(position);
+        if (mControlsRow != null) {
+            mControlsRow.setCurrentTime(position);
+        }
     }
 
     /**

@@ -241,6 +241,15 @@ public class DetailsSupportFragmentBackgroundController {
                 mPlaybackGlue.setHost(onCreateGlueHost());
             }
         }
+        if (mPlaybackGlue != null && mPlaybackGlue.isReadyForPlayback()) {
+            mPlaybackGlue.play();
+        }
+    }
+
+    void onStop() {
+        if (mPlaybackGlue != null) {
+            mPlaybackGlue.pause();
+        }
     }
 
     /**

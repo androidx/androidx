@@ -541,6 +541,14 @@ public class DetailsFragment extends BaseFragment {
         }
     }
 
+    @Override
+    public void onStop() {
+        if (mDetailsBackgroundController != null) {
+            mDetailsBackgroundController.onStop();
+        }
+        super.onStop();
+    }
+
     /**
      * Called on every visible row to change view status when current selected row position
      * or selected sub position changed.  Subclass may override.   The default
