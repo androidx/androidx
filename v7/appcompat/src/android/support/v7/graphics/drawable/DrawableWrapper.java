@@ -30,7 +30,7 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.View;
 
 /**
- * Drawable which delegates all calls to it's wrapped {@link Drawable}.
+ * Drawable which delegates all calls to its wrapped {@link Drawable}.
  * <p>
  * The wrapped {@link Drawable} <em>must</em> be fully released from any {@link View}
  * before wrapping, otherwise internal {@link Drawable.Callback} may be dropped.

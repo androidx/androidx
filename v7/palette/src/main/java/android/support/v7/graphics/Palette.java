@@ -657,7 +657,7 @@ public final class Palette {
         /**
          * Set the resize value when using a {@link android.graphics.Bitmap} as the source.
          * If the bitmap's largest dimension is greater than the value specified, then the bitmap
-         * will be resized so that it's largest dimension matches {@code maxDimension}. If the
+         * will be resized so that its largest dimension matches {@code maxDimension}. If the
          * bitmap is smaller or equal, the original is used as-is.
          *
          * @deprecated Using {@link #resizeBitmapArea(int)} is preferred since it can handle
@@ -677,7 +677,7 @@ public final class Palette {
         /**
          * Set the resize value when using a {@link android.graphics.Bitmap} as the source.
          * If the bitmap's area is greater than the value specified, then the bitmap
-         * will be resized so that it's area matches {@code area}. If the
+         * will be resized so that its area matches {@code area}. If the
          * bitmap is smaller or equal, the original is used as-is.
          * <p>
          * This value has a large effect on the processing time. The larger the resized image is,

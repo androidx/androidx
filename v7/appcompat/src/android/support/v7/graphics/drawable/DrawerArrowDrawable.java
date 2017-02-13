@@ -439,8 +439,8 @@ public class DrawerArrowDrawable extends Drawable {
     /**
      * Set the progress of the arrow.
      *
-     * <p>A value of {@code 0.0} indicates that the arrow should be drawn in it's starting
-     * position. A value of {@code 1.0} indicates that the arrow should be drawn in it's ending
+     * <p>A value of {@code 0.0} indicates that the arrow should be drawn in its starting
+     * position. A value of {@code 1.0} indicates that the arrow should be drawn in its ending
      * position.</p>
      */
     public void setProgress(@FloatRange(from = 0.0, to = 1.0) float progress) {

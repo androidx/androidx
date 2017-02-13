@@ -471,7 +471,7 @@ public final class DrawableCompat {
      * drawable, such as its bounds, level, visibility and state.</p>
      *
      * <p>You must use the result of this call. If the given drawable is being used by a view
-     * (as it's background for instance), you must replace the original drawable with
+     * (as its background for instance), you must replace the original drawable with
      * the result of this call:</p>
      *
      * <pre>

@@ -30,7 +30,7 @@ import java.util.ArrayList;
 
 /**
  * Generic drawable class that can be composed of multiple children. Whenever the bounds changes
- * for this class, it updates those of it's children.
+ * for this class, it updates those of its children.
  */
 public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
