@@ -26,12 +26,11 @@ public final class MenuCompat {
     /**
      * Call {@link MenuItem#setShowAsAction(int) MenuItem.setShowAsAction()}.
      *
-     * @deprecated Use {@link MenuItemCompat#setShowAsAction(MenuItem, int)
-     *     MenuItemCompat.setShowAsAction(MenuItem, int)}
+     * @deprecated Use {@link MenuItem#setShowAsAction(int)} directly.
      */
     @Deprecated
     public static void setShowAsAction(MenuItem item, int actionEnum) {
-        MenuItemCompat.setShowAsAction(item, actionEnum);
+        item.setShowAsAction(actionEnum);
     }
 
     private MenuCompat() {}

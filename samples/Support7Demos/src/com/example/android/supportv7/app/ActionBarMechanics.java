@@ -16,7 +16,6 @@
 package com.example.android.supportv7.app;
 
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -56,7 +55,7 @@ public class ActionBarMechanics extends AppCompatActivity {
         // Items that show as actions should favor the "if room" setting, which will
         // prevent too many buttons from crowding the bar. Extra items will show in the
         // overflow area.
-        MenuItemCompat.setShowAsAction(actionItem, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+        actionItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         // Items that show as actions are strongly encouraged to use an icon.
         // These icons are shown without a text description, and therefore should

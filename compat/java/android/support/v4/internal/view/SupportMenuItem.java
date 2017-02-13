@@ -20,7 +20,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ActionProvider;
-import android.support.v4.view.MenuItemCompat;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -165,9 +164,11 @@ public interface SupportMenuItem extends android.view.MenuItem {
     /**
      * Expand the action view associated with this menu item. The menu item must have an action view
      * set, as well as the showAsAction flag {@link #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW}. If a
-     * listener has been set using {@link #setSupportOnActionExpandListener(android.support.v4.view.MenuItemCompat.OnActionExpandListener)}
-     * it will have its {@link android.support.v4.view.MenuItemCompat.OnActionExpandListener#onMenuItemActionExpand(MenuItem)} method
-     * invoked. The listener may return false from this method to prevent expanding the action view.
+     * listener has been set using
+     * {@link #setSupportOnActionExpandListener(MenuItem.OnActionExpandListener)}
+     * it will have its {@link MenuItem.OnActionExpandListener#onMenuItemActionExpand(MenuItem)}
+     * method invoked. The listener may return false from this method to prevent expanding the
+     * action view.
      *
      * @return true if the action view was expanded, false otherwise.
      */
@@ -176,10 +177,11 @@ public interface SupportMenuItem extends android.view.MenuItem {
     /**
      * Collapse the action view associated with this menu item. The menu item must have an action
      * view set, as well as the showAsAction flag {@link #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW}. If a
-     * listener has been set using {@link #setSupportOnActionExpandListener(android.support.v4.view.MenuItemCompat.OnActionExpandListener)}
-     * it will have its {@link android.support.v4.view.MenuItemCompat.OnActionExpandListener#onMenuItemActionCollapse(MenuItem)} method
-     * invoked. The listener may return false from this method to prevent collapsing the action
-     * view.
+     * listener has been set using
+     * {@link #setSupportOnActionExpandListener(MenuItem.OnActionExpandListener)}
+     * it will have its {@link MenuItem.OnActionExpandListener#onMenuItemActionCollapse(MenuItem)}
+     * method invoked. The listener may return false from this method to prevent collapsing the
+     * action view.
      *
      * @return true if the action view was collapsed, false otherwise.
      */
@@ -192,19 +194,19 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @see #expandActionView()
      * @see #collapseActionView()
      * @see #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
-     * @see android.support.v4.view.MenuItemCompat.OnActionExpandListener
+     * @see MenuItem.OnActionExpandListener
      */
     boolean isActionViewExpanded();
 
     /**
-     * Set an {@link android.support.v4.view.MenuItemCompat.OnActionExpandListener} on this menu item to be notified when the associated
-     * action view is expanded or collapsed. The menu item must be configured to expand or collapse
-     * its action view using the flag {@link #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW}.
+     * Set an {@link MenuItem.OnActionExpandListener} on this menu item to be notified when the
+     * associated action view is expanded or collapsed. The menu item must be configured to expand
+     * or collapse its action view using the flag {@link #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW}.
      *
      * @param listener Listener that will respond to expand/collapse events
      * @return This menu item instance for call chaining
      */
-    SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener);
+    SupportMenuItem setSupportOnActionExpandListener(MenuItem.OnActionExpandListener listener);
 
     /**
      * Change the content description associated with this menu item.

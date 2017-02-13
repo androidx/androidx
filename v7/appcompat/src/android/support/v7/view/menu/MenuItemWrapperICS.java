@@ -25,7 +25,6 @@ import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.view.CollapsibleActionView;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -348,7 +347,7 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> impleme
     }
 
     private class OnActionExpandListenerWrapper extends BaseWrapper<MenuItem.OnActionExpandListener>
-            implements MenuItemCompat.OnActionExpandListener {
+            implements MenuItem.OnActionExpandListener {
 
         OnActionExpandListenerWrapper(MenuItem.OnActionExpandListener object) {
             super(object);

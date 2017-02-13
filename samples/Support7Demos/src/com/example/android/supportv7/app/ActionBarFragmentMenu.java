@@ -16,13 +16,10 @@
 
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,6 +28,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.Toast;
+
+import com.example.android.supportv7.R;
 
 /**
  * Demonstrates how fragments can participate in the options menu.
@@ -136,8 +135,8 @@ public class ActionBarFragmentMenu extends AppCompatActivity {
 
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-            MenuItemCompat.setShowAsAction(menu.add("Menu 1a"), MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            MenuItemCompat.setShowAsAction(menu.add("Menu 1b"), MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            menu.add("Menu 1a").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            menu.add("Menu 1b").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             super.onCreateOptionsMenu(menu, inflater);
         }
 
@@ -178,7 +177,7 @@ public class ActionBarFragmentMenu extends AppCompatActivity {
 
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-            MenuItemCompat.setShowAsAction(menu.add("Menu 2"), MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            menu.add("Menu 2").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
 
         @Override

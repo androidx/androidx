@@ -7373,28 +7373,28 @@ package android.support.v4.view {
   }
 
   public final class MenuItemCompat {
-    method public static boolean collapseActionView(android.view.MenuItem);
-    method public static boolean expandActionView(android.view.MenuItem);
+    method public static deprecated boolean collapseActionView(android.view.MenuItem);
+    method public static deprecated boolean expandActionView(android.view.MenuItem);
     method public static android.support.v4.view.ActionProvider getActionProvider(android.view.MenuItem);
-    method public static android.view.View getActionView(android.view.MenuItem);
+    method public static deprecated android.view.View getActionView(android.view.MenuItem);
     method public static java.lang.CharSequence getContentDescription(android.view.MenuItem);
     method public static java.lang.CharSequence getTooltipText(android.view.MenuItem);
-    method public static boolean isActionViewExpanded(android.view.MenuItem);
+    method public static deprecated boolean isActionViewExpanded(android.view.MenuItem);
     method public static android.view.MenuItem setActionProvider(android.view.MenuItem, android.support.v4.view.ActionProvider);
-    method public static android.view.MenuItem setActionView(android.view.MenuItem, android.view.View);
-    method public static android.view.MenuItem setActionView(android.view.MenuItem, int);
+    method public static deprecated android.view.MenuItem setActionView(android.view.MenuItem, android.view.View);
+    method public static deprecated android.view.MenuItem setActionView(android.view.MenuItem, int);
     method public static void setContentDescription(android.view.MenuItem, java.lang.CharSequence);
-    method public static android.view.MenuItem setOnActionExpandListener(android.view.MenuItem, android.support.v4.view.MenuItemCompat.OnActionExpandListener);
-    method public static void setShowAsAction(android.view.MenuItem, int);
+    method public static deprecated android.view.MenuItem setOnActionExpandListener(android.view.MenuItem, android.support.v4.view.MenuItemCompat.OnActionExpandListener);
+    method public static deprecated void setShowAsAction(android.view.MenuItem, int);
     method public static void setTooltipText(android.view.MenuItem, java.lang.CharSequence);
-    field public static final int SHOW_AS_ACTION_ALWAYS = 2; // 0x2
-    field public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8; // 0x8
-    field public static final int SHOW_AS_ACTION_IF_ROOM = 1; // 0x1
-    field public static final int SHOW_AS_ACTION_NEVER = 0; // 0x0
-    field public static final int SHOW_AS_ACTION_WITH_TEXT = 4; // 0x4
+    field public static final deprecated int SHOW_AS_ACTION_ALWAYS = 2; // 0x2
+    field public static final deprecated int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8; // 0x8
+    field public static final deprecated int SHOW_AS_ACTION_IF_ROOM = 1; // 0x1
+    field public static final deprecated int SHOW_AS_ACTION_NEVER = 0; // 0x0
+    field public static final deprecated int SHOW_AS_ACTION_WITH_TEXT = 4; // 0x4
   }
 
-  public static abstract interface MenuItemCompat.OnActionExpandListener {
+  public static abstract deprecated interface MenuItemCompat.OnActionExpandListener {
     method public abstract boolean onMenuItemActionCollapse(android.view.MenuItem);
     method public abstract boolean onMenuItemActionExpand(android.view.MenuItem);
   }

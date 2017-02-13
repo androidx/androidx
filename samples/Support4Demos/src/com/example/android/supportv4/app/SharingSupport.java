@@ -16,17 +16,16 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.R;
-import com.example.android.supportv4.content.SharingSupportProvider;
-
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.example.android.supportv4.R;
+import com.example.android.supportv4.content.SharingSupportProvider;
 
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -57,7 +56,7 @@ public class SharingSupport extends Activity {
         b.setType("text/plain").setText("Share from menu");
         MenuItem item = menu.add("Share");
         ShareCompat.configureMenuItem(item, b);
-        MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         return true;
     }
 

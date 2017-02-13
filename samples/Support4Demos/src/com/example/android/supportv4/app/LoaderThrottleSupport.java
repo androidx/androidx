@@ -17,6 +17,7 @@
 package com.example.android.supportv4.app;
 
 //BEGIN_INCLUDE(complete)
+
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -39,7 +40,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.database.DatabaseUtilsCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.TextUtils;
 import android.util.Log;
@@ -420,9 +420,9 @@ public class LoaderThrottleSupport extends FragmentActivity {
 
         @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             MenuItem populateItem = menu.add(Menu.NONE, POPULATE_ID, 0, "Populate");
-            MenuItemCompat.setShowAsAction(populateItem, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+            populateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             MenuItem clearItem = menu.add(Menu.NONE, CLEAR_ID, 0, "Clear");
-            MenuItemCompat.setShowAsAction(clearItem, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+            clearItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
 
         @Override public boolean onOptionsItemSelected(MenuItem item) {

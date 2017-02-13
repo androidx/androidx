@@ -26,7 +26,6 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.TextUtils;
 import android.util.Log;
@@ -96,8 +95,8 @@ public class LoaderCursorSupport extends FragmentActivity {
             // Place an action bar item for searching.
             MenuItem item = menu.add("Search");
             item.setIcon(android.R.drawable.ic_menu_search);
-            MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_ALWAYS
-                    | MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
+                    | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
             final SearchView searchView = new SearchView(getActivity());
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
@@ -133,7 +132,7 @@ public class LoaderCursorSupport extends FragmentActivity {
                     return true;
                 }
             });
-            MenuItemCompat.setActionView(item, searchView);
+            item.setActionView(searchView);
         }
 
         @Override public void onListItemClick(ListView l, View v, int position, long id) {
