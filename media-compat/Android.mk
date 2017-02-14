@@ -28,7 +28,6 @@ LOCAL_MODULE := android-support-media-compat
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_AIDL_INCLUDES := $(LOCAL_PATH)/java
 LOCAL_SRC_FILES := \
-    $(call all-java-files-under,ics) \
     $(call all-java-files-under,jellybean-mr2) \
     $(call all-java-files-under,kitkat) \
     $(call all-java-files-under,api21) \

@@ -25,7 +25,12 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.media.MediaMetadataEditor;
+import android.media.MediaMetadataRetriever;
+import android.media.Rating;
+import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -40,6 +45,7 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.annotation.IntDef;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -267,6 +273,12 @@ public class MediaSessionCompat {
                 setCallback(new Callback() {});
             }
             mImpl.setMediaButtonReceiver(mbrIntent);
+        } else if (android.os.Build.VERSION.SDK_INT >= 19) {
+            mImpl = new MediaSessionImplApi19(context, tag, mbrComponent, mbrIntent);
+        } else if (android.os.Build.VERSION.SDK_INT >= 18) {
+            mImpl = new MediaSessionImplApi18(context, tag, mbrComponent, mbrIntent);
+        } else if (android.os.Build.VERSION.SDK_INT >= 14) {
+            mImpl = new MediaSessionImplApi14(context, tag, mbrComponent, mbrIntent);
         } else {
             mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent);
         }
@@ -1399,7 +1411,6 @@ public class MediaSessionCompat {
         private final Context mContext;
         private final ComponentName mMediaButtonReceiverComponentName;
         private final PendingIntent mMediaButtonReceiverIntent;
-        private final Object mRccObj;
         private final MediaSessionStub mStub;
         private final Token mToken;
         final String mPackageName;
@@ -1412,8 +1423,7 @@ public class MediaSessionCompat {
 
         private MessageHandler mHandler;
         boolean mDestroyed = false;
-        private boolean mIsActive = false;
-        private boolean mIsRccRegistered = false;
+        boolean mIsActive = false;
         private boolean mIsMbrRegistered = false;
         volatile Callback mCallback;
 
@@ -1465,55 +1475,17 @@ public class MediaSessionCompat {
             mRatingType = RatingCompat.RATING_NONE;
             mVolumeType = MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL;
             mLocalStream = AudioManager.STREAM_MUSIC;
-            if (android.os.Build.VERSION.SDK_INT >= 14) {
-                mRccObj = MediaSessionCompatApi14.createRemoteControlClient(mbrIntent);
-            } else {
-                mRccObj = null;
-            }
         }
 
         @Override
         public void setCallback(Callback callback, Handler handler) {
             mCallback = callback;
-            if (callback == null) {
-                // There's nothing to unregister on API < 18 since media buttons
-                // all go through the media button receiver
-                if (android.os.Build.VERSION.SDK_INT >= 18) {
-                    MediaSessionCompatApi18.setOnPlaybackPositionUpdateListener(mRccObj, null);
-                }
-                if (android.os.Build.VERSION.SDK_INT >= 19) {
-                    MediaSessionCompatApi19.setOnMetadataUpdateListener(mRccObj, null);
-                }
-            } else {
+            if (callback != null) {
                 if (handler == null) {
                     handler = new Handler();
                 }
                 synchronized (mLock) {
                     mHandler = new MessageHandler(handler.getLooper());
-                }
-                MediaSessionCompatApi19.Callback cb19 = new MediaSessionCompatApi19.Callback() {
-                    @Override
-                    public void onSetRating(Object ratingObj) {
-                        postToHandler(MessageHandler.MSG_RATE,
-                                RatingCompat.fromRating(ratingObj));
-                    }
-
-                    @Override
-                    public void onSeekTo(long pos) {
-                        postToHandler(MessageHandler.MSG_SEEK_TO, pos);
-                    }
-                };
-                if (android.os.Build.VERSION.SDK_INT >= 18) {
-                    Object onPositionUpdateObj = MediaSessionCompatApi18
-                            .createPlaybackPositionUpdateListener(cb19);
-                    MediaSessionCompatApi18.setOnPlaybackPositionUpdateListener(mRccObj,
-                            onPositionUpdateObj);
-                }
-                if (android.os.Build.VERSION.SDK_INT >= 19) {
-                    Object onMetadataUpdateObj = MediaSessionCompatApi19
-                            .createMetadataUpdateListener(cb19);
-                    MediaSessionCompatApi19.setOnMetadataUpdateListener(mRccObj,
-                            onMetadataUpdateObj);
                 }
             }
         }
@@ -1614,33 +1586,6 @@ public class MediaSessionCompat {
                 mState = state;
             }
             sendState(state);
-            if (!mIsActive) {
-                // Don't set the state until after the RCC is registered
-                return;
-            }
-            if (state == null) {
-                if (android.os.Build.VERSION.SDK_INT >= 14) {
-                    MediaSessionCompatApi14.setState(mRccObj, PlaybackStateCompat.STATE_NONE);
-                    MediaSessionCompatApi14.setTransportControlFlags(mRccObj, 0);
-                }
-            } else {
-                // Set state
-                if (android.os.Build.VERSION.SDK_INT >= 18) {
-                    MediaSessionCompatApi18.setState(mRccObj, state.getState(), state.getPosition(),
-                            state.getPlaybackSpeed(), state.getLastPositionUpdateTime());
-                } else if (android.os.Build.VERSION.SDK_INT >= 14) {
-                    MediaSessionCompatApi14.setState(mRccObj, state.getState());
-                }
-
-                // Set transport control flags
-                if (android.os.Build.VERSION.SDK_INT >= 19) {
-                    MediaSessionCompatApi19.setTransportControlFlags(mRccObj, state.getActions());
-                } else if (android.os.Build.VERSION.SDK_INT >= 18) {
-                    MediaSessionCompatApi18.setTransportControlFlags(mRccObj, state.getActions());
-                } else if (android.os.Build.VERSION.SDK_INT >= 14) {
-                    MediaSessionCompatApi14.setTransportControlFlags(mRccObj, state.getActions());
-                }
-            }
         }
 
         @Override
@@ -1655,18 +1600,6 @@ public class MediaSessionCompat {
                 mMetadata = metadata;
             }
             sendMetadata(metadata);
-            if (!mIsActive) {
-                // Don't set metadata until after the rcc has been registered
-                return;
-            }
-            if (android.os.Build.VERSION.SDK_INT >= 19) {
-                MediaSessionCompatApi19.setMetadata(mRccObj,
-                        metadata == null ? null : metadata.getBundle(),
-                        mState == null ? 0 : mState.getActions());
-            } else if (android.os.Build.VERSION.SDK_INT >= 14) {
-                MediaSessionCompatApi14.setMetadata(mRccObj,
-                        metadata == null ? null : metadata.getBundle());
-            }
         }
 
         @Override
@@ -1700,7 +1633,7 @@ public class MediaSessionCompat {
 
         @Override
         public Object getRemoteControlClient() {
-            return mRccObj;
+            return null;
         }
 
         @Override
@@ -1735,75 +1668,38 @@ public class MediaSessionCompat {
             sendExtras(extras);
         }
 
-        // Registers/unregisters the RCC and MediaButtonEventReceiver as needed.
-        private boolean update() {
-            boolean registeredRcc = false;
+        // Registers/unregisters components as needed.
+        boolean update() {
             if (mIsActive) {
                 // Register a MBR if it's supported, unregister it
                 // if support was removed.
                 if (!mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) != 0) {
-                    if (android.os.Build.VERSION.SDK_INT >= 18) {
-                        MediaSessionCompatApi18.registerMediaButtonEventReceiver(mContext,
-                                mMediaButtonReceiverIntent,
-                                mMediaButtonReceiverComponentName);
-                    } else {
-                        AudioManager am = (AudioManager) mContext.getSystemService(
-                                Context.AUDIO_SERVICE);
-                        am.registerMediaButtonEventReceiver(mMediaButtonReceiverComponentName);
-                    }
+                    registerMediaButtonEventReceiver(mMediaButtonReceiverIntent,
+                            mMediaButtonReceiverComponentName);
                     mIsMbrRegistered = true;
                 } else if (mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) == 0) {
-                    if (android.os.Build.VERSION.SDK_INT >= 18) {
-                        MediaSessionCompatApi18.unregisterMediaButtonEventReceiver(mContext,
-                                mMediaButtonReceiverIntent,
-                                mMediaButtonReceiverComponentName);
-                    } else {
-                        AudioManager am = (AudioManager) mContext.getSystemService(
-                                Context.AUDIO_SERVICE);
-                        am.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponentName);
-                    }
+                    unregisterMediaButtonEventReceiver(mMediaButtonReceiverIntent,
+                            mMediaButtonReceiverComponentName);
                     mIsMbrRegistered = false;
-                }
-                // On API 14+ register a RCC if it's supported, unregister it if
-                // not.
-                if (android.os.Build.VERSION.SDK_INT >= 14) {
-                    if (!mIsRccRegistered && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) != 0) {
-                        MediaSessionCompatApi14.registerRemoteControlClient(mContext, mRccObj);
-                        mIsRccRegistered = true;
-                        registeredRcc = true;
-                    } else if (mIsRccRegistered
-                            && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) == 0) {
-                        // RCC keeps the state while the system resets its state internally when
-                        // we register RCC. Reset the state so that the states in RCC and the system
-                        // are in sync when we re-register the RCC.
-                        MediaSessionCompatApi14.setState(mRccObj, PlaybackStateCompat.STATE_NONE);
-                        MediaSessionCompatApi14.unregisterRemoteControlClient(mContext, mRccObj);
-                        mIsRccRegistered = false;
-                    }
                 }
             } else {
                 // When inactive remove any registered components.
                 if (mIsMbrRegistered) {
-                    if (android.os.Build.VERSION.SDK_INT >= 18) {
-                        MediaSessionCompatApi18.unregisterMediaButtonEventReceiver(mContext,
-                                mMediaButtonReceiverIntent, mMediaButtonReceiverComponentName);
-                    } else {
-                        AudioManager am = (AudioManager) mContext.getSystemService(
-                                Context.AUDIO_SERVICE);
-                        am.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponentName);
-                    }
+                    unregisterMediaButtonEventReceiver(mMediaButtonReceiverIntent,
+                            mMediaButtonReceiverComponentName);
                     mIsMbrRegistered = false;
                 }
-                if (mIsRccRegistered) {
-                    // RCC keeps the state while the system resets its state internally when
-                    // we register RCC. Reset the state so that the states in RCC and the system
-                    // are in sync when we re-register the RCC.
-                    MediaSessionCompatApi14.setState(mRccObj, PlaybackStateCompat.STATE_NONE);
-                    MediaSessionCompatApi14.unregisterRemoteControlClient(mContext, mRccObj);
-                    mIsRccRegistered = false;
-                }
             }
-            return registeredRcc;
+            return false;
+        }
+
+        void registerMediaButtonEventReceiver(PendingIntent mbrIntent, ComponentName mbrComponent) {
+            mAudioManager.registerMediaButtonEventReceiver(mbrComponent);
+        }
+
+        void unregisterMediaButtonEventReceiver(PendingIntent mbrIntent,
+                ComponentName mbrComponent) {
+            mAudioManager.unregisterMediaButtonEventReceiver(mbrComponent);
         }
 
         void adjustVolume(int direction, int flags) {
@@ -2247,7 +2143,7 @@ public class MediaSessionCompat {
             }
         }
 
-        private class MessageHandler extends Handler {
+        class MessageHandler extends Handler {
 
             private static final int MSG_COMMAND = 1;
             private static final int MSG_ADJUST_VOLUME = 2;
@@ -2451,6 +2347,367 @@ public class MediaSessionCompat {
         }
     }
 
+    @RequiresApi(14)
+    static class MediaSessionImplApi14 extends MediaSessionImplBase {
+        /***** RemoteControlClient States, we only need none as the others were public *******/
+        static final int RCC_PLAYSTATE_NONE = 0;
+
+        final RemoteControlClient mRcc;
+
+        private boolean mIsRccRegistered = false;
+
+        MediaSessionImplApi14(Context context, String tag, ComponentName mbrComponent,
+                PendingIntent mbrIntent) {
+            super(context, tag, mbrComponent, mbrIntent);
+            mRcc = new RemoteControlClient(mbrIntent);
+        }
+
+        @Override
+        public void setPlaybackState(PlaybackStateCompat state) {
+            super.setPlaybackState(state);
+            if (!mIsActive) {
+                // Don't set the state until after the RCC is registered
+                return;
+            }
+            if (state == null) {
+                mRcc.setPlaybackState(0);
+                mRcc.setTransportControlFlags(0);
+            } else {
+                // Set state
+                setRccState(state);
+
+                // Set transport control flags
+                mRcc.setTransportControlFlags(
+                        getRccTransportControlFlagsFromActions(state.getActions()));
+            }
+        }
+
+        void setRccState(PlaybackStateCompat state) {
+            mRcc.setPlaybackState(getRccStateFromState(state.getState()));
+        }
+
+        int getRccStateFromState(int state) {
+            switch (state) {
+                case PlaybackStateCompat.STATE_CONNECTING:
+                case PlaybackStateCompat.STATE_BUFFERING:
+                    return RemoteControlClient.PLAYSTATE_BUFFERING;
+                case PlaybackStateCompat.STATE_ERROR:
+                    return RemoteControlClient.PLAYSTATE_ERROR;
+                case PlaybackStateCompat.STATE_FAST_FORWARDING:
+                    return RemoteControlClient.PLAYSTATE_FAST_FORWARDING;
+                case PlaybackStateCompat.STATE_NONE:
+                    return RCC_PLAYSTATE_NONE;
+                case PlaybackStateCompat.STATE_PAUSED:
+                    return RemoteControlClient.PLAYSTATE_PAUSED;
+                case PlaybackStateCompat.STATE_PLAYING:
+                    return RemoteControlClient.PLAYSTATE_PLAYING;
+                case PlaybackStateCompat.STATE_REWINDING:
+                    return RemoteControlClient.PLAYSTATE_REWINDING;
+                case PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS:
+                    return RemoteControlClient.PLAYSTATE_SKIPPING_BACKWARDS;
+                case PlaybackStateCompat.STATE_SKIPPING_TO_NEXT:
+                case PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM:
+                    return RemoteControlClient.PLAYSTATE_SKIPPING_FORWARDS;
+                case PlaybackStateCompat.STATE_STOPPED:
+                    return RemoteControlClient.PLAYSTATE_STOPPED;
+                default:
+                    return -1;
+            }
+        }
+
+        int getRccTransportControlFlagsFromActions(long actions) {
+            int transportControlFlags = 0;
+            if ((actions & PlaybackStateCompat.ACTION_STOP) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_STOP;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_PAUSE) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PAUSE;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_PLAY) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PLAY;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_REWIND) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_REWIND;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_NEXT;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_FAST_FORWARD) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_FAST_FORWARD;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_PLAY_PAUSE) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE;
+            }
+            return transportControlFlags;
+        }
+
+        @Override
+        public void setMetadata(MediaMetadataCompat metadata) {
+            super.setMetadata(metadata);
+            if (!mIsActive) {
+                // Don't set metadata until after the rcc has been registered
+                return;
+            }
+            RemoteControlClient.MetadataEditor editor = buildRccMetadata(
+                    metadata == null ? null : metadata.getBundle());
+            editor.apply();
+        }
+
+        RemoteControlClient.MetadataEditor buildRccMetadata(Bundle metadata) {
+            RemoteControlClient.MetadataEditor editor = mRcc.editMetadata(true);
+            if (metadata == null) {
+                return editor;
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ART)) {
+                Bitmap art = metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_ART);
+                editor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, art);
+            } else if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)) {
+                // Fall back to album art if the track art wasn't available
+                Bitmap art = metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
+                editor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, art);
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ARTIST)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_AUTHOR)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_AUTHOR,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_AUTHOR));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_COMPILATION)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_COMPILATION,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_COMPILATION));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_COMPOSER)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_COMPOSER,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_COMPOSER));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_DATE)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_DATE,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_DATE));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER)) {
+                editor.putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
+                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)) {
+                editor.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
+                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_GENRE)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_GENRE,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_GENRE));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_TITLE)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)) {
+                editor.putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
+                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_WRITER)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_WRITER,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_WRITER));
+            }
+            return editor;
+        }
+
+        @Override
+        boolean update() {
+            super.update();
+            boolean registeredRcc = false;
+            if (mIsActive) {
+                // Register a RCC if it's supported, unregister it if not.
+                if (!mIsRccRegistered && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) != 0) {
+                    mAudioManager.registerRemoteControlClient(mRcc);
+                    mIsRccRegistered = true;
+                    registeredRcc = true;
+                } else if (mIsRccRegistered
+                        && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) == 0) {
+                    // RCC keeps the state while the system resets its state internally when
+                    // we register RCC. Reset the state so that the states in RCC and the system
+                    // are in sync when we re-register the RCC.
+                    mRcc.setPlaybackState(0);
+                    mAudioManager.unregisterRemoteControlClient(mRcc);
+                    mIsRccRegistered = false;
+                }
+            } else {
+                // When inactive remove any registered components.
+                if (mIsRccRegistered) {
+                    // RCC keeps the state while the system resets its state internally when
+                    // we register RCC. Reset the state so that the states in RCC and the system
+                    // are in sync when we re-register the RCC.
+                    mRcc.setPlaybackState(0);
+                    mAudioManager.unregisterRemoteControlClient(mRcc);
+                    mIsRccRegistered = false;
+                }
+            }
+            return registeredRcc;
+        }
+    }
+
+    @RequiresApi(18)
+    static class MediaSessionImplApi18 extends MediaSessionImplApi14 {
+        private static boolean sIsMbrPendingIntentSupported = true;
+
+        MediaSessionImplApi18(Context context, String tag, ComponentName mbrComponent,
+                PendingIntent mbrIntent) {
+            super(context, tag, mbrComponent, mbrIntent);
+        }
+
+        @Override
+        public void setCallback(Callback callback, Handler handler) {
+            super.setCallback(callback, handler);
+            if (callback == null) {
+                mRcc.setPlaybackPositionUpdateListener(null);
+            } else {
+                RemoteControlClient.OnPlaybackPositionUpdateListener listener =
+                        new RemoteControlClient.OnPlaybackPositionUpdateListener() {
+                            @Override
+                            public void onPlaybackPositionUpdate(long newPositionMs) {
+                                postToHandler(MessageHandler.MSG_SEEK_TO, newPositionMs);
+                            }
+                        };
+                mRcc.setPlaybackPositionUpdateListener(listener);
+            }
+        }
+
+        @Override
+        void setRccState(PlaybackStateCompat state) {
+            long position = state.getPosition();
+            float speed = state.getPlaybackSpeed();
+            long updateTime = state.getLastPositionUpdateTime();
+            long currTime = SystemClock.elapsedRealtime();
+            if (state.getState() == PlaybackStateCompat.STATE_PLAYING && position > 0) {
+                long diff = 0;
+                if (updateTime > 0) {
+                    diff = currTime - updateTime;
+                    if (speed > 0 && speed != 1f) {
+                        diff *= speed;
+                    }
+                }
+                position += diff;
+            }
+            mRcc.setPlaybackState(getRccStateFromState(state.getState()), position, speed);
+        }
+
+        @Override
+        int getRccTransportControlFlagsFromActions(long actions) {
+            int transportControlFlags = super.getRccTransportControlFlagsFromActions(actions);
+            if ((actions & PlaybackStateCompat.ACTION_SEEK_TO) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE;
+            }
+            return transportControlFlags;
+        }
+
+        @Override
+        void registerMediaButtonEventReceiver(PendingIntent mbrIntent, ComponentName mbrComponent) {
+            // Some Android implementations are not able to register a media button event receiver
+            // using a PendingIntent but need a ComponentName instead. These will raise a
+            // NullPointerException.
+            if (sIsMbrPendingIntentSupported) {
+                try {
+                    mAudioManager.registerMediaButtonEventReceiver(mbrIntent);
+                } catch (NullPointerException e) {
+                    Log.w(TAG, "Unable to register media button event receiver with "
+                            + "PendingIntent, falling back to ComponentName.");
+                    sIsMbrPendingIntentSupported = false;
+                }
+            }
+
+            if (!sIsMbrPendingIntentSupported) {
+                super.registerMediaButtonEventReceiver(mbrIntent, mbrComponent);
+            }
+        }
+
+        @Override
+        void unregisterMediaButtonEventReceiver(PendingIntent mbrIntent,
+                ComponentName mbrComponent) {
+            if (sIsMbrPendingIntentSupported) {
+                mAudioManager.unregisterMediaButtonEventReceiver(mbrIntent);
+            } else {
+                super.unregisterMediaButtonEventReceiver(mbrIntent, mbrComponent);
+            }
+        }
+    }
+
+    @RequiresApi(19)
+    static class MediaSessionImplApi19 extends MediaSessionImplApi18 {
+        MediaSessionImplApi19(Context context, String tag, ComponentName mbrComponent,
+                PendingIntent mbrIntent) {
+            super(context, tag, mbrComponent, mbrIntent);
+        }
+
+        @Override
+        public void setCallback(Callback callback, Handler handler) {
+            super.setCallback(callback, handler);
+            if (callback == null) {
+                mRcc.setMetadataUpdateListener(null);
+            } else {
+                RemoteControlClient.OnMetadataUpdateListener listener =
+                        new RemoteControlClient.OnMetadataUpdateListener() {
+                            @Override
+                            public void onMetadataUpdate(int key, Object newValue) {
+                                if (key == MediaMetadataEditor.RATING_KEY_BY_USER
+                                        && newValue instanceof Rating) {
+                                    postToHandler(MessageHandler.MSG_RATE,
+                                            RatingCompat.fromRating(newValue));
+                                }
+                            }
+                        };
+                mRcc.setMetadataUpdateListener(listener);
+            }
+        }
+
+        @Override
+        int getRccTransportControlFlagsFromActions(long actions) {
+            int transportControlFlags = super.getRccTransportControlFlagsFromActions(actions);
+            if ((actions & PlaybackStateCompat.ACTION_SET_RATING) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_RATING;
+            }
+            return transportControlFlags;
+        }
+
+        @Override
+        RemoteControlClient.MetadataEditor buildRccMetadata(Bundle metadata) {
+            RemoteControlClient.MetadataEditor editor = super.buildRccMetadata(metadata);
+            long actions = mState == null ? 0 : mState.getActions();
+            if ((actions & PlaybackStateCompat.ACTION_SET_RATING) != 0) {
+                editor.addEditableKey(RemoteControlClient.MetadataEditor.RATING_KEY_BY_USER);
+            }
+
+            if (metadata == null) {
+                return editor;
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_YEAR)) {
+                editor.putLong(MediaMetadataRetriever.METADATA_KEY_YEAR,
+                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_YEAR));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_RATING)) {
+                editor.putObject(MediaMetadataEditor.RATING_KEY_BY_OTHERS,
+                        metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_RATING));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_USER_RATING)) {
+                editor.putObject(MediaMetadataEditor.RATING_KEY_BY_USER,
+                        metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_USER_RATING));
+            }
+            return editor;
+        }
+    }
+
+    @RequiresApi(21)
     static class MediaSessionImplApi21 implements MediaSessionImpl {
         private final Object mSessionObj;
         private final Token mToken;
