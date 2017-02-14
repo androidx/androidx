@@ -19,11 +19,9 @@ package android.support.v4.graphics;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.v4.util.Pair;
 
-@RequiresApi(9)
-class PaintCompatGingerbread {
+class PaintCompatApi14 {
     // U+DFFFD which is very end of unassigned plane.
     private static final String TOFU_STRING = "\uDB3F\uDFFD";
 
