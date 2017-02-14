@@ -36,7 +36,7 @@ import android.support.annotation.RequiresApi;
  */
 
 @RequiresApi(14)
-class DrawableWrapperGingerbread extends Drawable
+class DrawableWrapperApi14 extends Drawable
         implements Drawable.Callback, DrawableWrapper, TintAwareDrawable {
 
     static final PorterDuff.Mode DEFAULT_TINT_MODE = PorterDuff.Mode.SRC_IN;
@@ -50,7 +50,7 @@ class DrawableWrapperGingerbread extends Drawable
 
     Drawable mDrawable;
 
-    DrawableWrapperGingerbread(@NonNull DrawableWrapperState state, @Nullable Resources res) {
+    DrawableWrapperApi14(@NonNull DrawableWrapperState state, @Nullable Resources res) {
         mState = state;
         updateLocalState(res);
     }
@@ -60,7 +60,7 @@ class DrawableWrapperGingerbread extends Drawable
      *
      * @param dr the drawable to wrap
      */
-    DrawableWrapperGingerbread(@Nullable Drawable dr) {
+    DrawableWrapperApi14(@Nullable Drawable dr) {
         mState = mutateConstantState();
         // Now set the drawable...
         setWrappedDrawable(dr);
@@ -241,6 +241,7 @@ class DrawableWrapperGingerbread extends Drawable
     /**
      * {@inheritDoc}
      */
+    @Override
     public void invalidateDrawable(Drawable who) {
         invalidateSelf();
     }
@@ -248,6 +249,7 @@ class DrawableWrapperGingerbread extends Drawable
     /**
      * {@inheritDoc}
      */
+    @Override
     public void scheduleDrawable(Drawable who, Runnable what, long when) {
         scheduleSelf(what, when);
     }
@@ -255,6 +257,7 @@ class DrawableWrapperGingerbread extends Drawable
     /**
      * {@inheritDoc}
      */
+    @Override
     public void unscheduleDrawable(Drawable who, Runnable what) {
         unscheduleSelf(what);
     }
@@ -343,7 +346,7 @@ class DrawableWrapperGingerbread extends Drawable
         return true;
     }
 
-    protected static abstract class DrawableWrapperState extends Drawable.ConstantState {
+    protected abstract static class DrawableWrapperState extends Drawable.ConstantState {
         int mChangingConfigurations;
         Drawable.ConstantState mDrawableState;
 
@@ -385,7 +388,7 @@ class DrawableWrapperGingerbread extends Drawable
 
         @Override
         public Drawable newDrawable(@Nullable Resources res) {
-            return new DrawableWrapperGingerbread(this, res);
+            return new DrawableWrapperApi14(this, res);
         }
     }
 }

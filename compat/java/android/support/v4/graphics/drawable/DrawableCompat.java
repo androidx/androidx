@@ -45,8 +45,9 @@ public final class DrawableCompat {
     /**
      * Interface implementation that doesn't use anything about v4 APIs.
      */
-    static class BaseDrawableImpl {
+    static class DrawableCompatBaseImpl {
         public void jumpToCurrentState(Drawable drawable) {
+            drawable.jumpToCurrentState();
         }
 
         public void setAutoMirrored(Drawable drawable, boolean mirrored) {
@@ -63,19 +64,28 @@ public final class DrawableCompat {
         }
 
         public void setTint(Drawable drawable, int tint) {
-            DrawableCompatBase.setTint(drawable, tint);
+            if (drawable instanceof TintAwareDrawable) {
+                ((TintAwareDrawable) drawable).setTint(tint);
+            }
         }
 
         public void setTintList(Drawable drawable, ColorStateList tint) {
-            DrawableCompatBase.setTintList(drawable, tint);
+            if (drawable instanceof TintAwareDrawable) {
+                ((TintAwareDrawable) drawable).setTintList(tint);
+            }
         }
 
         public void setTintMode(Drawable drawable, PorterDuff.Mode tintMode) {
-            DrawableCompatBase.setTintMode(drawable, tintMode);
+            if (drawable instanceof TintAwareDrawable) {
+                ((TintAwareDrawable) drawable).setTintMode(tintMode);
+            }
         }
 
         public Drawable wrap(Drawable drawable) {
-            return DrawableCompatBase.wrapForTinting(drawable);
+            if (!(drawable instanceof TintAwareDrawable)) {
+                return new DrawableWrapperApi14(drawable);
+            }
+            return drawable;
         }
 
         public boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
@@ -109,30 +119,12 @@ public final class DrawableCompat {
         public void inflate(Drawable drawable, Resources res, XmlPullParser parser,
                             AttributeSet attrs, Resources.Theme t)
                 throws IOException, XmlPullParserException {
-            DrawableCompatBase.inflate(drawable, res, parser, attrs, t);
-        }
-    }
-
-    /**
-     * Interface implementation for devices with at least v11 APIs.
-     */
-    static class HoneycombDrawableImpl extends BaseDrawableImpl {
-        @Override
-        public void jumpToCurrentState(Drawable drawable) {
-            drawable.jumpToCurrentState();
-        }
-
-        @Override
-        public Drawable wrap(Drawable drawable) {
-            if (!(drawable instanceof TintAwareDrawable)) {
-                return new DrawableWrapperGingerbread(drawable);
-            }
-            return drawable;
+            drawable.inflate(res, parser, attrs);
         }
     }
 
     @RequiresApi(17)
-    static class JellybeanMr1DrawableImpl extends HoneycombDrawableImpl {
+    static class DrawableCompatApi17Impl extends DrawableCompatBaseImpl {
         private static final String TAG = "DrawableCompatApi17";
 
         private static Method sSetLayoutDirectionMethod;
@@ -194,7 +186,7 @@ public final class DrawableCompat {
      * Interface implementation for devices with at least KitKat APIs.
      */
     @RequiresApi(19)
-    static class KitKatDrawableImpl extends JellybeanMr1DrawableImpl {
+    static class DrawableCompatApi19Impl extends DrawableCompatApi17Impl {
         @Override
         public void setAutoMirrored(Drawable drawable, boolean mirrored) {
             drawable.setAutoMirrored(mirrored);
@@ -208,7 +200,7 @@ public final class DrawableCompat {
         @Override
         public Drawable wrap(Drawable drawable) {
             if (!(drawable instanceof TintAwareDrawable)) {
-                return new DrawableWrapperKitKat(drawable);
+                return new DrawableWrapperApi19(drawable);
             }
             return drawable;
         }
@@ -223,7 +215,7 @@ public final class DrawableCompat {
      * Interface implementation for devices with at least L APIs.
      */
     @RequiresApi(21)
-    static class LollipopDrawableImpl extends KitKatDrawableImpl {
+    static class DrawableCompatApi21Impl extends DrawableCompatApi19Impl {
         @Override
         public void setHotspot(Drawable drawable, float x, float y) {
             drawable.setHotspot(x, y);
@@ -252,7 +244,7 @@ public final class DrawableCompat {
         @Override
         public Drawable wrap(Drawable drawable) {
             if (!(drawable instanceof TintAwareDrawable)) {
-                return new DrawableWrapperLollipop(drawable);
+                return new DrawableWrapperApi21(drawable);
             }
             return drawable;
         }
@@ -312,7 +304,7 @@ public final class DrawableCompat {
      * Interface implementation for devices with at least M APIs.
      */
     @RequiresApi(23)
-    static class MDrawableImpl extends LollipopDrawableImpl {
+    static class DrawableCompatApi23Impl extends DrawableCompatApi21Impl {
         @Override
         public boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
             return drawable.setLayoutDirection(layoutDirection);
@@ -339,21 +331,19 @@ public final class DrawableCompat {
     /**
      * Select the correct implementation to use for the current platform.
      */
-    static final BaseDrawableImpl IMPL;
+    static final DrawableCompatBaseImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
         if (version >= 23) {
-            IMPL = new MDrawableImpl();
+            IMPL = new DrawableCompatApi23Impl();
         } else if (version >= 21) {
-            IMPL = new LollipopDrawableImpl();
+            IMPL = new DrawableCompatApi21Impl();
         } else if (version >= 19) {
-            IMPL = new KitKatDrawableImpl();
+            IMPL = new DrawableCompatApi19Impl();
         } else if (version >= 17) {
-            IMPL = new JellybeanMr1DrawableImpl();
-        } else if (version >= 11) {
-            IMPL = new HoneycombDrawableImpl();
+            IMPL = new DrawableCompatApi17Impl();
         } else {
-            IMPL = new BaseDrawableImpl();
+            IMPL = new DrawableCompatBaseImpl();
         }
     }
 

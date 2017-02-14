@@ -23,13 +23,13 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(19)
-class DrawableWrapperKitKat extends DrawableWrapperGingerbread {
+class DrawableWrapperApi19 extends DrawableWrapperApi14 {
 
-    DrawableWrapperKitKat(Drawable drawable) {
+    DrawableWrapperApi19(Drawable drawable) {
         super(drawable);
     }
 
-    DrawableWrapperKitKat(DrawableWrapperState state, Resources resources) {
+    DrawableWrapperApi19(DrawableWrapperState state, Resources resources) {
         super(state, resources);
     }
 
@@ -57,7 +57,7 @@ class DrawableWrapperKitKat extends DrawableWrapperGingerbread {
 
         @Override
         public Drawable newDrawable(@Nullable Resources res) {
-            return new DrawableWrapperKitKat(this, res);
+            return new DrawableWrapperApi19(this, res);
         }
     }
 }
