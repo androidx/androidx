@@ -19,7 +19,10 @@ package android.support.v4.media;
 import android.app.Activity;
 import android.content.Context;
 import android.media.AudioManager;
+import android.media.RemoteControlClient;
 import android.os.Build;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -43,7 +46,10 @@ import java.util.ArrayList;
  *
  * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/media/TransportControllerActivity.java
  *      complete}
+ *
+ * @deprecated Use {@link MediaControllerCompat}.
  */
+@Deprecated
 public class TransportMediator extends TransportController {
     final Context mContext;
     final TransportPerformer mCallbacks;
@@ -75,36 +81,91 @@ public class TransportMediator extends TransportController {
         }
     };
 
-    /** Synonym for {@link KeyEvent#KEYCODE_MEDIA_PLAY KeyEvent.KEYCODE_MEDIA_PLAY} */
+    /**
+     * Synonym for {@link KeyEvent#KEYCODE_MEDIA_PLAY KeyEvent.KEYCODE_MEDIA_PLAY}
+     *
+     * @deprecated Use {@link KeyEvent#KEYCODE_MEDIA_PLAY}.
+     */
+    @Deprecated
     public static final int KEYCODE_MEDIA_PLAY = 126;
-    /** Synonym for {@link KeyEvent#KEYCODE_MEDIA_PAUSE KeyEvent.KEYCODE_MEDIA_PAUSE} */
+    /**
+     * Synonym for {@link KeyEvent#KEYCODE_MEDIA_PAUSE KeyEvent.KEYCODE_MEDIA_PAUSE}
+     *
+     * @deprecated Use {@link KeyEvent#KEYCODE_MEDIA_PAUSE}.
+     */
+    @Deprecated
     public static final int KEYCODE_MEDIA_PAUSE = 127;
-    /** Synonym for {@link KeyEvent#KEYCODE_MEDIA_RECORD KeyEvent.KEYCODE_MEDIA_RECORD} */
+    /**
+     * Synonym for {@link KeyEvent#KEYCODE_MEDIA_RECORD KeyEvent.KEYCODE_MEDIA_RECORD}
+     *
+     * @deprecated Use {@link KeyEvent#KEYCODE_MEDIA_RECORD}.
+     */
+    @Deprecated
     public static final int KEYCODE_MEDIA_RECORD = 130;
 
-    /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PREVIOUS
-     * RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS} */
+    /**
+     * Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PREVIOUS
+     * RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS}
+     *
+     * @deprecated Use {@link RemoteControlClient#FLAG_KEY_MEDIA_PREVIOUS}.
+     */
+    @Deprecated
     public final static int FLAG_KEY_MEDIA_PREVIOUS = 1 << 0;
-    /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_REWIND
-     * RemoteControlClient.FLAG_KEY_MEDIA_REWIND} */
+    /**
+     * Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_REWIND
+     * RemoteControlClient.FLAG_KEY_MEDIA_REWIND}
+     *
+     * @deprecated Use {@link RemoteControlClient#FLAG_KEY_MEDIA_REWIND}.
+     */
+    @Deprecated
     public final static int FLAG_KEY_MEDIA_REWIND = 1 << 1;
-    /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PLAY
-     * RemoteControlClient.FLAG_KEY_MEDIA_PLAY} */
+    /**
+     * Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PLAY
+     * RemoteControlClient.FLAG_KEY_MEDIA_PLAY}
+     *
+     * @deprecated Use {@link RemoteControlClient#FLAG_KEY_MEDIA_PLAY}.
+     */
+    @Deprecated
     public final static int FLAG_KEY_MEDIA_PLAY = 1 << 2;
-    /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PLAY_PAUSE
-     * RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE} */
+    /**
+     * Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PLAY_PAUSE
+     * RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE}
+     *
+     * @deprecated Use {@link RemoteControlClient#FLAG_KEY_MEDIA_PLAY_PAUSE}.
+     */
+    @Deprecated
     public final static int FLAG_KEY_MEDIA_PLAY_PAUSE = 1 << 3;
-    /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PAUSE
-     * RemoteControlClient.FLAG_KEY_MEDIA_PAUSE} */
+    /**
+     * Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_PAUSE
+     * RemoteControlClient.FLAG_KEY_MEDIA_PAUSE}
+     *
+     * @deprecated Use {@link RemoteControlClient#FLAG_KEY_MEDIA_PAUSE}.
+     */
+    @Deprecated
     public final static int FLAG_KEY_MEDIA_PAUSE = 1 << 4;
-    /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_STOP
-     * RemoteControlClient.FLAG_KEY_MEDIA_STOP} */
+    /**
+     * Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_STOP
+     * RemoteControlClient.FLAG_KEY_MEDIA_STOP}
+     *
+     * @deprecated Use {@link RemoteControlClient#FLAG_KEY_MEDIA_STOP}.
+     */
+    @Deprecated
     public final static int FLAG_KEY_MEDIA_STOP = 1 << 5;
-    /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_FAST_FORWARD
-     * RemoteControlClient.FLAG_KEY_MEDIA_FAST_FORWARD} */
+    /**
+     * Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_FAST_FORWARD
+     * RemoteControlClient.FLAG_KEY_MEDIA_FAST_FORWARD}
+     *
+     * @deprecated Use {@link RemoteControlClient#FLAG_KEY_MEDIA_FAST_FORWARD}.
+     */
+    @Deprecated
     public final static int FLAG_KEY_MEDIA_FAST_FORWARD = 1 << 6;
-    /** Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_NEXT
-     * RemoteControlClient.FLAG_KEY_MEDIA_NEXT} */
+    /**
+     * Synonym for {@link android.media.RemoteControlClient#FLAG_KEY_MEDIA_NEXT
+     * RemoteControlClient.FLAG_KEY_MEDIA_NEXT}
+     *
+     * @deprecated Use {@link RemoteControlClient#FLAG_KEY_MEDIA_NEXT}.
+     */
+    @Deprecated
     public final static int FLAG_KEY_MEDIA_NEXT = 1 << 7;
 
     static boolean isMediaKey(int keyCode) {
@@ -148,10 +209,18 @@ public class TransportMediator extends TransportController {
         }
     };
 
+    /**
+     * @deprecated Use {@link MediaControllerCompat}.
+     */
+    @Deprecated
     public TransportMediator(Activity activity, TransportPerformer callbacks) {
         this(activity, null, callbacks);
     }
 
+    /**
+     * @deprecated Use {@link MediaControllerCompat}.
+     */
+    @Deprecated
     public TransportMediator(View view, TransportPerformer callbacks) {
         this(null, view, callbacks);
     }
@@ -185,7 +254,10 @@ public class TransportMediator extends TransportController {
      * you will interact with these through
      * {@link TransportPerformer#onGetCurrentPosition() TransportPerformer.onGetCurrentPosition} and
      * {@link TransportPerformer#onSeekTo TransportPerformer.onSeekTo}, respectively.</p>
+     *
+     * @deprecated Use {@link MediaControllerCompat}.
      */
+    @Deprecated
     public Object getRemoteControlClient() {
         return mController != null ? mController.getRemoteControlClient() : null;
     }
@@ -195,16 +267,33 @@ public class TransportMediator extends TransportController {
      * the transport an opportunity to intercept media keys.  Any such keys will show up
      * in {@link TransportPerformer}.
      * @param event
+     *
+     * @deprecated Use {@link MediaControllerCompat#dispatchMediaButtonEvent}.
      */
+    @Deprecated
     public boolean dispatchKeyEvent(KeyEvent event) {
         return event.dispatch(mKeyEventCallback, (KeyEvent.DispatcherState) mDispatcherState, this);
     }
 
+    /**
+     * Start listening to changes in playback state.
+     *
+     * @deprecated Use
+     *         {@link MediaControllerCompat#registerCallback(MediaControllerCompat.Callback)}.
+     */
+    @Deprecated
     @Override
     public void registerStateListener(TransportStateListener listener) {
         mListeners.add(listener);
     }
 
+    /**
+     * Stop listening to changes in playback state.
+     *
+     * @deprecated Use
+     *         {@link MediaControllerCompat#unregisterCallback(MediaControllerCompat.Callback)}.
+     */
+    @Deprecated
     @Override
     public void unregisterStateListener(TransportStateListener listener) {
         mListeners.remove(listener);
@@ -245,6 +334,10 @@ public class TransportMediator extends TransportController {
         }
     }
 
+    /**
+     * @deprecated Not needed when you use {@link MediaControllerCompat}.
+     */
+    @Deprecated
     public void refreshState() {
         pushControllerState();
         reportPlayingChanged();
@@ -254,7 +347,10 @@ public class TransportMediator extends TransportController {
     /**
      * Move the controller into the playing state.  This updates the remote control
      * client to indicate it is playing, and takes audio focus for the app.
+     *
+     * @deprecated Use {@link MediaControllerCompat.TransportControls#play}.
      */
+    @Deprecated
     @Override
     public void startPlaying() {
         if (mController != null) {
@@ -268,7 +364,10 @@ public class TransportMediator extends TransportController {
     /**
      * Move the controller into the paused state.  This updates the remote control
      * client to indicate it is paused, but keeps audio focus.
+     *
+     * @deprecated Use {@link MediaControllerCompat.TransportControls#pause}.
      */
+    @Deprecated
     @Override
     public void pausePlaying() {
         if (mController != null) {
@@ -282,7 +381,10 @@ public class TransportMediator extends TransportController {
     /**
      * Move the controller into the stopped state.  This updates the remote control
      * client to indicate it is stopped, and removes audio focus from the app.
+     *
+     * @deprecated Use {@link MediaControllerCompat.TransportControls#stop}.
      */
+    @Deprecated
     @Override
     public void stopPlaying() {
         if (mController != null) {
@@ -293,33 +395,67 @@ public class TransportMediator extends TransportController {
         reportPlayingChanged();
     }
 
+    /**
+     * Retrieve the total duration of the media stream, in milliseconds.
+     *
+     * @deprecated Use {@link MediaMetadataCompat#METADATA_KEY_DURATION}.
+     */
+    @Deprecated
     @Override
     public long getDuration() {
         return mCallbacks.onGetDuration();
     }
 
+    /**
+     * Retrieve the current playback location in the media stream, in milliseconds.
+     *
+     * @deprecated Use {@link PlaybackStateCompat#getPosition} and
+     *         {@link PlaybackStateCompat#getLastPositionUpdateTime}.
+     */
+    @Deprecated
     @Override
     public long getCurrentPosition() {
         return mCallbacks.onGetCurrentPosition();
     }
 
+    /**
+     * Move to a new location in the media stream.
+     * @param pos Position to move to, in milliseconds.
+     *
+     * @deprecated Use {@link MediaControllerCompat.TransportControls#seekTo}.
+     */
+    @Deprecated
     @Override
     public void seekTo(long pos) {
         mCallbacks.onSeekTo(pos);
     }
 
+    /**
+     * Return whether the player is currently playing its stream.
+     *
+     * @deprecated Use {@link PlaybackStateCompat#getState}.
+     */
+    @Deprecated
     @Override
     public boolean isPlaying() {
         return mCallbacks.onIsPlaying();
     }
 
+    /**
+     * Retrieve amount, in percentage (0-100), that the media stream has been buffered
+     * on to the local device.  Return 100 if the stream is always local.
+     *
+     * @deprecated Use {@link PlaybackStateCompat#getBufferedPosition} and
+     *         {@link MediaMetadataCompat#METADATA_KEY_DURATION}.
+     */
+    @Deprecated
     @Override
     public int getBufferPercentage() {
         return mCallbacks.onGetBufferPercentage();
     }
 
     /**
-     * Retrieves the flags for the media transport control buttons that this transport supports.
+     * Retrieve the flags for the media transport control buttons that this transport supports.
      * Result is a combination of the following flags:
      *      {@link #FLAG_KEY_MEDIA_PREVIOUS},
      *      {@link #FLAG_KEY_MEDIA_REWIND},
@@ -329,7 +465,10 @@ public class TransportMediator extends TransportController {
      *      {@link #FLAG_KEY_MEDIA_STOP},
      *      {@link #FLAG_KEY_MEDIA_FAST_FORWARD},
      *      {@link #FLAG_KEY_MEDIA_NEXT}
+     *
+     * @deprecated Use {@link PlaybackStateCompat#getActions}.
      */
+    @Deprecated
     @Override
     public int getTransportControlFlags() {
         return mCallbacks.onGetTransportControlFlags();
@@ -339,7 +478,10 @@ public class TransportMediator extends TransportController {
      * Optionally call when no longer using the TransportController.  Its resources
      * will also be automatically cleaned up when your activity/view is detached from
      * its window, so you don't normally need to call this explicitly.
+     *
+     * @deprecated Not needed when you use {@link MediaControllerCompat}.
      */
+    @Deprecated
     public void destroy() {
         mController.destroy();
     }

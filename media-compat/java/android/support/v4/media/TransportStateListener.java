@@ -16,16 +16,31 @@
 
 package android.support.v4.media;
 
+import android.support.v4.media.session.MediaControllerCompat.Callback;
+
 /**
  * A listener for playback changes that can be registered with
  * {@link TransportController}.
+ *
+ * @deprecated Use {@link Callback}.
  */
+@Deprecated
 public class TransportStateListener {
+    /**
+     * @deprecated Use {@link Callback}.
+     */
+    @Deprecated
+    public TransportStateListener() {
+    }
+
     /**
      * The play state of the transport changed.  Use
      * {@link android.support.v4.media.TransportController#isPlaying()
      * TransportController.isPlaying()} to determine the new state.
+     *
+     * @deprecated Use {@link Callback#onPlaybackStateChanged}.
      */
+    @Deprecated
     public void onPlayingChanged(TransportController controller) {
     }
 
@@ -33,7 +48,10 @@ public class TransportStateListener {
      * The available controls of the transport changed.  Use
      * {@link TransportController#getTransportControlFlags()}
      * TransportController.getTransportControlFlags()} to determine the new state.
+     *
+     * @deprecated Use {@link Callback#onPlaybackStateChanged}.
      */
+    @Deprecated
     public void onTransportControlsChanged(TransportController controller) {
     }
 }
