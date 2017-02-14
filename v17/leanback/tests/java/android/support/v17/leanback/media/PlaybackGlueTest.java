@@ -41,46 +41,6 @@ public class PlaybackGlueTest {
         }
     }
 
-    public static class PlaybackGlueHostImpl extends PlaybackGlueHost {
-
-        HostCallback mHostCallback;
-
-        @Override
-        public void setHostCallback(HostCallback callback) {
-            mHostCallback = callback;
-        }
-
-        void notifyOnStart() {
-            if (mHostCallback != null) {
-                mHostCallback.onHostStart();
-            }
-        }
-
-        void notifyOnStop() {
-            if (mHostCallback != null) {
-                mHostCallback.onHostStop();
-            }
-        }
-
-        void notifyOnResume() {
-            if (mHostCallback != null) {
-                mHostCallback.onHostResume();
-            }
-        }
-
-        void notifyOnPause() {
-            if (mHostCallback != null) {
-                mHostCallback.onHostPause();
-            }
-        }
-
-        void notifyOnDestroy() {
-            if (mHostCallback != null) {
-                mHostCallback.onHostDestroy();
-            }
-        }
-    }
-
     @Test
     public void glueAndHostInteraction() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
