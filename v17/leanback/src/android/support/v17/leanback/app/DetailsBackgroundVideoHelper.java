@@ -37,7 +37,9 @@ import android.support.v17.leanback.widget.ParallaxTarget;
  */
 final class DetailsBackgroundVideoHelper {
     private static final long BACKGROUND_CROSS_FADE_DURATION = 500;
-    private static final long CROSSFADE_DELAY = 0;
+    // Temporarily add CROSSFADE_DELAY waiting for video surface ready.
+    // We will remove this delay once PlaybackGlue have a callback for videoRenderingReady event.
+    private static final long CROSSFADE_DELAY = 1000;
 
     /**
      * Different states {@link DetailsFragment} can be in.
