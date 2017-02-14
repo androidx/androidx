@@ -29,7 +29,8 @@ public class BuildCompat {
     /* Boilerplate for isAtLeast${PLATFORM}:
      * public static boolean isAtLeast*() {
      *     return !"REL".equals(VERSION.CODENAME)
-     *             && ("${PLATFORM}".equals(VERSION.CODENAME) || VERSION.CODENAME.startsWith("${PLATFORM}MR"));
+     *             && ("${PLATFORM}".equals(VERSION.CODENAME)
+     *                     || VERSION.CODENAME.startsWith("${PLATFORM}MR"));
      * }
      */
 

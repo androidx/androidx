@@ -43,6 +43,6 @@ public interface LayoutInflaterFactory {
      * @return View Newly created view. Return null for the default
      *         behavior.
      */
-    public View onCreateView(View parent, String name, Context context, AttributeSet attrs);
+    View onCreateView(View parent, String name, Context context, AttributeSet attrs);
 
 }
