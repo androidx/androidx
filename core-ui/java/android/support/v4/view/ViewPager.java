@@ -37,7 +37,6 @@ import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
-import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.FocusFinder;
@@ -52,6 +51,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Interpolator;
+import android.widget.EdgeEffect;
 import android.widget.Scroller;
 
 import java.lang.annotation.ElementType;
@@ -225,8 +225,8 @@ public class ViewPager extends ViewGroup {
     private boolean mFakeDragging;
     private long mFakeDragBeginTime;
 
-    private EdgeEffectCompat mLeftEdge;
-    private EdgeEffectCompat mRightEdge;
+    private EdgeEffect mLeftEdge;
+    private EdgeEffect mRightEdge;
 
     private boolean mFirstLayout = true;
     private boolean mNeedCalculatePageOffsets = false;
@@ -406,8 +406,8 @@ public class ViewPager extends ViewGroup {
         mTouchSlop = configuration.getScaledPagingTouchSlop();
         mMinimumVelocity = (int) (MIN_FLING_VELOCITY * density);
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
-        mLeftEdge = new EdgeEffectCompat(context);
-        mRightEdge = new EdgeEffectCompat(context);
+        mLeftEdge = new EdgeEffect(context);
+        mRightEdge = new EdgeEffect(context);
 
         mFlingDistance = (int) (MIN_DISTANCE_FOR_FLING * density);
         mCloseEnough = (int) (CLOSE_ENOUGH * density);
@@ -2284,7 +2284,9 @@ public class ViewPager extends ViewGroup {
         boolean needsInvalidate;
         mActivePointerId = INVALID_POINTER;
         endDrag();
-        needsInvalidate = mLeftEdge.onRelease() | mRightEdge.onRelease();
+        mLeftEdge.onRelease();
+        mRightEdge.onRelease();
+        needsInvalidate = mLeftEdge.isFinished() | mRightEdge.isFinished();
         return needsInvalidate;
     }
 
@@ -2324,13 +2326,15 @@ public class ViewPager extends ViewGroup {
         if (scrollX < leftBound) {
             if (leftAbsolute) {
                 float over = leftBound - scrollX;
-                needsInvalidate = mLeftEdge.onPull(Math.abs(over) / width);
+                mLeftEdge.onPull(Math.abs(over) / width);
+                needsInvalidate = true;
             }
             scrollX = leftBound;
         } else if (scrollX > rightBound) {
             if (rightAbsolute) {
                 float over = scrollX - rightBound;
-                needsInvalidate = mRightEdge.onPull(Math.abs(over) / width);
+                mRightEdge.onPull(Math.abs(over) / width);
+                needsInvalidate = true;
             }
             scrollX = rightBound;
         }

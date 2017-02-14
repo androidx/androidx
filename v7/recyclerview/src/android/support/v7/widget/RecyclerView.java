@@ -68,6 +68,7 @@ import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.Interpolator;
+import android.widget.EdgeEffect;
 import android.widget.OverScroller;
 
 import java.lang.annotation.Retention;
@@ -403,7 +404,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     private int mDispatchScrollCounter = 0;
 
-    private EdgeEffectCompat mLeftGlow, mTopGlow, mRightGlow, mBottomGlow;
+    private EdgeEffect mLeftGlow, mTopGlow, mRightGlow, mBottomGlow;
 
     ItemAnimator mItemAnimator = new DefaultItemAnimator();
 
@@ -2105,26 +2106,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         boolean invalidate = false;
         if (overscrollX < 0) {
             ensureLeftGlow();
-            if (mLeftGlow.onPull(-overscrollX / getWidth(), 1f - y  / getHeight())) {
-                invalidate = true;
-            }
+            EdgeEffectCompat.onPull(mLeftGlow, -overscrollX / getWidth(), 1f - y  / getHeight());
+            invalidate = true;
         } else if (overscrollX > 0) {
             ensureRightGlow();
-            if (mRightGlow.onPull(overscrollX / getWidth(), y / getHeight())) {
-                invalidate = true;
-            }
+            EdgeEffectCompat.onPull(mRightGlow, overscrollX / getWidth(), y / getHeight());
+            invalidate = true;
         }
 
         if (overscrollY < 0) {
             ensureTopGlow();
-            if (mTopGlow.onPull(-overscrollY / getHeight(), x / getWidth())) {
-                invalidate = true;
-            }
+            EdgeEffectCompat.onPull(mTopGlow, -overscrollY / getHeight(), x / getWidth());
+            invalidate = true;
         } else if (overscrollY > 0) {
             ensureBottomGlow();
-            if (mBottomGlow.onPull(overscrollY / getHeight(), 1f - x / getWidth())) {
-                invalidate = true;
-            }
+            EdgeEffectCompat.onPull(mBottomGlow, overscrollY / getHeight(), 1f - x / getWidth());
+            invalidate = true;
         }
 
         if (invalidate || overscrollX != 0 || overscrollY != 0) {
@@ -2134,10 +2131,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     private void releaseGlows() {
         boolean needsInvalidate = false;
-        if (mLeftGlow != null) needsInvalidate = mLeftGlow.onRelease();
-        if (mTopGlow != null) needsInvalidate |= mTopGlow.onRelease();
-        if (mRightGlow != null) needsInvalidate |= mRightGlow.onRelease();
-        if (mBottomGlow != null) needsInvalidate |= mBottomGlow.onRelease();
+        if (mLeftGlow != null) {
+            mLeftGlow.onRelease();
+            needsInvalidate = mLeftGlow.isFinished();
+        }
+        if (mTopGlow != null) {
+            mTopGlow.onRelease();
+            needsInvalidate |= mTopGlow.isFinished();
+        }
+        if (mRightGlow != null) {
+            mRightGlow.onRelease();
+            needsInvalidate |= mRightGlow.isFinished();
+        }
+        if (mBottomGlow != null) {
+            mBottomGlow.onRelease();
+            needsInvalidate |= mBottomGlow.isFinished();
+        }
         if (needsInvalidate) {
             ViewCompat.postInvalidateOnAnimation(this);
         }
@@ -2146,16 +2155,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     void considerReleasingGlowsOnScroll(int dx, int dy) {
         boolean needsInvalidate = false;
         if (mLeftGlow != null && !mLeftGlow.isFinished() && dx > 0) {
-            needsInvalidate = mLeftGlow.onRelease();
+            mLeftGlow.onRelease();
+            needsInvalidate = mLeftGlow.isFinished();
         }
         if (mRightGlow != null && !mRightGlow.isFinished() && dx < 0) {
-            needsInvalidate |= mRightGlow.onRelease();
+            mRightGlow.onRelease();
+            needsInvalidate |= mRightGlow.isFinished();
         }
         if (mTopGlow != null && !mTopGlow.isFinished() && dy > 0) {
-            needsInvalidate |= mTopGlow.onRelease();
+            mTopGlow.onRelease();
+            needsInvalidate |= mTopGlow.isFinished();
         }
         if (mBottomGlow != null && !mBottomGlow.isFinished() && dy < 0) {
-            needsInvalidate |= mBottomGlow.onRelease();
+            mBottomGlow.onRelease();
+            needsInvalidate |= mBottomGlow.isFinished();
         }
         if (needsInvalidate) {
             ViewCompat.postInvalidateOnAnimation(this);
@@ -2188,7 +2201,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mLeftGlow != null) {
             return;
         }
-        mLeftGlow = new EdgeEffectCompat(getContext());
+        mLeftGlow = new EdgeEffect(getContext());
         if (mClipToPadding) {
             mLeftGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
                     getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
@@ -2201,7 +2214,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mRightGlow != null) {
             return;
         }
-        mRightGlow = new EdgeEffectCompat(getContext());
+        mRightGlow = new EdgeEffect(getContext());
         if (mClipToPadding) {
             mRightGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
                     getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
@@ -2214,7 +2227,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mTopGlow != null) {
             return;
         }
-        mTopGlow = new EdgeEffectCompat(getContext());
+        mTopGlow = new EdgeEffect(getContext());
         if (mClipToPadding) {
             mTopGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
                     getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
@@ -2228,7 +2241,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mBottomGlow != null) {
             return;
         }
-        mBottomGlow = new EdgeEffectCompat(getContext());
+        mBottomGlow = new EdgeEffect(getContext());
         if (mClipToPadding) {
             mBottomGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
                     getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
