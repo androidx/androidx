@@ -16,6 +16,7 @@
 
 package android.support.v4.app;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -83,7 +84,6 @@ public final class NotificationManagerCompat {
     /** Hidden field Settings.Secure.ENABLED_NOTIFICATION_LISTENERS */
     private static final String SETTING_ENABLED_NOTIFICATION_LISTENERS =
             "enabled_notification_listeners";
-    static final int SIDE_CHANNEL_BIND_FLAGS;
 
     /** Cache of enabled notification listener components */
     private static final Object sEnabledNotificationListenersLock = new Object();
@@ -158,15 +158,12 @@ public final class NotificationManagerCompat {
         void postNotification(NotificationManager notificationManager, String tag, int id,
                 Notification notification);
 
-        int getSideChannelBindFlags();
-
         boolean areNotificationsEnabled(Context context, NotificationManager notificationManager);
 
         int getImportance(NotificationManager notificationManager);
     }
 
     static class ImplBase implements Impl {
-
         @Override
         public void cancelNotification(NotificationManager notificationManager, String tag,
                 int id) {
@@ -177,11 +174,6 @@ public final class NotificationManagerCompat {
         public void postNotification(NotificationManager notificationManager, String tag, int id,
                 Notification notification) {
             notificationManager.notify(tag, id, notification);
-        }
-
-        @Override
-        public int getSideChannelBindFlags() {
-            return Service.BIND_AUTO_CREATE;
         }
 
         @Override
@@ -196,14 +188,8 @@ public final class NotificationManagerCompat {
         }
     }
 
-    static class ImplIceCreamSandwich extends ImplBase {
-        @Override
-        public int getSideChannelBindFlags() {
-            return NotificationManagerCompatIceCreamSandwich.SIDE_CHANNEL_BIND_FLAGS;
-        }
-    }
-
-    static class ImplKitKat extends ImplIceCreamSandwich {
+    @TargetApi(19)
+    static class ImplKitKat extends ImplBase {
         @Override
         public boolean areNotificationsEnabled(Context context,
                 NotificationManager notificationManager) {
@@ -211,6 +197,7 @@ public final class NotificationManagerCompat {
         }
     }
 
+    @TargetApi(24)
     static class ImplApi24 extends ImplKitKat {
         @Override
         public boolean areNotificationsEnabled(Context context,
@@ -229,12 +216,9 @@ public final class NotificationManagerCompat {
             IMPL = new ImplApi24();
         } else if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new ImplKitKat();
-        }  else if (Build.VERSION.SDK_INT >= 14) {
-            IMPL = new ImplIceCreamSandwich();
         } else {
             IMPL = new ImplBase();
         }
-        SIDE_CHANNEL_BIND_FLAGS = IMPL.getSideChannelBindFlags();
     }
 
     /**
@@ -362,8 +346,6 @@ public final class NotificationManagerCompat {
         private static final int MSG_SERVICE_CONNECTED = 1;
         private static final int MSG_SERVICE_DISCONNECTED = 2;
         private static final int MSG_RETRY_LISTENER_QUEUE = 3;
-
-        private static final String KEY_BINDER = "binder";
 
         private final Context mContext;
         private final HandlerThread mHandlerThread;
@@ -516,7 +498,8 @@ public final class NotificationManagerCompat {
                 return true;
             }
             Intent intent = new Intent(ACTION_BIND_SIDE_CHANNEL).setComponent(record.componentName);
-            record.bound = mContext.bindService(intent, this, SIDE_CHANNEL_BIND_FLAGS);
+            record.bound = mContext.bindService(intent, this, Service.BIND_AUTO_CREATE
+                    | Service.BIND_WAIVE_PRIORITY);
             if (record.bound) {
                 record.retryCount = 0;
             } else {

@@ -5743,7 +5743,7 @@ package android.support.v4.app {
     method public android.support.v4.app.RemoteInput.Builder setLabel(java.lang.CharSequence);
   }
 
-   class RemoteInputCompatBase {
+   deprecated class RemoteInputCompatBase {
   }
 
   public static abstract class RemoteInputCompatBase.RemoteInput {

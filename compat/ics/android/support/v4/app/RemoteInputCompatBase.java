@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,16 @@
 package android.support.v4.app;
 
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 
 import java.util.Set;
 
-@RequiresApi(9)
+/**
+ * @deprecated This class was not meant to be made public.
+ */
+@Deprecated
 class RemoteInputCompatBase {
 
-    public static abstract class RemoteInput {
+    public abstract static class RemoteInput {
         protected abstract String getResultKey();
         protected abstract CharSequence getLabel();
         protected abstract CharSequence[] getChoices();
@@ -33,10 +35,10 @@ class RemoteInputCompatBase {
         protected abstract Set<String> getAllowedDataTypes();
 
         public interface Factory {
-            public RemoteInput build(String resultKey, CharSequence label,
+            RemoteInput build(String resultKey, CharSequence label,
                     CharSequence[] choices, boolean allowFreeFormInput, Bundle extras,
                     Set<String> allowedDataTypes);
-            public RemoteInput[] newArray(int length);
+            RemoteInput[] newArray(int length);
         }
     }
 }

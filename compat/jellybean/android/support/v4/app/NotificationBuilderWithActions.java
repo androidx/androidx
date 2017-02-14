@@ -20,5 +20,5 @@ package android.support.v4.app;
  * Interface implemented by notification compat builders that support adding actions.
  */
 interface NotificationBuilderWithActions {
-    public void addAction(NotificationCompatBase.Action action);
+    void addAction(NotificationCompatBase.Action action);
 }
