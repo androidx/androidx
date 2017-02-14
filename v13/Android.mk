@@ -27,11 +27,6 @@ LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v13
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := \
-        $(call all-java-files-under, ics) \
-        $(call all-java-files-under, ics-mr1) \
-        $(call all-java-files-under, api23) \
-        $(call all-java-files-under, api24) \
-        $(call all-java-files-under, api25) \
         $(call all-java-files-under, java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 # Some projects expect to inherit android-support-v4 from

@@ -1721,7 +1721,7 @@ package android.support.v13.app {
   public class FragmentCompat {
     ctor public FragmentCompat();
     method public static void requestPermissions(android.app.Fragment, java.lang.String[], int);
-    method public static void setMenuVisibility(android.app.Fragment, boolean);
+    method public static deprecated void setMenuVisibility(android.app.Fragment, boolean);
     method public static void setUserVisibleHint(android.app.Fragment, boolean);
     method public static boolean shouldShowRequestPermissionRationale(android.app.Fragment, java.lang.String);
   }

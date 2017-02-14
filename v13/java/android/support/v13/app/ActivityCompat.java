@@ -17,15 +17,12 @@
 package android.support.v13.app;
 
 import android.app.Activity;
-import android.support.annotation.RequiresApi;
 import android.support.v13.view.DragAndDropPermissionsCompat;
 import android.view.DragEvent;
 
 /**
- * Helper for accessing features in {@link android.app.Activity}
- * introduced after API level 13 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.app.Activity} in a backwards compatible fashion.
  */
-@RequiresApi(13)
 public class ActivityCompat extends android.support.v4.app.ActivityCompat {
 
     /**

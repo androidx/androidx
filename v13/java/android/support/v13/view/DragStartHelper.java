@@ -18,7 +18,6 @@ package android.support.v13.view;
 
 
 import android.graphics.Point;
-import android.support.annotation.RequiresApi;
 import android.support.v4.view.InputDeviceCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
@@ -69,7 +68,6 @@ import android.view.View;
  * }
  * </pre>
  */
-@RequiresApi(13)
 public class DragStartHelper {
     final private View mView;
     final private OnDragStartListener mListener;
