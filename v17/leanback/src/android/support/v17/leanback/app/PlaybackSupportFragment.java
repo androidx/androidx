@@ -835,10 +835,15 @@ public class PlaybackSupportFragment extends Fragment {
     @Override
     public void onDestroyView() {
         mRootView = null;
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
         if (mHostCallback != null) {
             mHostCallback.onHostDestroy();
         }
-        super.onDestroyView();
+        super.onDestroy();
     }
 
     /**

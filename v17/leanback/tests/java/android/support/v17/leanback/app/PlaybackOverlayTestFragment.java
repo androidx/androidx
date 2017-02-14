@@ -40,9 +40,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
-public class PlaybackOverlayTestFragment
-        extends PlaybackOverlayFragment
-        implements PlaybackOverlayTestActivity.PictureInPictureListener {
+public class PlaybackOverlayTestFragment extends PlaybackOverlayFragment {
     private static final String TAG = "leanback.PlaybackControlsFragment";
 
     /**
@@ -169,26 +167,6 @@ public class PlaybackOverlayTestFragment
     public void onStart() {
         super.onStart();
         mGlue.setFadingEnabled(true);
-        mGlue.enableProgressUpdating(mGlue.hasValidMedia() && mGlue.isMediaPlaying());
-        ((PlaybackOverlayTestActivity) getActivity()).registerPictureInPictureListener(this);
-    }
-
-    @Override
-    public void onStop() {
-        mGlue.enableProgressUpdating(false);
-        ((PlaybackOverlayTestActivity) getActivity()).unregisterPictureInPictureListener(this);
-        super.onStop();
-    }
-
-    @Override
-    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
-        if (isInPictureInPictureMode) {
-            // Hide the controls in picture-in-picture mode.
-            setFadingEnabled(true);
-            fadeOut();
-        } else {
-            setFadingEnabled(mGlue.isMediaPlaying());
-        }
     }
 
     abstract static class PlaybackControlHelper extends PlaybackControlGlue {

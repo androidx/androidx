@@ -266,7 +266,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
 
     @Override
     public boolean isMediaPlaying() {
-        return mPlayer.isPlaying();
+        return mInitialized && mPlayer.isPlaying();
     }
 
     @Override
@@ -299,7 +299,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     @Override
     public int getCurrentSpeedId() {
         // 0 = Pause, 1 = Normal Playback Speed
-        return mPlayer.isPlaying() ? 1 : 0;
+        return isMediaPlaying() ? 1 : 0;
     }
 
     @Override
@@ -320,7 +320,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
 
     @Override
     public void pause() {
-        if (mInitialized && mPlayer.isPlaying()) {
+        if (isMediaPlaying()) {
             mPlayer.pause();
             onStateChanged();
         }
@@ -367,6 +367,9 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
      * @param newPosition The new position of the media track in milliseconds.
      */
     protected void seekTo(int newPosition) {
+        if (!mInitialized) {
+            return;
+        }
         mPlayer.seekTo(newPosition);
     }
 
