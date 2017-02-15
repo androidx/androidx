@@ -1470,7 +1470,7 @@ public final class MediaControllerCompat {
         // after API 21.
         private IMediaSession mExtraBinder;
         private HashMap<Callback, ExtraCallback> mCallbackMap = new HashMap<>();
-        private List<Callback> mPendingCallbacks;
+        private List<Callback> mPendingCallbacks = new ArrayList<>();
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat session) {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
@@ -1501,11 +1501,10 @@ public final class MediaControllerCompat {
                     Log.e(TAG, "Dead object in registerCallback. " + e);
                 }
             } else {
-                if (mPendingCallbacks == null) {
-                    mPendingCallbacks = new ArrayList<>();
-                }
                 callback.setHandler(handler);
-                mPendingCallbacks.add(callback);
+                synchronized (mPendingCallbacks) {
+                    mPendingCallbacks.add(callback);
+                }
             }
         }
 
@@ -1522,10 +1521,9 @@ public final class MediaControllerCompat {
                     Log.e(TAG, "Dead object in unregisterCallback. " + e);
                 }
             } else {
-                if (mPendingCallbacks == null) {
-                    mPendingCallbacks = new ArrayList<>();
+                synchronized (mPendingCallbacks) {
+                    mPendingCallbacks.remove(callback);
                 }
-                mPendingCallbacks.remove(callback);
             }
         }
 
@@ -1665,21 +1663,23 @@ public final class MediaControllerCompat {
         }
 
         private void processPendingCallbacks() {
-            if (mPendingCallbacks == null || mExtraBinder == null) {
+            if (mExtraBinder == null) {
                 return;
             }
-            for (Callback callback : mPendingCallbacks) {
-                ExtraCallback extraCallback = new ExtraCallback(callback);
-                mCallbackMap.put(callback, extraCallback);
-                callback.mHasExtraCallback = true;
-                try {
-                    mExtraBinder.registerCallbackListener(extraCallback);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Dead object in registerCallback. " + e);
-                    break;
+            synchronized (mPendingCallbacks) {
+                for (Callback callback : mPendingCallbacks) {
+                    ExtraCallback extraCallback = new ExtraCallback(callback);
+                    mCallbackMap.put(callback, extraCallback);
+                    callback.mHasExtraCallback = true;
+                    try {
+                        mExtraBinder.registerCallbackListener(extraCallback);
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "Dead object in registerCallback. " + e);
+                        break;
+                    }
                 }
+                mPendingCallbacks.clear();
             }
-            mPendingCallbacks = null;
         }
 
         private static class ExtraBinderRequestResultReceiver extends ResultReceiver {
