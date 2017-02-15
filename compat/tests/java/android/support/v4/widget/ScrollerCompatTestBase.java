@@ -32,26 +32,19 @@ import java.lang.reflect.InvocationTargetException;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
-public abstract class ScrollerCompatTestBase {
+public class ScrollerCompatTestBase {
 
     private static final boolean DEBUG = false;
 
-    private final String TAG;
-
-    private final boolean mIsIcsOrNewer;
+    private static final String TAG = "ScrollerCompatTest";
 
     private ScrollerCompat mScroller;
 
-    public ScrollerCompatTestBase(boolean isIcsOrNewer) {
-        mIsIcsOrNewer = isIcsOrNewer;
-        TAG = "ScrollerCompatTest ICS or newer:" + isIcsOrNewer;
-    }
 
     protected void createScroller(Interpolator interpolator)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
             InstantiationException {
-        mScroller = new ScrollerCompat(mIsIcsOrNewer, InstrumentationRegistry.getContext(),
-                interpolator);
+        mScroller = new ScrollerCompat(InstrumentationRegistry.getContext(), interpolator);
     }
 
     @Test

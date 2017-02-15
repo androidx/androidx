@@ -17,11 +17,8 @@
 package android.support.v4.widget;
 
 import android.content.Context;
-import android.os.Build;
-import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 import android.widget.OverScroller;
-import android.widget.Scroller;
 
 /**
  * Provides access to new {@link android.widget.Scroller Scroller} APIs when available.
@@ -29,25 +26,34 @@ import android.widget.Scroller;
  * <p>This class provides a platform version-independent mechanism for obeying the
  * current device's preferred scroll physics and fling behavior. It offers a subset of
  * the APIs from Scroller or OverScroller.</p>
+ *
+ * @deprecated Use {@link OverScroller} directly.
  */
+@Deprecated
 public final class ScrollerCompat {
     OverScroller mScroller;
-    private final boolean mIsIcsOrNewer;
 
+    /**
+     * @deprecated Use {@link OverScroller} constructor directly.
+     */
+    @Deprecated
     public static ScrollerCompat create(Context context) {
         return create(context, null);
     }
 
+    /**
+     * @deprecated Use {@link OverScroller} constructor directly.
+     */
+    @Deprecated
     public static ScrollerCompat create(Context context, Interpolator interpolator) {
-        return new ScrollerCompat(Build.VERSION.SDK_INT >= 14, context, interpolator);
+        return new ScrollerCompat(context, interpolator);
     }
 
     /**
      * Package protected constructor that allows to specify if API version is newer than ICS.
      * It is useful for unit testing.
      */
-    ScrollerCompat(boolean isIcsOrNewer, Context context, Interpolator interpolator) {
-        mIsIcsOrNewer = isIcsOrNewer;
+    ScrollerCompat(Context context, Interpolator interpolator) {
         mScroller = interpolator != null ?
                 new OverScroller(context, interpolator) : new OverScroller(context);
     }
@@ -56,7 +62,10 @@ public final class ScrollerCompat {
      * Returns whether the scroller has finished scrolling.
      *
      * @return True if the scroller has finished scrolling, false otherwise.
+     *
+     * @deprecated Use {@link OverScroller#isFinished()} directly.
      */
+    @Deprecated
     public boolean isFinished() {
         return mScroller.isFinished();
     }
@@ -65,7 +74,10 @@ public final class ScrollerCompat {
      * Returns the current X offset in the scroll.
      *
      * @return The new X offset as an absolute distance from the origin.
+     *
+     * @deprecated Use {@link OverScroller#getCurrX()} directly.
      */
+    @Deprecated
     public int getCurrX() {
         return mScroller.getCurrX();
     }
@@ -74,21 +86,30 @@ public final class ScrollerCompat {
      * Returns the current Y offset in the scroll.
      *
      * @return The new Y offset as an absolute distance from the origin.
+     *
+     * @deprecated Use {@link OverScroller#getCurrY()} directly.
      */
+    @Deprecated
     public int getCurrY() {
         return mScroller.getCurrY();
     }
 
     /**
      * @return The final X position for the scroll in progress, if known.
+     *
+     * @deprecated Use {@link OverScroller#getFinalX()} directly.
      */
+    @Deprecated
     public int getFinalX() {
         return mScroller.getFinalX();
     }
 
     /**
      * @return The final Y position for the scroll in progress, if known.
+     *
+     * @deprecated Use {@link OverScroller#getFinalY()} directly.
      */
+    @Deprecated
     public int getFinalY() {
         return mScroller.getFinalY();
     }
@@ -96,22 +117,27 @@ public final class ScrollerCompat {
     /**
      * Returns the current velocity on platform versions that support it.
      *
-     * <p>The device must support at least API level 14 (Ice Cream Sandwich).
-     * On older platform versions this method will return 0. This method should
-     * only be used as input for nonessential visual effects such as {@link EdgeEffectCompat}.</p>
+     * <p> This method should only be used as input for nonessential visual effects such as
+     * {@link EdgeEffectCompat}.</p>
      *
      * @return The original velocity less the deceleration. Result may be
      * negative.
+     *
+     * @deprecated Use {@link OverScroller#getCurrVelocity()} directly.
      */
+    @Deprecated
     public float getCurrVelocity() {
-        return mIsIcsOrNewer ? ScrollerCompatIcs.getCurrVelocity(mScroller) : 0;
+        return mScroller.getCurrVelocity();
     }
 
     /**
      * Call this when you want to know the new location.  If it returns true,
      * the animation is not yet finished.  loc will be altered to provide the
      * new location.
+     *
+     * @deprecated Use {@link OverScroller#computeScrollOffset()} directly.
      */
+    @Deprecated
     public boolean computeScrollOffset() {
         return mScroller.computeScrollOffset();
     }
@@ -129,7 +155,10 @@ public final class ScrollerCompat {
      *        content to the left.
      * @param dy Vertical distance to travel. Positive numbers will scroll the
      *        content up.
+     *
+     * @deprecated Use {@link OverScroller#getCurrX()} directly.
      */
+    @Deprecated
     public void startScroll(int startX, int startY, int dx, int dy) {
         mScroller.startScroll(startX, startY, dx, dy);
     }
@@ -146,7 +175,10 @@ public final class ScrollerCompat {
      * @param dy Vertical distance to travel. Positive numbers will scroll the
      *        content up.
      * @param duration Duration of the scroll in milliseconds.
+     *
+     * @deprecated Use {@link OverScroller#startScroll(int, int, int, int, int)} directly.
      */
+    @Deprecated
     public void startScroll(int startX, int startY, int dx, int dy, int duration) {
         mScroller.startScroll(startX, startY, dx, dy, duration);
     }
@@ -169,7 +201,10 @@ public final class ScrollerCompat {
      *        point.
      * @param maxY Maximum Y value. The scroller will not scroll past this
      *        point.
+     *
+     * @deprecated Use {@link OverScroller#fling(int, int, int, int, int, int, int, int)} directly.
      */
+    @Deprecated
     public void fling(int startX, int startY, int velocityX, int velocityY,
             int minX, int maxX, int minY, int maxY) {
         mScroller.fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
@@ -197,7 +232,11 @@ public final class ScrollerCompat {
      *            direction will be possible.
      * @param overY Overfling range. If > 0, vertical overfling in either
      *            direction will be possible.
+     *
+     * @deprecated Use {@link OverScroller#fling(int, int, int, int, int, int, int, int, int, int)}
+     * directly.
      */
+    @Deprecated
     public void fling(int startX, int startY, int velocityX, int velocityY,
             int minX, int maxX, int minY, int maxY, int overX, int overY) {
         mScroller.fling(startX, startY, velocityX, velocityY,
@@ -215,7 +254,10 @@ public final class ScrollerCompat {
      * @param maxY Maximum valid Y value
      * @return true if a springback was initiated, false if startX and startY were
      *          already within the valid range.
+     *
+     * @deprecated Use {@link OverScroller#springBack(int, int, int, int, int, int)} directly.
      */
+    @Deprecated
     public boolean springBack(int startX, int startY, int minX, int maxX, int minY, int maxY) {
         return mScroller.springBack(startX, startY, minX, maxX, minY, maxY);
     }
@@ -223,7 +265,10 @@ public final class ScrollerCompat {
     /**
      * Stops the animation. Aborting the animation causes the scroller to move to the final x and y
      * position.
+     *
+     * @deprecated Use {@link OverScroller#abortAnimation()} directly.
      */
+    @Deprecated
     public void abortAnimation() {
         mScroller.abortAnimation();
     }
@@ -241,7 +286,10 @@ public final class ScrollerCompat {
      * @param finalX Desired final X position
      * @param overX Magnitude of overscroll allowed. This should be the maximum
      *              desired distance from finalX. Absolute value - must be positive.
+     *
+     * @deprecated Use {@link OverScroller#notifyHorizontalEdgeReached(int, int, int)} directly.
      */
+    @Deprecated
     public void notifyHorizontalEdgeReached(int startX, int finalX, int overX) {
         mScroller.notifyHorizontalEdgeReached(startX, finalX, overX);
     }
@@ -258,7 +306,10 @@ public final class ScrollerCompat {
      * @param finalY Desired final Y position
      * @param overY Magnitude of overscroll allowed. This should be the maximum
      *              desired distance from finalY. Absolute value - must be positive.
+     *
+     * @deprecated Use {@link OverScroller#notifyVerticalEdgeReached(int, int, int)} directly.
      */
+    @Deprecated
     public void notifyVerticalEdgeReached(int startY, int finalY, int overY) {
         mScroller.notifyVerticalEdgeReached(startY, finalY, overY);
     }
@@ -275,7 +326,10 @@ public final class ScrollerCompat {
      *
      * @return true when the current position is overscrolled and in the process of
      *         interpolating back to a valid value.
+     *
+     * @deprecated Use {@link OverScroller#isOverScrolled()} directly.
      */
+    @Deprecated
     public boolean isOverScrolled() {
         return mScroller.isOverScrolled();
     }
