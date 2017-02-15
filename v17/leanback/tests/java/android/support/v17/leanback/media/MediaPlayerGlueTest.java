@@ -22,9 +22,11 @@ import static org.mockito.Mockito.never;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.testutils.PollingCheck;
 
@@ -36,6 +38,10 @@ import org.mockito.Mockito;
 @MediumTest
 public class MediaPlayerGlueTest {
 
+    /**
+     * Mockito spy not working on API 19 if class has package private method (b/35387610)
+     */
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void mediaPlayer() {
         // create a MediaPlayerGlue with updatePeriod = 100ms
