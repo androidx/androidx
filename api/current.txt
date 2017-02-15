@@ -7632,8 +7632,8 @@ package android.support.v4.view {
   public class ViewCompat {
     ctor protected ViewCompat();
     method public static android.support.v4.view.ViewPropertyAnimatorCompat animate(android.view.View);
-    method public static boolean canScrollHorizontally(android.view.View, int);
-    method public static boolean canScrollVertically(android.view.View, int);
+    method public static deprecated boolean canScrollHorizontally(android.view.View, int);
+    method public static deprecated boolean canScrollVertically(android.view.View, int);
     method public static deprecated int combineMeasuredStates(int, int);
     method public static android.support.v4.view.WindowInsetsCompat dispatchApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
     method public static void dispatchFinishTemporaryDetach(android.view.View);
@@ -7698,9 +7698,9 @@ package android.support.v4.view {
     method public static void offsetLeftAndRight(android.view.View, int);
     method public static void offsetTopAndBottom(android.view.View, int);
     method public static android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
-    method public static void onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public static deprecated void onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
     method public static void onInitializeAccessibilityNodeInfo(android.view.View, android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
-    method public static void onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public static deprecated void onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
     method public static boolean performAccessibilityAction(android.view.View, int, android.os.Bundle);
     method public static void postInvalidateOnAnimation(android.view.View);
     method public static void postInvalidateOnAnimation(android.view.View, int, int, int, int);
@@ -7718,7 +7718,7 @@ package android.support.v4.view {
     method public static void setChildrenDrawingOrderEnabled(android.view.ViewGroup, boolean);
     method public static void setClipBounds(android.view.View, android.graphics.Rect);
     method public static void setElevation(android.view.View, float);
-    method public static void setFitsSystemWindows(android.view.View, boolean);
+    method public static deprecated void setFitsSystemWindows(android.view.View, boolean);
     method public static void setHasTransientState(android.view.View, boolean);
     method public static void setImportantForAccessibility(android.view.View, int);
     method public static void setLabelFor(android.view.View, int);
@@ -7757,9 +7757,9 @@ package android.support.v4.view {
     field public static final int IMPORTANT_FOR_ACCESSIBILITY_NO = 2; // 0x2
     field public static final int IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS = 4; // 0x4
     field public static final int IMPORTANT_FOR_ACCESSIBILITY_YES = 1; // 0x1
-    field public static final int LAYER_TYPE_HARDWARE = 2; // 0x2
-    field public static final int LAYER_TYPE_NONE = 0; // 0x0
-    field public static final int LAYER_TYPE_SOFTWARE = 1; // 0x1
+    field public static final deprecated int LAYER_TYPE_HARDWARE = 2; // 0x2
+    field public static final deprecated int LAYER_TYPE_NONE = 0; // 0x0
+    field public static final deprecated int LAYER_TYPE_SOFTWARE = 1; // 0x1
     field public static final int LAYOUT_DIRECTION_INHERIT = 2; // 0x2
     field public static final int LAYOUT_DIRECTION_LOCALE = 3; // 0x3
     field public static final int LAYOUT_DIRECTION_LTR = 0; // 0x0

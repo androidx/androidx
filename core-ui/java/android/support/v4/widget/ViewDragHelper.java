@@ -937,8 +937,7 @@ public class ViewDragHelper {
             }
         }
 
-        return checkV && (ViewCompat.canScrollHorizontally(v, -dx)
-                || ViewCompat.canScrollVertically(v, -dy));
+        return checkV && (v.canScrollHorizontally(-dx) || v.canScrollVertically(-dy));
     }
 
     /**
