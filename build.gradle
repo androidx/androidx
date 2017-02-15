@@ -211,6 +211,9 @@ void registerForDocsTask(Task task, Project subProject, releaseVariant) {
 
 // Generates online docs.
 task generateDocs(type: DoclavaTask, dependsOn: configurations.doclava) {
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+    description = 'Generates d.android.com style documentation.'
+
     docletpath = configurations.doclava.resolve()
     destinationDir = new File(project.docsDir, "online")
 
@@ -266,6 +269,9 @@ task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
 
 // Copies generated API files to current version.
 task updateApi(type: UpdateApiTask, dependsOn: generateApi) {
+    group JavaBasePlugin.VERIFICATION_GROUP
+    description 'Invoke Doclava\'s ApiCheck tool to update current.txt based on current changes.'
+
     newApiFile = new File(project.docsDir, 'release/current.txt')
     oldApiFile = new File(project.rootDir, 'api/current.txt')
     newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
@@ -436,7 +442,7 @@ subprojects {
     }
 
     project.afterEvaluate {
-        // The archivesBaseName isn't available intially, so set it now
+        // The archivesBaseName isn't available initially, so set it now
         def createZipTask = project.tasks.findByName("createSeparateZip")
         if (createZipTask != null) {
             createZipTask.appendix = archivesBaseName
