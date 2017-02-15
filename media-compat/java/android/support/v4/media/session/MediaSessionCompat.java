@@ -100,7 +100,10 @@ public class MediaSessionCompat {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @IntDef(flag=true, value={FLAG_HANDLES_MEDIA_BUTTONS, FLAG_HANDLES_TRANSPORT_CONTROLS})
+    @IntDef(flag=true, value={
+            FLAG_HANDLES_MEDIA_BUTTONS,
+            FLAG_HANDLES_TRANSPORT_CONTROLS,
+            FLAG_HANDLES_QUEUE_COMMANDS })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SessionFlags {}
 
@@ -115,6 +118,12 @@ public class MediaSessionCompat {
      * control commands through its {@link Callback}.
      */
     public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 1 << 1;
+
+    /**
+     * Set this flag on the session to indicate that it handles queue
+     * management commands through its {@link Callback}.
+     */
+    public static final int FLAG_HANDLES_QUEUE_COMMANDS = 1 << 2;
 
     /**
      * Custom action to invoke playFromUri() for the forward compatibility.
@@ -895,6 +904,48 @@ public class MediaSessionCompat {
         public void onCustomAction(String action, Bundle extras) {
         }
 
+        /**
+         * Called when a {@link MediaControllerCompat} wants to add a {@link QueueItem}
+         * with the given {@link MediaDescriptionCompat description} at the end of the play queue.
+         *
+         * @param description The {@link MediaDescriptionCompat} for creating the {@link QueueItem}
+         *            to be inserted.
+         */
+        public void onAddQueueItem(MediaDescriptionCompat description) {
+        }
+
+        /**
+         * Called when a {@link MediaControllerCompat} wants to add a {@link QueueItem}
+         * with the given {@link MediaDescriptionCompat description} at the specified position
+         * in the play queue.
+         *
+         * @param description The {@link MediaDescriptionCompat} for creating the {@link QueueItem}
+         *            to be inserted.
+         * @param index The index at which the created {@link QueueItem} is to be inserted.
+         */
+        public void onAddQueueItem(MediaDescriptionCompat description, int index) {
+        }
+
+        /**
+         * Called when a {@link MediaControllerCompat} wants to remove the first occurrence of the
+         * specified {@link QueueItem} with the given {@link MediaDescriptionCompat description}
+         * in the play queue.
+         *
+         * @param description The {@link MediaDescriptionCompat} for denoting the {@link QueueItem}
+         *            to be removed.
+         */
+        public void onRemoveQueueItem(MediaDescriptionCompat description) {
+        }
+
+        /**
+         * Called when a {@link MediaControllerCompat} wants to remove a {@link QueueItem} at the
+         * specified position in the play queue.
+         *
+         * @param index The index of the element to be removed.
+         */
+        public void onRemoveQueueItemAt(int index) {
+        }
+
         private class StubApi21 implements MediaSessionCompatApi21.Callback {
 
             StubApi21() {
@@ -909,6 +960,25 @@ public class MediaSessionCompat {
                         BundleCompat.putBinder(result, EXTRA_BINDER, impl.getExtraSessionBinder());
                         cb.send(0, result);
                     }
+                } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM)) {
+                    extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
+                    Callback.this.onAddQueueItem(
+                            (MediaDescriptionCompat) extras.getParcelable(
+                                    MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
+                } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM_AT)) {
+                    extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
+                    Callback.this.onAddQueueItem(
+                            (MediaDescriptionCompat) extras.getParcelable(
+                                    MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION),
+                            extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX));
+                } else if (command.equals(MediaControllerCompat.COMMAND_REMOVE_QUEUE_ITEM)) {
+                    extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
+                    Callback.this.onRemoveQueueItem(
+                            (MediaDescriptionCompat) extras.getParcelable(
+                                    MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
+                } else if (command.equals(MediaControllerCompat.COMMAND_REMOVE_QUEUE_ITEM_AT)) {
+                    Callback.this.onRemoveQueueItemAt(
+                            extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX));
                 } else {
                     Callback.this.onCommand(command, extras, cb);
                 }
@@ -1494,8 +1564,20 @@ public class MediaSessionCompat {
             postToHandler(what, null);
         }
 
+        void postToHandler(int what, int arg1) {
+            postToHandler(what, null, arg1);
+        }
+
         void postToHandler(int what, Object obj) {
             postToHandler(what, obj, null);
+        }
+
+        void postToHandler(int what, Object obj, int arg1) {
+            synchronized (mLock) {
+                if (mHandler != null) {
+                    mHandler.post(what, obj, arg1);
+                }
+            }
         }
 
         void postToHandler(int what, Object obj, Bundle extras) {
@@ -2097,6 +2179,26 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void addQueueItem(MediaDescriptionCompat description) {
+                postToHandler(MessageHandler.MSG_ADD_QUEUE_ITEM, description);
+            }
+
+            @Override
+            public void addQueueItemAt(MediaDescriptionCompat description, int index) {
+                postToHandler(MessageHandler.MSG_ADD_QUEUE_ITEM_AT, description, index);
+            }
+
+            @Override
+            public void removeQueueItem(MediaDescriptionCompat description) {
+                postToHandler(MessageHandler.MSG_REMOVE_QUEUE_ITEM, description);
+            }
+
+            @Override
+            public void removeQueueItemAt(int index) {
+                postToHandler(MessageHandler.MSG_REMOVE_QUEUE_ITEM_AT, index);
+            }
+
+            @Override
             public CharSequence getQueueTitle() {
                 return mQueueTitle;
             }
@@ -2169,6 +2271,10 @@ public class MediaSessionCompat {
             private static final int MSG_SET_VOLUME = 22;
             private static final int MSG_SET_REPEAT_MODE = 23;
             private static final int MSG_SET_SHUFFLE_MODE_ENABLED = 24;
+            private static final int MSG_ADD_QUEUE_ITEM = 25;
+            private static final int MSG_ADD_QUEUE_ITEM_AT = 26;
+            private static final int MSG_REMOVE_QUEUE_ITEM = 27;
+            private static final int MSG_REMOVE_QUEUE_ITEM_AT = 28;
 
             // KeyEvent constants only available on API 11+
             private static final int KEYCODE_MEDIA_PAUSE = 127;
@@ -2270,14 +2376,26 @@ public class MediaSessionCompat {
                     case MSG_CUSTOM_ACTION:
                         cb.onCustomAction((String) msg.obj, msg.getData());
                         break;
+                    case MSG_ADD_QUEUE_ITEM:
+                        cb.onAddQueueItem((MediaDescriptionCompat) msg.obj);
+                        break;
+                    case MSG_ADD_QUEUE_ITEM_AT:
+                        cb.onAddQueueItem((MediaDescriptionCompat) msg.obj, msg.arg1);
+                        break;
+                    case MSG_REMOVE_QUEUE_ITEM:
+                        cb.onRemoveQueueItem((MediaDescriptionCompat) msg.obj);
+                        break;
+                    case MSG_REMOVE_QUEUE_ITEM_AT:
+                        cb.onRemoveQueueItemAt(msg.arg1);
+                        break;
                     case MSG_ADJUST_VOLUME:
-                        adjustVolume((int) msg.obj, 0);
+                        adjustVolume(msg.arg1, 0);
                         break;
                     case MSG_SET_VOLUME:
-                        setVolumeTo((int) msg.obj, 0);
+                        setVolumeTo(msg.arg1, 0);
                         break;
                     case MSG_SET_REPEAT_MODE:
-                        cb.onSetRepeatMode((int) msg.obj);
+                        cb.onSetRepeatMode(msg.arg1);
                         break;
                     case MSG_SET_SHUFFLE_MODE_ENABLED:
                         cb.onSetShuffleModeEnabled((boolean) msg.obj);
@@ -3128,6 +3246,30 @@ public class MediaSessionCompat {
             public List<QueueItem> getQueue() {
                 // Will not be called.
                 return null;
+            }
+
+            @Override
+            public void addQueueItem(MediaDescriptionCompat descriptionCompat) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void addQueueItemAt(MediaDescriptionCompat descriptionCompat, int index) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void removeQueueItem(MediaDescriptionCompat description) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void removeQueueItemAt(int index) {
+                // Will not be called.
+                throw new AssertionError();
             }
 
             @Override

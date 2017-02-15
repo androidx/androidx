@@ -17,6 +17,7 @@ package android.support.v4.media.session;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.IMediaControllerCallback;
@@ -33,7 +34,7 @@ import java.util.List;
  * @hide
  */
 interface IMediaSession {
-    // Next ID: 40
+    // Next ID: 44
     void sendCommand(String command, in Bundle args, in MediaSessionCompat.ResultReceiverWrapper cb) = 0;
     boolean sendMediaButton(in KeyEvent mediaButton) = 1;
     void registerCallbackListener(in IMediaControllerCallback cb) = 2;
@@ -54,6 +55,10 @@ interface IMediaSession {
     int getRatingType() = 31;
     int getRepeatMode() = 36;
     boolean isShuffleModeEnabled() = 37;
+    void addQueueItem(in MediaDescriptionCompat description) = 40;
+    void addQueueItemAt(in MediaDescriptionCompat description, int index) = 41;
+    void removeQueueItem(in MediaDescriptionCompat description) = 42;
+    void removeQueueItemAt(int index) = 43;
 
     // These commands are for the TransportControls
     void prepare() = 32;

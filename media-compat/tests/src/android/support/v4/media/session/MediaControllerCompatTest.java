@@ -31,6 +31,7 @@ import android.os.Looper;
 import android.os.ResultReceiver;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.PollingCheck;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
@@ -65,6 +66,7 @@ public class MediaControllerCompatTest {
             public void run() {
                 mSession = new MediaSessionCompat(getContext(), SESSION_TAG);
                 mSession.setCallback(mCallback, mHandler);
+                mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
                 mController = mSession.getController();
             }
         });
@@ -123,7 +125,47 @@ public class MediaControllerCompatTest {
         }
     }
 
-    // TODO(hdmoon): Uncomment after fixing this test. This test causes an Exception on System UI.
+    @Test
+    @SmallTest
+    public void testAddRemoveQueueItems() throws Exception {
+        final String mediaId = "media_id";
+        final String mediaTitle = "media_title";
+        MediaDescriptionCompat itemDescription = new MediaDescriptionCompat.Builder()
+                .setMediaId(mediaId).setTitle(mediaTitle).build();
+
+        synchronized (mWaitLock) {
+            mCallback.reset();
+            mController.addQueueItem(itemDescription);
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(mCallback.mOnAddQueueItemCalled);
+            assertEquals(-1, mCallback.mQueueIndex);
+            assertEquals(mediaId, mCallback.mQueueDescription.getMediaId());
+            assertEquals(mediaTitle, mCallback.mQueueDescription.getTitle());
+
+            mCallback.reset();
+            mController.addQueueItem(itemDescription, 0);
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(mCallback.mOnAddQueueItemAtCalled);
+            assertEquals(0, mCallback.mQueueIndex);
+            assertEquals(mediaId, mCallback.mQueueDescription.getMediaId());
+            assertEquals(mediaTitle, mCallback.mQueueDescription.getTitle());
+
+            mCallback.reset();
+            mController.removeQueueItemAt(0);
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(mCallback.mOnRemoveQueueItemAtCalled);
+            assertEquals(0, mCallback.mQueueIndex);
+
+            mCallback.reset();
+            mController.removeQueueItem(itemDescription);
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(mCallback.mOnRemoveQueueItemCalled);
+            assertEquals(mediaId, mCallback.mQueueDescription.getMediaId());
+            assertEquals(mediaTitle, mCallback.mQueueDescription.getTitle());
+        }
+    }
+
+    // TODO: Uncomment after fixing this test. This test causes an Exception on System UI.
     // @Test
     // @SmallTest
     public void testVolumeControl() throws Exception {
@@ -354,6 +396,8 @@ public class MediaControllerCompatTest {
         private ResultReceiver mCommandCallback;
         private int mRepeatMode;
         private boolean mShuffleModeEnabled;
+        private int mQueueIndex;
+        private MediaDescriptionCompat mQueueDescription;
 
         private boolean mOnPlayCalled;
         private boolean mOnPauseCalled;
@@ -376,6 +420,10 @@ public class MediaControllerCompatTest {
         private boolean mOnPrepareFromUriCalled;
         private boolean mOnSetRepeatModeCalled;
         private boolean mOnSetShuffleModeEnabledCalled;
+        private boolean mOnAddQueueItemCalled;
+        private boolean mOnAddQueueItemAtCalled;
+        private boolean mOnRemoveQueueItemCalled;
+        private boolean mOnRemoveQueueItemAtCalled;
 
         public void reset() {
             mSeekPosition = -1;
@@ -390,6 +438,8 @@ public class MediaControllerCompatTest {
             mCommandCallback = null;
             mShuffleModeEnabled = false;
             mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
+            mQueueIndex = -1;
+            mQueueDescription = null;
 
             mOnPlayCalled = false;
             mOnPauseCalled = false;
@@ -412,6 +462,10 @@ public class MediaControllerCompatTest {
             mOnPrepareFromUriCalled = false;
             mOnSetRepeatModeCalled = false;
             mOnSetShuffleModeEnabledCalled = false;
+            mOnAddQueueItemCalled = false;
+            mOnAddQueueItemAtCalled = false;
+            mOnRemoveQueueItemCalled = false;
+            mOnRemoveQueueItemAtCalled = false;
         }
 
         @Override
@@ -596,10 +650,47 @@ public class MediaControllerCompatTest {
         }
 
         @Override
+        public void onAddQueueItem(MediaDescriptionCompat description) {
+            synchronized (mWaitLock) {
+                mOnAddQueueItemCalled = true;
+                mQueueDescription = description;
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
+        public void onAddQueueItem(MediaDescriptionCompat description, int index) {
+            synchronized (mWaitLock) {
+                mOnAddQueueItemAtCalled = true;
+                mQueueIndex = index;
+                mQueueDescription = description;
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
+        public void onRemoveQueueItem(MediaDescriptionCompat description) {
+            synchronized (mWaitLock) {
+                mOnRemoveQueueItemCalled = true;
+                mQueueDescription = description;
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
         public void onSetShuffleModeEnabled(boolean enabled) {
             synchronized (mWaitLock) {
                 mOnSetShuffleModeEnabledCalled = true;
                 mShuffleModeEnabled = enabled;
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
+        public void onRemoveQueueItemAt(int index) {
+            synchronized (mWaitLock) {
+                mOnRemoveQueueItemAtCalled = true;
+                mQueueIndex = index;
                 mWaitLock.notify();
             }
         }
