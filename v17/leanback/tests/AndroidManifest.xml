@@ -38,6 +38,10 @@
                 android:theme="@style/Theme.Leanback.GuidedStep"
                 android:exported="true" />
 
+        <activity android:name="android.support.v17.leanback.app.RowsFragmentTestActivity"
+            android:theme="@style/Theme.Leanback"
+            android:exported="true" />
+
         <activity android:name="android.support.v17.leanback.app.BrowseFragmentTestActivity"
                   android:theme="@style/Theme.Leanback.Browse"
                   android:exported="true" />
@@ -45,6 +49,10 @@
         <activity android:name="android.support.v17.leanback.app.DetailsFragmentTestActivity"
                   android:theme="@style/Theme.Leanback"
                   android:exported="true" />
+
+        <activity android:name="android.support.v17.leanback.app.RowsSupportFragmentTestActivity"
+            android:theme="@style/Theme.Leanback"
+            android:exported="true" />
 
         <activity android:name="android.support.v17.leanback.app.BrowseSupportFragmentTestActivity"
                   android:theme="@style/Theme.Leanback.Browse"
@@ -56,6 +64,14 @@
 
         <activity android:name="android.support.v17.leanback.app.GuidedStepSupportFragmentTestActivity"
                   android:theme="@style/Theme.Leanback.GuidedStep"
+                  android:exported="true" />
+
+        <activity android:name="android.support.v17.leanback.app.PlaybackTestActivity"
+                  android:theme="@style/Theme.Leanback"
+                  android:exported="true" />
+
+        <activity android:name="android.support.v17.leanback.app.PlaybackSupportTestActivity"
+                  android:theme="@style/Theme.Leanback"
                   android:exported="true" />
 
         <activity android:name="android.support.v17.leanback.app.PlaybackOverlayTestActivity"

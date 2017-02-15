@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
+import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.AnimRes;
 import android.support.fragment.test.R;
@@ -234,6 +235,7 @@ public class FragmentAnimationTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .add(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -258,6 +260,7 @@ public class FragmentAnimationTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .remove(fragment)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -274,6 +277,7 @@ public class FragmentAnimationTest {
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -284,6 +288,7 @@ public class FragmentAnimationTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .replace(R.id.fragmentContainer, fragment2)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -291,6 +296,9 @@ public class FragmentAnimationTest {
         assertPostponed(fragment2, 0);
         assertNotNull(fragment1.getView());
         assertEquals(View.VISIBLE, fragment1.getView().getVisibility());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(1f, fragment1.getView().getAlpha(), 0f);
+        }
         assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
 
         fragment2.startPostponedEnterTransition();
@@ -307,6 +315,7 @@ public class FragmentAnimationTest {
         final AnimatorFragment fragment1 = new AnimatorFragment();
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         assertEquals(0, fragment1.numAnimators);
@@ -318,6 +327,7 @@ public class FragmentAnimationTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .replace(R.id.fragmentContainer, fragment2)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -329,6 +339,9 @@ public class FragmentAnimationTest {
 
         assertNotNull(fragment1.getView());
         assertEquals(View.VISIBLE, fragment1.getView().getVisibility());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(1f, fragment1.getView().getAlpha(), 0f);
+        }
         assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
         assertTrue(fragment1.isAdded());
 
@@ -450,7 +463,12 @@ public class FragmentAnimationTest {
     private void assertPostponed(AnimatorFragment fragment, int expectedAnimators)
             throws InterruptedException {
         assertTrue(fragment.mOnCreateViewCalled);
-        assertEquals(View.INVISIBLE, fragment.getView().getVisibility());
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(View.INVISIBLE, fragment.getView().getVisibility());
+        } else {
+            assertEquals(View.VISIBLE, fragment.getView().getVisibility());
+            assertEquals(0f, fragment.getView().getAlpha(), 0f);
+        }
         assertEquals(expectedAnimators, fragment.numAnimators);
     }
 

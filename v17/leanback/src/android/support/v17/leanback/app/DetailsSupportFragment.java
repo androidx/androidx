@@ -194,6 +194,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.details_rows_dock, mRowsSupportFragment).commit();
         }
+        installTitleView(inflater, mRootView, savedInstanceState);
         mRowsSupportFragment.setAdapter(mAdapter);
         mRowsSupportFragment.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
         mRowsSupportFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
@@ -381,8 +382,11 @@ public class DetailsSupportFragment extends BaseSupportFragment {
 
     void onRowSelected(int selectedPosition, int selectedSubPosition) {
         ObjectAdapter adapter = getAdapter();
-        if (adapter == null || adapter.size() == 0
-                || (selectedPosition == 0 && selectedSubPosition == 0)) {
+        if (( mRowsSupportFragment != null && mRowsSupportFragment.getView() != null
+                && mRowsSupportFragment.getView().hasFocus())
+                && (adapter == null || adapter.size() == 0
+                || (getVerticalGridView().getSelectedPosition() == 0
+                && getVerticalGridView().getSelectedSubPosition() == 0))) {
             showTitle(true);
         } else {
             showTitle(false);
@@ -551,20 +555,31 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         mRootView.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
             @Override
             public View onFocusSearch(View focused, int direction) {
-                if (mVideoSupportFragment == null) {
-                    return null;
-                }
                 if (mRowsSupportFragment.getVerticalGridView() != null
                         && mRowsSupportFragment.getVerticalGridView().hasFocus()) {
                     if (direction == View.FOCUS_UP) {
-                        slideOutGridView();
-                        return mVideoSupportFragment.getView();
+                        if (mVideoSupportFragment != null && mVideoSupportFragment.getView() != null) {
+                            slideOutGridView();
+                            showTitle(false);
+                            return mVideoSupportFragment.getView();
+                        } else if (getTitleView() != null) {
+                            return getTitleView();
+                        }
                     }
-                } else if (mVideoSupportFragment.getView() != null
+                } else if (mVideoSupportFragment != null && mVideoSupportFragment.getView() != null
                         && mVideoSupportFragment.getView().hasFocus()) {
                     if (direction == View.FOCUS_DOWN) {
-                        slideInGridView();
-                        return mRowsSupportFragment.getVerticalGridView();
+                        if (mRowsSupportFragment.getVerticalGridView() != null) {
+                            showTitle(true);
+                            slideInGridView();
+                            return mRowsSupportFragment.getVerticalGridView();
+                        }
+                    }
+                } else if (getTitleView() != null && getTitleView().hasFocus()) {
+                    if (direction == View.FOCUS_DOWN) {
+                        if (mRowsSupportFragment.getVerticalGridView() != null) {
+                            return mRowsSupportFragment.getVerticalGridView();
+                        }
                     }
                 }
                 return focused;
@@ -582,6 +597,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
                 if (mVideoSupportFragment != null && mVideoSupportFragment.getView() != null
                         && mVideoSupportFragment.getView().hasFocus()) {
                     if (keyCode == KeyEvent.KEYCODE_BACK) {
+                        showTitle(true);
                         slideInGridView();
                         getVerticalGridView().requestFocus();
                         return true;

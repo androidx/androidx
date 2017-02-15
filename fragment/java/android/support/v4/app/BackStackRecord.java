@@ -216,7 +216,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
     ArrayList<String> mSharedElementSourceNames;
     ArrayList<String> mSharedElementTargetNames;
-    boolean mAllowOptimization = true;
+    boolean mAllowOptimization = false;
 
     @Override
     public String toString() {
@@ -513,6 +513,12 @@ final class BackStackRecord extends FragmentTransaction implements
             if (mSharedElementSourceNames == null) {
                 mSharedElementSourceNames = new ArrayList<String>();
                 mSharedElementTargetNames = new ArrayList<String>();
+            } else if (mSharedElementTargetNames.contains(name)) {
+                throw new IllegalArgumentException("A shared element with the target name '"
+                        + name + "' has already been added to the transaction.");
+            } else if (mSharedElementSourceNames.contains(transitionName)) {
+                throw new IllegalArgumentException("A shared element with the source name '"
+                        + transitionName + " has already been added to the transaction.");
             }
 
             mSharedElementSourceNames.add(transitionName);
@@ -789,7 +795,7 @@ final class BackStackRecord extends FragmentTransaction implements
                 default:
                     throw new IllegalArgumentException("Unknown cmd: " + op.cmd);
             }
-            if (!mAllowOptimization && op.cmd != OP_ADD) {
+            if (!mAllowOptimization && op.cmd != OP_REMOVE) {
                 mManager.moveFragmentToExpectedState(f);
             }
         }
@@ -851,6 +857,29 @@ final class BackStackRecord extends FragmentTransaction implements
                     }
                 }
                 break;
+            }
+        }
+    }
+
+    /**
+     * Removes fragments that are added or removed during a pop operation.
+     *
+     * @param added Initialized to the fragments that are in the mManager.mAdded, this
+     *              will be modified to contain the fragments that will be in mAdded
+     *              after the execution ({@link #executeOps()}.
+     */
+    void trackAddedFragmentsInPop(ArrayList<Fragment> added) {
+        for (int opNum = 0; opNum < mOps.size(); opNum++) {
+            final Op op = mOps.get(opNum);
+            switch (op.cmd) {
+                case OP_ADD:
+                case OP_ATTACH:
+                    added.remove(op.fragment);
+                    break;
+                case OP_REMOVE:
+                case OP_DETACH:
+                    added.add(op.fragment);
+                    break;
             }
         }
     }

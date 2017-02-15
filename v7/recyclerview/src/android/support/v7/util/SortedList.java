@@ -126,9 +126,9 @@ public class SortedList<T> {
      * @param item The item to be added into the list.
      *
      * @return The index of the newly added item.
-     * @see {@link Callback#compare(Object, Object)}
-     * @see {@link Callback#areItemsTheSame(Object, Object)}
-     * @see {@link Callback#areContentsTheSame(Object, Object)}}
+     * @see Callback#compare(Object, Object)
+     * @see Callback#areItemsTheSame(Object, Object)
+     * @see Callback#areContentsTheSame(Object, Object)}
      */
     public int add(T item) {
         throwIfMerging();
@@ -145,7 +145,7 @@ public class SortedList<T> {
      * </p>
      * @param items Array of items to be added into the list.
      * @param mayModifyInput If true, SortedList is allowed to modify the input.
-     * @see {@link SortedList#addAll(Object[] items)}.
+     * @see SortedList#addAll(Object[] items)
      */
     public void addAll(T[] items, boolean mayModifyInput) {
         throwIfMerging();
@@ -165,7 +165,7 @@ public class SortedList<T> {
     /**
      * Adds the given items to the list. Does not modify the input.
      *
-     * @see {@link SortedList#addAll(T[] items, boolean mayModifyInput)}
+     * @see SortedList#addAll(T[] items, boolean mayModifyInput)
      *
      * @param items Array of items to be added into the list.
      */
@@ -176,7 +176,7 @@ public class SortedList<T> {
     /**
      * Adds the given items to the list. Does not modify the input.
      *
-     * @see {@link SortedList#addAll(T[] items, boolean mayModifyInput)}
+     * @see SortedList#addAll(T[] items, boolean mayModifyInput)
      *
      * @param items Collection of items to be added into the list.
      */

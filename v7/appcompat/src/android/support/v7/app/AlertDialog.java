@@ -145,9 +145,9 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
     }
 
     /**
-     * @see Builder#setCustomTitle(View)
-     *
      * This method has no effect if called after {@link #show()}.
+     *
+     * @see Builder#setCustomTitle(View)
      */
     public void setCustomTitle(View customTitleView) {
         mAlert.setCustomTitle(customTitleView);

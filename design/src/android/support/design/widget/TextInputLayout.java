@@ -201,8 +201,6 @@ public class TextInputLayout extends LinearLayout {
         mCollapsingTextHelper.setPositionInterpolator(new AccelerateInterpolator());
         mCollapsingTextHelper.setCollapsedTextGravity(Gravity.TOP | GravityCompat.START);
 
-        mHintExpanded = mCollapsingTextHelper.getExpansionFraction() == 1f;
-
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.TextInputLayout, defStyleAttr, R.style.Widget_Design_TextInputLayout);
         mHintEnabled = a.getBoolean(R.styleable.TextInputLayout_hintEnabled, true);
@@ -380,8 +378,8 @@ public class TextInputLayout extends LinearLayout {
 
         updatePasswordToggleView();
 
-        // Update the label visibility with no animation
-        updateLabelState(false);
+        // Update the label visibility with no animation, but force a state change
+        updateLabelState(false, true);
     }
 
     private void updateInputLayoutMargins() {
@@ -408,6 +406,10 @@ public class TextInputLayout extends LinearLayout {
     }
 
     void updateLabelState(boolean animate) {
+        updateLabelState(animate, false);
+    }
+
+    void updateLabelState(final boolean animate, final boolean force) {
         final boolean isEnabled = isEnabled();
         final boolean hasText = mEditText != null && !TextUtils.isEmpty(mEditText.getText());
         final boolean isFocused = arrayContains(getDrawableState(), android.R.attr.state_focused);
@@ -427,12 +429,12 @@ public class TextInputLayout extends LinearLayout {
 
         if (hasText || (isEnabled() && (isFocused || isErrorShowing))) {
             // We should be showing the label so do so if it isn't already
-            if (mHintExpanded) {
+            if (force || mHintExpanded) {
                 collapseHint(animate);
             }
         } else {
             // We should not be showing the label so hide it
-            if (!mHintExpanded) {
+            if (force || !mHintExpanded) {
                 expandHint(animate);
             }
         }
@@ -1074,6 +1076,13 @@ public class TextInputLayout extends LinearLayout {
                         passwordVisibilityToggleRequested();
                     }
                 });
+            }
+
+            if (mEditText != null && ViewCompat.getMinimumHeight(mEditText) <= 0) {
+                // We should make sure that the EditText has the same min-height as the password
+                // toggle view. This ensure focus works properly, and there is no visual jump
+                // if the password toggle is enabled/disabled.
+                mEditText.setMinimumHeight(ViewCompat.getMinimumHeight(mPasswordToggleView));
             }
 
             mPasswordToggleView.setVisibility(VISIBLE);

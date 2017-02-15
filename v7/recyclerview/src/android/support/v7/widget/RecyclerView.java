@@ -189,6 +189,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     private static final boolean FORCE_ABS_FOCUS_SEARCH_DIRECTION = Build.VERSION.SDK_INT <= 15;
 
+    /**
+     * on API 15-, a focused child can still be considered a focused child of RV even after
+     * it's being removed or its focusable flag is set to false. This is because when this focused
+     * child is detached, the reference to this child is not removed in clearFocus. API 16 and above
+     * properly handle this case by calling ensureInputFocusOnFirstFocusable or rootViewRequestFocus
+     * to request focus on a new child, which will clear the focus on the old (detached) child as a
+     * side-effect.
+     */
+    private static final boolean IGNORE_DETACHED_FOCUSED_CHILD = Build.VERSION.SDK_INT <= 15;
+
     static final boolean DISPATCH_TEMP_DETACH = false;
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -1315,7 +1325,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      *
      * @param extension ViewCacheExtension to be used or null if you want to clear the existing one.
      *
-     * @see {@link ViewCacheExtension#getViewForPositionAndType(Recycler, int, int)}
+     * @see ViewCacheExtension#getViewForPositionAndType(Recycler, int, int)
      */
     public void setViewCacheExtension(ViewCacheExtension extension) {
         mRecycler.setViewCacheExtension(extension);
@@ -2990,7 +3000,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // custom onMeasure
             if (mAdapterUpdateDuringMeasure) {
                 eatRequestLayout();
+                onEnterLayoutOrScroll();
                 processAdapterUpdatesAndSetAnimationFlags();
+                onExitLayoutOrScroll();
 
                 if (mState.mRunPredictiveAnimations) {
                     mState.mInPreLayout = true;
@@ -3341,9 +3353,28 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // only recover focus if RV itself has the focus or the focused view is hidden
         if (!isFocused()) {
             final View focusedChild = getFocusedChild();
-            if (!mChildHelper.isHidden(focusedChild)
-                    // on API 15, this happens :/.
-                    && focusedChild.getParent() == this && focusedChild.hasFocus()) {
+            if (IGNORE_DETACHED_FOCUSED_CHILD
+                    && (focusedChild.getParent() == null || !focusedChild.hasFocus())) {
+                // Special handling of API 15-. A focused child can be invalid because mFocus is not
+                // cleared when the child is detached (mParent = null),
+                // This happens because clearFocus on API 15- does not invalidate mFocus of its
+                // parent when this child is detached.
+                // For API 16+, this is not an issue because requestFocus takes care of clearing the
+                // prior detached focused child. For API 15- the problem happens in 2 cases because
+                // clearChild does not call clearChildFocus on RV: 1. setFocusable(false) is called
+                // for the current focused item which calls clearChild or 2. when the prior focused
+                // child is removed, removeDetachedView called in layout step 3 which calls
+                // clearChild. We should ignore this invalid focused child in all our calculations
+                // for the next view to receive focus, and apply the focus recovery logic instead.
+                if (mChildHelper.getChildCount() == 0) {
+                    // No children left. Request focus on the RV itself since one of its children
+                    // was holding focus previously.
+                    requestFocus();
+                    return;
+                }
+            } else if (!mChildHelper.isHidden(focusedChild)) {
+                // If the currently focused child is hidden, apply the focus recovery logic.
+                // Otherwise return, i.e. the currently (unhidden) focused child is good enough :/.
                 return;
             }
         }

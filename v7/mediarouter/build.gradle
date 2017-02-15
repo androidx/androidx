@@ -4,6 +4,9 @@ archivesBaseName = 'mediarouter-v7'
 dependencies {
     compile project(":support-appcompat-v7")
     compile project(":support-palette-v7")
+
+    androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}")
+    testCompile 'junit:junit:4.12'
 }
 
 android {
@@ -11,6 +14,8 @@ android {
 
     defaultConfig {
         minSdkVersion 9
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
@@ -23,6 +28,11 @@ android {
                 'src'
         ]
         main.res.srcDir 'res'
+
+        androidTest.setRoot('tests')
+        androidTest.java.srcDir 'tests/src'
+        androidTest.res.srcDir 'tests/res'
+        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
     compileOptions {

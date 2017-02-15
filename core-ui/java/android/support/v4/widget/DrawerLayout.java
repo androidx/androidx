@@ -453,7 +453,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     /**
      * Set a simple drawable used for the left or right shadow. The drawable provided must have a
      * nonzero intrinsic width. For API 21 and above, an elevation will be set on the drawer
-     * instead of the drawable provided.
+     * instead of using the provided shadow drawable.
      *
      * <p>Note that for better support for both left-to-right and right-to-left layout
      * directions, a drawable for RTL layout (in additional to the one in LTR layout) can be
@@ -492,7 +492,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     /**
      * Set a simple drawable used for the left or right shadow. The drawable provided must have a
      * nonzero intrinsic width. For API 21 and above, an elevation will be set on the drawer
-     * instead of the drawable provided.
+     * instead of using the provided shadow drawable.
      *
      * <p>Note that for better support for both left-to-right and right-to-left layout
      * directions, a drawable for RTL layout (in additional to the one in LTR layout) can be

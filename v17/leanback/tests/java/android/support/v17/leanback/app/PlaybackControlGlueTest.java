@@ -19,20 +19,29 @@ package android.support.v17.leanback.app;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
+import android.support.v17.leanback.widget.PlaybackRowPresenter;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.view.KeyEvent;
+import android.view.View;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -41,6 +50,8 @@ public class PlaybackControlGlueTest {
 
     static class PlayControlGlueImpl extends PlaybackControlGlue {
         int mSpeedId = PLAYBACK_SPEED_PAUSED;
+        // number of times onRowChanged callback is called
+        int mOnRowChangedCallCount = 0;
 
         PlayControlGlueImpl(Context context, int[] seekSpeeds) {
             super(context, seekSpeeds);
@@ -48,6 +59,11 @@ public class PlaybackControlGlueTest {
 
         PlayControlGlueImpl(Context context, int[] ffSpeeds, int[] rwSpeeds) {
             super(context, ffSpeeds, rwSpeeds);
+        }
+
+        PlayControlGlueImpl(Context context, PlaybackOverlayFragment fragment,
+                                   int[] seekSpeeds) {
+            super(context, fragment, seekSpeeds);
         }
 
         @Override
@@ -115,6 +131,16 @@ public class PlaybackControlGlueTest {
 
         @Override
         protected void onRowChanged(PlaybackControlsRow row) {
+            mOnRowChangedCallCount++;
+        }
+
+        public void notifyMetaDataChanged() {
+            onMetadataChanged();
+            onStateChanged();
+        }
+
+        public int getOnRowChangedCallCount() {
+            return mOnRowChangedCallCount;
         }
     }
 
@@ -502,4 +528,78 @@ public class PlaybackControlGlueTest {
         assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
     }
 
+    @Test
+    public void testOnItemClickedListener() {
+        PlaybackControlsRow row = new PlaybackControlsRow();
+        final PlaybackOverlayFragment[] fragmentResult = new PlaybackOverlayFragment[1];
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragmentResult[0] = new PlaybackOverlayFragment();
+            }
+        });
+        PlaybackOverlayFragment fragment = fragmentResult[0];
+        glue.setHost(new PlaybackControlGlue.PlaybackGlueHostOld(fragment));
+        glue.setControlsRow(row);
+        SparseArrayObjectAdapter adapter = (SparseArrayObjectAdapter)
+                row.getPrimaryActionsAdapter();
+        PlaybackControlsRow.MultiAction playPause = (PlaybackControlsRow.MultiAction) adapter
+                .lookup(PlaybackControlGlue.ACTION_PLAY_PAUSE);
+        OnItemViewClickedListener listener = Mockito.mock(OnItemViewClickedListener.class);
+        glue.setOnItemViewClickedListener(listener);
+
+        // create fake row ViewHolder and fade item ViewHolder
+        View rowView = new View(context);
+        View view = new View(context);
+        PlaybackRowPresenter.ViewHolder rowVh = new PlaybackRowPresenter.ViewHolder(rowView);
+        Presenter.ViewHolder vh = new Presenter.ViewHolder(view);
+
+        // Initially media is paused
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_PAUSED, glue.getCurrentSpeedId());
+
+        // simulate a click inside PlaybackOverlayFragment's PlaybackRow.
+        fragment.getOnItemViewClickedListener().onItemClicked(vh, playPause, rowVh, row);
+        verify(listener, times(0)).onItemClicked(vh, playPause, rowVh, row);
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
+
+        // simulate a click on object other than PlaybackRow.
+        Object regularItem = new Object();
+        Row regularRow = new Row();
+        RowPresenter.ViewHolder regularRowViewHolder = new RowPresenter.ViewHolder(rowView);
+        Presenter.ViewHolder regularViewHOlder = new Presenter.ViewHolder(view);
+        fragment.getOnItemViewClickedListener().onItemClicked(regularViewHOlder, regularItem,
+                regularRowViewHolder, regularRow);
+        verify(listener, times(1)).onItemClicked(regularViewHOlder, regularItem,
+                regularRowViewHolder, regularRow);
+        assertEquals(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
+    }
+
+    @Test
+    public void testOnRowChangedCallback() throws Exception {
+        final PlaybackOverlayFragment[] fragmentResult = new
+                PlaybackOverlayFragment[1];
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragmentResult[0] = new PlaybackOverlayFragment();
+            }
+        });
+        PlaybackOverlayFragment fragment = fragmentResult[0];
+        PlayControlGlueImpl playbackGlue = new PlayControlGlueImpl(context, fragment,
+                new int[]{
+                        PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0,
+                        PlaybackControlGlue.PLAYBACK_SPEED_FAST_L1,
+                        PlaybackControlGlue.PLAYBACK_SPEED_FAST_L2
+                });
+
+        // before any controls row is created the count is zero
+        assertEquals(playbackGlue.getOnRowChangedCallCount(), 0);
+        playbackGlue.createControlsRowAndPresenter();
+        // after a controls row is created, onRowChanged() call back is called once
+        assertEquals(playbackGlue.getOnRowChangedCallCount(), 1);
+        playbackGlue.notifyMetaDataChanged();
+        // onMetaDataChanged() calls updateRowMetadata which ends up calling
+        // notifyPlaybackRowChanged on the old host and finally onRowChanged on the glue.
+        assertEquals(playbackGlue.getOnRowChangedCallCount(), 2);
+    }
 }

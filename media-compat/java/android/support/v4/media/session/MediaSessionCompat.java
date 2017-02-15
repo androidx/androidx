@@ -195,14 +195,12 @@ public class MediaSessionCompat {
      * a pending intent). You must call {@link #release()} when finished with the session.
      * <p>
      * The session will automatically be registered with the system but will not be published
-     * until {@link #setActive(boolean) setActive(true)} is called. Note that {@code mbrComponent}
-     * and {@code mrbIntent} are only used for API 20 or earlier. If you  want to set a media button
-     * receiver in API 21 or later, call {@link #setMediaButtonReceiver}.
+     * until {@link #setActive(boolean) setActive(true)} is called.
      * </p><p>
-     * For API 20 or earlier, the new session will use the given {@code mbrComponent}.
-     * If null, this will attempt to find an appropriate {@link BroadcastReceiver} that handles
-     * {@link Intent#ACTION_MEDIA_BUTTON} from your manifest. See {@link MediaButtonReceiver} for
-     * more details.
+     * For API 20 or earlier, note that a media button receiver is required for handling
+     * {@link Intent#ACTION_MEDIA_BUTTON}. This constructor will attempt to find an appropriate
+     * {@link BroadcastReceiver} from your manifest if it's not specified. See
+     * {@link MediaButtonReceiver} for more details.
      * </p>
      * @param context The context to use to create the session.
      * @param tag A short name for debugging purposes.
@@ -222,8 +220,24 @@ public class MediaSessionCompat {
             throw new IllegalArgumentException("tag must not be null or empty");
         }
 
+        if (mbrComponent == null) {
+            mbrComponent = MediaButtonReceiver.getMediaButtonReceiverComponent(context);
+            if (mbrComponent == null) {
+                Log.w(TAG, "Couldn't find a unique registered media button receiver in the "
+                        + "given context.");
+            }
+        }
+        if (mbrComponent != null && mbrIntent == null) {
+            // construct a PendingIntent for the media button
+            Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+            // the associated intent will be handled by the component being registered
+            mediaButtonIntent.setComponent(mbrComponent);
+            mbrIntent = PendingIntent.getBroadcast(context,
+                    0/* requestCode, ignored */, mediaButtonIntent, 0/* flags */);
+        }
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaSessionImplApi21(context, tag);
+            mImpl.setMediaButtonReceiver(mbrIntent);
         } else {
             mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent);
         }
@@ -1329,21 +1343,6 @@ public class MediaSessionCompat {
         public MediaSessionImplBase(Context context, String tag, ComponentName mbrComponent,
                 PendingIntent mbrIntent) {
             if (mbrComponent == null) {
-                mbrComponent = MediaButtonReceiver.getMediaButtonReceiverComponent(context);
-                if (mbrComponent == null) {
-                    Log.w(TAG, "Couldn't find a unique registered media button receiver in the "
-                            + "given context.");
-                }
-            }
-            if (mbrComponent != null && mbrIntent == null) {
-                // construct a PendingIntent for the media button
-                Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-                // the associated intent will be handled by the component being registered
-                mediaButtonIntent.setComponent(mbrComponent);
-                mbrIntent = PendingIntent.getBroadcast(context,
-                        0/* requestCode, ignored */, mediaButtonIntent, 0/* flags */);
-            }
-            if (mbrComponent == null) {
                 throw new IllegalArgumentException(
                         "MediaButtonReceiver component may not be null.");
             }
@@ -2302,7 +2301,9 @@ public class MediaSessionCompat {
         public void setCallback(Callback callback, Handler handler) {
             MediaSessionCompatApi21.setCallback(mSessionObj,
                     callback == null ? null : callback.mCallbackObj, handler);
-            callback.mSessionImpl = new WeakReference<MediaSessionImpl>(this);
+            if (callback != null) {
+                callback.mSessionImpl = new WeakReference<MediaSessionImpl>(this);
+            }
         }
 
         @Override

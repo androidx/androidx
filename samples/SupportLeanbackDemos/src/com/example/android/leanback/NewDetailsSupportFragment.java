@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.DetailsBackgroundParallaxHelper;
 import android.support.v17.leanback.app.DetailsFragmentVideoHelper;
-import android.support.v17.leanback.app.VideoSupportFragment;
 import android.support.v17.leanback.media.MediaPlayerGlue;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -66,6 +65,7 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
     private boolean TEST_OVERVIEW_ROW_ON_SECOND;
     private boolean TEST_SHARED_ELEMENT_TRANSITION;
     private boolean TEST_ENTRANCE_TRANSITION;
+    private boolean TEST_BACKGROUND_PLAYER;
 
     private static final long TIME_TO_LOAD_OVERVIEW_ROW_MS = 1000;
     private static final long TIME_TO_LOAD_RELATED_ROWS_MS = 2000;
@@ -80,7 +80,6 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
     private BackgroundHelper mBackgroundHelper;
     private int mBitmapMinVerticalOffset = -100;
     private MediaPlayerGlue mMediaPlayerGlue;
-    private VideoSupportFragment mVideoSupportFragment;
 
     private void initializeTest() {
         TEST_SHARED_ELEMENT_TRANSITION = null != getActivity().getWindow()
@@ -100,27 +99,32 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
                 getActivity(), getParallaxManager())
                 .setCoverImageMinVerticalOffset(mBitmapMinVerticalOffset)
                 .build();
-        mMediaPlayerGlue = new MediaPlayerGlue(getActivity());
-        mMediaPlayerGlue.setHost(createPlaybackGlueHost());
-        mVideoHelper = new DetailsFragmentVideoHelper(mMediaPlayerGlue, getParallaxManager());
-        mVideoHelper.setBackgroundDrawable(mParallaxHelper.getCoverImageDrawable());
+        if (TEST_BACKGROUND_PLAYER) {
+            mMediaPlayerGlue = new MediaPlayerGlue(getActivity());
+            mMediaPlayerGlue.setHost(createPlaybackGlueHost());
+            mVideoHelper = new DetailsFragmentVideoHelper(mMediaPlayerGlue, getParallaxManager());
+            mVideoHelper.setBackgroundDrawable(mParallaxHelper.getCoverImageDrawable());
 
-        mMediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
-        mMediaPlayerGlue.setArtist("A Googleer");
-        mMediaPlayerGlue.setTitle("Diving with Sharks");
-        mMediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
+            mMediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
+            mMediaPlayerGlue.setArtist("A Googleer");
+            mMediaPlayerGlue.setTitle("Diving with Sharks");
+            mMediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
+
+        }
 
         final Context context = getActivity();
         setBadgeDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_title,
                 context.getTheme()));
         setTitle("Leanback Sample App");
-        setOnSearchClickedListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SearchSupportActivity.class);
-                startActivity(intent);
-            }
-        });
+        if (!TEST_BACKGROUND_PLAYER) {
+            setOnSearchClickedListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(getActivity(), SearchSupportActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
 
         mActionPlay = new Action(ACTION_PLAY, "Play");
         mActionRent = new Action(ACTION_RENT, "Rent", "$3.99", ResourcesCompat.getDrawable(
@@ -168,12 +172,7 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
         ps.addClassPresenter(ListRow.class, new ListRowPresenter());
 
         mRowsAdapter = new ArrayObjectAdapter(ps);
-
-        PhotoItem item = (PhotoItem) (savedInstanceState != null ?
-                savedInstanceState.getParcelable(ITEM) : null);
-        if (item != null) {
-            setItem(item);
-        }
+        updateAdapter();
 
         setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
@@ -226,9 +225,19 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
         return view;
     }
 
+    public void setBackgroundVideo(boolean backgroundVideo) {
+        TEST_BACKGROUND_PLAYER = backgroundVideo;
+    }
+
     public void setItem(PhotoItem photoItem) {
         mPhotoItem = photoItem;
+        updateAdapter();
+    }
 
+    void updateAdapter() {
+        if (mRowsAdapter == null) {
+            return;
+        }
         mRowsAdapter.clear();
         new Handler().postDelayed(new Runnable() {
             public void run() {
@@ -298,6 +307,8 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
     @Override
     public void onStop() {
         super.onStop();
-        mMediaPlayerGlue.pause();
+        if (TEST_BACKGROUND_PLAYER) {
+            mMediaPlayerGlue.pause();
+        }
     }
 }

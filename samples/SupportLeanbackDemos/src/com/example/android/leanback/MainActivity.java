@@ -26,6 +26,7 @@ import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.res.ResourcesCompat;
+
 import java.util.List;
 
 /**
@@ -60,12 +61,35 @@ public class MainActivity extends Activity {
                     R.string.browse_support_description);
             addAction(actions, SearchActivity.class, R.string.search, R.string.search_description);
             addAction(actions, SearchSupportActivity.class, R.string.search_support, R.string.search_support_description);
-            addAction(actions, DetailsActivity.class, R.string.details, R.string.details_description);
+
+            addAction(actions, DetailsActivity.class, R.string.details,
+                    R.string.details_description);
             actions.get(actions.size()-1).getIntent().putExtra(DetailsActivity.EXTRA_ITEM,
                     new PhotoItem("Hello world", R.drawable.gallery_photo_1));
-            addAction(actions, DetailsSupportActivity.class, R.string.details_support, R.string.details_support_description);
+            addAction(actions, DetailsSupportActivity.class, R.string.details_support,
+                    R.string.details_support_description);
             actions.get(actions.size()-1).getIntent().putExtra(DetailsSupportActivity.EXTRA_ITEM,
                     new PhotoItem("Hello world", R.drawable.gallery_photo_1));
+
+            addAction(actions, DetailsVideoActivity.class, R.string.details_video,
+                    R.string.details_video_description);
+            actions.get(actions.size()-1).getIntent().putExtra(DetailsActivity.EXTRA_ITEM,
+                    new PhotoItem("Hello world", R.drawable.gallery_photo_1));
+            addAction(actions, DetailsVideoSupportActivity.class, R.string.details_video_support,
+                    R.string.details_video_support_description);
+            actions.get(actions.size()-1).getIntent().putExtra(DetailsSupportActivity.EXTRA_ITEM,
+                    new PhotoItem("Hello world", R.drawable.gallery_photo_1));
+
+            addAction(actions, DetailsCustomTitleActivity.class, R.string.details_custom_title,
+                    R.string.details_custom_title_description);
+            actions.get(actions.size()-1).getIntent().putExtra(DetailsActivity.EXTRA_ITEM,
+                    new PhotoItem("Hello world", R.drawable.gallery_photo_1));
+            addAction(actions, DetailsCustomTitleSupportActivity.class,
+                    R.string.details_custom_title_support,
+                    R.string.details_custom_title_support_description);
+            actions.get(actions.size()-1).getIntent().putExtra(DetailsSupportActivity.EXTRA_ITEM,
+                    new PhotoItem("Hello world", R.drawable.gallery_photo_1));
+
             addAction(actions, SearchDetailsActivity.class, R.string.search_details,
                     R.string.search_details_description);
             actions.get(actions.size()-1).getIntent().putExtra(SearchDetailsActivity.EXTRA_ITEM,
@@ -91,10 +115,14 @@ public class MainActivity extends Activity {
                     R.string.browseerror_description);
             addAction(actions, BrowseErrorSupportActivity.class, R.string.browseerror_support,
                     R.string.browseerror_support_description);
-            addAction(actions, PlaybackOverlayActivity.class, R.string.playback,
+            addAction(actions, PlaybackActivity.class, R.string.playback,
                     R.string.playback_description);
-            addAction(actions, PlaybackOverlaySupportActivity.class, R.string.playback_support,
+            addAction(actions, PlaybackSupportActivity.class, R.string.playback_support,
                     R.string.playback_support_description);
+            addAction(actions, PlaybackOverlayActivity.class, R.string.playbackoverlay,
+                    R.string.playbackoverlay_description);
+            addAction(actions, PlaybackOverlaySupportActivity.class,
+                    R.string.playbackoverlay_support, R.string.playbackoverlay_support_description);
             addAction(actions, VideoActivity.class, R.string.video_playback,
                     R.string.playback_description);
             addAction(actions, VideoSupportActivity.class, R.string.video_playback_support,

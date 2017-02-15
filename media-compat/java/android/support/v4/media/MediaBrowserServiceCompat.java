@@ -403,6 +403,11 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
         @Override
         public Bundle getBrowserRootHints() {
+            // If EXTRA_MESSENGER_BINDER is used, mCurConnection is not null.
+            if (mCurConnection != null) {
+                return mCurConnection.rootHints == null ? null
+                        : new Bundle(mCurConnection.rootHints);
+            }
             return MediaBrowserServiceCompatApi24.getBrowserRootHints(mServiceObj);
         }
     }

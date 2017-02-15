@@ -61,6 +61,7 @@ public class PostponedTransitionTest {
         mBeginningFragment = new PostponedFragment1();
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, mBeginningFragment)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -81,6 +82,7 @@ public class PostponedTransitionTest {
                 .addSharedElement(startBlue, "blueSquare")
                 .replace(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -126,12 +128,14 @@ public class PostponedTransitionTest {
                         .addSharedElement(startBlue, "blueSquare")
                         .replace(R.id.fragmentContainer, fragment2)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
 
                 fm.beginTransaction()
                         .addSharedElement(startBlue, "blueSquare")
                         .replace(R.id.fragmentContainer, fragment3)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
             }
         });
@@ -176,6 +180,7 @@ public class PostponedTransitionTest {
                 .addSharedElement(startBlue, "blueSquare")
                 .replace(R.id.fragmentContainer, fragment2)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -187,6 +192,7 @@ public class PostponedTransitionTest {
                 .addSharedElement(startBlue, "blueSquare")
                 .replace(R.id.fragmentContainer, fragment3)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         // This should cancel the mBeginningFragment -> fragment2 transition
@@ -238,6 +244,7 @@ public class PostponedTransitionTest {
                 .attach(fragment2)
                 .show(fragment2)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -266,7 +273,10 @@ public class PostponedTransitionTest {
     @Test
     public void differentContainers() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
-        fm.beginTransaction().remove(mBeginningFragment).commit();
+        fm.beginTransaction()
+                .remove(mBeginningFragment)
+                .setAllowOptimization(true)
+                .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         FragmentTestUtil.setContentView(mActivityRule, R.layout.double_container);
 
@@ -276,6 +286,7 @@ public class PostponedTransitionTest {
         fm.beginTransaction()
                 .add(R.id.fragmentContainer1, fragment1)
                 .add(R.id.fragmentContainer2, fragment2)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         fragment1.startPostponedEnterTransition();
@@ -294,6 +305,7 @@ public class PostponedTransitionTest {
                 .addSharedElement(startBlue1, "blueSquare")
                 .replace(R.id.fragmentContainer1, fragment3)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -306,6 +318,7 @@ public class PostponedTransitionTest {
                 .addSharedElement(startBlue2, "blueSquare")
                 .replace(R.id.fragmentContainer2, fragment4)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -358,7 +371,10 @@ public class PostponedTransitionTest {
     @Test
     public void outOfOrderContainers() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
-        fm.beginTransaction().remove(mBeginningFragment).commit();
+        fm.beginTransaction()
+                .remove(mBeginningFragment)
+                .setAllowOptimization(true)
+                .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         FragmentTestUtil.setContentView(mActivityRule, R.layout.double_container);
 
@@ -368,6 +384,7 @@ public class PostponedTransitionTest {
         fm.beginTransaction()
                 .add(R.id.fragmentContainer1, fragment1)
                 .add(R.id.fragmentContainer2, fragment2)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         fragment1.startPostponedEnterTransition();
@@ -386,6 +403,7 @@ public class PostponedTransitionTest {
                 .addSharedElement(startBlue1, "blueSquare")
                 .replace(R.id.fragmentContainer1, fragment3)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -398,6 +416,7 @@ public class PostponedTransitionTest {
                 .addSharedElement(startBlue2, "blueSquare")
                 .replace(R.id.fragmentContainer2, fragment4)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -450,7 +469,10 @@ public class PostponedTransitionTest {
     @Test
     public void commitNowNoEffect() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
-        fm.beginTransaction().remove(mBeginningFragment).commit();
+        fm.beginTransaction()
+                .remove(mBeginningFragment)
+                .setAllowOptimization(true)
+                .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         FragmentTestUtil.setContentView(mActivityRule, R.layout.double_container);
 
@@ -460,6 +482,7 @@ public class PostponedTransitionTest {
         fm.beginTransaction()
                 .add(R.id.fragmentContainer1, fragment1)
                 .add(R.id.fragmentContainer2, fragment2)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         fragment1.startPostponedEnterTransition();
@@ -480,6 +503,7 @@ public class PostponedTransitionTest {
                 .replace(R.id.fragmentContainer1, fragment3)
                 .add(strictFragment1, "1")
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -497,6 +521,7 @@ public class PostponedTransitionTest {
                         .replace(R.id.fragmentContainer2, fragment4)
                         .remove(strictFragment1)
                         .add(strictFragment2, "2")
+                        .setAllowOptimization(true)
                         .commitNow();
             }
         });
@@ -534,6 +559,7 @@ public class PostponedTransitionTest {
                 .addSharedElement(startBlue1, "blueSquare")
                 .replace(R.id.fragmentContainer, fragment2)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -545,6 +571,7 @@ public class PostponedTransitionTest {
                 fm.beginTransaction()
                         .addSharedElement(startBlue2, "blueSquare")
                         .replace(R.id.fragmentContainer, fragment1)
+                        .setAllowOptimization(true)
                         .commitNow();
             }
         });
@@ -562,7 +589,10 @@ public class PostponedTransitionTest {
     @Test
     public void noAccidentalRemoval() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
-        fm.beginTransaction().remove(mBeginningFragment).commit();
+        fm.beginTransaction()
+                .remove(mBeginningFragment)
+                .setAllowOptimization(true)
+                .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         FragmentTestUtil.setContentView(mActivityRule, R.layout.double_container);
 
@@ -570,6 +600,7 @@ public class PostponedTransitionTest {
 
         fm.beginTransaction()
                 .add(R.id.fragmentContainer1, fragment1)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         fragment1.startPostponedEnterTransition();
@@ -580,6 +611,7 @@ public class PostponedTransitionTest {
         // Create a postponed transaction that removes a view
         fm.beginTransaction()
                 .replace(R.id.fragmentContainer1, fragment2)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         assertPostponedTransition(fragment1, fragment2, null);
@@ -588,6 +620,7 @@ public class PostponedTransitionTest {
         // Create a transaction that doesn't interfere with the previously postponed one
         fm.beginTransaction()
                 .replace(R.id.fragmentContainer2, fragment3)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -613,6 +646,7 @@ public class PostponedTransitionTest {
                 .addSharedElement(startBlue, "blueSquare")
                 .replace(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -630,6 +664,9 @@ public class PostponedTransitionTest {
         assertNull(fragment.getView());
         assertNotNull(mBeginningFragment.getView());
         assertEquals(View.VISIBLE, mBeginningFragment.getView().getVisibility());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(1f, mBeginningFragment.getView().getAlpha(), 0f);
+        }
         assertTrue(mBeginningFragment.getView().isAttachedToWindow());
     }
 
@@ -646,6 +683,7 @@ public class PostponedTransitionTest {
         fm1.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1, "1")
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -660,6 +698,9 @@ public class PostponedTransitionTest {
         assertNotNull(fragment2);
         assertNotNull(fragment2.getView());
         assertEquals(View.VISIBLE, fragment2.getView().getVisibility());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(1f, fragment2.getView().getAlpha(), 0f);
+        }
         assertTrue(fragment2.isResumed());
         assertTrue(fragment2.isAdded());
         assertTrue(fragment2.getView().isAttachedToWindow());
@@ -691,7 +732,12 @@ public class PostponedTransitionTest {
         assertTrue(fromFragment.getView().isAttachedToWindow());
         assertTrue(toFragment.getView().isAttachedToWindow());
         assertEquals(View.VISIBLE, fromFragment.getView().getVisibility());
-        assertEquals(View.INVISIBLE, toFragment.getView().getVisibility());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            assertEquals(View.VISIBLE, toFragment.getView().getVisibility());
+            assertEquals(0f, toFragment.getView().getAlpha(), 0f);
+        } else {
+            assertEquals(View.INVISIBLE, toFragment.getView().getVisibility());
+        }
         assureNoTransition(fromFragment);
         assureNoTransition(toFragment);
         assertTrue(fromFragment.isResumed());

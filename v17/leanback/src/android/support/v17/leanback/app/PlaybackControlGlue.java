@@ -20,6 +20,7 @@ import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
+import android.support.v17.leanback.widget.PlaybackRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
@@ -210,9 +211,6 @@ public abstract class PlaybackControlGlue extends
      * containing this row should be notified.
      */
     protected void onRowChanged(PlaybackControlsRow row) {
-        if (getHost() != null) {
-            getHost().notifyPlaybackRowChanged();
-        }
     }
 
     /**
@@ -276,9 +274,24 @@ public abstract class PlaybackControlGlue extends
     static final class PlaybackGlueHostOld extends PlaybackGlueHost {
         final PlaybackOverlayFragment mFragment;
         PlaybackControlGlue mGlue;
+        OnActionClickedListener mActionClickedListener;
 
         public PlaybackGlueHostOld(PlaybackOverlayFragment fragment) {
             mFragment = fragment;
+            mFragment.setOnItemViewClickedListener(new OnItemViewClickedListener() {
+                @Override
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                                          RowPresenter.ViewHolder rowViewHolder, Row row) {
+                    if (item instanceof Action
+                            && rowViewHolder instanceof PlaybackRowPresenter.ViewHolder
+                            && mActionClickedListener != null) {
+                        mActionClickedListener.onActionClicked((Action) item);
+                    } else if (mGlue != null && mGlue.getOnItemViewClickedListener() != null) {
+                        mGlue.getOnItemViewClickedListener().onItemClicked(itemViewHolder,
+                                item, rowViewHolder, row);
+                    }
+                }
+            });
         }
 
         @Override
@@ -302,19 +315,7 @@ public abstract class PlaybackControlGlue extends
 
         @Override
         public void setOnActionClickedListener(final OnActionClickedListener listener) {
-            mFragment.setOnItemViewClickedListener(new OnItemViewClickedListener() {
-                @Override
-                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-                                          RowPresenter.ViewHolder rowViewHolder, Row row) {
-                    if (item instanceof Action) {
-                        listener.onActionClicked((Action)item);
-                        if (mGlue.getOnItemViewClickedListener() != null) {
-                            mGlue.getOnItemViewClickedListener().onItemClicked(itemViewHolder,
-                                    item, rowViewHolder, row);
-                        }
-                    }
-                }
-            });
+            mActionClickedListener = listener;
         }
 
         @Override
@@ -325,6 +326,11 @@ public abstract class PlaybackControlGlue extends
         @Override
         public void fadeOut() {
             mFragment.fadeOut();
+        }
+
+        @Override
+        public void notifyPlaybackRowChanged() {
+            mGlue.onRowChanged(mGlue.getControlsRow());
         }
     }
 }
