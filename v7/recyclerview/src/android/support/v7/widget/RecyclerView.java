@@ -9600,13 +9600,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         public void onInitializeAccessibilityNodeInfo(Recycler recycler, State state,
                 AccessibilityNodeInfoCompat info) {
-            if (ViewCompat.canScrollVertically(mRecyclerView, -1)
-                    || ViewCompat.canScrollHorizontally(mRecyclerView, -1)) {
+            if (mRecyclerView.canScrollVertically(-1) || mRecyclerView.canScrollHorizontally(-1)) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
                 info.setScrollable(true);
             }
-            if (ViewCompat.canScrollVertically(mRecyclerView, 1)
-                    || ViewCompat.canScrollHorizontally(mRecyclerView, 1)) {
+            if (mRecyclerView.canScrollVertically(1) || mRecyclerView.canScrollHorizontally(1)) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
                 info.setScrollable(true);
             }
@@ -9642,10 +9640,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             if (mRecyclerView == null || record == null) {
                 return;
             }
-            record.setScrollable(ViewCompat.canScrollVertically(mRecyclerView, 1)
-                    || ViewCompat.canScrollVertically(mRecyclerView, -1)
-                    || ViewCompat.canScrollHorizontally(mRecyclerView, -1)
-                    || ViewCompat.canScrollHorizontally(mRecyclerView, 1));
+            record.setScrollable(mRecyclerView.canScrollVertically(1)
+                    || mRecyclerView.canScrollVertically(-1)
+                    || mRecyclerView.canScrollHorizontally(-1)
+                    || mRecyclerView.canScrollHorizontally(1));
 
             if (mRecyclerView.mAdapter != null) {
                 record.setItemCount(mRecyclerView.mAdapter.getItemCount());
@@ -9795,18 +9793,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             int vScroll = 0, hScroll = 0;
             switch (action) {
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
-                    if (ViewCompat.canScrollVertically(mRecyclerView, -1)) {
+                    if (mRecyclerView.canScrollVertically(-1)) {
                         vScroll = -(getHeight() - getPaddingTop() - getPaddingBottom());
                     }
-                    if (ViewCompat.canScrollHorizontally(mRecyclerView, -1)) {
+                    if (mRecyclerView.canScrollHorizontally(-1)) {
                         hScroll = -(getWidth() - getPaddingLeft() - getPaddingRight());
                     }
                     break;
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
-                    if (ViewCompat.canScrollVertically(mRecyclerView, 1)) {
+                    if (mRecyclerView.canScrollVertically(1)) {
                         vScroll = getHeight() - getPaddingTop() - getPaddingBottom();
                     }
-                    if (ViewCompat.canScrollHorizontally(mRecyclerView, 1)) {
+                    if (mRecyclerView.canScrollHorizontally(1)) {
                         hScroll = getWidth() - getPaddingLeft() - getPaddingRight();
                     }
                     break;

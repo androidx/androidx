@@ -1247,7 +1247,7 @@ public class SlidingPaneLayout extends ViewGroup {
             }
         }
 
-        return checkV && ViewCompat.canScrollHorizontally(v, (isLayoutRtlSupport() ? dx : -dx));
+        return checkV && v.canScrollHorizontally((isLayoutRtlSupport() ? dx : -dx));
     }
 
     boolean isDimmed(View child) {

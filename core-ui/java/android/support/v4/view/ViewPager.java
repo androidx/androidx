@@ -2721,7 +2721,7 @@ public class ViewPager extends ViewGroup {
             }
         }
 
-        return checkV && ViewCompat.canScrollHorizontally(v, -dx);
+        return checkV && v.canScrollHorizontally(-dx);
     }
 
     @Override

@@ -46,6 +46,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -110,8 +111,6 @@ public class ViewCompat {
     @Deprecated
     public static final int OVER_SCROLL_NEVER = 2;
 
-    private static final long FAKE_FRAME_TIME = 10;
-
     @IntDef({
             IMPORTANT_FOR_ACCESSIBILITY_AUTO,
             IMPORTANT_FOR_ACCESSIBILITY_YES,
@@ -175,13 +174,16 @@ public class ViewCompat {
      */
     public static final int ACCESSIBILITY_LIVE_REGION_ASSERTIVE = 0x00000002;
 
-    @IntDef({LAYER_TYPE_NONE, LAYER_TYPE_SOFTWARE, LAYER_TYPE_HARDWARE})
+    @IntDef({View.LAYER_TYPE_NONE, View.LAYER_TYPE_SOFTWARE, View.LAYER_TYPE_HARDWARE})
     @Retention(RetentionPolicy.SOURCE)
     private @interface LayerType {}
 
     /**
      * Indicates that the view does not have a layer.
+     *
+     * @deprecated Use {@link View#LAYER_TYPE_NONE} directly.
      */
+    @Deprecated
     public static final int LAYER_TYPE_NONE = 0;
 
     /**
@@ -204,7 +206,10 @@ public class ViewCompat {
      * potentially be slow (particularly when hardware acceleration is turned on
      * since the layer will have to be uploaded into a hardware texture after every
      * update.)</p>
+     *
+     * @deprecated Use {@link View#LAYER_TYPE_SOFTWARE} directly.
      */
+    @Deprecated
     public static final int LAYER_TYPE_SOFTWARE = 1;
 
     /**
@@ -213,7 +218,7 @@ public class ViewCompat {
      * OpenGL hardware) and causes the view to be rendered using Android's hardware
      * rendering pipeline, but only if hardware acceleration is turned on for the
      * view hierarchy. When hardware acceleration is turned off, hardware layers
-     * behave exactly as {@link #LAYER_TYPE_SOFTWARE software layers}.</p>
+     * behave exactly as {@link View#LAYER_TYPE_SOFTWARE software layers}.</p>
      *
      * <p>A hardware layer is useful to apply a specific color filter and/or
      * blending mode and/or translucency to a view and all its children.</p>
@@ -224,7 +229,10 @@ public class ViewCompat {
      * <p>A hardware layer can also be used to increase the rendering quality when
      * rotation transformations are applied on a view. It can also be used to
      * prevent potential clipping issues when applying 3D transforms on a view.</p>
+     *
+     * @deprecated Use {@link View#LAYER_TYPE_HARDWARE} directly.
      */
+    @Deprecated
     public static final int LAYER_TYPE_HARDWARE = 2;
 
     @IntDef({
@@ -387,10 +395,6 @@ public class ViewCompat {
     public static final int SCROLL_INDICATOR_END = 0x20;
 
     interface ViewCompatImpl {
-        boolean canScrollHorizontally(View v, int direction);
-        boolean canScrollVertically(View v, int direction);
-        void onInitializeAccessibilityEvent(View v, AccessibilityEvent event);
-        void onPopulateAccessibilityEvent(View v, AccessibilityEvent event);
         void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info);
         void setAccessibilityDelegate(View v, @Nullable AccessibilityDelegateCompat delegate);
         boolean hasAccessibilityDelegate(View v);
@@ -434,7 +438,6 @@ public class ViewCompat {
         void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled);
         boolean getFitsSystemWindows(View view);
         boolean hasOverlappingRendering(View view);
-        void setFitsSystemWindows(View view, boolean fitSystemWindows);
         void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener);
         WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets);
         WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets);
@@ -472,45 +475,46 @@ public class ViewCompat {
         void setTooltipText(View view, CharSequence tooltipText);
     }
 
-    static class BaseViewCompatImpl implements ViewCompatImpl {
+    static class ICSViewCompatImpl implements ViewCompatImpl {
         private Method mDispatchStartTemporaryDetach;
         private Method mDispatchFinishTemporaryDetach;
         private boolean mTempDetachBound;
         WeakHashMap<View, ViewPropertyAnimatorCompat> mViewPropertyAnimatorCompatMap = null;
         private static Method sChildrenDrawingOrderMethod;
+        static Field sAccessibilityDelegateField;
+        static boolean sAccessibilityDelegateCheckFailed = false;
 
         @Override
-        public boolean canScrollHorizontally(View v, int direction) {
-            return (v instanceof ScrollingView) &&
-                canScrollingViewScrollHorizontally((ScrollingView) v, direction);
-        }
-        @Override
-        public boolean canScrollVertically(View v, int direction) {
-            return (v instanceof ScrollingView) &&
-                    canScrollingViewScrollVertically((ScrollingView) v, direction);
-        }
-
-        @Override
-        public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
-            // Do nothing; API doesn't exist
+        public void setAccessibilityDelegate(View v,
+                @Nullable AccessibilityDelegateCompat delegate) {
+            v.setAccessibilityDelegate(delegate == null ? null : delegate.getBridge());
         }
 
         @Override
         public boolean hasAccessibilityDelegate(View v) {
-            return false;
-        }
-
-        @Override
-        public void onPopulateAccessibilityEvent(View v, AccessibilityEvent event) {
-            // Do nothing; API doesn't exist
-        }
-        @Override
-        public void onInitializeAccessibilityEvent(View v, AccessibilityEvent event) {
-         // Do nothing; API doesn't exist
+            if (sAccessibilityDelegateCheckFailed) {
+                return false; // View implementation might have changed.
+            }
+            if (sAccessibilityDelegateField == null) {
+                try {
+                    sAccessibilityDelegateField = View.class
+                            .getDeclaredField("mAccessibilityDelegate");
+                    sAccessibilityDelegateField.setAccessible(true);
+                } catch (Throwable t) {
+                    sAccessibilityDelegateCheckFailed = true;
+                    return false;
+                }
+            }
+            try {
+                return sAccessibilityDelegateField.get(v) != null;
+            } catch (Throwable t) {
+                sAccessibilityDelegateCheckFailed = true;
+                return false;
+            }
         }
         @Override
         public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
-            // Do nothing; API doesn't exist
+            v.onInitializeAccessibilityNodeInfo((AccessibilityNodeInfo) info.getInfo());
         }
         @Override
         public boolean hasTransientState(View view) {
@@ -538,7 +542,7 @@ public class ViewCompat {
             view.postDelayed(action, getFrameTime() + delayMillis);
         }
         long getFrameTime() {
-            return FAKE_FRAME_TIME;
+            return ValueAnimator.getFrameDelay();
         }
         @Override
         public int getImportantForAccessibility(View view) {
@@ -565,15 +569,18 @@ public class ViewCompat {
         public int getLabelFor(View view) {
             return 0;
         }
+
         @Override
         public void setLabelFor(View view, int id) {
-
         }
         @Override
-        public void setLayerPaint(View view, Paint p) {
-            // No-op until layers became available (HC)
+        public void setLayerPaint(View view, Paint paint) {
+            // Make sure the paint is correct; this will be cheap if it's the same
+            // instance as was used to call setLayerType earlier.
+            view.setLayerType(view.getLayerType(), paint);
+            // This is expensive, but the only way to accomplish this before JB-MR1.
+            view.invalidate();
         }
-
         @Override
         public int getLayoutDirection(View view) {
             return LAYOUT_DIRECTION_LTR;
@@ -677,7 +684,15 @@ public class ViewCompat {
 
         @Override
         public ViewPropertyAnimatorCompat animate(View view) {
-            return new ViewPropertyAnimatorCompat(view);
+            if (mViewPropertyAnimatorCompatMap == null) {
+                mViewPropertyAnimatorCompatMap = new WeakHashMap<>();
+            }
+            ViewPropertyAnimatorCompat vpa = mViewPropertyAnimatorCompatMap.get(view);
+            if (vpa == null) {
+                vpa = new ViewPropertyAnimatorCompat(view);
+                mViewPropertyAnimatorCompatMap.put(view, vpa);
+            }
+            return vpa;
         }
 
         @Override
@@ -754,11 +769,6 @@ public class ViewCompat {
         }
 
         @Override
-        public void setFitsSystemWindows(View view, boolean fitSystemWindows) {
-            // noop
-        }
-
-        @Override
         public void setOnApplyWindowInsetsListener(View view,
                 OnApplyWindowInsetsListener listener) {
             // noop
@@ -817,30 +827,6 @@ public class ViewCompat {
         @Override
         public PorterDuff.Mode getBackgroundTintMode(View view) {
             return ViewCompatBase.getBackgroundTintMode(view);
-        }
-
-        private boolean canScrollingViewScrollHorizontally(ScrollingView view, int direction) {
-            final int offset = view.computeHorizontalScrollOffset();
-            final int range = view.computeHorizontalScrollRange() -
-                    view.computeHorizontalScrollExtent();
-            if (range == 0) return false;
-            if (direction < 0) {
-                return offset > 0;
-            } else {
-                return offset < range - 1;
-            }
-        }
-
-        private boolean canScrollingViewScrollVertically(ScrollingView view, int direction) {
-            final int offset = view.computeVerticalScrollOffset();
-            final int range = view.computeVerticalScrollRange() -
-                    view.computeVerticalScrollExtent();
-            if (range == 0) return false;
-            if (direction < 0) {
-                return offset > 0;
-            } else {
-                return offset < range - 1;
-            }
         }
 
         @Override
@@ -956,12 +942,12 @@ public class ViewCompat {
 
         @Override
         public void offsetLeftAndRight(View view, int offset) {
-            ViewCompatBase.offsetLeftAndRight(view, offset);
+            ViewCompatHC.offsetLeftAndRight(view, offset);
         }
 
         @Override
         public void offsetTopAndBottom(View view, int offset) {
-            ViewCompatBase.offsetTopAndBottom(view, offset);
+            ViewCompatHC.offsetTopAndBottom(view, offset);
         }
 
         @Override
@@ -977,103 +963,6 @@ public class ViewCompat {
         @Override
         public void setTooltipText(View view, CharSequence tooltipText) {
             TooltipCompat.setTooltipText(view, tooltipText);
-        }
-    }
-
-    static class HCViewCompatImpl extends BaseViewCompatImpl {
-        @Override
-        long getFrameTime() {
-            return ValueAnimator.getFrameDelay();
-        }
-
-        @Override
-        public void setLayerPaint(View view, Paint paint) {
-            // Make sure the paint is correct; this will be cheap if it's the same
-            // instance as was used to call setLayerType earlier.
-            view.setLayerType(view.getLayerType(), paint);
-            // This is expensive, but the only way to accomplish this before JB-MR1.
-            view.invalidate();
-        }
-
-        @Override
-        public void offsetLeftAndRight(View view, int offset) {
-            ViewCompatHC.offsetLeftAndRight(view, offset);
-        }
-
-        @Override
-        public void offsetTopAndBottom(View view, int offset) {
-            ViewCompatHC.offsetTopAndBottom(view, offset);
-        }
-    }
-
-    static class ICSViewCompatImpl extends HCViewCompatImpl {
-        static Field mAccessibilityDelegateField;
-        static boolean accessibilityDelegateCheckFailed = false;
-        @Override
-        public boolean canScrollHorizontally(View v, int direction) {
-            return ViewCompatICS.canScrollHorizontally(v, direction);
-        }
-        @Override
-        public boolean canScrollVertically(View v, int direction) {
-            return ViewCompatICS.canScrollVertically(v, direction);
-        }
-        @Override
-        public void onPopulateAccessibilityEvent(View v, AccessibilityEvent event) {
-            ViewCompatICS.onPopulateAccessibilityEvent(v, event);
-        }
-        @Override
-        public void onInitializeAccessibilityEvent(View v, AccessibilityEvent event) {
-            ViewCompatICS.onInitializeAccessibilityEvent(v, event);
-        }
-        @Override
-        public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
-            ViewCompatICS.onInitializeAccessibilityNodeInfo(v, info.getInfo());
-        }
-        @Override
-        public void setAccessibilityDelegate(View v,
-                @Nullable AccessibilityDelegateCompat delegate) {
-            v.setAccessibilityDelegate(delegate == null ? null : delegate.getBridge());
-        }
-
-        @Override
-        public boolean hasAccessibilityDelegate(View v) {
-            if (accessibilityDelegateCheckFailed) {
-                return false; // View implementation might have changed.
-            }
-            if (mAccessibilityDelegateField == null) {
-                try {
-                    mAccessibilityDelegateField = View.class
-                            .getDeclaredField("mAccessibilityDelegate");
-                    mAccessibilityDelegateField.setAccessible(true);
-                } catch (Throwable t) {
-                    accessibilityDelegateCheckFailed = true;
-                    return false;
-                }
-            }
-            try {
-                return mAccessibilityDelegateField.get(v) != null;
-            } catch (Throwable t) {
-                accessibilityDelegateCheckFailed = true;
-                return false;
-            }
-        }
-
-        @Override
-        public ViewPropertyAnimatorCompat animate(View view) {
-            if (mViewPropertyAnimatorCompatMap == null) {
-                mViewPropertyAnimatorCompatMap = new WeakHashMap<>();
-            }
-            ViewPropertyAnimatorCompat vpa = mViewPropertyAnimatorCompatMap.get(view);
-            if (vpa == null) {
-                vpa = new ViewPropertyAnimatorCompat(view);
-                mViewPropertyAnimatorCompatMap.put(view, vpa);
-            }
-            return vpa;
-        }
-
-        @Override
-        public void setFitsSystemWindows(View view, boolean fitSystemWindows) {
-            ViewCompatICS.setFitsSystemWindows(view, fitSystemWindows);
         }
     }
 
@@ -1527,35 +1416,37 @@ public class ViewCompat {
             IMPL = new JBViewCompatImpl();
         } else if (version >= 15) {
             IMPL = new ICSMr1ViewCompatImpl();
-        } else if (version >= 14) {
-            IMPL = new ICSViewCompatImpl();
-        } else if (version >= 11) {
-            IMPL = new HCViewCompatImpl();
         } else {
-            IMPL = new BaseViewCompatImpl();
+            IMPL = new ICSViewCompatImpl();
         }
     }
 
     /**
      * Check if this view can be scrolled horizontally in a certain direction.
      *
-     * @param v The View against which to invoke the method.
+     * @param view The View against which to invoke the method.
      * @param direction Negative to check scrolling left, positive to check scrolling right.
      * @return true if this view can be scrolled in the specified direction, false otherwise.
+     *
+     * @deprecated Use {@link View#canScrollHorizontally(int)} directly.
      */
-    public static boolean canScrollHorizontally(View v, int direction) {
-        return IMPL.canScrollHorizontally(v, direction);
+    @Deprecated
+    public static boolean canScrollHorizontally(View view, int direction) {
+        return view.canScrollHorizontally(direction);
     }
 
     /**
      * Check if this view can be scrolled vertically in a certain direction.
      *
-     * @param v The View against which to invoke the method.
+     * @param view The View against which to invoke the method.
      * @param direction Negative to check scrolling up, positive to check scrolling down.
      * @return true if this view can be scrolled in the specified direction, false otherwise.
+     *
+     * @deprecated Use {@link View#canScrollVertically(int)} directly.
      */
-    public static boolean canScrollVertically(View v, int direction) {
-        return IMPL.canScrollVertically(v, direction);
+    @Deprecated
+    public static boolean canScrollVertically(View view, int direction) {
+        return view.canScrollVertically(direction);
     }
 
     /**
@@ -1626,9 +1517,13 @@ public class ViewCompat {
      *
      * @see View#sendAccessibilityEvent(int)
      * @see View#dispatchPopulateAccessibilityEvent(AccessibilityEvent)
+     *
+     * @deprecated Call {@link View#onPopulateAccessibilityEvent(AccessibilityEvent)} directly.
+     * This method will be removed in a future release.
      */
+    @Deprecated
     public static void onPopulateAccessibilityEvent(View v, AccessibilityEvent event) {
-        IMPL.onPopulateAccessibilityEvent(v, event);
+        v.onPopulateAccessibilityEvent(event);
     }
 
     /**
@@ -1654,9 +1549,13 @@ public class ViewCompat {
      *
      * @see View#sendAccessibilityEvent(int)
      * @see View#dispatchPopulateAccessibilityEvent(AccessibilityEvent)
+     *
+     * @deprecated Call {@link View#onInitializeAccessibilityEvent(AccessibilityEvent)} directly.
+     * This method will be removed in a future release.
      */
+    @Deprecated
     public static void onInitializeAccessibilityEvent(View v, AccessibilityEvent event) {
-        IMPL.onInitializeAccessibilityEvent(v, event);
+        v.onInitializeAccessibilityEvent(event);
     }
 
     /**
@@ -1953,8 +1852,8 @@ public class ViewCompat {
 
     /**
      * <p>Specifies the type of layer backing this view. The layer can be
-     * {@link #LAYER_TYPE_NONE disabled}, {@link #LAYER_TYPE_SOFTWARE software} or
-     * {@link #LAYER_TYPE_HARDWARE hardware}.</p>
+     * {@link View#LAYER_TYPE_NONE disabled}, {@link View#LAYER_TYPE_SOFTWARE software} or
+     * {@link View#LAYER_TYPE_HARDWARE hardware}.</p>
      *
      * <p>A layer is associated with an optional {@link android.graphics.Paint}
      * instance that controls how the layer is composed on screen. The following
@@ -1971,17 +1870,17 @@ public class ViewCompat {
      * equivalent to setting a hardware layer on this view and providing a paint with
      * the desired alpha value.<p>
      *
-     * <p>Refer to the documentation of {@link #LAYER_TYPE_NONE disabled},
-     * {@link #LAYER_TYPE_SOFTWARE software} and {@link #LAYER_TYPE_HARDWARE hardware}
+     * <p>Refer to the documentation of {@link View#LAYER_TYPE_NONE disabled},
+     * {@link View#LAYER_TYPE_SOFTWARE software} and {@link View#LAYER_TYPE_HARDWARE hardware}
      * for more information on when and how to use layers.</p>
      *
      * @param view View to set the layer type for
      * @param layerType The type of layer to use with this view, must be one of
-     *        {@link #LAYER_TYPE_NONE}, {@link #LAYER_TYPE_SOFTWARE} or
-     *        {@link #LAYER_TYPE_HARDWARE}
+     *        {@link View#LAYER_TYPE_NONE}, {@link View#LAYER_TYPE_SOFTWARE} or
+     *        {@link View#LAYER_TYPE_HARDWARE}
      * @param paint The paint used to compose the layer. This argument is optional
      *        and can be null. It is ignored when the layer type is
-     *        {@link #LAYER_TYPE_NONE}
+     *        {@link View#LAYER_TYPE_NONE}
      *
      * @deprecated Use {@link View#setLayerType(int, Paint)} directly.
      */
@@ -1992,19 +1891,19 @@ public class ViewCompat {
 
     /**
      * Indicates what type of layer is currently associated with this view. By default
-     * a view does not have a layer, and the layer type is {@link #LAYER_TYPE_NONE}.
+     * a view does not have a layer, and the layer type is {@link View#LAYER_TYPE_NONE}.
      * Refer to the documentation of
      * {@link #setLayerType(android.view.View, int, android.graphics.Paint)}
      * for more information on the different types of layers.
      *
      * @param view The view to fetch the layer type from
-     * @return {@link #LAYER_TYPE_NONE}, {@link #LAYER_TYPE_SOFTWARE} or
-     *         {@link #LAYER_TYPE_HARDWARE}
+     * @return {@link View#LAYER_TYPE_NONE}, {@link View#LAYER_TYPE_SOFTWARE} or
+     *         {@link View#LAYER_TYPE_HARDWARE}
      *
      * @see #setLayerType(android.view.View, int, android.graphics.Paint)
-     * @see #LAYER_TYPE_NONE
-     * @see #LAYER_TYPE_SOFTWARE
-     * @see #LAYER_TYPE_HARDWARE
+     * @see View#LAYER_TYPE_NONE
+     * @see View#LAYER_TYPE_SOFTWARE
+     * @see View#LAYER_TYPE_HARDWARE
      *
      * @deprecated Use {@link View#getLayerType()} directly.
      */
@@ -2039,7 +1938,7 @@ public class ViewCompat {
 
     /**
      * Updates the {@link Paint} object used with the current layer (used only if the current
-     * layer type is not set to {@link #LAYER_TYPE_NONE}). Changed properties of the Paint
+     * layer type is not set to {@link View#LAYER_TYPE_NONE}). Changed properties of the Paint
      * provided to {@link #setLayerType(android.view.View, int, android.graphics.Paint)}
      * will be used the next time the View is redrawn, but
      * {@link #setLayerPaint(android.view.View, android.graphics.Paint)}
@@ -2063,7 +1962,7 @@ public class ViewCompat {
      * @param view View to set a layer paint for
      * @param paint The paint used to compose the layer. This argument is optional
      *        and can be null. It is ignored when the layer type is
-     *        {@link #LAYER_TYPE_NONE}
+     *        {@link View#LAYER_TYPE_NONE}
      *
      * @see #setLayerType(View, int, android.graphics.Paint)
      */
@@ -2756,9 +2655,12 @@ public class ViewCompat {
      * such as the status bar and inset its content; that is, controlling whether
      * the default implementation of {@link View#fitSystemWindows(Rect)} will be
      * executed. See that method for more details.
+     *
+     * @deprecated Use {@link View#setFitsSystemWindows(boolean)} directly.
      */
+    @Deprecated
     public static void setFitsSystemWindows(View view, boolean fitSystemWindows) {
-        IMPL.setFitsSystemWindows(view, fitSystemWindows);
+        view.setFitsSystemWindows(fitSystemWindows);
     }
 
     /**
