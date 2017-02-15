@@ -1607,7 +1607,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         if (params.isItemRemoved() || params.isItemChanged()) {
             result.mIgnoreConsumed = true;
         }
-        result.mFocusable = view.isFocusable();
+        result.mFocusable = view.hasFocusable();
     }
 
     @Override
@@ -1992,7 +1992,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         } else {
             nextFocus = getChildClosestToEnd();
         }
-        if (nextFocus.isFocusable()) {
+        if (nextFocus.hasFocusable()) {
             if (nextCandidate == null) {
                 return null;
             }
