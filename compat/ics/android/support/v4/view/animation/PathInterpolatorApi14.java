@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,15 +18,12 @@ package android.support.v4.view.animation;
 
 import android.graphics.Path;
 import android.graphics.PathMeasure;
-import android.support.annotation.RequiresApi;
 import android.view.animation.Interpolator;
 
 /**
- * A path interpolator implementation compatible with API 9+.
+ * A path interpolator implementation compatible with API 14+.
  */
-
-@RequiresApi(9)
-class PathInterpolatorGingerbread implements Interpolator {
+class PathInterpolatorApi14 implements Interpolator {
 
     /**
      * Governs the accuracy of the approximation of the {@link Path}.
@@ -36,7 +33,7 @@ class PathInterpolatorGingerbread implements Interpolator {
     private final float[] mX;
     private final float[] mY;
 
-    public PathInterpolatorGingerbread(Path path) {
+    PathInterpolatorApi14(Path path) {
         final PathMeasure pathMeasure = new PathMeasure(path, false /* forceClosed */);
 
         final float pathLength = pathMeasure.getLength();
@@ -55,11 +52,11 @@ class PathInterpolatorGingerbread implements Interpolator {
         }
     }
 
-    public PathInterpolatorGingerbread(float controlX, float controlY) {
+    PathInterpolatorApi14(float controlX, float controlY) {
         this(createQuad(controlX, controlY));
     }
 
-    public PathInterpolatorGingerbread(float controlX1, float controlY1,
+    PathInterpolatorApi14(float controlX1, float controlY1,
             float controlX2, float controlY2) {
         this(createCubic(controlX1, controlY1, controlX2, controlY2));
     }
