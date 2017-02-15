@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from VideoFragmentTest.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -44,9 +47,9 @@ import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class VideoFragmentTest extends SingleFragmentTestBase {
+public class VideoSupportFragmentTest extends SingleSupportFragmentTestBase {
 
-    public static class Fragment_setSurfaceViewCallbackBeforeCreate extends VideoFragment {
+    public static class Fragment_setSurfaceViewCallbackBeforeCreate extends VideoSupportFragment {
         boolean mSurfaceCreated;
         @Override
         public View onCreateView(
@@ -84,7 +87,7 @@ public class VideoFragmentTest extends SingleFragmentTestBase {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mActivity.getFragmentManager().beginTransaction()
+                mActivity.getSupportFragmentManager().beginTransaction()
                         .replace(R.id.main_frame, new Fragment_setSurfaceViewCallbackBeforeCreate())
                         .commitAllowingStateLoss();
             }
@@ -102,8 +105,8 @@ public class VideoFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void setSurfaceViewCallbackAfterCreate() {
-        launchAndWaitActivity(VideoFragment.class, 1000);
-        VideoFragment fragment = (VideoFragment) mActivity.getTestFragment();
+        launchAndWaitActivity(VideoSupportFragment.class, 1000);
+        VideoSupportFragment fragment = (VideoSupportFragment) mActivity.getTestFragment();
 
         assertNotNull(fragment);
 
@@ -126,7 +129,7 @@ public class VideoFragmentTest extends SingleFragmentTestBase {
         assertTrue(surfaceCreated[0]);
     }
 
-    public static class Fragment_withVideoPlayer extends VideoFragment {
+    public static class Fragment_withVideoPlayer extends VideoSupportFragment {
         MediaPlayerGlue mGlue;
         int mOnCreateCalled;
         int mOnCreateViewCalled;
@@ -169,7 +172,7 @@ public class VideoFragmentTest extends SingleFragmentTestBase {
                     mGlue.play();
                 }
             });
-            mGlue.setHost(new VideoFragmentGlueHost(this));
+            mGlue.setHost(new VideoSupportFragmentGlueHost(this));
         }
 
         @Override
@@ -193,7 +196,7 @@ public class VideoFragmentTest extends SingleFragmentTestBase {
     }
 
     @Test
-    public void mediaPlayerGlueInVideoFragment() {
+    public void mediaPlayerGlueInVideoSupportFragment() {
         launchAndWaitActivity(Fragment_withVideoPlayer.class, 1000);
         final Fragment_withVideoPlayer fragment = (Fragment_withVideoPlayer)
                 mActivity.getTestFragment();

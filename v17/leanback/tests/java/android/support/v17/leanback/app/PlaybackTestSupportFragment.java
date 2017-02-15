@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from PlaybackTestFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -19,7 +22,6 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-
 import android.support.v17.leanback.media.PlaybackControlGlue;
 import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.widget.Action;
@@ -28,7 +30,6 @@ import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
-import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
@@ -40,13 +41,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
-public class PlaybackSupportTestFragment extends PlaybackSupportFragment {
-    private static final String TAG = "PlaybackTestFragment";
+public class PlaybackTestSupportFragment extends PlaybackSupportFragment {
+    private static final String TAG = "PlaybackTestSupportFragment";
 
     /**
      * Change this to choose a different overlay background.
      */
-    private static final int BACKGROUND_TYPE = PlaybackFragment.BG_LIGHT;
+    private static final int BACKGROUND_TYPE = PlaybackSupportFragment.BG_LIGHT;
 
     private static final int ROW_CONTROLS = 0;
 
@@ -75,22 +76,12 @@ public class PlaybackSupportTestFragment extends PlaybackSupportFragment {
         }
     };
 
-    private OnItemViewSelectedListener mOnItemViewSelectedListener =
-            new OnItemViewSelectedListener() {
-                @Override
-                public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-                                           RowPresenter.ViewHolder rowViewHolder, Row row) {
-                    Log.d(TAG, "onItemSelected: " + item + " row " + row);
-                }
-            };
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
         setBackgroundType(BACKGROUND_TYPE);
-        // setOnItemViewSelectedListener(mOnItemViewSelectedListener);
 
         createComponents(getActivity());
         setOnItemViewClickedListener(mOnItemViewClickedListener);
@@ -124,7 +115,7 @@ public class PlaybackSupportTestFragment extends PlaybackSupportFragment {
         };
 
         mGlue.setHost(new PlaybackSupportFragmentGlueHost(this));
-        //  mGlue.setOnI
+       //  mGlue.setOnI
         mListRowPresenter = new ListRowPresenter();
 
         setAdapter(new SparseArrayObjectAdapter(new PresenterSelector() {

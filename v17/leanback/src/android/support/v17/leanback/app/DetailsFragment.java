@@ -521,7 +521,7 @@ public class DetailsFragment extends BaseFragment {
     @CallSuper
     void onSafeStart() {
         if (mDetailsBackgroundController != null) {
-            mDetailsBackgroundController.enablePlaybackHost();
+            mDetailsBackgroundController.onStart();
         }
     }
 
