@@ -16,15 +16,15 @@
 
 package android.support.v4.view;
 
-import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityManager;
 
 /**
  * Helper for accessing features in {@link ViewParent}
@@ -32,39 +32,9 @@ import android.view.accessibility.AccessibilityManager;
  */
 public final class ViewParentCompat {
 
-    interface ViewParentCompatImpl {
-        public boolean requestSendAccessibilityEvent(
-                ViewParent parent, View child, AccessibilityEvent event);
-        boolean onStartNestedScroll(ViewParent parent, View child, View target,
-                int nestedScrollAxes);
-        void onNestedScrollAccepted(ViewParent parent, View child, View target,
-                int nestedScrollAxes);
-        void onStopNestedScroll(ViewParent parent, View target);
-        void onNestedScroll(ViewParent parent, View target, int dxConsumed, int dyConsumed,
-                int dxUnconsumed, int dyUnconsumed);
-        void onNestedPreScroll(ViewParent parent, View target, int dx, int dy, int[] consumed);
-        boolean onNestedFling(ViewParent parent, View target, float velocityX, float velocityY,
-                boolean consumed);
-        boolean onNestedPreFling(ViewParent parent, View target, float velocityX, float velocityY);
-        void notifySubtreeAccessibilityStateChanged(ViewParent parent, View child,
-                View source, int changeType);
-    }
+    private static final String TAG = "ViewParentCompat";
 
-    static class ViewParentCompatStubImpl implements ViewParentCompatImpl {
-        @Override
-        public boolean requestSendAccessibilityEvent(
-                ViewParent parent, View child, AccessibilityEvent event) {
-            // Emulate what ViewRootImpl does in ICS and above.
-            if (child == null) {
-                return false;
-            }
-            final AccessibilityManager manager = (AccessibilityManager) child.getContext()
-                    .getSystemService(Context.ACCESSIBILITY_SERVICE);
-            manager.sendAccessibilityEvent(event);
-            return true;
-        }
-
-        @Override
+    static class ViewParentCompatBaseImpl {
         public boolean onStartNestedScroll(ViewParent parent, View child, View target,
                 int nestedScrollAxes) {
             if (parent instanceof NestedScrollingParent) {
@@ -74,7 +44,6 @@ public final class ViewParentCompat {
             return false;
         }
 
-        @Override
         public void onNestedScrollAccepted(ViewParent parent, View child, View target,
                 int nestedScrollAxes) {
             if (parent instanceof NestedScrollingParent) {
@@ -83,14 +52,12 @@ public final class ViewParentCompat {
             }
         }
 
-        @Override
         public void onStopNestedScroll(ViewParent parent, View target) {
             if (parent instanceof NestedScrollingParent) {
                 ((NestedScrollingParent) parent).onStopNestedScroll(target);
             }
         }
 
-        @Override
         public void onNestedScroll(ViewParent parent, View target, int dxConsumed, int dyConsumed,
                 int dxUnconsumed, int dyUnconsumed) {
             if (parent instanceof NestedScrollingParent) {
@@ -99,7 +66,6 @@ public final class ViewParentCompat {
             }
         }
 
-        @Override
         public void onNestedPreScroll(ViewParent parent, View target, int dx, int dy,
                 int[] consumed) {
             if (parent instanceof NestedScrollingParent) {
@@ -107,7 +73,6 @@ public final class ViewParentCompat {
             }
         }
 
-        @Override
         public boolean onNestedFling(ViewParent parent, View target, float velocityX,
                 float velocityY, boolean consumed) {
             if (parent instanceof NestedScrollingParent) {
@@ -117,7 +82,6 @@ public final class ViewParentCompat {
             return false;
         }
 
-        @Override
         public boolean onNestedPreFling(ViewParent parent, View target, float velocityX,
                 float velocityY) {
             if (parent instanceof NestedScrollingParent) {
@@ -127,88 +91,112 @@ public final class ViewParentCompat {
             return false;
         }
 
-        @Override
         public void notifySubtreeAccessibilityStateChanged(ViewParent parent, View child,
                 View source, int changeType) {
         }
     }
 
-    static class ViewParentCompatICSImpl extends ViewParentCompatStubImpl {
-        @Override
-        public boolean requestSendAccessibilityEvent(
-                ViewParent parent, View child, AccessibilityEvent event) {
-            return ViewParentCompatICS.requestSendAccessibilityEvent(parent, child, event);
-        }
-    }
-
-    static class ViewParentCompatKitKatImpl extends ViewParentCompatICSImpl {
+    @RequiresApi(19)
+    static class ViewParentCompatApi19Impl extends ViewParentCompatBaseImpl {
 
         @Override
         public void notifySubtreeAccessibilityStateChanged(ViewParent parent, View child,
                 View source, int changeType) {
-            ViewParentCompatKitKat.notifySubtreeAccessibilityStateChanged(parent, child,
-                    source, changeType);
+            parent.notifySubtreeAccessibilityStateChanged(child, source, changeType);
         }
     }
 
-    static class ViewParentCompatLollipopImpl extends ViewParentCompatKitKatImpl {
+    @RequiresApi(21)
+    static class ViewParentCompatApi21Impl extends ViewParentCompatApi19Impl {
         @Override
         public boolean onStartNestedScroll(ViewParent parent, View child, View target,
                 int nestedScrollAxes) {
-            return ViewParentCompatLollipop.onStartNestedScroll(parent, child, target,
-                    nestedScrollAxes);
+            try {
+                return parent.onStartNestedScroll(child, target, nestedScrollAxes);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                        + "method onStartNestedScroll", e);
+                return false;
+            }
         }
 
         @Override
         public void onNestedScrollAccepted(ViewParent parent, View child, View target,
                 int nestedScrollAxes) {
-            ViewParentCompatLollipop.onNestedScrollAccepted(parent, child, target,
-                    nestedScrollAxes);
+            try {
+                parent.onNestedScrollAccepted(child, target, nestedScrollAxes);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                        + "method onNestedScrollAccepted", e);
+            }
         }
 
         @Override
         public void onStopNestedScroll(ViewParent parent, View target) {
-            ViewParentCompatLollipop.onStopNestedScroll(parent, target);
+            try {
+                parent.onStopNestedScroll(target);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                        + "method onStopNestedScroll", e);
+            }
         }
 
         @Override
         public void onNestedScroll(ViewParent parent, View target, int dxConsumed, int dyConsumed,
                 int dxUnconsumed, int dyUnconsumed) {
-            ViewParentCompatLollipop.onNestedScroll(parent, target, dxConsumed, dyConsumed,
-                    dxUnconsumed, dyUnconsumed);
+            try {
+                parent.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                        + "method onNestedScroll", e);
+            }
         }
 
         @Override
         public void onNestedPreScroll(ViewParent parent, View target, int dx, int dy,
                 int[] consumed) {
-            ViewParentCompatLollipop.onNestedPreScroll(parent, target, dx, dy, consumed);
+            try {
+                parent.onNestedPreScroll(target, dx, dy, consumed);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                        + "method onNestedPreScroll", e);
+            }
         }
 
         @Override
         public boolean onNestedFling(ViewParent parent, View target, float velocityX,
                 float velocityY, boolean consumed) {
-            return ViewParentCompatLollipop.onNestedFling(parent, target, velocityX, velocityY,
-                    consumed);
+            try {
+                return parent.onNestedFling(target, velocityX, velocityY, consumed);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                        + "method onNestedFling", e);
+                return false;
+            }
         }
 
         @Override
         public boolean onNestedPreFling(ViewParent parent, View target, float velocityX,
                 float velocityY) {
-            return ViewParentCompatLollipop.onNestedPreFling(parent, target, velocityX, velocityY);
+            try {
+                return parent.onNestedPreFling(target, velocityX, velocityY);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                        + "method onNestedPreFling", e);
+                return false;
+            }
         }
     }
 
-    static final ViewParentCompatImpl IMPL;
+    static final ViewParentCompatBaseImpl IMPL;
     static {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 21) {
-            IMPL = new ViewParentCompatLollipopImpl();
+            IMPL = new ViewParentCompatApi21Impl();
         } else if (version >= 19) {
-            IMPL = new ViewParentCompatKitKatImpl();
-        } else if (version >= 14) {
-            IMPL = new ViewParentCompatICSImpl();
+            IMPL = new ViewParentCompatApi19Impl();
         } else {
-            IMPL = new ViewParentCompatStubImpl();
+            IMPL = new ViewParentCompatBaseImpl();
         }
     }
 
@@ -233,10 +221,14 @@ public final class ViewParentCompat {
      * @param child The child which requests sending the event.
      * @param event The event to be sent.
      * @return True if the event was sent.
+     *
+     * @deprecated Use {@link ViewParent#requestSendAccessibilityEvent(View, AccessibilityEvent)}
+     * directly.
      */
+    @Deprecated
     public static boolean requestSendAccessibilityEvent(
             ViewParent parent, View child, AccessibilityEvent event) {
-        return IMPL.requestSendAccessibilityEvent(parent, child, event);
+        return parent.requestSendAccessibilityEvent(child, event);
     }
 
     /**

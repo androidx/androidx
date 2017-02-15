@@ -17,6 +17,7 @@
 package android.support.v4.view;
 
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
@@ -43,49 +44,22 @@ public final class ViewGroupCompat {
      */
     public static final int LAYOUT_MODE_OPTICAL_BOUNDS = 1;
 
-    interface ViewGroupCompatImpl {
-        boolean onRequestSendAccessibilityEvent(ViewGroup group, View child,
-                AccessibilityEvent event);
-        void setMotionEventSplittingEnabled(ViewGroup group, boolean split);
-        int getLayoutMode(ViewGroup group);
-        void setLayoutMode(ViewGroup group, int mode);
-        void setTransitionGroup(ViewGroup group, boolean isTransitionGroup);
-        boolean isTransitionGroup(ViewGroup group);
-        int getNestedScrollAxes(ViewGroup group);
-    }
-
-    static class ViewGroupCompatStubImpl implements ViewGroupCompatImpl {
-        @Override
-        public boolean onRequestSendAccessibilityEvent(
-                ViewGroup group, View child, AccessibilityEvent event) {
-            return true;
-        }
-
-        @Override
-        public void setMotionEventSplittingEnabled(ViewGroup group, boolean split) {
-            // no-op, didn't exist.
-        }
-
-        @Override
+    static class ViewGroupCompatBaseImpl {
         public int getLayoutMode(ViewGroup group) {
             return LAYOUT_MODE_CLIP_BOUNDS;
         }
 
-        @Override
         public void setLayoutMode(ViewGroup group, int mode) {
             // no-op, didn't exist. Views only support clip bounds.
         }
 
-        @Override
         public void setTransitionGroup(ViewGroup group, boolean isTransitionGroup) {
         }
 
-        @Override
         public boolean isTransitionGroup(ViewGroup group) {
             return false;
         }
 
-        @Override
         public int getNestedScrollAxes(ViewGroup group) {
             if (group instanceof NestedScrollingParent) {
                 return ((NestedScrollingParent) group).getNestedScrollAxes();
@@ -94,63 +68,46 @@ public final class ViewGroupCompat {
         }
     }
 
-    static class ViewGroupCompatHCImpl extends ViewGroupCompatStubImpl {
-        @Override
-        public void setMotionEventSplittingEnabled(ViewGroup group, boolean split) {
-            ViewGroupCompatHC.setMotionEventSplittingEnabled(group, split);
-        }
-    }
-
-    static class ViewGroupCompatIcsImpl extends ViewGroupCompatHCImpl {
-        @Override
-        public boolean onRequestSendAccessibilityEvent(
-                ViewGroup group, View child, AccessibilityEvent event) {
-            return ViewGroupCompatIcs.onRequestSendAccessibilityEvent(group, child, event);
-        }
-    }
-
-    static class ViewGroupCompatJellybeanMR2Impl extends ViewGroupCompatIcsImpl {
+    @RequiresApi(18)
+    static class ViewGroupCompatApi18Impl extends ViewGroupCompatBaseImpl {
         @Override
         public int getLayoutMode(ViewGroup group) {
-            return ViewGroupCompatJellybeanMR2.getLayoutMode(group);
+            return group.getLayoutMode();
         }
 
         @Override
         public void setLayoutMode(ViewGroup group, int mode) {
-            ViewGroupCompatJellybeanMR2.setLayoutMode(group, mode);
+            group.setLayoutMode(mode);
         }
     }
 
-    static class ViewGroupCompatLollipopImpl extends ViewGroupCompatJellybeanMR2Impl {
+    @RequiresApi(21)
+    static class ViewGroupCompatApi21Impl extends ViewGroupCompatApi18Impl {
         @Override
         public void setTransitionGroup(ViewGroup group, boolean isTransitionGroup) {
-            ViewGroupCompatLollipop.setTransitionGroup(group, isTransitionGroup);
+            group.setTransitionGroup(isTransitionGroup);
         }
 
         @Override
         public boolean isTransitionGroup(ViewGroup group) {
-            return ViewGroupCompatLollipop.isTransitionGroup(group);
+            return group.isTransitionGroup();
         }
 
         @Override
         public int getNestedScrollAxes(ViewGroup group) {
-            return ViewGroupCompatLollipop.getNestedScrollAxes(group);
+            return group.getNestedScrollAxes();
         }
     }
 
-    static final ViewGroupCompatImpl IMPL;
+    static final ViewGroupCompatBaseImpl IMPL;
     static {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 21) {
-            IMPL = new ViewGroupCompatLollipopImpl();
+            IMPL = new ViewGroupCompatApi21Impl();
         } else if (version >= 18) {
-            IMPL = new ViewGroupCompatJellybeanMR2Impl();
-        } else if (version >= 14) {
-            IMPL = new ViewGroupCompatIcsImpl();
-        } else if (version >= 11) {
-            IMPL = new ViewGroupCompatHCImpl();
+            IMPL = new ViewGroupCompatApi18Impl();
         } else {
-            IMPL = new ViewGroupCompatStubImpl();
+            IMPL = new ViewGroupCompatBaseImpl();
         }
     }
 
@@ -173,10 +130,14 @@ public final class ViewGroupCompat {
      * @param child The child which requests sending the event.
      * @param event The event to be sent.
      * @return True if the event should be sent.
+     *
+     * @deprecated Use {@link ViewGroup#onRequestSendAccessibilityEvent(View, AccessibilityEvent)}
+     * directly.
      */
+    @Deprecated
     public static boolean onRequestSendAccessibilityEvent(ViewGroup group, View child,
             AccessibilityEvent event) {
-        return IMPL.onRequestSendAccessibilityEvent(group, child, event);
+        return group.onRequestSendAccessibilityEvent(child, event);
     }
 
     /**
@@ -194,9 +155,12 @@ public final class ViewGroupCompat {
      * @param split <code>true</code> to allow MotionEvents to be split and dispatched to multiple
      *              child views. <code>false</code> to only allow one child view to be the target of
      *              any MotionEvent received by this ViewGroup.
+     *
+     * @deprecated Use {@link ViewGroup#setMotionEventSplittingEnabled(boolean)} directly.
      */
+    @Deprecated
     public static void setMotionEventSplittingEnabled(ViewGroup group, boolean split) {
-        IMPL.setMotionEventSplittingEnabled(group, split);
+        group.setMotionEventSplittingEnabled(split);
     }
 
     /**

@@ -7791,9 +7791,9 @@ package android.support.v4.view {
     method public static int getLayoutMode(android.view.ViewGroup);
     method public static int getNestedScrollAxes(android.view.ViewGroup);
     method public static boolean isTransitionGroup(android.view.ViewGroup);
-    method public static boolean onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public static deprecated boolean onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent);
     method public static void setLayoutMode(android.view.ViewGroup, int);
-    method public static void setMotionEventSplittingEnabled(android.view.ViewGroup, boolean);
+    method public static deprecated void setMotionEventSplittingEnabled(android.view.ViewGroup, boolean);
     method public static void setTransitionGroup(android.view.ViewGroup, boolean);
     field public static final int LAYOUT_MODE_CLIP_BOUNDS = 0; // 0x0
     field public static final int LAYOUT_MODE_OPTICAL_BOUNDS = 1; // 0x1
@@ -7882,7 +7882,7 @@ package android.support.v4.view {
     method public static void onNestedScrollAccepted(android.view.ViewParent, android.view.View, android.view.View, int);
     method public static boolean onStartNestedScroll(android.view.ViewParent, android.view.View, android.view.View, int);
     method public static void onStopNestedScroll(android.view.ViewParent, android.view.View);
-    method public static boolean requestSendAccessibilityEvent(android.view.ViewParent, android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public static deprecated boolean requestSendAccessibilityEvent(android.view.ViewParent, android.view.View, android.view.accessibility.AccessibilityEvent);
   }
 
   public final class ViewPropertyAnimatorCompat {
