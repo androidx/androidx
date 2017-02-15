@@ -16,7 +16,7 @@
 
 package android.support.v4.view;
 
-import android.os.Build;
+import android.annotation.TargetApi;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.os.BuildCompat;
 import android.util.Log;
@@ -36,13 +36,19 @@ public final class MenuItemCompat {
 
     /**
      * Never show this item as a button in an Action Bar.
+     *
+     * @deprecated Use {@link MenuItem#SHOW_AS_ACTION_NEVER} directly.
      */
+    @Deprecated
     public static final int SHOW_AS_ACTION_NEVER = 0;
 
     /**
      * Show this item as a button in an Action Bar if the system
      * decides there is room for it.
+     *
+     * @deprecated Use {@link MenuItem#SHOW_AS_ACTION_IF_ROOM} directly.
      */
+    @Deprecated
     public static final int SHOW_AS_ACTION_IF_ROOM = 1;
 
     /**
@@ -51,34 +57,35 @@ public final class MenuItemCompat {
      * crowd the Action Bar and degrade the user experience on devices with
      * smaller screens. A good rule of thumb is to have no more than 2
      * items set to always show at a time.
+     *
+     * @deprecated Use {@link MenuItem#SHOW_AS_ACTION_ALWAYS} directly.
      */
+    @Deprecated
     public static final int SHOW_AS_ACTION_ALWAYS = 2;
 
     /**
      * When this item is in the action bar, always show it with a
      * text label even if it also has an icon specified.
+     *
+     * @deprecated Use {@link MenuItem#SHOW_AS_ACTION_WITH_TEXT} directly.
      */
+    @Deprecated
     public static final int SHOW_AS_ACTION_WITH_TEXT = 4;
 
     /**
      * This item's action view collapses to a normal menu item.
      * When expanded, the action view temporarily takes over
      * a larger segment of its container.
+     *
+     * @deprecated Use {@link MenuItem#SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW} directly.
      */
+    @Deprecated
     public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8;
 
     /**
      * Interface for the full API.
      */
     interface MenuVersionImpl {
-        void setShowAsAction(MenuItem item, int actionEnum);
-        MenuItem setActionView(MenuItem item, View view);
-        MenuItem setActionView(MenuItem item, int resId);
-        View getActionView(MenuItem item);
-        boolean expandActionView(MenuItem item);
-        boolean collapseActionView(MenuItem item);
-        boolean isActionViewExpanded(MenuItem item);
-        MenuItem setOnActionExpandListener(MenuItem item, OnActionExpandListener listener);
         void setContentDescription(MenuItem item, CharSequence contentDescription);
         CharSequence getContentDescription(MenuItem item);
         void setTooltipText(MenuItem item, CharSequence tooltipText);
@@ -92,7 +99,10 @@ public final class MenuItemCompat {
      * @see #expandActionView(android.view.MenuItem)
      * @see #collapseActionView(android.view.MenuItem)
      * @see #setShowAsAction(android.view.MenuItem, int)
+     *
+     * @deprecated Use {@link MenuItem.OnActionExpandListener} directly.
      */
+    @Deprecated
     public interface OnActionExpandListener {
 
         /**
@@ -102,7 +112,7 @@ public final class MenuItemCompat {
          * @param item Item that was expanded
          * @return true if the item should expand, false if expansion should be suppressed.
          */
-        public boolean onMenuItemActionExpand(MenuItem item);
+        boolean onMenuItemActionExpand(MenuItem item);
 
         /**
          * Called when a menu item with {@link #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW}
@@ -111,52 +121,10 @@ public final class MenuItemCompat {
          * @param item Item that was collapsed
          * @return true if the item should collapse, false if collapsing should be suppressed.
          */
-        public boolean onMenuItemActionCollapse(MenuItem item);
+        boolean onMenuItemActionCollapse(MenuItem item);
     }
 
-    /**
-     * Interface implementation that doesn't use anything about v4 APIs.
-     */
-    static class BaseMenuVersionImpl implements MenuVersionImpl {
-        @Override
-        public void setShowAsAction(MenuItem item, int actionEnum) {
-        }
-
-        @Override
-        public MenuItem setActionView(MenuItem item, View view) {
-            return item;
-        }
-
-        @Override
-        public MenuItem setActionView(MenuItem item, int resId) {
-            return item;
-        }
-
-        @Override
-        public View getActionView(MenuItem item) {
-            return null;
-        }
-
-        @Override
-        public boolean expandActionView(MenuItem item) {
-            return false;
-        }
-
-        @Override
-        public boolean collapseActionView(MenuItem item) {
-            return false;
-        }
-
-        @Override
-        public boolean isActionViewExpanded(MenuItem item) {
-            return false;
-        }
-
-        @Override
-        public MenuItem setOnActionExpandListener(MenuItem item, OnActionExpandListener listener) {
-            return item;
-        }
-
+    static class MenuItemCompatBaseImpl implements MenuVersionImpl {
         @Override
         public void setContentDescription(MenuItem item, CharSequence contentDescription) {
         }
@@ -176,130 +144,26 @@ public final class MenuItemCompat {
         }
     }
 
-    /**
-     * Interface implementation for devices with at least v11 APIs.
-     */
-    static class HoneycombMenuVersionImpl implements MenuVersionImpl {
-        @Override
-        public void setShowAsAction(MenuItem item, int actionEnum) {
-            MenuItemCompatHoneycomb.setShowAsAction(item, actionEnum);
-        }
-
-        @Override
-        public MenuItem setActionView(MenuItem item, View view) {
-            return MenuItemCompatHoneycomb.setActionView(item, view);
-        }
-
-        @Override
-        public MenuItem setActionView(MenuItem item, int resId) {
-            return MenuItemCompatHoneycomb.setActionView(item, resId);
-        }
-
-        @Override
-        public View getActionView(MenuItem item) {
-            return MenuItemCompatHoneycomb.getActionView(item);
-        }
-
-        @Override
-        public boolean expandActionView(MenuItem item) {
-            return false;
-        }
-
-        @Override
-        public boolean collapseActionView(MenuItem item) {
-            return false;
-        }
-
-        @Override
-        public boolean isActionViewExpanded(MenuItem item) {
-            return false;
-        }
-
-        @Override
-        public MenuItem setOnActionExpandListener(MenuItem item, OnActionExpandListener listener) {
-            return item;
-        }
-
+    @TargetApi(26)
+    static class MenuItemCompatApi26Impl extends MenuItemCompatBaseImpl {
         @Override
         public void setContentDescription(MenuItem item, CharSequence contentDescription) {
+            item.setContentDescription(contentDescription);
         }
 
         @Override
         public CharSequence getContentDescription(MenuItem item) {
-            return null;
+            return item.getContentDescription();
         }
 
         @Override
         public void setTooltipText(MenuItem item, CharSequence tooltipText) {
+            item.setTooltipText(tooltipText);
         }
 
         @Override
         public CharSequence getTooltipText(MenuItem item) {
-            return null;
-        }
-    }
-
-    static class IcsMenuVersionImpl extends HoneycombMenuVersionImpl {
-        @Override
-        public boolean expandActionView(MenuItem item) {
-            return MenuItemCompatIcs.expandActionView(item);
-        }
-
-        @Override
-        public boolean collapseActionView(MenuItem item) {
-            return MenuItemCompatIcs.collapseActionView(item);
-        }
-
-        @Override
-        public boolean isActionViewExpanded(MenuItem item) {
-            return MenuItemCompatIcs.isActionViewExpanded(item);
-        }
-
-        @Override
-        public MenuItem setOnActionExpandListener(MenuItem item,
-                final OnActionExpandListener listener) {
-            if (listener == null) {
-                return MenuItemCompatIcs.setOnActionExpandListener(item, null);
-            }
-            /*
-             * MenuItemCompatIcs is a dependency of this segment of the support lib
-             * but not the other way around, so we need to take an extra step here to proxy
-             * to the right types.
-             */
-            return MenuItemCompatIcs.setOnActionExpandListener(item,
-                    new MenuItemCompatIcs.SupportActionExpandProxy() {
-                @Override
-                public boolean onMenuItemActionExpand(MenuItem item) {
-                    return listener.onMenuItemActionExpand(item);
-                }
-
-                @Override
-                public boolean onMenuItemActionCollapse(MenuItem item) {
-                    return listener.onMenuItemActionCollapse(item);
-                }
-            });
-        }
-    }
-
-    static class Api26MenuVersionImpl extends IcsMenuVersionImpl {
-        @Override
-        public void setContentDescription(MenuItem item, CharSequence contentDescription) {
-            MenuItemCompatApi26.setContentDescription(item, contentDescription);
-        }
-
-        @Override
-        public CharSequence getContentDescription(MenuItem item) {
-            return MenuItemCompatApi26.getContentDescription(item);
-        }
-
-        @Override
-        public void setTooltipText(MenuItem item, CharSequence tooltipText) {
-            MenuItemCompatApi26.setTooltipText(item, tooltipText);
-        }
-
-        @Override
-        public CharSequence getTooltipText(MenuItem item) {
-            return MenuItemCompatApi26.getTooltipText(item);
+            return item.getTooltipText();
         }
     }
 
@@ -309,13 +173,9 @@ public final class MenuItemCompat {
     static final MenuVersionImpl IMPL;
     static {
         if (BuildCompat.isAtLeastO()) {
-            IMPL = new Api26MenuVersionImpl();
-        } else if (Build.VERSION.SDK_INT >= 14) {
-            IMPL = new IcsMenuVersionImpl();
-        } else if (Build.VERSION.SDK_INT >= 11) {
-            IMPL = new HoneycombMenuVersionImpl();
+            IMPL = new MenuItemCompatApi26Impl();
         } else {
-            IMPL = new BaseMenuVersionImpl();
+            IMPL = new MenuItemCompatBaseImpl();
         }
     }
 
@@ -328,13 +188,12 @@ public final class MenuItemCompat {
      *
      * @param item - the item to change
      * @param actionEnum - How the item should display.
+     *
+     * @deprecated Use {@link MenuItem#setShowAsAction(int)} directly.
      */
+    @Deprecated
     public static void setShowAsAction(MenuItem item, int actionEnum) {
-        if (item instanceof SupportMenuItem) {
-            ((SupportMenuItem) item).setShowAsAction(actionEnum);
-        } else {
-            IMPL.setShowAsAction(item, actionEnum);
-        }
+        item.setShowAsAction(actionEnum);
     }
 
     /**
@@ -347,12 +206,12 @@ public final class MenuItemCompat {
      * @return This Item so additional setters can be called.
      *
      * @see #setShowAsAction(MenuItem, int)
+     *
+     * @deprecated Use {@link MenuItem#setActionView(View)} directly.
      */
+    @Deprecated
     public static MenuItem setActionView(MenuItem item, View view) {
-        if (item instanceof SupportMenuItem) {
-            return ((SupportMenuItem) item).setActionView(view);
-        }
-        return IMPL.setActionView(item, view);
+        return item.setActionView(view);
     }
 
     /**
@@ -369,12 +228,12 @@ public final class MenuItemCompat {
      * @return This Item so additional setters can be called.
      *
      * @see #setShowAsAction(MenuItem, int)
+     *
+     * @deprecated Use {@link MenuItem#setActionView(int)} directly.
      */
+    @Deprecated
     public static MenuItem setActionView(MenuItem item, int resId) {
-        if (item instanceof SupportMenuItem) {
-            return ((SupportMenuItem) item).setActionView(resId);
-        }
-        return IMPL.setActionView(item, resId);
+        return item.setActionView(resId);
     }
 
     /**
@@ -382,12 +241,12 @@ public final class MenuItemCompat {
      *
      * @param item the item to query
      * @return This item's action view
+     *
+     * @deprecated Use {@link MenuItem#getActionView()} directly.
      */
+    @Deprecated
     public static View getActionView(MenuItem item) {
-        if (item instanceof SupportMenuItem) {
-            return ((SupportMenuItem) item).getActionView();
-        }
-        return IMPL.getActionView(item);
+        return item.getActionView();
     }
 
     /**
@@ -443,12 +302,12 @@ public final class MenuItemCompat {
      * the action view.
      *
      * @return true if the action view was expanded, false otherwise.
+     *
+     * @deprecated Use {@link MenuItem#expandActionView()} directly.
      */
+    @Deprecated
     public static boolean expandActionView(MenuItem item) {
-        if (item instanceof SupportMenuItem) {
-            return ((SupportMenuItem) item).expandActionView();
-        }
-        return IMPL.expandActionView(item);
+        return item.expandActionView();
     }
 
     /**
@@ -462,12 +321,12 @@ public final class MenuItemCompat {
      * the action view.
      *
      * @return true if the action view was collapsed, false otherwise.
+     *
+     * @deprecated Use {@link MenuItem#collapseActionView()} directly.
      */
+    @Deprecated
     public static boolean collapseActionView(MenuItem item) {
-        if (item instanceof SupportMenuItem) {
-            return ((SupportMenuItem) item).collapseActionView();
-        }
-        return IMPL.collapseActionView(item);
+        return item.collapseActionView();
     }
 
     /**
@@ -478,12 +337,12 @@ public final class MenuItemCompat {
      * @see #collapseActionView(MenuItem)
      * @see #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
      * @see android.support.v4.view.MenuItemCompat.OnActionExpandListener
+     *
+     * @deprecated Use {@link MenuItem#isActionViewExpanded()} directly.
      */
+    @Deprecated
     public static boolean isActionViewExpanded(MenuItem item) {
-        if (item instanceof SupportMenuItem) {
-            return ((SupportMenuItem) item).isActionViewExpanded();
-        }
-        return IMPL.isActionViewExpanded(item);
+        return item.isActionViewExpanded();
     }
 
     /**
@@ -494,13 +353,24 @@ public final class MenuItemCompat {
      *
      * @param listener Listener that will respond to expand/collapse events
      * @return This menu item instance for call chaining
+     *
+     * @deprecated Use {@link MenuItem#setOnActionExpandListener(MenuItem.OnActionExpandListener)}
+     * directly.
      */
+    @Deprecated
     public static MenuItem setOnActionExpandListener(MenuItem item,
-            OnActionExpandListener listener) {
-        if (item instanceof SupportMenuItem) {
-            return ((SupportMenuItem) item).setSupportOnActionExpandListener(listener);
-        }
-        return IMPL.setOnActionExpandListener(item, listener);
+            final OnActionExpandListener listener) {
+        return item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                return listener.onMenuItemActionExpand(item);
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                return listener.onMenuItemActionCollapse(item);
+            }
+        });
     }
 
     /**

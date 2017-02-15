@@ -442,7 +442,7 @@ public class SupportMenuInflater extends MenuInflater {
                     .setNumericShortcut(itemNumericShortcut);
 
             if (itemShowAsAction >= 0) {
-                MenuItemCompat.setShowAsAction(item, itemShowAsAction);
+                item.setShowAsAction(itemShowAsAction);
             }
 
             if (itemListenerMethodName != null) {
@@ -467,12 +467,12 @@ public class SupportMenuInflater extends MenuInflater {
             if (itemActionViewClassName != null) {
                 View actionView = (View) newInstance(itemActionViewClassName,
                         ACTION_VIEW_CONSTRUCTOR_SIGNATURE, mActionViewConstructorArguments);
-                MenuItemCompat.setActionView(item, actionView);
+                item.setActionView(actionView);
                 actionViewSpecified = true;
             }
             if (itemActionViewLayout > 0) {
                 if (!actionViewSpecified) {
-                    MenuItemCompat.setActionView(item, itemActionViewLayout);
+                    item.setActionView(itemActionViewLayout);
                     actionViewSpecified = true;
                 } else {
                     Log.w(LOG_TAG, "Ignoring attribute 'itemActionViewLayout'."

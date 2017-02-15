@@ -36,7 +36,6 @@ import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MarginLayoutParamsCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
@@ -1432,7 +1431,7 @@ public class Toolbar extends ViewGroup {
         if (ss.expandedMenuItemId != 0 && mExpandedMenuPresenter != null && menu != null) {
             final MenuItem item = menu.findItem(ss.expandedMenuItemId);
             if (item != null) {
-                MenuItemCompat.expandActionView(item);
+                item.expandActionView();
             }
         }
 

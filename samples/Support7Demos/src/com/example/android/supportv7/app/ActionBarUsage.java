@@ -15,8 +15,6 @@
  */
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
@@ -28,6 +26,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.android.supportv7.R;
 
 /**
  * This demonstrates idiomatic usage of the Action Bar. The default Honeycomb theme
@@ -50,8 +50,7 @@ public class ActionBarUsage extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.actions, menu);
-        SearchView searchView = (SearchView) MenuItemCompat
-                .getActionView(menu.findItem(R.id.action_search));
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setOnQueryTextListener(mOnQueryTextListener);
         final MenuItem editItem = menu.findItem(R.id.action_edit);
         MenuItemCompat.setContentDescription(editItem,

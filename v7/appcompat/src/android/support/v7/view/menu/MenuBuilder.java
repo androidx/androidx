@@ -34,7 +34,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.internal.view.SupportMenu;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.R;
 import android.util.SparseArray;
 import android.view.ContextMenu;
@@ -375,13 +374,13 @@ public class MenuBuilder implements SupportMenu {
         final int itemCount = size();
         for (int i = 0; i < itemCount; i++) {
             final MenuItem item = getItem(i);
-            final View v = MenuItemCompat.getActionView(item);
+            final View v = item.getActionView();
             if (v != null && v.getId() != View.NO_ID) {
                 if (viewStates == null) {
                     viewStates = new SparseArray<Parcelable>();
                 }
                 v.saveHierarchyState(viewStates);
-                if (MenuItemCompat.isActionViewExpanded(item)) {
+                if (item.isActionViewExpanded()) {
                     outStates.putInt(EXPANDED_ACTION_VIEW_ID, item.getItemId());
                 }
             }
@@ -407,7 +406,7 @@ public class MenuBuilder implements SupportMenu {
         final int itemCount = size();
         for (int i = 0; i < itemCount; i++) {
             final MenuItem item = getItem(i);
-            final View v = MenuItemCompat.getActionView(item);
+            final View v = item.getActionView();
             if (v != null && v.getId() != View.NO_ID) {
                 v.restoreHierarchyState(viewStates);
             }
@@ -421,7 +420,7 @@ public class MenuBuilder implements SupportMenu {
         if (expandedId > 0) {
             MenuItem itemToExpand = findItem(expandedId);
             if (itemToExpand != null) {
-                MenuItemCompat.expandActionView(itemToExpand);
+                itemToExpand.expandActionView();
             }
         }
     }

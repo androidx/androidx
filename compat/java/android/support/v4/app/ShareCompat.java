@@ -26,7 +26,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.StringRes;
 import android.support.v4.content.IntentCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
@@ -212,9 +211,8 @@ public final class ShareCompat {
      * for selecting the target of the share. History will be tracked for each calling
      * activity in a file named with the prefix ".sharecompat_" in the application's
      * private data directory. If the application wishes to set this MenuItem to show
-     * as an action in the Action Bar it should use
-     * {@link MenuItemCompat#setShowAsAction(MenuItem, int)} to request that behavior
-     * in addition to calling this method.</p>
+     * as an action in the Action Bar it should use {@link MenuItem#setShowAsAction(int)} to request
+     * that behavior in addition to calling this method.</p>
      *
      * <p>If the app is running on an older platform version this method will configure
      * a standard activity chooser dialog for the menu item.</p>

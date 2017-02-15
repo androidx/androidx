@@ -26,7 +26,6 @@ import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.Log;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -92,7 +91,7 @@ public final class MenuItemImpl implements SupportMenuItem {
 
     private View mActionView;
     private ActionProvider mActionProvider;
-    private MenuItemCompat.OnActionExpandListener mOnActionExpandListener;
+    private MenuItem.OnActionExpandListener mOnActionExpandListener;
     private boolean mIsActionViewExpanded = false;
 
     /** Used for the icon resource ID if this item does not have an icon */
@@ -716,7 +715,7 @@ public final class MenuItemImpl implements SupportMenuItem {
 
     @Override
     public SupportMenuItem setSupportOnActionExpandListener(
-            MenuItemCompat.OnActionExpandListener listener) {
+            MenuItem.OnActionExpandListener listener) {
         mOnActionExpandListener = listener;
         return this;
     }

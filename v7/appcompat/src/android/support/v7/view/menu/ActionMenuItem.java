@@ -25,7 +25,6 @@ import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
-import android.support.v4.view.MenuItemCompat;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -296,7 +295,8 @@ public class ActionMenuItem implements SupportMenuItem {
     }
 
     @Override
-    public SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener) {
+    public SupportMenuItem setSupportOnActionExpandListener(
+            MenuItem.OnActionExpandListener listener) {
         // No need to save the listener; ActionMenuItem does not support collapsing items.
         return this;
     }

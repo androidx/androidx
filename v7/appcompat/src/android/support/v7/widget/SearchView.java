@@ -108,7 +108,7 @@ import java.util.WeakHashMap;
  * href="{@docRoot}guide/topics/ui/actionbar.html#ActionView">Action Bar</a> API guide</p>
  * </div>
  *
- * @see android.support.v4.view.MenuItemCompat#SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
+ * @see android.view.MenuItem#SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
  */
 public class SearchView extends LinearLayoutCompat implements CollapsibleActionView {
 
