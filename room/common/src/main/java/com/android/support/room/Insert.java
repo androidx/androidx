@@ -16,10 +16,6 @@
 
 package com.android.support.room;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import android.support.annotation.IntDef;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,36 +33,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface Insert {
     /**
-     * OnConflict strategy constant to replace the old data and continue the transaction.
-     */
-    int REPLACE = 1;
-    /**
-     * OnConflict strategy constant to rollback the transaction.
-     */
-    int ROLLBACK = 2;
-    /**
-     * OnConflict strategy constant to abort the transaction.
-     */
-    int ABORT = 3;
-    /**
-     * OnConflict strategy constant to fail the transaction.
-     */
-    int FAIL = 4;
-    /**
-     * OnConflict strategy constant to ignore the conflict.
-     */
-    int IGNORE = 5;
-
-    @Retention(SOURCE)
-    @IntDef({REPLACE, ROLLBACK, ABORT, FAIL, IGNORE})
-    @interface OnConflict {}
-
-    /**
      * What to do if a conflict happens.
      * @see <a href="https://sqlite.org/lang_conflict.html">SQLite conflict documentation</a>
      *
-     * @return How to handle conflicts. Defaults to {@link #ABORT}.
+     * @return How to handle conflicts. Defaults to {@link OnConflictStrategy#ABORT}.
      */
-    @OnConflict
-    int onConflict() default ABORT;
+    @OnConflictStrategy
+    int onConflict() default OnConflictStrategy.ABORT;
 }

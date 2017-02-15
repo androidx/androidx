@@ -20,6 +20,7 @@ import com.android.support.lifecycle.LiveData;
 import com.android.support.room.Dao;
 import com.android.support.room.Delete;
 import com.android.support.room.Insert;
+import com.android.support.room.OnConflictStrategy;
 import com.android.support.room.Query;
 import com.android.support.room.integration.testapp.vo.AvgWeightByAge;
 import com.android.support.room.integration.testapp.vo.User;
@@ -42,7 +43,7 @@ public interface UserDao {
     @Insert
     void insert(User user);
 
-    @Insert(onConflict = Insert.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertOrReplace(User user);
 
     @Delete

@@ -19,6 +19,7 @@ package com.android.support.room.processor
 import COMMON
 import com.android.support.room.Dao
 import com.android.support.room.Insert
+import com.android.support.room.OnConflictStrategy
 import com.android.support.room.ext.typeName
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
@@ -212,7 +213,7 @@ class InsertionMethodProcessorTest {
                 @Insert
                 abstract public void foo(User user);
                 """) { insertion, invocation ->
-            assertThat(insertion.onConflict, `is`(Insert.ABORT))
+            assertThat(insertion.onConflict, `is`(OnConflictStrategy.ABORT))
         }.compilesWithoutError()
     }
 
@@ -237,7 +238,7 @@ class InsertionMethodProcessorTest {
         ).forEach { pair ->
             singleInsertMethod(
                     """
-                @Insert(onConflict=Insert.${pair.first})
+                @Insert(onConflict=OnConflictStrategy.${pair.first})
                 abstract public void foo(User user);
                 """) { insertion, invocation ->
                 assertThat(insertion.onConflict, `is`(pair.second))

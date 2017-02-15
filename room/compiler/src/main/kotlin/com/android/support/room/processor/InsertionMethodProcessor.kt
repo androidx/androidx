@@ -19,7 +19,8 @@
 package com.android.support.room.processor
 
 import com.android.support.room.Insert
-import com.android.support.room.Insert.REPLACE
+import com.android.support.room.OnConflictStrategy.IGNORE
+import com.android.support.room.OnConflictStrategy.REPLACE
 import com.android.support.room.vo.InsertionMethod
 import com.android.support.room.vo.InsertionMethod.Type
 import com.google.auto.common.AnnotationMirrors
@@ -54,7 +55,7 @@ class InsertionMethodProcessor(baseContext: Context,
                 InsertionMethod.INVALID_ON_CONFLICT
             }
         }
-        context.checker.check(onConflict <= Insert.IGNORE && onConflict >= REPLACE,
+        context.checker.check(onConflict <= IGNORE && onConflict >= REPLACE,
                 executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
         val returnType = delegate.extractReturnType()
         val returnTypeName = TypeName.get(returnType)

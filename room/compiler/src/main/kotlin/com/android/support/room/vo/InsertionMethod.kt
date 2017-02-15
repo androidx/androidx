@@ -17,11 +17,12 @@
 package com.android.support.room.vo
 
 import com.android.support.room.Insert
+import com.android.support.room.OnConflictStrategy
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.TypeMirror
 
 data class InsertionMethod(val element: ExecutableElement, val name: String,
-                           @Insert.OnConflict val onConflict: Int,
+                           @OnConflictStrategy val onConflict: Int,
                            val entity: Entity?, val returnType: TypeMirror,
                            val insertionType: Type?,
                            val parameters: List<ShortcutQueryParameter>) {
@@ -30,11 +31,11 @@ data class InsertionMethod(val element: ExecutableElement, val name: String,
     }
     val onConflictText by lazy {
         when(onConflict) {
-            Insert.REPLACE -> "REPLACE"
-            Insert.ABORT -> "ABORT"
-            Insert.FAIL -> "FAIL"
-            Insert.IGNORE -> "IGNORE"
-            Insert.ROLLBACK -> "ROLLBACK"
+            OnConflictStrategy.REPLACE -> "REPLACE"
+            OnConflictStrategy.ABORT -> "ABORT"
+            OnConflictStrategy.FAIL -> "FAIL"
+            OnConflictStrategy.IGNORE -> "IGNORE"
+            OnConflictStrategy.ROLLBACK -> "ROLLBACK"
             else -> "BAD_CONFLICT_CONSTRAINT"
         }
     }
