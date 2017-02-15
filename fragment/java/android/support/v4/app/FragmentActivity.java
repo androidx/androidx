@@ -109,8 +109,8 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
 
     boolean mCreated;
     boolean mResumed;
-    boolean mStopped;
-    boolean mReallyStopped;
+    boolean mStopped = true;
+    boolean mReallyStopped = true;
     boolean mRetaining;
 
     boolean mRequestedPermissionsFromFragment;
