@@ -62,9 +62,22 @@ public class SingleFragmentTestBase {
         launchAndWaitActivity(fragmentClass.getName(), waitTimeMs);
     }
 
+    public void launchAndWaitActivity(Class fragmentClass, int activityLayoutId, long waitTimeMs) {
+        launchAndWaitActivity(fragmentClass.getName(), activityLayoutId, waitTimeMs);
+    }
+
     public void launchAndWaitActivity(String firstFragmentName, long waitTimeMs) {
         Intent intent = new Intent();
         intent.putExtra(SingleFragmentTestActivity.EXTRA_FRAGMENT_NAME, firstFragmentName);
+        mActivity = activityTestRule.launchActivity(intent);
+        SystemClock.sleep(waitTimeMs);
+    }
+
+    public void launchAndWaitActivity(String firstFragmentName, int activityLayoutId,
+                                      long waitTimeMs) {
+        Intent intent = new Intent();
+        intent.putExtra(SingleFragmentTestActivity.EXTRA_FRAGMENT_NAME, firstFragmentName);
+        intent.putExtra(SingleFragmentTestActivity.EXTRA_ACTIVITY_LAYOUT, activityLayoutId);
         mActivity = activityTestRule.launchActivity(intent);
         SystemClock.sleep(waitTimeMs);
     }

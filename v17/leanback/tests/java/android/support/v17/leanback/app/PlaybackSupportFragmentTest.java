@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from PlaybackFragmentTest.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -15,18 +18,18 @@
  */
 package android.support.v17.leanback.app;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.media.PlaybackControlGlue;
+import android.support.v17.leanback.media.PlaybackGlue;
+import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
@@ -37,7 +40,6 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.view.KeyEvent;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -45,21 +47,35 @@ import org.mockito.Mockito;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class PlaybackSupportFragmentTest {
+public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     private static final String TAG = "PlaybackSupportFragmentTest";
     private static final long TRANSITION_LENGTH = 1000;
 
-    @Rule
-    public ActivityTestRule<PlaybackSupportTestActivity> activityTestRule =
-            new ActivityTestRule<>(PlaybackSupportTestActivity.class, false, false);
-    private PlaybackSupportTestActivity mActivity;
+    @Test
+    public void testDetachCalledWhenDestroyFragment() throws Throwable {
+        launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
+        PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) mActivity.getTestFragment();
+        PlaybackGlue glue = fragment.getGlue();
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.finish();
+            }
+        });
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mActivity.isDestroyed();
+            }
+        });
+        assertNull(glue.getHost());
+    }
 
     @Test
     public void testSelectedListener() throws Throwable {
-        Intent intent = new Intent();
-        mActivity = activityTestRule.launchActivity(intent);
-        PlaybackSupportTestFragment fragment = mActivity.getPlaybackFragment();
+        launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
+        PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) mActivity.getTestFragment();
+
         assertTrue(fragment.getView().hasFocus());
 
         OnItemViewSelectedListener selectedListener = Mockito.mock(
@@ -82,8 +98,7 @@ public class PlaybackSupportFragmentTest {
 
         ArgumentCaptor<Presenter.ViewHolder> itemVHCaptor =
                 ArgumentCaptor.forClass(Presenter.ViewHolder.class);
-        ArgumentCaptor<Object> itemCaptor =
-                ArgumentCaptor.forClass(Object.class);
+        ArgumentCaptor<Object> itemCaptor = ArgumentCaptor.forClass(Object.class);
         ArgumentCaptor<RowPresenter.ViewHolder> rowVHCaptor =
                 ArgumentCaptor.forClass(RowPresenter.ViewHolder.class);
         ArgumentCaptor<Row> rowCaptor = ArgumentCaptor.forClass(Row.class);
@@ -127,9 +142,9 @@ public class PlaybackSupportFragmentTest {
 
     @Test
     public void testClickedListener() throws Throwable {
-        Intent intent = new Intent();
-        mActivity = activityTestRule.launchActivity(intent);
-        PlaybackSupportTestFragment fragment = mActivity.getPlaybackFragment();
+        launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
+        PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) mActivity.getTestFragment();
+
         assertTrue(fragment.getView().hasFocus());
 
         OnItemViewClickedListener clickedListener = Mockito.mock(OnItemViewClickedListener.class);
@@ -209,12 +224,6 @@ public class PlaybackSupportFragmentTest {
                 || itemCaptor.getValue() == listRow0.getAdapter().get(1));
         assertTrue("None of the items in the first ListRow are passed to the click listener.",
                 listRowItemPassed);
-    }
-
-    private void sendKeys(int ...keys) {
-        for (int i = 0; i < keys.length; i++) {
-            InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keys[i]);
-        }
     }
 
 }

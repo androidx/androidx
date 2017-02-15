@@ -19,11 +19,11 @@ import sys
 
 print "Generate v4 fragment related code for leanback"
 
-files = ['BrowseTest', 'GuidedStepTest']
+files = ['BrowseTest', 'GuidedStepTest', 'PlaybackTest']
 
 cls = ['BrowseTest', 'Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Error', 'Headers',
       'PlaybackOverlay', 'Rows', 'Search', 'VerticalGrid', 'Branded',
-      'GuidedStepTest', 'GuidedStep', 'RowsTest']
+      'GuidedStepTest', 'GuidedStep', 'RowsTest', 'PlaybackTest', 'Playback', 'Video']
 
 for w in files:
     print "copy {}Fragment to {}SupportFragment".format(w, w)
@@ -68,7 +68,7 @@ for w in testcls:
     file.close()
     outfile.close()
 
-testcls = ['Browse', 'GuidedStep', 'VerticalGrid']
+testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Playback', 'Video']
 
 for w in testcls:
     print "copy {}FrgamentTest to {}SupportFragmentTest".format(w, w)
@@ -83,6 +83,7 @@ for w in testcls:
         for w in cls:
             line = line.replace('{}Fragment'.format(w), '{}SupportFragment'.format(w))
         for w in testcls:
+            line = line.replace('SingleFragmentTestBase', 'SingleSupportFragmentTestBase')
             line = line.replace('{}FragmentTestBase'.format(w), '{}SupportFragmentTestBase'.format(w))
             line = line.replace('{}FragmentTest'.format(w), '{}SupportFragmentTest'.format(w))
             line = line.replace('{}FragmentTestActivity'.format(w), '{}SupportFragmentTestActivity'.format(w))
@@ -91,6 +92,7 @@ for w in testcls:
         line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
 	line = line.replace('extends Activity', 'extends FragmentActivity')
 	line = line.replace('Activity.this.getFragmentManager', 'Activity.this.getSupportFragmentManager')
+	line = line.replace('mActivity.getFragmentManager', 'mActivity.getSupportFragmentManager')
         outfile.write(line)
     file.close()
     outfile.close()
@@ -182,6 +184,8 @@ outfile.write("// CHECKSTYLE:OFF Generated code\n")
 outfile.write("/* This file is auto-generated from PlaybackControlGlueTest.java.  DO NOT MODIFY. */\n\n")
 for line in file:
     line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue')
+    line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
+    line = line.replace('PlaybackGlueHostOld', 'PlaybackSupportGlueHostOld')
     outfile.write(line)
 file.close()
 outfile.close()
