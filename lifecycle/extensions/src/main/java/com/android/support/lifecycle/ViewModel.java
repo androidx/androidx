@@ -16,18 +16,19 @@
 
 package com.android.support.lifecycle;
 
-import android.app.Activity;
-
 /**
- * Marks a class as a ViewModel that can be retrieved from ViewModelStore.
- *
- * A ViewModel is always created in association with a LifecycleProvider and will be retained
- * as long as the scope (LifecycleProvider) is alive. E.g. if it is an activity, until it is
- * finished or the process is killed.
+ * ViewModel is a class that is responsible for preparing and managing the data for
+ * an {@link android.app.Activity Activity} or a {@link android.support.v4.app.Fragment Fragment}.
+ * It also handles the communication of the Activity / Fragment with the rest of the application
+ * (e.g. calling the business logic classes).
  * <p>
- * This <b>doesn't</b> mean that ViewModel will be destroyed after {@link Activity#onDestroy()} is
- * called. If the activity is recreated due to a configuration change (e.g. rotation), ViewModel
- * <b>won't</b> be recreated. The replacement activity will be given the same ViewHolder instance.
+ * A ViewModel is always created in association with a LifecycleProvider and will be retained
+ * as long as the scope (LifecycleProvider) is alive. E.g. if it is an Activity, until it is
+ * finished.
+ * <p>
+ * In other words, this means that a ViewModel will not be destroyed if its owner is destroyed for a
+ * configuration change (e.g. rotation). The new instance of the owner will just re-connected to the
+ * existing ViewModel.
  * <p>
  * The purpose of the ViewModel is to acquire and keep the information that is necessary for an
  * Activity or a Fragment. The Activity or the Fragment should be able to observe changes in the
@@ -39,7 +40,7 @@ import android.app.Activity;
  * <p>
  * Typical usage from an Activity standpoint would be:
  * <pre>
- * class UserActivity extends Activity {
+ * public class UserActivity extends Activity {
  *
  *     {@literal @}Override
  *     protected void onCreate(Bundle savedInstanceState) {
@@ -55,9 +56,7 @@ import android.app.Activity;
  *         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
  *             {@literal @}Override
  *             public void onClick(View v) {
- *                  // calculate changes
- *                  // Changes changes = ...;
- *                  viewModel.reactOnChanges(changes);
+ *                  viewModel.doAction();
  *             }
  *         });
  *     }
@@ -66,16 +65,16 @@ import android.app.Activity;
  *
  * ViewModel would be:
  * <pre>
- * class UserModel extends ViewModel {
- *     LiveData<User> userLiveData = new LiveData<>();
+ * public class UserModel extends ViewModel {
+ *     public final LiveData&lt;User&gt; userLiveData = new LiveData<>();
  *
- *     UserModel() {
+ *     public UserModel() {
  *         // trigger user load.
  *     }
  *
- *     void reactOnChanges(Changes changes) {
- *         // trigger updates, that should later result in
- *         // userLiveData.setValue(updatedUser) call;
+ *     void doAction() {
+ *         // depending on the action, do necessary business logic calls and update the
+ *         // userLiveData.
  *     }
  * }
  * </pre>
@@ -86,8 +85,8 @@ import android.app.Activity;
  * communication between Fragments in a de-coupled fashion such that they never need to talk to
  * the other Fragment directly.
  * <pre>
- * class MyFragment extends Fragment {
- *     void onStart() {
+ * public class MyFragment extends Fragment {
+ *     public void onStart() {
  *         UserModel userModel = ViewModelStore.get(getActivity(), "sharedModel", UserModel.class);
  *     }
  * }
@@ -100,8 +99,9 @@ public abstract class ViewModel {
      * This method will be called when this ViewModel is no longer used and will be destroyed.
      * <p>
      * It is useful when ViewModel observes some data and you need to clear this subscription to
-     * prevent a leak of this object.
+     * prevent a leak of this ViewModel.
      */
+    @SuppressWarnings("WeakerAccess")
     protected void onCleared() {
     }
 }

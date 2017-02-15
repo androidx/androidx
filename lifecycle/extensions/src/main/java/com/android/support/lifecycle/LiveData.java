@@ -32,18 +32,19 @@ import com.android.support.executors.AppToolkitTaskExecutor;
  * this observer will be notified about modifications of the wrapped data only if the paired
  * LifecycleProvider is in active state. LifecycleProvider is considered as active, if its state is
  * {@link Lifecycle#STARTED} or {@link Lifecycle#RESUMED}. An observer added without a
- * LifeProvider is consider as always active and thus will be always notified about modifications.
+ * LifecycleProvider is considered as always active and thus will be always notified about
+ * modifications. For those observers, you should manually call {@link #removeObserver(Observer)}.
  *
  * <p> An observer added with a Lifecycle will be automatically removed if the corresponding
  * Lifecycle moves to {@link Lifecycle#DESTROYED} state. This is especially useful for activities
- * and fragments they can safely observe LiveData and not worry about leaks: they will be
- * instantly unsubscribed when they will be destroyed.
+ * and fragments where they can safely observe LiveData and not worry about leaks: they will be
+ * instantly unsubscribed when they are destroyed.
  *
  * <p>
  * In addition, LiveData has {@link LiveData#onActive()} and {@link LiveData#onInactive()} methods
- * to get notified when first active {@link Observer} appears and when last active {@link Observer}
- * is gone. So LiveData may use highly memory or power consuming services like LocationManager or
- * SensorManager only when there is an UI in a foreground which is interested in that data.
+ * to get notified when number of active {@link Observer}s change between 0 and 1.
+ * This allows LiveData to release any heavy resources when it does not have any Observers that
+ * are actively observing.
  * <p>
  * This class is designed to hold individual data fields of {@link ViewModel},
  * but can also be used for sharing data between different modules in your application
