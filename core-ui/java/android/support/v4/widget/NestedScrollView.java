@@ -51,6 +51,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AnimationUtils;
+import android.widget.EdgeEffect;
 import android.widget.FrameLayout;
 import android.widget.ScrollView;
 
@@ -95,8 +96,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     private final Rect mTempRect = new Rect();
     private ScrollerCompat mScroller;
-    private EdgeEffectCompat mEdgeGlowTop;
-    private EdgeEffectCompat mEdgeGlowBottom;
+    private EdgeEffect mEdgeGlowTop;
+    private EdgeEffect mEdgeGlowBottom;
 
     /**
      * Position of the last motion event.
@@ -808,13 +809,13 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                         ensureGlows();
                         final int pulledToY = oldY + deltaY;
                         if (pulledToY < 0) {
-                            mEdgeGlowTop.onPull((float) deltaY / getHeight(),
+                            EdgeEffectCompat.onPull(mEdgeGlowTop, (float) deltaY / getHeight(),
                                     ev.getX(activePointerIndex) / getWidth());
                             if (!mEdgeGlowBottom.isFinished()) {
                                 mEdgeGlowBottom.onRelease();
                             }
                         } else if (pulledToY > range) {
-                            mEdgeGlowBottom.onPull((float) deltaY / getHeight(),
+                            EdgeEffectCompat.onPull(mEdgeGlowBottom, (float) deltaY / getHeight(),
                                     1.f - ev.getX(activePointerIndex)
                                             / getWidth());
                             if (!mEdgeGlowTop.isFinished()) {
@@ -1749,8 +1750,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
             if (mEdgeGlowTop == null) {
                 Context context = getContext();
-                mEdgeGlowTop = new EdgeEffectCompat(context);
-                mEdgeGlowBottom = new EdgeEffectCompat(context);
+                mEdgeGlowTop = new EdgeEffect(context);
+                mEdgeGlowBottom = new EdgeEffect(context);
             }
         } else {
             mEdgeGlowTop = null;

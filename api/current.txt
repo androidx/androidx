@@ -8527,15 +8527,16 @@ package android.support.v4.widget {
   }
 
   public final class EdgeEffectCompat {
-    ctor public EdgeEffectCompat(android.content.Context);
-    method public boolean draw(android.graphics.Canvas);
-    method public void finish();
-    method public boolean isFinished();
-    method public boolean onAbsorb(int);
+    ctor public deprecated EdgeEffectCompat(android.content.Context);
+    method public deprecated boolean draw(android.graphics.Canvas);
+    method public deprecated void finish();
+    method public deprecated boolean isFinished();
+    method public deprecated boolean onAbsorb(int);
     method public deprecated boolean onPull(float);
-    method public boolean onPull(float, float);
-    method public boolean onRelease();
-    method public void setSize(int, int);
+    method public deprecated boolean onPull(float, float);
+    method public static void onPull(android.widget.EdgeEffect, float, float);
+    method public deprecated boolean onRelease();
+    method public deprecated void setSize(int, int);
   }
 
   public abstract class ExploreByTouchHelper extends android.support.v4.view.AccessibilityDelegateCompat {
