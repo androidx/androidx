@@ -1,4 +1,4 @@
-package com.android.flatfoot.apireviewdemo.exercise;
+package com.android.flatfoot.apireviewdemo.exercise.db;
 
 import android.content.Context;
 

@@ -18,9 +18,9 @@ public class OneAccountActivity extends LifecycleActivity {
         setContentView(R.layout.view_model1);
 
         AccountViewModel viewModel = ViewModelStore.get(this, "oneaccount", AccountViewModel.class);
-        viewModel.personData.observe(this, new Observer<DataManagement.PersonDataWithStatus>() {
+        viewModel.personData.observe(this, new Observer<AccountViewModel.PersonDataWithStatus>() {
             @Override
-            public void onChanged(@Nullable DataManagement.PersonDataWithStatus data) {
+            public void onChanged(AccountViewModel.PersonDataWithStatus data) {
                 if (data.person != null) {
                     TextView emailView = (TextView) findViewById(R.id.name);
                     emailView.setText(data.person.getName());

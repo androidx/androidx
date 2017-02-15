@@ -18,6 +18,7 @@ public class LiveLocationActivity extends LifecycleActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.location_activity);
+        // ignore permission handling code as an implementation detail
         if (PermissionUtils.hasLocationPermission(this)) {
             startListening();
         } else {
@@ -29,6 +30,7 @@ public class LiveLocationActivity extends LifecycleActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // ignore permission handling code as an implementation detail
         if (PermissionUtils.hasLocationPermission(this)) {
             startListening();
         } else {
