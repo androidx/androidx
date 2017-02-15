@@ -531,6 +531,8 @@ public class AppBarWithCollapsingToolbarTest extends AppBarLayoutBaseTest {
      * inherits from) has an issue with measuring children with margins when run on earlier
      * versions of the platform.
      */
+    @Suppress
+    @FlakyTest(bugId = 30701044)
     @Test
     @SdkSuppress(minSdkVersion = 11)
     public void testPinnedToolbarWithMargins() throws Throwable {
