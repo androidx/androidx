@@ -30,13 +30,13 @@ public class ChosenShapeFragment extends LifecycleFragment {
         viewModel.shapeDrawableData.observe(this, new Observer<ShapeDrawable>() {
             @Override
             public void onChanged(@Nullable ShapeDrawable shapeDrawable) {
-                updateColor(shapeDrawable);
+                updateShape(shapeDrawable);
             }
         });
         return layout;
     }
 
-    private void updateColor(ShapeDrawable shape) {
+    private void updateShape(ShapeDrawable shape) {
         mNoneShapeView.setVisibility(shape == null ? View.VISIBLE : View.GONE);
         mShapeView.setVisibility(shape != null ? View.VISIBLE : View.GONE);
         if (shape != null) {

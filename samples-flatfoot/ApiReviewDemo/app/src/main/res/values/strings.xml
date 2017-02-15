@@ -8,4 +8,5 @@
     <string name="current_chosen_color">Current chosen color:</string>
     <string name="none">None</string>
     <string name="shapes_label">Shapes Activity</string>
+    <string name="note_label">Note label:</string>
 </resources>

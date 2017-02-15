@@ -15,8 +15,9 @@ public class OneAccountActivity extends LifecycleActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AccountViewModel viewModel = ViewModelStore.get(this, "oneaccount", AccountViewModel.class);
         setContentView(R.layout.view_model1);
+
+        AccountViewModel viewModel = ViewModelStore.get(this, "oneaccount", AccountViewModel.class);
         viewModel.personData.observe(this, new Observer<DataManagement.PersonDataWithStatus>() {
             @Override
             public void onChanged(@Nullable DataManagement.PersonDataWithStatus data) {

@@ -1,29 +1,27 @@
 package com.android.flatfoot.apireviewdemo.lifecycle_01_basic;
 
 import android.content.Context;
-import android.location.LocationListener;
 import android.location.LocationManager;
 
 import com.android.flatfoot.apireviewdemo.DemoApplication;
+import com.android.flatfoot.apireviewdemo.internal.SimpleLocationListener;
 import com.android.support.lifecycle.Lifecycle;
 import com.android.support.lifecycle.LifecycleObserver;
 import com.android.support.lifecycle.LifecycleProvider;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
-public class BoundLocationManager {
-
-    public static void bindLocationListenerIn(LifecycleProvider provider,
-            LocationListener listener) {
-        new BoundedLocationListener(provider, listener);
-    }
-}
-
 @SuppressWarnings("MissingPermission")
-class BoundedLocationListener implements LifecycleObserver {
-    private LocationManager mLocationManager;
-    private final LocationListener mListener;
+public class LocationListener implements LifecycleObserver {
 
-    public BoundedLocationListener(LifecycleProvider provider, LocationListener listener) {
+    public static void listenLocation(LifecycleProvider provider,
+            SimpleLocationListener listener) {
+        new LocationListener(provider, listener);
+    }
+
+    private android.location.LocationManager mLocationManager;
+    private final SimpleLocationListener mListener;
+
+    LocationListener(LifecycleProvider provider, SimpleLocationListener listener) {
         provider.getLifecycle().addObserver(this);
         mListener = listener;
         if (provider.getLifecycle().getCurrentState() == Lifecycle.RESUMED) {
@@ -35,7 +33,8 @@ class BoundedLocationListener implements LifecycleObserver {
     void start() {
         mLocationManager = (LocationManager) DemoApplication.context().getSystemService(
                 Context.LOCATION_SERVICE);
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mListener);
+        mLocationManager.requestLocationUpdates(android.location.LocationManager.GPS_PROVIDER, 0, 0,
+                mListener);
     }
 
 
