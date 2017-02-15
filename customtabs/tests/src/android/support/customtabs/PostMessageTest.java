@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -55,13 +56,14 @@ public class PostMessageTest {
     private Context mContext;
     private CustomTabsServiceConnection mCustomTabsServiceConnection;
     private PostMessageServiceConnection mPostMessageServiceConnection;
-    private boolean mCustomTabsServiceConnected;
+    private AtomicBoolean mCustomTabsServiceConnected;
     private boolean mPostMessageServiceConnected;
     private CustomTabsSession mSession;
 
     public PostMessageTest() {
         mActivityTestRule = new ActivityTestRule<TestActivity>(TestActivity.class);
         mServiceRule = new ServiceTestRule();
+        mCustomTabsServiceConnected = new AtomicBoolean(false);
     }
 
 
@@ -89,13 +91,13 @@ public class PostMessageTest {
         mCustomTabsServiceConnection = new CustomTabsServiceConnection() {
             @Override
             public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-                mCustomTabsServiceConnected = true;
                 mSession = client.newSession(mCallback);
+                mCustomTabsServiceConnected.set(true);
             }
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
-                mCustomTabsServiceConnected = false;
+                mCustomTabsServiceConnected.set(false);
             }
         };
         mPostMessageServiceConnection = new PostMessageServiceConnection(
@@ -126,10 +128,10 @@ public class PostMessageTest {
         PollingCheck.waitFor(500, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                return mCustomTabsServiceConnected;
+                return mCustomTabsServiceConnected.get();
             }
         });
-        assertTrue(mCustomTabsServiceConnected);
+        assertTrue(mCustomTabsServiceConnected.get());
         assertTrue(mSession.requestPostMessageChannel(Uri.EMPTY));
         assertEquals(CustomTabsService.RESULT_SUCCESS, mSession.postMessage("", null));
         PollingCheck.waitFor(500, new PollingCheck.PollingCheckCondition() {
