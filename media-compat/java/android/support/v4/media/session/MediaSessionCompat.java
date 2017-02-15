@@ -286,8 +286,6 @@ public class MediaSessionCompat {
             mImpl = new MediaSessionImplApi19(context, tag, mbrComponent, mbrIntent);
         } else if (android.os.Build.VERSION.SDK_INT >= 18) {
             mImpl = new MediaSessionImplApi18(context, tag, mbrComponent, mbrIntent);
-        } else if (android.os.Build.VERSION.SDK_INT >= 14) {
-            mImpl = new MediaSessionImplApi14(context, tag, mbrComponent, mbrIntent);
         } else {
             mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent);
         }
@@ -1478,6 +1476,9 @@ public class MediaSessionCompat {
     }
 
     static class MediaSessionImplBase implements MediaSessionImpl {
+        /***** RemoteControlClient States, we only need none as the others were public *******/
+        static final int RCC_PLAYSTATE_NONE = 0;
+
         private final Context mContext;
         private final ComponentName mMediaButtonReceiverComponentName;
         private final PendingIntent mMediaButtonReceiverIntent;
@@ -1486,6 +1487,7 @@ public class MediaSessionCompat {
         final String mPackageName;
         final String mTag;
         final AudioManager mAudioManager;
+        final RemoteControlClient mRcc;
 
         final Object mLock = new Object();
         final RemoteCallbackList<IMediaControllerCallback> mControllerCallbacks
@@ -1495,6 +1497,7 @@ public class MediaSessionCompat {
         boolean mDestroyed = false;
         boolean mIsActive = false;
         private boolean mIsMbrRegistered = false;
+        private boolean mIsRccRegistered = false;
         volatile Callback mCallback;
 
         @SessionFlags int mFlags;
@@ -1545,6 +1548,7 @@ public class MediaSessionCompat {
             mRatingType = RatingCompat.RATING_NONE;
             mVolumeType = MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL;
             mLocalStream = AudioManager.STREAM_MUSIC;
+            mRcc = new RemoteControlClient(mbrIntent);
         }
 
         @Override
@@ -1668,6 +1672,83 @@ public class MediaSessionCompat {
                 mState = state;
             }
             sendState(state);
+            if (!mIsActive) {
+                // Don't set the state until after the RCC is registered
+                return;
+            }
+            if (state == null) {
+                mRcc.setPlaybackState(0);
+                mRcc.setTransportControlFlags(0);
+            } else {
+                // Set state
+                setRccState(state);
+
+                // Set transport control flags
+                mRcc.setTransportControlFlags(
+                        getRccTransportControlFlagsFromActions(state.getActions()));
+            }
+        }
+
+        void setRccState(PlaybackStateCompat state) {
+            mRcc.setPlaybackState(getRccStateFromState(state.getState()));
+        }
+
+        int getRccStateFromState(int state) {
+            switch (state) {
+                case PlaybackStateCompat.STATE_CONNECTING:
+                case PlaybackStateCompat.STATE_BUFFERING:
+                    return RemoteControlClient.PLAYSTATE_BUFFERING;
+                case PlaybackStateCompat.STATE_ERROR:
+                    return RemoteControlClient.PLAYSTATE_ERROR;
+                case PlaybackStateCompat.STATE_FAST_FORWARDING:
+                    return RemoteControlClient.PLAYSTATE_FAST_FORWARDING;
+                case PlaybackStateCompat.STATE_NONE:
+                    return RCC_PLAYSTATE_NONE;
+                case PlaybackStateCompat.STATE_PAUSED:
+                    return RemoteControlClient.PLAYSTATE_PAUSED;
+                case PlaybackStateCompat.STATE_PLAYING:
+                    return RemoteControlClient.PLAYSTATE_PLAYING;
+                case PlaybackStateCompat.STATE_REWINDING:
+                    return RemoteControlClient.PLAYSTATE_REWINDING;
+                case PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS:
+                    return RemoteControlClient.PLAYSTATE_SKIPPING_BACKWARDS;
+                case PlaybackStateCompat.STATE_SKIPPING_TO_NEXT:
+                case PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM:
+                    return RemoteControlClient.PLAYSTATE_SKIPPING_FORWARDS;
+                case PlaybackStateCompat.STATE_STOPPED:
+                    return RemoteControlClient.PLAYSTATE_STOPPED;
+                default:
+                    return -1;
+            }
+        }
+
+        int getRccTransportControlFlagsFromActions(long actions) {
+            int transportControlFlags = 0;
+            if ((actions & PlaybackStateCompat.ACTION_STOP) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_STOP;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_PAUSE) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PAUSE;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_PLAY) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PLAY;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_REWIND) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_REWIND;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_NEXT;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_FAST_FORWARD) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_FAST_FORWARD;
+            }
+            if ((actions & PlaybackStateCompat.ACTION_PLAY_PAUSE) != 0) {
+                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE;
+            }
+            return transportControlFlags;
         }
 
         @Override
@@ -1682,6 +1763,81 @@ public class MediaSessionCompat {
                 mMetadata = metadata;
             }
             sendMetadata(metadata);
+            if (!mIsActive) {
+                // Don't set metadata until after the rcc has been registered
+                return;
+            }
+            RemoteControlClient.MetadataEditor editor = buildRccMetadata(
+                    metadata == null ? null : metadata.getBundle());
+            editor.apply();
+        }
+
+        RemoteControlClient.MetadataEditor buildRccMetadata(Bundle metadata) {
+            RemoteControlClient.MetadataEditor editor = mRcc.editMetadata(true);
+            if (metadata == null) {
+                return editor;
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ART)) {
+                Bitmap art = metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_ART);
+                editor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, art);
+            } else if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)) {
+                // Fall back to album art if the track art wasn't available
+                Bitmap art = metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
+                editor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, art);
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ARTIST)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_AUTHOR)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_AUTHOR,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_AUTHOR));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_COMPILATION)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_COMPILATION,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_COMPILATION));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_COMPOSER)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_COMPOSER,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_COMPOSER));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_DATE)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_DATE,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_DATE));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER)) {
+                editor.putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
+                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)) {
+                editor.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
+                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_GENRE)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_GENRE,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_GENRE));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_TITLE)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)) {
+                editor.putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
+                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER));
+            }
+            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_WRITER)) {
+                editor.putString(MediaMetadataRetriever.METADATA_KEY_WRITER,
+                        metadata.getString(MediaMetadataCompat.METADATA_KEY_WRITER));
+            }
+            return editor;
         }
 
         @Override
@@ -1752,9 +1908,9 @@ public class MediaSessionCompat {
 
         // Registers/unregisters components as needed.
         boolean update() {
+            boolean registeredRcc = false;
             if (mIsActive) {
-                // Register a MBR if it's supported, unregister it
-                // if support was removed.
+                // Register a MBR if it's supported, unregister it if support was removed.
                 if (!mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) != 0) {
                     registerMediaButtonEventReceiver(mMediaButtonReceiverIntent,
                             mMediaButtonReceiverComponentName);
@@ -1764,6 +1920,20 @@ public class MediaSessionCompat {
                             mMediaButtonReceiverComponentName);
                     mIsMbrRegistered = false;
                 }
+                // Register a RCC if it's supported, unregister it if support was removed.
+                if (!mIsRccRegistered && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) != 0) {
+                    mAudioManager.registerRemoteControlClient(mRcc);
+                    mIsRccRegistered = true;
+                    registeredRcc = true;
+                } else if (mIsRccRegistered
+                        && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) == 0) {
+                    // RCC keeps the state while the system resets its state internally when
+                    // we register RCC. Reset the state so that the states in RCC and the system
+                    // are in sync when we re-register the RCC.
+                    mRcc.setPlaybackState(0);
+                    mAudioManager.unregisterRemoteControlClient(mRcc);
+                    mIsRccRegistered = false;
+                }
             } else {
                 // When inactive remove any registered components.
                 if (mIsMbrRegistered) {
@@ -1771,8 +1941,16 @@ public class MediaSessionCompat {
                             mMediaButtonReceiverComponentName);
                     mIsMbrRegistered = false;
                 }
+                if (mIsRccRegistered) {
+                    // RCC keeps the state while the system resets its state internally when
+                    // we register RCC. Reset the state so that the states in RCC and the system
+                    // are in sync when we re-register the RCC.
+                    mRcc.setPlaybackState(0);
+                    mAudioManager.unregisterRemoteControlClient(mRcc);
+                    mIsRccRegistered = false;
+                }
             }
-            return false;
+            return registeredRcc;
         }
 
         void registerMediaButtonEventReceiver(PendingIntent mbrIntent, ComponentName mbrComponent) {
@@ -2465,219 +2643,8 @@ public class MediaSessionCompat {
         }
     }
 
-    @RequiresApi(14)
-    static class MediaSessionImplApi14 extends MediaSessionImplBase {
-        /***** RemoteControlClient States, we only need none as the others were public *******/
-        static final int RCC_PLAYSTATE_NONE = 0;
-
-        final RemoteControlClient mRcc;
-
-        private boolean mIsRccRegistered = false;
-
-        MediaSessionImplApi14(Context context, String tag, ComponentName mbrComponent,
-                PendingIntent mbrIntent) {
-            super(context, tag, mbrComponent, mbrIntent);
-            mRcc = new RemoteControlClient(mbrIntent);
-        }
-
-        @Override
-        public void setPlaybackState(PlaybackStateCompat state) {
-            super.setPlaybackState(state);
-            if (!mIsActive) {
-                // Don't set the state until after the RCC is registered
-                return;
-            }
-            if (state == null) {
-                mRcc.setPlaybackState(0);
-                mRcc.setTransportControlFlags(0);
-            } else {
-                // Set state
-                setRccState(state);
-
-                // Set transport control flags
-                mRcc.setTransportControlFlags(
-                        getRccTransportControlFlagsFromActions(state.getActions()));
-            }
-        }
-
-        void setRccState(PlaybackStateCompat state) {
-            mRcc.setPlaybackState(getRccStateFromState(state.getState()));
-        }
-
-        int getRccStateFromState(int state) {
-            switch (state) {
-                case PlaybackStateCompat.STATE_CONNECTING:
-                case PlaybackStateCompat.STATE_BUFFERING:
-                    return RemoteControlClient.PLAYSTATE_BUFFERING;
-                case PlaybackStateCompat.STATE_ERROR:
-                    return RemoteControlClient.PLAYSTATE_ERROR;
-                case PlaybackStateCompat.STATE_FAST_FORWARDING:
-                    return RemoteControlClient.PLAYSTATE_FAST_FORWARDING;
-                case PlaybackStateCompat.STATE_NONE:
-                    return RCC_PLAYSTATE_NONE;
-                case PlaybackStateCompat.STATE_PAUSED:
-                    return RemoteControlClient.PLAYSTATE_PAUSED;
-                case PlaybackStateCompat.STATE_PLAYING:
-                    return RemoteControlClient.PLAYSTATE_PLAYING;
-                case PlaybackStateCompat.STATE_REWINDING:
-                    return RemoteControlClient.PLAYSTATE_REWINDING;
-                case PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS:
-                    return RemoteControlClient.PLAYSTATE_SKIPPING_BACKWARDS;
-                case PlaybackStateCompat.STATE_SKIPPING_TO_NEXT:
-                case PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM:
-                    return RemoteControlClient.PLAYSTATE_SKIPPING_FORWARDS;
-                case PlaybackStateCompat.STATE_STOPPED:
-                    return RemoteControlClient.PLAYSTATE_STOPPED;
-                default:
-                    return -1;
-            }
-        }
-
-        int getRccTransportControlFlagsFromActions(long actions) {
-            int transportControlFlags = 0;
-            if ((actions & PlaybackStateCompat.ACTION_STOP) != 0) {
-                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_STOP;
-            }
-            if ((actions & PlaybackStateCompat.ACTION_PAUSE) != 0) {
-                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PAUSE;
-            }
-            if ((actions & PlaybackStateCompat.ACTION_PLAY) != 0) {
-                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PLAY;
-            }
-            if ((actions & PlaybackStateCompat.ACTION_REWIND) != 0) {
-                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_REWIND;
-            }
-            if ((actions & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0) {
-                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS;
-            }
-            if ((actions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
-                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_NEXT;
-            }
-            if ((actions & PlaybackStateCompat.ACTION_FAST_FORWARD) != 0) {
-                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_FAST_FORWARD;
-            }
-            if ((actions & PlaybackStateCompat.ACTION_PLAY_PAUSE) != 0) {
-                transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE;
-            }
-            return transportControlFlags;
-        }
-
-        @Override
-        public void setMetadata(MediaMetadataCompat metadata) {
-            super.setMetadata(metadata);
-            if (!mIsActive) {
-                // Don't set metadata until after the rcc has been registered
-                return;
-            }
-            RemoteControlClient.MetadataEditor editor = buildRccMetadata(
-                    metadata == null ? null : metadata.getBundle());
-            editor.apply();
-        }
-
-        RemoteControlClient.MetadataEditor buildRccMetadata(Bundle metadata) {
-            RemoteControlClient.MetadataEditor editor = mRcc.editMetadata(true);
-            if (metadata == null) {
-                return editor;
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ART)) {
-                Bitmap art = metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_ART);
-                editor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, art);
-            } else if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)) {
-                // Fall back to album art if the track art wasn't available
-                Bitmap art = metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
-                editor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, art);
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM)) {
-                editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
-                        metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST)) {
-                editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
-                        metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ARTIST)) {
-                editor.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
-                        metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_AUTHOR)) {
-                editor.putString(MediaMetadataRetriever.METADATA_KEY_AUTHOR,
-                        metadata.getString(MediaMetadataCompat.METADATA_KEY_AUTHOR));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_COMPILATION)) {
-                editor.putString(MediaMetadataRetriever.METADATA_KEY_COMPILATION,
-                        metadata.getString(MediaMetadataCompat.METADATA_KEY_COMPILATION));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_COMPOSER)) {
-                editor.putString(MediaMetadataRetriever.METADATA_KEY_COMPOSER,
-                        metadata.getString(MediaMetadataCompat.METADATA_KEY_COMPOSER));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_DATE)) {
-                editor.putString(MediaMetadataRetriever.METADATA_KEY_DATE,
-                        metadata.getString(MediaMetadataCompat.METADATA_KEY_DATE));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER)) {
-                editor.putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
-                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)) {
-                editor.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_GENRE)) {
-                editor.putString(MediaMetadataRetriever.METADATA_KEY_GENRE,
-                        metadata.getString(MediaMetadataCompat.METADATA_KEY_GENRE));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_TITLE)) {
-                editor.putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
-                        metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)) {
-                editor.putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
-                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER));
-            }
-            if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_WRITER)) {
-                editor.putString(MediaMetadataRetriever.METADATA_KEY_WRITER,
-                        metadata.getString(MediaMetadataCompat.METADATA_KEY_WRITER));
-            }
-            return editor;
-        }
-
-        @Override
-        boolean update() {
-            super.update();
-            boolean registeredRcc = false;
-            if (mIsActive) {
-                // Register a RCC if it's supported, unregister it if not.
-                if (!mIsRccRegistered && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) != 0) {
-                    mAudioManager.registerRemoteControlClient(mRcc);
-                    mIsRccRegistered = true;
-                    registeredRcc = true;
-                } else if (mIsRccRegistered
-                        && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) == 0) {
-                    // RCC keeps the state while the system resets its state internally when
-                    // we register RCC. Reset the state so that the states in RCC and the system
-                    // are in sync when we re-register the RCC.
-                    mRcc.setPlaybackState(0);
-                    mAudioManager.unregisterRemoteControlClient(mRcc);
-                    mIsRccRegistered = false;
-                }
-            } else {
-                // When inactive remove any registered components.
-                if (mIsRccRegistered) {
-                    // RCC keeps the state while the system resets its state internally when
-                    // we register RCC. Reset the state so that the states in RCC and the system
-                    // are in sync when we re-register the RCC.
-                    mRcc.setPlaybackState(0);
-                    mAudioManager.unregisterRemoteControlClient(mRcc);
-                    mIsRccRegistered = false;
-                }
-            }
-            return registeredRcc;
-        }
-    }
-
     @RequiresApi(18)
-    static class MediaSessionImplApi18 extends MediaSessionImplApi14 {
+    static class MediaSessionImplApi18 extends MediaSessionImplBase {
         private static boolean sIsMbrPendingIntentSupported = true;
 
         MediaSessionImplApi18(Context context, String tag, ComponentName mbrComponent,
