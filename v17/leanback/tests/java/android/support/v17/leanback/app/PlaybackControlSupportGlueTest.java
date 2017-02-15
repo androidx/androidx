@@ -51,7 +51,7 @@ import org.mockito.Mockito;
 public class PlaybackControlSupportGlueTest {
 
 
-    public  static class PlayControlGlueImpl extends PlaybackControlSupportGlue {
+    static class PlayControlGlueImpl extends PlaybackControlSupportGlue {
         int mSpeedId = PLAYBACK_SPEED_PAUSED;
         // number of times onRowChanged callback is called
         int mOnRowChangedCallCount = 0;
@@ -65,7 +65,7 @@ public class PlaybackControlSupportGlueTest {
         }
 
         PlayControlGlueImpl(Context context, PlaybackOverlaySupportFragment fragment,
-                int[] seekSpeeds) {
+                                   int[] seekSpeeds) {
             super(context, fragment, seekSpeeds);
         }
 
@@ -534,15 +534,15 @@ public class PlaybackControlSupportGlueTest {
     @Test
     public void testOnItemClickedListener() {
         PlaybackControlsRow row = new PlaybackControlsRow();
-        final PlaybackOverlayFragment[] fragmentResult = new PlaybackOverlayFragment[1];
+        final PlaybackOverlaySupportFragment[] fragmentResult = new PlaybackOverlaySupportFragment[1];
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                fragmentResult[0] = new PlaybackOverlayFragment();
+                fragmentResult[0] = new PlaybackOverlaySupportFragment();
             }
         });
-        PlaybackOverlayFragment fragment = fragmentResult[0];
-        glue.setHost(new PlaybackControlSupportGlue.PlaybackGlueHostOld(fragment));
+        PlaybackOverlaySupportFragment fragment = fragmentResult[0];
+        glue.setHost(new PlaybackControlSupportGlue.PlaybackSupportGlueHostOld(fragment));
         glue.setControlsRow(row);
         SparseArrayObjectAdapter adapter = (SparseArrayObjectAdapter)
                 row.getPrimaryActionsAdapter();
@@ -560,7 +560,7 @@ public class PlaybackControlSupportGlueTest {
         // Initially media is paused
         assertEquals(PlaybackControlSupportGlue.PLAYBACK_SPEED_PAUSED, glue.getCurrentSpeedId());
 
-        // simulate a click inside PlaybackOverlayFragment's PlaybackRow.
+        // simulate a click inside PlaybackOverlaySupportFragment's PlaybackRow.
         fragment.getOnItemViewClickedListener().onItemClicked(vh, playPause, rowVh, row);
         verify(listener, times(0)).onItemClicked(vh, playPause, rowVh, row);
         assertEquals(PlaybackControlSupportGlue.PLAYBACK_SPEED_NORMAL, glue.getCurrentSpeedId());
@@ -605,5 +605,4 @@ public class PlaybackControlSupportGlueTest {
         // notifyPlaybackRowChanged on the old host and finally onRowChanged on the glue.
         assertEquals(playbackGlue.getOnRowChangedCallCount(), 2);
     }
-
 }

@@ -26,7 +26,7 @@
         android:layout_gravity="center" />
 
     <fragment
-        android:id="@+id/playback_controls_fragment"
+        android:id="@+id/main_frame"
         android:name="android.support.v17.leanback.app.PlaybackOverlayTestFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

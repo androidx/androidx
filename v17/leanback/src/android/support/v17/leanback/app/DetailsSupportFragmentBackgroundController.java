@@ -231,10 +231,10 @@ public class DetailsSupportFragmentBackgroundController {
     }
 
     /**
-     * Enable Host for PlaybackGlue. This is delayed until: onStart() is called,
-     * activity transitions are finished.
+     * When fragment is started and no running transition. First set host if not yet set, second
+     * start playing if it was paused before.
      */
-    void enablePlaybackHost() {
+    void onStart() {
         if (!mCanUseHost) {
             mCanUseHost = true;
             if (mPlaybackGlue != null) {

@@ -22,10 +22,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.media.PlaybackControlGlue;
 import android.support.v17.leanback.media.PlaybackGlue;
@@ -40,7 +37,6 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.view.KeyEvent;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -48,21 +44,15 @@ import org.mockito.Mockito;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class PlaybackFragmentTest {
+public class PlaybackFragmentTest extends SingleFragmentTestBase {
 
     private static final String TAG = "PlaybackFragmentTest";
     private static final long TRANSITION_LENGTH = 1000;
 
-    @Rule
-    public ActivityTestRule<PlaybackTestActivity> activityTestRule =
-            new ActivityTestRule<>(PlaybackTestActivity.class, false, false);
-    private PlaybackTestActivity mActivity;
-
     @Test
     public void testDetachCalledWhenDestroyFragment() throws Throwable {
-        Intent intent = new Intent();
-        mActivity = activityTestRule.launchActivity(intent);
-        PlaybackTestFragment fragment = mActivity.getPlaybackFragment();
+        launchAndWaitActivity(PlaybackTestFragment.class, 1000);
+        PlaybackTestFragment fragment = (PlaybackTestFragment) mActivity.getTestFragment();
         PlaybackGlue glue = fragment.getGlue();
         activityTestRule.runOnUiThread(new Runnable() {
             public void run() {
@@ -80,9 +70,9 @@ public class PlaybackFragmentTest {
 
     @Test
     public void testSelectedListener() throws Throwable {
-        Intent intent = new Intent();
-        mActivity = activityTestRule.launchActivity(intent);
-        PlaybackTestFragment fragment = mActivity.getPlaybackFragment();
+        launchAndWaitActivity(PlaybackTestFragment.class, 1000);
+        PlaybackTestFragment fragment = (PlaybackTestFragment) mActivity.getTestFragment();
+
         assertTrue(fragment.getView().hasFocus());
 
         OnItemViewSelectedListener selectedListener = Mockito.mock(
@@ -149,9 +139,9 @@ public class PlaybackFragmentTest {
 
     @Test
     public void testClickedListener() throws Throwable {
-        Intent intent = new Intent();
-        mActivity = activityTestRule.launchActivity(intent);
-        PlaybackTestFragment fragment = mActivity.getPlaybackFragment();
+        launchAndWaitActivity(PlaybackTestFragment.class, 1000);
+        PlaybackTestFragment fragment = (PlaybackTestFragment) mActivity.getTestFragment();
+
         assertTrue(fragment.getView().hasFocus());
 
         OnItemViewClickedListener clickedListener = Mockito.mock(OnItemViewClickedListener.class);
@@ -231,12 +221,6 @@ public class PlaybackFragmentTest {
                 || itemCaptor.getValue() == listRow0.getAdapter().get(1));
         assertTrue("None of the items in the first ListRow are passed to the click listener.",
                 listRowItemPassed);
-    }
-
-    private void sendKeys(int ...keys) {
-        for (int i = 0; i < keys.length; i++) {
-            InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keys[i]);
-        }
     }
 
 }
