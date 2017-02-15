@@ -32,17 +32,20 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.fragment.test.R;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.FragmentManager.FragmentLifecycleCallbacks;
 import android.support.v4.app.test.EmptyFragmentTestActivity;
+import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,6 +60,7 @@ import org.junit.runner.RunWith;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -817,6 +821,22 @@ public class FragmentLifecycleTest {
 
         one.setTargetFragment(two, 0);
         one.setTargetFragment(null, 0);
+    }
+
+    /**
+     * FragmentActivity should not raise the state of a Fragment while it is being destroyed.
+     */
+    @Test
+    public void fragmentActivityFinishEarly() throws Throwable {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Intent intent = new Intent(mActivityRule.getActivity(), FragmentTestActivity.class);
+            intent.putExtra("finishEarly", true);
+
+            FragmentTestActivity activity = (FragmentTestActivity)
+                    InstrumentationRegistry.getInstrumentation().startActivitySync(intent);
+
+            assertTrue(activity.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS));
+        }
     }
 
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,

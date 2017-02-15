@@ -15,12 +15,15 @@
  */
 package android.support.v4.app.test;
 
+import static org.junit.Assert.assertFalse;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.fragment.test.R;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -38,10 +41,25 @@ import java.util.concurrent.TimeUnit;
  * A simple activity used for Fragment Transitions and lifecycle event ordering
  */
 public class FragmentTestActivity extends FragmentActivity {
+    public final CountDownLatch onDestroyLatch = new CountDownLatch(1);
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         setContentView(R.layout.activity_content);
+        Intent intent = getIntent();
+        if (intent != null && intent.getBooleanExtra("finishEarly", false)) {
+            finish();
+            getSupportFragmentManager().beginTransaction()
+                    .add(new AssertNotDestroyed(), "not destroyed")
+                    .commit();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        onDestroyLatch.countDown();
     }
 
     public static class TestFragment extends Fragment {
@@ -256,6 +274,16 @@ public class FragmentTestActivity extends FragmentActivity {
             onActivityResultCalled = true;
             onActivityResultRequestCode = requestCode;
             onActivityResultResultCode = resultCode;
+        }
+    }
+
+    public static class AssertNotDestroyed extends Fragment {
+        @Override
+        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
+                assertFalse(getActivity().isDestroyed());
+            }
         }
     }
 }
