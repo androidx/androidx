@@ -19,6 +19,7 @@ package android.support.v17.leanback.media;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 import android.content.Context;
 import android.net.Uri;
@@ -132,6 +133,8 @@ public class MediaPlayerGlueTest {
             }
         });
         assertNull(glue.getHost());
+        Mockito.verify(glue, times(1)).onDetachedFromHost();
+        Mockito.verify(glue, times(1)).release();
     }
 
 }

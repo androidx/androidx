@@ -19,7 +19,6 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-
 import android.support.v17.leanback.media.PlaybackControlGlue;
 import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.widget.Action;
@@ -28,7 +27,6 @@ import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
-import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
@@ -75,22 +73,12 @@ public class PlaybackTestFragment extends PlaybackFragment {
         }
     };
 
-    private OnItemViewSelectedListener mOnItemViewSelectedListener =
-            new OnItemViewSelectedListener() {
-                @Override
-                public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-                                           RowPresenter.ViewHolder rowViewHolder, Row row) {
-                    Log.d(TAG, "onItemSelected: " + item + " row " + row);
-                }
-            };
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
         setBackgroundType(BACKGROUND_TYPE);
-       // setOnItemViewSelectedListener(mOnItemViewSelectedListener);
 
         createComponents(getActivity());
         setOnItemViewClickedListener(mOnItemViewClickedListener);

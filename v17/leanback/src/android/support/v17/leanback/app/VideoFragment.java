@@ -89,4 +89,11 @@ public class VideoFragment extends PlaybackFragment {
     public SurfaceView getSurfaceView() {
         return mVideoSurface;
     }
+
+    @Override
+    public void onDestroyView() {
+        mVideoSurface = null;
+        mState = SURFACE_NOT_CREATED;
+        super.onDestroyView();
+    }
 }
