@@ -20,6 +20,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -45,6 +46,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -476,6 +478,11 @@ public class ViewCompat {
     }
 
     static class ICSViewCompatImpl implements ViewCompatImpl {
+        private static Field sMinWidthField;
+        private static boolean sMinWidthFieldFetched;
+        private static Field sMinHeightField;
+        private static boolean sMinHeightFieldFetched;
+        private static WeakHashMap<View, String> sTransitionNameMap;
         private Method mDispatchStartTemporaryDetach;
         private Method mDispatchFinishTemporaryDetach;
         private boolean mTempDetachBound;
@@ -674,12 +681,50 @@ public class ViewCompat {
 
         @Override
         public int getMinimumWidth(View view) {
-            return ViewCompatBase.getMinimumWidth(view);
+            if (!sMinWidthFieldFetched) {
+                try {
+                    sMinWidthField = View.class.getDeclaredField("mMinWidth");
+                    sMinWidthField.setAccessible(true);
+                } catch (NoSuchFieldException e) {
+                    // Couldn't find the field. Abort!
+                }
+                sMinWidthFieldFetched = true;
+            }
+
+            if (sMinWidthField != null) {
+                try {
+                    return (int) sMinWidthField.get(view);
+                } catch (Exception e) {
+                    // Field get failed. Oh well...
+                }
+            }
+
+            // We failed, return 0
+            return 0;
         }
 
         @Override
         public int getMinimumHeight(View view) {
-            return ViewCompatBase.getMinimumHeight(view);
+            if (!sMinHeightFieldFetched) {
+                try {
+                    sMinHeightField = View.class.getDeclaredField("mMinHeight");
+                    sMinHeightField.setAccessible(true);
+                } catch (NoSuchFieldException e) {
+                    // Couldn't find the field. Abort!
+                }
+                sMinHeightFieldFetched = true;
+            }
+
+            if (sMinHeightField != null) {
+                try {
+                    return (int) sMinHeightField.get(view);
+                } catch (Exception e) {
+                    // Field get failed. Oh well...
+                }
+            }
+
+            // We failed, return 0
+            return 0;
         }
 
         @Override
@@ -697,12 +742,18 @@ public class ViewCompat {
 
         @Override
         public void setTransitionName(View view, String transitionName) {
-            ViewCompatBase.setTransitionName(view, transitionName);
+            if (sTransitionNameMap == null) {
+                sTransitionNameMap = new WeakHashMap<>();
+            }
+            sTransitionNameMap.put(view, transitionName);
         }
 
         @Override
         public String getTransitionName(View view) {
-            return ViewCompatBase.getTransitionName(view);
+            if (sTransitionNameMap == null) {
+                return null;
+            }
+            return sTransitionNameMap.get(view);
         }
 
         @Override
@@ -811,22 +862,30 @@ public class ViewCompat {
 
         @Override
         public ColorStateList getBackgroundTintList(View view) {
-            return ViewCompatBase.getBackgroundTintList(view);
+            return (view instanceof TintableBackgroundView)
+                    ? ((TintableBackgroundView) view).getSupportBackgroundTintList()
+                    : null;
         }
 
         @Override
         public void setBackgroundTintList(View view, ColorStateList tintList) {
-            ViewCompatBase.setBackgroundTintList(view, tintList);
+            if (view instanceof TintableBackgroundView) {
+                ((TintableBackgroundView) view).setSupportBackgroundTintList(tintList);
+            }
         }
 
         @Override
         public void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
-            ViewCompatBase.setBackgroundTintMode(view, mode);
+            if (view instanceof TintableBackgroundView) {
+                ((TintableBackgroundView) view).setSupportBackgroundTintMode(mode);
+            }
         }
 
         @Override
         public PorterDuff.Mode getBackgroundTintMode(View view) {
-            return ViewCompatBase.getBackgroundTintMode(view);
+            return (view instanceof TintableBackgroundView)
+                    ? ((TintableBackgroundView) view).getSupportBackgroundTintMode()
+                    : null;
         }
 
         @Override
@@ -897,7 +956,7 @@ public class ViewCompat {
 
         @Override
         public boolean isLaidOut(View view) {
-            return ViewCompatBase.isLaidOut(view);
+            return view.getWidth() > 0 && view.getHeight() > 0;
         }
 
         @Override
@@ -917,7 +976,7 @@ public class ViewCompat {
 
         @Override
         public boolean isAttachedToWindow(View view) {
-            return ViewCompatBase.isAttachedToWindow(view);
+            return view.getWindowToken() != null;
         }
 
         @Override
@@ -957,7 +1016,12 @@ public class ViewCompat {
 
         @Override
         public Display getDisplay(View view) {
-            return ViewCompatBase.getDisplay(view);
+            if (isAttachedToWindow(view)) {
+                final WindowManager wm = (WindowManager) view.getContext().getSystemService(
+                        Context.WINDOW_SERVICE);
+                return wm.getDefaultDisplay();
+            }
+            return null;
         }
 
         @Override
