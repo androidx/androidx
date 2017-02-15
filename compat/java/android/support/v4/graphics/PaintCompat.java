@@ -35,9 +35,9 @@ public final class PaintCompat {
      */
     public static boolean hasGlyph(@NonNull Paint paint, @NonNull String string) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return PaintCompatApi23.hasGlyph(paint, string);
+            return paint.hasGlyph(string);
         }
-        return PaintCompatGingerbread.hasGlyph(paint, string);
+        return PaintCompatApi14.hasGlyph(paint, string);
     }
 
     private PaintCompat() {}
