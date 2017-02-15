@@ -92,6 +92,51 @@ public class SimpleEntityReadWriteTest {
     }
 
     @Test
+    public void updateSimple() {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        user.setName("i am an updated name");
+        assertThat(mUserDao.update(user), is(1));
+        assertThat(mUserDao.load(user.getId()), equalTo(user));
+    }
+
+    @Test
+    public void updateNonExisting() {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        User user2 = TestUtil.createUser(4);
+        assertThat(mUserDao.update(user2), is(0));
+    }
+
+    @Test
+    public void updateList() {
+        List<User> users = TestUtil.createUsersList(3, 4, 5);
+        mUserDao.insertAll(users.toArray(new User[3]));
+        for (User user : users) {
+            user.setName("name " + user.getId());
+        }
+        assertThat(mUserDao.updateAll(users), is(3));
+        for (User user : users) {
+            assertThat(mUserDao.load(user.getId()).getName(), is("name " + user.getId()));
+        }
+    }
+
+    @Test
+    public void updateListPartial() {
+        List<User> existingUsers = TestUtil.createUsersList(3, 4, 5);
+        mUserDao.insertAll(existingUsers.toArray(new User[3]));
+        for (User user : existingUsers) {
+            user.setName("name " + user.getId());
+        }
+        List<User> allUsers = TestUtil.createUsersList(7, 8, 9);
+        allUsers.addAll(existingUsers);
+        assertThat(mUserDao.updateAll(allUsers), is(3));
+        for (User user : existingUsers) {
+            assertThat(mUserDao.load(user.getId()).getName(), is("name " + user.getId()));
+        }
+    }
+
+    @Test
     public void delete() {
         User user = TestUtil.createUser(3);
         mUserDao.insert(user);

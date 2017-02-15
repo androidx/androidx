@@ -13,12 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.support.room.vo
 
-import javax.lang.model.element.ExecutableElement
+package foo.bar;
+import com.android.support.room.*;
+import java.util.List;
 
-class DeletionMethod(element: ExecutableElement, name: String,
-                          entity: Entity?, returnCount : Boolean,
-                          parameters: List<ShortcutQueryParameter>) : ShortcutMethod(
-        element, name, entity, returnCount, parameters
-)
+@Dao
+abstract interface UpdateDao {
+    @Update
+    void updateUser(User user);
+    @Update
+    void updateUsers(User user1, List<User> others);
+    @Update
+    void updateArrayOfUsers(User[] users);
+
+    @Update
+    int updateUserAndReturnCount(User user);
+    @Update
+    int updateUserAndReturnCount(User user1, List<User> others);
+    @Update
+    int updateUserAndReturnCount(User[] users);
+
+    @Update
+    int multiPKey(MultiPKeyEntity entity);
+}

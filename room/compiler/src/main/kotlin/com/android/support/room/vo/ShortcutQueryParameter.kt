@@ -19,7 +19,18 @@ package com.android.support.room.vo
 import javax.lang.model.type.TypeMirror
 
 /**
- * Parameters used in DAO methods that are annoated with Insert, Delete
+ * Parameters used in DAO methods that are annotated with Insert, Delete, Update.
  */
 data class ShortcutQueryParameter(val name: String, val type: TypeMirror,
-                                  val entityType: TypeMirror?, val isMultiple: Boolean)
+                                  val entityType: TypeMirror?, val isMultiple: Boolean) {
+    /**
+     * Method name in entity insertion or update adapter.
+     */
+    fun handleMethodName() : String {
+        return if (isMultiple) {
+            "handleMultiple"
+        } else {
+            "handle"
+        }
+    }
+}

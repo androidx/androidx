@@ -16,7 +16,6 @@
 
 package com.android.support.room.vo
 
-import com.android.support.room.Insert
 import com.android.support.room.OnConflictStrategy
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.TypeMirror
@@ -26,20 +25,6 @@ data class InsertionMethod(val element: ExecutableElement, val name: String,
                            val entity: Entity?, val returnType: TypeMirror,
                            val insertionType: Type?,
                            val parameters: List<ShortcutQueryParameter>) {
-    companion object {
-        val INVALID_ON_CONFLICT = 1
-    }
-    val onConflictText by lazy {
-        when(onConflict) {
-            OnConflictStrategy.REPLACE -> "REPLACE"
-            OnConflictStrategy.ABORT -> "ABORT"
-            OnConflictStrategy.FAIL -> "FAIL"
-            OnConflictStrategy.IGNORE -> "IGNORE"
-            OnConflictStrategy.ROLLBACK -> "ROLLBACK"
-            else -> "BAD_CONFLICT_CONSTRAINT"
-        }
-    }
-
     fun insertMethodTypeFor(param : ShortcutQueryParameter) : Type {
         return if (insertionType == Type.INSERT_VOID || insertionType == null) {
             Type.INSERT_VOID

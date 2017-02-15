@@ -20,6 +20,7 @@ import com.android.support.room.Delete
 import com.android.support.room.Insert
 import com.android.support.room.Query
 import com.android.support.room.SkipQueryVerification
+import com.android.support.room.Update
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
 import com.android.support.room.verifier.DatabaseVerifier
@@ -36,7 +37,8 @@ class DaoProcessor(baseContext : Context, val element: TypeElement,
     val context = baseContext.fork(element)
 
     companion object {
-        val PROCESSED_ANNOTATIONS = listOf(Insert::class, Delete::class, Query::class)
+        val PROCESSED_ANNOTATIONS = listOf(Insert::class, Delete::class, Query::class,
+                Update::class)
     }
 
     fun process() : Dao {
@@ -62,6 +64,8 @@ class DaoProcessor(baseContext : Context, val element: TypeElement,
                     Insert::class
                 } else if (method.hasAnnotation(Delete::class)) {
                     Delete::class
+                } else if (method.hasAnnotation(Update::class)) {
+                    Update::class
                 } else {
                     Any::class
                 }
@@ -94,6 +98,13 @@ class DaoProcessor(baseContext : Context, val element: TypeElement,
                     executableElement = it).process()
         } ?: emptyList()
 
+        val updateMethods = methods[Update::class]?.map {
+            UpdateMethodProcessor(
+                    baseContext = context,
+                    containing = declaredType,
+                    executableElement = it).process()
+        } ?: emptyList()
+
         context.checker.check(methods[Any::class] == null, element,
                 ProcessorErrors.ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION)
 
@@ -105,6 +116,7 @@ class DaoProcessor(baseContext : Context, val element: TypeElement,
                 type = declaredType,
                 queryMethods = queryMethods,
                 insertionMethods = insertionMethods,
-                deletionMethods = deletionMethods)
+                deletionMethods = deletionMethods,
+                updateMethods = updateMethods)
     }
 }

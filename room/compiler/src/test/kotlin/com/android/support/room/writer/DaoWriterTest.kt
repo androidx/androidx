@@ -59,6 +59,15 @@ class DaoWriterTest {
         )
     }
 
+    @Test
+    fun updateDao() {
+        singleDao(
+                loadJavaCode("daoWriter/input/UpdateDao.java", "foo.bar.UpdateDao")
+        ).compilesWithoutError().and().generatesSources(
+                loadJavaCode("daoWriter/output/UpdateDao.java", "foo.bar.UpdateDao_Impl")
+        )
+    }
+
     fun singleDao(vararg jfo : JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(jfo.toList() + COMMON.USER + COMMON.MULTI_PKEY_ENTITY +

@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.support.room.vo
 
+import com.android.support.room.OnConflictStrategy
 import javax.lang.model.element.ExecutableElement
 
-class DeletionMethod(element: ExecutableElement, name: String,
-                          entity: Entity?, returnCount : Boolean,
-                          parameters: List<ShortcutQueryParameter>) : ShortcutMethod(
-        element, name, entity, returnCount, parameters
-)
+class UpdateMethod(element: ExecutableElement, name: String,
+                        entity: Entity?, returnCount: Boolean,
+                        parameters: List<ShortcutQueryParameter>,
+                        @OnConflictStrategy val onConflictStrategy: Int) : ShortcutMethod(
+        element, name, entity, returnCount, parameters)

@@ -22,6 +22,7 @@ import com.android.support.room.Delete;
 import com.android.support.room.Insert;
 import com.android.support.room.OnConflictStrategy;
 import com.android.support.room.Query;
+import com.android.support.room.Update;
 import com.android.support.room.integration.testapp.vo.AvgWeightByAge;
 import com.android.support.room.integration.testapp.vo.User;
 
@@ -51,6 +52,12 @@ public interface UserDao {
 
     @Delete
     int deleteAll(User[] users);
+
+    @Update
+    int update(User user);
+
+    @Update
+    int updateAll(List<User> users);
 
     @Insert
     void insertAll(User[] users);

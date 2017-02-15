@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.support.room.vo
 
 import javax.lang.model.element.ExecutableElement
 
-class DeletionMethod(element: ExecutableElement, name: String,
-                          entity: Entity?, returnCount : Boolean,
-                          parameters: List<ShortcutQueryParameter>) : ShortcutMethod(
-        element, name, entity, returnCount, parameters
-)
+/**
+ * Base class for shortcut methods in @DAO.
+ */
+abstract class ShortcutMethod(val element: ExecutableElement, val name: String,
+                     val entity: Entity?, val returnCount : Boolean,
+                     val parameters: List<ShortcutQueryParameter>)

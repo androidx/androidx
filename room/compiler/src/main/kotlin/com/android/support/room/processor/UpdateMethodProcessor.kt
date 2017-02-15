@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,40 +15,48 @@
  */
 package com.android.support.room.processor
 
-import com.android.support.room.Delete
+import com.android.support.room.OnConflictStrategy.IGNORE
+import com.android.support.room.OnConflictStrategy.REPLACE
+import com.android.support.room.Update
 import com.android.support.room.ext.typeName
-import com.android.support.room.vo.DeletionMethod
+import com.android.support.room.vo.UpdateMethod
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 
-class DeletionMethodProcessor(baseContext: Context,
+class UpdateMethodProcessor(baseContext: Context,
                               val containing: DeclaredType,
                               val executableElement: ExecutableElement) {
     val context = baseContext.fork(executableElement)
 
-    fun process(): DeletionMethod {
+    fun process(): UpdateMethod {
         val delegate = ShortcutMethodProcessor(context, containing, executableElement)
-        delegate.extractAnnotation(Delete::class, ProcessorErrors.MISSING_DELETE_ANNOTATION)
+        val annotation = delegate
+                .extractAnnotation(Update::class, ProcessorErrors.MISSING_UPDATE_ANNOTATION)
+
+        val onConflict = OnConflictProcessor.extractFrom(annotation)
+        context.checker.check(onConflict <= IGNORE && onConflict >= REPLACE,
+                executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
 
         val returnTypeName = delegate.extractReturnType().typeName()
         context.checker.check(
                 returnTypeName == TypeName.VOID || returnTypeName == TypeName.INT,
                 executableElement,
-                ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
+                ProcessorErrors.UPDATE_METHODS_MUST_RETURN_VOID_OR_INT
         )
 
         val (entity, params) = delegate.extractParams(
                 missingParamError = ProcessorErrors
-                        .DELETION_MISSING_PARAMS,
+                        .UPDATE_MISSING_PARAMS,
                 multipleEntitiesError = ProcessorErrors
-                        .DELETION_MULTIPLE_ENTITY_TYPES
+                        .UPDATE_MULTIPLE_ENTITY_TYPES
         )
 
-        return DeletionMethod(
+        return UpdateMethod(
                 element = delegate.executableElement,
                 name = delegate.executableElement.simpleName.toString(),
                 entity = entity,
+                onConflictStrategy = onConflict,
                 returnCount = returnTypeName == TypeName.INT,
                 parameters = params
         )

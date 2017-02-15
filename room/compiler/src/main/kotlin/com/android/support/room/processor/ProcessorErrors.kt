@@ -19,6 +19,7 @@ package com.android.support.room.processor
 import com.android.support.room.Delete
 import com.android.support.room.Insert
 import com.android.support.room.Query
+import com.android.support.room.Update
 import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.vo.CustomTypeConverter
 import com.android.support.room.vo.Field
@@ -29,6 +30,7 @@ object ProcessorErrors {
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
     val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
+    val MISSING_UPDATE_ANNOTATION = "Update methods must be annotated with ${Update::class.java}"
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
     val INVALID_INSERTION_METHOD_RETURN_TYPE = "Methods annotated with @Insert can return either" +
             " void, long, long[] or List<Long>."
@@ -80,11 +82,18 @@ object ProcessorErrors {
             "insertion methods must be the same type. If you want to insert entities from " +
             "different types atomically, use a transaction."
 
-    val DELETION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_DELETE = "Method annotated with" +
+    val DELETION_MISSING_PARAMS = "Method annotated with" +
             " @Delete but does not have any parameters to delete."
 
-    val DELETION_METHOD_PARAMETERS_MUST_HAVE_THE_SAME_ENTITY_TYPE = "Parameter types in " +
+    val DELETION_MULTIPLE_ENTITY_TYPES = "Parameter types in " +
             "deletion methods must be the same type. If you want to delete entities from " +
+            "different types atomically, use a transaction."
+
+    val UPDATE_MISSING_PARAMS = "Method annotated with" +
+            " @Update but does not have any parameters to update."
+
+    val UPDATE_MULTIPLE_ENTITY_TYPES = "Parameter types in " +
+            "update methods must be the same type. If you want to update entities from " +
             "different types atomically, use a transaction."
 
     val CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER = "Type of the parameter must be a class " +
@@ -138,6 +147,9 @@ object ProcessorErrors {
 
     val DELETION_METHODS_MUST_RETURN_VOID_OR_INT = "Deletion methods must either return void or" +
             " return int (the number of deleted rows)."
+
+    val UPDATE_METHODS_MUST_RETURN_VOID_OR_INT = "Update methods must either return void or" +
+            " return int (the number of updated rows)."
 
     val DAO_METHOD_CONFLICTS_WITH_OTHERS = "Dao method has conflicts."
 

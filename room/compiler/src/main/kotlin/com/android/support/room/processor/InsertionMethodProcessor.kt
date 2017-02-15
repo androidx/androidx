@@ -23,7 +23,6 @@ import com.android.support.room.OnConflictStrategy.IGNORE
 import com.android.support.room.OnConflictStrategy.REPLACE
 import com.android.support.room.vo.InsertionMethod
 import com.android.support.room.vo.InsertionMethod.Type
-import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
 import java.util.List
@@ -43,20 +42,10 @@ class InsertionMethodProcessor(baseContext: Context,
         val annotation = delegate.extractAnnotation(Insert::class,
                 ProcessorErrors.MISSING_INSERT_ANNOTATION)
 
-        val onConflict = if (annotation == null) {
-            InsertionMethod.INVALID_ON_CONFLICT
-        } else {
-            try {
-                val onConflictValue = AnnotationMirrors
-                        .getAnnotationValue(annotation, "onConflict")
-                        .value
-                onConflictValue.toString().toInt()
-            } catch (ex : NumberFormatException) {
-                InsertionMethod.INVALID_ON_CONFLICT
-            }
-        }
+        val onConflict = OnConflictProcessor.extractFrom(annotation)
         context.checker.check(onConflict <= IGNORE && onConflict >= REPLACE,
                 executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
+
         val returnType = delegate.extractReturnType()
         val returnTypeName = TypeName.get(returnType)
         context.checker.notUnbound(returnTypeName, executableElement,

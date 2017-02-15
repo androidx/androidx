@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.android.support.room;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * Marks a method in a {@link Dao} annotated class as an insert method.
+ * Marks a method in a {@link Dao} annotated class as an update method.
  * <p>
- * The implementation of the method will insert its parameters into the database.
+ * The implementation of the method will update its parameters in the database if they already
+ * exists (checked by primary keys). If they don't already exists, this option will not change the
+ * database.
  * <p>
- * All of the parameters of the Insert method must either be classes annotated with {@link Entity}
+ * All of the parameters of the Update method must either be classes annotated with {@link Entity}
  * or collections/array of it.
  *
- * @see Update
+ * @see Insert
  * @see Delete
  */
-@Target({ElementType.METHOD})
-@Retention(RetentionPolicy.CLASS)
-public @interface Insert {
+public @interface Update {
     /**
      * What to do if a conflict happens.
      * @see <a href="https://sqlite.org/lang_conflict.html">SQLite conflict documentation</a>

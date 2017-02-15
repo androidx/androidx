@@ -19,6 +19,7 @@ package com.android.support.room.integration.testapp.test;
 import com.android.support.room.integration.testapp.vo.User;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +47,7 @@ public class TestUtil {
         user.setLastName(UUID.randomUUID().toString());
         user.setAge((int) (10 + Math.random() * 50));
         user.setCustomField(UUID.randomUUID().toString());
+        user.setBirthday(new Date());
         return user;
     }
 }
