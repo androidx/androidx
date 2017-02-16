@@ -15,15 +15,11 @@
  */
 package android.support.annotation;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
  * Denotes that the annotated element of integer type, represents
@@ -47,7 +43,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  * For a flag, set the flag attribute:
  * <pre><code>
  *  &#64;IntDef(
- *      flag = true
+ *      flag = true,
  *      value = {NAVIGATION_MODE_STANDARD, NAVIGATION_MODE_LIST, NAVIGATION_MODE_TABS})
  * </code></pre>
  */

@@ -129,12 +129,7 @@ public class DetailsSupportFragment extends android.support.v17.leanback.app.Det
         ps.addClassPresenter(ListRow.class, new ListRowPresenter());
 
         mRowsAdapter = new ArrayObjectAdapter(ps);
-
-        PhotoItem item = (PhotoItem) (savedInstanceState != null ?
-                savedInstanceState.getParcelable(ITEM) : null);
-        if (item != null) {
-            setItem(item);
-        }
+        updateAdapter();
 
         setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
@@ -182,7 +177,13 @@ public class DetailsSupportFragment extends android.support.v17.leanback.app.Det
 
     public void setItem(PhotoItem photoItem) {
         mPhotoItem = photoItem;
+        updateAdapter();
+    }
 
+    void updateAdapter() {
+        if (mRowsAdapter == null) {
+            return;
+        }
         mRowsAdapter.clear();
         new Handler().postDelayed(new Runnable() {
             public void run() {

@@ -16,6 +16,7 @@
 
 package android.support.v4.app;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -23,7 +24,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.RemoteViews;
@@ -377,6 +377,11 @@ class NotificationCompatJellybean {
     private static NotificationCompatBase.Action getActionFromBundle(Bundle bundle,
             NotificationCompatBase.Action.Factory actionFactory,
             RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
+        Bundle extras = bundle.getBundle(KEY_EXTRAS);
+        boolean allowGeneratedReplies = false;
+        if (extras != null) {
+            allowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES, false);
+        }
         return actionFactory.build(
                 bundle.getInt(KEY_ICON),
                 bundle.getCharSequence(KEY_TITLE),
@@ -384,7 +389,7 @@ class NotificationCompatJellybean {
                 bundle.getBundle(KEY_EXTRAS),
                 RemoteInputCompatJellybean.fromBundleArray(
                         BundleUtil.getBundleArrayFromBundle(bundle, KEY_REMOTE_INPUTS),
-                        remoteInputFactory), bundle.getBoolean(KEY_ALLOW_GENERATED_REPLIES));
+                        remoteInputFactory), allowGeneratedReplies);
     }
 
     public static ArrayList<Parcelable> getParcelableArrayListForActions(
@@ -404,7 +409,15 @@ class NotificationCompatJellybean {
         bundle.putInt(KEY_ICON, action.getIcon());
         bundle.putCharSequence(KEY_TITLE, action.getTitle());
         bundle.putParcelable(KEY_ACTION_INTENT, action.getActionIntent());
-        bundle.putBundle(KEY_EXTRAS, action.getExtras());
+        Bundle actionExtras;
+        if (action.getExtras() != null) {
+            actionExtras = new Bundle(action.getExtras());
+        } else {
+            actionExtras = new Bundle();
+        }
+        actionExtras.putBoolean(NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES,
+                action.getAllowGeneratedReplies());
+        bundle.putBundle(KEY_EXTRAS, actionExtras);
         bundle.putParcelableArray(KEY_REMOTE_INPUTS, RemoteInputCompatJellybean.toBundleArray(
                 action.getRemoteInputs()));
         return bundle;

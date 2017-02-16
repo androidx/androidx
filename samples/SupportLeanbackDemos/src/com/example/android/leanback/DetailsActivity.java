@@ -26,22 +26,41 @@ public class DetailsActivity extends Activity
                 && !(this instanceof SearchDetailsActivity));
     }
 
+    protected boolean hasBackgroundVideo() {
+        return false;
+    }
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         getFragmentManager().enableDebugLogging(true);
-        setContentView(useLegacyFragment() ? R.layout.legacy_details : R.layout.details);
+        setContentView(R.layout.details_activity);
         if (savedInstanceState == null) {
-            // Only pass object to fragment when activity is first time created,
-            // later object is modified and persisted with fragment state.
             if (useLegacyFragment()) {
-                ((DetailsFragment)getFragmentManager().findFragmentById(R.id.details_fragment))
-                    .setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
+                DetailsFragment fragment = new DetailsFragment();
+                fragment.setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.details_fragment, fragment)
+                        .commit();
             } else {
-                ((NewDetailsFragment)getFragmentManager().findFragmentById(R.id.details_fragment))
-                    .setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
+                NewDetailsFragment fragment = new NewDetailsFragment();
+                fragment.setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
+                fragment.setBackgroundVideo(hasBackgroundVideo());
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.details_fragment, fragment)
+                        .commit();
+            }
+        } else {
+            if (useLegacyFragment()) {
+                DetailsFragment fragment = (DetailsFragment) getFragmentManager()
+                        .findFragmentById(R.id.details_fragment);
+                fragment.setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
+            } else {
+                NewDetailsFragment fragment = (NewDetailsFragment) getFragmentManager()
+                        .findFragmentById(R.id.details_fragment);
+                fragment.setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
             }
         }
     }

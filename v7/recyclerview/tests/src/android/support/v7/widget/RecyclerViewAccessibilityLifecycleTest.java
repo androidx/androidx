@@ -101,7 +101,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         assertThat(calledA11DuringLayout.get(), is(false));
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void processAllViewHolders() {

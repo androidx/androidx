@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- This file is auto-generated from details.xml.  DO NOT MODIFY. -->
+<!-- This file is auto-generated from playback_controls.xml.  DO NOT MODIFY. -->
 
 <!--
      Copyright (C) 2014 The Android Open Source Project
@@ -16,10 +16,14 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    android:name="com.example.android.leanback.NewDetailsSupportFragment"
-    android:id="@+id/details_fragment"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-/>
+    android:layout_height="match_parent">
+
+    <fragment
+        android:id="@+id/playback_controls_fragment"
+        android:name="com.example.android.leanback.PlaybackSupportFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>

@@ -23,6 +23,9 @@
     </style>
     <style name="Theme.Example.Leanback.Details" parent="Theme.Leanback.Details">
     </style>
+    <style name="Theme.Example.Leanback.Details.CustomTitle">
+        <item name="browseTitleViewLayout">@layout/custom_title</item>.
+    </style>
     <style name="Theme.Example.Leanback.VerticalGrid" parent="Theme.Leanback.VerticalGrid">
     </style>
     <style name="Theme.Example.Leanback.Rows" parent="Theme.Leanback">

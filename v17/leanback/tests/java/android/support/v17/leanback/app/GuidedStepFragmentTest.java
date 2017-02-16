@@ -29,6 +29,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v17.leanback.widget.GuidedAction;
+import android.support.v17.leanback.widget.GuidedActionsStylist;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -354,4 +355,58 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
         PollingCheck.waitFor(new PollingCheck.ActivityDestroy(activity));
         verify(first, timeout(ON_DESTROY_TIMEOUT).times(1)).onDestroy();
     }
+
+    @Test
+    public void setActionsWhenSubActionsExpanded() throws Throwable {
+        final String firstFragmentName = generateMethodTestName("first");
+        GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
+        doAnswer(new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) {
+                List actions = (List) invocation.getArguments()[0];
+                List<GuidedAction> subActions = new ArrayList<GuidedAction>();
+                subActions.add(new GuidedAction.Builder().id(2000).title("item1").build());
+                actions.add(new GuidedAction.Builder().id(1000).subActions(subActions)
+                        .title("list").build());
+                return null;
+            }
+        }).when(first).onCreateActions(any(List.class), any(Bundle.class));
+        doAnswer(new Answer<Boolean>() {
+            public Boolean answer(InvocationOnMock invocation) {
+                GuidedStepTestFragment.Provider obj = (GuidedStepTestFragment.Provider)
+                        invocation.getMock();
+                GuidedAction action = (GuidedAction) invocation.getArguments()[0];
+                if (action.getId() == 2000) {
+                    List<GuidedAction> newActions = new ArrayList<GuidedAction>();
+                    newActions.add(new GuidedAction.Builder().id(1001).title("item2").build());
+                    obj.getFragment().setActions(newActions);
+                    return false;
+                }
+                return false;
+            }
+        }).when(first).onSubGuidedActionClicked(any(GuidedAction.class));
+
+        final GuidedStepFragmentTestActivity activity = launchTestActivity(firstFragmentName);
+
+        // after clicked, it sub actions list should expand
+        View firstView = first.getFragment().getActionItemView(0);
+        assertTrue(firstView.hasFocus());
+        sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
+        PollingCheck.waitFor(new ExpandTransitionFinish(first));
+        assertFalse(firstView.hasFocus());
+
+        sendKey(KeyEvent.KEYCODE_DPAD_CENTER);
+        ArgumentCaptor<GuidedAction> actionCapture = ArgumentCaptor.forClass(GuidedAction.class);
+        verify(first, times(1)).onSubGuidedActionClicked(actionCapture.capture());
+        // after clicked a sub action, whole action list is replaced.
+        PollingCheck.waitFor(new ExpandTransitionFinish(first));
+        assertFalse(first.getFragment().isExpanded());
+        View newFirstView  = first.getFragment().getActionItemView(0);
+        assertTrue(newFirstView.hasFocus());
+        assertTrue(newFirstView.getVisibility() == View.VISIBLE);
+        GuidedActionsStylist.ViewHolder vh = (GuidedActionsStylist.ViewHolder) first.getFragment()
+                .getGuidedActionsStylist().getActionsGridView().getChildViewHolder(newFirstView);
+        assertEquals(1001, vh.getAction().getId());
+
+    }
+
 }

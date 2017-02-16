@@ -24,7 +24,9 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -62,10 +64,12 @@ public class FragmentOptimizationTest {
                 mFM.beginTransaction()
                         .add(R.id.fragmentContainer, fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.beginTransaction()
                         .replace(R.id.fragmentContainer, fragment2)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.executePendingTransactions();
             }
@@ -90,7 +94,11 @@ public class FragmentOptimizationTest {
     public void startWithPop() throws Throwable {
         // Start with a single fragment on the back stack
         final CountCallsFragment fragment1 = new CountCallsFragment();
-        mFM.beginTransaction().add(R.id.fragmentContainer, fragment1).addToBackStack(null).commit();
+        mFM.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .addToBackStack(null)
+                .setAllowOptimization(true)
+                .commit();
 
         FragmentTestUtil.executePendingTransactions(mActivityRule);
         FragmentTestUtil.assertChildren(mContainer, fragment1);
@@ -103,6 +111,7 @@ public class FragmentOptimizationTest {
                 mFM.beginTransaction()
                         .add(R.id.fragmentContainer, fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.executePendingTransactions();
             }
@@ -126,11 +135,13 @@ public class FragmentOptimizationTest {
                 mFM.beginTransaction()
                         .add(R.id.fragmentContainer, fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.popBackStack();
                 mFM.beginTransaction()
                         .add(R.id.fragmentContainer, fragment2)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.executePendingTransactions();
             }
@@ -156,9 +167,18 @@ public class FragmentOptimizationTest {
                 id[0] = mFM.beginTransaction()
                         .add(R.id.fragmentContainer, fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
-                mFM.beginTransaction().hide(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().remove(fragment1).addToBackStack(null).commit();
+                mFM.beginTransaction()
+                        .hide(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .remove(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
                 mFM.executePendingTransactions();
             }
         });
@@ -186,6 +206,7 @@ public class FragmentOptimizationTest {
         int id = mFM.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
         assertEquals(1, fragment1.onCreateViewCount);
@@ -196,10 +217,12 @@ public class FragmentOptimizationTest {
                 mFM.beginTransaction()
                         .remove(fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.beginTransaction()
                         .add(R.id.fragmentContainer, fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.executePendingTransactions();
             }
@@ -223,6 +246,7 @@ public class FragmentOptimizationTest {
         int id = mFM.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
         assertEquals(1, fragment1.onAttachCount);
@@ -231,9 +255,21 @@ public class FragmentOptimizationTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mFM.beginTransaction().detach(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().hide(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().attach(fragment1).addToBackStack(null).commit();
+                mFM.beginTransaction()
+                        .detach(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .hide(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .attach(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
                 mFM.executePendingTransactions();
             }
         });
@@ -268,6 +304,7 @@ public class FragmentOptimizationTest {
                 .add(R.id.fragmentContainer, fragment1)
                 .detach(fragment1)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
 
@@ -281,9 +318,21 @@ public class FragmentOptimizationTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mFM.beginTransaction().attach(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().hide(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().detach(fragment1).addToBackStack(null).commit();
+                mFM.beginTransaction()
+                        .attach(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .hide(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .detach(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
                 mFM.executePendingTransactions();
             }
         });
@@ -316,6 +365,7 @@ public class FragmentOptimizationTest {
                 .add(R.id.fragmentContainer, fragment1)
                 .hide(fragment1)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
         assertEquals(0, fragment1.onShowCount);
@@ -328,18 +378,22 @@ public class FragmentOptimizationTest {
                 mFM.beginTransaction()
                         .show(fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.beginTransaction()
                         .remove(fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.beginTransaction()
                         .add(R.id.fragmentContainer, fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.beginTransaction()
                         .hide(fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.executePendingTransactions();
             }
@@ -360,8 +414,16 @@ public class FragmentOptimizationTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mFM.beginTransaction().show(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().hide(fragment1).addToBackStack(null).commit();
+                mFM.beginTransaction()
+                        .show(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .hide(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
                 mFM.executePendingTransactions();
             }
         });
@@ -380,10 +442,26 @@ public class FragmentOptimizationTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mFM.beginTransaction().show(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().detach(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().attach(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().hide(fragment1).addToBackStack(null).commit();
+                mFM.beginTransaction()
+                        .show(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .detach(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .attach(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .hide(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
                 mFM.executePendingTransactions();
             }
         });
@@ -406,6 +484,7 @@ public class FragmentOptimizationTest {
         int id = mFM.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
         assertEquals(0, fragment1.onShowCount);
@@ -415,10 +494,26 @@ public class FragmentOptimizationTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mFM.beginTransaction().hide(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().detach(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().attach(fragment1).addToBackStack(null).commit();
-                mFM.beginTransaction().show(fragment1).addToBackStack(null).commit();
+                mFM.beginTransaction()
+                        .hide(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .detach(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .attach(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .show(fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
                 mFM.executePendingTransactions();
             }
         });
@@ -443,6 +538,7 @@ public class FragmentOptimizationTest {
         int id = mFM.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
         FragmentTestUtil.assertChildren(mContainer, fragment1);
@@ -455,10 +551,12 @@ public class FragmentOptimizationTest {
                 mFM.beginTransaction()
                         .replace(R.id.fragmentContainer, fragment2)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.beginTransaction()
                         .add(R.id.fragmentContainer, fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
 
                 mFM.executePendingTransactions();
@@ -480,6 +578,7 @@ public class FragmentOptimizationTest {
                 mFM.beginTransaction()
                         .add(R.id.fragmentContainer, fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.popBackStack();
                 mFM.executePendingTransactions();
@@ -503,9 +602,11 @@ public class FragmentOptimizationTest {
                 mFM.beginTransaction()
                         .add(R.id.fragmentContainer, fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.beginTransaction()
                         .replace(R.id.fragmentContainer, fragment2)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.popBackStack();
                 mFM.executePendingTransactions();
@@ -529,6 +630,7 @@ public class FragmentOptimizationTest {
                 mFM.beginTransaction()
                         .add(R.id.fragmentContainer, fragment1)
                         .addToBackStack(null)
+                        .setAllowOptimization(true)
                         .commit();
                 mFM.beginTransaction()
                         .replace(R.id.fragmentContainer, fragment2)
@@ -544,4 +646,42 @@ public class FragmentOptimizationTest {
         assertEquals(1, fragment1.onCreateViewCount);
     }
 
+    // Test that a fragment view that is created with focus has focus after the transaction
+    // completes.
+    @Test
+    public void focusedView() throws Throwable {
+        FragmentTestUtil.setContentView(mActivityRule, R.layout.double_container);
+        mContainer = (ViewGroup) mActivityRule.getActivity().findViewById(R.id.fragmentContainer1);
+        final EditText firstEditText = new EditText(mContainer.getContext());
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mContainer.addView(firstEditText);
+                firstEditText.requestFocus();
+            }
+        });
+        assertTrue(firstEditText.isFocused());
+        final CountCallsFragment fragment1 = new CountCallsFragment();
+        final CountCallsFragment fragment2 = new CountCallsFragment();
+        fragment2.setLayoutId(R.layout.with_edit_text);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mFM.beginTransaction()
+                        .add(R.id.fragmentContainer2, fragment1)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.beginTransaction()
+                        .replace(R.id.fragmentContainer2, fragment2)
+                        .addToBackStack(null)
+                        .setAllowOptimization(true)
+                        .commit();
+                mFM.executePendingTransactions();
+            }
+        });
+        final View editText = fragment2.getView().findViewById(R.id.editText);
+        assertTrue(editText.isFocused());
+        assertFalse(firstEditText.isFocused());
+    }
 }

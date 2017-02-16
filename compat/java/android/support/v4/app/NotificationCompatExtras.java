@@ -61,7 +61,7 @@ public final class NotificationCompatExtras {
      * Extras key used internally by {@link NotificationCompat} to store the value of
      * the {@link android.app.Notification.Action#getRemoteInputs} before the field
      * was available.
-     * If possible, use {@link NotificationCompat.Action#getRemoteInputs to access this field.
+     * If possible, use {@link NotificationCompat.Action#getRemoteInputs} to access this field.
      */
     public static final String EXTRA_REMOTE_INPUTS =
             NotificationCompatJellybean.EXTRA_REMOTE_INPUTS;

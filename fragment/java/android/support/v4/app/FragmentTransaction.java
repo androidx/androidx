@@ -296,7 +296,7 @@ public abstract class FragmentTransaction {
      * With optimization, fragment B cannot expect fragment A to exist when
      * it has been created because fragment A's add/remove will be optimized out.
      * <p>
-     * The default is {@code true}.
+     * The default is {@code false}.
      *
      * @param allowOptimization {@code true} to enable optimizing operations
      *                          or {@code false} to disable optimizing

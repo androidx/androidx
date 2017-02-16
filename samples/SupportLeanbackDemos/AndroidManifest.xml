@@ -43,6 +43,22 @@
             android:theme="@style/Theme.Example.Leanback.Details"
             android:exported="true" />
 
+        <activity android:name="DetailsVideoActivity"
+            android:theme="@style/Theme.Example.Leanback.Details"
+            android:exported="true" />
+
+        <activity android:name="DetailsVideoSupportActivity"
+            android:theme="@style/Theme.Example.Leanback.Details"
+            android:exported="true" />
+
+        <activity android:name="DetailsCustomTitleActivity"
+            android:theme="@style/Theme.Example.Leanback.Details.CustomTitle"
+            android:exported="true" />
+
+        <activity android:name="DetailsCustomTitleSupportActivity"
+            android:theme="@style/Theme.Example.Leanback.Details.CustomTitle"
+            android:exported="true" />
+
         <activity android:name="SearchDetailsActivity"
             android:theme="@style/Theme.Example.Leanback.SearchDetails"
             android:exported="true" />
@@ -57,6 +73,22 @@
 
         <activity android:name="RowsSupportActivity"
             android:theme="@style/Theme.Example.Leanback.Rows"
+            android:exported="true" />
+
+        <activity android:name="PlaybackActivity"
+            android:configChanges=
+                "screenSize|smallestScreenSize|screenLayout|orientation"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
+            android:launchMode="singleTask"
+            android:exported="true" />
+
+        <activity android:name="PlaybackSupportActivity"
+            android:configChanges=
+                "screenSize|smallestScreenSize|screenLayout|orientation"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
+            android:launchMode="singleTask"
             android:exported="true" />
 
         <activity android:name="PlaybackOverlayActivity"

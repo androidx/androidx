@@ -19,6 +19,7 @@ import static junit.framework.Assert.assertNull;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.verify;
 import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
@@ -440,6 +442,7 @@ public class FragmentTransitionTest {
                 .addSharedElement(startGreen, "greenSquare")
                 .replace(R.id.fragmentContainer, fragment2)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -590,6 +593,109 @@ public class FragmentTransitionTest {
 
         verifyAndClearTransition(fragment2.returnTransition, null, endGreen, endBlue);
         verifyNoOtherTransitions(fragment2);
+    }
+
+    // Ensure that shared element without matching transition name doesn't error out
+    @Test
+    public void sharedElementMismatch() throws Throwable {
+        final TransitionFragment fragment1 = setupInitialFragment();
+
+        // Now do a transition to scene2
+        TransitionFragment fragment2 = new TransitionFragment();
+        fragment2.setLayoutId(R.layout.scene2);
+
+        final View startBlue = findBlue();
+        final View startGreen = findGreen();
+        final Rect startBlueBounds = getBoundsOnScreen(startBlue);
+
+        mFragmentManager.beginTransaction()
+                .addSharedElement(startBlue, "fooSquare")
+                .replace(R.id.fragmentContainer, fragment2)
+                .setAllowOptimization(mOptimize)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        fragment1.waitForTransition();
+        fragment2.waitForTransition();
+
+        final View endBlue = findBlue();
+        final View endGreen = findGreen();
+
+        if (mOptimize) {
+            verifyAndClearTransition(fragment1.exitTransition, null, startGreen, startBlue);
+        } else {
+            verifyAndClearTransition(fragment1.exitTransition, startBlueBounds, startGreen);
+            verifyAndClearTransition(fragment2.sharedElementEnter, startBlueBounds, startBlue);
+        }
+        verifyNoOtherTransitions(fragment1);
+
+        verifyAndClearTransition(fragment2.enterTransition, null, endGreen, endBlue);
+        verifyNoOtherTransitions(fragment2);
+    }
+
+    // Ensure that using the same source or target shared element results in an exception.
+    @Test
+    public void sharedDuplicateTargetNames() throws Throwable {
+        setupInitialFragment();
+
+        final View startBlue = findBlue();
+        final View startGreen = findGreen();
+
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.addSharedElement(startBlue, "blueSquare");
+        try {
+            ft.addSharedElement(startGreen, "blueSquare");
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+
+        try {
+            ft.addSharedElement(startBlue, "greenSquare");
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
+
+    // Test that invisible fragment views don't participate in transitions
+    @Test
+    public void invisibleNoTransitions() throws Throwable {
+        if (!mOptimize) {
+            return; // only optimized transitions can avoid interaction
+        }
+        // enter transition
+        TransitionFragment fragment = new InvisibleFragment();
+        fragment.setLayoutId(R.layout.scene1);
+        mFragmentManager.beginTransaction()
+                .setAllowOptimization(mOptimize)
+                .add(R.id.fragmentContainer, fragment)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.waitForExecution(mActivityRule);
+        fragment.waitForNoTransition();
+        verifyNoOtherTransitions(fragment);
+
+        // exit transition
+        mFragmentManager.beginTransaction()
+                .setAllowOptimization(mOptimize)
+                .remove(fragment)
+                .addToBackStack(null)
+                .commit();
+
+        fragment.waitForNoTransition();
+        verifyNoOtherTransitions(fragment);
+
+        // reenter transition
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        fragment.waitForNoTransition();
+        verifyNoOtherTransitions(fragment);
+
+        // return transition
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        fragment.waitForNoTransition();
+        verifyNoOtherTransitions(fragment);
     }
 
     private TransitionFragment setupInitialFragment() throws Throwable {
@@ -888,6 +994,13 @@ public class FragmentTransitionTest {
             setSharedElementEnterTransition(sharedElementEnterTransition);
             setSharedElementReturnTransition(sharedElementReturnTransition);
         }
+    }
 
+    public static class InvisibleFragment extends TransitionFragment {
+        @Override
+        public void onViewCreated(View view, Bundle savedInstanceState) {
+            view.setVisibility(View.INVISIBLE);
+            super.onViewCreated(view, savedInstanceState);
+        }
     }
 }
