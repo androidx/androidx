@@ -19,6 +19,7 @@ package android.support.v17.leanback.app;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -695,6 +696,27 @@ public class DetailsSupportFragment extends BaseSupportFragment {
      * </ul>
      */
     void setupDpadNavigation() {
+        mRootView.setOnChildFocusListener(new BrowseFrameLayout.OnChildFocusListener() {
+
+            @Override
+            public boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+                return false;
+            }
+
+            @Override
+            public void onRequestChildFocus(View child, View focused) {
+                if (child != mRootView.getFocusedChild()) {
+                    if (child.getId() == R.id.details_fragment_root) {
+                        showTitle(true);
+                    } else if (child.getId() == R.id.video_surface_container) {
+                        slideOutGridView();
+                        showTitle(false);
+                    } else {
+                        showTitle(true);
+                    }
+                }
+            }
+        });
         mRootView.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
             @Override
             public View onFocusSearch(View focused, int direction) {
@@ -702,10 +724,8 @@ public class DetailsSupportFragment extends BaseSupportFragment {
                         && mRowsSupportFragment.getVerticalGridView().hasFocus()) {
                     if (direction == View.FOCUS_UP) {
                         if (mVideoSupportFragment != null && mVideoSupportFragment.getView() != null) {
-                            slideOutGridView();
-                            showTitle(false);
                             return mVideoSupportFragment.getView();
-                        } else if (getTitleView() != null) {
+                        } else if (getTitleView() != null && getTitleView().hasFocusable()) {
                             return getTitleView();
                         }
                     }
@@ -713,7 +733,6 @@ public class DetailsSupportFragment extends BaseSupportFragment {
                         && mVideoSupportFragment.getView().hasFocus()) {
                     if (direction == View.FOCUS_DOWN) {
                         if (mRowsSupportFragment.getVerticalGridView() != null) {
-                            showTitle(true);
                             return mRowsSupportFragment.getVerticalGridView();
                         }
                     }
@@ -728,7 +747,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
             }
         });
 
-        // If we press BACK or DOWN on remote while in full screen video mode, we should
+        // If we press BACK on remote while in full screen video mode, we should
         // transition back to half screen video playback mode.
         mRootView.setOnDispatchKeyListener(new View.OnKeyListener() {
             @Override
@@ -738,8 +757,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
                 // focusability of the video surface view.
                 if (mVideoSupportFragment != null && mVideoSupportFragment.getView() != null
                         && mVideoSupportFragment.getView().hasFocus()) {
-                    if (keyCode == KeyEvent.KEYCODE_BACK) {
-                        showTitle(true);
+                    if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE) {
                         getVerticalGridView().requestFocus();
                         return true;
                     }
@@ -754,7 +772,9 @@ public class DetailsSupportFragment extends BaseSupportFragment {
      * Slides vertical grid view (displaying media item details) out of the screen from below.
      */
     void slideOutGridView() {
-        getVerticalGridView().animateOut();
+        if (getVerticalGridView() != null) {
+            getVerticalGridView().animateOut();
+        }
     }
 
 }
