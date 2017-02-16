@@ -8626,25 +8626,25 @@ package android.support.v4.widget {
     method public void setViewResource(int);
   }
 
-  public final class ScrollerCompat {
-    method public void abortAnimation();
-    method public boolean computeScrollOffset();
-    method public static android.support.v4.widget.ScrollerCompat create(android.content.Context);
-    method public static android.support.v4.widget.ScrollerCompat create(android.content.Context, android.view.animation.Interpolator);
-    method public void fling(int, int, int, int, int, int, int, int);
-    method public void fling(int, int, int, int, int, int, int, int, int, int);
-    method public float getCurrVelocity();
-    method public int getCurrX();
-    method public int getCurrY();
-    method public int getFinalX();
-    method public int getFinalY();
-    method public boolean isFinished();
-    method public boolean isOverScrolled();
-    method public void notifyHorizontalEdgeReached(int, int, int);
-    method public void notifyVerticalEdgeReached(int, int, int);
-    method public boolean springBack(int, int, int, int, int, int);
-    method public void startScroll(int, int, int, int);
-    method public void startScroll(int, int, int, int, int);
+  public final deprecated class ScrollerCompat {
+    method public deprecated void abortAnimation();
+    method public deprecated boolean computeScrollOffset();
+    method public static deprecated android.support.v4.widget.ScrollerCompat create(android.content.Context);
+    method public static deprecated android.support.v4.widget.ScrollerCompat create(android.content.Context, android.view.animation.Interpolator);
+    method public deprecated void fling(int, int, int, int, int, int, int, int);
+    method public deprecated void fling(int, int, int, int, int, int, int, int, int, int);
+    method public deprecated float getCurrVelocity();
+    method public deprecated int getCurrX();
+    method public deprecated int getCurrY();
+    method public deprecated int getFinalX();
+    method public deprecated int getFinalY();
+    method public deprecated boolean isFinished();
+    method public deprecated boolean isOverScrolled();
+    method public deprecated void notifyHorizontalEdgeReached(int, int, int);
+    method public deprecated void notifyVerticalEdgeReached(int, int, int);
+    method public deprecated boolean springBack(int, int, int, int, int, int);
+    method public deprecated void startScroll(int, int, int, int);
+    method public deprecated void startScroll(int, int, int, int, int);
   }
 
   public final deprecated class SearchViewCompat {

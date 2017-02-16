@@ -32,7 +32,6 @@ import android.support.annotation.RestrictTo;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.ScrollerCompat;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.menu.MenuPresenter;
@@ -43,6 +42,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.Window;
+import android.widget.OverScroller;
 
 /**
  * Special layout for the containing of an overlay action bar (and its content) to correctly handle
@@ -87,7 +87,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     private final int ACTION_BAR_ANIMATE_DELAY = 600; // ms
 
-    private ScrollerCompat mFlingEstimator;
+    private OverScroller mFlingEstimator;
 
     ViewPropertyAnimator mCurrentActionBarTopAnimator;
 
@@ -150,7 +150,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         mIgnoreWindowContentOverlay = context.getApplicationInfo().targetSdkVersion <
                 Build.VERSION_CODES.KITKAT;
 
-        mFlingEstimator = ScrollerCompat.create(context);
+        mFlingEstimator = new OverScroller(context);
     }
 
     @Override
