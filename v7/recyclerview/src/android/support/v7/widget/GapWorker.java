@@ -357,7 +357,7 @@ final class GapWorker implements Runnable {
             // Query last vsync so we can predict next one. Note that drawing time not yet
             // valid in animation/input callbacks, so query it here to be safe.
             long lastFrameVsyncNs = TimeUnit.MILLISECONDS.toNanos(
-                    mRecyclerViews.get(0).getDrawingTime());
+                    mRecyclerViews.get(mRecyclerViews.size() - 1).getDrawingTime());
             if (lastFrameVsyncNs == 0) {
                 // abort - couldn't get last vsync for estimating next
                 return;

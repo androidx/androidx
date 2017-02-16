@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.os.Parcelable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -18,6 +19,8 @@ import android.view.ViewGroup;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -173,5 +176,152 @@ public class GridWidgetPrefetchTest {
         gridView.scrollBy(-5, 0);
         validatePrefetch(gridView, 50, 0, new Integer[] {3, 80});
         validatePrefetch(gridView, -50, 0, new Integer[] {7, 70});
+    }
+
+
+    class OuterAdapter extends RecyclerView.Adapter<OuterAdapter.ViewHolder> {
+        OuterAdapter() {
+            for (int i = 0; i < getItemCount(); i++) {
+                mAdapters.add(createBoxAdapter());
+                mSavedStates.add(null);
+            }
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            private final RecyclerView mRecyclerView;
+            ViewHolder(RecyclerView itemView) {
+                super(itemView);
+                mRecyclerView = itemView;
+            }
+        }
+
+        ArrayList<RecyclerView.Adapter> mAdapters = new ArrayList<>();
+        ArrayList<Parcelable> mSavedStates = new ArrayList<>();
+        RecyclerView.RecycledViewPool mSharedPool = new RecyclerView.RecycledViewPool();
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            HorizontalGridView gridView = new HorizontalGridView(getContext());
+            gridView.setNumRows(1);
+            gridView.setRowHeight(100);
+            gridView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+            gridView.setLayoutParams(new GridLayoutManager.LayoutParams(350, 100));
+            gridView.setRecycledViewPool(mSharedPool);
+            return new ViewHolder(gridView);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            holder.mRecyclerView.swapAdapter(mAdapters.get(position), true);
+
+            Parcelable savedState = mSavedStates.get(position);
+            if (savedState != null) {
+                holder.mRecyclerView.getLayoutManager().onRestoreInstanceState(savedState);
+                mSavedStates.set(position, null);
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return 100;
+        }
+    };
+
+    public void validateInitialPrefetch(BaseGridView gridView,
+            int... positionData) {
+        RecyclerView.LayoutManager.LayoutPrefetchRegistry registry
+                = mock(RecyclerView.LayoutManager.LayoutPrefetchRegistry.class);
+        gridView.getLayoutManager().collectInitialPrefetchPositions(
+                gridView.getAdapter().getItemCount(), registry);
+
+        verify(registry, times(positionData.length)).addPosition(anyInt(), anyInt());
+        for (int position : positionData) {
+            verify(registry).addPosition(position, 0);
+        }
+    }
+
+    @Test
+    public void prefetchInitialFocusTest() {
+        VerticalGridView view = new VerticalGridView(getContext());
+        view.setNumColumns(1);
+        view.setColumnWidth(350);
+        view.setAdapter(createBoxAdapter());
+
+        // check default
+        assertEquals(4, view.getInitialItemPrefetchCount());
+
+        // check setter behavior
+        view.setInitialPrefetchItemCount(0);
+        assertEquals(0, view.getInitialItemPrefetchCount());
+
+        // check positions fetched, relative to focus
+        view.scrollToPosition(2);
+        view.setInitialPrefetchItemCount(5);
+        validateInitialPrefetch(view, 0, 1, 2, 3, 4);
+
+        view.setInitialPrefetchItemCount(3);
+        validateInitialPrefetch(view, 1, 2, 3);
+
+        view.scrollToPosition(0);
+        view.setInitialPrefetchItemCount(4);
+        validateInitialPrefetch(view, 0, 1, 2, 3);
+
+        view.scrollToPosition(98);
+        view.setInitialPrefetchItemCount(5);
+        validateInitialPrefetch(view, 95, 96, 97, 98, 99);
+
+        view.setInitialPrefetchItemCount(7);
+        validateInitialPrefetch(view, 93, 94, 95, 96, 97, 98, 99);
+
+        // implementation detail - rounds up
+        view.scrollToPosition(50);
+        view.setInitialPrefetchItemCount(4);
+        validateInitialPrefetch(view, 49, 50, 51, 52);
+    }
+
+    @Test
+    public void prefetchNested() {
+        VerticalGridView gridView = new VerticalGridView(getContext());
+        gridView.setNumColumns(1);
+        gridView.setColumnWidth(350);
+        OuterAdapter outerAdapter = new OuterAdapter();
+        gridView.setAdapter(outerAdapter);
+        gridView.setItemViewCacheSize(1); // enough to cache child 0 while offscreen
+
+        layout(gridView, 350, 150);
+
+        // validate 2 top level children in viewport
+        assertEquals(2, gridView.getChildCount());
+        for (int y = 0; y < 2; y++) {
+            View child = gridView.getLayoutManager().findViewByPosition(y);
+            assertEquals(y * 100, child.getTop());
+            // each has 4 children
+
+            HorizontalGridView inner = (HorizontalGridView) child;
+            for (int x = 0; x < 4; x++) {
+                assertEquals(x * 100, inner.getLayoutManager().findViewByPosition(x).getLeft());
+            }
+        }
+
+        // center child 0 at position 10
+        HorizontalGridView offsetChild =
+                (HorizontalGridView) gridView.getLayoutManager().findViewByPosition(0);
+        offsetChild.scrollToPosition(10);
+
+        // scroll to position 2, and layout
+        gridView.scrollToPosition(2);
+        layout(gridView, 350, 150);
+
+        // now, offset by 175, centered around row 2. Validate 3 top level children in viewport
+        assertEquals(3, gridView.getChildCount());
+        for (int y = 1; y < 4; y++) {
+            assertEquals(y * 100 - 175, gridView.getLayoutManager().findViewByPosition(y).getTop());
+        }
+
+        validatePrefetch(gridView, 0, -5, new Integer[] {0, 75});
+        validatePrefetch(gridView, 0, 5, new Integer[] {4, 75});
+
+        // assume offsetChild still bound, in cache, just not attached...
+        validateInitialPrefetch(offsetChild, 9, 10, 11, 12);
     }
 }
