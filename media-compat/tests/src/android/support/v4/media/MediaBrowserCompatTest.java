@@ -406,9 +406,8 @@ public class MediaBrowserCompatTest {
                 mItemCallback.mLastMediaItem.getMediaId());
     }
 
-    // TODO(hdmoon): Uncomment after fixing failing tests. (Fails on Android O)
-    // @Test
-    // @SmallTest
+    @Test
+    @SmallTest
     public void testGetItemFailure() {
         resetCallbacks();
         createMediaBrowser(TEST_BROWSER_SERVICE);
