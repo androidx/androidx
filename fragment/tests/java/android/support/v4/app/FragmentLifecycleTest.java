@@ -41,6 +41,7 @@ import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.FragmentManager.FragmentLifecycleCallbacks;
@@ -826,17 +827,17 @@ public class FragmentLifecycleTest {
     /**
      * FragmentActivity should not raise the state of a Fragment while it is being destroyed.
      */
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Test
     public void fragmentActivityFinishEarly() throws Throwable {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            Intent intent = new Intent(mActivityRule.getActivity(), FragmentTestActivity.class);
-            intent.putExtra("finishEarly", true);
+        Intent intent = new Intent(mActivityRule.getActivity(), FragmentTestActivity.class);
+        intent.putExtra("finishEarly", true);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-            FragmentTestActivity activity = (FragmentTestActivity)
-                    InstrumentationRegistry.getInstrumentation().startActivitySync(intent);
+        FragmentTestActivity activity = (FragmentTestActivity)
+                InstrumentationRegistry.getInstrumentation().startActivitySync(intent);
 
-            assertTrue(activity.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS));
-        }
+        assertTrue(activity.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS));
     }
 
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
