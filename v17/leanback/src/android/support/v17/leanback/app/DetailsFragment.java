@@ -711,7 +711,6 @@ public class DetailsFragment extends BaseFragment {
                     if (direction == View.FOCUS_DOWN) {
                         if (mRowsFragment.getVerticalGridView() != null) {
                             showTitle(true);
-                            slideInGridView();
                             return mRowsFragment.getVerticalGridView();
                         }
                     }
@@ -738,7 +737,6 @@ public class DetailsFragment extends BaseFragment {
                         && mVideoFragment.getView().hasFocus()) {
                     if (keyCode == KeyEvent.KEYCODE_BACK) {
                         showTitle(true);
-                        slideInGridView();
                         getVerticalGridView().requestFocus();
                         return true;
                     }
@@ -756,10 +754,4 @@ public class DetailsFragment extends BaseFragment {
         getVerticalGridView().animateOut();
     }
 
-    /**
-     * Slides in vertical grid view (displaying media item details) from below.
-     */
-    void slideInGridView() {
-        getVerticalGridView().animateIn();
-    }
 }

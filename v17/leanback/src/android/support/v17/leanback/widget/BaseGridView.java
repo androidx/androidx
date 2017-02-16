@@ -27,7 +27,6 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 
 /**
  * An abstract base class for vertically and horizontally scrolling lists. The items come
@@ -998,21 +997,20 @@ abstract class BaseGridView extends RecyclerView {
         return mLayoutManager.getExtraLayoutSpace();
     }
 
-
+    /**
+     * Temporarily slide out child views to bottom (for VerticalGridView) or end
+     * (for HorizontalGridView). The views will be automatically slide-in in next
+     * {@link #smoothScrollToPosition(int)} or {@link #scrollToPosition(int)}.
+     */
     public void animateOut() {
-        ((GridLayoutManager) getLayoutManager()).setIsSlidingChildViews(true);
-        smoothScrollBy(0, -600, new AccelerateDecelerateInterpolator());
+        mLayoutManager.slideOut();
     }
 
+    /**
+     * @deprecated No longer needed. Children being slide out by {@link #animateOut()} will be
+     * slide in next focus or (smooth)scrollToPosition action.
+     */
+    @Deprecated
     public void animateIn() {
-        addOnScrollListener(new OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    ((GridLayoutManager) getLayoutManager()).setIsSlidingChildViews(false);
-                }
-            }
-        });
-        smoothScrollBy(0, 600, new AccelerateDecelerateInterpolator());
     }
 }
