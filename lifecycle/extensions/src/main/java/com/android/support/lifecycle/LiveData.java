@@ -21,10 +21,12 @@ import static com.android.support.lifecycle.Lifecycle.STARTED;
 
 import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 
-import com.android.support.apptoolkit.internal.ObserverSet;
+import com.android.support.apptoolkit.internal.SafeIterableMap;
 import com.android.support.executors.AppToolkitTaskExecutor;
+
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * LiveData is a data holder class that can be observed within a given lifecycle.
@@ -54,14 +56,12 @@ import com.android.support.executors.AppToolkitTaskExecutor;
  * @see ViewModel
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-// TODO the usage of ObserverSet needs to be cleaned. Maybe we should simplify the rules.
-// Thread checks are too strict right now, we may consider automatically moving them to main
+// TODO: Thread checks are too strict right now, we may consider automatically moving them to main
 // thread.
 public class LiveData<T> {
     private final Object mDataLock = new Object();
     private static final int START_VERSION = -1;
     private static final Object NOT_SET = new Object();
-    private boolean mPendingActiveChanges = false;
 
     private static final LifecycleProvider ALWAYS_ON = new LifecycleProvider() {
 
@@ -81,111 +81,61 @@ public class LiveData<T> {
         }
     };
 
-    @VisibleForTesting
-    ObserverSet<LifecycleBoundObserver> mObservers =
-            new ObserverSet<LifecycleBoundObserver>() {
-                @Override
-                protected boolean checkEquality(LifecycleBoundObserver existing,
-                        LifecycleBoundObserver added) {
-                    if (existing.observer == added.observer) {
-                        if (existing.provider != added.provider) {
-                            throw new IllegalArgumentException("Cannot add the same observer twice"
-                                    + " to the LiveData");
-                        }
-                        return true;
-                    }
-                    return false;
-                }
-
-                @Override
-                protected void onAdded(LifecycleBoundObserver observer) {
-                    observer.onAdded();
-                    mObserverCount++;
-                    if (observer.active) {
-                        mActiveCount++;
-                        if (mActiveCount == 1) {
-                            onActive();
-                        }
-                    }
-                    if (mData != NOT_SET) {
-                        //noinspection unchecked
-                        observer.considerNotify((T) mData, mVersion);
-                    }
-                }
-
-                @Override
-                protected void onRemoved(LifecycleBoundObserver observer) {
-                    if (observer.active) {
-                        mActiveCount--;
-                        if (mActiveCount == 0) {
-                            onInactive();
-                        }
-                    }
-                    mObserverCount--;
-                    observer.onRemoved();
-                }
-
-                @Override
-                protected void onSync() {
-                    if (!mPendingActiveChanges) {
-                        return;
-                    }
-                    forEach(mUpdateActiveCount);
-                    mPendingActiveChanges = false;
-                }
-            };
+    private SafeIterableMap<Observer<T>, LifecycleBoundObserver> mObservers =
+            new SafeIterableMap<>();
 
     // how many observers are in active state
     private int mActiveCount = 0;
-    // how many observers do we have
-    private int mObserverCount = 0;
-
     private Object mData = NOT_SET;
     // when setData is called, we set the pending data and actual data swap happens on the main
     // thread
     private volatile Object mPendingData = NOT_SET;
     private int mVersion = START_VERSION;
 
-    private ObserverSet.Callback<LifecycleBoundObserver> mDispatchCallback =
-            new ObserverSet.Callback<LifecycleBoundObserver>() {
-                @Override
-                public void run(LifecycleBoundObserver observer) {
-                    //noinspection unchecked
-                    observer.considerNotify((T) mData, mVersion);
-                }
-            };
+    private boolean mDispatchingValue;
+    @SuppressWarnings("FieldCanBeLocal")
+    private boolean mDispatchInvalidated;
 
-    private ObserverSet.Callback<LifecycleBoundObserver> mUpdateActiveCount =
-            new ObserverSet.Callback<LifecycleBoundObserver>() {
-                @Override
-                public void run(LifecycleBoundObserver observer) {
-                    if (observer.pendingActiveStateChange == null) {
-                        return;
-                    }
-                    boolean newValue = observer.pendingActiveStateChange;
-                    observer.pendingActiveStateChange = null;
-                    observer.active = newValue;
-                    if (newValue) {
-                        mActiveCount++;
-                        if (mActiveCount == 1) {
-                            onActive();
-                        }
-                        if (mData != NOT_SET) {
-                            //noinspection unchecked
-                            observer.considerNotify((T) mData, mVersion);
-                        }
-                    } else {
-                        mActiveCount--;
-                        if (mActiveCount == 0) {
-                            onInactive();
-                        }
+    private void considerNotify(LifecycleBoundObserver observer) {
+        if (!observer.active) {
+            return;
+        }
+        if (observer.lastVersion >= mVersion) {
+            return;
+        }
+        observer.lastVersion = mVersion;
+        //noinspection unchecked
+        observer.observer.onChanged((T) mData);
+    }
+
+    private void dispatchingValue(@Nullable LifecycleBoundObserver initiator) {
+        if (mDispatchingValue) {
+            mDispatchInvalidated = true;
+            return;
+        }
+        mDispatchingValue = true;
+        do {
+            mDispatchInvalidated = false;
+            if (initiator != null) {
+                considerNotify(initiator);
+                initiator = null;
+            } else {
+                for (Iterator<Map.Entry<Observer<T>, LifecycleBoundObserver>> iterator =
+                        mObservers.iteratorWithAdditions(); iterator.hasNext(); ) {
+                    considerNotify(iterator.next().getValue());
+                    if (mDispatchInvalidated) {
+                        break;
                     }
                 }
-            };
+            }
+        } while (mDispatchInvalidated);
+        mDispatchingValue = false;
+    }
+
     /**
      * Adds the given observer to the observers list within the lifespan of the given provider. The
-     * events are dispatched on the main thread. If LiveData already has data set, it is instantly
-     * delivered to the observer before this call returns.
+     * events are dispatched on the main thread. If LiveData already has data set, it will be
+     * delivered to the observer.
      * <p>
      * The observer will only receive events if the provider is in {@link Lifecycle#STARTED} or
      * {@link Lifecycle#RESUMED} state (active).
@@ -212,13 +162,21 @@ public class LiveData<T> {
      */
     @MainThread
     public void observe(LifecycleProvider provider, Observer<T> observer) {
-        assertMainThread("observe");
         if (provider.getLifecycle().getCurrentState() == DESTROYED) {
             // ignore
             return;
         }
-        final LifecycleBoundObserver wrapper = new LifecycleBoundObserver(provider, observer);
-        mObservers.add(wrapper);
+        LifecycleBoundObserver wrapper = new LifecycleBoundObserver(provider, observer);
+        LifecycleBoundObserver existing = mObservers.putIfAbsent(observer, wrapper);
+        if (existing != null && existing.provider != wrapper.provider) {
+            throw new IllegalArgumentException("Cannot add the same observer"
+                    + " with different lifecycles");
+        }
+        if (existing != null) {
+            return;
+        }
+        provider.getLifecycle().addObserver(wrapper);
+        wrapper.activeStateChanged(isActiveState(provider.getLifecycle().getCurrentState()));
     }
 
     /**
@@ -232,7 +190,7 @@ public class LiveData<T> {
      * <p>
      * If the observer was already added with a provider to this LiveData, LiveData throws an
      * {@link IllegalArgumentException}.
-
+     *
      * @param observer The observer that will receive the events
      */
     @MainThread
@@ -248,15 +206,12 @@ public class LiveData<T> {
     @MainThread
     public void removeObserver(final Observer<T> observer) {
         assertMainThread("removeObserver");
-        // TODO make it efficient
-        mObservers.forEach(new ObserverSet.Callback<LifecycleBoundObserver>() {
-            @Override
-            public void run(LifecycleBoundObserver key) {
-                if (key.observer == observer) {
-                    mObservers.remove(key);
-                }
-            }
-        });
+        LifecycleBoundObserver removed = mObservers.remove(observer);
+        if (removed == null) {
+            return;
+        }
+        removed.provider.getLifecycle().removeObserver(removed);
+        removed.activeStateChanged(false);
     }
 
     /**
@@ -267,15 +222,11 @@ public class LiveData<T> {
     @MainThread
     public void removeObservers(final LifecycleProvider provider) {
         assertMainThread("removeObservers");
-        // TODO make it efficient
-        mObservers.forEach(new ObserverSet.Callback<LifecycleBoundObserver>() {
-            @Override
-            public void run(LifecycleBoundObserver key) {
-                if (key.provider == provider) {
-                    mObservers.remove(key);
-                }
+        for (Map.Entry<Observer<T>, LifecycleBoundObserver> entry : mObservers) {
+            if (entry.getValue().provider == provider) {
+                removeObserver(entry.getKey());
             }
-        });
+        }
     }
 
     /**
@@ -287,7 +238,7 @@ public class LiveData<T> {
      *
      * @param value The new value
      */
-    public void setValue(final T value) {
+    public void setValue(T value) {
         // we keep it in pending data so that last set data wins (e.g. we won't be in a case where
         // data is set on the main thread at a later time is overridden by data that was set on a
         // background thread.
@@ -304,7 +255,7 @@ public class LiveData<T> {
                         mPendingData = NOT_SET;
                     }
                 }
-                mObservers.forEach(mDispatchCallback);
+                dispatchingValue(null);
             }
         });
     }
@@ -359,7 +310,7 @@ public class LiveData<T> {
      * @return The number of observers
      */
     public int getObserverCount() {
-        return mObserverCount;
+        return mObservers.size();
     }
 
     /**
@@ -377,7 +328,6 @@ public class LiveData<T> {
         public final LifecycleProvider provider;
         public final Observer<T> observer;
         public boolean active;
-        public Boolean pendingActiveStateChange;
         public int lastVersion = START_VERSION;
 
         LifecycleBoundObserver(LifecycleProvider provider, Observer<T> observer) {
@@ -385,57 +335,35 @@ public class LiveData<T> {
             this.observer = observer;
         }
 
-        private void onAdded() {
-            active = isActiveState(provider.getLifecycle().getCurrentState());
-            provider.getLifecycle().addObserver(this);
-        }
-
-        public void onRemoved() {
-            provider.getLifecycle().removeObserver(this);
-        }
-
-        void considerNotify(T data, int version) {
-            if (!active) {
-                return;
-            }
-            if (lastVersion >= version) {
-                return;
-            }
-            lastVersion = version;
-            observer.onChanged(data);
-        }
-
         @SuppressWarnings("unused")
         @OnLifecycleEvent(Lifecycle.ANY)
         void onStateChange() {
             if (provider.getLifecycle().getCurrentState() == DESTROYED) {
-                removeInternal(this);
+                removeObserver(observer);
                 return;
             }
-            boolean activeNow = isActiveState(provider.getLifecycle().getCurrentState());
-            if (pendingActiveStateChange == null) {
-                if (activeNow != active) {
-                    pendingActiveStateChange = activeNow;
-                    onActiveStateChanged(this);
-                }
-            } else if (activeNow != pendingActiveStateChange) {
-                pendingActiveStateChange = null;
+            // immediately set active state, so we'd never dispatch anything to inactive provider
+            activeStateChanged(isActiveState(provider.getLifecycle().getCurrentState()));
+
+        }
+
+        void activeStateChanged(boolean newActive) {
+            if (newActive == active) {
+                return;
+            }
+            active = newActive;
+            boolean inInActive = mActiveCount == 0;
+            mActiveCount += active ? 1 : -1;
+            if (inInActive && active) {
+                onActive();
+            }
+            if (!inInActive && !active) {
+                onInactive();
+            }
+            if (active) {
+                dispatchingValue(this);
             }
         }
-    }
-
-    private void removeInternal(LifecycleBoundObserver observer) {
-        mObservers.remove(observer);
-    }
-
-    @SuppressWarnings("unchecked")
-    private void onActiveStateChanged(LifecycleBoundObserver observer) {
-        if (mObservers.isLocked()) {
-            mPendingActiveChanges = true;
-            mObservers.invokeSyncOnUnlock();
-            return;
-        }
-        mUpdateActiveCount.run(observer);
     }
 
     static boolean isActiveState(@Lifecycle.State int state) {

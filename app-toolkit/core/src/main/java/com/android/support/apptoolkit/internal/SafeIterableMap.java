@@ -42,6 +42,8 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
     // WeakReferences that have null in them.
     private WeakHashMap<ListIterator<K, V>, Boolean> mIterators = new WeakHashMap<>();
     private int mSize = 0;
+    @SuppressWarnings("unchecked")
+    private static final Entry UNREACHABLE = new Entry(new Object(), new Object());
 
     private Entry<K, V> find(K k) {
         Entry<K, V> toRemove = mStart;
@@ -128,6 +130,16 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
     @Override
     public ListIterator<K, V> iterator() {
         ListIterator<K, V> iterator = new ListIterator<>(mStart, mEnd);
+        mIterators.put(iterator, false);
+        return iterator;
+    }
+
+    /**
+     * return an iterator with additions
+     */
+    public ListIterator<K, V> iteratorWithAdditions() {
+        @SuppressWarnings("unchecked")
+        ListIterator<K, V> iterator = new ListIterator<>(mStart, UNREACHABLE);
         mIterators.put(iterator, false);
         return iterator;
     }

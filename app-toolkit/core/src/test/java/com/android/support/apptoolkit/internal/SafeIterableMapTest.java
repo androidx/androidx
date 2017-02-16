@@ -19,6 +19,8 @@ package com.android.support.apptoolkit.internal;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.support.test.filters.SmallTest;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -28,6 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 @RunWith(JUnit4.class)
+@SmallTest
 public class SafeIterableMapTest {
 
     @Test
@@ -244,6 +247,22 @@ public class SafeIterableMapTest {
         map.putIfAbsent(4, true);
         assertThat(map.size(), is(1));
         assertThat(mapOf().size(), is(0));
+    }
+
+    @Test
+    public void testIteratorWithAdditions() {
+        SafeIterableMap<Integer, Boolean> map = mapOf(1, 2, 3, 4);
+        int[] expected = new int[]{1, 2, 3, 5};
+        int index = 0;
+        Iterator<Map.Entry<Integer, Boolean>> iterator = map.iteratorWithAdditions();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, Boolean> entry = iterator.next();
+            assertThat(entry.getKey(), is(expected[index++]));
+            if (index == 3) {
+                map.remove(4);
+                map.putIfAbsent(5, true);
+            }
+        }
     }
 
     // for most operations we don't care about values, so we create map from key to true

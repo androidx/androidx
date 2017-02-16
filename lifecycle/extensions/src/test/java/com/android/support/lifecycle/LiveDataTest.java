@@ -35,6 +35,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.support.annotation.Nullable;
+import android.support.test.filters.SmallTest;
 
 import com.android.support.executors.AppToolkitTaskExecutor;
 import com.android.support.lifecycle.util.InstantTaskExecutor;
@@ -42,13 +43,16 @@ import com.android.support.lifecycle.util.InstantTaskExecutor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 @SuppressWarnings({"unchecked"})
+@SmallTest
 public class LiveDataTest {
     private PublicLiveData<String> mLiveData;
     private LifecycleProvider mProvider;
     private LifecycleRegistry mRegistry;
     private MethodExec mActiveObserversChanged;
+    private boolean mInObserver;
 
     @Before
     public void init() {
@@ -58,6 +62,7 @@ public class LiveDataTest {
         when(mProvider.getLifecycle()).thenReturn(mRegistry);
         mActiveObserversChanged = mock(MethodExec.class);
         mLiveData.activeObserversChanged = mActiveObserversChanged;
+        mInObserver = false;
     }
 
     @Before
@@ -163,8 +168,9 @@ public class LiveDataTest {
             throwable = t;
         }
         assertThat(throwable, instanceOf(IllegalArgumentException.class));
+        //noinspection ConstantConditions
         assertThat(throwable.getMessage(),
-                is("Cannot add the same observer twice to the LiveData"));
+                is("Cannot add the same observer with different lifecycles"));
     }
 
     @Test
@@ -242,19 +248,44 @@ public class LiveDataTest {
     @Test
     public void testActiveChangeInCallback() {
         mRegistry.handleLifecycleEvent(ON_START);
-        Observer<String> observer = spy(new Observer<String>() {
+        Observer<String> observer1 = spy(new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 mRegistry.handleLifecycleEvent(ON_STOP);
-                assertThat(mLiveData.getObserverCount(), is(1));
-                assertThat(mLiveData.getActiveObserverCount(), is(1));
+                assertThat(mLiveData.getObserverCount(), is(2));
+                assertThat(mLiveData.getActiveObserverCount(), is(0));
             }
         });
-        mLiveData.observe(mProvider, observer);
+        final Observer observer2 = mock(Observer.class);
+        mLiveData.observe(mProvider, observer1);
+        mLiveData.observe(mProvider, observer2);
         mLiveData.setValue("bla");
-        verify(observer).onChanged(anyString());
-        assertThat(mLiveData.getObserverCount(), is(1));
+        verify(observer1).onChanged(anyString());
+        verify(observer2, Mockito.never()).onChanged(anyString());
+        assertThat(mLiveData.getObserverCount(), is(2));
         assertThat(mLiveData.getActiveObserverCount(), is(0));
+    }
+
+    @Test
+    public void testActiveChangeInCallback2() {
+        Observer<String> observer1 = spy(new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                assertThat(mInObserver, is(false));
+                mInObserver = true;
+                mRegistry.handleLifecycleEvent(ON_START);
+                assertThat(mLiveData.getActiveObserverCount(), is(2));
+                mInObserver = false;
+            }
+        });
+        final Observer observer2 = spy(new FailReentranceObserver());
+        mLiveData.observe(observer1);
+        mLiveData.observe(mProvider, observer2);
+        mLiveData.setValue("bla");
+        verify(observer1).onChanged(anyString());
+        verify(observer2).onChanged(anyString());
+        assertThat(mLiveData.getObserverCount(), is(2));
+        assertThat(mLiveData.getActiveObserverCount(), is(2));
     }
 
     @Test
@@ -263,8 +294,9 @@ public class LiveDataTest {
         Observer<String> observer = spy(new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
-                mLiveData.removeObserver(this);
                 assertThat(mLiveData.getObserverCount(), is(1));
+                mLiveData.removeObserver(this);
+                assertThat(mLiveData.getObserverCount(), is(0));
             }
         });
         mLiveData.observe(mProvider, observer);
@@ -276,17 +308,22 @@ public class LiveDataTest {
     @Test
     public void testObserverAdditionInCallback() {
         mRegistry.handleLifecycleEvent(ON_START);
-        Observer<String> observer = spy(new Observer<String>() {
+        final Observer observer2 = spy(new FailReentranceObserver());
+        Observer<String> observer1 = spy(new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
-                mLiveData.observe(mProvider, mock(Observer.class));
-                assertThat(mLiveData.getObserverCount(), is(1));
-                assertThat(mLiveData.getActiveObserverCount(), is(1));
+                assertThat(mInObserver, is(false));
+                mInObserver = true;
+                mLiveData.observe(mProvider, observer2);
+                assertThat(mLiveData.getObserverCount(), is(2));
+                assertThat(mLiveData.getActiveObserverCount(), is(2));
+                mInObserver = false;
             }
         });
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mProvider, observer1);
         mLiveData.setValue("bla");
-        verify(observer).onChanged(anyString());
+        verify(observer1).onChanged(anyString());
+        verify(observer2).onChanged(anyString());
         assertThat(mLiveData.getObserverCount(), is(2));
         assertThat(mLiveData.getActiveObserverCount(), is(2));
     }
@@ -307,14 +344,32 @@ public class LiveDataTest {
         verify(observer, never()).onChanged(anyString());
     }
 
+    @Test
+    public void testSetValueDuringSetValue() {
+        mRegistry.handleLifecycleEvent(ON_START);
+        final Observer observer1 = spy(new Observer<String>() {
+            @Override
+            public void onChanged(String o) {
+                assertThat(mInObserver, is(false));
+                mInObserver = true;
+                if (o.equals(("bla"))) {
+                    mLiveData.setValue("gt");
+                }
+                mInObserver = false;
+            }
+        });
+        final Observer observer2 = spy(new FailReentranceObserver());
+        mLiveData.observe(mProvider, observer1);
+        mLiveData.observe(mProvider, observer2);
+        mLiveData.setValue("bla");
+        verify(observer1, Mockito.atMost(2)).onChanged("gt");
+        verify(observer2, Mockito.atMost(2)).onChanged("gt");
+    }
+
     @SuppressWarnings("WeakerAccess")
     static class PublicLiveData<T> extends LiveData<T> {
         // cannot spy due to internal calls
         public MethodExec activeObserversChanged;
-        @Override
-        public void setValue(T value) {
-            super.setValue(value);
-        }
 
         @Override
         protected void onActive() {
@@ -328,6 +383,13 @@ public class LiveDataTest {
             if (activeObserversChanged != null) {
                 activeObserversChanged.onCall(false);
             }
+        }
+    }
+
+    private class FailReentranceObserver<T> implements Observer<T> {
+        @Override
+        public void onChanged(@Nullable T t) {
+            assertThat(mInObserver, is(false));
         }
     }
 
