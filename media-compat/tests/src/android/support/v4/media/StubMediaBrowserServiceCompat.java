@@ -43,6 +43,10 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
             MEDIA_ID_CHILDREN_DELAYED
     };
 
+    static final String SEARCH_QUERY = "test_media_children";
+    static final String SEARCH_QUERY_FOR_NO_RESULT = "query no result";
+    static final String SEARCH_QUERY_FOR_ERROR = "query for error";
+
     static StubMediaBrowserServiceCompat sInstance;
 
     /* package private */ static MediaSessionCompat sSession;
@@ -72,8 +76,7 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
         if (MEDIA_ID_ROOT.equals(parentMediaId)) {
             Bundle rootHints = getBrowserRootHints();
             for (String id : MEDIA_ID_CHILDREN) {
-                mediaItems.add(new MediaItem(new MediaDescriptionCompat.Builder()
-                        .setMediaId(id).setExtras(rootHints).build(), MediaItem.FLAG_BROWSABLE));
+                mediaItems.add(createMediaItem(id));
             }
             result.sendResult(mediaItems);
         } else if (MEDIA_ID_CHILDREN_DELAYED.equals(parentMediaId)) {
@@ -97,14 +100,29 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
 
         for (String id : MEDIA_ID_CHILDREN) {
             if (id.equals(itemId)) {
-                result.sendResult(new MediaItem(new MediaDescriptionCompat.Builder()
-                        .setMediaId(id).setExtras(getBrowserRootHints()).build(),
-                        MediaItem.FLAG_BROWSABLE));
+                result.sendResult(createMediaItem(id));
                 return;
             }
         }
 
         super.onLoadItem(itemId, result);
+    }
+
+    @Override
+    public void onSearch(String query, Bundle extras, Result<List<MediaItem>> result) {
+        if (SEARCH_QUERY_FOR_NO_RESULT.equals(query)) {
+            result.sendResult(Collections.<MediaItem>emptyList());
+        } else if (SEARCH_QUERY_FOR_ERROR.equals(query)) {
+            result.sendResult(null);
+        } else if (SEARCH_QUERY.equals(query)) {
+            List<MediaItem> items = new ArrayList<>();
+            for (String id : MEDIA_ID_CHILDREN) {
+                if (id.contains(query)) {
+                    items.add(createMediaItem(id));
+                }
+            }
+            result.sendResult(items);
+        }
     }
 
     public void sendDelayedNotifyChildrenChanged() {
@@ -123,5 +141,11 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
             mPendingRootHints = null;
             mPendingLoadItemResult = null;
         }
+    }
+
+    private MediaItem createMediaItem(String id) {
+        return new MediaItem(new MediaDescriptionCompat.Builder()
+                .setMediaId(id).setExtras(getBrowserRootHints()).build(),
+                MediaItem.FLAG_BROWSABLE);
     }
 }

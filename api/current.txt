@@ -6245,6 +6245,7 @@ package android.support.v4.media {
     method public android.content.ComponentName getServiceComponent();
     method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
     method public boolean isConnected();
+    method public void search(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.SearchCallback);
     method public void subscribe(java.lang.String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
     method public void subscribe(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
     method public void unsubscribe(java.lang.String);
@@ -6282,6 +6283,12 @@ package android.support.v4.media {
     field public static final int FLAG_PLAYABLE = 2; // 0x2
   }
 
+  public static abstract class MediaBrowserCompat.SearchCallback {
+    ctor public MediaBrowserCompat.SearchCallback();
+    method public void onError(java.lang.String, android.os.Bundle);
+    method public void onSearchResult(java.lang.String, android.os.Bundle, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>);
+  }
+
   public static abstract class MediaBrowserCompat.SubscriptionCallback {
     ctor public MediaBrowserCompat.SubscriptionCallback();
     method public void onChildrenLoaded(java.lang.String, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>);
@@ -6302,6 +6309,7 @@ package android.support.v4.media {
     method public abstract void onLoadChildren(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>);
     method public void onLoadChildren(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>, android.os.Bundle);
     method public void onLoadItem(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<android.support.v4.media.MediaBrowserCompat.MediaItem>);
+    method public void onSearch(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>);
     method public void setSessionToken(android.support.v4.media.session.MediaSessionCompat.Token);
     field public static final java.lang.String SERVICE_INTERFACE = "android.media.browse.MediaBrowserService";
   }
@@ -6313,7 +6321,7 @@ package android.support.v4.media {
     field public static final java.lang.String EXTRA_OFFLINE = "android.service.media.extra.OFFLINE";
     field public static final java.lang.String EXTRA_RECENT = "android.service.media.extra.RECENT";
     field public static final java.lang.String EXTRA_SUGGESTED = "android.service.media.extra.SUGGESTED";
-    field public static final java.lang.String EXTRA_SUGGESTION_KEYWORDS = "android.service.media.extra.SUGGESTION_KEYWORDS";
+    field public static final deprecated java.lang.String EXTRA_SUGGESTION_KEYWORDS = "android.service.media.extra.SUGGESTION_KEYWORDS";
   }
 
   public static class MediaBrowserServiceCompat.Result<T> {

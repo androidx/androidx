@@ -20,6 +20,7 @@ import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 import android.content.ComponentName;
@@ -27,6 +28,7 @@ import android.os.Bundle;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +52,7 @@ public class MediaBrowserServiceCompatTest {
     private final ConnectionCallback mConnectionCallback = new ConnectionCallback();
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback();
     private final ItemCallback mItemCallback = new ItemCallback();
+    private final SearchCallback mSearchCallback = new SearchCallback();
 
     private MediaBrowserCompat mMediaBrowser;
     private StubMediaBrowserServiceCompat mMediaBrowserService;
@@ -167,6 +170,47 @@ public class MediaBrowserServiceCompatTest {
 
     @Test
     @SmallTest
+    public void testSearch() throws Exception {
+        final String key = "test-key";
+        final String val = "test-val";
+
+        synchronized (mWaitLock) {
+            mSearchCallback.reset();
+            mMediaBrowser.search(StubMediaBrowserServiceCompat.SEARCH_QUERY_FOR_NO_RESULT, null,
+                    mSearchCallback);
+            mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
+            assertTrue(mSearchCallback.mOnSearchResult);
+            assertTrue(mSearchCallback.mSearchResults != null
+                    && mSearchCallback.mSearchResults.size() == 0);
+            assertEquals(null, mSearchCallback.mSearchExtras);
+
+            mSearchCallback.reset();
+            mMediaBrowser.search(StubMediaBrowserServiceCompat.SEARCH_QUERY_FOR_ERROR, null,
+                    mSearchCallback);
+            mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
+            assertTrue(mSearchCallback.mOnSearchResult);
+            assertNull(mSearchCallback.mSearchResults);
+            assertEquals(null, mSearchCallback.mSearchExtras);
+
+            mSearchCallback.reset();
+            Bundle extras = new Bundle();
+            extras.putString(key, val);
+            mMediaBrowser.search(StubMediaBrowserServiceCompat.SEARCH_QUERY, extras,
+                    mSearchCallback);
+            mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
+            assertTrue(mSearchCallback.mOnSearchResult);
+            assertNotNull(mSearchCallback.mSearchResults);
+            for (MediaItem item : mSearchCallback.mSearchResults) {
+                assertNotNull(item.getMediaId());
+                assertTrue(item.getMediaId().contains(StubMediaBrowserServiceCompat.SEARCH_QUERY));
+            }
+            assertNotNull(mSearchCallback.mSearchExtras);
+            assertEquals(val, mSearchCallback.mSearchExtras.getString(key));
+        }
+    }
+
+    @Test
+    @SmallTest
     public void testBrowserRoot() {
         final String id = "test-id";
         final String key = "test-key";
@@ -180,7 +224,7 @@ public class MediaBrowserServiceCompatTest {
         assertEquals(val, browserRoot.getExtras().getString(key));
     }
 
-    private void assertRootHints(MediaBrowserCompat.MediaItem item) {
+    private void assertRootHints(MediaItem item) {
         Bundle rootHints = item.getDescription().getExtras();
         assertNotNull(rootHints);
         assertEquals(mRootHints.getBoolean(MediaBrowserServiceCompat.BrowserRoot.EXTRA_RECENT),
@@ -206,11 +250,11 @@ public class MediaBrowserServiceCompatTest {
         boolean mOnChildrenLoadedWithOptions;
 
         @Override
-        public void onChildrenLoaded(String parentId, List<MediaBrowserCompat.MediaItem> children) {
+        public void onChildrenLoaded(String parentId, List<MediaItem> children) {
             synchronized (mWaitLock) {
                 mOnChildrenLoaded = true;
                 if (children != null) {
-                    for (MediaBrowserCompat.MediaItem item : children) {
+                    for (MediaItem item : children) {
                         assertRootHints(item);
                     }
                 }
@@ -219,12 +263,11 @@ public class MediaBrowserServiceCompatTest {
         }
 
         @Override
-        public void onChildrenLoaded(String parentId, List<MediaBrowserCompat.MediaItem> children,
-                Bundle options) {
+        public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle options) {
             synchronized (mWaitLock) {
                 mOnChildrenLoadedWithOptions = true;
                 if (children != null) {
-                    for (MediaBrowserCompat.MediaItem item : children) {
+                    for (MediaItem item : children) {
                         assertRootHints(item);
                     }
                 }
@@ -242,7 +285,7 @@ public class MediaBrowserServiceCompatTest {
         boolean mOnItemLoaded;
 
         @Override
-        public void onItemLoaded(MediaBrowserCompat.MediaItem item) {
+        public void onItemLoaded(MediaItem item) {
             synchronized (mWaitLock) {
                 mOnItemLoaded = true;
                 assertRootHints(item);
@@ -252,6 +295,38 @@ public class MediaBrowserServiceCompatTest {
 
         public void reset() {
             mOnItemLoaded = false;
+        }
+    }
+
+    private class SearchCallback extends MediaBrowserCompat.SearchCallback {
+        boolean mOnSearchResult;
+        Bundle mSearchExtras;
+        List<MediaItem> mSearchResults;
+
+        @Override
+        public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
+            synchronized (mWaitLock) {
+                mOnSearchResult = true;
+                mSearchResults = items;
+                mSearchExtras = extras;
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
+        public void onError(String query, Bundle extras) {
+            synchronized (mWaitLock) {
+                mOnSearchResult = true;
+                mSearchResults = null;
+                mSearchExtras = extras;
+                mWaitLock.notify();
+            }
+        }
+
+        public void reset() {
+            mOnSearchResult = false;
+            mSearchExtras = null;
+            mSearchResults = null;
         }
     }
 }
