@@ -51,8 +51,11 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.test.filters.FlakyTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.util.TouchUtils;
@@ -1431,7 +1434,10 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         }
     }
 
+    @Suppress
+    @FlakyTest(bugId = 33949798)
     @Test
+    @LargeTest
     public void hasPendingUpdatesBeforeFirstLayout() throws Throwable {
         RecyclerView recyclerView = new RecyclerView(getActivity());
         TestLayoutManager layoutManager = new DumbLayoutManager();
