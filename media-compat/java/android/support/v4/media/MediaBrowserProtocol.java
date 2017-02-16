@@ -29,6 +29,8 @@ class MediaBrowserProtocol {
     public static final String DATA_PACKAGE_NAME = "data_package_name";
     public static final String DATA_RESULT_RECEIVER = "data_result_receiver";
     public static final String DATA_ROOT_HINTS = "data_root_hints";
+    public static final String DATA_SEARCH_EXTRAS = "data_search_extras";
+    public static final String DATA_SEARCH_QUERY = "data_search_query";
 
     public static final String EXTRA_CLIENT_VERSION = "extra_client_version";
     public static final String EXTRA_SERVICE_VERSION = "extra_service_version";
@@ -156,4 +158,16 @@ class MediaBrowserProtocol {
      * - replyTo : Callback messenger
      */
     public static final int CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER = 7;
+
+    /** (client v1)
+     * Sent to retrieve a specific media item from the connected service.
+     * - arg1 : The client version
+     * - data
+     *     DATA_SEARCH_QUERY : A string for search query that contains keywords separated by space.
+     *     DATA_SEARCH_EXTRAS : A bundle of service-specific arguments to send to the media browser
+     *                          service.
+     *     DATA_RESULT_RECEIVER : Result receiver to get the result
+     * - replyTo : Callback messenger
+     */
+    public static final int CLIENT_MSG_SEARCH = 8;
 }
