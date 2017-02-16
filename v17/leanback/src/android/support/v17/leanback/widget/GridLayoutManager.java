@@ -42,6 +42,7 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -376,8 +377,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     // effect smooth scrolling too over to bind an item view then drag the item view back.
     final static int MIN_MS_SMOOTH_SCROLL_MAIN_SCREEN = 30;
 
-    // Represents whether child views are sliding in or out.
-    private boolean mIsSlidingChildViews;
+    // Represents whether child views are temporarily sliding out
+    boolean mIsSlidingChildViews;
 
     String getTag() {
         return TAG + ":" + mBaseGridView.getId();
@@ -1737,8 +1738,41 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return mGrid.appendOneColumnVisibleItems();
     }
 
-    public void setIsSlidingChildViews(boolean animatingChildViews) {
-        this.mIsSlidingChildViews = animatingChildViews;
+    /**
+     * Temporarily slide out child and will be auto slide-in in next scrollToView().
+     */
+    void slideOut() {
+        if (mIsSlidingChildViews) {
+            return;
+        }
+        mIsSlidingChildViews = true;
+        if (mOrientation == VERTICAL) {
+            int distance = -getHeight();
+            int top = getChildAt(0).getTop();
+            if (top < 0) {
+                // scroll more if first child is above top edge
+                distance = distance + top;
+            }
+            mBaseGridView.smoothScrollBy(0, distance, new AccelerateDecelerateInterpolator());
+        } else {
+            int distance;
+            if (mReverseFlowPrimary) {
+                distance = getWidth();
+                int start = getChildAt(0).getRight();
+                if (start > distance) {
+                    // scroll more if first child is outside right edge
+                    distance = start;
+                }
+            } else {
+                distance = -getWidth();
+                int start = getChildAt(0).getLeft();
+                if (start < 0) {
+                    // scroll more if first child is out side left edge
+                    distance = distance + start;
+                }
+            }
+            mBaseGridView.smoothScrollBy(distance, 0, new AccelerateDecelerateInterpolator());
+        }
     }
 
     private boolean prependOneColumnVisibleItems() {
@@ -2303,6 +2337,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         setSelection(position, 0, false, 0);
     }
 
+    @Override
+    public void smoothScrollToPosition(RecyclerView recyclerView, State state,
+            int position) {
+        setSelection(position, 0, true, 0);
+    }
+
     public void setSelection(int position,
             int primaryScrollExtra) {
         setSelection(position, 0, false, primaryScrollExtra);
@@ -2331,7 +2371,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     public void setSelection(int position, int subposition, boolean smooth,
             int primaryScrollExtra) {
-        if (mFocusPosition != position && position != NO_POSITION
+        if (mIsSlidingChildViews || mFocusPosition != position && position != NO_POSITION
                 || subposition != mSubFocusPosition || primaryScrollExtra != mPrimaryScrollExtra) {
             scrollToSelection(position, subposition, smooth, primaryScrollExtra);
         }
@@ -2607,6 +2647,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      * Scroll to a given child view and change mFocusPosition.
      */
     private void scrollToView(View view, View childView, boolean smooth) {
+        mIsSlidingChildViews = false;
         int newFocusPosition = getPositionByView(view);
         int newSubFocusPosition = getSubPositionByView(view, childView);
         if (newFocusPosition != mFocusPosition || newSubFocusPosition != mSubFocusPosition) {
