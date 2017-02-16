@@ -31,12 +31,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.media.PollingCheck;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
@@ -62,6 +64,7 @@ public class MediaSessionCompatTest {
     private static final String TEST_SESSION_TAG = "test-session-tag";
     private static final String TEST_KEY = "test-key";
     private static final String TEST_VALUE = "test-val";
+    private static final Bundle TEST_BUNDLE = createTestBundle();
     private static final String TEST_SESSION_EVENT = "test-session-event";
     private static final int TEST_CURRENT_VOLUME = 10;
     private static final int TEST_MAX_VOLUME = 11;
@@ -70,6 +73,12 @@ public class MediaSessionCompatTest {
     private static final int TEST_ERROR_CODE =
             PlaybackStateCompat.ERROR_CODE_AUTHENTICATION_EXPIRED;
     private static final String TEST_ERROR_MSG = "test-error-msg";
+
+    private static Bundle createTestBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putString(TEST_KEY, TEST_VALUE);
+        return bundle;
+    }
 
     private AudioManager mAudioManager;
     private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -92,6 +101,7 @@ public class MediaSessionCompatTest {
     public void tearDown() throws Exception {
         // It is OK to call release() twice.
         mSession.release();
+        mSession = null;
     }
 
     /**
@@ -131,21 +141,17 @@ public class MediaSessionCompatTest {
     }
 
     /**
-     * Tests that the various configuration bits on a session get passed to the
-     * controller.
+     * Tests {@link MediaSessionCompat#setExtras}.
      */
     @Test
     @SmallTest
-    public void testConfigureSession() throws Exception {
+    public void testSetExtras() throws Exception {
+        final Bundle extras = new Bundle();
         MediaControllerCompat controller = mSession.getController();
         controller.registerCallback(mCallback, mHandler);
-
         synchronized (mWaitLock) {
-            // test setExtras
             mCallback.resetLocked();
-            final Bundle extras = new Bundle();
-            extras.putString(TEST_KEY, TEST_VALUE);
-            mSession.setExtras(extras);
+            mSession.setExtras(TEST_BUNDLE);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCallback.mOnExtraChangedCalled);
 
@@ -156,12 +162,33 @@ public class MediaSessionCompatTest {
             extrasOut = controller.getExtras();
             assertNotNull(extrasOut);
             assertEquals(TEST_VALUE, extrasOut.get(TEST_KEY));
+        }
+    }
 
-            // test setFlags
+    /**
+     * Tests {@link MediaSessionCompat#setFlags}.
+     */
+    @Test
+    @SmallTest
+    public void testSetFlags() throws Exception {
+        MediaControllerCompat controller = mSession.getController();
+        controller.registerCallback(mCallback, mHandler);
+        synchronized (mWaitLock) {
+            mCallback.resetLocked();
             mSession.setFlags(5);
             assertEquals(5, controller.getFlags());
+        }
+    }
 
-            // test setMetadata
+    /**
+     * Tests {@link MediaSessionCompat#setMetadata}.
+     */
+    @Test
+    @SmallTest
+    public void testSetMetadata() throws Exception {
+        MediaControllerCompat controller = mSession.getController();
+        controller.registerCallback(mCallback, mHandler);
+        synchronized (mWaitLock) {
             mCallback.resetLocked();
             MediaMetadataCompat metadata =
                     new MediaMetadataCompat.Builder().putString(TEST_KEY, TEST_VALUE).build();
@@ -176,8 +203,19 @@ public class MediaSessionCompatTest {
             metadataOut = controller.getMetadata();
             assertNotNull(metadataOut);
             assertEquals(TEST_VALUE, metadataOut.getString(TEST_KEY));
+        }
+    }
 
-            // test setPlaybackState
+    /**
+     * Tests {@link MediaSessionCompat#setPlaybackState}.
+     */
+    @Test
+    @SmallTest
+    public void testSetPlaybackState() throws Exception {
+        MediaControllerCompat controller = mSession.getController();
+        waitUntilExtraBinderReady(controller);
+        controller.registerCallback(mCallback, mHandler);
+        synchronized (mWaitLock) {
             mCallback.resetLocked();
             PlaybackStateCompat state =
                     new PlaybackStateCompat.Builder()
@@ -199,8 +237,18 @@ public class MediaSessionCompatTest {
             assertEquals(TEST_ACTION, stateOut.getActions());
             assertEquals(TEST_ERROR_CODE, stateOut.getErrorCode());
             assertEquals(TEST_ERROR_MSG, stateOut.getErrorMessage().toString());
+        }
+    }
 
-            // test setQueue and setQueueTitle
+    /**
+     * Tests {@link MediaSessionCompat#setQueue} and {@link MediaSessionCompat#setQueueTitle}.
+     */
+    @Test
+    @SmallTest
+    public void testSetQueueAndSetQueueTitle() throws Exception {
+        MediaControllerCompat controller = mSession.getController();
+        controller.registerCallback(mCallback, mHandler);
+        synchronized (mWaitLock) {
             mCallback.resetLocked();
             List<MediaSessionCompat.QueueItem> queue = new ArrayList<>();
             MediaSessionCompat.QueueItem item = new MediaSessionCompat.QueueItem(
@@ -241,14 +289,34 @@ public class MediaSessionCompatTest {
             assertNull(mCallback.mQueue);
             assertNull(controller.getQueueTitle());
             assertNull(controller.getQueue());
+        }
+    }
 
-            // test setSessionActivity
+    /**
+     * Tests {@link MediaSessionCompat#setSessionActivity}.
+     */
+    @Test
+    @SmallTest
+    public void testSessionActivity() throws Exception {
+        MediaControllerCompat controller = mSession.getController();
+        synchronized (mWaitLock) {
             Intent intent = new Intent("cts.MEDIA_SESSION_ACTION");
             PendingIntent pi = PendingIntent.getActivity(getContext(), 555, intent, 0);
             mSession.setSessionActivity(pi);
             assertEquals(pi, controller.getSessionActivity());
+        }
+    }
 
-            // test setRepeatMode
+    /**
+     * Tests {@link MediaSessionCompat#setRepeatMode}.
+     */
+    @Test
+    @SmallTest
+    public void testSetRepeatMode() throws Exception {
+        MediaControllerCompat controller = mSession.getController();
+        waitUntilExtraBinderReady(controller);
+        controller.registerCallback(mCallback, mHandler);
+        synchronized (mWaitLock) {
             mCallback.resetLocked();
             final int repeatMode = PlaybackStateCompat.REPEAT_MODE_ALL;
             mSession.setRepeatMode(repeatMode);
@@ -256,30 +324,64 @@ public class MediaSessionCompatTest {
             assertTrue(mCallback.mOnRepeatModeChangedCalled);
             assertEquals(repeatMode, mCallback.mRepeatMode);
             assertEquals(repeatMode, controller.getRepeatMode());
+        }
+    }
 
-            // test setShuffleModeEnabled
+    /**
+     * Tests {@link MediaSessionCompat#setShuffleModeEnabled}.
+     */
+    @Test
+    @SmallTest
+    public void testSetShuffleModeEnabled() throws Exception {
+        final boolean shuffleModeEnabled = true;
+        MediaControllerCompat controller = mSession.getController();
+        waitUntilExtraBinderReady(controller);
+        controller.registerCallback(mCallback, mHandler);
+        synchronized (mWaitLock) {
             mCallback.resetLocked();
-            final boolean shuffleModeEnabled = true;
+            final int repeatMode = PlaybackStateCompat.REPEAT_MODE_ALL;
             mSession.setShuffleModeEnabled(shuffleModeEnabled);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCallback.mOnShuffleModeChangedCalled);
             assertEquals(shuffleModeEnabled, mCallback.mShuffleModeEnabled);
             assertEquals(shuffleModeEnabled, controller.isShuffleModeEnabled());
+        }
+    }
 
-            // test setActivity
-            mSession.setActive(true);
-            assertTrue(mSession.isActive());
-
-            // test sendSessionEvent
+    /**
+     * Tests {@link MediaSessionCompat#sendSessionEvent}.
+     */
+    @Test
+    @SmallTest
+    public void testSendSessionEvent() throws Exception {
+        MediaControllerCompat controller = mSession.getController();
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP ||
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP_MR1) {
+            waitUntilExtraBinderReady(controller);
+        }
+        controller.registerCallback(mCallback, mHandler);
+        synchronized (mWaitLock) {
             mCallback.resetLocked();
-            mSession.sendSessionEvent(TEST_SESSION_EVENT, extras);
+            mSession.sendSessionEvent(TEST_SESSION_EVENT, TEST_BUNDLE);
             mWaitLock.wait(TIME_OUT_MS);
-
             assertTrue(mCallback.mOnSessionEventCalled);
             assertEquals(TEST_SESSION_EVENT, mCallback.mEvent);
             assertEquals(TEST_VALUE, mCallback.mExtras.getString(TEST_KEY));
+        }
+    }
 
-            // test release
+    /**
+     * Tests {@link MediaSessionCompat#setActive} and {@link MediaSessionCompat#release}.
+     */
+    @Test
+    @SmallTest
+    public void testSetActiveAndRelease() throws Exception {
+        MediaControllerCompat controller = mSession.getController();
+        controller.registerCallback(mCallback, mHandler);
+        synchronized (mWaitLock) {
+            mSession.setActive(true);
+            assertTrue(mSession.isActive());
+
             mCallback.resetLocked();
             mSession.release();
             mWaitLock.wait(TIME_OUT_MS);
@@ -288,7 +390,7 @@ public class MediaSessionCompatTest {
     }
 
     /**
-     * Test {@link MediaSessionCompat#setPlaybackToLocal} and
+     * Tests {@link MediaSessionCompat#setPlaybackToLocal} and
      * {@link MediaSessionCompat#setPlaybackToRemote}.
      */
     @Test
@@ -296,7 +398,6 @@ public class MediaSessionCompatTest {
     public void testPlaybackToLocalAndRemote() throws Exception {
         MediaControllerCompat controller = mSession.getController();
         controller.registerCallback(mCallback, mHandler);
-
         synchronized (mWaitLock) {
             // test setPlaybackToRemote, do this before testing setPlaybackToLocal
             // to ensure it switches correctly.
@@ -353,7 +454,7 @@ public class MediaSessionCompatTest {
     }
 
     /**
-     * Test {@link MediaSessionCompat.Callback#onMediaButtonEvent}.
+     * Tests {@link MediaSessionCompat.Callback#onMediaButtonEvent}.
      */
     @Test
     @SmallTest
@@ -511,6 +612,15 @@ public class MediaSessionCompatTest {
         MediaControllerCompat controller = mSession.getController();
         controller.dispatchMediaButtonEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
         controller.dispatchMediaButtonEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+    }
+
+    private void waitUntilExtraBinderReady(final MediaControllerCompat controller) {
+        new PollingCheck(TIME_OUT_MS) {
+            @Override
+            protected boolean check() {
+                return controller.isExtraBinderReady();
+            }
+        }.run();
     }
 
     private class MediaControllerCallback extends MediaControllerCompat.Callback {
