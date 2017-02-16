@@ -34,6 +34,8 @@ import org.junit.Test;
 
 @LargeTest
 public class AppBarWithCollapsingToolbarTest extends AppBarLayoutBaseTest {
+    @Suppress
+    @FlakyTest(bugId = 30701044)
     @Test
     public void testPinnedToolbar() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_collapse_pin,
