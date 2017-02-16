@@ -34,7 +34,6 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.v4.internal.view.TooltipCompat;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
@@ -1026,7 +1025,7 @@ public class ViewCompat {
 
         @Override
         public void setTooltipText(View view, CharSequence tooltipText) {
-            TooltipCompat.setTooltipText(view, tooltipText);
+            ViewCompatICS.setTooltipText(view, tooltipText);
         }
     }
 
@@ -3321,8 +3320,8 @@ public class ViewCompat {
      * <p>
      * Compatibility:
      * <ul>
-     * <li>API &lt; 26: Sets or clears (when tooltip is null) the view's OnLongClickListener.
-     * Creates a Toast on long click.
+     * <li>API &lt; 26: Sets or clears (when tooltip is null) the view's OnLongClickListener and
+     * OnHoverListener. Creates a Toast on long click or mouse hover.
      * </ul>
      *
      * @param tooltipText the tooltip text
