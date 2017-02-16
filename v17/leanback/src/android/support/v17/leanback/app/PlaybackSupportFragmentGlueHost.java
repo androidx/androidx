@@ -49,15 +49,19 @@ public class PlaybackSupportFragmentGlueHost extends PlaybackGlueHost {
 
     @Override
     public void setOnActionClickedListener(final OnActionClickedListener listener) {
-        mFragment.setOnPlaybackItemViewClickedListener(new OnItemViewClickedListener() {
-            @Override
-            public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-                                      RowPresenter.ViewHolder rowViewHolder, Row row) {
-                if (item instanceof Action) {
-                    listener.onActionClicked((Action)item);
+        if (listener == null) {
+            mFragment.setOnPlaybackItemViewClickedListener(null);
+        } else {
+            mFragment.setOnPlaybackItemViewClickedListener(new OnItemViewClickedListener() {
+                @Override
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                                          RowPresenter.ViewHolder rowViewHolder, Row row) {
+                    if (item instanceof Action) {
+                        listener.onActionClicked((Action) item);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override

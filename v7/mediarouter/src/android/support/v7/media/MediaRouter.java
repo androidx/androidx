@@ -94,7 +94,7 @@ public final class MediaRouter {
      * the disconnect button to disconnect and keep playing.
      * <p>
      *
-     * @see {@link MediaRouteDescriptor#canDisconnectAndKeepPlaying()}.
+     * @see MediaRouteDescriptor#canDisconnectAndKeepPlaying()
      */
     public static final int UNSELECT_REASON_DISCONNECTED = 1;
     /**
@@ -2088,11 +2088,6 @@ public final class MediaRouter {
                 throw new IllegalStateException("There is no currently selected route.  "
                         + "The media router has not yet been fully initialized.");
             }
-            // A workaround for making this method work properly.
-            if (android.os.Build.VERSION.SDK_INT >= 16 && android.os.Build.VERSION.SDK_INT < 25
-                    && RouteInfo.isSystemMediaRouteProvider(mSelectedRoute)) {
-                syncSystemRoutes();
-            }
             return mSelectedRoute;
         }
 
@@ -2108,12 +2103,6 @@ public final class MediaRouter {
             if (!route.mEnabled) {
                 Log.w(TAG, "Ignoring attempt to select disabled route: " + route);
                 return;
-            }
-
-            // A workaround for making this method work properly.
-            if (android.os.Build.VERSION.SDK_INT >= 16 && android.os.Build.VERSION.SDK_INT < 25
-                    && RouteInfo.isSystemMediaRouteProvider(route)) {
-                syncSystemRoutes();
             }
             setSelectedRouteInternal(route, unselectReason);
         }
@@ -2246,35 +2235,6 @@ public final class MediaRouter {
                 }
                 mCallbackHandler.post(CallbackHandler.MSG_PROVIDER_REMOVED, provider);
                 mProviders.remove(index);
-            }
-        }
-
-        void syncSystemRoutes() {
-            Object routerObj = MediaRouterJellybean.getMediaRouter(mApplicationContext);
-            // If a2dp is enabled, this means a BT route is the selected route, otherwise
-            // the default route is the selected one.
-            boolean a2dpEnabled = MediaRouterJellybean.isBluetoothA2dpOn(routerObj);
-            Object selectedRouteObj = MediaRouterJellybean.getSelectedRoute(
-                    routerObj, MediaRouterJellybean.ALL_ROUTE_TYPES);
-            Object defaultRouteObj = mSystemProvider.getDefaultRoute();
-
-            if (a2dpEnabled && selectedRouteObj == defaultRouteObj) {
-                // A BT route is the currently selected route, but MediaRouter think the default
-                // route is the selected one. By selecting the BT route via framework MediaRouter,
-                // MediaRouter could correct its selected route information.
-                for (Object routeObj : MediaRouterJellybean.getRoutes(routerObj)) {
-                    if (routeObj != defaultRouteObj) {
-                        MediaRouterJellybean.selectRoute(routerObj,
-                                MediaRouterJellybean.ALL_ROUTE_TYPES, routeObj);
-                        break;
-                    }
-                }
-            } else if (!a2dpEnabled && selectedRouteObj != defaultRouteObj) {
-                // The default route is the currently selected route, but MediaRouter think a BT
-                // route is the selected one. By selecting the default route via framework
-                // MediaRouter, MediaRouter could correct its selected route information.
-                MediaRouterJellybean.selectRoute(routerObj,
-                        MediaRouterJellybean.ALL_ROUTE_TYPES, defaultRouteObj);
             }
         }
 
@@ -2507,7 +2467,7 @@ public final class MediaRouter {
             }
             if (mBluetoothRoute == null && !mRoutes.isEmpty()) {
                 for (RouteInfo route : mRoutes) {
-                    if (isSystemBluetoothRoute(route) && isRouteSelectable(route)) {
+                    if (isSystemLiveAudioOnlyRoute(route) && isRouteSelectable(route)) {
                         mBluetoothRoute = route;
                         Log.i(TAG, "Found bluetooth route: " + mBluetoothRoute);
                         break;
@@ -2599,12 +2559,6 @@ public final class MediaRouter {
                             SystemMediaRouteProvider.DEFAULT_ROUTE_ID);
         }
 
-        private boolean isSystemBluetoothRoute(RouteInfo route) {
-            return route.getProviderInstance() == mSystemProvider
-                    && !route.mDescriptorId.equals(
-                            SystemMediaRouteProvider.DEFAULT_ROUTE_ID);
-        }
-
         private void setSelectedRouteInternal(RouteInfo route, int unselectReason) {
             if (mSelectedRoute != route) {
                 if (mSelectedRoute != null) {
@@ -2688,21 +2642,13 @@ public final class MediaRouter {
         }
 
         public void setMediaSession(Object session) {
-            if (mMediaSession != null) {
-                mMediaSession.clearVolumeHandling();
-            }
-            if (session == null) {
-                mMediaSession = null;
-            } else {
-                mMediaSession = new MediaSessionRecord(session);
-                updatePlaybackInfoFromSelectedRoute();
-            }
+            setMediaSessionRecord(session != null ? new MediaSessionRecord(session) : null);
         }
 
         public void setMediaSessionCompat(final MediaSessionCompat session) {
             mCompatSession = session;
             if (android.os.Build.VERSION.SDK_INT >= 21) {
-                setMediaSession(session != null ? session.getMediaSession() : null);
+                setMediaSessionRecord(session != null ? new MediaSessionRecord(session) : null);
             } else if (android.os.Build.VERSION.SDK_INT >= 14) {
                 if (mRccMediaSession != null) {
                     removeRemoteControlClient(mRccMediaSession.getRemoteControlClient());
@@ -2715,6 +2661,16 @@ public final class MediaRouter {
                         addRemoteControlClient(session.getRemoteControlClient());
                     }
                 }
+            }
+        }
+
+        private void setMediaSessionRecord(MediaSessionRecord mediaSessionRecord) {
+            if (mMediaSession != null) {
+                mMediaSession.clearVolumeHandling();
+            }
+            mMediaSession = mediaSessionRecord;
+            if (mediaSessionRecord != null) {
+                updatePlaybackInfoFromSelectedRoute();
             }
         }
 
@@ -2793,6 +2749,10 @@ public final class MediaRouter {
 
             public MediaSessionRecord(Object mediaSession) {
                 mMsCompat = MediaSessionCompat.fromMediaSession(mApplicationContext, mediaSession);
+            }
+
+            public MediaSessionRecord(MediaSessionCompat mediaSessionCompat) {
+                mMsCompat = mediaSessionCompat;
             }
 
             public void configureVolume(@VolumeProviderCompat.ControlType int controlType,

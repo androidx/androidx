@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.android.leanback.CustomTitleView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/browse_title_group"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:text="@string/custom_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</com.example.android.leanback.CustomTitleView>

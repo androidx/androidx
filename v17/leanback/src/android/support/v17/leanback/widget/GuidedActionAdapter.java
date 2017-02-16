@@ -151,6 +151,9 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
      * @param actions The list of actions to be managed.
      */
     public void setActions(List<GuidedAction> actions) {
+        if (!mIsSubAdapter) {
+            mStylist.collapseAction(false);
+        }
         mActionOnFocusListener.unFocus();
         mActions.clear();
         mActions.addAll(actions);

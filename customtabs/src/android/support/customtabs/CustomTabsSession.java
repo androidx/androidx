@@ -78,7 +78,7 @@ public final class CustomTabsSession {
      * @param icon          The new icon of the action button.
      * @param description   Content description of the action button.
      *
-     * @see {@link CustomTabsSession#setToolbarItem(int, Bitmap, String)}
+     * @see CustomTabsSession#setToolbarItem(int, Bitmap, String)
      */
     public boolean setActionButton(@NonNull Bitmap icon, @NonNull String description) {
         Bundle bundle = new Bundle();

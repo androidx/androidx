@@ -107,6 +107,40 @@ public class PresenterTest {
     }
 
     @Test
+    public void testRowHeaderPresenter() {
+        RowHeaderPresenter p = new RowHeaderPresenter();
+        p.setNullItemVisibilityGone(true);
+        RowHeaderPresenter.ViewHolder vh = (RowHeaderPresenter.ViewHolder)
+                p.onCreateViewHolder(new FrameLayout(mContext));
+        p.onBindViewHolder(vh, null);
+        assertEquals("Header visibility", View.GONE, vh.view.getVisibility());
+        p.onBindViewHolder(vh, new Row(null));
+        assertEquals("Header visibility", View.GONE, vh.view.getVisibility());
+
+        p.onBindViewHolder(vh, new Row(new HeaderItem("")));
+        assertEquals("Header visibility", View.VISIBLE, vh.view.getVisibility());
+        assertEquals("Header Description visibility", View.GONE,
+                vh.mDescriptionView.getVisibility());
+
+        HeaderItem item = new HeaderItem("");
+        item.setDescription("description");
+        p.onBindViewHolder(vh, new Row(item));
+        assertEquals("Header visibility", View.VISIBLE, vh.view.getVisibility());
+        assertEquals("Header Description visibility", View.VISIBLE,
+                vh.mDescriptionView.getVisibility());
+    }
+
+    @Test
+    public void testSingleRowHeaderPresenter() {
+        RowHeaderPresenter p = new RowHeaderPresenter();
+        RowHeaderPresenter.ViewHolder vh = new RowHeaderPresenter.ViewHolder(
+                new RowHeaderView(mContext));
+        HeaderItem item = new HeaderItem("");
+        p.onBindViewHolder(vh, new Row(item));
+        assertEquals("Header visibility", View.VISIBLE, vh.view.getVisibility());
+    }
+
+    @Test
     public void testPlaybackControlsRowPresenter() {
         Context context = new ContextThemeWrapper(mContext, R.style.Theme_Leanback);
         Presenter detailsPresenter = new AbstractDetailsDescriptionPresenter() {

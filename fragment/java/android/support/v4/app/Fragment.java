@@ -321,6 +321,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // True if mHidden has been changed and the animation should be scheduled.
     boolean mHiddenChanged;
 
+    // The alpha of the view when the view was added and then postponed. If the value is less
+    // than zero, this means that the view's add was canceled and should not participate in
+    // removal animations.
+    float mPostponedAlpha;
+
     /**
      * State information that has been retrieved from a fragment instance
      * through {@link FragmentManager#saveFragmentInstanceState(Fragment)

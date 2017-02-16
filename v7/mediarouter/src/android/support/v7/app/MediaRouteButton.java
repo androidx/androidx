@@ -492,36 +492,41 @@ public class MediaRouteButton extends View {
     }
 
     void refreshRoute() {
+        final MediaRouter.RouteInfo route = mRouter.getSelectedRoute();
+        final boolean isRemote = !route.isDefaultOrBluetooth() && route.matchesSelector(mSelector);
+        final boolean isConnecting = isRemote && route.isConnecting();
+        boolean needsRefresh = false;
+        if (mRemoteActive != isRemote) {
+            mRemoteActive = isRemote;
+            needsRefresh = true;
+        }
+        if (mIsConnecting != isConnecting) {
+            mIsConnecting = isConnecting;
+            needsRefresh = true;
+        }
+
+        if (needsRefresh) {
+            updateContentDescription();
+            refreshDrawableState();
+        }
         if (mAttachedToWindow) {
-            final MediaRouter.RouteInfo route = mRouter.getSelectedRoute();
-            final boolean isRemote = !route.isDefaultOrBluetooth()
-                    && route.matchesSelector(mSelector);
-            final boolean isConnecting = isRemote && route.isConnecting();
-
-            boolean needsRefresh = false;
-            if (mRemoteActive != isRemote) {
-                mRemoteActive = isRemote;
-                needsRefresh = true;
-            }
-            if (mIsConnecting != isConnecting) {
-                mIsConnecting = isConnecting;
-                needsRefresh = true;
-            }
-
-            if (needsRefresh) {
-                updateContentDescription();
-                refreshDrawableState();
-                if (mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
-                    AnimationDrawable curDrawable =
-                            (AnimationDrawable) mRemoteIndicator.getCurrent();
-                    if (!curDrawable.isRunning()) {
-                        curDrawable.start();
-                    }
-                }
-            }
-
             setEnabled(mRouter.isRouteAvailable(mSelector,
                     MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE));
+        }
+        if (mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
+            AnimationDrawable curDrawable = (AnimationDrawable) mRemoteIndicator.getCurrent();
+            if (mAttachedToWindow) {
+                if ((needsRefresh || isConnecting) && !curDrawable.isRunning()) {
+                    curDrawable.start();
+                }
+            } else if (isRemote && !isConnecting) {
+                // When the route is already connected before the view is attached, show the last
+                // frame of the connected animation immediately.
+                if (curDrawable.isRunning()) {
+                    curDrawable.stop();
+                }
+                curDrawable.selectDrawable(curDrawable.getNumberOfFrames() - 1);
+            }
         }
     }
 

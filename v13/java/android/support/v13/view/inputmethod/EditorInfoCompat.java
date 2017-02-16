@@ -98,7 +98,7 @@ public final class EditorInfoCompat {
      * @param editorInfo the editor with which we associate supported MIME types
      * @param contentMimeTypes an array of MIME types. {@code null} and an empty array means that
      *                         {@link InputConnectionCompat#commitContent(
-     *                         InputConnection, EditorInfo, InputContentInfoCompat, int, Bundle)
+     *                         InputConnection, EditorInfo, InputContentInfoCompat, int, Bundle)}
      *                         is not supported on this Editor
      */
     public static void setContentMimeTypes(@NonNull EditorInfo editorInfo,

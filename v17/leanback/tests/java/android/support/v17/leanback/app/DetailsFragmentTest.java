@@ -16,6 +16,7 @@
 package android.support.v17.leanback.app;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
 import android.graphics.Rect;
@@ -87,6 +88,9 @@ public class DetailsFragmentTest {
                 bitmapDrawable.getBounds().height());
         assertEquals(0, bitmapDrawable.getVerticalOffset());
 
+        assertTrue("TitleView is visible", detailsFragment.getView()
+                .findViewById(R.id.browse_title_group).getVisibility() == View.VISIBLE);
+
         activityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -97,7 +101,9 @@ public class DetailsFragmentTest {
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                return bitmapDrawable.getVerticalOffset() == mDefaultVerticalOffset;
+                return bitmapDrawable.getVerticalOffset() == mDefaultVerticalOffset
+                        && detailsFragment.getView()
+                        .findViewById(R.id.browse_title_group).getVisibility() != View.VISIBLE;
             }
         });
 

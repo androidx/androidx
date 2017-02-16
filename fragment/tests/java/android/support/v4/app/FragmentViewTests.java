@@ -25,12 +25,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.app.Instrumentation;
+import android.os.Bundle;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -873,6 +875,133 @@ public class FragmentViewTests {
         assertNotNull(findViewById(R.id.textC));
     }
 
+    // Test that adding a fragment with invisible or gone views does not end up with the view
+    // being visible
+    @Test
+    public void addInvisibleAndGoneFragments() throws Throwable {
+        FragmentTestUtil.setContentView(mActivityRule, R.layout.simple_container);
+        ViewGroup container = (ViewGroup)
+                mActivityRule.getActivity().findViewById(R.id.fragmentContainer);
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        final StrictViewFragment fragment1 = new InvisibleFragment();
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment1).addToBackStack(null).commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        FragmentTestUtil.assertChildren(container, fragment1);
+
+        assertEquals(View.INVISIBLE, fragment1.getView().getVisibility());
+
+        final InvisibleFragment fragment2 = new InvisibleFragment();
+        fragment2.visibility = View.GONE;
+        fm.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        FragmentTestUtil.assertChildren(container, fragment2);
+
+        assertEquals(View.GONE, fragment2.getView().getVisibility());
+    }
+
+    // Test to ensure that popping and adding a fragment properly track the fragments added
+    // and removed.
+    @Test
+    public void popAdd() throws Throwable {
+        FragmentTestUtil.setContentView(mActivityRule, R.layout.simple_container);
+        ViewGroup container = (ViewGroup)
+                mActivityRule.getActivity().findViewById(R.id.fragmentContainer);
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        // One fragment with a view
+        final StrictViewFragment fragment1 = new StrictViewFragment();
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment1).addToBackStack(null).commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        FragmentTestUtil.assertChildren(container, fragment1);
+
+        final StrictViewFragment fragment2 = new StrictViewFragment();
+        final StrictViewFragment fragment3 = new StrictViewFragment();
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fm.popBackStack();
+                fm.beginTransaction()
+                        .replace(R.id.fragmentContainer, fragment2)
+                        .addToBackStack(null)
+                        .commit();
+                fm.executePendingTransactions();
+                fm.popBackStack();
+                fm.beginTransaction()
+                        .replace(R.id.fragmentContainer, fragment3)
+                        .addToBackStack(null)
+                        .commit();
+                fm.executePendingTransactions();
+            }
+        });
+        FragmentTestUtil.assertChildren(container, fragment3);
+    }
+
+    // Ensure that non-optimized transactions are executed individually rather than together.
+    // This forces references from one fragment to another that should be executed earlier
+    // to work.
+    @Test
+    public void nonOptimizeTogether() throws Throwable {
+        FragmentTestUtil.setContentView(mActivityRule, R.layout.simple_container);
+        ViewGroup container = (ViewGroup)
+                mActivityRule.getActivity().findViewById(R.id.fragmentContainer);
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        final StrictViewFragment fragment1 = new StrictViewFragment();
+        fragment1.setLayoutId(R.layout.scene1);
+        final StrictViewFragment fragment2 = new StrictViewFragment();
+        fragment2.setLayoutId(R.layout.fragment_a);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fm.beginTransaction()
+                        .add(R.id.fragmentContainer, fragment1)
+                        .setAllowOptimization(false)
+                        .addToBackStack(null)
+                        .commit();
+                fm.beginTransaction()
+                        .add(R.id.squareContainer, fragment2)
+                        .setAllowOptimization(false)
+                        .addToBackStack(null)
+                        .commit();
+                fm.executePendingTransactions();
+            }
+        });
+        FragmentTestUtil.assertChildren(container, fragment1);
+        assertNotNull(findViewById(R.id.textA));
+    }
+
+    // Ensure that there is no problem if the child fragment manager is used before
+    // the View has been added.
+    @Test
+    public void childFragmentManager() throws Throwable {
+        FragmentTestUtil.setContentView(mActivityRule, R.layout.simple_container);
+        ViewGroup container = (ViewGroup)
+                mActivityRule.getActivity().findViewById(R.id.fragmentContainer);
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        final StrictViewFragment fragment1 = new ParentFragment();
+        fragment1.setLayoutId(R.layout.double_container);
+
+        fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .addToBackStack(null)
+                .commit();
+
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+
+        FragmentTestUtil.assertChildren(container, fragment1);
+        ViewGroup innerContainer = (ViewGroup)
+                fragment1.getView().findViewById(R.id.fragmentContainer1);
+
+        Fragment fragment2 = fragment1.getChildFragmentManager().findFragmentByTag("inner");
+        FragmentTestUtil.assertChildren(innerContainer, fragment2);
+    }
+
     private View findViewById(int viewId) {
         return mActivityRule.getActivity().findViewById(viewId);
     }
@@ -884,6 +1013,37 @@ public class FragmentViewTests {
         for (int i = 0; i < numFragments; i++) {
             assertEquals("Wrong Fragment View order for [" + i + "]", container.getChildAt(i),
                     fragments[i].getView());
+        }
+    }
+
+    public static class InvisibleFragment extends StrictViewFragment {
+        public int visibility = View.INVISIBLE;
+
+        @Override
+        public void onViewCreated(View view, Bundle savedInstanceState) {
+            view.setVisibility(visibility);
+            super.onViewCreated(view, savedInstanceState);
+        }
+    }
+
+    public static class ParentFragment extends StrictViewFragment {
+        public ParentFragment() {
+            setLayoutId(R.layout.double_container);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View view = super.onCreateView(inflater, container, savedInstanceState);
+            final StrictViewFragment fragment2 = new StrictViewFragment();
+            fragment2.setLayoutId(R.layout.fragment_a);
+
+            getChildFragmentManager().beginTransaction()
+                    .add(R.id.fragmentContainer1, fragment2, "inner")
+                    .addToBackStack(null)
+                    .commit();
+            getChildFragmentManager().executePendingTransactions();
+            return view;
         }
     }
 }

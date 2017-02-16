@@ -103,6 +103,10 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         return null;
     }
 
+    protected Object getSystemRoute(MediaRouter.RouteInfo route) {
+        return null;
+    }
+
     /**
      * Legacy implementation for platform versions prior to Jellybean.
      */
@@ -662,6 +666,18 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                 mGetDefaultRouteWorkaround = new MediaRouterJellybean.GetDefaultRouteWorkaround();
             }
             return mGetDefaultRouteWorkaround.getDefaultRoute(mRouterObj);
+        }
+
+        @Override
+        protected Object getSystemRoute(MediaRouter.RouteInfo route) {
+            if (route == null) {
+                return null;
+            }
+            int index = findSystemRouteRecordByDescriptorId(route.getDescriptorId());
+            if (index >= 0) {
+                return mSystemRouteRecords.get(index).mRouteObj;
+            }
+            return null;
         }
 
         /**

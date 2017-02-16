@@ -511,8 +511,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         return mSearchSrcTextView.getInputType();
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
         // Don't accept focus if in the middle of clearing focus
@@ -531,8 +529,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         }
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void clearFocus() {
         mClearingFocus = true;

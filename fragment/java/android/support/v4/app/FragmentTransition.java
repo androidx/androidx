@@ -22,7 +22,6 @@ import android.support.v4.view.ViewCompat;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -187,7 +186,10 @@ class FragmentTransition {
     private static void configureTransitionsOptimized(FragmentManagerImpl fragmentManager,
             int containerId, FragmentContainerTransition fragments,
             View nonExistentView, ArrayMap<String, String> nameOverrides) {
-        ViewGroup sceneRoot = (ViewGroup) fragmentManager.mContainer.onFindViewById(containerId);
+        ViewGroup sceneRoot = null;
+        if (fragmentManager.mContainer.onHasView()) {
+            sceneRoot = (ViewGroup) fragmentManager.mContainer.onFindViewById(containerId);
+        }
         if (sceneRoot == null) {
             return;
         }
@@ -250,15 +252,12 @@ class FragmentTransition {
             FragmentTransitionCompat21.scheduleHideFragmentView(exitTransition,
                     exitingFragment.getView(), exitingViews);
             final ViewGroup container = exitingFragment.mContainer;
-            container.getViewTreeObserver().addOnPreDrawListener(
-                    new ViewTreeObserver.OnPreDrawListener() {
-                        @Override
-                        public boolean onPreDraw() {
-                            container.getViewTreeObserver().removeOnPreDrawListener(this);
-                            setViewVisibility(exitingViews, View.INVISIBLE);
-                            return true;
-                        }
-                    });
+            OneShotPreDrawListener.add(container, new Runnable() {
+                @Override
+                public void run() {
+                    setViewVisibility(exitingViews, View.INVISIBLE);
+                }
+            });
         }
     }
 
@@ -280,7 +279,10 @@ class FragmentTransition {
     private static void configureTransitionsUnoptimized(FragmentManagerImpl fragmentManager,
             int containerId, FragmentContainerTransition fragments,
             View nonExistentView, ArrayMap<String, String> nameOverrides) {
-        ViewGroup sceneRoot = (ViewGroup) fragmentManager.mContainer.onFindViewById(containerId);
+        ViewGroup sceneRoot = null;
+        if (fragmentManager.mContainer.onHasView()) {
+            sceneRoot = (ViewGroup) fragmentManager.mContainer.onFindViewById(containerId);
+        }
         if (sceneRoot == null) {
             return;
         }
@@ -356,33 +358,29 @@ class FragmentTransition {
             final ArrayList<View> sharedElementsIn,
             final Object enterTransition, final ArrayList<View> enteringViews,
             final Object exitTransition, final ArrayList<View> exitingViews) {
+        OneShotPreDrawListener.add(sceneRoot, new Runnable() {
+            @Override
+            public void run() {
+                if (enterTransition != null) {
+                    FragmentTransitionCompat21.removeTarget(enterTransition,
+                            nonExistentView);
+                    ArrayList<View> views = configureEnteringExitingViews(
+                            enterTransition, inFragment, sharedElementsIn, nonExistentView);
+                    enteringViews.addAll(views);
+                }
 
-        sceneRoot.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
-
-                        if (enterTransition != null) {
-                            FragmentTransitionCompat21.removeTarget(enterTransition,
-                                    nonExistentView);
-                            ArrayList<View> views = configureEnteringExitingViews(
-                                    enterTransition, inFragment, sharedElementsIn, nonExistentView);
-                            enteringViews.addAll(views);
-                        }
-
-                        if (exitingViews != null) {
-                            ArrayList<View> tempExiting = new ArrayList<>();
-                            tempExiting.add(nonExistentView);
-                            FragmentTransitionCompat21.replaceTargets(exitTransition, exitingViews,
-                                    tempExiting);
-                            exitingViews.clear();
-                            exitingViews.add(nonExistentView);
-                        }
-
-                        return true;
+                if (exitingViews != null) {
+                    if (exitTransition != null) {
+                        ArrayList<View> tempExiting = new ArrayList<>();
+                        tempExiting.add(nonExistentView);
+                        FragmentTransitionCompat21.replaceTargets(exitTransition, exitingViews,
+                                tempExiting);
                     }
-                });
+                    exitingViews.clear();
+                    exitingViews.add(nonExistentView);
+                }
+            }
+        });
     }
 
     /**
@@ -486,9 +484,17 @@ class FragmentTransition {
 
         if (nameOverrides.isEmpty()) {
             sharedElementTransition = null;
+            if (outSharedElements != null) {
+                outSharedElements.clear();
+            }
+            if (inSharedElements != null) {
+                inSharedElements.clear();
+            }
         } else {
-            sharedElementsOut.addAll(outSharedElements.values());
-            sharedElementsIn.addAll(inSharedElements.values());
+            addSharedElementsWithMatchingNames(sharedElementsOut, outSharedElements,
+                    nameOverrides.keySet());
+            addSharedElementsWithMatchingNames(sharedElementsIn, inSharedElements,
+                    nameOverrides.values());
         }
 
         if (enterTransition == null && exitTransition == null && sharedElementTransition == null) {
@@ -519,20 +525,36 @@ class FragmentTransition {
             epicenterView = null;
         }
 
-        sceneRoot.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
-                        callSharedElementStartEnd(inFragment, outFragment, inIsPop,
-                                inSharedElements, false);
-                        if (epicenterView != null) {
-                            FragmentTransitionCompat21.getBoundsOnScreen(epicenterView, epicenter);
-                        }
-                        return true;
-                    }
-                });
+        OneShotPreDrawListener.add(sceneRoot, new Runnable() {
+            @Override
+            public void run() {
+                callSharedElementStartEnd(inFragment, outFragment, inIsPop,
+                        inSharedElements, false);
+                if (epicenterView != null) {
+                    FragmentTransitionCompat21.getBoundsOnScreen(epicenterView, epicenter);
+                }
+            }
+        });
         return sharedElementTransition;
+    }
+
+    /**
+     * Add Views from sharedElements into views that have the transitionName in the
+     * nameOverridesSet.
+     *
+     * @param views               Views list to add shared elements to
+     * @param sharedElements      List of shared elements
+     * @param nameOverridesSet    The transition names for all views to be copied from
+     *                            sharedElements to views.
+     */
+    private static void addSharedElementsWithMatchingNames(ArrayList<View> views,
+            ArrayMap<String, View> sharedElements, Collection<String> nameOverridesSet) {
+        for (int i = sharedElements.size() - 1; i >= 0; i--) {
+            View view = sharedElements.valueAt(i);
+            if (nameOverridesSet.contains(ViewCompat.getTransitionName(view))) {
+                views.add(view);
+            }
+        }
     }
 
     /**
@@ -612,38 +634,36 @@ class FragmentTransition {
             inEpicenter = null;
         }
 
+
         final Object finalSharedElementTransition = sharedElementTransition;
+        OneShotPreDrawListener.add(sceneRoot, new Runnable() {
+            @Override
+            public void run() {
+                ArrayMap<String, View> inSharedElements = captureInSharedElements(
+                        nameOverrides, finalSharedElementTransition, fragments);
 
-        sceneRoot.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
-                        ArrayMap<String, View> inSharedElements = captureInSharedElements(
-                                nameOverrides, finalSharedElementTransition, fragments);
+                if (inSharedElements != null) {
+                    sharedElementsIn.addAll(inSharedElements.values());
+                    sharedElementsIn.add(nonExistentView);
+                }
 
-                        if (inSharedElements != null) {
-                            sharedElementsIn.addAll(inSharedElements.values());
-                            sharedElementsIn.add(nonExistentView);
-                        }
+                callSharedElementStartEnd(inFragment, outFragment, inIsPop,
+                        inSharedElements, false);
+                if (finalSharedElementTransition != null) {
+                    FragmentTransitionCompat21.swapSharedElementTargets(
+                            finalSharedElementTransition, sharedElementsOut,
+                            sharedElementsIn);
 
-                        callSharedElementStartEnd(inFragment, outFragment, inIsPop,
-                                inSharedElements, false);
-                        if (finalSharedElementTransition != null) {
-                            FragmentTransitionCompat21.swapSharedElementTargets(
-                                    finalSharedElementTransition, sharedElementsOut,
-                                    sharedElementsIn);
-
-                            final View inEpicenterView = getInEpicenterView(inSharedElements,
-                                    fragments, enterTransition, inIsPop);
-                            if (inEpicenterView != null) {
-                                FragmentTransitionCompat21.getBoundsOnScreen(inEpicenterView,
-                                        inEpicenter);
-                            }
-                        }
-                        return true;
+                    final View inEpicenterView = getInEpicenterView(inSharedElements,
+                            fragments, enterTransition, inIsPop);
+                    if (inEpicenterView != null) {
+                        FragmentTransitionCompat21.getBoundsOnScreen(inEpicenterView,
+                                inEpicenter);
                     }
-                });
+                }
+            }
+        });
+
         return sharedElementTransition;
     }
 
@@ -1028,7 +1048,8 @@ class FragmentTransition {
             case BackStackRecord.OP_DETACH:
                 if (isOptimizedTransaction) {
                     setFirstOut = !fragment.mAdded && fragment.mView != null
-                            && fragment.mView.getVisibility() == View.VISIBLE;
+                            && fragment.mView.getVisibility() == View.VISIBLE
+                            && fragment.mPostponedAlpha >= 0;
                 } else {
                     setFirstOut = fragment.mAdded && !fragment.mHidden;
                 }

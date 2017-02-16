@@ -170,7 +170,7 @@ public class CursorObjectAdapter extends ObjectAdapter {
 
     /**
      * Removes an item from the cache. This will force the item to be re-read
-     * from the data source the next time (@link #get(int)} is called.
+     * from the data source the next time {@link #get(int)} is called.
      */
     protected final void invalidateCache(int index) {
         mItemCache.remove(index);

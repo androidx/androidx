@@ -2097,15 +2097,23 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         if (mPrefetchDistances == null || mPrefetchDistances.length < mSpanCount) {
             mPrefetchDistances = new int[mSpanCount];
         }
+
+        int itemPrefetchCount = 0;
         for (int i = 0; i < mSpanCount; i++) {
-            mPrefetchDistances[i] = mLayoutState.mItemDirection == LAYOUT_START
+            // compute number of pixels past the edge of the viewport that the current span extends
+            int distance = mLayoutState.mItemDirection == LAYOUT_START
                     ? mLayoutState.mStartLine - mSpans[i].getStartLine(mLayoutState.mStartLine)
                     : mSpans[i].getEndLine(mLayoutState.mEndLine) - mLayoutState.mEndLine;
+            if (distance >= 0) {
+                // span extends to the edge, so prefetch next item
+                mPrefetchDistances[itemPrefetchCount] = distance;
+                itemPrefetchCount++;
+            }
         }
-        Arrays.sort(mPrefetchDistances, 0, mSpanCount);
+        Arrays.sort(mPrefetchDistances, 0, itemPrefetchCount);
 
         // then assign them in order to the next N views (where N = span count)
-        for (int i = 0; i < mSpanCount && mLayoutState.hasMore(state); i++) {
+        for (int i = 0; i < itemPrefetchCount && mLayoutState.hasMore(state); i++) {
             layoutPrefetchRegistry.addPosition(mLayoutState.mCurrentPosition, mPrefetchDistances[i]);
             mLayoutState.mCurrentPosition += mLayoutState.mItemDirection;
         }

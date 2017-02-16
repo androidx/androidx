@@ -421,16 +421,16 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
      */
     private void assertFocusAfterLayout(int focusedChildIndexWhenRecoveryEnabled,
                                         int focusedChildIndexWhenRecoveryDisabled) {
+        if (mDisableAnimation && mDisableRecovery) {
+            // This case is not quite handled properly at the moment. For now, RV may become focused
+            // without re-delivering the focus down to the children. Skip the checks for now.
+            return;
+        }
         if (mRecyclerView.getChildCount() == 0) {
             assertThat("RV should have focus when it has no children",
                     mRecyclerView.hasFocus(), is(true));
             assertThat("RV should be focused when it has no children",
                     mRecyclerView.isFocused(), is(true));
-            return;
-        }
-        if (mDisableAnimation && mDisableRecovery) {
-            // This case is not quite handled properly at the moment. For now, RV may become focused
-            // without re-delivering the focus down to the children. Skip the checks for now.
             return;
         }
 
