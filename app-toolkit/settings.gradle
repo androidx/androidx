@@ -23,6 +23,9 @@ project(':apptoolkit-core').projectDir = new File("core")
 include ':lifecycle:extensions'
 project(':lifecycle:extensions').projectDir = new File("../lifecycle/extensions")
 
+include ':lifecycle:reactivestreams'
+project(':lifecycle:reactivestreams').projectDir = new File("../lifecycle/reactivestreams")
+
 include ':lifecycle:runtime'
 project(':lifecycle:runtime').projectDir = new File("../lifecycle/runtime")
 

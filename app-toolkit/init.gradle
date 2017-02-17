@@ -77,6 +77,8 @@ ext.intellij_annotation = "12.0"
 ext.espresso_version = "2.2.2"
 ext.release_version = "1.0-SNAPSHOT"
 ext.atsl_version = "0.6-alpha"
+ext.rxjava2_version = "2.0.6"
+ext.reactivestreams_version = "1.0.0"
 // this Xerial version is newer than we want but we need it to fix
 // https://github.com/xerial/sqlite-jdbc/issues/97
 ext.xerial_version = "3.16.1"
