@@ -19,6 +19,7 @@ package android.support.v4.media;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 
 import static org.junit.Assert.fail;
 
@@ -408,11 +409,12 @@ public class MediaBrowserCompatTest {
 
     @Test
     @SmallTest
-    public void testGetItemFailure() {
+    public void testGetItemWhenOnLoadItemIsNotImplemented() {
         resetCallbacks();
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
-        mMediaBrowser.getItem(StubMediaBrowserServiceCompat.MEDIA_ID_INVALID, mItemCallback);
+        mMediaBrowser.getItem(StubMediaBrowserServiceCompat.MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED,
+                mItemCallback);
         new PollingCheck(TIME_OUT_MS) {
             @Override
             protected boolean check() {
@@ -420,7 +422,30 @@ public class MediaBrowserCompatTest {
             }
         }.run();
 
-        assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_INVALID, mItemCallback.mLastErrorId);
+        assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED,
+                mItemCallback.mLastErrorId);
+    }
+
+    @Test
+    @SmallTest
+    public void testGetItemWhenMediaIdIsInvalid() {
+        resetCallbacks();
+        mItemCallback.mLastMediaItem = new MediaItem(new MediaDescriptionCompat.Builder()
+                .setMediaId("dummy_id").build(), MediaItem.FLAG_BROWSABLE);
+
+        createMediaBrowser(TEST_BROWSER_SERVICE);
+        connectMediaBrowserService();
+        mMediaBrowser.getItem(StubMediaBrowserServiceCompat.MEDIA_ID_INVALID, mItemCallback);
+        new PollingCheck(TIME_OUT_MS) {
+            @Override
+            protected boolean check() {
+                // MediaBrowserServiceCompat.onLoadItem implementations must send null result when
+                // the given media id is invalid.
+                return mItemCallback.mLastMediaItem == null;
+            }
+        }.run();
+
+        assertNull(mItemCallback.mLastErrorId);
     }
 
     private void createMediaBrowser(final ComponentName component) {
