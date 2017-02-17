@@ -27,7 +27,11 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
     fun process(): Entity {
         context.checker.hasAnnotation(element, com.android.support.room.Entity::class,
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
-        val pojo = PojoProcessor(context, element, FieldProcessor.BindingScope.TWO_WAY).process()
+        val pojo = PojoProcessor(
+                baseContext = context,
+                element = element,
+                bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                parent = null).process()
         val annotation = MoreElements.getAnnotationMirror(element,
                 com.android.support.room.Entity::class.java).orNull()
         val tableName : String
@@ -44,7 +48,11 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         }
         context.checker.notBlank(tableName, element,
                 ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
-        val entity = Entity(element, tableName, pojo.type, pojo.fields)
+        val entity = Entity(element = element,
+                tableName = tableName,
+                type = pojo.type,
+                fields = pojo.fields,
+                decomposedFields = pojo.decomposedFields)
         context.checker.check(entity.primaryKeys.isNotEmpty(), element,
                 ProcessorErrors.MISSING_PRIMARY_KEY)
         return entity

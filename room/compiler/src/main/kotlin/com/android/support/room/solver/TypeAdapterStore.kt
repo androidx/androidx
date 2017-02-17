@@ -308,7 +308,8 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
                 val pojo = PojoProcessor(
                         baseContext = context,
                         element = MoreTypes.asTypeElement(typeMirror),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR
+                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        parent = null
                 ).process()
                 return PojoRowAdapter(
                         context = context,

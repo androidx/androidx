@@ -21,12 +21,11 @@ import com.android.support.room.ext.L
 import com.android.support.room.ext.N
 import com.android.support.room.ext.S
 import com.android.support.room.ext.T
-import com.android.support.room.ext.typeName
 import com.android.support.room.solver.CodeGenScope
-import com.android.support.room.vo.CallType.FIELD
-import com.android.support.room.vo.CallType.METHOD
 import com.android.support.room.vo.Entity
 import com.android.support.room.vo.Field
+import com.android.support.room.vo.DecomposedField
+import com.android.support.room.vo.FieldWithIndex
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -51,6 +50,14 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
         }
     }
 
+    private fun depth(parent: DecomposedField?): Int {
+        return if (parent == null) {
+            0
+        } else {
+            1 + depth(parent.parent)
+        }
+    }
+
     private fun buildConvertMethodBody(writer: ClassWriter, cursorParam: ParameterSpec)
             : CodeBlock {
         // TODO support arg constructor
@@ -58,6 +65,17 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
         val entityVar = scope.getTmpVar("_entity")
         scope.builder().apply {
             addStatement("$T $L = new $T()", entity.typeName, entityVar, entity.typeName)
+            val allParents = FieldReadWriteWriter.getAllParents(entity.fields)
+            val sortedParents = allParents
+                    .sortedBy {
+                        depth(it)
+                    }
+                    .associate {
+                        Pair(it, scope.getTmpVar("_tmp${it.field.name}"))
+                    }
+            // for each field parent, create a not null var so that we can set it at the end
+            val parentNotNullVars = declareParents(sortedParents, scope)
+
             val colNameVar = scope.getTmpVar("_columnName")
             val colIndexVar = scope.getTmpVar("_columnIndex")
             addStatement("$T $L = 0", TypeName.INT, colIndexVar)
@@ -69,8 +87,22 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
                         beginControlFlow("case $L:", hash).apply {
                             val fields = it.value
                             fields.forEach { field ->
+                                val subOwner = field.parent?.let {
+                                    sortedParents[it]
+                                } ?: entityVar
                                 beginControlFlow("if ($S.equals($L))", field.columnName, colNameVar)
-                                readField(field, cursorParam, colIndexVar, entityVar, scope)
+                                val notNullVar = field.parent?.let {
+                                    parentNotNullVars[it]
+                                }
+                                if (notNullVar != null) {
+                                    beginControlFlow("if (!cursor.isNull($L))", colIndexVar).apply {
+                                        addStatement("$L = true", notNullVar)
+                                        readField(field, cursorParam, colIndexVar, subOwner, scope)
+                                    }
+                                    endControlFlow()
+                                } else {
+                                    readField(field, cursorParam, colIndexVar, subOwner, scope)
+                                }
                                 endControlFlow()
                             }
                         }
@@ -81,28 +113,56 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
                 addStatement("$L ++", colIndexVar)
             }
             endControlFlow()
+            // assign parents
+            assignParents(entityVar, parentNotNullVars, sortedParents, scope)
             addStatement("return $L", entityVar)
         }
         return scope.builder().build()
     }
 
-    private fun readField(field: Field, cursorParam: ParameterSpec,
-                          indexVar: String, entityVar: String, scope: CodeGenScope) {
+    private fun declareParents(parentVars: Map<DecomposedField, String>,
+                               scope: CodeGenScope): Map<DecomposedField, String> {
+        val parentNotNullVars = hashMapOf<DecomposedField, String>()
         scope.builder().apply {
-            val reader = field.cursorValueReader
-            when (field.setter.callType) {
-                FIELD -> {
-                    reader?.readFromCursor("$entityVar.${field.getter.name}", cursorParam.name,
-                                    indexVar, scope)
-                }
-                METHOD -> {
-                    val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
-                    addStatement("final $T $L", field.getter.type.typeName(), tmpField)
-                    reader?.readFromCursor(tmpField, cursorParam.name,
-                            indexVar, scope)
-                    addStatement("$L.$L($L)", entityVar, field.setter.name, tmpField)
-                }
+            parentVars.forEach {
+                addStatement("final $T $L = new $T()", it.key.pojo.typeName,
+                        it.value, it.key.pojo.typeName)
+                val notNullVar = scope.getTmpVar("_notNull${it.key.field.name}")
+                parentNotNullVars[it.key] = notNullVar
+                addStatement("$T $L = false", TypeName.BOOLEAN, notNullVar)
             }
+        }
+        return parentNotNullVars
+    }
+
+    private fun assignParents(entityVar: String, parentNotNullVars: Map<DecomposedField, String>,
+                              sortedParents: Map<DecomposedField, String>, scope: CodeGenScope) {
+        scope.builder().apply {
+            sortedParents.forEach {
+                val parent = it.key
+                val varName = it.value
+                val allNotNullVars = parent.pojo.fields
+                        .map { parentNotNullVars[it.parent] }.distinct()
+                val ifCheck = allNotNullVars.joinToString(" || ")
+                beginControlFlow("if ($L)", ifCheck).apply {
+                    val grandParentVar = parent.parent?.let {
+                        sortedParents[it]
+                    } ?: entityVar
+                    parent.field.setter.writeSet(grandParentVar, varName, this)
+                }
+                endControlFlow()
+            }
+        }
+    }
+
+    private fun readField(field: Field, cursorParam: ParameterSpec,
+                          indexVar: String, ownerVar: String, scope: CodeGenScope) {
+        scope.builder().apply {
+            FieldReadWriteWriter(FieldWithIndex(field, indexVar)).readFromCursor(
+                    ownerVar = ownerVar,
+                    cursorVar = cursorParam.name,
+                    scope = scope
+            )
         }
     }
 }

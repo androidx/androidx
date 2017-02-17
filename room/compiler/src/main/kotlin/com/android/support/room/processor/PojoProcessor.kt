@@ -16,19 +16,24 @@
 
 package com.android.support.room.processor
 
+import com.android.support.room.Decompose
 import com.android.support.room.Ignore
+import com.android.support.room.ext.getAllFieldsIncludingPrivateSupers
+import com.android.support.room.ext.getAnnotationValue
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
 import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
+import com.android.support.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
 import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
+import com.android.support.room.vo.DecomposedField
 import com.android.support.room.vo.FieldSetter
 import com.android.support.room.vo.Pojo
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import javax.lang.model.element.ElementKind
+import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.Modifier.ABSTRACT
@@ -37,34 +42,56 @@ import javax.lang.model.element.Modifier.PROTECTED
 import javax.lang.model.element.Modifier.PUBLIC
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 /**
  * Processes any class as if it is a Pojo.
  */
-class PojoProcessor(baseContext : Context, val element: TypeElement,
-                    val bindingScope : FieldProcessor.BindingScope) {
+class PojoProcessor(baseContext: Context, val element: TypeElement,
+                    val bindingScope: FieldProcessor.BindingScope,
+                    val parent: DecomposedField?) {
     val context = baseContext.fork(element)
     fun process(): Pojo {
         val declaredType = MoreTypes.asDeclared(element.asType())
-        val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
-        val fields = allMembers
+        // TODO handle conflicts with super: b/35568142
+        val allFields = element.getAllFieldsIncludingPrivateSupers(context.processingEnv)
                 .filter {
-                    it.kind == ElementKind.FIELD
-                            && !it.hasAnnotation(Ignore::class)
-                            && !it.hasAnyOf(Modifier.STATIC)
+                    !it.hasAnnotation(Ignore::class) && !it.hasAnyOf(Modifier.STATIC)
                 }
-                .map { FieldProcessor(
-                        baseContext = context,
-                        containing = declaredType,
-                        element = it,
-                        bindingScope = bindingScope).process() }
+        val myFields = allFields
+                .filterNot { it.hasAnnotation(Decompose::class) }
+                .map {
+                    FieldProcessor(
+                            baseContext = context,
+                            containing = declaredType,
+                            element = it,
+                            bindingScope = bindingScope,
+                            fieldParent = parent).process()
+                }
+        val decomposedFields = allFields
+                .filter { it.hasAnnotation(Decompose::class) }
+                .map {
+                    processDecomposedField(declaredType, it)
+                }
+        val subFields = decomposedFields.flatMap { it.pojo.fields }
 
-        val methods = allMembers
+        val fields = myFields + subFields
+        fields.groupBy { it.columnName }
+                .filter { it.value.size > 1 }
+                .forEach {
+                    context.logger.e(element, ProcessorErrors.pojoDuplicateFieldNames(
+                            it.key, it.value.map(Field::getPath)
+                    ))
+                    it.value.forEach {
+                        context.logger.e(it.element, POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME)
+                    }
+                }
+        val methods = MoreElements.getLocalAndInheritedMethods(element,
+                context.processingEnv.elementUtils)
                 .filter {
-                    it.kind == ElementKind.METHOD
-                            && !it.hasAnyOf(PRIVATE, ABSTRACT, STATIC)
+                    !it.hasAnyOf(PRIVATE, ABSTRACT, STATIC)
                             && !it.hasAnnotation(Ignore::class)
                 }
                 .map { MoreElements.asExecutable(it) }
@@ -77,10 +104,39 @@ class PojoProcessor(baseContext : Context, val element: TypeElement,
             it.parameters.size == 1 && it.returnType.kind == TypeKind.VOID
         }
 
-        assignGetters(fields, getterCandidates)
-        assignSetters(fields, setterCandidates)
-        val pojo = Pojo(element, declaredType, fields)
+        assignGetters(myFields, getterCandidates)
+        assignSetters(myFields, setterCandidates)
+        val decomposedsAsFields = decomposedFields.map { it.field }
+        assignGetters(decomposedsAsFields, getterCandidates)
+        assignSetters(decomposedsAsFields, setterCandidates)
+        val pojo = Pojo(element = element,
+                type = declaredType,
+                fields = fields,
+                decomposedFields = decomposedFields)
         return pojo
+    }
+
+    private fun processDecomposedField(declaredType: DeclaredType?, it: Element): DecomposedField {
+        val fieldPrefix = it.getAnnotationValue(Decompose::class.java, "prefix")
+                ?.toString() ?: ""
+        val inheritedPrefix = parent?.prefix ?: ""
+        val decomposedField = Field(
+                it,
+                it.simpleName.toString(),
+                type = context.processingEnv.typeUtils.asMemberOf(declaredType, it),
+                affinity = null,
+                parent = parent,
+                primaryKey = false)
+        val subParent = DecomposedField(
+                field = decomposedField,
+                prefix = inheritedPrefix + fieldPrefix,
+                parent = parent)
+        val asVariable = MoreElements.asVariable(it)
+        subParent.pojo = PojoProcessor(baseContext = context.fork(it),
+                element = MoreTypes.asTypeElement(asVariable.asType()),
+                bindingScope = bindingScope,
+                parent = subParent).process()
+        return subParent
     }
 
     private fun assignGetters(fields: List<Field>, getterCandidates: List<ExecutableElement>) {
@@ -147,8 +203,8 @@ class PojoProcessor(baseContext : Context, val element: TypeElement,
      * compilation can continue.
      */
     private fun chooseAssignment(field: Field, candidates: List<ExecutableElement>,
-                                 nameVariations : List<String>,
-                                 getType : (ExecutableElement) -> TypeMirror,
+                                 nameVariations: List<String>,
+                                 getType: (ExecutableElement) -> TypeMirror,
                                  assignFromField: () -> Unit,
                                  assignFromMethod: (ExecutableElement) -> Unit,
                                  reportAmbiguity: (List<String>) -> Unit): Boolean {

@@ -18,11 +18,16 @@
 
 package com.android.support.room.ext
 
+import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
+import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
+import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
 import kotlin.reflect.KClass
@@ -40,6 +45,23 @@ fun Element.hasAnnotation(klass : KClass<out Annotation>) : Boolean {
  */
 fun Element.hasAllOf(vararg klasses : KClass<out Annotation>) : Boolean {
     return !klasses.any { !hasAnnotation(it) }
+}
+
+/**
+ * gets all members including super privates. does not handle duplicate field names!!!
+ */
+// TODO handle conflicts with super: b/35568142
+fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: ProcessingEnvironment) :
+    Set<Element> {
+    val myMembers = processingEnvironment.elementUtils.getAllMembers(this).filter {
+        it.kind == ElementKind.FIELD
+    }.toSet()
+    if (superclass.kind != TypeKind.NONE) {
+        return myMembers + MoreTypes.asTypeElement(superclass)
+                .getAllFieldsIncludingPrivateSupers(processingEnvironment)
+    } else {
+        return myMembers
+    }
 }
 
 // code below taken from dagger2
@@ -83,4 +105,11 @@ fun TypeMirror.isCollection() : Boolean {
     return MoreTypes.isType(this)
             && (MoreTypes.isTypeOf(java.util.List::class.java, this)
             || MoreTypes.isTypeOf(java.util.Set::class.java, this))
+}
+
+fun Element.getAnnotationValue(annotation : Class<out Annotation>, fieldName : String) : Any? {
+    return MoreElements.getAnnotationMirror(this, annotation)
+            .orNull()?.let {
+        AnnotationMirrors.getAnnotationValue(it, fieldName)?.value
+    }
 }

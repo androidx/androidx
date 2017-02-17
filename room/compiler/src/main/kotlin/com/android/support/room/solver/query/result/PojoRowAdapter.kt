@@ -23,10 +23,11 @@ import com.android.support.room.processor.Context
 import com.android.support.room.processor.ProcessorErrors
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.verifier.QueryResultInfo
-import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
+import com.android.support.room.vo.FieldWithIndex
 import com.android.support.room.vo.Pojo
 import com.android.support.room.vo.Warning
+import com.android.support.room.writer.FieldReadWriteWriter
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -52,7 +53,7 @@ class PojoRowAdapter(context : Context, val info: QueryResultInfo,
                 null
             } else {
                 remainingFields.remove(field)
-                Association(index, field)
+                FieldWithIndex(field, index.toString())
             }
         }.filterNotNull()
         if (unusedColumns.isNotEmpty() || remainingFields.isNotEmpty()) {
@@ -81,33 +82,14 @@ class PojoRowAdapter(context : Context, val info: QueryResultInfo,
             override fun convert(outVarName: String, cursorVarName: String) {
                 scope.builder().apply {
                     addStatement("$L = new $T()", outVarName, out.typeName())
-                    mapping.associations.forEach { mapping ->
-                        val field = mapping.field
-                        val index = mapping.index
-                        val cursorValueReader = field.cursorValueReader
-                        when (field.setter.callType) {
-                            CallType.FIELD -> {
-                                cursorValueReader
-                                        ?.readFromCursor("$outVarName.${field.getter.name}",
-                                        cursorVarName, index.toString(), scope)
-                            }
-                            CallType.METHOD -> {
-                                val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
-                                addStatement("final $T $L", field.getter.type.typeName(), tmpField)
-                                cursorValueReader?.readFromCursor(tmpField, cursorVarName,
-                                        index.toString(), scope)
-                                addStatement("$L.$L($L)", outVarName, field.setter.name, tmpField)
-                            }
-                        }
-                    }
+                    FieldReadWriteWriter.readFromCursor(outVarName, cursorVarName,
+                            mapping.associations, scope)
                 }
             }
         }
     }
 
-    data class Association(val index: Int, val field: Field)
-
-    data class Mapping(val associations: List<Association>,
+    data class Mapping(val associations: List<FieldWithIndex>,
                        val unusedColumns: List<String>,
                        val unusedFields: List<Field>)
 }

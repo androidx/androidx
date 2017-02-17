@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package com.android.support.room.vo
+package com.android.support.room.integration.testapp.dao;
 
-import com.android.support.room.OnConflictStrategy
-import javax.lang.model.element.ExecutableElement
+import com.android.support.room.Dao;
+import com.android.support.room.Insert;
+import com.android.support.room.Query;
+import com.android.support.room.integration.testapp.vo.PetCouple;
 
-class UpdateMethod(element: ExecutableElement, name: String,
-                   entity: Entity?, returnCount: Boolean,
-                   parameters: List<ShortcutQueryParameter>,
-                   @OnConflictStrategy val onConflictStrategy: Int) : ShortcutMethod(
-        element, name, entity, returnCount, parameters)
+import java.util.List;
+
+@Dao
+public interface PetCoupleDao {
+    @Insert
+    void insert(PetCouple couple);
+
+    @Query("SELECT * FROM PetCouple")
+    List<PetCouple> loadAll();
+}

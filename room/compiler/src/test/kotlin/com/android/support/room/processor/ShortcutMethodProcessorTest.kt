@@ -69,7 +69,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
         }.failsToCompile().withErrorContaining(noParamsError())
     }
 
-    abstract fun noParamsError() : String
+    abstract fun noParamsError(): String
 
     @Test
     fun single() {
@@ -200,7 +200,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
         }.failsToCompile().withErrorContaining(differentTypesError())
     }
 
-    abstract fun differentTypesError() : String
+    abstract fun differentTypesError(): String
 
     @Test
     fun invalidReturnType() {
@@ -212,7 +212,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
         }.failsToCompile().withErrorContaining(invalidReturnTypeError())
     }
 
-    abstract fun invalidReturnTypeError() : String
+    abstract fun invalidReturnTypeError(): String
 
     abstract fun process(baseContext: Context, containing: DeclaredType,
                          executableElement: ExecutableElement): T

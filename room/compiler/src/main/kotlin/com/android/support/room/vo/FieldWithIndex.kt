@@ -17,19 +17,7 @@
 package com.android.support.room.vo
 
 /**
- * Internal representation of supported warnings
+ * A common value object when we need to associate a Field with an Index
+ * variable.
  */
-enum class Warning(val publicKey: String) {
-    ALL("ALL"),
-    CURSOR_MISMATCH("ROOM_CURSOR_MISMATCH"),
-    MISSING_JAVA_TMP_DIR("ROOM_MISSING_JAVA_TMP_DIR"),
-    CANNOT_CREATE_VERIFICATION_DATABASE("ROOM_CANNOT_CREATE_VERIFICATION_DATABASE"),
-    PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED("ROOM_DECOMPOSED_PRIMARY_KEY_IS_DROPPED");
-
-    companion object {
-        val PUBLIC_KEY_MAP = Warning.values().associateBy { it.publicKey }
-        fun fromPublicKey(publicKey: String): Warning? {
-            return PUBLIC_KEY_MAP[publicKey.toUpperCase()]
-        }
-    }
-}
+data class FieldWithIndex(val field : Field, val indexVar : String)

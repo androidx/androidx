@@ -21,8 +21,8 @@ import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.S
 import com.android.support.room.ext.SupportDbTypeNames
 import com.android.support.room.solver.CodeGenScope
-import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Entity
+import com.android.support.room.vo.FieldWithIndex
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -60,27 +60,25 @@ class EntityUpdateAdapterWriter(val entity: Entity, val onConflict : String) {
                 addParameter(ParameterSpec.builder(entity.typeName, valueParam).build())
                 returns(TypeName.VOID)
                 addModifiers(PUBLIC)
-                entity.fields.forEachIndexed { index, field ->
-                    field.statementBinder?.let { binder ->
-                        val varName = if (field.getter.callType == CallType.FIELD) {
-                            "$valueParam.${field.name}"
-                        } else {
-                            "$valueParam.${field.getter.name}()"
-                        }
-                        binder.bindToStmt(stmtParam, "${index + 1}", varName, bindScope)
-                    }
+                val mappedField = entity.fields.mapIndexed { index, field ->
+                    FieldWithIndex(field, "${index + 1}")
                 }
+                FieldReadWriteWriter.bindToStatement(
+                        ownerVar = valueParam,
+                        stmtParamVar = stmtParam,
+                        fieldsWithIndices = mappedField,
+                        scope = bindScope
+                )
                 val pkeyStart = entity.fields.size
-                entity.primaryKeys.forEachIndexed { index, field ->
-                    field.statementBinder?.let { binder ->
-                        val varName = if (field.getter.callType == CallType.FIELD) {
-                            "$valueParam.${field.name}"
-                        } else {
-                            "$valueParam.${field.getter.name}()"
-                        }
-                        binder.bindToStmt(stmtParam, "${pkeyStart + index + 1}", varName, bindScope)
-                    }
+                val mappedPrimaryKeys = entity.primaryKeys.mapIndexed { index, field ->
+                    FieldWithIndex(field, "${pkeyStart + index + 1}")
                 }
+                FieldReadWriteWriter.bindToStatement(
+                        ownerVar = valueParam,
+                        stmtParamVar = stmtParam,
+                        fieldsWithIndices = mappedPrimaryKeys,
+                        scope = bindScope
+                )
                 addCode(bindScope.builder().build())
             }.build())
         }.build()

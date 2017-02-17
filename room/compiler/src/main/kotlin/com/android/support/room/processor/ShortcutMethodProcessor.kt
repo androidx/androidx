@@ -72,4 +72,3 @@ class ShortcutMethodProcessor(baseContext : Context,
         return Pair(entity, params)
     }
 }
-

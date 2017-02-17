@@ -51,7 +51,10 @@ abstract class BaseEntityParserTest {
                         ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX
                 ))
                 .processedWith(TestProcessor.builder()
-                        .forAnnotations(com.android.support.room.Entity::class)
+                        .forAnnotations(com.android.support.room.Entity::class,
+                                com.android.support.room.PrimaryKey::class,
+                                com.android.support.room.Ignore::class,
+                                com.android.support.room.Decompose::class)
                         .nextRunHandler { invocation ->
                             val entity = invocation.roundEnv
                                     .getElementsAnnotatedWith(

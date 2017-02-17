@@ -21,6 +21,7 @@ import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
 import com.android.support.room.vo.FieldSetter
+import com.android.support.room.vo.Warning
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -241,5 +242,49 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """) { entity, invocation ->
 
         }.failsToCompile().withErrorContaining(ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER)
+    }
+
+    @Test
+    fun dropSubPrimaryKey() {
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                @Decompose
+                Point myPoint;
+                static class Point {
+                    @PrimaryKey
+                    int x;
+                    int y;
+                }
+                """
+        ) { entity, invocation ->
+            assertThat(entity.fields.find { it.name == "x" }!!.primaryKey, `is`(false))
+            assertThat(entity.fields.filter { it.primaryKey }.map { it.name }, `is`(listOf("id")))
+        }.compilesWithoutError()
+                .withWarningCount(1)
+                .withWarningContaining(ProcessorErrors.decomposedPrimaryKeyIsDropped(
+                                "foo.bar.MyEntity", "x"))
+    }
+
+    @Test
+    fun ignoreDropSubPrimaryKey() {
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                @Decompose
+                @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED)
+                Point myPoint;
+                static class Point {
+                    @PrimaryKey
+                    int x;
+                    int y;
+                }
+                """
+        ) { entity, invocation ->
+            assertThat(entity.fields.find { it.name == "x" }!!.primaryKey, `is`(false))
+            assertThat(entity.fields.filter { it.primaryKey }.map { it.name }, `is`(listOf("id")))
+        }.compilesWithoutError().withWarningCount(0)
     }
 }

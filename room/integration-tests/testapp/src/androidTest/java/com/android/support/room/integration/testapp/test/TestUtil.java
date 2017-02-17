@@ -16,6 +16,10 @@
 
 package com.android.support.room.integration.testapp.test;
 
+import com.android.support.room.integration.testapp.vo.Address;
+import com.android.support.room.integration.testapp.vo.Coordinates;
+import com.android.support.room.integration.testapp.vo.Pet;
+import com.android.support.room.integration.testapp.vo.School;
 import com.android.support.room.integration.testapp.vo.User;
 
 import java.util.ArrayList;
@@ -49,5 +53,37 @@ public class TestUtil {
         user.setCustomField(UUID.randomUUID().toString());
         user.setBirthday(new Date());
         return user;
+    }
+
+    public static Pet createPet(int id) {
+        Pet pet = new Pet();
+        pet.setPetId(id);
+        pet.setName(UUID.randomUUID().toString());
+        return pet;
+    }
+
+    public static School createSchool(int id, int managerId) {
+        School school = new School();
+        school.setId(id);
+        school.setName(UUID.randomUUID().toString());
+        school.setManager(createUser(managerId));
+        school.setAddress(createAddress());
+        return school;
+    }
+
+    private static Address createAddress() {
+        Address address = new Address();
+        address.setCoordinates(createCoordinates());
+        address.setPostCode((int) (Math.random() * 1000 + 1000));
+        address.setState(UUID.randomUUID().toString().substring(0, 2));
+        address.setStreet(UUID.randomUUID().toString());
+        return address;
+    }
+
+    private static Coordinates createCoordinates() {
+        Coordinates coordinates = new Coordinates();
+        coordinates.lat = Math.random();
+        coordinates.lng = Math.random();
+        return coordinates;
     }
 }

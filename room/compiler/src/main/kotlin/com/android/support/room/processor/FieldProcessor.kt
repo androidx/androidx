@@ -20,6 +20,8 @@ import com.android.support.room.ColumnInfo
 import com.android.support.room.PrimaryKey
 import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.vo.Field
+import com.android.support.room.vo.DecomposedField
+import com.android.support.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.squareup.javapoet.TypeName
@@ -27,7 +29,9 @@ import javax.lang.model.element.Element
 import javax.lang.model.type.DeclaredType
 
 class FieldProcessor(baseContext: Context, val containing: DeclaredType, val element: Element,
-                     val bindingScope: BindingScope) {
+                     val bindingScope: BindingScope,
+                     // pass only if this is processed as a child of Decomposed field
+                     val fieldParent: DecomposedField?) {
     val context = baseContext.fork(element)
     fun process(): Field {
         val member = context.processingEnv.typeUtils.asMemberOf(containing, element)
@@ -37,10 +41,12 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
         val name = element.simpleName.toString()
         val columnName: String
         val affinity : SQLTypeAffinity?
+        val fieldPrefix = fieldParent?.prefix ?: ""
+
         if (columnInfoAnnotation.isPresent) {
             val nameInAnnotation = AnnotationMirrors
                     .getAnnotationValue(columnInfoAnnotation.get(), "name").value.toString()
-            columnName = if (nameInAnnotation == ColumnInfo.INHERIT_FIELD_NAME) {
+            columnName = fieldPrefix + if (nameInAnnotation == ColumnInfo.INHERIT_FIELD_NAME) {
                 name
             } else {
                 nameInAnnotation
@@ -55,19 +61,33 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
                 null
             }
         } else {
-            columnName = name
+            columnName = fieldPrefix + name
             affinity = null
         }
         context.checker.notBlank(columnName, element,
                 ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY)
         context.checker.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS)
+
+        var primaryKey = MoreElements.isAnnotationPresent(element, PrimaryKey::class.java)
+
+        if (fieldParent != null && primaryKey) {
+            // bound for entity.
+            if (bindingScope == FieldProcessor.BindingScope.TWO_WAY) {
+                context.logger.w(Warning.PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED,
+                        element, ProcessorErrors.decomposedPrimaryKeyIsDropped(
+                        fieldParent.rootParent.field.element.enclosingElement.toString(), name))
+            }
+            primaryKey = false
+        }
+
         val field = Field(name = name,
                 type = member,
-                primaryKey = MoreElements.isAnnotationPresent(element, PrimaryKey::class.java),
+                primaryKey = primaryKey,
                 element = element,
                 columnName = columnName,
-                affinity = affinity)
+                affinity = affinity,
+                parent = fieldParent)
 
         when (bindingScope) {
             BindingScope.TWO_WAY -> {

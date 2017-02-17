@@ -16,14 +16,13 @@
 
 package com.android.support.room.vo
 
-import com.android.support.room.ext.typeName
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
-data class Entity(val element : TypeElement, val tableName : String, val type: DeclaredType,
-                  val fields : List<Field>) {
-    val typeName by lazy { type.typeName() }
-
+// TODO make data class when move to kotlin 1.1
+class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
+             fields: List<Field>, decomposedFields: List<DecomposedField>)
+    : Pojo(element, type, fields, decomposedFields) {
     val primaryKeys by lazy {
         fields.filter { it.primaryKey }
     }

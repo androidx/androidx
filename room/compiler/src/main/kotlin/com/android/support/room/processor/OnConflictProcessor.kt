@@ -27,7 +27,7 @@ object OnConflictProcessor {
     val INVALID_ON_CONFLICT = -1
 
     @OnConflictStrategy
-    fun extractFrom(annotation : AnnotationMirror?, fieldName : String = "onConflict") : Int {
+    fun extractFrom(annotation: AnnotationMirror?, fieldName: String = "onConflict"): Int {
         return if (annotation == null) {
             INVALID_ON_CONFLICT
         } else {
@@ -36,14 +36,14 @@ object OnConflictProcessor {
                         .getAnnotationValue(annotation, fieldName)
                         .value
                 onConflictValue.toString().toInt()
-            } catch (ex : NumberFormatException) {
+            } catch (ex: NumberFormatException) {
                 INVALID_ON_CONFLICT
             }
         }
     }
 
-    fun onConflictText(@OnConflictStrategy onConflict : Int) : String {
-        return when(onConflict) {
+    fun onConflictText(@OnConflictStrategy onConflict: Int): String {
+        return when (onConflict) {
             OnConflictStrategy.REPLACE -> "REPLACE"
             OnConflictStrategy.ABORT -> "ABORT"
             OnConflictStrategy.FAIL -> "FAIL"

@@ -26,8 +26,11 @@ import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
 
 data class Field(val element: Element, val name: String, val type: TypeMirror,
-                 val primaryKey: Boolean, var affinity : SQLTypeAffinity?,
-                 val columnName: String = name) {
+                 val primaryKey: Boolean, var affinity: SQLTypeAffinity?,
+                 val columnName: String = name,
+                 /* means that this field does not belong to parent, instead, it belongs to a
+                 * decomposed child of the main Pojo*/
+                 val parent: DecomposedField? = null) {
     lateinit var getter: FieldGetter
     lateinit var setter: FieldSetter
     // binds the field into a statement
@@ -35,6 +38,17 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
     // reads this field from a cursor column
     var cursorValueReader: CursorValueReader? = null
     val typeName: TypeName by lazy { type.typeName() }
+
+    /**
+     * Used when reporting errors on duplicate names
+     */
+    fun getPath() : String {
+        return if (parent == null) {
+            name
+        } else {
+            "${parent.field.getPath()} > $name"
+        }
+    }
     /**
      * List of names that include variations.
      * e.g. if it is mUser, user is added to the list

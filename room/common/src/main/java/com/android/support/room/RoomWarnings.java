@@ -19,6 +19,7 @@ package com.android.support.room;
 /**
  * The list of warnings that are produced by Room that you can disable via {@code SurpressWarnings}.
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class RoomWarnings {
     /**
      * The warning dispatched by Room when the return value of a @Query method does not exactly
@@ -27,7 +28,7 @@ public class RoomWarnings {
      * You can use this value inside a {@link SuppressWarnings} annotation to disable such warnings
      * for a method.
      */
-    // if you change this, don't forget to change SurpressWarningsVisitor
+    // if you change this, don't forget to change com.android.support.room.vo.Warning
     public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
 
     /**
@@ -44,4 +45,12 @@ public class RoomWarnings {
      */
     public static final String CANNOT_CREATE_VERIFICATION_DATABASE =
             "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
+
+    /**
+     * Reported when an {@link Entity} field that is annotated with {@link Decompose} has a
+     * sub field which is annotated with {@link PrimaryKey} but the {@link PrimaryKey} is dropped
+     * during the decomposition.
+     */
+    public static final String PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED =
+            "ROOM_DECOMPOSED_PRIMARY_KEY_IS_DROPPED";
 }

@@ -14,13 +14,28 @@
  * limitations under the License.
  */
 
-package com.android.support.room.vo
+package com.android.support.room.integration.testapp.vo;
+import com.android.support.room.Decompose;
 
-import com.android.support.room.OnConflictStrategy
-import javax.lang.model.element.ExecutableElement
+public class UserAndPet {
+    @Decompose
+    private User mUser;
+    @Decompose
+    private Pet mPet;
 
-class UpdateMethod(element: ExecutableElement, name: String,
-                   entity: Entity?, returnCount: Boolean,
-                   parameters: List<ShortcutQueryParameter>,
-                   @OnConflictStrategy val onConflictStrategy: Int) : ShortcutMethod(
-        element, name, entity, returnCount, parameters)
+    public User getUser() {
+        return mUser;
+    }
+
+    public void setUser(User user) {
+        mUser = user;
+    }
+
+    public Pet getPet() {
+        return mPet;
+    }
+
+    public void setPet(Pet pet) {
+        mPet = pet;
+    }
+}

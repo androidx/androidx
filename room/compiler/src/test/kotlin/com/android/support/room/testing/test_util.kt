@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import com.android.support.room.Decompose
 import com.android.support.room.Entity
+import com.android.support.room.PrimaryKey
 import com.android.support.room.Query
 import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.processor.EntityProcessor
@@ -77,7 +79,7 @@ fun simpleRun(vararg jfos : JavaFileObject, f: (TestInvocation) -> Unit): Compil
                         f(it)
                         true
                     }
-                    .forAnnotations(Query::class)
+                    .forAnnotations(Query::class, PrimaryKey::class, Decompose::class)
                     .build())
 }
 

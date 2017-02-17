@@ -207,4 +207,17 @@ object ProcessorErrors {
         return "Multiple methods define the same conversion. Conflicts with these:" +
                 " ${converters.joinToString(", ") { it.toString() }}"
     }
+
+    // TODO must print field paths.
+    val POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME = "Field has non-unique column name."
+
+    fun pojoDuplicateFieldNames(columnName : String, fieldPaths : List<String>) : String {
+        return "Multiple fields have the same columnName: $columnName." +
+                " Field names: ${fieldPaths.joinToString(", ")}."
+    }
+
+    fun decomposedPrimaryKeyIsDropped(entityQName: String, fieldName : String) : String {
+        return "Primary key constraint on $fieldName is ignored when being merged into " +
+                entityQName
+    }
 }

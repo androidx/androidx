@@ -360,7 +360,8 @@ class FieldProcessorTest {
                                     baseContext = entityContext,
                                     containing = MoreTypes.asDeclared(owner.asType()),
                                     element = field!!,
-                                    bindingScope = FieldProcessor.BindingScope.TWO_WAY)
+                                    bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                                    fieldParent = null)
                             handler(parser.process(), invocation)
                             true
                         }

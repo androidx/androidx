@@ -16,7 +16,16 @@
 
 package com.android.support.room.vo
 
-import com.android.support.room.solver.types.ColumnTypeAdapter
+import com.android.support.room.ext.L
+import com.squareup.javapoet.CodeBlock
 import javax.lang.model.type.TypeMirror
 
-data class FieldSetter(val name : String, val type : TypeMirror, val callType: CallType)
+data class FieldSetter(val name: String, val type: TypeMirror, val callType: CallType) {
+    fun writeSet(ownerVar: String, inVar: String, builder: CodeBlock.Builder) {
+        val stmt = when (callType) {
+            CallType.FIELD -> "$L.$L = $L"
+            CallType.METHOD -> "$L.$L($L)"
+        }
+        builder.addStatement(stmt, ownerVar, name, inVar)
+    }
+}
