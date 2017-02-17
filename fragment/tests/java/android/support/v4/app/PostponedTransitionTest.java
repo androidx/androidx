@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.app.Instrumentation;
 import android.os.Build;
@@ -718,6 +719,43 @@ public class PostponedTransitionTest {
         assertNull(fragment2.getView());
     }
 
+    // Ensure that the postponed fragment transactions don't allow reentrancy in fragment manager
+    @Test
+    public void postponeDoesNotAllowReentrancy() throws Throwable {
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+        final View startBlue = mActivityRule.getActivity().findViewById(R.id.blueSquare);
+
+        final CommitNowFragment fragment = new CommitNowFragment();
+        fm.beginTransaction()
+                .addSharedElement(startBlue, "blueSquare")
+                .replace(R.id.fragmentContainer, fragment)
+                .setAllowOptimization(true)
+                .addToBackStack(null)
+                .commit();
+
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        // should be postponed now
+        assertPostponedTransition(mBeginningFragment, fragment, null);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // start the postponed transition
+                fragment.startPostponedEnterTransition();
+
+                try {
+                    // This should trigger an IllegalStateException
+                    fm.executePendingTransactions();
+                    fail("commitNow() while executing a transaction should cause an "
+                            + "IllegalStateException");
+                } catch (IllegalStateException e) {
+                    // expected
+                }
+            }
+        });
+    }
+
     private void assertPostponedTransition(TransitionFragment fromFragment,
             TransitionFragment toFragment, TransitionFragment removedFragment)
             throws InterruptedException {
@@ -854,6 +892,17 @@ public class PostponedTransitionTest {
                 Bundle savedInstanceState) {
             postponeEnterTransition();
             return inflater.inflate(R.layout.scene2, container, false);
+        }
+    }
+
+    public static class CommitNowFragment extends PostponedFragment1 {
+        @Override
+        public void onResume() {
+            super.onResume();
+            // This should throw because this happens during the execution
+            getFragmentManager().beginTransaction()
+                    .add(R.id.fragmentContainer, new PostponedFragment1())
+                    .commitNow();
         }
     }
 }
