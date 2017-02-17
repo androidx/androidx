@@ -16,6 +16,7 @@
 
 package com.android.support.room.integration.testapp.vo;
 
+import com.android.support.room.ColumnInfo;
 import com.android.support.room.Entity;
 import com.android.support.room.PrimaryKey;
 import com.android.support.room.TypeConverters;
@@ -41,6 +42,9 @@ public class User {
     private float mWeight;
 
     private Date mBirthday;
+
+    @ColumnInfo(name = "custommm")
+    private String mCustomField;
 
     public int getId() {
         return mId;
@@ -98,37 +102,34 @@ public class User {
         mBirthday = birthday;
     }
 
+    public String getCustomField() {
+        return mCustomField;
+    }
+
+    public void setCustomField(String customField) {
+        mCustomField = customField;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         User user = (User) o;
 
-        if (mId != user.mId) {
-            return false;
-        }
-        if (mAge != user.mAge) {
-            return false;
-        }
-        if (mAdmin != user.mAdmin) {
-            return false;
-        }
-        if (Float.compare(user.mWeight, mWeight) != 0) {
-            return false;
-        }
-        //noinspection SimplifiableIfStatement
-        if (mName != null ? !mName.equals(user.mName) : user.mName != null) {
-            return false;
-        }
+        if (mId != user.mId) return false;
+        if (mAge != user.mAge) return false;
+        if (mAdmin != user.mAdmin) return false;
+        if (Float.compare(user.mWeight, mWeight) != 0) return false;
+        if (mName != null ? !mName.equals(user.mName) : user.mName != null) return false;
         if (mLastName != null ? !mLastName.equals(user.mLastName) : user.mLastName != null) {
             return false;
         }
-        return mBirthday != null ? mBirthday.equals(user.mBirthday) : user.mBirthday == null;
+        if (mBirthday != null ? !mBirthday.equals(user.mBirthday) : user.mBirthday != null) {
+            return false;
+        }
+        return mCustomField != null ? mCustomField.equals(user.mCustomField)
+                : user.mCustomField == null;
     }
 
     @Override
@@ -140,6 +141,7 @@ public class User {
         result = 31 * result + (mAdmin ? 1 : 0);
         result = 31 * result + (mWeight != +0.0f ? Float.floatToIntBits(mWeight) : 0);
         result = 31 * result + (mBirthday != null ? mBirthday.hashCode() : 0);
+        result = 31 * result + (mCustomField != null ? mCustomField.hashCode() : 0);
         return result;
     }
 
@@ -153,6 +155,7 @@ public class User {
                 + ", mAdmin=" + mAdmin
                 + ", mWeight=" + mWeight
                 + ", mBirthday=" + mBirthday
+                + ", mCustom=" + mCustomField
                 + '}';
     }
 }

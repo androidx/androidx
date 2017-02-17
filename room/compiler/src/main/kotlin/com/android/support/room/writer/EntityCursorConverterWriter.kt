@@ -69,7 +69,7 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
                         beginControlFlow("case $L:", hash).apply {
                             val fields = it.value
                             fields.forEach { field ->
-                                beginControlFlow("if ($S.equals($L))", field.name, colNameVar)
+                                beginControlFlow("if ($S.equals($L))", field.columnName, colNameVar)
                                 readField(field, cursorParam, colIndexVar, entityVar, scope)
                                 endControlFlow()
                             }

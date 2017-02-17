@@ -331,7 +331,7 @@ public class ComplexDao_Impl extends ComplexDao {
                     }
                 }
                 case 1358970165: {
-                    if ("age".equals(_columnName)) {
+                    if ("ageColumn".equals(_columnName)) {
                         _entity.age = cursor.getInt(_columnIndex);
                     }
                 }

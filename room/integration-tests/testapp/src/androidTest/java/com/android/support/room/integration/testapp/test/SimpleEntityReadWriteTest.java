@@ -209,4 +209,14 @@ public class SimpleEntityReadWriteTest {
         assertThat(mUserDao.findByBirthdayRange(new Date(theDate.getTime()),
                 new Date(theDate.getTime() + 1)).size(), is(0));
     }
+
+    @Test
+    public void renamedField() {
+        User user = TestUtil.createUser(3);
+        user.setCustomField("foo laaa");
+        mUserDao.insertOrReplace(user);
+        User loaded = mUserDao.load(3);
+        assertThat(loaded.getCustomField(), is("foo laaa"));
+        assertThat(loaded, is(user));
+    }
 }

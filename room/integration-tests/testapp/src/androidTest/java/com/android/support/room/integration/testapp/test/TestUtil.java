@@ -45,6 +45,7 @@ public class TestUtil {
         user.setName(UUID.randomUUID().toString());
         user.setLastName(UUID.randomUUID().toString());
         user.setAge((int) (10 + Math.random() * 50));
+        user.setCustomField(UUID.randomUUID().toString());
         return user;
     }
 }
