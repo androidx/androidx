@@ -1128,8 +1128,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mFocusPosition = 0;
             mSubFocusPosition = 0;
         }
-        if (!mState.didStructureChange() && mGrid.getFirstVisibleIndex() >= 0
-                && !mForceFullLayout && mGrid != null && mGrid.getNumRows() == mNumRows) {
+        if (!mState.didStructureChange() && mGrid != null && mGrid.getFirstVisibleIndex() >= 0
+                && !mForceFullLayout && mGrid.getNumRows() == mNumRows) {
             updateScrollController();
             updateScrollSecondAxis();
             mGrid.setSpacing(mSpacingPrimary);
@@ -2205,6 +2205,20 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mGrid.collectAdjacentPrefetchPositions(fromLimit, da, layoutPrefetchRegistry);
         } finally {
             leaveContext();
+        }
+    }
+
+    @Override
+    public void collectInitialPrefetchPositions(int adapterItemCount,
+            LayoutPrefetchRegistry layoutPrefetchRegistry) {
+        int numToPrefetch = mBaseGridView.mInitialItemPrefetchCount;
+        if (adapterItemCount != 0 && numToPrefetch != 0) {
+            // prefetch items centered around mFocusPosition
+            int initialPos = Math.max(0, Math.min(mFocusPosition - (numToPrefetch - 1)/ 2,
+                    adapterItemCount - numToPrefetch));
+            for (int i = initialPos; i < adapterItemCount && i < initialPos + numToPrefetch; i++) {
+                layoutPrefetchRegistry.addPosition(i, 0);
+            }
         }
     }
 
