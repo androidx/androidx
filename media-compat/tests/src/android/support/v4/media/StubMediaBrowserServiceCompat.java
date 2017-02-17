@@ -45,7 +45,7 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
             MEDIA_ID_CHILDREN_DELAYED
     };
 
-    static final String SEARCH_QUERY = "test_media_children";
+    static final String SEARCH_QUERY = "children_2";
     static final String SEARCH_QUERY_FOR_NO_RESULT = "query no result";
     static final String SEARCH_QUERY_FOR_ERROR = "query for error";
 

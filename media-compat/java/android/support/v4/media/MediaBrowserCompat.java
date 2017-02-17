@@ -800,6 +800,16 @@ public final class MediaBrowserCompat {
      * Callback for receiving the result of {@link #search}.
      */
     public abstract static class SearchCallback {
+        final Object mSearchCallbackObj;
+
+        public SearchCallback() {
+            if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
+                mSearchCallbackObj = MediaBrowserCompatApi26.createSearchCallback(new StubApi26());
+            } else {
+                mSearchCallbackObj = null;
+            }
+        }
+
         /**
          * Called when the {@link #search} finished successfully.
          *
@@ -819,6 +829,23 @@ public final class MediaBrowserCompat {
          * @param extras The bundle of service-specific arguments sent to the connected service.
          */
         public void onError(@NonNull String query, Bundle extras) {
+        }
+
+        private class StubApi26 implements MediaBrowserCompatApi26.SearchCallback {
+            StubApi26() {
+            }
+
+            @Override
+            public void onSearchResult(@NonNull String query, Bundle extras,
+                    @NonNull List<?> items) {
+                SearchCallback.this.onSearchResult(
+                        query, extras, MediaItem.fromMediaItemList(items));
+            }
+
+            @Override
+            public void onError(@NonNull String query, Bundle extras) {
+                SearchCallback.this.onError(query, extras);
+            }
         }
     }
 
@@ -1781,6 +1808,12 @@ public final class MediaBrowserCompat {
                 MediaBrowserCompatApi24.unsubscribe(mBrowserObj, parentId,
                         callback.mSubscriptionCallbackObj);
             }
+        }
+
+        @Override
+        public void search(@NonNull final String query, final Bundle extras,
+                @NonNull final SearchCallback callback) {
+            MediaBrowserCompatApi26.search(mBrowserObj, query, extras, callback.mSearchCallbackObj);
         }
     }
 
