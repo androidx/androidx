@@ -1672,7 +1672,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
                 updateRemainingSpans(currentSpan, mLayoutState.mLayoutDirection, targetLine);
             }
             recycle(recycler, mLayoutState);
-            if (mLayoutState.mStopInFocusable && view.isFocusable()) {
+            if (mLayoutState.mStopInFocusable && view.hasFocusable()) {
                 if (lp.mFullSpan) {
                     mRemainingSpans.clear();
                 } else {
@@ -2772,7 +2772,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
                             || (!mReverseLayout && getPosition(view) >= referenceChildPosition)) {
                         break;
                     }
-                    if (view.isFocusable()) {
+                    if (view.hasFocusable()) {
                         candidate = view;
                     } else {
                         break;
@@ -2785,7 +2785,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
                             || (!mReverseLayout && getPosition(view) <= referenceChildPosition)) {
                         break;
                     }
-                    if (view.isFocusable()) {
+                    if (view.hasFocusable()) {
                         candidate = view;
                     } else {
                         break;
