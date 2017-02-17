@@ -46,6 +46,8 @@ public class PlaybackStateCompatTest {
     private static final float TEST_PLAYBACK_SPEED_ON_REWIND = -2.0f;
     private static final float DELTA = 1e-7f;
 
+    private static final int TEST_ERROR_CODE =
+            PlaybackStateCompat.ERROR_CODE_AUTHENTICATION_EXPIRED;
     private static final String TEST_ERROR_MSG = "test-error-msg";
     private static final String TEST_CUSTOM_ACTION = "test-custom-action";
     private static final String TEST_CUSTOM_ACTION_NAME = "test-custom-action-name";
@@ -68,6 +70,7 @@ public class PlaybackStateCompatTest {
         assertEquals(0L, state.getBufferedPosition());
         assertEquals(0.0f, state.getPlaybackSpeed(), DELTA);
         assertEquals(0L, state.getActions());
+        assertEquals(0, state.getErrorCode());
         assertNull(state.getErrorMessage());
         assertEquals(0L, state.getLastPositionUpdateTime());
         assertEquals(MediaSessionCompat.QueueItem.UNKNOWN_ID, state.getActiveQueueItemId());
@@ -94,7 +97,7 @@ public class PlaybackStateCompatTest {
                 .setActions(TEST_ACTIONS)
                 .setActiveQueueItemId(TEST_QUEUE_ITEM_ID)
                 .setBufferedPosition(TEST_BUFFERED_POSITION)
-                .setErrorMessage(TEST_ERROR_MSG)
+                .setErrorMessage(TEST_ERROR_CODE, TEST_ERROR_MSG)
                 .setExtras(extras)
                 .build();
         assertEquals(PlaybackStateCompat.STATE_PLAYING, state.getState());
@@ -103,6 +106,7 @@ public class PlaybackStateCompatTest {
         assertEquals(TEST_ACTIONS, state.getActions());
         assertEquals(TEST_QUEUE_ITEM_ID, state.getActiveQueueItemId());
         assertEquals(TEST_BUFFERED_POSITION, state.getBufferedPosition());
+        assertEquals(TEST_ERROR_CODE, state.getErrorCode());
         assertEquals(TEST_ERROR_MSG, state.getErrorMessage().toString());
         assertNotNull(state.getExtras());
         assertEquals(EXTRAS_VALUE, state.getExtras().get(EXTRAS_KEY));
@@ -197,7 +201,7 @@ public class PlaybackStateCompatTest {
                         .setActions(TEST_ACTIONS)
                         .setActiveQueueItemId(TEST_QUEUE_ITEM_ID)
                         .setBufferedPosition(TEST_BUFFERED_POSITION)
-                        .setErrorMessage(TEST_ERROR_MSG)
+                        .setErrorMessage(TEST_ERROR_CODE, TEST_ERROR_MSG)
                         .setExtras(extras);
 
         for (int i = 0; i < 5; i++) {
@@ -223,6 +227,7 @@ public class PlaybackStateCompatTest {
         assertEquals(TEST_BUFFERED_POSITION, stateOut.getBufferedPosition());
         assertEquals(TEST_ACTIONS, stateOut.getActions());
         assertEquals(TEST_QUEUE_ITEM_ID, stateOut.getActiveQueueItemId());
+        assertEquals(TEST_ERROR_CODE, stateOut.getErrorCode());
         assertEquals(TEST_ERROR_MSG, stateOut.getErrorMessage());
         assertNotNull(stateOut.getExtras());
         assertEquals(EXTRAS_VALUE, stateOut.getExtras().get(EXTRAS_KEY));
