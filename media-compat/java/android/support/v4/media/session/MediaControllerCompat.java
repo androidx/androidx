@@ -656,7 +656,7 @@ public final class MediaControllerCompat {
 
             @Override
             public void onPlaybackStateChanged(Object stateObj) {
-                if (mHasExtraCallback && android.os.Build.VERSION.SDK_INT < 22) {
+                if (mHasExtraCallback) {
                     // Ignore. ExtraCallback will handle this.
                 } else {
                     Callback.this.onPlaybackStateChanged(
@@ -1694,7 +1694,7 @@ public final class MediaControllerCompat {
 
         @Override
         public PlaybackStateCompat getPlaybackState() {
-            if (android.os.Build.VERSION.SDK_INT < 22 && mExtraBinder != null) {
+            if (mExtraBinder != null) {
                 try {
                     return mExtraBinder.getPlaybackState();
                 } catch (RemoteException e) {

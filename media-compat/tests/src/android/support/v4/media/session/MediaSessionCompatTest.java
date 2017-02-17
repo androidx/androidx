@@ -67,6 +67,9 @@ public class MediaSessionCompatTest {
     private static final int TEST_MAX_VOLUME = 11;
     private static final long TEST_QUEUE_ID = 12L;
     private static final long TEST_ACTION = 55L;
+    private static final int TEST_ERROR_CODE =
+            PlaybackStateCompat.ERROR_CODE_AUTHENTICATION_EXPIRED;
+    private static final String TEST_ERROR_MSG = "test-error-msg";
 
     private AudioManager mAudioManager;
     private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -177,7 +180,10 @@ public class MediaSessionCompatTest {
             // test setPlaybackState
             mCallback.resetLocked();
             PlaybackStateCompat state =
-                    new PlaybackStateCompat.Builder().setActions(TEST_ACTION).build();
+                    new PlaybackStateCompat.Builder()
+                            .setActions(TEST_ACTION)
+                            .setErrorMessage(TEST_ERROR_CODE, TEST_ERROR_MSG)
+                            .build();
             mSession.setPlaybackState(state);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCallback.mOnPlaybackStateChangedCalled);
@@ -185,10 +191,14 @@ public class MediaSessionCompatTest {
             PlaybackStateCompat stateOut = mCallback.mPlaybackState;
             assertNotNull(stateOut);
             assertEquals(TEST_ACTION, stateOut.getActions());
+            assertEquals(TEST_ERROR_CODE, stateOut.getErrorCode());
+            assertEquals(TEST_ERROR_MSG, stateOut.getErrorMessage().toString());
 
             stateOut = controller.getPlaybackState();
             assertNotNull(stateOut);
             assertEquals(TEST_ACTION, stateOut.getActions());
+            assertEquals(TEST_ERROR_CODE, stateOut.getErrorCode());
+            assertEquals(TEST_ERROR_MSG, stateOut.getErrorMessage().toString());
 
             // test setQueue and setQueueTitle
             mCallback.resetLocked();
