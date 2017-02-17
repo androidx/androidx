@@ -17,6 +17,8 @@
 package android.support.v4.media;
 
 import android.os.SystemClock;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat.Builder;
 import android.view.KeyEvent;
 
 /**
@@ -25,45 +27,77 @@ import android.view.KeyEvent;
  * requests may either come from key events dispatched directly to your UI, or
  * events sent over a media button event receiver that this class keeps active
  * while your window is in focus.
+ *
+ * @deprecated Use {@link MediaSessionCompat}.
  */
+@Deprecated
 public abstract class TransportPerformer {
+    /**
+     * @deprecated Use {@link MediaSessionCompat}.
+     */
+    @Deprecated
+    public TransportPerformer() {
+    }
+
     /**
      * Request to start playback on the media, resuming from whatever current state
      * (position etc) it is in.
+     *
+     * @deprecated Use {@link MediaSessionCompat.Callback#onPlay}.
      */
+    @Deprecated
     public abstract void onStart();
 
     /**
      * Request to pause playback of the media, staying at the current playback position
      * and other state so a later call to {@link #onStart()} will resume at the same place.
+     *
+     * @deprecated Use {@link MediaSessionCompat.Callback#onPause}.
      */
+    @Deprecated
     public abstract void onPause();
 
     /**
      * Request to completely stop playback of the media, clearing whatever state the
      * player thinks is appropriate.
+     *
+     * @deprecated Use {@link MediaSessionCompat.Callback#onStop}.
      */
+    @Deprecated
     public abstract void onStop();
 
     /**
      * Request to return the duration of the current media, in milliseconds.
+     *
+     * @deprecated Use {@link MediaMetadataCompat.Builder#putLong} with
+     *         {@link MediaMetadataCompat#METADATA_KEY_DURATION}.
      */
+    @Deprecated
     public abstract long onGetDuration();
 
     /**
      * Request to return the current playback position, in milliseconds.
+     *
+     * @deprecated Use {@link Builder#setState(int, long, float)}.
      */
+    @Deprecated
     public abstract long onGetCurrentPosition();
 
     /**
      * Request to move the current playback position.
      * @param pos New position to move to, in milliseconds.
+     *
+     * @deprecated Use {@link MediaSessionCompat.Callback#onSeekTo}.
      */
+    @Deprecated
     public abstract void onSeekTo(long pos);
 
     /**
      * Request to find out whether the player is currently playing its media.
+     *
+     * @deprecated Use {@link Builder#setState(int, long, float)}.
      */
+    @Deprecated
     public abstract boolean onIsPlaying();
 
     /**
@@ -71,7 +105,10 @@ public abstract class TransportPerformer {
      * @return Return a percentage (0-100) indicating how much of the total data
      * has been buffered.  The default implementation returns 100, meaning the content
      * is always on the local device.
+     *
+     * @deprecated Use {@link Builder#setBufferedPosition}.
      */
+    @Deprecated
     public int onGetBufferPercentage() {
         return 100;
     }
@@ -93,7 +130,10 @@ public abstract class TransportPerformer {
      *      {@link TransportMediator#FLAG_KEY_MEDIA_PLAY_PAUSE},
      *      {@link TransportMediator#FLAG_KEY_MEDIA_PAUSE}, and
      *      {@link TransportMediator#FLAG_KEY_MEDIA_STOP}</p>
+     *
+     * @deprecated Use {@link Builder#setActions}.
      */
+    @Deprecated
     public int onGetTransportControlFlags() {
         return TransportMediator.FLAG_KEY_MEDIA_PLAY
                 | TransportMediator.FLAG_KEY_MEDIA_PLAY_PAUSE
@@ -122,7 +162,10 @@ public abstract class TransportPerformer {
      * continues on to its default key handling (which for media keys means
      * being delivered to the current media remote control, which should
      * be us).
+     *
+     * @deprecated Use {@link MediaSessionCompat.Callback#onMediaButtonEvent}.
      */
+    @Deprecated
     public boolean onMediaButtonDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case TransportMediator.KEYCODE_MEDIA_PLAY:
@@ -159,7 +202,10 @@ public abstract class TransportPerformer {
      * continues on to its default key handling (which for media keys means
      * being delivered to the current media remote control, which should
      * be us).
+     *
+     * @deprecated Use {@link MediaSessionCompat.Callback#onMediaButtonEvent}.
      */
+    @Deprecated
     public boolean onMediaButtonUp(int keyCode, KeyEvent event) {
         return true;
     }
@@ -183,7 +229,10 @@ public abstract class TransportPerformer {
      * OnAudioFocusChangeListener.onAudioFocusChange}.  The default implementation will
      * deliver a {@link KeyEvent#KEYCODE_MEDIA_STOP}
      * when receiving {@link android.media.AudioManager#AUDIOFOCUS_LOSS}.
+     *
+     * @deprecated You must implement your own audio focus handler.
      */
+    @Deprecated
     public void onAudioFocusChange(int focusChange) {
         int keyCode = 0;
         switch (focusChange) {
