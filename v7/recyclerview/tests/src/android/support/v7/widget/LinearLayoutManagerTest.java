@@ -21,7 +21,9 @@ import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -43,6 +45,8 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -396,6 +400,108 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             assertTrue("Child view at adapter pos " + visibleIndex + " should be fully visible.",
                     isViewFullyInBound(mRecyclerView, toVisible.itemView));
         }
+    }
+
+    @Test
+    public void unfocusableScrollingWhenFocusCleared() throws Throwable {
+        // The maximum number of child views that can be visible at any time.
+        final int visibleChildCount = 5;
+        final int consecutiveFocusablesCount = 2;
+        final int consecutiveUnFocusablesCount = 18;
+        final TestAdapter adapter = new TestAdapter(
+                consecutiveFocusablesCount + consecutiveUnFocusablesCount) {
+            RecyclerView mAttachedRv;
+
+            @Override
+            public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
+                // Good to have colors for debugging
+                StateListDrawable stl = new StateListDrawable();
+                stl.addState(new int[]{android.R.attr.state_focused},
+                        new ColorDrawable(Color.RED));
+                stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
+                //noinspection deprecation used to support kitkat tests
+                testViewHolder.itemView.setBackgroundDrawable(stl);
+                return testViewHolder;
+            }
+
+            @Override
+            public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+                mAttachedRv = recyclerView;
+            }
+
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                if (position < consecutiveFocusablesCount) {
+                    holder.itemView.setFocusable(true);
+                    holder.itemView.setFocusableInTouchMode(true);
+                } else {
+                    holder.itemView.setFocusable(false);
+                    holder.itemView.setFocusableInTouchMode(false);
+                }
+                // This height ensures that some portion of #visibleChildCount'th child is
+                // off-bounds, creating more interesting test scenario.
+                holder.itemView.setMinimumHeight((mAttachedRv.getHeight()
+                        + mAttachedRv.getHeight() / (2 * visibleChildCount)) / visibleChildCount);
+            }
+        };
+        setupByConfig(new Config(VERTICAL, false, false).adapter(adapter), false);
+        waitForFirstLayout();
+
+        // adapter position of the currently focused item.
+        int focusIndex = 0;
+        View newFocused = mRecyclerView.getChildAt(focusIndex);
+        requestFocus(newFocused, true);
+        RecyclerView.ViewHolder toFocus = mRecyclerView.findViewHolderForAdapterPosition(
+                focusIndex);
+        assertThat("Child at position " + focusIndex + " should be focused",
+                toFocus.itemView.hasFocus(), is(true));
+
+        final View nextView = focusSearch(mRecyclerView.getFocusedChild(), View.FOCUS_DOWN, true);
+        focusIndex++;
+        assertThat("Child at position " + focusIndex + " should be focused",
+                mRecyclerView.findViewHolderForAdapterPosition(focusIndex).itemView.hasFocus(),
+                is(true));
+        final CountDownLatch focusLatch = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                nextView.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        assertNull("Focus just got cleared and no children should be holding"
+                                        + " focus now.", mRecyclerView.getFocusedChild());
+                        try {
+                            // Calling focusSearch should be a no-op here since even though there
+                            // are unfocusable views down to scroll to, none of RV's children hold
+                            // focus at this stage.
+                            View focusedChild  = focusSearch(v, View.FOCUS_DOWN, true);
+                            assertNull("Calling focusSearch should be no-op when no children hold"
+                                    + "focus", focusedChild);
+                            // No scrolling should have happened, so any unfocusables that were
+                            // invisible should still be invisible.
+                            RecyclerView.ViewHolder unforcusablePartiallyVisibleChild =
+                                    mRecyclerView.findViewHolderForAdapterPosition(
+                                            visibleChildCount - 1);
+                            assertFalse("Child view at adapter pos " + (visibleChildCount - 1)
+                                            + " should not be fully visible.",
+                                    isViewFullyInBound(mRecyclerView,
+                                            unforcusablePartiallyVisibleChild.itemView));
+                        } catch (Throwable t) {
+                            postExceptionToInstrumentation(t);
+                        }
+                    }
+                });
+                nextView.clearFocus();
+                focusLatch.countDown();
+            }
+        });
+        assertTrue(focusLatch.await(2, TimeUnit.SECONDS));
+        assertThat("Child at position " + focusIndex + " should no longer be focused",
+                mRecyclerView.findViewHolderForAdapterPosition(focusIndex).itemView.hasFocus(),
+                is(false));
     }
 
     @Test

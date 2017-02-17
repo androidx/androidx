@@ -693,7 +693,7 @@ public class GridLayoutManager extends LinearLayoutManager {
             if (params.isItemRemoved() || params.isItemChanged()) {
                 result.mIgnoreConsumed = true;
             }
-            result.mFocusable |= view.isFocusable();
+            result.mFocusable |= view.hasFocusable();
         }
         Arrays.fill(mSet, null);
     }
@@ -1048,7 +1048,7 @@ public class GridLayoutManager extends LinearLayoutManager {
                 break;
             }
 
-            if (candidate.isFocusable() && spanGroupIndex != focusableSpanGroupIndex) {
+            if (candidate.hasFocusable() && spanGroupIndex != focusableSpanGroupIndex) {
                 // We are past the allowable span group index for the next focusable item.
                 // The search only continues if no focusable weak candidates have been found up
                 // until this point, in order to find the best unfocusable candidate to become
@@ -1062,19 +1062,19 @@ public class GridLayoutManager extends LinearLayoutManager {
             final LayoutParams candidateLp = (LayoutParams) candidate.getLayoutParams();
             final int candidateStart = candidateLp.mSpanIndex;
             final int candidateEnd = candidateLp.mSpanIndex + candidateLp.mSpanSize;
-            if (candidate.isFocusable() && candidateStart == prevSpanStart
+            if (candidate.hasFocusable() && candidateStart == prevSpanStart
                     && candidateEnd == prevSpanEnd) {
                 return candidate; // perfect match
             }
             boolean assignAsWeek = false;
-            if ((candidate.isFocusable() && focusableWeakCandidate == null)
-                    || (!candidate.isFocusable() && unfocusableWeakCandidate == null)) {
+            if ((candidate.hasFocusable() && focusableWeakCandidate == null)
+                    || (!candidate.hasFocusable() && unfocusableWeakCandidate == null)) {
                 assignAsWeek = true;
             } else {
                 int maxStart = Math.max(candidateStart, prevSpanStart);
                 int minEnd = Math.min(candidateEnd, prevSpanEnd);
                 int overlap = minEnd - maxStart;
-                if (candidate.isFocusable()) {
+                if (candidate.hasFocusable()) {
                     if (overlap > focusableWeakCandidateOverlap) {
                         assignAsWeek = true;
                     } else if (overlap == focusableWeakCandidateOverlap
@@ -1095,7 +1095,7 @@ public class GridLayoutManager extends LinearLayoutManager {
             }
 
             if (assignAsWeek) {
-                if (candidate.isFocusable()) {
+                if (candidate.hasFocusable()) {
                     focusableWeakCandidate = candidate;
                     focusableWeakCandidateSpanIndex = candidateLp.mSpanIndex;
                     focusableWeakCandidateOverlap = Math.min(candidateEnd, prevSpanEnd)

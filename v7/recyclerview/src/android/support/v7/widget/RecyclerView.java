@@ -2347,11 +2347,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
         }
         if (result != null && !result.hasFocusable()) {
+            if (getFocusedChild() == null) {
+                // Scrolling to this unfocusable view is not meaningful since there is no currently
+                // focused view which RV needs to keep visible.
+                return super.focusSearch(focused, direction);
+            }
             // If the next view returned by onFocusSearchFailed in layout manager has no focusable
             // views, we still scroll to that view in order to make it visible on the screen.
             // If it's focusable, framework already calls RV's requestChildFocus which handles
             // bringing this newly focused item onto the screen.
             requestChildOnScreen(result, null);
+            return focused;
         }
         return isPreferredNextFocus(focused, result, direction)
                 ? result : super.focusSearch(focused, direction);
@@ -9221,11 +9227,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param parent The parent RecyclerView.
          * @param dx The scrolling in x-axis direction to be performed.
          * @param dy The scrolling in y-axis direction to be performed.
-         * @return Whether after the given scrolling, the currently focused item in still visible
-         * (within RV's bounds).
+         * @return {@code false} if the focused child is not at least partially visible after
+         *         scrolling or no focused child exists, {@code true} otherwise.
          */
         private boolean isFocusedChildVisibleAfterScrolling(RecyclerView parent, int dx, int dy) {
             final View focusedChild = parent.getFocusedChild();
+            if (focusedChild == null) {
+                return false;
+            }
             final int parentLeft = getPaddingLeft();
             final int parentTop = getPaddingTop();
             final int parentRight = getWidth() - getPaddingRight();
