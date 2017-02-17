@@ -676,7 +676,7 @@ public class PostponedTransitionTest {
     @Test
     public void saveWhilePostponed() throws Throwable {
         final FragmentController fc1 = FragmentTestUtil.createController(mActivityRule);
-        FragmentTestUtil.resume(fc1, null);
+        FragmentTestUtil.resume(mActivityRule, fc1, null);
 
         final FragmentManager fm1 = fc1.getSupportFragmentManager();
 
@@ -689,10 +689,10 @@ public class PostponedTransitionTest {
         FragmentTestUtil.waitForExecution(mActivityRule);
 
         Pair<Parcelable, FragmentManagerNonConfig> state =
-                FragmentTestUtil.destroy(fc1);
+                FragmentTestUtil.destroy(mActivityRule, fc1);
 
         final FragmentController fc2 = FragmentTestUtil.createController(mActivityRule);
-        FragmentTestUtil.resume(fc2, state);
+        FragmentTestUtil.resume(mActivityRule, fc2, state);
 
         final FragmentManager fm2 = fc2.getSupportFragmentManager();
         Fragment fragment2 = fm2.findFragmentByTag("1");
