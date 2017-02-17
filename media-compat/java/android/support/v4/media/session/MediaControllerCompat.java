@@ -28,6 +28,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.app.SupportActivity;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -491,6 +492,15 @@ public final class MediaControllerCompat {
      */
     public String getPackageName() {
         return mImpl.getPackageName();
+    }
+
+    @VisibleForTesting
+    boolean isExtraBinderReady() {
+        if (mImpl instanceof MediaControllerImplApi21) {
+            return ((MediaControllerImplApi21) mImpl).mExtraBinder != null;
+        } else {
+            return false;
+        }
     }
 
     /**
