@@ -395,88 +395,7 @@ public class ViewCompat {
      */
     public static final int SCROLL_INDICATOR_END = 0x20;
 
-    interface ViewCompatImpl {
-        void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info);
-        void setAccessibilityDelegate(View v, @Nullable AccessibilityDelegateCompat delegate);
-        boolean hasAccessibilityDelegate(View v);
-        boolean hasTransientState(View view);
-        void setHasTransientState(View view, boolean hasTransientState);
-        void postInvalidateOnAnimation(View view);
-        void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom);
-        void postOnAnimation(View view, Runnable action);
-        void postOnAnimationDelayed(View view, Runnable action, long delayMillis);
-        int getImportantForAccessibility(View view);
-        void setImportantForAccessibility(View view, int mode);
-        boolean isImportantForAccessibility(View view);
-        boolean performAccessibilityAction(View view, int action, Bundle arguments);
-        AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view);
-        int getLabelFor(View view);
-        void setLabelFor(View view, int id);
-        void setLayerPaint(View view, Paint paint);
-        int getLayoutDirection(View view);
-        void setLayoutDirection(View view, int layoutDirection);
-        ViewParent getParentForAccessibility(View view);
-        int getAccessibilityLiveRegion(View view);
-        void setAccessibilityLiveRegion(View view, int mode);
-        int getPaddingStart(View view);
-        int getPaddingEnd(View view);
-        void setPaddingRelative(View view, int start, int top, int end, int bottom);
-        void dispatchStartTemporaryDetach(View view);
-        void dispatchFinishTemporaryDetach(View view);
-        int getMinimumWidth(View view);
-        int getMinimumHeight(View view);
-        ViewPropertyAnimatorCompat animate(View view);
-        void setElevation(View view, float elevation);
-        float getElevation(View view);
-        void setTranslationZ(View view, float translationZ);
-        float getTranslationZ(View view);
-        void setClipBounds(View view, Rect clipBounds);
-        Rect getClipBounds(View view);
-        void setTransitionName(View view, String transitionName);
-        String getTransitionName(View view);
-        int getWindowSystemUiVisibility(View view);
-        void requestApplyInsets(View view);
-        void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled);
-        boolean getFitsSystemWindows(View view);
-        boolean hasOverlappingRendering(View view);
-        void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener);
-        WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets);
-        WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets);
-        boolean isPaddingRelative(View view);
-        void setBackground(View view, Drawable background);
-        ColorStateList getBackgroundTintList(View view);
-        void setBackgroundTintList(View view, ColorStateList tintList);
-        PorterDuff.Mode getBackgroundTintMode(View view);
-        void setBackgroundTintMode(View view, PorterDuff.Mode mode);
-        void setNestedScrollingEnabled(View view, boolean enabled);
-        boolean isNestedScrollingEnabled(View view);
-        boolean startNestedScroll(View view, int axes);
-        void stopNestedScroll(View view);
-        boolean hasNestedScrollingParent(View view);
-        boolean dispatchNestedScroll(View view, int dxConsumed, int dyConsumed, int dxUnconsumed,
-                int dyUnconsumed, int[] offsetInWindow);
-        boolean dispatchNestedPreScroll(View view, int dx, int dy, int[] consumed,
-                int[] offsetInWindow);
-        boolean dispatchNestedFling(View view, float velocityX, float velocityY, boolean consumed);
-        boolean dispatchNestedPreFling(View view, float velocityX, float velocityY);
-        boolean isInLayout(View view);
-        boolean isLaidOut(View view);
-        boolean isLayoutDirectionResolved(View view);
-        float getZ(View view);
-        void setZ(View view, float z);
-        boolean isAttachedToWindow(View view);
-        boolean hasOnClickListeners(View view);
-        void setScrollIndicators(View view, int indicators);
-        void setScrollIndicators(View view, int indicators, int mask);
-        int getScrollIndicators(View view);
-        void offsetTopAndBottom(View view, int offset);
-        void offsetLeftAndRight(View view, int offset);
-        void setPointerIcon(View view, PointerIconCompat pointerIcon);
-        Display getDisplay(View view);
-        void setTooltipText(View view, CharSequence tooltipText);
-    }
-
-    static class ICSViewCompatImpl implements ViewCompatImpl {
+    static class ICSViewCompatImpl {
         private static Field sMinWidthField;
         private static boolean sMinWidthFieldFetched;
         private static Field sMinHeightField;
@@ -490,13 +409,11 @@ public class ViewCompat {
         static Field sAccessibilityDelegateField;
         static boolean sAccessibilityDelegateCheckFailed = false;
 
-        @Override
         public void setAccessibilityDelegate(View v,
                 @Nullable AccessibilityDelegateCompat delegate) {
             v.setAccessibilityDelegate(delegate == null ? null : delegate.getBridge());
         }
 
-        @Override
         public boolean hasAccessibilityDelegate(View v) {
             if (sAccessibilityDelegateCheckFailed) {
                 return false; // View implementation might have changed.
@@ -518,68 +435,66 @@ public class ViewCompat {
                 return false;
             }
         }
-        @Override
+
         public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
             v.onInitializeAccessibilityNodeInfo((AccessibilityNodeInfo) info.getInfo());
         }
-        @Override
+
         public boolean hasTransientState(View view) {
             // A view can't have transient state if transient state wasn't supported.
             return false;
         }
-        @Override
+
         public void setHasTransientState(View view, boolean hasTransientState) {
             // Do nothing; API doesn't exist
         }
-        @Override
+
         public void postInvalidateOnAnimation(View view) {
             view.invalidate();
         }
-        @Override
+
         public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
             view.invalidate(left, top, right, bottom);
         }
-        @Override
+
         public void postOnAnimation(View view, Runnable action) {
             view.postDelayed(action, getFrameTime());
         }
-        @Override
+
         public void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
             view.postDelayed(action, getFrameTime() + delayMillis);
         }
+
         long getFrameTime() {
             return ValueAnimator.getFrameDelay();
         }
-        @Override
+
         public int getImportantForAccessibility(View view) {
             return 0;
         }
-        @Override
-        public void setImportantForAccessibility(View view, int mode) {
 
+        public void setImportantForAccessibility(View view, int mode) {
         }
-        @Override
+
         public boolean isImportantForAccessibility(View view) {
             return true;
         }
-        @Override
+
         public boolean performAccessibilityAction(View view, int action, Bundle arguments) {
             return false;
         }
-        @Override
+
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
             return null;
         }
 
-        @Override
         public int getLabelFor(View view) {
             return 0;
         }
 
-        @Override
         public void setLabelFor(View view, int id) {
         }
-        @Override
+
         public void setLayerPaint(View view, Paint paint) {
             // Make sure the paint is correct; this will be cheap if it's the same
             // instance as was used to call setLayerType earlier.
@@ -587,47 +502,39 @@ public class ViewCompat {
             // This is expensive, but the only way to accomplish this before JB-MR1.
             view.invalidate();
         }
-        @Override
+
         public int getLayoutDirection(View view) {
             return LAYOUT_DIRECTION_LTR;
         }
 
-        @Override
         public void setLayoutDirection(View view, int layoutDirection) {
             // No-op
         }
 
-        @Override
         public ViewParent getParentForAccessibility(View view) {
             return view.getParent();
         }
 
-        @Override
         public int getAccessibilityLiveRegion(View view) {
             return ACCESSIBILITY_LIVE_REGION_NONE;
         }
 
-        @Override
         public void setAccessibilityLiveRegion(View view, int mode) {
             // No-op
         }
 
-        @Override
         public int getPaddingStart(View view) {
             return view.getPaddingLeft();
         }
 
-        @Override
         public int getPaddingEnd(View view) {
             return view.getPaddingRight();
         }
 
-        @Override
         public void setPaddingRelative(View view, int start, int top, int end, int bottom) {
             view.setPadding(start, top, end, bottom);
         }
 
-        @Override
         public void dispatchStartTemporaryDetach(View view) {
             if (!mTempDetachBound) {
                 bindTempDetach();
@@ -644,7 +551,6 @@ public class ViewCompat {
             }
         }
 
-        @Override
         public void dispatchFinishTemporaryDetach(View view) {
             if (!mTempDetachBound) {
                 bindTempDetach();
@@ -661,7 +567,6 @@ public class ViewCompat {
             }
         }
 
-        @Override
         public boolean hasOverlappingRendering(View view) {
             return true;
         }
@@ -678,7 +583,6 @@ public class ViewCompat {
             mTempDetachBound = true;
         }
 
-        @Override
         public int getMinimumWidth(View view) {
             if (!sMinWidthFieldFetched) {
                 try {
@@ -702,7 +606,6 @@ public class ViewCompat {
             return 0;
         }
 
-        @Override
         public int getMinimumHeight(View view) {
             if (!sMinHeightFieldFetched) {
                 try {
@@ -726,7 +629,6 @@ public class ViewCompat {
             return 0;
         }
 
-        @Override
         public ViewPropertyAnimatorCompat animate(View view) {
             if (mViewPropertyAnimatorCompatMap == null) {
                 mViewPropertyAnimatorCompatMap = new WeakHashMap<>();
@@ -739,7 +641,6 @@ public class ViewCompat {
             return vpa;
         }
 
-        @Override
         public void setTransitionName(View view, String transitionName) {
             if (sTransitionNameMap == null) {
                 sTransitionNameMap = new WeakHashMap<>();
@@ -747,7 +648,6 @@ public class ViewCompat {
             sTransitionNameMap.put(view, transitionName);
         }
 
-        @Override
         public String getTransitionName(View view) {
             if (sTransitionNameMap == null) {
                 return null;
@@ -755,43 +655,34 @@ public class ViewCompat {
             return sTransitionNameMap.get(view);
         }
 
-        @Override
         public int getWindowSystemUiVisibility(View view) {
             return 0;
         }
 
-        @Override
         public void requestApplyInsets(View view) {
         }
 
-        @Override
         public void setElevation(View view, float elevation) {
         }
 
-        @Override
         public float getElevation(View view) {
             return 0f;
         }
 
-        @Override
         public void setTranslationZ(View view, float translationZ) {
         }
 
-        @Override
         public float getTranslationZ(View view) {
             return 0f;
         }
 
-        @Override
         public void setClipBounds(View view, Rect clipBounds) {
         }
 
-        @Override
         public Rect getClipBounds(View view) {
             return null;
         }
 
-        @Override
         public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
             if (sChildrenDrawingOrderMethod == null) {
                 try {
@@ -813,40 +704,33 @@ public class ViewCompat {
             }
         }
 
-        @Override
         public boolean getFitsSystemWindows(View view) {
             return false;
         }
 
-        @Override
         public void setOnApplyWindowInsetsListener(View view,
                 OnApplyWindowInsetsListener listener) {
             // noop
         }
 
-        @Override
         public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
             return insets;
         }
 
-        @Override
         public WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
             return insets;
         }
 
-        @Override
         public boolean isPaddingRelative(View view) {
             return false;
         }
 
-        @Override
         public void setNestedScrollingEnabled(View view, boolean enabled) {
             if (view instanceof NestedScrollingChild) {
                 ((NestedScrollingChild) view).setNestedScrollingEnabled(enabled);
             }
         }
 
-        @Override
         public boolean isNestedScrollingEnabled(View view) {
             if (view instanceof NestedScrollingChild) {
                 return ((NestedScrollingChild) view).isNestedScrollingEnabled();
@@ -854,40 +738,34 @@ public class ViewCompat {
             return false;
         }
 
-        @Override
         public void setBackground(View view, Drawable background) {
             view.setBackgroundDrawable(background);
         }
 
-        @Override
         public ColorStateList getBackgroundTintList(View view) {
             return (view instanceof TintableBackgroundView)
                     ? ((TintableBackgroundView) view).getSupportBackgroundTintList()
                     : null;
         }
 
-        @Override
         public void setBackgroundTintList(View view, ColorStateList tintList) {
             if (view instanceof TintableBackgroundView) {
                 ((TintableBackgroundView) view).setSupportBackgroundTintList(tintList);
             }
         }
 
-        @Override
         public void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
             if (view instanceof TintableBackgroundView) {
                 ((TintableBackgroundView) view).setSupportBackgroundTintMode(mode);
             }
         }
 
-        @Override
         public PorterDuff.Mode getBackgroundTintMode(View view) {
             return (view instanceof TintableBackgroundView)
                     ? ((TintableBackgroundView) view).getSupportBackgroundTintMode()
                     : null;
         }
 
-        @Override
         public boolean startNestedScroll(View view, int axes) {
             if (view instanceof NestedScrollingChild) {
                 return ((NestedScrollingChild) view).startNestedScroll(axes);
@@ -895,14 +773,12 @@ public class ViewCompat {
             return false;
         }
 
-        @Override
         public void stopNestedScroll(View view) {
             if (view instanceof NestedScrollingChild) {
                 ((NestedScrollingChild) view).stopNestedScroll();
             }
         }
 
-        @Override
         public boolean hasNestedScrollingParent(View view) {
             if (view instanceof NestedScrollingChild) {
                 return ((NestedScrollingChild) view).hasNestedScrollingParent();
@@ -910,7 +786,6 @@ public class ViewCompat {
             return false;
         }
 
-        @Override
         public boolean dispatchNestedScroll(View view, int dxConsumed, int dyConsumed,
                 int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow) {
             if (view instanceof NestedScrollingChild) {
@@ -920,7 +795,6 @@ public class ViewCompat {
             return false;
         }
 
-        @Override
         public boolean dispatchNestedPreScroll(View view, int dx, int dy,
                 int[] consumed, int[] offsetInWindow) {
             if (view instanceof NestedScrollingChild) {
@@ -930,7 +804,6 @@ public class ViewCompat {
             return false;
         }
 
-        @Override
         public boolean dispatchNestedFling(View view, float velocityX, float velocityY,
                 boolean consumed) {
             if (view instanceof NestedScrollingChild) {
@@ -940,7 +813,6 @@ public class ViewCompat {
             return false;
         }
 
-        @Override
         public boolean dispatchNestedPreFling(View view, float velocityX, float velocityY) {
             if (view instanceof NestedScrollingChild) {
                 return ((NestedScrollingChild) view).dispatchNestedPreFling(velocityX, velocityY);
@@ -948,57 +820,46 @@ public class ViewCompat {
             return false;
         }
 
-        @Override
         public boolean isInLayout(View view) {
             return false;
         }
 
-        @Override
         public boolean isLaidOut(View view) {
             return view.getWidth() > 0 && view.getHeight() > 0;
         }
 
-        @Override
         public boolean isLayoutDirectionResolved(View view) {
             return false;
         }
 
-        @Override
         public float getZ(View view) {
             return getTranslationZ(view) + getElevation(view);
         }
 
-        @Override
         public void setZ(View view, float z) {
             // no-op
         }
 
-        @Override
         public boolean isAttachedToWindow(View view) {
             return view.getWindowToken() != null;
         }
 
-        @Override
         public boolean hasOnClickListeners(View view) {
             return false;
         }
 
-        @Override
         public int getScrollIndicators(View view) {
             return 0;
         }
 
-        @Override
         public void setScrollIndicators(View view, int indicators) {
             // no-op
         }
 
-        @Override
         public void setScrollIndicators(View view, int indicators, int mask) {
             // no-op
         }
 
-        @Override
         public void offsetLeftAndRight(View view, int offset) {
             view.offsetLeftAndRight(offset);
             if (view.getVisibility() == View.VISIBLE) {
@@ -1011,7 +872,6 @@ public class ViewCompat {
             }
         }
 
-        @Override
         public void offsetTopAndBottom(View view, int offset) {
             view.offsetTopAndBottom(offset);
             if (view.getVisibility() == View.VISIBLE) {
@@ -1030,12 +890,10 @@ public class ViewCompat {
             view.setTranslationY(y);
         }
 
-        @Override
         public void setPointerIcon(View view, PointerIconCompat pointerIcon) {
             // no-op
         }
 
-        @Override
         public Display getDisplay(View view) {
             if (isAttachedToWindow(view)) {
                 final WindowManager wm = (WindowManager) view.getContext().getSystemService(
@@ -1045,7 +903,6 @@ public class ViewCompat {
             return null;
         }
 
-        @Override
         public void setTooltipText(View view, CharSequence tooltipText) {
             ViewCompatICS.setTooltipText(view, tooltipText);
         }
@@ -1537,7 +1394,7 @@ public class ViewCompat {
         }
     }
 
-    static final ViewCompatImpl IMPL;
+    static final ICSViewCompatImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
         if (BuildCompat.isAtLeastO()) {
