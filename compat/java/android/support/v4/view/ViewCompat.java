@@ -1000,12 +1000,34 @@ public class ViewCompat {
 
         @Override
         public void offsetLeftAndRight(View view, int offset) {
-            ViewCompatHC.offsetLeftAndRight(view, offset);
+            view.offsetLeftAndRight(offset);
+            if (view.getVisibility() == View.VISIBLE) {
+                tickleInvalidationFlag(view);
+
+                ViewParent parent = view.getParent();
+                if (parent instanceof View) {
+                    tickleInvalidationFlag((View) parent);
+                }
+            }
         }
 
         @Override
         public void offsetTopAndBottom(View view, int offset) {
-            ViewCompatHC.offsetTopAndBottom(view, offset);
+            view.offsetTopAndBottom(offset);
+            if (view.getVisibility() == View.VISIBLE) {
+                tickleInvalidationFlag(view);
+
+                ViewParent parent = view.getParent();
+                if (parent instanceof View) {
+                    tickleInvalidationFlag((View) parent);
+                }
+            }
+        }
+
+        private static void tickleInvalidationFlag(View view) {
+            final float y = view.getTranslationY();
+            view.setTranslationY(y + 1);
+            view.setTranslationY(y);
         }
 
         @Override
@@ -1238,6 +1260,8 @@ public class ViewCompat {
 
     @TargetApi(21)
     static class LollipopViewCompatImpl extends KitKatViewCompatImpl {
+        private static ThreadLocal<Rect> sThreadLocalRect;
+
         @Override
         public void setTransitionName(View view, String transitionName) {
             ViewCompatLollipop.setTransitionName(view, transitionName);
@@ -1393,12 +1417,67 @@ public class ViewCompat {
 
         @Override
         public void offsetLeftAndRight(View view, int offset) {
-            ViewCompatLollipop.offsetLeftAndRight(view, offset);
+            final Rect parentRect = getEmptyTempRect();
+            boolean needInvalidateWorkaround = false;
+
+            final ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                final View p = (View) parent;
+                parentRect.set(p.getLeft(), p.getTop(), p.getRight(), p.getBottom());
+                // If the view currently does not currently intersect the parent (and is therefore
+                // not displayed) we may need need to invalidate
+                needInvalidateWorkaround = !parentRect.intersects(view.getLeft(), view.getTop(),
+                        view.getRight(), view.getBottom());
+            }
+
+            // Now offset, invoking the API 11+ implementation (which contains its own workarounds)
+            super.offsetLeftAndRight(view, offset);
+
+            // The view has now been offset, so let's intersect the Rect and invalidate where
+            // the View is now displayed
+            if (needInvalidateWorkaround && parentRect.intersect(view.getLeft(), view.getTop(),
+                    view.getRight(), view.getBottom())) {
+                ((View) parent).invalidate(parentRect);
+            }
         }
 
         @Override
         public void offsetTopAndBottom(View view, int offset) {
-            ViewCompatLollipop.offsetTopAndBottom(view, offset);
+            final Rect parentRect = getEmptyTempRect();
+            boolean needInvalidateWorkaround = false;
+
+            final ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                final View p = (View) parent;
+                parentRect.set(p.getLeft(), p.getTop(), p.getRight(), p.getBottom());
+                // If the view currently does not currently intersect the parent (and is therefore
+                // not displayed) we may need need to invalidate
+                needInvalidateWorkaround = !parentRect.intersects(view.getLeft(), view.getTop(),
+                        view.getRight(), view.getBottom());
+            }
+
+            // Now offset, invoking the API 11+ implementation (which contains its own workarounds)
+            super.offsetTopAndBottom(view, offset);
+
+            // The view has now been offset, so let's intersect the Rect and invalidate where
+            // the View is now displayed
+            if (needInvalidateWorkaround && parentRect.intersect(view.getLeft(), view.getTop(),
+                    view.getRight(), view.getBottom())) {
+                ((View) parent).invalidate(parentRect);
+            }
+        }
+
+        private static Rect getEmptyTempRect() {
+            if (sThreadLocalRect == null) {
+                sThreadLocalRect = new ThreadLocal<>();
+            }
+            Rect rect = sThreadLocalRect.get();
+            if (rect == null) {
+                rect = new Rect();
+                sThreadLocalRect.set(rect);
+            }
+            rect.setEmpty();
+            return rect;
         }
     }
 
