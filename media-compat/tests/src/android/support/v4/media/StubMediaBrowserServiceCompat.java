@@ -36,6 +36,8 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
     static final String MEDIA_ID_INVALID = "test_media_id_invalid";
     static final String MEDIA_ID_ROOT = "test_media_id_root";
     static final String MEDIA_ID_CHILDREN_DELAYED = "test_media_id_children_delayed";
+    static final String MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED =
+            "test_media_id_on_load_item_not_implemented";
 
     static final String[] MEDIA_ID_CHILDREN = new String[]{
             "test_media_id_children_0", "test_media_id_children_1",
@@ -98,6 +100,11 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
             return;
         }
 
+        if (MEDIA_ID_INVALID.equals(itemId)) {
+            result.sendResult(null);
+            return;
+        }
+
         for (String id : MEDIA_ID_CHILDREN) {
             if (id.equals(itemId)) {
                 result.sendResult(createMediaItem(id));
@@ -105,6 +112,7 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
             }
         }
 
+        // Test the case where onLoadItem is not implemented.
         super.onLoadItem(itemId, result);
     }
 
