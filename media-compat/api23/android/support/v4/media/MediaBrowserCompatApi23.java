@@ -48,13 +48,9 @@ class MediaBrowserCompatApi23 {
 
         @Override
         public void onItemLoaded(MediaBrowser.MediaItem item) {
-            if (item == null) {
-                mItemCallback.onItemLoaded(null);
-            } else {
-                Parcel parcel = Parcel.obtain();
-                item.writeToParcel(parcel, 0);
-                mItemCallback.onItemLoaded(parcel);
-            }
+            Parcel parcel = Parcel.obtain();
+            item.writeToParcel(parcel, 0);
+            mItemCallback.onItemLoaded(parcel);
         }
 
         @Override

@@ -778,15 +778,10 @@ public final class MediaBrowserCompat {
 
             @Override
             public void onItemLoaded(Parcel itemParcel) {
-                if (itemParcel == null) {
-                    ItemCallback.this.onItemLoaded(null);
-                } else {
-                    itemParcel.setDataPosition(0);
-                    MediaItem item =
-                            MediaBrowserCompat.MediaItem.CREATOR.createFromParcel(itemParcel);
-                    itemParcel.recycle();
-                    ItemCallback.this.onItemLoaded(item);
-                }
+                itemParcel.setDataPosition(0);
+                MediaItem item = MediaBrowserCompat.MediaItem.CREATOR.createFromParcel(itemParcel);
+                itemParcel.recycle();
+                ItemCallback.this.onItemLoaded(item);
             }
 
             @Override
