@@ -54,10 +54,6 @@
                   android:theme="@style/Theme.Leanback.Browse"
                   android:exported="true" />
 
-        <activity android:name="android.support.v17.leanback.app.DetailsFragmentTestActivity"
-                  android:theme="@style/Theme.Leanback"
-                  android:exported="true" />
-
         <activity android:name="android.support.v17.leanback.app.SingleSupportFragmentTestActivity"
             android:theme="@style/Theme.Leanback"
             android:exported="true" />

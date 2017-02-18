@@ -32,7 +32,7 @@ public class PlaybackOverlayFragmentTest extends SingleFragmentTestBase {
     @Test
     public void workaroundVideoViewStealFocus() {
         launchAndWaitActivity(PlaybackOverlayTestFragment.class,
-                R.layout.playback_controls_with_video, 0);
+                new Options().activityLayoutId(R.layout.playback_controls_with_video), 0);
         PlaybackOverlayTestFragment fragment = (PlaybackOverlayTestFragment)
                 mActivity.getTestFragment();
 

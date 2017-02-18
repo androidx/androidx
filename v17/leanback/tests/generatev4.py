@@ -19,11 +19,14 @@ import sys
 
 print "Generate v4 fragment related code for leanback"
 
-files = ['BrowseTest', 'GuidedStepTest', 'PlaybackTest']
+####### generate XXXTestFragment classes #######
+
+files = ['BrowseTest', 'GuidedStepTest', 'PlaybackTest', 'DetailsTest']
 
 cls = ['BrowseTest', 'Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Error', 'Headers',
       'PlaybackOverlay', 'Rows', 'Search', 'VerticalGrid', 'Branded',
-      'GuidedStepTest', 'GuidedStep', 'RowsTest', 'PlaybackTest', 'Playback', 'Video']
+      'GuidedStepTest', 'GuidedStep', 'RowsTest', 'PlaybackTest', 'Playback', 'Video',
+      'DetailsTest']
 
 for w in files:
     print "copy {}Fragment to {}SupportFragment".format(w, w)
@@ -44,7 +47,9 @@ for w in files:
     file.close()
     outfile.close()
 
-testcls = ['GuidedStep']
+####### generate XXXFragmentTestBase classes #######
+
+testcls = ['GuidedStep', 'Single']
 
 for w in testcls:
     print "copy {}FrgamentTestBase to {}SupportFragmentTestBase".format(w, w)
@@ -68,7 +73,9 @@ for w in testcls:
     file.close()
     outfile.close()
 
-testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Playback', 'Video']
+####### generate XXXFragmentTest classes #######
+
+testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Playback', 'Video', 'Details', 'Rows', 'Headers']
 
 for w in testcls:
     print "copy {}FrgamentTest to {}SupportFragmentTest".format(w, w)
@@ -97,7 +104,9 @@ for w in testcls:
     file.close()
     outfile.close()
 
-testcls = ['Browse', 'GuidedStep']
+
+####### generate XXXTestActivity classes #######
+testcls = ['Browse', 'GuidedStep', 'Single']
 
 for w in testcls:
     print "copy {}FragmentTestActivity to {}SupportFragmentTestActivity".format(w, w)
@@ -116,26 +125,7 @@ for w in testcls:
     file.close()
     outfile.close()
 
-testcls = ['Rows', 'Headers']
-
-for w in testcls:
-    print "copy {}FragmentTest to {}SupportFragmentTest".format(w, w)
-
-    file = open('java/android/support/v17/leanback/app/{}FragmentTest.java'.format(w), 'r')
-    outfile = open('java/android/support/v17/leanback/app/{}SupportFragmentTest.java'.format(w), 'w')
-
-    outfile.write("// CHECKSTYLE:OFF Generated code\n")
-    outfile.write("/* This file is auto-generated from {}FragmentTest.java.  DO NOT MODIFY. */\n\n".format(w))
-
-    for line in file:
-        for w in testcls:
-            line = line.replace('SingleFragment', 'SingleSupportFragment')
-            line = line.replace('{}Fragment'.format(w), '{}SupportFragment'.format(w))
-        line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
-        outfile.write(line)
-    file.close()
-    outfile.close()
-
+####### generate Float parallax test #######
 
 print "copy ParallaxIntEffectTest to ParallaxFloatEffectTest"
 file = open('java/android/support/v17/leanback/widget/ParallaxIntEffectTest.java', 'r')
@@ -176,6 +166,7 @@ for line in file:
 file.close()
 outfile.close()
 
+####### generate glue support test #######
 
 print "copy PlaybackControlGlueTest to PlaybackControlSupportGlueTest"
 file = open('java/android/support/v17/leanback/app/PlaybackControlGlueTest.java', 'r')

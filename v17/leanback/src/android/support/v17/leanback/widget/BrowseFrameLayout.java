@@ -44,6 +44,8 @@ public class BrowseFrameLayout extends FrameLayout {
         /**
          * See {@link android.view.ViewGroup#onRequestFocusInDescendants(
          * int, android.graphics.Rect)}.
+         * @return True if handled by listener, otherwise returns {@link
+         * android.view.ViewGroup#onRequestFocusInDescendants(int, android.graphics.Rect)}.
          */
         boolean onRequestFocusInDescendants(int direction,
                 Rect previouslyFocusedRect);
@@ -102,8 +104,10 @@ public class BrowseFrameLayout extends FrameLayout {
     protected boolean onRequestFocusInDescendants(int direction,
             Rect previouslyFocusedRect) {
         if (mOnChildFocusListener != null) {
-            return mOnChildFocusListener.onRequestFocusInDescendants(direction,
-                    previouslyFocusedRect);
+            if (mOnChildFocusListener.onRequestFocusInDescendants(direction,
+                    previouslyFocusedRect)) {
+                return true;
+            }
         }
         return super.onRequestFocusInDescendants(direction, previouslyFocusedRect);
     }
@@ -121,10 +125,10 @@ public class BrowseFrameLayout extends FrameLayout {
 
     @Override
     public void requestChildFocus(View child, View focused) {
-        super.requestChildFocus(child, focused);
         if (mOnChildFocusListener != null) {
             mOnChildFocusListener.onRequestChildFocus(child, focused);
         }
+        super.requestChildFocus(child, focused);
     }
 
     @Override
