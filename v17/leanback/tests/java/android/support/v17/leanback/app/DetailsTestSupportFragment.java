@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from DetailsTestFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -36,7 +39,7 @@ import android.view.ViewGroup;
 /**
  * Base class provides overview row and some related rows.
  */
-public class DetailsTestFragment extends android.support.v17.leanback.app.DetailsFragment {
+public class DetailsTestSupportFragment extends android.support.v17.leanback.app.DetailsSupportFragment {
     private static final int NUM_ROWS = 3;
     private ArrayObjectAdapter mRowsAdapter;
     private PhotoItem mPhotoItem;
