@@ -61,7 +61,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 listRowAdapter.add("Hello world-" + (index++));
                 listRowAdapter.add("Android TV-" + (index++));
                 listRowAdapter.add("Leanback-" + (index++));
-                listRowAdapter.add("GuidedStepFragment-" + (index++));
+                listRowAdapter.add("GuidedStepSupportFragment-" + (index++));
             }
             HeaderItem header = new HeaderItem(i, "Row " + i);
             adapter.add(new ListRow(header, listRowAdapter));
@@ -81,7 +81,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void defaultAlignment() throws InterruptedException {
-        launchAndWaitActivity(1000);
+        launchAndWaitActivity(F_defaultAlignment.class, 1000);
 
         final Rect rect = new Rect();
 
@@ -126,7 +126,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void selectBeforeSetAdapter() throws InterruptedException {
-        launchAndWaitActivity(2000);
+        launchAndWaitActivity(F_selectBeforeSetAdapter.class, 2000);
 
         final VerticalGridView gridView = ((RowsSupportFragment) mActivity.getTestFragment())
                 .getVerticalGridView();
@@ -159,7 +159,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void selectBeforeAddData() throws InterruptedException {
-        launchAndWaitActivity(2000);
+        launchAndWaitActivity(F_selectBeforeAddData.class, 2000);
 
         final VerticalGridView gridView = ((RowsSupportFragment) mActivity.getTestFragment())
                 .getVerticalGridView();
@@ -186,7 +186,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void selectAfterAddData() throws InterruptedException {
-        launchAndWaitActivity(2000);
+        launchAndWaitActivity(F_selectAfterAddData.class, 2000);
 
         final VerticalGridView gridView = ((RowsSupportFragment) mActivity.getTestFragment())
                 .getVerticalGridView();
@@ -216,7 +216,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void restoreSelection() {
-        launchAndWaitActivity(1000);
+        launchAndWaitActivity(F_restoreSelection.class, 1000);
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 new Runnable() {
