@@ -78,7 +78,7 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void defaultAlignment() throws InterruptedException {
-        launchAndWaitActivity(1000);
+        launchAndWaitActivity(F_defaultAlignment.class, 1000);
 
         final Rect rect = new Rect();
 
@@ -123,7 +123,7 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void selectBeforeSetAdapter() throws InterruptedException {
-        launchAndWaitActivity(2000);
+        launchAndWaitActivity(F_selectBeforeSetAdapter.class, 2000);
 
         final VerticalGridView gridView = ((RowsFragment) mActivity.getTestFragment())
                 .getVerticalGridView();
@@ -156,7 +156,7 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void selectBeforeAddData() throws InterruptedException {
-        launchAndWaitActivity(2000);
+        launchAndWaitActivity(F_selectBeforeAddData.class, 2000);
 
         final VerticalGridView gridView = ((RowsFragment) mActivity.getTestFragment())
                 .getVerticalGridView();
@@ -183,7 +183,7 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void selectAfterAddData() throws InterruptedException {
-        launchAndWaitActivity(2000);
+        launchAndWaitActivity(F_selectAfterAddData.class, 2000);
 
         final VerticalGridView gridView = ((RowsFragment) mActivity.getTestFragment())
                 .getVerticalGridView();
@@ -213,7 +213,7 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void restoreSelection() {
-        launchAndWaitActivity(1000);
+        launchAndWaitActivity(F_restoreSelection.class, 1000);
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 new Runnable() {

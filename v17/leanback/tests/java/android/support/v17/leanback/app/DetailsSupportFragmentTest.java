@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from DetailsFragmentTest.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -47,19 +50,19 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Unit tests for {@link DetailsFragment}.
+ * Unit tests for {@link DetailsSupportFragment}.
  */
 @RunWith(JUnit4.class)
 @MediumTest
-public class DetailsFragmentTest extends SingleFragmentTestBase {
+public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     static final int PARALLAX_VERTICAL_OFFSET = -300;
 
-    public static class DetailsFragmentParallax extends DetailsTestFragment {
+    public static class DetailsSupportFragmentParallax extends DetailsTestSupportFragment {
 
         private DetailsParallaxDrawable mParallaxDrawable;
 
-        public DetailsFragmentParallax() {
+        public DetailsSupportFragmentParallax() {
             super();
             mMinVerticalOffset = PARALLAX_VERTICAL_OFFSET;
         }
@@ -105,12 +108,12 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void parallaxSetupTest() {
-        launchAndWaitActivity(DetailsFragmentTest.DetailsFragmentParallax.class,
-                new SingleFragmentTestBase.Options().uiVisibility(
+        launchAndWaitActivity(DetailsSupportFragmentTest.DetailsSupportFragmentParallax.class,
+                new SingleSupportFragmentTestBase.Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
 
         double delta = 0.0002;
-        DetailsParallax dpm = ((DetailsFragment) mActivity.getTestFragment()).getParallax();
+        DetailsParallax dpm = ((DetailsSupportFragment) mActivity.getTestFragment()).getParallax();
 
         RecyclerViewParallax.ChildPositionProperty frameTop =
                 (RecyclerViewParallax.ChildPositionProperty) dpm.getOverviewRowTop();
@@ -126,12 +129,12 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void parallaxTest() throws Throwable {
-        launchAndWaitActivity(DetailsFragmentParallax.class,
+        launchAndWaitActivity(DetailsSupportFragmentParallax.class,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
 
-        final DetailsFragmentParallax detailsFragment =
-                (DetailsFragmentParallax) mActivity.getTestFragment();
+        final DetailsSupportFragmentParallax detailsFragment =
+                (DetailsSupportFragmentParallax) mActivity.getTestFragment();
         DetailsParallaxDrawable drawable =
                 detailsFragment.getParallaxDrawable();
         final FitWidthBitmapDrawable bitmapDrawable = (FitWidthBitmapDrawable)
@@ -140,12 +143,12 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                return detailsFragment.getRowsFragment().getAdapter() != null
-                        && detailsFragment.getRowsFragment().getAdapter().size() > 1;
+                return detailsFragment.getRowsSupportFragment().getAdapter() != null
+                        && detailsFragment.getRowsSupportFragment().getAdapter().size() > 1;
             }
         });
 
-        final VerticalGridView verticalGridView = detailsFragment.getRowsFragment()
+        final VerticalGridView verticalGridView = detailsFragment.getRowsSupportFragment()
                 .getVerticalGridView();
         final int windowHeight = verticalGridView.getHeight();
         final int windowWidth = verticalGridView.getWidth();
@@ -198,13 +201,13 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         assertEquals(windowHeight, colorDrawable.getBounds().bottom);
     }
 
-    public static class DetailsFragmentWithVideo extends DetailsTestFragment {
+    public static class DetailsSupportFragmentWithVideo extends DetailsTestSupportFragment {
 
-        final DetailsFragmentBackgroundController mDetailsBackground =
-                new DetailsFragmentBackgroundController(this);
+        final DetailsSupportFragmentBackgroundController mDetailsBackground =
+                new DetailsSupportFragmentBackgroundController(this);
         MediaPlayerGlue mGlue;
 
-        public DetailsFragmentWithVideo() {
+        public DetailsSupportFragmentWithVideo() {
             mTimeToLoadOverviewRow = mTimeToLoadRelatedRow = 100;
         }
 
@@ -241,24 +244,24 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void navigateBetweenRowsAndVideoUsingRequestFocus() throws Throwable {
-        launchAndWaitActivity(DetailsFragmentWithVideo.class,
+        launchAndWaitActivity(DetailsSupportFragmentWithVideo.class,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
 
-        final DetailsFragmentWithVideo detailsFragment =
-                (DetailsFragmentWithVideo) mActivity.getTestFragment();
+        final DetailsSupportFragmentWithVideo detailsFragment =
+                (DetailsSupportFragmentWithVideo) mActivity.getTestFragment();
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                return detailsFragment.mVideoFragment != null
-                        && detailsFragment.mVideoFragment.getView() != null
+                return detailsFragment.mVideoSupportFragment != null
+                        && detailsFragment.mVideoSupportFragment.getView() != null
                         && detailsFragment.mGlue.isMediaPlaying();
             }
         });
 
-        final int screenHeight = detailsFragment.getRowsFragment().getVerticalGridView()
+        final int screenHeight = detailsFragment.getRowsSupportFragment().getVerticalGridView()
                 .getHeight();
-        final View firstRow = detailsFragment.getRowsFragment().getVerticalGridView().getChildAt(0);
+        final View firstRow = detailsFragment.getRowsSupportFragment().getVerticalGridView().getChildAt(0);
         final int originalFirstRowTop = firstRow.getTop();
         assertTrue(firstRow.hasFocus());
         assertTrue(firstRow.getTop() < screenHeight);
@@ -267,7 +270,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                detailsFragment.mVideoFragment.getView().requestFocus();
+                detailsFragment.mVideoSupportFragment.getView().requestFocus();
             }
         });
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
@@ -281,7 +284,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                detailsFragment.getRowsFragment().getVerticalGridView().requestFocus();
+                detailsFragment.getRowsSupportFragment().getVerticalGridView().requestFocus();
             }
         });
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
@@ -295,24 +298,24 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void navigateBetweenRowsAndVideoUsingDPAD() throws Throwable {
-        launchAndWaitActivity(DetailsFragmentWithVideo.class,
+        launchAndWaitActivity(DetailsSupportFragmentWithVideo.class,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
 
-        final DetailsFragmentWithVideo detailsFragment =
-                (DetailsFragmentWithVideo) mActivity.getTestFragment();
+        final DetailsSupportFragmentWithVideo detailsFragment =
+                (DetailsSupportFragmentWithVideo) mActivity.getTestFragment();
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                return detailsFragment.mVideoFragment != null
-                        && detailsFragment.mVideoFragment.getView() != null
+                return detailsFragment.mVideoSupportFragment != null
+                        && detailsFragment.mVideoSupportFragment.getView() != null
                         && detailsFragment.mGlue.isMediaPlaying();
             }
         });
 
-        final int screenHeight = detailsFragment.getRowsFragment().getVerticalGridView()
+        final int screenHeight = detailsFragment.getRowsSupportFragment().getVerticalGridView()
                 .getHeight();
-        final View firstRow = detailsFragment.getRowsFragment().getVerticalGridView().getChildAt(0);
+        final View firstRow = detailsFragment.getRowsSupportFragment().getVerticalGridView().getChildAt(0);
         final int originalFirstRowTop = firstRow.getTop();
         assertTrue(firstRow.hasFocus());
         assertTrue(firstRow.getTop() < screenHeight);
@@ -339,10 +342,10 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void navigateBetweenRowsAndTitle() throws Throwable {
-        launchAndWaitActivity(DetailsTestFragment.class, new Options().uiVisibility(
+        launchAndWaitActivity(DetailsTestSupportFragment.class, new Options().uiVisibility(
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
-        final DetailsTestFragment detailsFragment =
-                (DetailsTestFragment) mActivity.getTestFragment();
+        final DetailsTestSupportFragment detailsFragment =
+                (DetailsTestSupportFragment) mActivity.getTestFragment();
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -360,12 +363,12 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                return detailsFragment.getRowsFragment().getVerticalGridView().getChildCount() > 0;
+                return detailsFragment.getRowsSupportFragment().getVerticalGridView().getChildCount() > 0;
             }
         });
-        final View firstRow = detailsFragment.getRowsFragment().getVerticalGridView().getChildAt(0);
+        final View firstRow = detailsFragment.getRowsSupportFragment().getVerticalGridView().getChildAt(0);
         final int originalFirstRowTop = firstRow.getTop();
-        final int screenHeight = detailsFragment.getRowsFragment().getVerticalGridView()
+        final int screenHeight = detailsFragment.getRowsSupportFragment().getVerticalGridView()
                 .getHeight();
 
         assertTrue(firstRow.hasFocus());

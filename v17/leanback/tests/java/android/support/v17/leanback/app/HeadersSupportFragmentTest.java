@@ -62,7 +62,7 @@ public class HeadersSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void defaultScale() {
-        launchAndWaitActivity(1000);
+        launchAndWaitActivity(F_defaultScale.class, 1000);
 
         final VerticalGridView gridView = ((HeadersSupportFragment) mActivity.getTestFragment())
                 .getVerticalGridView();
@@ -90,7 +90,7 @@ public class HeadersSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void disableScale() {
-        launchAndWaitActivity(1000);
+        launchAndWaitActivity(F_disableScale.class, 1000);
 
         final VerticalGridView gridView = ((HeadersSupportFragment) mActivity.getTestFragment())
                 .getVerticalGridView();

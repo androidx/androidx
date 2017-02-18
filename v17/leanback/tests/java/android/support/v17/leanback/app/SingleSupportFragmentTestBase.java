@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from SingleFrgamentTestBase.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -53,18 +56,51 @@ public class SingleSupportFragmentTestBase {
         }
     }
 
-    public void launchAndWaitActivity(long waitTimeMs) {
-        String firstFragmentName = getClass().getName() + "$F_" + mUnitTestName.getMethodName();
-        launchAndWaitActivity(firstFragmentName, waitTimeMs);
+    /**
+     * Options that will be passed throught Intent to SingleSupportFragmentTestActivity
+     */
+    public static class Options {
+        int mActivityLayoutId;
+        int mUiVisibility;
+
+        public Options() {
+        }
+
+        public Options activityLayoutId(int activityLayoutId) {
+            mActivityLayoutId = activityLayoutId;
+            return this;
+        }
+
+        public Options uiVisibility(int uiVisibility) {
+            mUiVisibility = uiVisibility;
+            return this;
+        }
+
+        public void collect(Intent intent) {
+            if (mActivityLayoutId != 0) {
+                intent.putExtra(SingleSupportFragmentTestActivity.EXTRA_ACTIVITY_LAYOUT,
+                        mActivityLayoutId);
+            }
+            if (mUiVisibility != 0) {
+                intent.putExtra(SingleSupportFragmentTestActivity.EXTRA_UI_VISIBILITY, mUiVisibility);
+            }
+        }
     }
 
     public void launchAndWaitActivity(Class fragmentClass, long waitTimeMs) {
-        launchAndWaitActivity(fragmentClass.getName(), waitTimeMs);
+        launchAndWaitActivity(fragmentClass.getName(), null, waitTimeMs);
     }
 
-    public void launchAndWaitActivity(String firstFragmentName, long waitTimeMs) {
+    public void launchAndWaitActivity(Class fragmentClass, Options options, long waitTimeMs) {
+        launchAndWaitActivity(fragmentClass.getName(), options, waitTimeMs);
+    }
+
+    public void launchAndWaitActivity(String firstFragmentName, Options options, long waitTimeMs) {
         Intent intent = new Intent();
         intent.putExtra(SingleSupportFragmentTestActivity.EXTRA_FRAGMENT_NAME, firstFragmentName);
+        if (options != null) {
+            options.collect(intent);
+        }
         mActivity = activityTestRule.launchActivity(intent);
         SystemClock.sleep(waitTimeMs);
     }
