@@ -16,7 +16,6 @@
 -->
 
 <resources>
-
     <string name="twoLinePathData">"M 0,0 v 100 M 0,0 h 100"</string>
     <string name="triangle"> "M300,70 l 0,-70 70,70 0,0   -70,70z"</string>
     <string name="rectangle">"M300,70 l 0,-70 70,0  0,140 -70,0 z"</string>

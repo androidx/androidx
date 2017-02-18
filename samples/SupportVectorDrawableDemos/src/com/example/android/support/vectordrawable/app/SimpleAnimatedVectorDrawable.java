@@ -16,7 +16,6 @@
 
 package com.example.android.support.vectordrawable.app;
 
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -26,24 +25,26 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
 import com.example.android.support.vectordrawable.R;
 
 import java.text.DecimalFormat;
 
-public class AnimatedButtonBackground extends Activity implements View.OnClickListener{
+/**
+ * Simple demo for AnimatedVectorDrawableCompat.
+ */
+public class SimpleAnimatedVectorDrawable extends Activity implements View.OnClickListener {
     private static final String LOG_TAG = "TestActivity";
 
     private static final String LOGCAT = "VectorDrawable1";
-    protected int[] icon = {
-        R.drawable.animation_vector_drawable_grouping_1,
-        R.drawable.animation_vector_progress_bar,
-        R.drawable.btn_radio_on_to_off_bundle,
+    protected int[] mIcons = {
+            R.drawable.animation_vector_drawable_grouping_1,
+            R.drawable.animation_vector_progress_bar,
+            R.drawable.btn_radio_on_to_off_bundle,
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        ObjectAnimator oa = new ObjectAnimator();
         super.onCreate(savedInstanceState);
         ScrollView scrollView = new ScrollView(this);
         LinearLayout container = new LinearLayout(this);
@@ -51,15 +52,15 @@ public class AnimatedButtonBackground extends Activity implements View.OnClickLi
         container.setOrientation(LinearLayout.VERTICAL);
         Resources res = this.getResources();
         container.setBackgroundColor(0xFF888888);
-        AnimatedVectorDrawableCompat []d = new AnimatedVectorDrawableCompat[icon.length];
-        long time =  android.os.SystemClock.currentThreadTimeMillis();
-        for (int i = 0; i < icon.length; i++) {
-             d[i] = AnimatedVectorDrawableCompat.create(this, icon[i]);
+        AnimatedVectorDrawableCompat[] d = new AnimatedVectorDrawableCompat[mIcons.length];
+        long time = android.os.SystemClock.currentThreadTimeMillis();
+        for (int i = 0; i < mIcons.length; i++) {
+            d[i] = AnimatedVectorDrawableCompat.create(this, mIcons[i]);
         }
-        time =  android.os.SystemClock.currentThreadTimeMillis()-time;
+        time = android.os.SystemClock.currentThreadTimeMillis() - time;
         TextView t = new TextView(this);
         DecimalFormat df = new DecimalFormat("#.##");
-        t.setText("avgL=" + df.format(time / (icon.length)) + " ms");
+        t.setText("avgL=" + df.format(time / (mIcons.length)) + " ms");
         container.addView(t);
 
         addDrawableButtons(container, d);
