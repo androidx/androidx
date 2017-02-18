@@ -213,7 +213,9 @@ public class MediaSessionCompatTest {
     @SmallTest
     public void testSetPlaybackState() throws Exception {
         MediaControllerCompat controller = mSession.getController();
-        waitUntilExtraBinderReady(controller);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            waitUntilExtraBinderReady(controller);
+        }
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
@@ -314,7 +316,9 @@ public class MediaSessionCompatTest {
     @SmallTest
     public void testSetRepeatMode() throws Exception {
         MediaControllerCompat controller = mSession.getController();
-        waitUntilExtraBinderReady(controller);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            waitUntilExtraBinderReady(controller);
+        }
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
@@ -335,7 +339,9 @@ public class MediaSessionCompatTest {
     public void testSetShuffleModeEnabled() throws Exception {
         final boolean shuffleModeEnabled = true;
         MediaControllerCompat controller = mSession.getController();
-        waitUntilExtraBinderReady(controller);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            waitUntilExtraBinderReady(controller);
+        }
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
@@ -355,8 +361,8 @@ public class MediaSessionCompatTest {
     @SmallTest
     public void testSendSessionEvent() throws Exception {
         MediaControllerCompat controller = mSession.getController();
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP ||
-                Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP_MR1) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
             waitUntilExtraBinderReady(controller);
         }
         controller.registerCallback(mCallback, mHandler);
