@@ -494,15 +494,6 @@ public final class MediaControllerCompat {
         return mImpl.getPackageName();
     }
 
-    @VisibleForTesting
-    boolean isExtraBinderReady() {
-        if (mImpl instanceof MediaControllerImplApi21) {
-            return ((MediaControllerImplApi21) mImpl).mExtraBinder != null;
-        } else {
-            return false;
-        }
-    }
-
     /**
      * Gets the underlying framework
      * {@link android.media.session.MediaController} object.
@@ -1135,12 +1126,10 @@ public final class MediaControllerCompat {
     }
 
     static class MediaControllerImplBase implements MediaControllerImpl {
-        private MediaSessionCompat.Token mToken;
         private IMediaSession mBinder;
         private TransportControls mTransportControls;
 
         public MediaControllerImplBase(MediaSessionCompat.Token token) {
-            mToken = token;
             mBinder = IMediaSession.Stub.asInterface((IBinder) token.getToken());
         }
 
@@ -1615,7 +1604,10 @@ public final class MediaControllerCompat {
         public MediaControllerImplApi21(Context context, MediaSessionCompat session) {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     session.getSessionToken().getToken());
-            requestExtraBinder();
+            mExtraBinder = session.getSessionToken().getExtraBinder();
+            if (mExtraBinder == null) {
+                requestExtraBinder();
+            }
         }
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat.Token sessionToken)
@@ -1623,7 +1615,10 @@ public final class MediaControllerCompat {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     sessionToken.getToken());
             if (mControllerObj == null) throw new RemoteException();
-            requestExtraBinder();
+            mExtraBinder = sessionToken.getExtraBinder();
+            if (mExtraBinder == null) {
+                requestExtraBinder();
+            }
         }
 
         @Override
@@ -1825,7 +1820,6 @@ public final class MediaControllerCompat {
             return mControllerObj;
         }
 
-        // TODO: Handle the case of calling other methods before receiving the extra binder.
         private void requestExtraBinder() {
             sendCommand(COMMAND_GET_EXTRA_BINDER, null,
                     new ExtraBinderRequestResultReceiver(this, new Handler()));

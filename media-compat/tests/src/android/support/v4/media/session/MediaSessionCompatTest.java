@@ -38,7 +38,6 @@ import android.os.Looper;
 import android.os.Parcel;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.media.PollingCheck;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
@@ -213,9 +212,6 @@ public class MediaSessionCompatTest {
     @SmallTest
     public void testSetPlaybackState() throws Exception {
         MediaControllerCompat controller = mSession.getController();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            waitUntilExtraBinderReady(controller);
-        }
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
@@ -316,9 +312,6 @@ public class MediaSessionCompatTest {
     @SmallTest
     public void testSetRepeatMode() throws Exception {
         MediaControllerCompat controller = mSession.getController();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            waitUntilExtraBinderReady(controller);
-        }
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
@@ -339,9 +332,6 @@ public class MediaSessionCompatTest {
     public void testSetShuffleModeEnabled() throws Exception {
         final boolean shuffleModeEnabled = true;
         MediaControllerCompat controller = mSession.getController();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            waitUntilExtraBinderReady(controller);
-        }
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
@@ -361,10 +351,6 @@ public class MediaSessionCompatTest {
     @SmallTest
     public void testSendSessionEvent() throws Exception {
         MediaControllerCompat controller = mSession.getController();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            waitUntilExtraBinderReady(controller);
-        }
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
@@ -618,15 +604,6 @@ public class MediaSessionCompatTest {
         MediaControllerCompat controller = mSession.getController();
         controller.dispatchMediaButtonEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
         controller.dispatchMediaButtonEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
-    }
-
-    private void waitUntilExtraBinderReady(final MediaControllerCompat controller) {
-        new PollingCheck(TIME_OUT_MS) {
-            @Override
-            protected boolean check() {
-                return controller.isExtraBinderReady();
-            }
-        }.run();
     }
 
     private class MediaControllerCallback extends MediaControllerCompat.Callback {
