@@ -38,6 +38,7 @@ import static android.support.v4.media.MediaBrowserProtocol.DATA_SEARCH_EXTRAS;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_SEARCH_QUERY;
 import static android.support.v4.media.MediaBrowserProtocol.EXTRA_CLIENT_VERSION;
 import static android.support.v4.media.MediaBrowserProtocol.EXTRA_MESSENGER_BINDER;
+import static android.support.v4.media.MediaBrowserProtocol.EXTRA_SESSION_BINDER;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT_FAILED;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
@@ -63,6 +64,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
+import android.support.v4.media.session.IMediaSession;
 import android.support.v4.media.session.MediaControllerCompat.TransportControls;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.os.BuildCompat;
@@ -1467,6 +1469,7 @@ public final class MediaBrowserCompat {
 
         protected ServiceBinderWrapper mServiceBinderWrapper;
         protected Messenger mCallbacksMessenger;
+        private MediaSessionCompat.Token mMediaSessionToken;
 
         public MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
@@ -1528,8 +1531,11 @@ public final class MediaBrowserCompat {
         @NonNull
         @Override
         public MediaSessionCompat.Token getSessionToken() {
-            return MediaSessionCompat.Token.fromToken(
-                    MediaBrowserCompatApi21.getSessionToken(mBrowserObj));
+            if (mMediaSessionToken == null) {
+                mMediaSessionToken = MediaSessionCompat.Token.fromToken(
+                        MediaBrowserCompatApi21.getSessionToken(mBrowserObj));
+            }
+            return mMediaSessionToken;
         }
 
         @Override
@@ -1714,12 +1720,19 @@ public final class MediaBrowserCompat {
                     Log.i(TAG, "Remote error registering client messenger." );
                 }
             }
+            IMediaSession sessionToken = (IMediaSession) BundleCompat.getBinder(
+                    extras, EXTRA_SESSION_BINDER);
+            if (sessionToken != null) {
+                mMediaSessionToken = MediaSessionCompat.Token.fromToken(
+                        MediaBrowserCompatApi21.getSessionToken(mBrowserObj), sessionToken);
+            }
         }
 
         @Override
         public void onConnectionSuspended() {
             mServiceBinderWrapper = null;
             mCallbacksMessenger = null;
+            mMediaSessionToken = null;
             mHandler.setCallbacksMessenger(null);
         }
 

@@ -956,7 +956,8 @@ public class MediaSessionCompat {
                     MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
                     if (impl != null) {
                         Bundle result = new Bundle();
-                        BundleCompat.putBinder(result, EXTRA_BINDER, impl.getExtraSessionBinder());
+                        BundleCompat.putBinder(result, EXTRA_BINDER,
+                                (IBinder) impl.getSessionToken().getExtraBinder());
                         cb.send(0, result);
                     }
                 } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM)) {
@@ -1140,9 +1141,15 @@ public class MediaSessionCompat {
      */
     public static final class Token implements Parcelable {
         private final Object mInner;
+        private final IMediaSession mExtraBinder;
 
         Token(Object inner) {
+            this(inner, null);
+        }
+
+        Token(Object inner, IMediaSession extraBinder) {
             mInner = inner;
+            mExtraBinder = extraBinder;
         }
 
         /**
@@ -1157,8 +1164,26 @@ public class MediaSessionCompat {
          * @return A compat Token for use with {@link MediaControllerCompat}.
          */
         public static Token fromToken(Object token) {
+            return fromToken(token, null);
+        }
+
+        /**
+         * Creates a compat Token from a framework
+         * {@link android.media.session.MediaSession.Token} object, and the extra binder.
+         * <p>
+         * This method is only supported on
+         * {@link android.os.Build.VERSION_CODES#LOLLIPOP} and later.
+         * </p>
+         *
+         * @param token The framework token object.
+         * @param extraBinder The extra binder.
+         * @return A compat Token for use with {@link MediaControllerCompat}.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public static Token fromToken(Object token, IMediaSession extraBinder) {
             if (token != null && android.os.Build.VERSION.SDK_INT >= 21) {
-                return new Token(MediaSessionCompatApi21.verifyToken(token));
+                return new Token(MediaSessionCompatApi21.verifyToken(token), extraBinder);
             }
             return null;
         }
@@ -1172,6 +1197,7 @@ public class MediaSessionCompat {
         public void writeToParcel(Parcel dest, int flags) {
             if (android.os.Build.VERSION.SDK_INT >= 21) {
                 dest.writeParcelable((Parcelable) mInner, flags);
+                dest.writeStrongBinder((IBinder) mExtraBinder);
             } else {
                 dest.writeStrongBinder((IBinder) mInner);
             }
@@ -1217,23 +1243,33 @@ public class MediaSessionCompat {
             return mInner;
         }
 
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public IMediaSession getExtraBinder() {
+            return mExtraBinder;
+        }
+
         public static final Parcelable.Creator<Token> CREATOR
                 = new Parcelable.Creator<Token>() {
-            @Override
-            public Token createFromParcel(Parcel in) {
-                Object inner;
-                if (android.os.Build.VERSION.SDK_INT >= 21) {
-                    inner = in.readParcelable(null);
-                } else {
-                    inner = in.readStrongBinder();
-                }
-                return new Token(inner);
-            }
+                    @Override
+                    public Token createFromParcel(Parcel in) {
+                        Object inner;
+                        IMediaSession extraBinder = null;
+                        if (android.os.Build.VERSION.SDK_INT >= 21) {
+                            inner = in.readParcelable(null);
+                            extraBinder = (IMediaSession) in.readStrongBinder();
+                        } else {
+                            inner = in.readStrongBinder();
+                        }
+                        return new Token(inner, extraBinder);
+                    }
 
-            @Override
-            public Token[] newArray(int size) {
-                return new Token[size];
-            }
+                    @Override
+                    public Token[] newArray(int size) {
+                        return new Token[size];
+                    }
         };
     }
 
@@ -2802,7 +2838,6 @@ public class MediaSessionCompat {
         private final Token mToken;
 
         private boolean mDestroyed = false;
-        private ExtraSession mExtraSessionBinder;
         private final RemoteCallbackList<IMediaControllerCallback> mExtraControllerCallbacks =
                 new RemoteCallbackList<>();
 
@@ -2813,12 +2848,14 @@ public class MediaSessionCompat {
 
         public MediaSessionImplApi21(Context context, String tag) {
             mSessionObj = MediaSessionCompatApi21.createSession(context, tag);
-            mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj));
+            mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj),
+                    new ExtraSession());
         }
 
         public MediaSessionImplApi21(Object mediaSession) {
             mSessionObj = MediaSessionCompatApi21.verifySession(mediaSession);
-            mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj));
+            mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj),
+                    new ExtraSession());
         }
 
         @Override
@@ -3003,13 +3040,6 @@ public class MediaSessionCompat {
             } else {
                 return MediaSessionCompatApi24.getCallingPackage(mSessionObj);
             }
-        }
-
-        ExtraSession getExtraSessionBinder() {
-            if (mExtraSessionBinder == null) {
-                mExtraSessionBinder = new ExtraSession();
-            }
-            return mExtraSessionBinder;
         }
 
         class ExtraSession extends IMediaSession.Stub {
