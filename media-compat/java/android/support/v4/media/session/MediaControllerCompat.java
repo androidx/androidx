@@ -1628,14 +1628,12 @@ public final class MediaControllerCompat {
         // after API 21.
         private IMediaSession mExtraBinder;
         private HashMap<Callback, ExtraCallback> mCallbackMap = new HashMap<>();
-        private List<Callback> mPendingCallbacks;
+        private List<Callback> mPendingCallbacks = new ArrayList<>();
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat session) {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     session.getSessionToken().getToken());
-            if (android.os.Build.VERSION.SDK_INT < 26) {
-                requestExtraBinder();
-            }
+            requestExtraBinder();
         }
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat.Token sessionToken)
@@ -1643,9 +1641,7 @@ public final class MediaControllerCompat {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     sessionToken.getToken());
             if (mControllerObj == null) throw new RemoteException();
-            if (android.os.Build.VERSION.SDK_INT < 26) {
-                requestExtraBinder();
-            }
+            requestExtraBinder();
         }
 
         @Override
@@ -1662,12 +1658,11 @@ public final class MediaControllerCompat {
                 } catch (RemoteException e) {
                     Log.e(TAG, "Dead object in registerCallback. " + e);
                 }
-            } else if (android.os.Build.VERSION.SDK_INT < 26) {
-                if (mPendingCallbacks == null) {
-                    mPendingCallbacks = new ArrayList<>();
-                }
+            } else {
                 callback.setHandler(handler);
-                mPendingCallbacks.add(callback);
+                synchronized (mPendingCallbacks) {
+                    mPendingCallbacks.add(callback);
+                }
             }
         }
 
@@ -1683,11 +1678,10 @@ public final class MediaControllerCompat {
                 } catch (RemoteException e) {
                     Log.e(TAG, "Dead object in unregisterCallback. " + e);
                 }
-            } else if (android.os.Build.VERSION.SDK_INT < 26) {
-                if (mPendingCallbacks == null) {
-                    mPendingCallbacks = new ArrayList<>();
+            } else {
+                synchronized (mPendingCallbacks) {
+                    mPendingCallbacks.remove(callback);
                 }
-                mPendingCallbacks.remove(callback);
             }
         }
 
@@ -1856,21 +1850,23 @@ public final class MediaControllerCompat {
         }
 
         private void processPendingCallbacks() {
-            if (mPendingCallbacks == null || mExtraBinder == null) {
+            if (mExtraBinder == null) {
                 return;
             }
-            for (Callback callback : mPendingCallbacks) {
-                ExtraCallback extraCallback = new ExtraCallback(callback);
-                mCallbackMap.put(callback, extraCallback);
-                callback.mHasExtraCallback = true;
-                try {
-                    mExtraBinder.registerCallbackListener(extraCallback);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Dead object in registerCallback. " + e);
-                    break;
+            synchronized (mPendingCallbacks) {
+                for (Callback callback : mPendingCallbacks) {
+                    ExtraCallback extraCallback = new ExtraCallback(callback);
+                    mCallbackMap.put(callback, extraCallback);
+                    callback.mHasExtraCallback = true;
+                    try {
+                        mExtraBinder.registerCallbackListener(extraCallback);
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "Dead object in registerCallback. " + e);
+                        break;
+                    }
                 }
+                mPendingCallbacks.clear();
             }
-            mPendingCallbacks = null;
         }
 
         private static class ExtraBinderRequestResultReceiver extends ResultReceiver {
