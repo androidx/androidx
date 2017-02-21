@@ -78,14 +78,23 @@ class SQLiteOpenHelperWriter(val database : Database) {
         }.build()
     }
 
+    private fun MethodSpec.Builder.writeCreateStatements() {
+        // this is already called in transaction so no need for a transaction
+        database.entities.forEach {
+            addStatement("_db.execSQL($S)", createQuery(it))
+        }
+        database.entities.forEach {
+            it.createIndexQueries.forEach {
+                addStatement("_db.execSQL($S)", it)
+            }
+        }
+    }
+
     private fun createOnCreate() : MethodSpec {
         return MethodSpec.methodBuilder("onCreate").apply {
             addModifiers(PUBLIC)
             addParameter(SupportDbTypeNames.DB, "_db")
-            // this is already called in transaction so no need for a transaction
-            database.entities.forEach {
-                addStatement("_db.execSQL($S)", createQuery(it))
-            }
+            writeCreateStatements()
         }.build()
     }
 
@@ -97,8 +106,8 @@ class SQLiteOpenHelperWriter(val database : Database) {
             addParameter(TypeName.INT, "_newVersion")
             database.entities.forEach {
                 addStatement("_db.execSQL($S)", createDropTableQuery(it))
-                addStatement("_db.execSQL($S)", createQuery(it))
             }
+            writeCreateStatements()
         }.build()
     }
 

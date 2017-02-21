@@ -68,15 +68,22 @@ public class Room {
 
     @NonNull
     static <T, C> T getGeneratedImplementation(Class<C> klass, String suffix) {
+        final String fullPackage = klass.getPackage().getName();
+        String name = klass.getCanonicalName();
+        final String postPackageName = fullPackage.isEmpty()
+                ? name
+                : (name.substring(fullPackage.length() + 1));
+        final String implName = postPackageName.replace('.', '_') + suffix;
         //noinspection TryWithIdenticalCatches
         try {
+
             @SuppressWarnings("unchecked")
-            final Class<T> aClass =
-                    (Class<T>) Class.forName(klass.getName() + suffix);
+            final Class<T> aClass = (Class<T>) Class.forName(
+                    fullPackage.isEmpty() ? implName : fullPackage + "." + implName);
             return aClass.newInstance();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("cannot find implementation for "
-                    + klass.getCanonicalName());
+                    + klass.getCanonicalName() + ". " + implName + " does not exist");
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Cannot access the constructor"
                     + klass.getCanonicalName());

@@ -27,10 +27,10 @@ data class Database(val element : TypeElement,
                     val type : TypeMirror,
                     val entities : List<Entity>,
                     val daoMethods : List<DaoMethod>) {
-    val typeName by lazy { ClassName.get(type) as ClassName }
+    val typeName : ClassName by lazy { ClassName.get(element)}
 
-    val implClassName by lazy {
-        "${typeName.simpleName()}_Impl"
+    private val implClassName by lazy {
+        "${typeName.simpleNames().joinToString("_")}_Impl"
     }
 
     val implTypeName by lazy {

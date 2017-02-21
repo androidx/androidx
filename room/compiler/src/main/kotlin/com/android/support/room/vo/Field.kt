@@ -30,7 +30,9 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
                  val columnName: String = name,
                  /* means that this field does not belong to parent, instead, it belongs to a
                  * decomposed child of the main Pojo*/
-                 val parent: DecomposedField? = null) {
+                 val parent: DecomposedField? = null,
+                 // index might be removed when being merged into an Entity
+                 var indexed : Boolean = false) {
     lateinit var getter: FieldGetter
     lateinit var setter: FieldSetter
     // binds the field into a statement

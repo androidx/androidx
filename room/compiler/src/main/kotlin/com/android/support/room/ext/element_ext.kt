@@ -32,18 +32,18 @@ import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
 import kotlin.reflect.KClass
 
-fun Element.hasAnyOf(vararg modifiers: Modifier) : Boolean {
+fun Element.hasAnyOf(vararg modifiers: Modifier): Boolean {
     return this.modifiers.any { modifiers.contains(it) }
 }
 
-fun Element.hasAnnotation(klass : KClass<out Annotation>) : Boolean {
+fun Element.hasAnnotation(klass: KClass<out Annotation>): Boolean {
     return MoreElements.isAnnotationPresent(this, klass.java)
 }
 
 /**
  * Checks if it has all of the annotations
  */
-fun Element.hasAllOf(vararg klasses : KClass<out Annotation>) : Boolean {
+fun Element.hasAllOf(vararg klasses: KClass<out Annotation>): Boolean {
     return !klasses.any { !hasAnnotation(it) }
 }
 
@@ -101,15 +101,60 @@ fun AnnotationValue.toClassType(): TypeMirror? {
     return TO_TYPE.visit(this)
 }
 
-fun TypeMirror.isCollection() : Boolean {
+fun TypeMirror.isCollection(): Boolean {
     return MoreTypes.isType(this)
             && (MoreTypes.isTypeOf(java.util.List::class.java, this)
             || MoreTypes.isTypeOf(java.util.Set::class.java, this))
 }
 
-fun Element.getAnnotationValue(annotation : Class<out Annotation>, fieldName : String) : Any? {
+fun Element.getAnnotationValue(annotation: Class<out Annotation>, fieldName: String): Any? {
     return MoreElements.getAnnotationMirror(this, annotation)
             .orNull()?.let {
         AnnotationMirrors.getAnnotationValue(it, fieldName)?.value
     }
+}
+
+private val ANNOTATION_VALUE_TO_INT_VISITOR = object : SimpleAnnotationValueVisitor6<Int?, Void>() {
+    override fun visitInt(i: Int, p: Void?): Int? {
+        return i
+    }
+}
+
+private val ANNOTATION_VALUE_TO_BOOLEAN_VISITOR = object
+    : SimpleAnnotationValueVisitor6<Boolean?, Void>() {
+    override fun visitBoolean(b: Boolean, p: Void?): Boolean? {
+        return b
+    }
+}
+
+private val ANNOTATION_VALUE_TO_STRING_VISITOR = object
+    : SimpleAnnotationValueVisitor6<String?, Void>() {
+    override fun visitString(s: String?, p: Void?): String? {
+        return s
+    }
+}
+
+private val ANNOTATION_VALUE_STRING_ARR_VISITOR = object
+    : SimpleAnnotationValueVisitor6<List<String>, Void>() {
+    override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<String> {
+        return vals?.map {
+            ANNOTATION_VALUE_TO_STRING_VISITOR.visit(it)
+        }?.filterNotNull() ?: emptyList()
+    }
+}
+
+fun AnnotationValue.getAsInt(def: Int? = null): Int? {
+    return ANNOTATION_VALUE_TO_INT_VISITOR.visit(this) ?: def
+}
+
+fun AnnotationValue.getAsString(def: String? = null): String? {
+    return ANNOTATION_VALUE_TO_STRING_VISITOR.visit(this) ?: def
+}
+
+fun AnnotationValue.getAsBoolean(def: Boolean): Boolean {
+    return ANNOTATION_VALUE_TO_BOOLEAN_VISITOR.visit(this) ?: def
+}
+
+fun AnnotationValue.getAsStringList(): List<String> {
+    return ANNOTATION_VALUE_STRING_ARR_VISITOR.visit(this)
 }

@@ -16,6 +16,7 @@
 
 package com.android.support.room.processor
 
+import com.android.support.room.ColumnInfo
 import com.android.support.room.Decompose
 import com.android.support.room.Ignore
 import com.android.support.room.ext.getAllFieldsIncludingPrivateSupers
@@ -24,6 +25,7 @@ import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
 import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
+import com.android.support.room.processor.ProcessorErrors.FIELD_WITH_DECOMPOSE_AND_COLUMN_INFO
 import com.android.support.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
 import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
@@ -117,6 +119,8 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
     }
 
     private fun processDecomposedField(declaredType: DeclaredType?, it: Element): DecomposedField {
+        context.checker.check(!it.hasAnnotation(ColumnInfo::class), it,
+                FIELD_WITH_DECOMPOSE_AND_COLUMN_INFO)
         val fieldPrefix = it.getAnnotationValue(Decompose::class.java, "prefix")
                 ?.toString() ?: ""
         val inheritedPrefix = parent?.prefix ?: ""

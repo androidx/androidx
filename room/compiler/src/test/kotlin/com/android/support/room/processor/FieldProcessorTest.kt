@@ -168,6 +168,23 @@ class FieldProcessorTest {
     }
 
     @Test
+    fun indexed() {
+        singleEntity("""
+            @ColumnInfo(name = "foo", index = true)
+            int x;
+            """) { field, invocation ->
+            assertThat(field, `is`(
+                    Field(name = "x",
+                            type = TypeKind.INT.typeMirror(invocation),
+                            primaryKey = false,
+                            element = field.element,
+                            columnName = "foo",
+                            affinity = SQLTypeAffinity.INTEGER,
+                            indexed = true)))
+        }.compilesWithoutError()
+    }
+
+    @Test
     fun emptyColumnName() {
         singleEntity("""
             @ColumnInfo(name = "")

@@ -34,6 +34,7 @@ import java.lang.annotation.Target;
  * @see Database
  * @see PrimaryKey
  * @see ColumnInfo
+ * @see Index
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
@@ -44,4 +45,30 @@ public @interface Entity {
      * @return The SQLite tableName of the Entity.
      */
     String tableName() default "";
+
+    /**
+     * List of indices on the table.
+     *
+     * @return The list of indices on the table.
+     */
+    Index[] indices() default {};
+
+    /**
+     * If set to {code true}, any Index defined in parent classes of this class will be carried over
+     * to the current Entity. Note that if you set this to {@code true}, even if you have a parent
+     * which sets this value to {@code false}, you will still inherit indices from it and its
+     * parents.
+     * <p>
+     * When you inherit an index from the parent, it is <b>always</b> renamed with the default
+     * naming schema since SQLite <b>does not</b> allow using the same index name in multiple
+     * tables. See {@link Index} for details of the default name.
+     * <p>
+     * By default, indices defined in parent classes are dropped to avoid unexpected indices.
+     * When this happens, you will receive a {@link RoomWarnings#INDEX_FROM_PARENT_FIELD_IS_DROPPED}
+     * or {@link RoomWarnings#INDEX_FROM_PARENT_IS_DROPPED} warning during compilation.
+     *
+     * @return True if indices from parent classes should be automatically inherited by this Entity,
+     *         false otherwise. Defaults to false.
+     */
+    boolean inheritSuperIndices() default false;
 }

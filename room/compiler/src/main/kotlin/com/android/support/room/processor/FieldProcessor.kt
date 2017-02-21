@@ -18,9 +18,12 @@ package com.android.support.room.processor
 
 import com.android.support.room.ColumnInfo
 import com.android.support.room.PrimaryKey
+import com.android.support.room.ext.getAsBoolean
+import com.android.support.room.ext.getAsInt
+import com.android.support.room.ext.getAsString
 import com.android.support.room.parser.SQLTypeAffinity
-import com.android.support.room.vo.Field
 import com.android.support.room.vo.DecomposedField
+import com.android.support.room.vo.Field
 import com.android.support.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -42,10 +45,11 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
         val columnName: String
         val affinity : SQLTypeAffinity?
         val fieldPrefix = fieldParent?.prefix ?: ""
-
+        var indexed : Boolean
         if (columnInfoAnnotation.isPresent) {
             val nameInAnnotation = AnnotationMirrors
-                    .getAnnotationValue(columnInfoAnnotation.get(), "name").value.toString()
+                    .getAnnotationValue(columnInfoAnnotation.get(), "name")
+                    .getAsString(ColumnInfo.INHERIT_FIELD_NAME)
             columnName = fieldPrefix + if (nameInAnnotation == ColumnInfo.INHERIT_FIELD_NAME) {
                 name
             } else {
@@ -55,14 +59,20 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
             affinity = try {
                 val userDefinedAffinity = AnnotationMirrors
                         .getAnnotationValue(columnInfoAnnotation.get(), "typeAffinity")
-                        .value.toString().toInt()
+                        .getAsInt(ColumnInfo.UNDEFINED)!!
                 SQLTypeAffinity.fromAnnotationValue(userDefinedAffinity)
             } catch (ex : NumberFormatException) {
                 null
             }
+
+            indexed = AnnotationMirrors
+                    .getAnnotationValue(columnInfoAnnotation.get(), "index")
+                    .getAsBoolean(false)
+
         } else {
             columnName = fieldPrefix + name
             affinity = null
+            indexed = false
         }
         context.checker.notBlank(columnName, element,
                 ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY)
@@ -87,7 +97,8 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
                 element = element,
                 columnName = columnName,
                 affinity = affinity,
-                parent = fieldParent)
+                parent = fieldParent,
+                indexed = indexed)
 
         when (bindingScope) {
             BindingScope.TWO_WAY -> {

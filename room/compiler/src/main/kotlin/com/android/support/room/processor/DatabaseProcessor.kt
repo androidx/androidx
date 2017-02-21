@@ -79,11 +79,30 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
             DaoMethod(executable, executable.simpleName.toString(), dao)
         }
         validateUniqueDaoClasses(element, daoMethods)
+        validateUniqueIndices(element, entities)
         val database = Database(element = element,
                 type = MoreElements.asType(element).asType(),
                 entities = entities,
                 daoMethods = daoMethods)
         return database
+    }
+
+    private fun validateUniqueIndices(element: TypeElement, entities: List<Entity>) {
+        entities
+                .flatMap { entity ->
+                    // associate each index with its entity
+                    entity.indices.map { Pair(it.name, entity) }
+                }
+                .groupBy { it.first } // group by index name
+                .filter { it.value.size > 1 } // get the ones with duplicate names
+                .forEach {
+                    // do not report duplicates from the same entity
+                    if (it.value.distinctBy { it.second.typeName }.size > 1) {
+                        context.logger.e(element,
+                                ProcessorErrors.duplicateIndexInDatabase(it.key,
+                                        it.value.map { "${it.second.typeName} > ${it.first}" }))
+                    }
+                }
     }
 
     private fun validateUniqueDaoClasses(dbElement: TypeElement, daoMethods: List<DaoMethod>) {
@@ -101,7 +120,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                 }
     }
 
-    private fun validateUniqueTableNames(dbElement : TypeElement, entities : List<Entity>) {
+    private fun validateUniqueTableNames(dbElement: TypeElement, entities: List<Entity>) {
         entities
                 .groupBy {
                     it.tableName.toLowerCase()

@@ -34,7 +34,7 @@ data class Dao(val element : TypeElement, val type : DeclaredType,
         this.suffix = if (newSuffix == "") "" else "_$newSuffix"
     }
 
-    val typeName by lazy { ClassName.get(type) as ClassName }
+    val typeName : ClassName by lazy { ClassName.get(element) }
 
     private val implClassName by lazy {
         if (suffix == null) {

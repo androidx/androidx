@@ -274,6 +274,43 @@ class DatabaseProcessorTest {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun duplicateIndexNames() {
+        val entity1 = JavaFileObjects.forSourceString("foo.bar.Entity1",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(indices = {@Index(name ="index_name", value = {"name"})})
+                public class Entity1 {
+                    @PrimaryKey
+                    int uid;
+                    String name;
+                }
+                """)
+
+        val entity2 = JavaFileObjects.forSourceString("foo.bar.Entity2",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(indices = {@Index(name ="index_name", value = {"anotherName"})})
+                public class Entity2 {
+                    @PrimaryKey
+                    int uid;
+                    String anotherName;
+                }
+                """)
+        singleDb("""
+                @Database(entities = {Entity1.class, Entity2.class})
+                public abstract class MyDb extends RoomDatabase {
+                }
+                """, entity1, entity2){ db, invocation ->
+
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.duplicateIndexInDatabase("index_name",
+                        listOf("foo.bar.Entity1 > index_name", "foo.bar.Entity2 > index_name"))
+        )
+    }
+
     fun singleDb(input: String, vararg otherFiles: JavaFileObject,
                  handler: (Database, TestInvocation) -> Unit): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())

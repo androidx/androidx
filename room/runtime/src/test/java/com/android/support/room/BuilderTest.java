@@ -61,8 +61,8 @@ public class BuilderTest {
     public void createBasic() {
         Context context = mock(Context.class);
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
-        assertThat(db, instanceOf(TestDatabase_Impl.class));
-        DatabaseConfiguration config = ((TestDatabase_Impl) db).mConfig;
+        assertThat(db, instanceOf(BuilderTest_TestDatabase_Impl.class));
+        DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
         assertThat(config, notNullValue());
         assertThat(config.context, is(context));
         assertThat(config.name, is(nullValue()));
@@ -80,31 +80,12 @@ public class BuilderTest {
                 .version(41)
                 .openHelperFactory(factory)
                 .build();
-        assertThat(db, instanceOf(TestDatabase_Impl.class));
-        DatabaseConfiguration config = ((TestDatabase_Impl) db).mConfig;
+        assertThat(db, instanceOf(BuilderTest_TestDatabase_Impl.class));
+        DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
         assertThat(config, notNullValue());
         assertThat(config.version, is(41));
         assertThat(config.sqliteOpenHelperFactory, is(factory));
     }
 
     abstract static class TestDatabase extends RoomDatabase {}
-
-    static class TestDatabase_Impl extends TestDatabase {
-        DatabaseConfiguration mConfig;
-        @Override
-        public void init(DatabaseConfiguration configuration) {
-            super.init(configuration);
-            mConfig = configuration;
-        }
-
-        @Override
-        protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration config) {
-            return null;
-        }
-
-        @Override
-        protected InvalidationTracker createInvalidationTracker() {
-            return null;
-        }
-    }
 }

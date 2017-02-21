@@ -21,7 +21,8 @@ import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
 import com.android.support.room.vo.FieldSetter
-import com.android.support.room.vo.Warning
+import com.android.support.room.vo.Index
+import com.google.testing.compile.JavaFileObjects
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -202,7 +203,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 int x;
                 @PrimaryKey
                 int y;
-                """) { entity , invocation ->
+                """) { entity, invocation ->
             assertThat(entity.primaryKeys.size, `is`(2))
         }.compilesWithoutError()
     }
@@ -212,7 +213,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
         singleEntity("""
                 @PrimaryKey
                 int x;
-                """, hashMapOf(Pair("tableName", "\"foo_table\""))) { entity , invocation ->
+                """, hashMapOf(Pair("tableName", "\"foo_table\""))) { entity, invocation ->
             assertThat(entity.tableName, `is`("foo_table"))
         }.compilesWithoutError()
     }
@@ -222,7 +223,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
         singleEntity("""
                 @PrimaryKey
                 int x;
-                """, hashMapOf(Pair("tableName", "\" \""))) { entity , invocation ->
+                """, hashMapOf(Pair("tableName", "\" \""))) { entity, invocation ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
     }
 
@@ -264,7 +265,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
         }.compilesWithoutError()
                 .withWarningCount(1)
                 .withWarningContaining(ProcessorErrors.decomposedPrimaryKeyIsDropped(
-                                "foo.bar.MyEntity", "x"))
+                        "foo.bar.MyEntity", "x"))
     }
 
     @Test
@@ -286,5 +287,459 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.fields.find { it.name == "x" }!!.primaryKey, `is`(false))
             assertThat(entity.fields.filter { it.primaryKey }.map { it.name }, `is`(listOf("id")))
         }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun index_simple() {
+        val annotation = mapOf(
+                "indices" to """@Index("foo")"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """
+                , annotation) { entity, invocation ->
+            assertThat(entity.indices, `is`(
+                    listOf(Index(name = "index_MyEntity_foo",
+                            unique = false,
+                            columnNames = listOf("foo")))
+            ))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun index_fromField() {
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                @ColumnInfo(index = true)
+                public String foo;
+                """) { entity, invocation ->
+            assertThat(entity.indices, `is`(
+                    listOf(Index(name = "index_MyEntity_foo",
+                            unique = false,
+                            columnNames = listOf("foo")))
+            ))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun index_multiColumn() {
+        val annotation = mapOf(
+                "indices" to """@Index({"foo", "id"})"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """
+                , annotation) { entity, invocation ->
+            assertThat(entity.indices, `is`(
+                    listOf(Index(name = "index_MyEntity_foo_id",
+                            unique = false,
+                            columnNames = listOf("foo", "id")))
+            ))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun index_multiple() {
+        val annotation = mapOf(
+                "indices" to """{@Index({"foo", "id"}), @Index({"bar_column", "foo"})}"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                @ColumnInfo(name = "bar_column")
+                public String bar;
+                """
+                , annotation) { entity, invocation ->
+            assertThat(entity.indices, `is`(
+                    listOf(Index(name = "index_MyEntity_foo_id",
+                            unique = false,
+                            columnNames = listOf("foo", "id")),
+                            Index(name = "index_MyEntity_bar_column_foo",
+                                    unique = false,
+                                    columnNames = listOf("bar_column", "foo")))
+            ))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun index_unique() {
+        val annotation = mapOf(
+                "indices" to """@Index(value = {"foo", "id"}, unique = true)"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """
+                , annotation) { entity, invocation ->
+            assertThat(entity.indices, `is`(
+                    listOf(Index(name = "index_MyEntity_foo_id",
+                            unique = true,
+                            columnNames = listOf("foo", "id")))
+            ))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun index_customName() {
+        val annotation = mapOf(
+                "indices" to """@Index(value = {"foo"}, name = "myName")"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """
+                , annotation) { entity, invocation ->
+            assertThat(entity.indices, `is`(
+                    listOf(Index(name = "myName",
+                            unique = false,
+                            columnNames = listOf("foo")))
+            ))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun index_customTableName() {
+        val annotation = mapOf(
+                "tableName" to "\"MyTable\"",
+                "indices" to """@Index(value = {"foo"})"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """
+                , annotation) { entity, invocation ->
+            assertThat(entity.indices, `is`(
+                    listOf(Index(name = "index_MyTable_foo",
+                            unique = false,
+                            columnNames = listOf("foo")))
+            ))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun index_empty() {
+        val annotation = mapOf(
+                "indices" to """@Index({})"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """
+                , annotation) { entity, invocation ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
+        )
+    }
+
+    @Test
+    fun index_missingColumn() {
+        val annotation = mapOf(
+                "indices" to """@Index({"foo", "bar"})"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """
+                , annotation) { entity, invocation ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.indexColumnDoesNotExist("bar", listOf("id, foo"))
+        )
+    }
+
+    @Test
+    fun index_nameConflict() {
+        val annotation = mapOf(
+                "indices" to """@Index({"foo"})"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                @ColumnInfo(index = true)
+                public String foo;
+                """
+                , annotation) { entity, invocation ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.duplicateIndexInEntity("index_MyEntity_foo")
+        )
+    }
+
+    @Test
+    fun index_droppedParentFieldIndex() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                public class Base {
+                    @PrimaryKey
+                    long baseId;
+                    @ColumnInfo(index = true)
+                    String name;
+                    String lastName;
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """, baseClass = "foo.bar.Base", jfos = listOf(parent)) { entity, invocation ->
+            assertThat(entity.indices.isEmpty(), `is`(true))
+        }.compilesWithoutError()
+                .withWarningContaining(
+                        ProcessorErrors.droppedSuperClassFieldIndex(
+                                fieldName = "name",
+                                childEntity = "foo.bar.MyEntity",
+                                superEntity = "foo.bar.Base")
+                )
+    }
+
+    @Test
+    fun index_keptGrandParentEntityIndex() {
+        val grandParent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(indices = @Index({"name", "lastName"}))
+                public class Base {
+                    @PrimaryKey
+                    long baseId;
+                    String name, lastName;
+                }
+                """)
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Parent",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+
+                public class Parent extends Base {
+                    String iHaveAField;
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """,
+                baseClass = "foo.bar.Parent",
+                attributes = hashMapOf("inheritSuperIndices" to "true"),
+                jfos = listOf(parent, grandParent)) {
+            entity, invocation ->
+            assertThat(entity.indices.size, `is`(1))
+            assertThat(entity.indices.first(),
+                    `is`(Index(name = "index_MyEntity_name_lastName",
+                            unique = false,
+                            columnNames = listOf("name", "lastName"))))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun index_keptParentEntityIndex() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(indices = @Index({"name", "lastName"}))
+                public class Base {
+                    @PrimaryKey
+                    long baseId;
+                    String name, lastName;
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                attributes = hashMapOf("inheritSuperIndices" to "true"),
+                jfos = listOf(parent)) { entity, invocation ->
+            assertThat(entity.indices.size, `is`(1))
+            assertThat(entity.indices.first(),
+                    `is`(Index(name = "index_MyEntity_name_lastName",
+                            unique = false,
+                            columnNames = listOf("name", "lastName"))))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun index_keptParentFieldIndex() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                public class Base {
+                    @PrimaryKey
+                    long baseId;
+                    @ColumnInfo(index = true)
+                    String name;
+                    String lastName;
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                attributes = hashMapOf("inheritSuperIndices" to "true"),
+                jfos = listOf(parent)) { entity, invocation ->
+            assertThat(entity.indices.size, `is`(1))
+            assertThat(entity.indices.first(),
+                    `is`(Index(name = "index_MyEntity_name",
+                            unique = false,
+                            columnNames = listOf("name"))))
+        }.compilesWithoutError().withWarningCount(0)
+
+    }
+
+    @Test
+    fun index_droppedGrandParentEntityIndex() {
+        val grandParent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(indices = @Index({"name", "lastName"}))
+                public class Base {
+                    @PrimaryKey
+                    long baseId;
+                    String name, lastName;
+                }
+                """)
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Parent",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+
+                public class Parent extends Base {
+                    String iHaveAField;
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """, baseClass = "foo.bar.Parent", jfos = listOf(parent, grandParent)) {
+            entity, invocation ->
+            assertThat(entity.indices.isEmpty(), `is`(true))
+        }.compilesWithoutError()
+                .withWarningContaining(
+                        ProcessorErrors.droppedSuperClassIndex(
+                                childEntity = "foo.bar.MyEntity",
+                                superEntity = "foo.bar.Base")
+                )
+    }
+
+    @Test
+    fun index_droppedParentEntityIndex() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(indices = @Index({"name", "lastName"}))
+                public class Base {
+                    @PrimaryKey
+                    long baseId;
+                    String name, lastName;
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """, baseClass = "foo.bar.Base", jfos = listOf(parent)) { entity, invocation ->
+            assertThat(entity.indices.isEmpty(), `is`(true))
+        }.compilesWithoutError()
+                .withWarningContaining(
+                        ProcessorErrors.droppedSuperClassIndex(
+                                childEntity = "foo.bar.MyEntity",
+                                superEntity = "foo.bar.Base")
+                )
+    }
+
+    @Test
+    fun index_droppedDecomposedEntityIndex() {
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                @Decompose
+                public Foo foo;
+                @Entity(indices = {@Index("a")})
+                static class Foo {
+                    @PrimaryKey
+                    @ColumnInfo(name = "foo_id")
+                    int id;
+                    @ColumnInfo(index = true)
+                    public int a;
+                }
+                """) { entity, invocation ->
+            assertThat(entity.indices.isEmpty(), `is`(true))
+        }.compilesWithoutError()
+                .withWarningContaining(
+                        ProcessorErrors.droppedDecomposedIndex(
+                                entityName = "foo.bar.MyEntity.Foo",
+                                fieldPath = "foo",
+                                grandParent = "foo.bar.MyEntity")
+                )
+    }
+
+    @Test
+    fun index_onDecomposedField() {
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                @Decompose
+                @ColumnInfo(index = true)
+                public Foo foo;
+                static class Foo {
+                    @ColumnInfo(index = true)
+                    public int a;
+                }
+                """) { entity, invocation ->
+            assertThat(entity.indices.isEmpty(), `is`(true))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.FIELD_WITH_DECOMPOSE_AND_COLUMN_INFO
+        )
+    }
+
+    @Test
+    fun index_droppedDecomposedFieldIndex() {
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                @Decompose
+                public Foo foo;
+                static class Foo {
+                    @ColumnInfo(index = true)
+                    public int a;
+                }
+                """) { entity, invocation ->
+            assertThat(entity.indices.isEmpty(), `is`(true))
+        }.compilesWithoutError()
+                .withWarningContaining(
+                        ProcessorErrors.droppedDecomposedFieldIndex("foo > a", "foo.bar.MyEntity")
+                )
     }
 }

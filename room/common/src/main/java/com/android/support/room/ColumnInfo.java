@@ -50,6 +50,15 @@ public @interface ColumnInfo {
     @SuppressWarnings("unused") @SQLiteTypeAffinity int typeAffinity() default UNDEFINED;
 
     /**
+     * Convenience method to index the field.
+     * <p>
+     * If you would like to create a composite index instead, see: {@link Index}.
+     *
+     * @return True if this field should be indexed, false otherwise. Defaults to false.
+     */
+    boolean index() default false;
+
+    /**
      * Constant to let Room inherit the field name as the column name. If used, Room will use the
      * field name as the column name.
      */

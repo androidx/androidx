@@ -24,6 +24,8 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory
+import com.google.testing.compile.JavaSourcesSubjectFactory
+import javax.tools.JavaFileObject
 
 abstract class BaseEntityParserTest {
     companion object {
@@ -31,12 +33,14 @@ abstract class BaseEntityParserTest {
             package foo.bar;
             import com.android.support.room.*;
             @Entity%s
-            public class MyEntity {
+            public class MyEntity %s {
             """
         const val ENTITY_SUFFIX = "}"
     }
 
     fun singleEntity(input: String, attributes: Map<String, String> = mapOf(),
+                     baseClass : String = "",
+                     jfos : List<JavaFileObject> = emptyList(),
                      handler: (Entity, TestInvocation) -> Unit): CompileTester {
         val attributesReplacement : String
         if (attributes.isEmpty()) {
@@ -46,20 +50,28 @@ abstract class BaseEntityParserTest {
                     attributes.entries.map { "${it.key} = ${it.value}" }.joinToString(",") +
                     ")".trimIndent()
         }
-        return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
-                .that(JavaFileObjects.forSourceString("foo.bar.MyEntity",
-                        ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX
+        val baseClassReplacement : String
+        if (baseClass == "") {
+            baseClassReplacement = ""
+        } else {
+            baseClassReplacement = " extends $baseClass"
+        }
+        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+                .that(jfos + JavaFileObjects.forSourceString("foo.bar.MyEntity",
+                        ENTITY_PREFIX.format(attributesReplacement, baseClassReplacement)
+                                + input + ENTITY_SUFFIX
                 ))
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(com.android.support.room.Entity::class,
                                 com.android.support.room.PrimaryKey::class,
                                 com.android.support.room.Ignore::class,
-                                com.android.support.room.Decompose::class)
+                                com.android.support.room.Decompose::class,
+                                com.android.support.room.ColumnInfo::class)
                         .nextRunHandler { invocation ->
                             val entity = invocation.roundEnv
                                     .getElementsAnnotatedWith(
                                             com.android.support.room.Entity::class.java)
-                                    .first()
+                                    .first { it.toString() == "foo.bar.MyEntity" }
                             val parser = EntityProcessor(invocation.context,
                                     MoreElements.asType(entity))
                             val parsedQuery = parser.process()

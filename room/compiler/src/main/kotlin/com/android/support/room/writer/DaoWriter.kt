@@ -47,7 +47,7 @@ import javax.lang.model.element.Modifier.PUBLIC
 /**
  * Creates the implementation for a class annotated with Dao.
  */
-class DaoWriter(val dao: Dao) : ClassWriter(ClassName.get(dao.type) as ClassName) {
+class DaoWriter(val dao: Dao) : ClassWriter(dao.typeName) {
     companion object {
         // TODO nothing prevents this from conflicting, we should fix.
         val dbField: FieldSpec = FieldSpec

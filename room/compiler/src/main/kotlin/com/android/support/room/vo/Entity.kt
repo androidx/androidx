@@ -21,7 +21,8 @@ import javax.lang.model.type.DeclaredType
 
 // TODO make data class when move to kotlin 1.1
 class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
-             fields: List<Field>, decomposedFields: List<DecomposedField>)
+             fields: List<Field>, decomposedFields: List<DecomposedField>,
+             val indices : List<Index>)
     : Pojo(element, type, fields, decomposedFields) {
     val primaryKeys by lazy {
         fields.filter { it.primaryKey }
@@ -31,6 +32,12 @@ class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
         val definitions = fields.map { it.databaseDefinition } +
                 createPrimaryKeyDefinition()
         "CREATE TABLE IF NOT EXISTS `$tableName` (${definitions.joinToString(", ")})"
+    }
+
+    val createIndexQueries by lazy {
+        indices.map {
+            it.createQuery(tableName)
+        }
     }
 
     private fun createPrimaryKeyDefinition(): String {

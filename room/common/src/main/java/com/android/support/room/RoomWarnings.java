@@ -53,4 +53,44 @@ public class RoomWarnings {
      */
     public static final String PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED =
             "ROOM_DECOMPOSED_PRIMARY_KEY_IS_DROPPED";
+
+    /**
+     * Reported when an {@link Entity} field that is annotated with {@link Decompose} has a
+     * sub field which has a {@link ColumnInfo} annotation with {@code index = true}.
+     * <p>
+     * You can re-define the index in the containing {@link Entity}.
+     */
+    public static final String INDEX_FROM_DECOMPOSED_FIELD_IS_DROPPED =
+            "ROOM_DECOMPOSED_INDEX_IS_DROPPED";
+
+    /**
+     * Reported when an {@link Entity} that has a {@link Decompose}d field whose type is another
+     * {@link Entity} and that {@link Entity} has some indices defined.
+     * These indices will NOT be created in the containing {@link Entity}. If you want to preserve
+     * them, you can re-define them in the containing {@link Entity}.
+     */
+    public static final String INDEX_FROM_DECOMPOSED_ENTITY_IS_DROPPED =
+            "ROOM_DECOMPOSED_ENTITY_INDEX_IS_DROPPED";
+
+    /**
+     * Reported when an {@link Entity}'s parent declares an {@link Index}. Room does not
+     * automatically inherit these indices to avoid hidden costs or unexpected constraints.
+     * <p>
+     * If you want your child class to have the indices of the parent, you must re-declare
+     * them in the child class. Alternatively, you can set {@link Entity#inheritSuperIndices()}
+     * to {@code true}.
+     */
+    public static final String INDEX_FROM_PARENT_IS_DROPPED =
+            "ROOM_PARENT_INDEX_IS_DROPPED";
+
+    /**
+     * Reported when an {@link Entity} inherits a field from its super class and the field has a
+     * {@link ColumnInfo} annotation with {@code index = true}.
+     * <p>
+     * These indices are dropped for the {@link Entity} and you would need to re-declare them if
+     * you want to keep them. Alternatively, you can set {@link Entity#inheritSuperIndices()}
+     * to {@code true}.
+     */
+    public static final String INDEX_FROM_PARENT_FIELD_IS_DROPPED =
+            "ROOM_PARENT_FIELD_INDEX_IS_DROPPED";
 }

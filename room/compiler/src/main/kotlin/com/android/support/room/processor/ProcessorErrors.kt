@@ -220,4 +220,52 @@ object ProcessorErrors {
         return "Primary key constraint on $fieldName is ignored when being merged into " +
                 entityQName
     }
+
+    val INDEX_COLUMNS_CANNOT_BE_EMPTY = "List of columns in an index cannot be empty"
+
+    fun indexColumnDoesNotExist(columnName : String, allColumns : List<String>) : String {
+        return "$columnName referenced in the index does not exists in the Entity." +
+                " Available column names:${allColumns.joinToString(", ")}"
+    }
+
+    fun duplicateIndexInEntity(indexName : String) : String {
+        return "There are multiple indices with name $indexName. This happen if you've declared" +
+                " the same index multiple times or different indices have the same name. See" +
+                " @Index documentation for details."
+    }
+
+    fun duplicateIndexInDatabase(indexName: String, indexPaths : List<String>) : String {
+        return "There are multiple indices with name $indexName. You should rename " +
+                "${indexPaths.size - 1} of these to avoid the conflict:" +
+                "${indexPaths.joinToString(", ")}."
+    }
+
+    fun droppedDecomposedFieldIndex(fieldPath : String, grandParent : String) : String {
+        return "The index will be dropped when being merged into $grandParent" +
+                "($fieldPath). You must re-declare it in $grandParent if you want to index this" +
+                " field in $grandParent."
+    }
+
+    val FIELD_WITH_DECOMPOSE_AND_COLUMN_INFO = "You cannot annotate a Decomposed field" +
+            " with ColumnInfo. Its sub fields are the columns."
+
+    fun droppedDecomposedIndex(entityName : String, fieldPath: String, grandParent: String)
+            : String {
+        return "Indices defined in $entityName will be dropped when it is merged into" +
+                " $grandParent ($fieldPath). You can re-declare them in $grandParent."
+    }
+
+    fun droppedSuperClassIndex(childEntity : String, superEntity : String) : String {
+        return "Indices defined in $superEntity will NOT be re-used in $childEntity. If you want" +
+                " to inherit them, you must re-declare them in $childEntity." +
+                " Alternatively, you can set inheritSuperIndices to true in the @Entity annotation."
+    }
+
+    fun droppedSuperClassFieldIndex(fieldName : String, childEntity : String,
+                                    superEntity : String) : String {
+        return "Index defined on field `$fieldName` in $superEntity will NOT be re-used in" +
+                " $childEntity. " +
+                "If you want to inherit it, you must re-declare it in $childEntity." +
+                " Alternatively, you can set inheritSuperIndices to true in the @Entity annotation."
+    }
 }

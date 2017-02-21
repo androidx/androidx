@@ -189,7 +189,8 @@ class DatabaseVerifierTest {
                 tableName = tableName,
                 type = mock(DeclaredType::class.java),
                 fields = fields.toList(),
-                decomposedFields = emptyList()
+                decomposedFields = emptyList(),
+                indices = emptyList()
         )
     }
 
