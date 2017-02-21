@@ -4828,18 +4828,18 @@ package android.support.v4.accessibilityservice {
     method public static java.lang.String capabilityToString(int);
     method public static java.lang.String feedbackTypeToString(int);
     method public static java.lang.String flagToString(int);
-    method public static boolean getCanRetrieveWindowContent(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static deprecated boolean getCanRetrieveWindowContent(android.accessibilityservice.AccessibilityServiceInfo);
     method public static int getCapabilities(android.accessibilityservice.AccessibilityServiceInfo);
     method public static deprecated java.lang.String getDescription(android.accessibilityservice.AccessibilityServiceInfo);
-    method public static java.lang.String getId(android.accessibilityservice.AccessibilityServiceInfo);
-    method public static android.content.pm.ResolveInfo getResolveInfo(android.accessibilityservice.AccessibilityServiceInfo);
-    method public static java.lang.String getSettingsActivityName(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static deprecated java.lang.String getId(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static deprecated android.content.pm.ResolveInfo getResolveInfo(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static deprecated java.lang.String getSettingsActivityName(android.accessibilityservice.AccessibilityServiceInfo);
     method public static java.lang.String loadDescription(android.accessibilityservice.AccessibilityServiceInfo, android.content.pm.PackageManager);
     field public static final int CAPABILITY_CAN_FILTER_KEY_EVENTS = 8; // 0x8
     field public static final int CAPABILITY_CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY = 4; // 0x4
     field public static final int CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION = 2; // 0x2
     field public static final int CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT = 1; // 0x1
-    field public static final int DEFAULT = 1; // 0x1
+    field public static final deprecated int DEFAULT = 1; // 0x1
     field public static final int FEEDBACK_ALL_MASK = -1; // 0xffffffff
     field public static final int FEEDBACK_BRAILLE = 32; // 0x20
     field public static final int FLAG_INCLUDE_NOT_IMPORTANT_VIEWS = 2; // 0x2

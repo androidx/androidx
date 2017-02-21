@@ -18,6 +18,7 @@ package android.support.v4.accessibilityservice;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.annotation.TargetApi;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
@@ -25,124 +26,53 @@ import android.view.View;
 
 /**
  * Helper for accessing features in {@link android.accessibilityservice.AccessibilityService}
- * introduced after API level 4 in a backwards compatible fashion.
+ * in a backwards compatible fashion.
  */
 public final class AccessibilityServiceInfoCompat {
 
-    static interface AccessibilityServiceInfoVersionImpl {
-        public String getId(AccessibilityServiceInfo info);
-        public ResolveInfo getResolveInfo(AccessibilityServiceInfo info);
-        public boolean getCanRetrieveWindowContent(AccessibilityServiceInfo info);
-        public String getDescription(AccessibilityServiceInfo info);
-        public String getSettingsActivityName(AccessibilityServiceInfo info);
-        public int getCapabilities(AccessibilityServiceInfo info);
-        public String loadDescription(AccessibilityServiceInfo info, PackageManager pm);
-    }
-
-    static class AccessibilityServiceInfoStubImpl implements AccessibilityServiceInfoVersionImpl {
-
-        @Override
-        public boolean getCanRetrieveWindowContent(AccessibilityServiceInfo info) {
-            return false;
-        }
-
-        @Override
-        public String getDescription(AccessibilityServiceInfo info) {
-            return null;
-        }
-
-        @Override
-        public String getId(AccessibilityServiceInfo info) {
-            return null;
-        }
-
-        @Override
-        public ResolveInfo getResolveInfo(AccessibilityServiceInfo info) {
-            return null;
-        }
-
-        @Override
-        public String getSettingsActivityName(AccessibilityServiceInfo info) {
-            return null;
-        }
-
-        @Override
-        public int getCapabilities(AccessibilityServiceInfo info) {
-            return 0;
-        }
-
-        @Override
-        public String loadDescription(AccessibilityServiceInfo info, PackageManager pm) {
-            return null;
-        }
-    }
-
-    static class AccessibilityServiceInfoIcsImpl extends AccessibilityServiceInfoStubImpl {
-
-        @Override
-        public boolean getCanRetrieveWindowContent(AccessibilityServiceInfo info) {
-            return AccessibilityServiceInfoCompatIcs.getCanRetrieveWindowContent(info);
-        }
-
-        @Override
-        public String getDescription(AccessibilityServiceInfo info) {
-            return AccessibilityServiceInfoCompatIcs.getDescription(info);
-        }
-
-        @Override
-        public String getId(AccessibilityServiceInfo info) {
-            return AccessibilityServiceInfoCompatIcs.getId(info);
-        }
-
-        @Override
-        public ResolveInfo getResolveInfo(AccessibilityServiceInfo info) {
-            return AccessibilityServiceInfoCompatIcs.getResolveInfo(info);
-        }
-
-        @Override
-        public String getSettingsActivityName(AccessibilityServiceInfo info) {
-            return AccessibilityServiceInfoCompatIcs.getSettingsActivityName(info);
-        }
-
-        @Override
+    static class AccessibilityServiceInfoBaseImpl {
         public int getCapabilities(AccessibilityServiceInfo info) {
             if (getCanRetrieveWindowContent(info)) {
                 return CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT;
             }
             return 0;
         }
-    }
 
-    static class AccessibilityServiceInfoJellyBeanImpl extends AccessibilityServiceInfoIcsImpl {
-        @Override
         public String loadDescription(AccessibilityServiceInfo info, PackageManager pm) {
-            return AccessibilityServiceInfoCompatJellyBean.loadDescription(info, pm);
+            return null;
         }
     }
 
-    static class AccessibilityServiceInfoJellyBeanMr2Impl
-            extends AccessibilityServiceInfoJellyBeanImpl {
+    @TargetApi(16)
+    static class AccessibilityServiceInfoApi16Impl extends AccessibilityServiceInfoBaseImpl {
+        @Override
+        public String loadDescription(AccessibilityServiceInfo info, PackageManager pm) {
+            return info.loadDescription(pm);
+        }
+    }
+
+    @TargetApi(18)
+    static class AccessibilityServiceInfoApi18Impl
+            extends AccessibilityServiceInfoApi16Impl {
         @Override
         public int getCapabilities(AccessibilityServiceInfo info) {
-            return AccessibilityServiceInfoCompatJellyBeanMr2.getCapabilities(info);
+            return info.getCapabilities();
         }
     }
 
     static {
         if (Build.VERSION.SDK_INT >= 18) { // JellyBean MR2
-            IMPL = new AccessibilityServiceInfoJellyBeanMr2Impl();
+            IMPL = new AccessibilityServiceInfoApi18Impl();
         } else if (Build.VERSION.SDK_INT >= 16) { // JB
-            IMPL = new AccessibilityServiceInfoJellyBeanImpl();
-        } else if (Build.VERSION.SDK_INT >= 14) { // ICS
-            IMPL = new AccessibilityServiceInfoIcsImpl();
+            IMPL = new AccessibilityServiceInfoApi16Impl();
         } else {
-            IMPL = new AccessibilityServiceInfoStubImpl();
+            IMPL = new AccessibilityServiceInfoBaseImpl();
         }
     }
 
     // Capabilities
 
-    private static final AccessibilityServiceInfoVersionImpl IMPL;
+    private static final AccessibilityServiceInfoBaseImpl IMPL;
 
     /**
      * Capability: This accessibility service can retrieve the active window content.
@@ -181,7 +111,7 @@ public final class AccessibilityServiceInfoCompat {
      * @see AccessibilityServiceInfo#FEEDBACK_AUDIBLE
      * @see AccessibilityServiceInfo#FEEDBACK_VISUAL
      * @see AccessibilityServiceInfo#FEEDBACK_GENERIC
-     * @see FEEDBACK_BRAILLE
+     * @see AccessibilityServiceInfo#FEEDBACK_BRAILLE
      */
     public static final int FEEDBACK_ALL_MASK = 0xFFFFFFFF;
 
@@ -191,8 +121,11 @@ public final class AccessibilityServiceInfoCompat {
      * If an {@link AccessibilityService} is the default for a given type.
      * Default service is invoked only if no package specific one exists. In case of
      * more than one package specific service only the earlier registered is notified.
+     *
+     * @deprecated Use {@link AccessibilityServiceInfo#DEFAULT} directly.
      */
-    public static final int DEFAULT = 0x0000001;
+    @Deprecated
+    public static final int DEFAULT = AccessibilityServiceInfo.DEFAULT;
 
     /**
      * If this flag is set the system will regard views that are not important
@@ -310,9 +243,12 @@ public final class AccessibilityServiceInfoCompat {
      *
      * @param info The service info of interest
      * @return The id.
+     *
+     * @deprecated Use {@link AccessibilityServiceInfo#getId()} directly.
      */
+    @Deprecated
     public static String getId(AccessibilityServiceInfo info) {
-        return IMPL.getId(info);
+        return info.getId();
     }
 
     /**
@@ -323,9 +259,12 @@ public final class AccessibilityServiceInfoCompat {
      *
      * @param info The service info of interest
      * @return The info.
+     *
+     * @deprecated Use {@link AccessibilityServiceInfo#getResolveInfo()} directly.
      */
+    @Deprecated
     public static ResolveInfo getResolveInfo(AccessibilityServiceInfo info) {
-        return IMPL.getResolveInfo(info);
+        return info.getResolveInfo();
     }
 
     /**
@@ -337,9 +276,12 @@ public final class AccessibilityServiceInfoCompat {
      *
      * @param info The service info of interest
      * @return The settings activity name.
+     *
+     * @deprecated Use {@link AccessibilityServiceInfo#getSettingsActivityName()} directly.
      */
+    @Deprecated
     public static String getSettingsActivityName(AccessibilityServiceInfo info) {
-        return IMPL.getSettingsActivityName(info);
+        return info.getSettingsActivityName();
     }
 
     /**
@@ -351,9 +293,12 @@ public final class AccessibilityServiceInfoCompat {
      *
      * @param info The service info of interest
      * @return True window content can be retrieved.
+     *
+     * @deprecated Use {@link AccessibilityServiceInfo#getCanRetrieveWindowContent()} directly.
      */
+    @Deprecated
     public static boolean getCanRetrieveWindowContent(AccessibilityServiceInfo info) {
-        return IMPL.getCanRetrieveWindowContent(info);
+        return info.getCanRetrieveWindowContent();
     }
 
     /**
@@ -368,8 +313,9 @@ public final class AccessibilityServiceInfoCompat {
      *
      * @deprecated Use {@link #loadDescription(AccessibilityServiceInfo, PackageManager)}.
      */
+    @Deprecated
     public static String getDescription(AccessibilityServiceInfo info) {
-        return IMPL.getDescription(info);
+        return info.getDescription();
     }
 
     /**
@@ -437,7 +383,7 @@ public final class AccessibilityServiceInfoCompat {
      */
     public static String flagToString(int flag) {
         switch (flag) {
-            case DEFAULT:
+            case AccessibilityServiceInfo.DEFAULT:
                 return "DEFAULT";
             case FLAG_INCLUDE_NOT_IMPORTANT_VIEWS:
                 return "FLAG_INCLUDE_NOT_IMPORTANT_VIEWS";
