@@ -88,7 +88,13 @@ public abstract class AppBarLayoutBaseTest extends BaseDynamicCoordinatorLayoutT
         });
 
         final CharSequence activityTitle = activity.getString(titleResId);
-        activity.setTitle(activityTitle);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.setTitle(activityTitle);
+            }
+        });
+
         if (mCollapsingToolbar != null) {
             onView(withId(R.id.collapsing_app_bar))
                     .perform(setTitle(activityTitle))
