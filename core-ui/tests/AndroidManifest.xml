@@ -31,7 +31,6 @@
     <application
             android:supportsRtl="true"
             android:theme="@style/TestActivityTheme">
-        <uses-library android:name="android.test.runner" />
         <activity android:name="android.support.v4.widget.ExploreByTouchHelperTestActivity"/>
 
         <activity android:name="android.support.v4.widget.SwipeRefreshLayoutActivity"/>
@@ -41,7 +40,4 @@
         <activity android:name="android.support.v4.view.ViewPagerWithTabStripActivity"/>
     </application>
 
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
-                     android:targetPackage="android.support.coreui.test"
-                     />
 </manifest>

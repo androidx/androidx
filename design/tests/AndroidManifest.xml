@@ -27,7 +27,6 @@
     <application
             android:supportsRtl="true"
             android:theme="@style/Theme.Design">
-        <uses-library android:name="android.test.runner"/>
 
         <activity
                 android:theme="@style/Theme.AppCompat.NoActionBar"
@@ -93,9 +92,5 @@
             android:theme="@style/Theme.TranslucentStatus"/>
 
     </application>
-
-    <instrumentation
-            android:name="android.test.InstrumentationTestRunner"
-            android:targetPackage="android.support.design.test"/>
 
 </manifest>

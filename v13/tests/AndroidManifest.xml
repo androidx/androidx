@@ -25,15 +25,7 @@
                       android.support.test.espresso, android.support.test.espresso.idling"/>
 
     <application>
-
-        <uses-library android:name="android.test.runner"/>
-
         <activity android:name="android.support.v13.view.DragStartHelperTestActivity"/>
-
     </application>
-
-    <instrumentation
-        android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="android.support.v13.test"/>
 
 </manifest>

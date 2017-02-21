@@ -27,8 +27,4 @@
     <application>
         <activity android:name="android.support.graphics.drawable.tests.DrawableStubActivity"/>
     </application>
-
-    <instrumentation
-            android:name="android.test.InstrumentationTestRunner"
-            android:targetPackage="android.support.graphics.drawable.animated.test" />
 </manifest>

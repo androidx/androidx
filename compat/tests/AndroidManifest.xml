@@ -30,7 +30,6 @@
     <application
             android:supportsRtl="true"
             android:theme="@style/TestActivityTheme">
-        <uses-library android:name="android.test.runner" />
         <activity android:name="android.support.v4.widget.TextViewTestActivity"/>
 
         <activity android:name="android.support.v4.view.VpaActivity"/>
@@ -44,7 +43,4 @@
         <activity android:name="android.support.v4.app.TestSupportActivity" />
     </application>
 
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
-                     android:targetPackage="android.support.v4.test"
-                     />
 </manifest>

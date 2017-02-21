@@ -32,7 +32,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application>
-        <uses-library android:name="android.test.runner" />
         <activity android:name="android.support.v4.widget.test.TextViewTestActivity"/>
         <activity android:name="android.support.v4.widget.TestActivity"/>
         <activity android:name="android.support.v4.provider.GrantActivity"
@@ -53,7 +52,4 @@
         </provider>
     </application>
 
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
-                     android:targetPackage="android.support.coreutils.test"
-                     />
 </manifest>

@@ -21,12 +21,4 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <uses-sdk android:minSdkVersion="9"/>
-    <application>
-        <uses-library android:name="android.test.runner"/>
-    </application>
-
-    <instrumentation
-        android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="android.support.media.test"/>
-
 </manifest>
