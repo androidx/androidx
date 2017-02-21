@@ -16,6 +16,8 @@
 
 package android.support.v4.content.res;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
@@ -26,8 +28,6 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
-import static android.os.Build.VERSION.SDK_INT;
 
 /**
  * Helper for accessing features in {@link android.content.res.Resources}
@@ -57,7 +57,7 @@ public final class ResourcesCompat {
     public static Drawable getDrawable(@NonNull Resources res, @DrawableRes int id,
             @Nullable Theme theme) throws NotFoundException {
         if (SDK_INT >= 21) {
-            return ResourcesCompatApi21.getDrawable(res, id, theme);
+            return res.getDrawable(id, theme);
         } else {
             return res.getDrawable(id);
         }
@@ -90,9 +90,9 @@ public final class ResourcesCompat {
     public static Drawable getDrawableForDensity(@NonNull Resources res, @DrawableRes int id,
             int density, @Nullable Theme theme) throws NotFoundException {
         if (SDK_INT >= 21) {
-            return ResourcesCompatApi21.getDrawableForDensity(res, id, density, theme);
+            return res.getDrawableForDensity(id, density, theme);
         } else if (SDK_INT >= 15) {
-            return ResourcesCompatIcsMr1.getDrawableForDensity(res, id, density);
+            return res.getDrawableForDensity(id, density);
         } else {
             return res.getDrawable(id);
         }
@@ -120,7 +120,7 @@ public final class ResourcesCompat {
     public static int getColor(@NonNull Resources res, @ColorRes int id, @Nullable Theme theme)
             throws NotFoundException {
         if (SDK_INT >= 23) {
-            return ResourcesCompatApi23.getColor(res, id, theme);
+            return res.getColor(id, theme);
         } else {
             return res.getColor(id);
         }
@@ -150,7 +150,7 @@ public final class ResourcesCompat {
     public static ColorStateList getColorStateList(@NonNull Resources res, @ColorRes int id,
             @Nullable Theme theme) throws NotFoundException {
         if (SDK_INT >= 23) {
-            return ResourcesCompatApi23.getColorStateList(res, id, theme);
+            return res.getColorStateList(id, theme);
         } else {
             return res.getColorStateList(id);
         }
