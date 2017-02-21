@@ -16,176 +16,231 @@
 
 package android.support.v4.widget;
 
+import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
+import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
+import java.lang.reflect.Field;
+
 /**
- * Helper for accessing features in {@link TextView} introduced after API level
- * 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link TextView} in a backwards compatible fashion.
  */
 public final class TextViewCompat {
 
     // Hide constructor
     private TextViewCompat() {}
 
-    interface TextViewCompatImpl {
-        void setCompoundDrawablesRelative(@NonNull TextView textView,
-                @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
-                @Nullable Drawable bottom);
-        void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
-                @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
-                @Nullable Drawable bottom);
-        void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
-                @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
-                @DrawableRes int bottom);
-        int getMaxLines(TextView textView);
-        int getMinLines(TextView textView);
-        void setTextAppearance(@NonNull TextView textView, @StyleRes int resId);
-        Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView);
-    }
+    static class TextViewCompatBaseImpl {
+        private static final String LOG_TAG = "TextViewCompatBase";
+        private static final int LINES = 1;
 
-    static class BaseTextViewCompatImpl implements TextViewCompatImpl {
-        @Override
+        private static Field sMaximumField;
+        private static boolean sMaximumFieldFetched;
+        private static Field sMaxModeField;
+        private static boolean sMaxModeFieldFetched;
+
+        private static Field sMinimumField;
+        private static boolean sMinimumFieldFetched;
+        private static Field sMinModeField;
+        private static boolean sMinModeFieldFetched;
+
         public void setCompoundDrawablesRelative(@NonNull TextView textView,
                 @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
                 @Nullable Drawable bottom) {
             textView.setCompoundDrawables(start, top, end, bottom);
         }
 
-        @Override
         public void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
                 @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
                 @Nullable Drawable bottom) {
             textView.setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom);
         }
 
-        @Override
         public void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
                 @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
                 @DrawableRes int bottom) {
             textView.setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom);
         }
 
-        @Override
+        private static Field retrieveField(String fieldName) {
+            Field field = null;
+            try {
+                field = TextView.class.getDeclaredField(fieldName);
+                field.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                Log.e(LOG_TAG, "Could not retrieve " + fieldName + " field.");
+            }
+            return field;
+        }
+
+        private static int retrieveIntFromField(Field field, TextView textView) {
+            try {
+                return field.getInt(textView);
+            } catch (IllegalAccessException e) {
+                Log.d(LOG_TAG, "Could not retrieve value of " + field.getName() + " field.");
+            }
+            return -1;
+        }
+
         public int getMaxLines(TextView textView) {
-            return TextViewCompatGingerbread.getMaxLines(textView);
+            if (!sMaxModeFieldFetched) {
+                sMaxModeField = retrieveField("mMaxMode");
+                sMaxModeFieldFetched = true;
+            }
+            if (sMaxModeField != null && retrieveIntFromField(sMaxModeField, textView) == LINES) {
+                // If the max mode is using lines, we can grab the maximum value
+                if (!sMaximumFieldFetched) {
+                    sMaximumField = retrieveField("mMaximum");
+                    sMaximumFieldFetched = true;
+                }
+                if (sMaximumField != null) {
+                    return retrieveIntFromField(sMaximumField, textView);
+                }
+            }
+            return -1;
         }
 
-        @Override
         public int getMinLines(TextView textView) {
-            return TextViewCompatGingerbread.getMinLines(textView);
+            if (!sMinModeFieldFetched) {
+                sMinModeField = retrieveField("mMinMode");
+                sMinModeFieldFetched = true;
+            }
+            if (sMinModeField != null && retrieveIntFromField(sMinModeField, textView) == LINES) {
+                // If the min mode is using lines, we can grab the maximum value
+                if (!sMinimumFieldFetched) {
+                    sMinimumField = retrieveField("mMinimum");
+                    sMinimumFieldFetched = true;
+                }
+                if (sMinimumField != null) {
+                    return retrieveIntFromField(sMinimumField, textView);
+                }
+            }
+            return -1;
         }
 
-        @Override
+        @SuppressWarnings("deprecation")
         public void setTextAppearance(TextView textView, @StyleRes int resId) {
-            TextViewCompatGingerbread.setTextAppearance(textView, resId);
+            textView.setTextAppearance(textView.getContext(), resId);
         }
 
-        @Override
         public Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
-            return TextViewCompatGingerbread.getCompoundDrawablesRelative(textView);
+            return textView.getCompoundDrawables();
         }
     }
 
-    static class JbTextViewCompatImpl extends BaseTextViewCompatImpl {
+    @TargetApi(16)
+    static class TextViewCompatApi16Impl extends TextViewCompatBaseImpl {
         @Override
         public int getMaxLines(TextView textView) {
-            return TextViewCompatJb.getMaxLines(textView);
+            return textView.getMaxLines();
         }
 
         @Override
         public int getMinLines(TextView textView) {
-            return TextViewCompatJb.getMinLines(textView);
+            return textView.getMinLines();
         }
     }
 
-    static class JbMr1TextViewCompatImpl extends JbTextViewCompatImpl {
+    @TargetApi(17)
+    static class TextViewCompatApi17Impl extends TextViewCompatApi16Impl {
         @Override
         public void setCompoundDrawablesRelative(@NonNull TextView textView,
                 @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
                 @Nullable Drawable bottom) {
-            TextViewCompatJbMr1.setCompoundDrawablesRelative(textView, start, top, end, bottom);
+            boolean rtl = textView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+            textView.setCompoundDrawables(rtl ? end : start, top, rtl ? start : end, bottom);
         }
 
         @Override
         public void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
                 @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
                 @Nullable Drawable bottom) {
-            TextViewCompatJbMr1.setCompoundDrawablesRelativeWithIntrinsicBounds(textView,
-                    start, top, end, bottom);
+            boolean rtl = textView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+            textView.setCompoundDrawablesWithIntrinsicBounds(rtl ? end : start, top,
+                    rtl ? start : end,  bottom);
         }
 
         @Override
         public void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
                 @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
                 @DrawableRes int bottom) {
-            TextViewCompatJbMr1.setCompoundDrawablesRelativeWithIntrinsicBounds(textView,
-                    start, top, end, bottom);
+            boolean rtl = textView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+            textView.setCompoundDrawablesWithIntrinsicBounds(rtl ? end : start, top,
+                    rtl ? start : end, bottom);
         }
 
         @Override
         public Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
-            return TextViewCompatJbMr1.getCompoundDrawablesRelative(textView);
+            final boolean rtl = textView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+            final Drawable[] compounds = textView.getCompoundDrawables();
+            if (rtl) {
+                // If we're on RTL, we need to invert the horizontal result like above
+                final Drawable start = compounds[2];
+                final Drawable end = compounds[0];
+                compounds[0] = start;
+                compounds[2] = end;
+            }
+            return compounds;
         }
     }
 
-    static class JbMr2TextViewCompatImpl extends JbMr1TextViewCompatImpl {
+    @TargetApi(18)
+    static class TextViewCompatApi18Impl extends TextViewCompatApi17Impl {
         @Override
         public void setCompoundDrawablesRelative(@NonNull TextView textView,
                 @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
                 @Nullable Drawable bottom) {
-            TextViewCompatJbMr2.setCompoundDrawablesRelative(textView, start, top, end, bottom);
+            textView.setCompoundDrawablesRelative(start, top, end, bottom);
         }
 
         @Override
         public void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
                 @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
                 @Nullable Drawable bottom) {
-            TextViewCompatJbMr2
-                    .setCompoundDrawablesRelativeWithIntrinsicBounds(textView, start, top, end,
-                            bottom);
+            textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom);
         }
 
         @Override
         public void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
                 @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
                 @DrawableRes int bottom) {
-            TextViewCompatJbMr2.setCompoundDrawablesRelativeWithIntrinsicBounds(textView,
-                    start, top, end, bottom);
+            textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom);
         }
 
         @Override
         public Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
-            return TextViewCompatJbMr2.getCompoundDrawablesRelative(textView);
+            return textView.getCompoundDrawablesRelative();
         }
     }
 
-    static class Api23TextViewCompatImpl extends JbMr2TextViewCompatImpl {
+    @TargetApi(23)
+    static class TextViewCompatApi23Impl extends TextViewCompatApi18Impl {
         @Override
         public void setTextAppearance(@NonNull TextView textView, @StyleRes int resId) {
-            TextViewCompatApi23.setTextAppearance(textView, resId);
+            textView.setTextAppearance(resId);
         }
     }
 
-    static final TextViewCompatImpl IMPL;
+    static final TextViewCompatBaseImpl IMPL;
 
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 23) {
-            IMPL = new Api23TextViewCompatImpl();
-        } else if (version >= 18) {
-            IMPL = new JbMr2TextViewCompatImpl();
-        } else if (version >= 17) {
-            IMPL = new JbMr1TextViewCompatImpl();
-        } else if (version >= 16) {
-            IMPL = new JbTextViewCompatImpl();
+        if (Build.VERSION.SDK_INT >= 23) {
+            IMPL = new TextViewCompatApi23Impl();
+        } else if (Build.VERSION.SDK_INT >= 18) {
+            IMPL = new TextViewCompatApi18Impl();
+        } else if (Build.VERSION.SDK_INT >= 17) {
+            IMPL = new TextViewCompatApi17Impl();
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            IMPL = new TextViewCompatApi16Impl();
         } else {
-            IMPL = new BaseTextViewCompatImpl();
+            IMPL = new TextViewCompatBaseImpl();
         }
     }
 
