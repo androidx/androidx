@@ -7790,9 +7790,9 @@ package android.support.v4.view {
     field public static final int SCROLL_INDICATOR_TOP = 1; // 0x1
   }
 
-  public final class ViewConfigurationCompat {
+  public final deprecated class ViewConfigurationCompat {
     method public static deprecated int getScaledPagingTouchSlop(android.view.ViewConfiguration);
-    method public static boolean hasPermanentMenuKey(android.view.ViewConfiguration);
+    method public static deprecated boolean hasPermanentMenuKey(android.view.ViewConfiguration);
   }
 
   public final class ViewGroupCompat {

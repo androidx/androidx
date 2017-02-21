@@ -43,7 +43,6 @@ import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.LayoutInflaterCompat;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v4.view.WindowCompat;
@@ -1211,9 +1210,9 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
     }
 
     private void reopenMenu(MenuBuilder menu, boolean toggleMenuMode) {
-        if (mDecorContentParent != null && mDecorContentParent.canShowOverflowMenu() &&
-                (!ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mContext)) ||
-                        mDecorContentParent.isOverflowMenuShowPending())) {
+        if (mDecorContentParent != null && mDecorContentParent.canShowOverflowMenu()
+                && (!ViewConfiguration.get(mContext).hasPermanentMenuKey()
+                        || mDecorContentParent.isOverflowMenuShowPending())) {
 
             final Window.Callback cb = getWindowCallback();
 
@@ -1492,7 +1491,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         final PanelFeatureState st = getPanelState(featureId, true);
         if (featureId == FEATURE_OPTIONS_PANEL && mDecorContentParent != null &&
                 mDecorContentParent.canShowOverflowMenu() &&
-                !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mContext))) {
+                !ViewConfiguration.get(mContext).hasPermanentMenuKey()) {
             if (!mDecorContentParent.isOverflowMenuShowing()) {
                 if (!isDestroyed() && preparePanel(st, event)) {
                     handled = mDecorContentParent.showOverflowMenu();

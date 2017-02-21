@@ -24,7 +24,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.annotation.RestrictTo;
-import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v7.appcompat.R;
 import android.view.ViewConfiguration;
 
@@ -78,7 +77,7 @@ public class ActionBarPolicy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             return true;
         } else {
-            return !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mContext));
+            return !ViewConfiguration.get(mContext).hasPermanentMenuKey();
         }
     }
 
