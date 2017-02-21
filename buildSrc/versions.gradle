@@ -13,25 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// Prevent the Android Gradle plug-in from automatically downloading SDK dependencies.
+ext['android.builder.sdkDownload'] = false
 
-buildscript {
-    ext.supportRootFolder = project.projectDir
-    apply from: 'buildSrc/init.gradle'
-    init.addMavenRepositories(repositories)
-    dependencies {
-        classpath libs.gradle
-    }
-}
-init.loadDefaultVersions()
+// Version code of the support library components.
+ext.supportVersion = "26.0.0-SNAPSHOT"
 
-init.setSdkInLocalPropertiesFile()
+// This number gets incremented for each public release.
+ext.extraVersion = 44
 
-init.addMavenRepositories(repositories)
-
-init.setupRepoOutAndBuildNumber()
-
-init.configureSubProjects()
-
-init.setupRelease()
-
-init.enableDoclavaAndJDiff(this)
+// Enforce the use of prebuilt dependencies in all sub-projects. This is
+// required for the doclava dependency.
+ext.usePrebuilts = "true"
