@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -170,7 +171,16 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      */
     @Override
     public void onBackPressed() {
-        if (!mFragments.getSupportFragmentManager().popBackStackImmediate()) {
+        FragmentManager fragmentManager = mFragments.getSupportFragmentManager();
+        final boolean isStateSaved = fragmentManager.isStateSaved();
+        if (isStateSaved && Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
+            // Older versions will throw an exception from the framework
+            // FragmentManager.popBackStackImmediate(), so we'll just
+            // return here. The Activity is likely already on its way out
+            // since the fragmentManager has already been saved.
+            return;
+        }
+        if (isStateSaved || !fragmentManager.popBackStackImmediate()) {
             super.onBackPressed();
         }
     }

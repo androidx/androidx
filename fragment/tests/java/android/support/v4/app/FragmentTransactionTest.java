@@ -18,8 +18,11 @@ package android.support.v4.app;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
+import android.app.Instrumentation;
+import android.os.Bundle;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -199,6 +202,19 @@ public class FragmentTransactionTest {
                 assertFalse("postOnCommit runnable for back stack transaction was run", ran[0]);
             }
         });
+    }
+
+    /**
+     * Test to ensure that when onBackPressed() is received that there is no crash.
+     */
+    @Test
+    @UiThreadTest
+    public void crashOnBackPressed() throws Throwable {
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        Bundle outState = new Bundle();
+        FragmentTestActivity activity = mActivityRule.getActivity();
+        instrumentation.callActivityOnSaveInstanceState(activity, outState);
+        activity.onBackPressed();
     }
 
     public static class CorrectFragment extends Fragment {}

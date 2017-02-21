@@ -5193,6 +5193,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.Fragment getFragment(android.os.Bundle, java.lang.String);
     method public abstract android.support.v4.app.Fragment getPrimaryNavigationFragment();
     method public abstract boolean isDestroyed();
+    method public abstract boolean isStateSaved();
     method public abstract void popBackStack();
     method public abstract void popBackStack(java.lang.String, int);
     method public abstract void popBackStack(int, int);
