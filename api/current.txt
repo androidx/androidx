@@ -1773,10 +1773,7 @@ package android.support.v13.view {
     method public abstract boolean onDragStart(android.view.View, android.support.v13.view.DragStartHelper);
   }
 
-  public class ViewCompat extends android.support.v4.view.ViewCompat {
-    method public static void cancelDragAndDrop(android.view.View);
-    method public static boolean startDragAndDrop(android.view.View, android.content.ClipData, android.view.View.DragShadowBuilder, java.lang.Object, int);
-    method public static void updateDragShadow(android.view.View, android.view.View.DragShadowBuilder);
+  public deprecated class ViewCompat extends android.support.v4.view.ViewCompat {
   }
 
 }
@@ -7642,6 +7639,7 @@ package android.support.v4.view {
     method public static android.support.v4.view.ViewPropertyAnimatorCompat animate(android.view.View);
     method public static deprecated boolean canScrollHorizontally(android.view.View, int);
     method public static deprecated boolean canScrollVertically(android.view.View, int);
+    method public static void cancelDragAndDrop(android.view.View);
     method public static deprecated int combineMeasuredStates(int, int);
     method public static android.support.v4.view.WindowInsetsCompat dispatchApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
     method public static void dispatchFinishTemporaryDetach(android.view.View);
@@ -7756,8 +7754,10 @@ package android.support.v4.view {
     method public static deprecated void setX(android.view.View, float);
     method public static deprecated void setY(android.view.View, float);
     method public static void setZ(android.view.View, float);
+    method public static boolean startDragAndDrop(android.view.View, android.content.ClipData, android.view.View.DragShadowBuilder, java.lang.Object, int);
     method public static boolean startNestedScroll(android.view.View, int);
     method public static void stopNestedScroll(android.view.View);
+    method public static void updateDragShadow(android.view.View, android.view.View.DragShadowBuilder);
     field public static final int ACCESSIBILITY_LIVE_REGION_ASSERTIVE = 2; // 0x2
     field public static final int ACCESSIBILITY_LIVE_REGION_NONE = 0; // 0x0
     field public static final int ACCESSIBILITY_LIVE_REGION_POLITE = 1; // 0x1

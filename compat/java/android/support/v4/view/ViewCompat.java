@@ -20,6 +20,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Matrix;
@@ -27,6 +28,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IdRes;
@@ -40,14 +42,17 @@ import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
+import android.view.PointerIcon;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityNodeProvider;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -395,7 +400,7 @@ public class ViewCompat {
      */
     public static final int SCROLL_INDICATOR_END = 0x20;
 
-    static class ICSViewCompatImpl {
+    static class ViewCompatBaseImpl {
         private static Field sMinWidthField;
         private static boolean sMinWidthFieldFetched;
         private static Field sMinHeightField;
@@ -438,6 +443,20 @@ public class ViewCompat {
 
         public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
             v.onInitializeAccessibilityNodeInfo((AccessibilityNodeInfo) info.getInfo());
+        }
+
+        @SuppressWarnings("deprecation")
+        public boolean startDragAndDrop(View v, ClipData data, View.DragShadowBuilder shadowBuilder,
+                Object localState, int flags) {
+            return v.startDrag(data, shadowBuilder, localState, flags);
+        }
+
+        public void cancelDragAndDrop(View v) {
+            // no-op
+        }
+
+        public void updateDragShadow(View v, View.DragShadowBuilder shadowBuilder) {
+            // no-op
         }
 
         public boolean hasTransientState(View view) {
@@ -909,42 +928,42 @@ public class ViewCompat {
     }
 
     @TargetApi(15)
-    static class ICSMr1ViewCompatImpl extends ICSViewCompatImpl {
+    static class ViewCompatApi15Impl extends ViewCompatBaseImpl {
         @Override
         public boolean hasOnClickListeners(View view) {
-            return ViewCompatICSMr1.hasOnClickListeners(view);
+            return view.hasOnClickListeners();
         }
     }
 
     @TargetApi(16)
-    static class JBViewCompatImpl extends ICSMr1ViewCompatImpl {
+    static class ViewCompatApi16Impl extends ViewCompatApi15Impl {
         @Override
         public boolean hasTransientState(View view) {
-            return ViewCompatJB.hasTransientState(view);
+            return view.hasTransientState();
         }
         @Override
         public void setHasTransientState(View view, boolean hasTransientState) {
-            ViewCompatJB.setHasTransientState(view, hasTransientState);
+            view.setHasTransientState(hasTransientState);
         }
         @Override
         public void postInvalidateOnAnimation(View view) {
-            ViewCompatJB.postInvalidateOnAnimation(view);
+            view.postInvalidateOnAnimation();
         }
         @Override
         public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
-            ViewCompatJB.postInvalidateOnAnimation(view, left, top, right, bottom);
+            view.postInvalidateOnAnimation(left, top, right, bottom);
         }
         @Override
         public void postOnAnimation(View view, Runnable action) {
-            ViewCompatJB.postOnAnimation(view, action);
+            view.postOnAnimation(action);
         }
         @Override
         public void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
-            ViewCompatJB.postOnAnimationDelayed(view, action, delayMillis);
+            view.postOnAnimationDelayed(action, delayMillis);
         }
         @Override
         public int getImportantForAccessibility(View view) {
-            return ViewCompatJB.getImportantForAccessibility(view);
+            return view.getImportantForAccessibility();
         }
         @Override
         public void setImportantForAccessibility(View view, int mode) {
@@ -954,322 +973,356 @@ public class ViewCompat {
             if (mode == IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
                 mode = IMPORTANT_FOR_ACCESSIBILITY_NO;
             }
-            ViewCompatJB.setImportantForAccessibility(view, mode);
+            //noinspection WrongConstant
+            view.setImportantForAccessibility(mode);
         }
         @Override
         public boolean performAccessibilityAction(View view, int action, Bundle arguments) {
-            return ViewCompatJB.performAccessibilityAction(view, action, arguments);
+            return view.performAccessibilityAction(action, arguments);
         }
         @Override
         public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
-            Object compat = ViewCompatJB.getAccessibilityNodeProvider(view);
-            if (compat != null) {
-                return new AccessibilityNodeProviderCompat(compat);
+            AccessibilityNodeProvider provider = view.getAccessibilityNodeProvider();
+            if (provider != null) {
+                return new AccessibilityNodeProviderCompat(provider);
             }
             return null;
         }
 
         @Override
         public ViewParent getParentForAccessibility(View view) {
-            return ViewCompatJB.getParentForAccessibility(view);
+            return view.getParentForAccessibility();
         }
 
         @Override
         public int getMinimumWidth(View view) {
-            return ViewCompatJB.getMinimumWidth(view);
+            return view.getMinimumWidth();
         }
 
         @Override
         public int getMinimumHeight(View view) {
-            return ViewCompatJB.getMinimumHeight(view);
+            return view.getMinimumHeight();
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public void requestApplyInsets(View view) {
-            ViewCompatJB.requestApplyInsets(view);
+            view.requestFitSystemWindows();
         }
 
         @Override
         public boolean getFitsSystemWindows(View view) {
-            return ViewCompatJB.getFitsSystemWindows(view);
+            return view.getFitsSystemWindows();
         }
 
         @Override
         public boolean hasOverlappingRendering(View view) {
-            return ViewCompatJB.hasOverlappingRendering(view);
+            return view.hasOverlappingRendering();
         }
 
         @Override
         public void setBackground(View view, Drawable background) {
-            ViewCompatJB.setBackground(view, background);
+            view.setBackground(background);
         }
     }
 
     @TargetApi(17)
-    static class JbMr1ViewCompatImpl extends JBViewCompatImpl {
+    static class ViewCompatApi17Impl extends ViewCompatApi16Impl {
 
         @Override
         public int getLabelFor(View view) {
-            return ViewCompatJellybeanMr1.getLabelFor(view);
+            return view.getLabelFor();
         }
 
         @Override
         public void setLabelFor(View view, int id) {
-            ViewCompatJellybeanMr1.setLabelFor(view, id);
+            view.setLabelFor(id);
         }
 
         @Override
         public void setLayerPaint(View view, Paint paint) {
-            ViewCompatJellybeanMr1.setLayerPaint(view, paint);
+            view.setLayerPaint(paint);
         }
 
         @Override
         public int getLayoutDirection(View view) {
-            return ViewCompatJellybeanMr1.getLayoutDirection(view);
+            return view.getLayoutDirection();
         }
 
         @Override
         public void setLayoutDirection(View view, int layoutDirection) {
-            ViewCompatJellybeanMr1.setLayoutDirection(view, layoutDirection);
+            view.setLayoutDirection(layoutDirection);
         }
 
         @Override
         public int getPaddingStart(View view) {
-            return ViewCompatJellybeanMr1.getPaddingStart(view);
+            return view.getPaddingStart();
         }
 
         @Override
         public int getPaddingEnd(View view) {
-            return ViewCompatJellybeanMr1.getPaddingEnd(view);
+            return view.getPaddingEnd();
         }
 
         @Override
         public void setPaddingRelative(View view, int start, int top, int end, int bottom) {
-            ViewCompatJellybeanMr1.setPaddingRelative(view, start, top, end, bottom);
+            view.setPaddingRelative(start, top, end, bottom);
         }
 
         @Override
         public int getWindowSystemUiVisibility(View view) {
-            return ViewCompatJellybeanMr1.getWindowSystemUiVisibility(view);
+            return view.getWindowSystemUiVisibility();
         }
 
         @Override
         public boolean isPaddingRelative(View view) {
-            return ViewCompatJellybeanMr1.isPaddingRelative(view);
+            return view.isPaddingRelative();
         }
 
         @Override
         public Display getDisplay(View view) {
-            return ViewCompatJellybeanMr1.getDisplay(view);
+            return view.getDisplay();
         }
     }
 
     @TargetApi(18)
-    static class JbMr2ViewCompatImpl extends JbMr1ViewCompatImpl {
+    static class ViewCompatApi18Impl extends ViewCompatApi17Impl {
         @Override
         public void setClipBounds(View view, Rect clipBounds) {
-            ViewCompatJellybeanMr2.setClipBounds(view, clipBounds);
+            view.setClipBounds(clipBounds);
         }
 
         @Override
         public Rect getClipBounds(View view) {
-            return ViewCompatJellybeanMr2.getClipBounds(view);
+            return view.getClipBounds();
         }
 
         @Override
         public boolean isInLayout(View view) {
-            return ViewCompatJellybeanMr2.isInLayout(view);
+            return view.isInLayout();
         }
     }
 
     @TargetApi(19)
-    static class KitKatViewCompatImpl extends JbMr2ViewCompatImpl {
+    static class ViewCompatApi19Impl extends ViewCompatApi18Impl {
         @Override
         public int getAccessibilityLiveRegion(View view) {
-            return ViewCompatKitKat.getAccessibilityLiveRegion(view);
+            return view.getAccessibilityLiveRegion();
         }
 
         @Override
         public void setAccessibilityLiveRegion(View view, int mode) {
-            ViewCompatKitKat.setAccessibilityLiveRegion(view, mode);
+            view.setAccessibilityLiveRegion(mode);
         }
 
         @Override
         public void setImportantForAccessibility(View view, int mode) {
-            ViewCompatJB.setImportantForAccessibility(view, mode);
+            view.setImportantForAccessibility(mode);
         }
 
         @Override
         public boolean isLaidOut(View view) {
-            return ViewCompatKitKat.isLaidOut(view);
+            return view.isLaidOut();
         }
 
         @Override
         public boolean isLayoutDirectionResolved(View view) {
-            return ViewCompatKitKat.isLayoutDirectionResolved(view);
+            return view.isLayoutDirectionResolved();
         }
 
         @Override
         public boolean isAttachedToWindow(View view) {
-            return ViewCompatKitKat.isAttachedToWindow(view);
+            return view.isAttachedToWindow();
         }
     }
 
     @TargetApi(21)
-    static class LollipopViewCompatImpl extends KitKatViewCompatImpl {
+    static class ViewCompatApi21Impl extends ViewCompatApi19Impl {
         private static ThreadLocal<Rect> sThreadLocalRect;
 
         @Override
         public void setTransitionName(View view, String transitionName) {
-            ViewCompatLollipop.setTransitionName(view, transitionName);
+            view.setTransitionName(transitionName);
         }
 
         @Override
         public String getTransitionName(View view) {
-            return ViewCompatLollipop.getTransitionName(view);
+            return view.getTransitionName();
         }
 
         @Override
         public void requestApplyInsets(View view) {
-            ViewCompatLollipop.requestApplyInsets(view);
+            view.requestApplyInsets();
         }
 
         @Override
         public void setElevation(View view, float elevation) {
-            ViewCompatLollipop.setElevation(view, elevation);
+            view.setElevation(elevation);
         }
 
         @Override
         public float getElevation(View view) {
-            return ViewCompatLollipop.getElevation(view);
+            return view.getElevation();
         }
 
         @Override
         public void setTranslationZ(View view, float translationZ) {
-            ViewCompatLollipop.setTranslationZ(view, translationZ);
+            view.setTranslationZ(translationZ);
         }
 
         @Override
         public float getTranslationZ(View view) {
-            return ViewCompatLollipop.getTranslationZ(view);
+            return view.getTranslationZ();
         }
 
         @Override
         public void setOnApplyWindowInsetsListener(View view,
                 final OnApplyWindowInsetsListener listener) {
             if (listener == null) {
-                ViewCompatLollipop.setOnApplyWindowInsetsListener(view, null);
+                view.setOnApplyWindowInsetsListener(null);
                 return;
             }
 
-            ViewCompatLollipop.OnApplyWindowInsetsListenerBridge bridge =
-                    new ViewCompatLollipop.OnApplyWindowInsetsListenerBridge() {
-                        @Override
-                        public Object onApplyWindowInsets(View v, Object insets) {
-                            WindowInsetsCompat compatInsets = WindowInsetsCompat.wrap(insets);
-                            compatInsets = listener.onApplyWindowInsets(v, compatInsets);
-                            return WindowInsetsCompat.unwrap(compatInsets);
-                        }
-                    };
-            ViewCompatLollipop.setOnApplyWindowInsetsListener(view, bridge);
+            view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
+                    WindowInsetsCompat compatInsets = WindowInsetsCompat.wrap(insets);
+                    compatInsets = listener.onApplyWindowInsets(view, compatInsets);
+                    return (WindowInsets) WindowInsetsCompat.unwrap(compatInsets);
+                }
+            });
         }
 
         @Override
         public void setNestedScrollingEnabled(View view, boolean enabled) {
-            ViewCompatLollipop.setNestedScrollingEnabled(view, enabled);
+            view.setNestedScrollingEnabled(enabled);
         }
 
         @Override
         public boolean isNestedScrollingEnabled(View view) {
-            return ViewCompatLollipop.isNestedScrollingEnabled(view);
+            return view.isNestedScrollingEnabled();
         }
 
         @Override
         public boolean startNestedScroll(View view, int axes) {
-            return ViewCompatLollipop.startNestedScroll(view, axes);
+            return view.startNestedScroll(axes);
         }
 
         @Override
         public void stopNestedScroll(View view) {
-            ViewCompatLollipop.stopNestedScroll(view);
+            view.stopNestedScroll();
         }
 
         @Override
         public boolean hasNestedScrollingParent(View view) {
-            return ViewCompatLollipop.hasNestedScrollingParent(view);
+            return view.hasNestedScrollingParent();
         }
 
         @Override
         public boolean dispatchNestedScroll(View view, int dxConsumed, int dyConsumed,
                 int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow) {
-            return ViewCompatLollipop.dispatchNestedScroll(view, dxConsumed, dyConsumed,
-                    dxUnconsumed, dyUnconsumed, offsetInWindow);
+            return view.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                    offsetInWindow);
         }
 
         @Override
         public boolean dispatchNestedPreScroll(View view, int dx, int dy,
                 int[] consumed, int[] offsetInWindow) {
-            return ViewCompatLollipop.dispatchNestedPreScroll(view, dx, dy, consumed,
-                    offsetInWindow);
+            return view.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
         }
 
         @Override
         public boolean dispatchNestedFling(View view, float velocityX, float velocityY,
                 boolean consumed) {
-            return ViewCompatLollipop.dispatchNestedFling(view, velocityX, velocityY, consumed);
+            return view.dispatchNestedFling(velocityX, velocityY, consumed);
         }
 
         @Override
         public boolean dispatchNestedPreFling(View view, float velocityX, float velocityY) {
-            return ViewCompatLollipop.dispatchNestedPreFling(view, velocityX, velocityY);
+            return view.dispatchNestedPreFling(velocityX, velocityY);
         }
 
         @Override
         public boolean isImportantForAccessibility(View view) {
-            return ViewCompatLollipop.isImportantForAccessibility(view);
+            return view.isImportantForAccessibility();
         }
 
         @Override
         public ColorStateList getBackgroundTintList(View view) {
-            return ViewCompatLollipop.getBackgroundTintList(view);
+            return view.getBackgroundTintList();
         }
 
         @Override
         public void setBackgroundTintList(View view, ColorStateList tintList) {
-            ViewCompatLollipop.setBackgroundTintList(view, tintList);
+            view.setBackgroundTintList(tintList);
+
+            if (Build.VERSION.SDK_INT == 21) {
+                // Work around a bug in L that did not update the state of the background
+                // after applying the tint
+                Drawable background = view.getBackground();
+                boolean hasTint = (view.getBackgroundTintList() != null)
+                        && (view.getBackgroundTintMode() != null);
+                if ((background != null) && hasTint) {
+                    if (background.isStateful()) {
+                        background.setState(view.getDrawableState());
+                    }
+                    view.setBackground(background);
+                }
+            }
         }
 
         @Override
         public void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
-            ViewCompatLollipop.setBackgroundTintMode(view, mode);
+            view.setBackgroundTintMode(mode);
+
+            if (Build.VERSION.SDK_INT == 21) {
+                // Work around a bug in L that did not update the state of the background
+                // after applying the tint
+                Drawable background = view.getBackground();
+                boolean hasTint = (view.getBackgroundTintList() != null)
+                        && (view.getBackgroundTintMode() != null);
+                if ((background != null) && hasTint) {
+                    if (background.isStateful()) {
+                        background.setState(view.getDrawableState());
+                    }
+                    view.setBackground(background);
+                }
+            }
         }
 
         @Override
         public PorterDuff.Mode getBackgroundTintMode(View view) {
-            return ViewCompatLollipop.getBackgroundTintMode(view);
+            return view.getBackgroundTintMode();
         }
 
         @Override
         public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-            return WindowInsetsCompat.wrap(
-                    ViewCompatLollipop.onApplyWindowInsets(v, WindowInsetsCompat.unwrap(insets)));
+            WindowInsets unwrapped = (WindowInsets)  WindowInsetsCompat.unwrap(insets);
+            WindowInsets result = v.onApplyWindowInsets(unwrapped);
+            if (result != unwrapped) {
+                unwrapped = new WindowInsets(result);
+            }
+            return WindowInsetsCompat.wrap(unwrapped);
         }
 
         @Override
         public WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
-            return WindowInsetsCompat.wrap(
-                    ViewCompatLollipop.dispatchApplyWindowInsets(
-                            v, WindowInsetsCompat.unwrap(insets)));
+            WindowInsets unwrapped = (WindowInsets) WindowInsetsCompat.unwrap(insets);
+            WindowInsets result = v.dispatchApplyWindowInsets(unwrapped);
+            if (result != unwrapped) {
+                unwrapped = new WindowInsets(result);
+            }
+            return WindowInsetsCompat.wrap(unwrapped);
         }
 
         @Override
         public float getZ(View view) {
-            return ViewCompatLollipop.getZ(view);
+            return view.getZ();
         }
 
         @Override
         public void setZ(View view, float z) {
-            ViewCompatLollipop.setZ(view, z);
+            view.setZ(z);
         }
 
         @Override
@@ -1339,84 +1392,100 @@ public class ViewCompat {
     }
 
     @TargetApi(23)
-    static class MarshmallowViewCompatImpl extends LollipopViewCompatImpl {
+    static class ViewCompatApi23Impl extends ViewCompatApi21Impl {
         @Override
         public void setScrollIndicators(View view, int indicators) {
-            ViewCompatMarshmallow.setScrollIndicators(view, indicators);
+            view.setScrollIndicators(indicators);
         }
 
         @Override
         public void setScrollIndicators(View view, int indicators, int mask) {
-            ViewCompatMarshmallow.setScrollIndicators(view, indicators, mask);
+            view.setScrollIndicators(indicators, mask);
         }
 
         @Override
         public int getScrollIndicators(View view) {
-            return ViewCompatMarshmallow.getScrollIndicators(view);
+            return view.getScrollIndicators();
         }
 
 
         @Override
         public void offsetLeftAndRight(View view, int offset) {
-            ViewCompatMarshmallow.offsetLeftAndRight(view, offset);
+            view.offsetLeftAndRight(offset);
         }
 
         @Override
         public void offsetTopAndBottom(View view, int offset) {
-            ViewCompatMarshmallow.offsetTopAndBottom(view, offset);
+            view.offsetTopAndBottom(offset);
         }
     }
 
     @TargetApi(24)
-    static class Api24ViewCompatImpl extends MarshmallowViewCompatImpl {
+    static class ViewCompatApi24Impl extends ViewCompatApi23Impl {
         @Override
         public void dispatchStartTemporaryDetach(View view) {
-            ViewCompatApi24.dispatchStartTemporaryDetach(view);
+            view.dispatchStartTemporaryDetach();
         }
 
         @Override
         public void dispatchFinishTemporaryDetach(View view) {
-            ViewCompatApi24.dispatchFinishTemporaryDetach(view);
+            view.dispatchFinishTemporaryDetach();
         }
 
         @Override
         public void setPointerIcon(View view, PointerIconCompat pointerIconCompat) {
-            ViewCompatApi24.setPointerIcon(view,
-                    pointerIconCompat != null ? pointerIconCompat.getPointerIcon() : null);
+            view.setPointerIcon((PointerIcon) (pointerIconCompat != null
+                    ? pointerIconCompat.getPointerIcon() : null));
+        }
+
+        @Override
+        public boolean startDragAndDrop(View view, ClipData data,
+                View.DragShadowBuilder shadowBuilder, Object localState, int flags) {
+            return view.startDragAndDrop(data, shadowBuilder, localState, flags);
+        }
+
+        @Override
+        public void cancelDragAndDrop(View view) {
+            view.cancelDragAndDrop();
+        }
+
+        @Override
+        public void updateDragShadow(View view, View.DragShadowBuilder shadowBuilder) {
+            view.updateDragShadow(shadowBuilder);
         }
     }
 
     @TargetApi(26)
-    static class Api26ViewCompatImpl extends Api24ViewCompatImpl {
+    static class ViewCompatApi26Impl extends ViewCompatApi24Impl {
         @Override
         public void setTooltipText(View view, CharSequence tooltipText) {
-            ViewCompatApi26.setTooltipText(view, tooltipText);
+            view.setTooltipText(tooltipText);
         }
     }
 
-    static final ICSViewCompatImpl IMPL;
+    static final ViewCompatBaseImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
         if (BuildCompat.isAtLeastO()) {
-            IMPL = new Api26ViewCompatImpl();
+            IMPL = new ViewCompatApi26Impl();
         } else if (version >= 24) {
-            IMPL = new Api24ViewCompatImpl();
+            IMPL = new ViewCompatApi24Impl();
         } else if (version >= 23) {
-            IMPL = new MarshmallowViewCompatImpl();
+            IMPL = new ViewCompatApi23Impl();
         } else if (version >= 21) {
-            IMPL = new LollipopViewCompatImpl();
+            IMPL = new ViewCompatApi21Impl();
         } else if (version >= 19) {
-            IMPL = new KitKatViewCompatImpl();
+            IMPL = new ViewCompatApi19Impl();
         } else if (version >= 18) {
-            IMPL = new JbMr2ViewCompatImpl();
+            IMPL = new ViewCompatApi18Impl();
         } else if (version >= 17) {
-            IMPL = new JbMr1ViewCompatImpl();
+            IMPL = new ViewCompatApi17Impl();
         } else if (version >= 16) {
-            IMPL = new JBViewCompatImpl();
+            IMPL = new ViewCompatApi16Impl();
         } else if (version >= 15) {
-            IMPL = new ICSMr1ViewCompatImpl();
+            IMPL = new ViewCompatApi15Impl();
         } else {
-            IMPL = new ICSViewCompatImpl();
+            IMPL = new ViewCompatBaseImpl();
         }
     }
 
@@ -3264,6 +3333,28 @@ public class ViewCompat {
      */
     public static void setTooltipText(@NonNull View view, @Nullable CharSequence tooltipText) {
         IMPL.setTooltipText(view, tooltipText);
+    }
+
+    /**
+     * Start the drag and drop operation.
+     */
+    public static boolean startDragAndDrop(View v, ClipData data,
+            View.DragShadowBuilder shadowBuilder, Object localState, int flags) {
+        return IMPL.startDragAndDrop(v, data, shadowBuilder, localState, flags);
+    }
+
+    /**
+     * Cancel the drag and drop operation.
+     */
+    public static void cancelDragAndDrop(View v) {
+        IMPL.cancelDragAndDrop(v);
+    }
+
+    /**
+     * Update the drag shadow while drag and drop is in progress.
+     */
+    public static void updateDragShadow(View v, View.DragShadowBuilder shadowBuilder) {
+        IMPL.updateDragShadow(v, shadowBuilder);
     }
 
     protected ViewCompat() {}
