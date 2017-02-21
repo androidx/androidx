@@ -15,9 +15,9 @@
  */
 package android.support.annotation;
 
-import java.lang.annotation.Retention;
-
 import static java.lang.annotation.RetentionPolicy.SOURCE;
+
+import java.lang.annotation.Retention;
 
 /**
  * Typedef for the {@link VisibleForTesting#otherwise} attribute.
