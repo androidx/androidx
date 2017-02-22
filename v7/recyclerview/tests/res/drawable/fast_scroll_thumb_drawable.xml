@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2015 The Android Open Source Project
+  ~ Copyright (C) 2017 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,15 +14,17 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<resources>
-    <!-- The max amount of scroll ItemTouchHelper will trigger if dragged view is out of
-    RecyclerView's bounds.-->
-    <dimen name="item_touch_helper_max_drag_scroll_per_frame">20dp</dimen>
-    <dimen name="item_touch_helper_swipe_escape_velocity">120dp</dimen>
-    <dimen name="item_touch_helper_swipe_escape_max_velocity">800dp</dimen>
-
-    <dimen name="fastscroll_default_thickness">8dp</dimen>
-    <dimen name="fastscroll_minimum_range">50dp</dimen>
-    <dimen name="fastscroll_margin">0dp</dimen>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape  android:shape="rectangle">
+            <solid android:color="#FF0000" />
+            <size android:width="8dp" android:height="48dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#0000FF" />
+            <size android:width="8dp" android:height="48dp" />
+        </shape>
+    </item>
+</selector>
