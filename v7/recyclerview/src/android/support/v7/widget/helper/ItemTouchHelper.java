@@ -58,16 +58,13 @@ import java.util.List;
  * {@link ItemTouchHelper.Callback} class or implementing {@link ItemTouchHelper.ViewDropHandler}
  * interface in your LayoutManager.
  * <p>
- * By default, ItemTouchHelper moves the items' translateX/Y properties to reposition them. On
- * platforms older than Honeycomb, ItemTouchHelper uses canvas translations and View's visibility
- * property to move items in response to touch events. You can customize these behaviors by
- * overriding {@link Callback#onChildDraw(Canvas, RecyclerView, ViewHolder, float, float, int,
- * boolean)}
+ * By default, ItemTouchHelper moves the items' translateX/Y properties to reposition them. You can
+ * customize these behaviors by overriding {@link Callback#onChildDraw(Canvas, RecyclerView,
+ * ViewHolder, float, float, int, boolean)}
  * or {@link Callback#onChildDrawOver(Canvas, RecyclerView, ViewHolder, float, float, int,
  * boolean)}.
  * <p/>
- * Most of the time, you only need to override <code>onChildDraw</code> but due to limitations of
- * platform prior to Honeycomb, you may need to implement <code>onChildDrawOver</code> as well.
+ * Most of the time you only need to override <code>onChildDraw</code>.
  */
 public class ItemTouchHelper extends RecyclerView.ItemDecoration
         implements RecyclerView.OnChildAttachStateChangeListener {
@@ -1383,11 +1380,9 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
         static {
             if (Build.VERSION.SDK_INT >= 21) {
-                sUICallback = new ItemTouchUIUtilImpl.Lollipop();
-            } else if (Build.VERSION.SDK_INT >= 11) {
-                sUICallback = new ItemTouchUIUtilImpl.Honeycomb();
+                sUICallback = new ItemTouchUIUtilImpl.Api21Impl();
             } else {
-                sUICallback = new ItemTouchUIUtilImpl.Gingerbread();
+                sUICallback = new ItemTouchUIUtilImpl.BaseImpl();
             }
         }
 
