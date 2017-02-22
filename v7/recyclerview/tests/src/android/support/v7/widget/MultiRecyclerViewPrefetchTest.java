@@ -76,6 +76,12 @@ public class MultiRecyclerViewPrefetchTest {
             long getNanoTime() {
                 return mMockNanoTime;
             }
+
+            @Override
+            public int getWindowVisibility() {
+                // Pretend to be visible to avoid being filtered out
+                return View.VISIBLE;
+            }
         };
 
         // shared stats + enable clearing of pool
