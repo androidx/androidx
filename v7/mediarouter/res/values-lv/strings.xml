@@ -25,13 +25,11 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"Apraidīšana uz ierīci"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Notiek ierīču meklēšana"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Atvienot"</string>
-    <!-- no translation found for mr_controller_stop_casting (8857886794086583226) -->
-    <skip />
+    <string name="mr_controller_stop_casting" msgid="8857886794086583226">"Apturēt apraidi"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"Aizvērt"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"Atskaņot"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"Apturēt"</string>
-    <!-- no translation found for mr_controller_stop (735874641921425123) -->
-    <skip />
+    <string name="mr_controller_stop" msgid="735874641921425123">"Apturēt"</string>
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"Izvērst"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"Sakļaut"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"Albuma vāciņš"</string>
