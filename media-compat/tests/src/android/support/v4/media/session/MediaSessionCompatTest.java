@@ -36,13 +36,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
-import android.support.test.filters.FlakyTest;
 import android.support.test.filters.SmallTest;
-import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.media.PollingCheck;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.PollingCheck;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
 import android.view.KeyEvent;
@@ -211,8 +209,6 @@ public class MediaSessionCompatTest {
     /**
      * Tests {@link MediaSessionCompat#setPlaybackState}.
      */
-    @Suppress
-    @FlakyTest(bugId = 35620019)
     @Test
     @SmallTest
     public void testSetPlaybackState() throws Exception {
@@ -316,8 +312,6 @@ public class MediaSessionCompatTest {
     /**
      * Tests {@link MediaSessionCompat#setRepeatMode}.
      */
-    @Suppress
-    @FlakyTest(bugId = 35620019)
     @Test
     @SmallTest
     public void testSetRepeatMode() throws Exception {
@@ -340,8 +334,6 @@ public class MediaSessionCompatTest {
     /**
      * Tests {@link MediaSessionCompat#setShuffleModeEnabled}.
      */
-    @Suppress
-    @FlakyTest(bugId = 35620019)
     @Test
     @SmallTest
     public void testSetShuffleModeEnabled() throws Exception {
