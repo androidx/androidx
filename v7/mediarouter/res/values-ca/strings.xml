@@ -25,13 +25,11 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"Emet a"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"S\'estan cercant dispositius"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Desconnecta"</string>
-    <!-- no translation found for mr_controller_stop_casting (8857886794086583226) -->
-    <skip />
+    <string name="mr_controller_stop_casting" msgid="8857886794086583226">"Atura l\'emissió"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"Tanca"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"Reprodueix"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"Posa en pausa"</string>
-    <!-- no translation found for mr_controller_stop (735874641921425123) -->
-    <skip />
+    <string name="mr_controller_stop" msgid="735874641921425123">"Atura"</string>
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"Desplega"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"Replega"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"Imatge de l\'àlbum"</string>
