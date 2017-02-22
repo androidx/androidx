@@ -78,6 +78,12 @@ public class RecyclerViewCacheTest {
         long getNanoTime() {
             return mMockNanoTime;
         }
+
+        @Override
+        public int getWindowVisibility() {
+            // Pretend to be visible to avoid being filtered out
+            return View.VISIBLE;
+        }
     }
 
     @Before
@@ -737,7 +743,13 @@ public class RecyclerViewCacheTest {
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             mRecyclerView.registerTimePassingMs(5);
 
-            RecyclerView rv = new RecyclerView(parent.getContext());
+            RecyclerView rv = new RecyclerView(parent.getContext()) {
+                @Override
+                public int getWindowVisibility() {
+                    // Pretend to be visible to avoid being filtered out
+                    return View.VISIBLE;
+                }
+            };
             rv.setLayoutManager(new LinearLayoutManager(parent.getContext(),
                     LinearLayoutManager.HORIZONTAL, mReverseInner));
             rv.setRecycledViewPool(mSharedPool);
