@@ -25,8 +25,7 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <application android:supportsRtl="true"
-        android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+    <application android:supportsRtl="true" >
         <uses-library android:name="android.test.runner"/>
         <activity android:name="android.support.wearable.view.LayoutTestActivity">
             <intent-filter>

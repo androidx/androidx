@@ -61,8 +61,7 @@ public class BoxInsetLayout extends ViewGroup {
      * Simple constructor to use when creating a view from code.
      *
      * @param context The {@link Context} the view is running in, through which it can access
-     *                the
-     *                current theme, resources, etc.
+     *                the current theme, resources, etc.
      */
     public BoxInsetLayout(@NonNull Context context) {
         this(context, null);
@@ -71,17 +70,14 @@ public class BoxInsetLayout extends ViewGroup {
     /**
      * Constructor that is called when inflating a view from XML. This is called when a view is
      * being constructed from an XML file, supplying attributes that were specified in the XML
-     * file.
-     * This version uses a default style of 0, so the only attribute values applied are those in
-     * the
-     * Context's Theme and the given AttributeSet.
+     * file. This version uses a default style of 0, so the only attribute values applied are those
+     * in the Context's Theme and the given AttributeSet.
      * <p>
      * <p>
      * The method onFinishInflate() will be called after all children have been added.
      *
      * @param context The {@link Context} the view is running in, through which it can access
-     *                the
-     *                current theme, resources, etc.
+     *                the current theme, resources, etc.
      * @param attrs   The attributes of the XML tag that is inflating the view.
      */
     public BoxInsetLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -93,8 +89,7 @@ public class BoxInsetLayout extends ViewGroup {
      * This constructor allows subclasses to use their own base style when they are inflating.
      *
      * @param context  The {@link Context} the view is running in, through which it can
-     *                 access the
-     *                 current theme, resources, etc.
+     *                 access the current theme, resources, etc.
      * @param attrs    The attributes of the XML tag that is inflating the view.
      * @param defStyle An attribute in the current theme that contains a reference to a style
      *                 resource that supplies default values for the view. Can be 0 to not look for
@@ -224,7 +219,7 @@ public class BoxInsetLayout extends ViewGroup {
         setMeasuredDimension(measuredWidth, measuredHeight);
 
         // determine boxed inset
-        int boxInset = calculateInset();
+        int boxInset = calculateInset(measuredWidth, measuredHeight);
         // adjust the the children measures, if necessary
         for (int i = 0; i < count; i++) {
             measureChild(widthMeasureSpec, heightMeasureSpec, boxInset, i);
@@ -261,7 +256,7 @@ public class BoxInsetLayout extends ViewGroup {
                 final int absoluteGravity = Gravity.getAbsoluteGravity(gravity, layoutDirection);
                 final int verticalGravity = gravity & Gravity.VERTICAL_GRAVITY_MASK;
                 final int horizontalGravity = gravity & Gravity.HORIZONTAL_GRAVITY_MASK;
-                int desiredInset = calculateInset();
+                int desiredInset = calculateInset(getMeasuredWidth(), getMeasuredHeight());
 
                 // If the child's width is match_parent then we can ignore gravity.
                 int leftChildMargin = calculateChildLeftMargin(lp, horizontalGravity, desiredInset);
@@ -401,10 +396,9 @@ public class BoxInsetLayout extends ViewGroup {
         return lp.bottomMargin;
     }
 
-    private int calculateInset() {
-        // TODO: This should take the measured width/height as parameters.
-        int rightEdge = Math.min(getMeasuredWidth(), mScreenWidth);
-        int bottomEdge = Math.min(getMeasuredHeight(), mScreenHeight);
+    private int calculateInset(int measuredWidth, int measuredHeight) {
+        int rightEdge = Math.min(measuredWidth, mScreenWidth);
+        int bottomEdge = Math.min(measuredHeight, mScreenHeight);
         return (int) (FACTOR * Math.max(rightEdge, bottomEdge));
     }
 
