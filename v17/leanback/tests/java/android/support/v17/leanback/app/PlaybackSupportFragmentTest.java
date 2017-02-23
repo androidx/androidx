@@ -55,7 +55,7 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
     @Test
     public void testDetachCalledWhenDestroyFragment() throws Throwable {
         launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
-        PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) mActivity.getTestFragment();
+        final PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) mActivity.getTestFragment();
         PlaybackGlue glue = fragment.getGlue();
         activityTestRule.runOnUiThread(new Runnable() {
             public void run() {
@@ -65,7 +65,7 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                return mActivity.isDestroyed();
+                return fragment.mDestroyCalled;
             }
         });
         assertNull(glue.getHost());
