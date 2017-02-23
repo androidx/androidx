@@ -63,6 +63,7 @@ public class PlaybackTestSupportFragment extends PlaybackSupportFragment {
 
     private android.support.v17.leanback.media.PlaybackControlGlue mGlue;
     private ListRowPresenter mListRowPresenter;
+    boolean mDestroyCalled;
 
     public SparseArrayObjectAdapter getAdapter() {
         return (SparseArrayObjectAdapter) super.getAdapter();
@@ -75,6 +76,12 @@ public class PlaybackTestSupportFragment extends PlaybackSupportFragment {
             Log.d(TAG, "onItemClicked: " + item + " row " + row);
         }
     };
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mDestroyCalled = true;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
