@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
+import android.support.v17.leanback.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.Rule;
@@ -37,14 +38,16 @@ public class SingleFragmentTestBase {
 
     @After
     public void afterTest() throws Throwable {
-        activityTestRule.runOnUiThread(new Runnable() {
-            public void run() {
-                if (mActivity != null) {
-                    mActivity.finish();
-                    mActivity = null;
+        final SingleFragmentTestActivity activity = mActivity;
+        if (activity != null) {
+            mActivity = null;
+            activityTestRule.runOnUiThread(new Runnable() {
+                public void run() {
+                    activity.finish();
                 }
-            }
-        });
+            });
+            PollingCheck.waitFor(new PollingCheck.ActivityDestroy(activity));
+        }
     }
 
     public void sendKeys(int ...keys) {
