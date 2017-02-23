@@ -8040,7 +8040,7 @@ package android.support.v4.view.accessibility {
   }
 
   public class AccessibilityNodeInfoCompat {
-    ctor public AccessibilityNodeInfoCompat(java.lang.Object);
+    ctor public deprecated AccessibilityNodeInfoCompat(java.lang.Object);
     method public void addAction(int);
     method public void addAction(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat);
     method public void addChild(android.view.View);
@@ -8063,7 +8063,7 @@ package android.support.v4.view.accessibility {
     method public int getDrawingOrder();
     method public java.lang.CharSequence getError();
     method public android.os.Bundle getExtras();
-    method public java.lang.Object getInfo();
+    method public deprecated java.lang.Object getInfo();
     method public int getInputType();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getLabelFor();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getLabeledBy();
@@ -8160,6 +8160,8 @@ package android.support.v4.view.accessibility {
     method public void setTraversalBefore(android.view.View, int);
     method public void setViewIdResourceName(java.lang.String);
     method public void setVisibleToUser(boolean);
+    method public android.view.accessibility.AccessibilityNodeInfo unwrap();
+    method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat wrap(android.view.accessibility.AccessibilityNodeInfo);
     field public static final int ACTION_ACCESSIBILITY_FOCUS = 64; // 0x40
     field public static final java.lang.String ACTION_ARGUMENT_COLUMN_INT = "android.view.accessibility.action.ARGUMENT_COLUMN_INT";
     field public static final java.lang.String ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN = "ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN";

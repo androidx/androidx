@@ -51,7 +51,6 @@ import android.view.ViewParent;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
 import java.lang.annotation.Retention;
@@ -442,7 +441,7 @@ public class ViewCompat {
         }
 
         public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
-            v.onInitializeAccessibilityNodeInfo((AccessibilityNodeInfo) info.getInfo());
+            v.onInitializeAccessibilityNodeInfo(info.unwrap());
         }
 
         @SuppressWarnings("deprecation")

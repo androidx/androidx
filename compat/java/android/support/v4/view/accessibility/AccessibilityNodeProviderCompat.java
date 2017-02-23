@@ -16,10 +16,10 @@
 
 package android.support.v4.view.accessibility;
 
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +41,7 @@ public class AccessibilityNodeProviderCompat {
         }
     }
 
+    @TargetApi(16)
     private static class AccessibilityNodeProviderJellyBeanImpl
             extends AccessibilityNodeProviderStubImpl {
         AccessibilityNodeProviderJellyBeanImpl() {
@@ -69,7 +70,7 @@ public class AccessibilityNodeProviderCompat {
                                 final int infoCount = compatInfos.size();
                                 for (int i = 0; i < infoCount; i++) {
                                     AccessibilityNodeInfoCompat infoCompat = compatInfos.get(i);
-                                    infos.add(infoCompat.getInfo());
+                                    infos.add(infoCompat.unwrap());
                                 }
                                 return infos;
                             }
@@ -83,13 +84,14 @@ public class AccessibilityNodeProviderCompat {
                             if (compatInfo == null) {
                                 return null;
                             } else {
-                                return compatInfo.getInfo();
+                                return compatInfo.unwrap();
                             }
                         }
                     });
         }
     }
 
+    @TargetApi(19)
     private static class AccessibilityNodeProviderKitKatImpl
             extends AccessibilityNodeProviderStubImpl {
         AccessibilityNodeProviderKitKatImpl() {
@@ -118,7 +120,7 @@ public class AccessibilityNodeProviderCompat {
                                 final int infoCount = compatInfos.size();
                                 for (int i = 0; i < infoCount; i++) {
                                     AccessibilityNodeInfoCompat infoCompat = compatInfos.get(i);
-                                    infos.add(infoCompat.getInfo());
+                                    infos.add(infoCompat.unwrap());
                                 }
                                 return infos;
                             }
@@ -131,7 +133,7 @@ public class AccessibilityNodeProviderCompat {
                             if (compatInfo == null) {
                                 return null;
                             } else {
-                                return compatInfo.getInfo();
+                                return compatInfo.unwrap();
                             }
                         }
 
@@ -141,7 +143,7 @@ public class AccessibilityNodeProviderCompat {
                             if (compatInfo == null) {
                                 return null;
                             } else {
-                                return compatInfo.getInfo();
+                                return compatInfo.unwrap();
                             }
                         }
                     });

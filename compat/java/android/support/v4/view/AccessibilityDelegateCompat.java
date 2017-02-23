@@ -65,7 +65,7 @@ public class AccessibilityDelegateCompat {
                 public void onInitializeAccessibilityNodeInfo(
                         View host, AccessibilityNodeInfo info) {
                     compat.onInitializeAccessibilityNodeInfo(host,
-                            new AccessibilityNodeInfoCompat(info));
+                            AccessibilityNodeInfoCompat.wrap(info));
                 }
 
                 @Override
@@ -125,7 +125,7 @@ public class AccessibilityDelegateCompat {
                 public void onInitializeAccessibilityNodeInfo(
                         View host, AccessibilityNodeInfo info) {
                     compat.onInitializeAccessibilityNodeInfo(host,
-                            new AccessibilityNodeInfoCompat(info));
+                            AccessibilityNodeInfoCompat.wrap(info));
                 }
 
                 @Override
@@ -327,7 +327,7 @@ public class AccessibilityDelegateCompat {
      */
     public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
         DEFAULT_DELEGATE.onInitializeAccessibilityNodeInfo(
-                host, (AccessibilityNodeInfo) info.getInfo());
+                host, info.unwrap());
     }
 
     /**
