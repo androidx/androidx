@@ -17,14 +17,12 @@
 package com.android.support.room.processor
 
 import com.android.support.room.ColumnInfo
-import com.android.support.room.PrimaryKey
 import com.android.support.room.ext.getAsBoolean
 import com.android.support.room.ext.getAsInt
 import com.android.support.room.ext.getAsString
 import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.vo.DecomposedField
 import com.android.support.room.vo.Field
-import com.android.support.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.squareup.javapoet.TypeName
@@ -45,7 +43,7 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
         val columnName: String
         val affinity : SQLTypeAffinity?
         val fieldPrefix = fieldParent?.prefix ?: ""
-        var indexed : Boolean
+        val indexed : Boolean
         if (columnInfoAnnotation.isPresent) {
             val nameInAnnotation = AnnotationMirrors
                     .getAnnotationValue(columnInfoAnnotation.get(), "name")
@@ -79,21 +77,8 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
         context.checker.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS)
 
-        var primaryKey = MoreElements.isAnnotationPresent(element, PrimaryKey::class.java)
-
-        if (fieldParent != null && primaryKey) {
-            // bound for entity.
-            if (bindingScope == FieldProcessor.BindingScope.TWO_WAY) {
-                context.logger.w(Warning.PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED,
-                        element, ProcessorErrors.decomposedPrimaryKeyIsDropped(
-                        fieldParent.rootParent.field.element.enclosingElement.toString(), name))
-            }
-            primaryKey = false
-        }
-
         val field = Field(name = name,
                 type = member,
-                primaryKey = primaryKey,
                 element = element,
                 columnName = columnName,
                 affinity = affinity,

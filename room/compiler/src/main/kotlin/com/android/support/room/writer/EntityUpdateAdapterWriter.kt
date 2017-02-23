@@ -45,7 +45,7 @@ class EntityUpdateAdapterWriter(val entity: Entity, val onConflict : String) {
                 val query = "UPDATE OR $onConflict `${entity.tableName}` SET " +
                         entity.fields.joinToString(",") { field ->
                             "`${field.columnName}` = ?"
-                        } + " WHERE " + entity.primaryKeys.joinToString(" AND ") {
+                        } + " WHERE " + entity.primaryKey.fields.joinToString(" AND ") {
                             "`${it.columnName}` = ?"
                         }
                 addStatement("return $S", query)
@@ -70,7 +70,7 @@ class EntityUpdateAdapterWriter(val entity: Entity, val onConflict : String) {
                         scope = bindScope
                 )
                 val pkeyStart = entity.fields.size
-                val mappedPrimaryKeys = entity.primaryKeys.mapIndexed { index, field ->
+                val mappedPrimaryKeys = entity.primaryKey.fields.mapIndexed { index, field ->
                     FieldWithIndex(field, "${pkeyStart + index + 1}")
                 }
                 FieldReadWriteWriter.bindToStatement(

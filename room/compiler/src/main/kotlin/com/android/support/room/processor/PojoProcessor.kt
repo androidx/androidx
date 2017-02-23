@@ -129,8 +129,7 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
                 it.simpleName.toString(),
                 type = context.processingEnv.typeUtils.asMemberOf(declaredType, it),
                 affinity = null,
-                parent = parent,
-                primaryKey = false)
+                parent = parent)
         val subParent = DecomposedField(
                 field = decomposedField,
                 prefix = inheritedPrefix + fieldPrefix,

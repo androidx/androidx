@@ -18,7 +18,6 @@ package com.android.support.room.vo
 
 import com.android.support.room.ext.typeName
 import com.android.support.room.parser.SQLTypeAffinity
-import com.android.support.room.solver.types.ColumnTypeAdapter
 import com.android.support.room.solver.types.CursorValueReader
 import com.android.support.room.solver.types.StatementValueBinder
 import com.squareup.javapoet.TypeName
@@ -26,7 +25,7 @@ import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
 
 data class Field(val element: Element, val name: String, val type: TypeMirror,
-                 val primaryKey: Boolean, var affinity: SQLTypeAffinity?,
+                 var affinity: SQLTypeAffinity?,
                  val columnName: String = name,
                  /* means that this field does not belong to parent, instead, it belongs to a
                  * decomposed child of the main Pojo*/
@@ -96,7 +95,12 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
     /**
      * definition to be used in create query
      */
-    val databaseDefinition by lazy {
-        "`$columnName` ${(affinity ?: SQLTypeAffinity.TEXT).name}"
+    fun databaseDefinition(autoIncrementPKey : Boolean) : String {
+        val columnSpec = if (autoIncrementPKey) {
+            " PRIMARY KEY AUTOINCREMENT"
+        } else {
+            ""
+        }
+        return "`$columnName` ${(affinity ?: SQLTypeAffinity.TEXT).name}$columnSpec"
     }
 }

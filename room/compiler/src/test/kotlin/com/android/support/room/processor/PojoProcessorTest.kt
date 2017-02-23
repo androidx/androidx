@@ -195,7 +195,7 @@ class PojoProcessorTest {
     }
 
     @Test
-    fun dropSubPrimaryKey() {
+    fun dropSubPrimaryKeyNoWarningForPojo() {
         singleRun(
                 """
                 @PrimaryKey
@@ -209,8 +209,6 @@ class PojoProcessorTest {
                 }
                 """
         ) { pojo ->
-            assertThat(pojo.fields.find { it.name == "x" }!!.primaryKey, `is`(false))
-            assertThat(pojo.fields.filter { it.primaryKey }.map { it.name }, `is`(listOf("id")))
         }.compilesWithoutError().withWarningCount(0)
     }
 

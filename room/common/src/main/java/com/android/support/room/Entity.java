@@ -71,4 +71,15 @@ public @interface Entity {
      *         false otherwise. Defaults to false.
      */
     boolean inheritSuperIndices() default false;
+
+    /**
+     * The list of Primary Key column names.
+     * <p>
+     * If you would like to define an auto generated primary key, you can use {@link PrimaryKey}
+     * annotation on the field with {@link PrimaryKey#autoGenerate()} set to {@code true}.
+     *
+     * @return The primary key of this Entity. Can be empty if the class has a field annotated
+     * with {@link PrimaryKey}.
+     */
+    String[] primaryKeys() default {};
 }

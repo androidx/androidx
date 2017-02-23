@@ -19,11 +19,14 @@ package com.android.support.room.processor
 import com.android.support.room.ext.getAsBoolean
 import com.android.support.room.ext.getAsString
 import com.android.support.room.ext.getAsStringList
-import com.android.support.room.ext.hasAnnotation
+import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.processor.ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
+import com.android.support.room.vo.DecomposedField
 import com.android.support.room.vo.Entity
+import com.android.support.room.vo.Field
 import com.android.support.room.vo.Index
 import com.android.support.room.vo.Pojo
+import com.android.support.room.vo.PrimaryKey
 import com.android.support.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -99,15 +102,155 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         val indices = entityIndices + fieldIndices + superIndices
         validateIndices(indices, pojo)
 
+        val primaryKey = findPrimaryKey(pojo.fields, pojo.decomposedFields)
+        val affinity = primaryKey.fields.firstOrNull()?.affinity ?: SQLTypeAffinity.TEXT
+        context.checker.check(
+                !primaryKey.autoGenerateId || affinity == SQLTypeAffinity.INTEGER,
+                primaryKey.fields.firstOrNull()?.element ?: element,
+                ProcessorErrors.AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT
+        )
         val entity = Entity(element = element,
                 tableName = tableName,
                 type = pojo.type,
                 fields = pojo.fields,
                 decomposedFields = pojo.decomposedFields,
-                indices = indices)
-        context.checker.check(entity.primaryKeys.isNotEmpty(), element,
-                ProcessorErrors.MISSING_PRIMARY_KEY)
+                indices = indices,
+                primaryKey = primaryKey)
+
         return entity
+    }
+
+    private fun findPrimaryKey(fields: List<Field>, decomposedFields: List<DecomposedField>)
+            : PrimaryKey {
+        val candidates = collectPrimaryKeysFromEntityAnnotations(element, fields) +
+                collectPrimaryKeysFromPrimaryKeyAnnotations(fields) +
+                collectPrimaryKeysFromDecomposedFields(decomposedFields)
+
+        context.checker.check(candidates.isNotEmpty(), element, ProcessorErrors.MISSING_PRIMARY_KEY)
+        if (candidates.size == 1) {
+            // easy :)
+            return candidates.first()
+        }
+
+        return choosePrimaryKey(candidates, element)
+    }
+
+    /**
+     * Check fields for @PrimaryKey.
+     */
+    private fun collectPrimaryKeysFromPrimaryKeyAnnotations(fields: List<Field>): List<PrimaryKey> {
+        return fields.map { field ->
+            MoreElements.getAnnotationMirror(field.element,
+                    com.android.support.room.PrimaryKey::class.java).orNull()?.let {
+                if (field.parent != null) {
+                    // the field in the entity that contains this error.
+                    val grandParentField = field.parent.rootParent.field.element
+                    // bound for entity.
+                    context.fork(grandParentField).logger.w(
+                            Warning.PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED,
+                            grandParentField,
+                            ProcessorErrors.decomposedPrimaryKeyIsDropped(
+                                    element.qualifiedName.toString(), field.name))
+                    null
+                } else {
+                    PrimaryKey(declaredIn = field.element.enclosingElement,
+                            fields = listOf(field),
+                            autoGenerateId = AnnotationMirrors
+                                    .getAnnotationValue(it, "autoGenerate")
+                                    .getAsBoolean(false))
+                }
+            }
+        }.filterNotNull()
+    }
+
+    /**
+     * Check classes for @Entity(primaryKeys = ?).
+     */
+    private fun collectPrimaryKeysFromEntityAnnotations(typeElement: TypeElement,
+                                                        availableFields: List<Field>)
+            : List<PrimaryKey> {
+        val myPkeys = MoreElements.getAnnotationMirror(typeElement,
+                com.android.support.room.Entity::class.java).orNull()?.let {
+            val primaryKeyColumns = AnnotationMirrors.getAnnotationValue(it, "primaryKeys")
+                    .getAsStringList()
+            if (primaryKeyColumns.isEmpty()) {
+                emptyList<PrimaryKey>()
+            } else {
+                val fields = primaryKeyColumns.map { pKeyColumnName ->
+                    val field = availableFields.firstOrNull { it.columnName == pKeyColumnName }
+                    context.checker.check(field != null, typeElement,
+                            ProcessorErrors.primaryKeyColumnDoesNotExist(pKeyColumnName,
+                                    availableFields.map { it.columnName }))
+                    field
+                }.filterNotNull()
+                listOf(PrimaryKey(declaredIn = typeElement,
+                        fields = fields,
+                        autoGenerateId = false))
+            }
+        } ?: emptyList<PrimaryKey>()
+        // checks supers.
+        val mySuper = typeElement.superclass
+        val superPKeys = if (mySuper != null && mySuper.kind != TypeKind.NONE) {
+            // my super cannot see my fields so remove them.
+            val remainingFields = availableFields.filterNot {
+                it.element.enclosingElement == typeElement
+            }
+            collectPrimaryKeysFromEntityAnnotations(
+                    MoreTypes.asTypeElement(mySuper), remainingFields)
+        } else {
+            emptyList()
+        }
+        return superPKeys + myPkeys
+    }
+
+    private fun collectPrimaryKeysFromDecomposedFields(decomposedFields: List<DecomposedField>)
+            : List<PrimaryKey> {
+        return decomposedFields.map { decomposedField ->
+            MoreElements.getAnnotationMirror(decomposedField.field.element,
+                    com.android.support.room.PrimaryKey::class.java).orNull()?.let {
+                val autoGenerate = AnnotationMirrors
+                        .getAnnotationValue(it, "autoGenerate").getAsBoolean(false)
+                context.checker.check(!autoGenerate || decomposedField.pojo.fields.size == 1,
+                        decomposedField.field.element,
+                        ProcessorErrors.AUTO_INCREMENT_DECOMPOSED_HAS_MULTIPLE_FIELDS)
+                PrimaryKey(declaredIn = decomposedField.field.element.enclosingElement,
+                        fields = decomposedField.pojo.fields,
+                        autoGenerateId = autoGenerate)
+            }
+        }.filterNotNull()
+    }
+
+    // start from my element and check if anywhere in the list we can find the only well defined
+    // pkey, if so, use it.
+    private fun choosePrimaryKey(candidates: List<PrimaryKey>, typeElement: TypeElement)
+            : PrimaryKey {
+        // If 1 of these primary keys is declared in this class, then it is the winner. Just print
+        //    a note for the others.
+        // If 0 is declared, check the parent.
+        // If more than 1 primary key is declared in this class, it is an error.
+        val myPKeys = candidates.filter { candidate ->
+            candidate.declaredIn == typeElement
+        }
+        return if (myPKeys.size == 1) {
+            // just note, this is not worth an error or warning
+            (candidates - myPKeys).forEach {
+                context.logger.d(element,
+                        "${it.toHumanReadableString()} is" +
+                                " overridden by ${myPKeys.first().toHumanReadableString()}")
+            }
+            myPKeys.first()
+        } else if (myPKeys.isEmpty()) {
+            // i have not declared anything, delegate to super
+            val mySuper = typeElement.superclass
+            if (mySuper != null && mySuper.kind != TypeKind.NONE) {
+                return choosePrimaryKey(candidates, MoreTypes.asTypeElement(mySuper))
+            }
+            PrimaryKey.MISSING
+        } else {
+            context.logger.e(element, ProcessorErrors.multiplePrimaryKeyAnnotations(
+                    myPKeys.map(PrimaryKey::toHumanReadableString)))
+            PrimaryKey.MISSING
+        }
     }
 
     private fun validateIndices(indices: List<Index>, pojo: Pojo) {
@@ -160,7 +303,9 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         val myIndices = MoreElements.getAnnotationMirror(parentElement,
                 com.android.support.room.Entity::class.java).orNull()?.let { annotation ->
             val indices = extractIndices(annotation, tableName = "super")
-            if (inherit) {
+            if (indices.isEmpty()) {
+                emptyList()
+            } else if (inherit) {
                 // rename them
                 indices.map {
                     Index(

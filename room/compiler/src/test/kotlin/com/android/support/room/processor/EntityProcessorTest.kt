@@ -48,12 +48,11 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     element = field.element,
                     name = "id",
                     type = intType,
-                    primaryKey = true,
                     columnName = "id",
                     affinity = SQLTypeAffinity.INTEGER)))
             assertThat(field.setter, `is`(FieldSetter("setId", intType, CallType.METHOD)))
             assertThat(field.getter, `is`(FieldGetter("getId", intType, CallType.METHOD)))
-            assertThat(entity.primaryKeys, `is`(listOf(field)))
+            assertThat(entity.primaryKey.fields, `is`(listOf(field)))
         }.compilesWithoutError()
     }
 
@@ -197,18 +196,6 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun multiplePrimaryKeys() {
-        singleEntity("""
-                @PrimaryKey
-                int x;
-                @PrimaryKey
-                int y;
-                """) { entity, invocation ->
-            assertThat(entity.primaryKeys.size, `is`(2))
-        }.compilesWithoutError()
-    }
-
-    @Test
     fun customName() {
         singleEntity("""
                 @PrimaryKey
@@ -260,8 +247,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 }
                 """
         ) { entity, invocation ->
-            assertThat(entity.fields.find { it.name == "x" }!!.primaryKey, `is`(false))
-            assertThat(entity.fields.filter { it.primaryKey }.map { it.name }, `is`(listOf("id")))
+            assertThat(entity.primaryKey.fields.map { it.name }, `is`(listOf("id")))
         }.compilesWithoutError()
                 .withWarningCount(1)
                 .withWarningContaining(ProcessorErrors.decomposedPrimaryKeyIsDropped(
@@ -284,8 +270,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 }
                 """
         ) { entity, invocation ->
-            assertThat(entity.fields.find { it.name == "x" }!!.primaryKey, `is`(false))
-            assertThat(entity.fields.filter { it.primaryKey }.map { it.name }, `is`(listOf("id")))
+            assertThat(entity.primaryKey.fields.map { it.name }, `is`(listOf("id")))
         }.compilesWithoutError().withWarningCount(0)
     }
 
@@ -741,5 +726,319 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 .withWarningContaining(
                         ProcessorErrors.droppedDecomposedFieldIndex("foo > a", "foo.bar.MyEntity")
                 )
+    }
+
+    @Test
+    fun primaryKey_definedInBothWays() {
+        singleEntity(
+                """
+                public int id;
+                @PrimaryKey
+                public String foo;
+                """,
+                attributes = mapOf("primaryKeys" to "\"id\"")) { entity, invocation ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.multiplePrimaryKeyAnnotations(
+                        listOf("PrimaryKey[id]", "PrimaryKey[foo]")
+                ))
+    }
+
+    @Test
+    fun primaryKey_badColumnName() {
+        singleEntity(
+                """
+                public int id;
+                """,
+                attributes = mapOf("primaryKeys" to "\"foo\"")) { entity, invocation ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.primaryKeyColumnDoesNotExist("foo", listOf("id")))
+    }
+
+    @Test
+    fun primaryKey_multipleAnnotations() {
+        singleEntity("""
+                @PrimaryKey
+                int x;
+                @PrimaryKey
+                int y;
+                """) { entity, invocation ->
+            assertThat(entity.primaryKey.fields.isEmpty(), `is`(true))
+        }.failsToCompile()
+                .withErrorContaining(
+                        ProcessorErrors.multiplePrimaryKeyAnnotations(
+                                listOf("PrimaryKey[x]", "PrimaryKey[y]")))
+    }
+
+    @Test
+    fun primaryKey_fromParentField() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                public class Base {
+                    @PrimaryKey
+                    long baseId;
+                    String name, lastName;
+                }
+                """)
+        singleEntity(
+                """
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { entity, invocation ->
+            assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("baseId"))
+
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun primaryKey_fromParentEntity() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(primaryKeys = "baseId")
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                }
+                """)
+        singleEntity(
+                """
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { entity, invocation ->
+            assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("baseId"))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun primaryKey_overrideFromParentField() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                public class Base {
+                    @PrimaryKey
+                    long baseId;
+                    String name, lastName;
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { entity, invocation ->
+            assertThat(entity.primaryKey.fields.size, `is`(1))
+            assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
+            assertThat(entity.primaryKey.autoGenerateId, `is`(false))
+        }.compilesWithoutError().withNoteContaining(
+                "PrimaryKey[baseId] is overridden by PrimaryKey[id]"
+        )
+    }
+
+    @Test
+    fun primaryKey_overrideFromParentEntityViaField() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(primaryKeys = "baseId")
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { entity, invocation ->
+            assertThat(entity.primaryKey.fields.size, `is`(1))
+            assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
+        }.compilesWithoutError().withNoteContaining(
+                "PrimaryKey[baseId] is overridden by PrimaryKey[id]"
+        )
+    }
+
+    @Test
+    fun primaryKey_overrideFromParentEntityViaEntity() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(primaryKeys = "baseId")
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                }
+                """)
+        singleEntity(
+                """
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent),
+                attributes = mapOf("primaryKeys" to "\"id\"")) { entity, invocation ->
+            assertThat(entity.primaryKey.fields.size, `is`(1))
+            assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
+            assertThat(entity.primaryKey.autoGenerateId, `is`(false))
+        }.compilesWithoutError().withNoteContaining(
+                "PrimaryKey[baseId] is overridden by PrimaryKey[id]"
+        )
+    }
+
+    @Test
+    fun primaryKey_autoGenerate() {
+        listOf("long", "Long", "Integer", "int").forEach { type ->
+            singleEntity(
+                    """
+                @PrimaryKey(autoGenerate = true)
+                public $type id;
+                """) { entity, invocation ->
+                assertThat(entity.primaryKey.fields.size, `is`(1))
+                assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
+                assertThat(entity.primaryKey.autoGenerateId, `is`(true))
+            }.compilesWithoutError()
+        }
+    }
+
+    @Test
+    fun primaryKey_autoGenerateBadType() {
+        listOf("String", "float", "Float", "Double", "double").forEach { type ->
+            singleEntity(
+                    """
+                @PrimaryKey(autoGenerate = true)
+                public $type id;
+                """) { entity, invocation ->
+                assertThat(entity.primaryKey.fields.size, `is`(1))
+                assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
+                assertThat(entity.primaryKey.autoGenerateId, `is`(true))
+            }.failsToCompile().withErrorContaining(
+                    ProcessorErrors.AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT)
+        }
+    }
+
+    @Test
+    fun primaryKey_decomposed(){
+        singleEntity(
+                """
+                public int id;
+
+                @Decompose(prefix = "bar_")
+                @PrimaryKey
+                public Foo foo;
+
+                static class Foo {
+                    public int a;
+                    public int b;
+                }
+                """) { entity, invocation ->
+            assertThat(entity.primaryKey.fields.map { it.columnName },
+                    `is`(listOf("bar_a", "bar_b")))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun primaryKey_decomposedInherited(){
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                    @Decompose(prefix = "bar_")
+                    @PrimaryKey
+                    public Foo foo;
+
+                    static class Foo {
+                        public int a;
+                        public int b;
+                    }
+                }
+                """)
+        singleEntity(
+                """
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { entity, invocation ->
+            assertThat(entity.primaryKey.fields.map { it.columnName },
+                    `is`(listOf("bar_a", "bar_b")))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun primaryKey_overrideViaDecomposed() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+
+                @Entity(primaryKeys = "baseId")
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                }
+                """)
+        singleEntity(
+                """
+                public int id;
+                @Decompose(prefix = "bar_")
+                @PrimaryKey
+                public Foo foo;
+
+                static class Foo {
+                    public int a;
+                    public int b;
+                }
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { entity, invocation ->
+            assertThat(entity.primaryKey.fields.map { it.columnName },
+                    `is`(listOf("bar_a", "bar_b")))
+        }.compilesWithoutError().withNoteContaining(
+                "PrimaryKey[baseId] is overridden by PrimaryKey[foo > a, foo > b]")
+    }
+
+    @Test
+    fun primaryKey_overrideDecomposed() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                    @Decompose(prefix = "bar_")
+                    @PrimaryKey
+                    public Foo foo;
+
+                    static class Foo {
+                        public int a;
+                        public int b;
+                    }
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { entity, invocation ->
+            assertThat(entity.primaryKey.fields.map { it.columnName },
+                    `is`(listOf("id")))
+        }.compilesWithoutError().withNoteContaining(
+                "PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
     }
 }

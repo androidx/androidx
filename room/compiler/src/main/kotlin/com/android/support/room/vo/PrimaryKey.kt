@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.android.support.room.vo
 
-package foo.bar;
-import com.android.support.room.*;
-@Entity(primaryKeys = {"name", "lastName"})
-public class MultiPKeyEntity {
-    String name;
-    String lastName;
+import javax.lang.model.element.Element
+
+/**
+ * Represents a PrimaryKey for an Entity.
+ */
+data class PrimaryKey(val declaredIn : Element?, val fields: List<Field>,
+                      val autoGenerateId: Boolean) {
+    companion object {
+        val MISSING = PrimaryKey(null, emptyList(), false)
+    }
+
+    fun toHumanReadableString(): String {
+        return "PrimaryKey[" +
+                fields.joinToString(separator = ", ", transform = Field::getPath) + "]"
+    }
 }

@@ -24,9 +24,11 @@ import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.vo.CustomTypeConverter
 import com.android.support.room.vo.Field
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.Element
 
 object ProcessorErrors {
+    private fun String.trim(): String {
+        return this.trimIndent().replace(System.lineSeparator(), " ")
+    }
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
     val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
@@ -52,6 +54,24 @@ object ProcessorErrors {
     val CANNOT_FIND_GETTER_FOR_FIELD = "Cannot find getter for field."
     val CANNOT_FIND_SETTER_FOR_FIELD = "Cannot find setter for field."
     val MISSING_PRIMARY_KEY = "An entity must have at least 1 field annotated with @PrimaryKey"
+    val AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT = "If a primary key is annotated with" +
+            " autoGenerate, its type must be int, Integer, long or Long."
+    val AUTO_INCREMENT_DECOMPOSED_HAS_MULTIPLE_FIELDS = "When @PrimaryKey annotation is used on a" +
+            " field annotated with @Decompose, the decomposed class should have only 1 field."
+
+    fun multiplePrimaryKeyAnnotations(primaryKeys: List<String>): String {
+        return """
+                You cannot have multiple primary keys defined in an Entity. If you
+                want to declare a composite primary key, you should use @Entity#primaryKeys and
+                not use @PrimaryKey. Defined Primary Keys:
+                ${primaryKeys.joinToString(", ")}""".trim()
+    }
+
+    fun primaryKeyColumnDoesNotExist(columnName: String, allColumns: List<String>): String {
+        return "$columnName referenced in the primary key does not exists in the Entity." +
+                " Available column names:${allColumns.joinToString(", ")}"
+    }
+
     val DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE = "Dao class must be an abstract class or" +
             " an interface"
     val DATABASE_MUST_BE_ANNOTATED_WITH_DATABASE = "Database must be annotated with @Database"
@@ -161,26 +181,28 @@ object ProcessorErrors {
                 these conflicting DAO methods. If you are implementing any of these to fulfill an
                 interface, don't make it abstract, instead, implement the code that calls the
                 other one.
-                """.trimIndent().replace(System.lineSeparator(), " ")
+                """.trim()
     }
 
     fun cursorPojoMismatch(pojoTypeName: TypeName,
                            unusedColumns: List<String>, allColumns: List<String>,
                            unusedFields: List<Field>, allFields: List<Field>): String {
-        val unusedColumnsWarning = if (unusedColumns.isNotEmpty()) { """
+        val unusedColumnsWarning = if (unusedColumns.isNotEmpty()) {
+            """
                 The query returns some columns [${unusedColumns.joinToString(", ")}] which are not
                 use by $pojoTypeName. You can use @ColumnInfo annotation on the fields to specify
                 the mapping.
-            """.trimIndent().replace(System.lineSeparator(), " ")
+            """.trim()
         } else {
             ""
         }
-        val unusedFieldsWarning = if (unusedFields.isNotEmpty()) { """
+        val unusedFieldsWarning = if (unusedFields.isNotEmpty()) {
+            """
                 $pojoTypeName has some fields
                 [${unusedFields.joinToString(", ") { it.columnName }}] which are not returned by the
                 query. If they are not supposed to be read from the result, you can mark them with
                 @Ignore annotation.
-            """.trimIndent().replace(System.lineSeparator(), " ")
+            """.trim()
         } else {
             ""
         }
@@ -191,7 +213,7 @@ object ProcessorErrors {
             @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH).
             Columns returned by the query: ${allColumns.joinToString(", ")}.
             Fields in $pojoTypeName: ${allFields.joinToString(", ") { it.columnName }}.
-            """.trimIndent().replace(System.lineSeparator(), " ")
+            """.trim()
     }
 
     val TYPE_CONVERTER_UNBOUND_GENERIC = "Cannot use unbound generics in Type Converters."
@@ -203,7 +225,7 @@ object ProcessorErrors {
             " have no-argument public constructors."
     val TYPE_CONVERTER_MUST_BE_PUBLIC = "Type converters must be public."
 
-    fun duplicateTypeConverters(converters : List<CustomTypeConverter>) : String {
+    fun duplicateTypeConverters(converters: List<CustomTypeConverter>): String {
         return "Multiple methods define the same conversion. Conflicts with these:" +
                 " ${converters.joinToString(", ") { it.toString() }}"
     }
@@ -211,36 +233,36 @@ object ProcessorErrors {
     // TODO must print field paths.
     val POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME = "Field has non-unique column name."
 
-    fun pojoDuplicateFieldNames(columnName : String, fieldPaths : List<String>) : String {
+    fun pojoDuplicateFieldNames(columnName: String, fieldPaths: List<String>): String {
         return "Multiple fields have the same columnName: $columnName." +
                 " Field names: ${fieldPaths.joinToString(", ")}."
     }
 
-    fun decomposedPrimaryKeyIsDropped(entityQName: String, fieldName : String) : String {
+    fun decomposedPrimaryKeyIsDropped(entityQName: String, fieldName: String): String {
         return "Primary key constraint on $fieldName is ignored when being merged into " +
                 entityQName
     }
 
     val INDEX_COLUMNS_CANNOT_BE_EMPTY = "List of columns in an index cannot be empty"
 
-    fun indexColumnDoesNotExist(columnName : String, allColumns : List<String>) : String {
+    fun indexColumnDoesNotExist(columnName: String, allColumns: List<String>): String {
         return "$columnName referenced in the index does not exists in the Entity." +
                 " Available column names:${allColumns.joinToString(", ")}"
     }
 
-    fun duplicateIndexInEntity(indexName : String) : String {
+    fun duplicateIndexInEntity(indexName: String): String {
         return "There are multiple indices with name $indexName. This happen if you've declared" +
                 " the same index multiple times or different indices have the same name. See" +
                 " @Index documentation for details."
     }
 
-    fun duplicateIndexInDatabase(indexName: String, indexPaths : List<String>) : String {
+    fun duplicateIndexInDatabase(indexName: String, indexPaths: List<String>): String {
         return "There are multiple indices with name $indexName. You should rename " +
                 "${indexPaths.size - 1} of these to avoid the conflict:" +
                 "${indexPaths.joinToString(", ")}."
     }
 
-    fun droppedDecomposedFieldIndex(fieldPath : String, grandParent : String) : String {
+    fun droppedDecomposedFieldIndex(fieldPath: String, grandParent: String): String {
         return "The index will be dropped when being merged into $grandParent" +
                 "($fieldPath). You must re-declare it in $grandParent if you want to index this" +
                 " field in $grandParent."
@@ -249,20 +271,20 @@ object ProcessorErrors {
     val FIELD_WITH_DECOMPOSE_AND_COLUMN_INFO = "You cannot annotate a Decomposed field" +
             " with ColumnInfo. Its sub fields are the columns."
 
-    fun droppedDecomposedIndex(entityName : String, fieldPath: String, grandParent: String)
+    fun droppedDecomposedIndex(entityName: String, fieldPath: String, grandParent: String)
             : String {
         return "Indices defined in $entityName will be dropped when it is merged into" +
                 " $grandParent ($fieldPath). You can re-declare them in $grandParent."
     }
 
-    fun droppedSuperClassIndex(childEntity : String, superEntity : String) : String {
+    fun droppedSuperClassIndex(childEntity: String, superEntity: String): String {
         return "Indices defined in $superEntity will NOT be re-used in $childEntity. If you want" +
                 " to inherit them, you must re-declare them in $childEntity." +
                 " Alternatively, you can set inheritSuperIndices to true in the @Entity annotation."
     }
 
-    fun droppedSuperClassFieldIndex(fieldName : String, childEntity : String,
-                                    superEntity : String) : String {
+    fun droppedSuperClassFieldIndex(fieldName: String, childEntity: String,
+                                    superEntity: String): String {
         return "Index defined on field `$fieldName` in $superEntity will NOT be re-used in" +
                 " $childEntity. " +
                 "If you want to inherit it, you must re-declare it in $childEntity." +

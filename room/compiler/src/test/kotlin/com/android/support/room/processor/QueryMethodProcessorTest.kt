@@ -81,7 +81,6 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     element = Mockito.mock(Element::class.java),
                     name = name,
                     type = Mockito.mock(TypeMirror::class.java),
-                    primaryKey = false,
                     columnName = columnName ?: name,
                     affinity = null
             )

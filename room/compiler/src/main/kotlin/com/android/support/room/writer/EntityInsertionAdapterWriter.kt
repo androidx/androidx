@@ -38,6 +38,22 @@ class EntityInsertionAdapterWriter(val entity: Entity, val onConflict: String) {
             superclass(
                     ParameterizedTypeName.get(RoomTypeNames.INSERTION_ADAPTER, entity.typeName)
             )
+
+            // If there is an auto-increment primary key with primitive type, we consider 0 as
+            // not set. For such fields, we must generate a slightly different insertion SQL.
+            val primitiveAutoGenerateField = if (entity.primaryKey.autoGenerateId) {
+                entity.primaryKey.fields.firstOrNull()?.let { field ->
+                    field.statementBinder?.typeMirror()?.let { binderType ->
+                        if (binderType.kind.isPrimitive) {
+                            field
+                        } else {
+                            null
+                        }
+                    }
+                }
+            } else {
+                null
+            }
             addMethod(MethodSpec.methodBuilder("createQuery").apply {
                 addAnnotation(Override::class.java)
                 returns(ClassName.get("java.lang", "String"))
@@ -48,7 +64,11 @@ class EntityInsertionAdapterWriter(val entity: Entity, val onConflict: String) {
                                     "`${it.columnName}`"
                                 } + ") VALUES (" +
                                 entity.fields.joinToString(",") {
-                                    "?"
+                                    if (primitiveAutoGenerateField == it) {
+                                        "nullif(?, 0)"
+                                    } else {
+                                        "?"
+                                    }
                                 } + ")"
                 addStatement("return $S", query)
             }.build())

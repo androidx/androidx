@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package foo.bar;
-import com.android.support.room.*;
-@Entity(primaryKeys = {"name", "lastName"})
-public class MultiPKeyEntity {
-    String name;
-    String lastName;
+package com.android.support.room.integration.testapp.vo;
+
+import com.android.support.room.Entity;
+import com.android.support.room.PrimaryKey;
+
+@Entity
+public class IntegerAutoIncPKeyEntity {
+    @PrimaryKey(autoGenerate = true)
+    public Integer pKey;
+    public String data;
 }

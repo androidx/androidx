@@ -27,6 +27,7 @@ import com.android.support.room.vo.Entity
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
 import com.android.support.room.vo.FieldSetter
+import com.android.support.room.vo.PrimaryKey
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.CoreMatchers.notNullValue
@@ -168,7 +169,7 @@ class DatabaseVerifierTest {
 
     private fun userDb(context: Context): Database {
         return database(entity("User",
-                primaryField("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
+                field("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
                 field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
                 field("lastName", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
                 field("ratio", primitive(context, TypeKind.FLOAT), SQLTypeAffinity.REAL)))
@@ -182,15 +183,15 @@ class DatabaseVerifierTest {
                 daoMethods = emptyList())
     }
 
-    private fun entity(tableName: String, vararg fields: Field)
-            : Entity {
+    private fun entity(tableName: String, vararg fields: Field): Entity {
         return Entity(
                 element = mock(TypeElement::class.java),
                 tableName = tableName,
                 type = mock(DeclaredType::class.java),
                 fields = fields.toList(),
                 decomposedFields = emptyList(),
-                indices = emptyList()
+                indices = emptyList(),
+                primaryKey = PrimaryKey(null, fields.take(1), false)
         )
     }
 
@@ -199,20 +200,6 @@ class DatabaseVerifierTest {
                 element = mock(Element::class.java),
                 name = name,
                 type = type,
-                primaryKey = false,
-                columnName = name,
-                affinity = affinity
-        )
-        assignGetterSetter(f, name, type)
-        return f
-    }
-
-    private fun primaryField(name: String, type: TypeMirror, affinity: SQLTypeAffinity): Field {
-        val f = Field(
-                element = mock(Element::class.java),
-                name = name,
-                type = type,
-                primaryKey = true,
                 columnName = name,
                 affinity = affinity
         )

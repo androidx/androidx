@@ -43,7 +43,7 @@ class EntityDeletionAdapterWriter(val entity: Entity) {
                 returns(ClassName.get("java.lang", "String"))
                 addModifiers(PUBLIC)
                 val query = "DELETE FROM `${entity.tableName}` WHERE " +
-                        entity.primaryKeys.joinToString(" AND ") {
+                        entity.primaryKey.fields.joinToString(" AND ") {
                             "`${it.columnName}` = ?"
                         }
                 addStatement("return $S", query)
@@ -58,7 +58,7 @@ class EntityDeletionAdapterWriter(val entity: Entity) {
                 addParameter(ParameterSpec.builder(entity.typeName, valueParam).build())
                 returns(TypeName.VOID)
                 addModifiers(PUBLIC)
-                val mapped = entity.primaryKeys.mapIndexed { index, field ->
+                val mapped = entity.primaryKey.fields.mapIndexed { index, field ->
                     FieldWithIndex(field, "${index + 1}")
                 }
                 FieldReadWriteWriter.bindToStatement(ownerVar = valueParam,

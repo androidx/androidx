@@ -37,7 +37,7 @@ class SQLiteOpenHelperWriterTest {
         const val ENTITY_PREFIX = """
             package foo.bar;
             import com.android.support.room.*;
-            @Entity
+            @Entity%s
             public class MyEntity {
             """
         const val ENTITY_SUFFIX = "}"
@@ -71,12 +71,10 @@ class SQLiteOpenHelperWriterTest {
     fun multiplePrimaryKeys() {
         singleEntity(
                 """
-                @PrimaryKey
                 String uuid;
-                @PrimaryKey
                 String name;
                 int age;
-                """.trimIndent()
+                """.trimIndent(), attributes = mapOf("primaryKeys" to "{\"uuid\", \"name\"}")
         ) { database, invocation ->
             val query = SQLiteOpenHelperWriter(database)
                     .createQuery(database.entities.first())
@@ -86,11 +84,37 @@ class SQLiteOpenHelperWriterTest {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun autoIncrement() {
+        singleEntity(
+                """
+                @PrimaryKey(autoGenerate = true)
+                int uuid;
+                String name;
+                int age;
+                """.trimIndent()
+        ) { database, invocation ->
+            val query = SQLiteOpenHelperWriter(database)
+                    .createQuery(database.entities.first())
+            assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
+                    " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    " `name` TEXT, `age` INTEGER)"))
+        }.compilesWithoutError()
+    }
+
     fun singleEntity(input: String, attributes: Map<String, String> = mapOf(),
                      handler: (Database, TestInvocation) -> Unit): CompileTester {
+        val attributesReplacement : String
+        if (attributes.isEmpty()) {
+            attributesReplacement = ""
+        } else {
+            attributesReplacement = "(" +
+                    attributes.entries.map { "${it.key} = ${it.value}" }.joinToString(",") +
+                    ")".trimIndent()
+        }
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyEntity",
-                        ENTITY_PREFIX + input + ENTITY_SUFFIX
+                        ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX
                 ), JavaFileObjects.forSourceString("foo.bar.MyDatabase",
                         DATABASE_CODE)))
                 .processedWith(TestProcessor.builder()

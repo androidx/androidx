@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,15 @@ import javax.lang.model.type.DeclaredType
 // TODO make data class when move to kotlin 1.1
 class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
              fields: List<Field>, decomposedFields: List<DecomposedField>,
-             val indices : List<Index>)
+             val primaryKey: PrimaryKey,
+             val indices: List<Index>)
     : Pojo(element, type, fields, decomposedFields) {
-    val primaryKeys by lazy {
-        fields.filter { it.primaryKey }
-    }
 
     val createTableQuery by lazy {
-        val definitions = fields.map { it.databaseDefinition } +
-                createPrimaryKeyDefinition()
+        val definitions = (fields.map {
+            val autoIncrement = primaryKey.autoGenerateId && primaryKey.fields.contains(it)
+            it.databaseDefinition(autoIncrement)
+        } + createPrimaryKeyDefinition()).filterNotNull()
         "CREATE TABLE IF NOT EXISTS `$tableName` (${definitions.joinToString(", ")})"
     }
 
@@ -40,11 +40,14 @@ class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
         }
     }
 
-    private fun createPrimaryKeyDefinition(): String {
-        val keys = fields
-                .filter { it.primaryKey }
-                .map { "`${it.columnName}`" }
-                .joinToString(", ")
-        return "PRIMARY KEY($keys)"
+    private fun createPrimaryKeyDefinition(): String? {
+        return if (primaryKey.fields.isEmpty() || primaryKey.autoGenerateId) {
+            null
+        } else {
+            val keys = primaryKey.fields
+                    .map { "`${it.columnName}`" }
+                    .joinToString(", ")
+            "PRIMARY KEY($keys)"
+        }
     }
 }
