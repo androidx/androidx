@@ -6179,6 +6179,8 @@ package android.support.v4.media.session {
     method public void setRepeatMode(int);
     method public void setSessionActivity(android.app.PendingIntent);
     method public void setShuffleModeEnabled(boolean);
+    field public static final java.lang.String ACTION_FLAG_AS_INAPPROPRIATE = "android.support.v4.media.session.action.FLAG_AS_INAPPROPRIATE";
+    field public static final java.lang.String ACTION_SKIP_AD = "android.support.v4.media.session.action.SKIP_AD";
     field public static final int FLAG_HANDLES_MEDIA_BUTTONS = 1; // 0x1
     field public static final int FLAG_HANDLES_QUEUE_COMMANDS = 4; // 0x4
     field public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 2; // 0x2
