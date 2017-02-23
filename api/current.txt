@@ -8472,6 +8472,7 @@ package android.support.v7.app {
     method public android.support.v7.graphics.drawable.DrawerArrowDrawable getDrawerArrowDrawable();
     method public android.view.View.OnClickListener getToolbarNavigationClickListener();
     method public boolean isDrawerIndicatorEnabled();
+    method public boolean isDrawerSlideAnimationEnabled();
     method public void onConfigurationChanged(android.content.res.Configuration);
     method public void onDrawerClosed(android.view.View);
     method public void onDrawerOpened(android.view.View);
@@ -8480,6 +8481,7 @@ package android.support.v7.app {
     method public boolean onOptionsItemSelected(android.view.MenuItem);
     method public void setDrawerArrowDrawable(android.support.v7.graphics.drawable.DrawerArrowDrawable);
     method public void setDrawerIndicatorEnabled(boolean);
+    method public void setDrawerSlideAnimationEnabled(boolean);
     method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable);
     method public void setHomeAsUpIndicator(int);
     method public void setToolbarNavigationClickListener(android.view.View.OnClickListener);
