@@ -106,6 +106,11 @@ final class GapWorker implements Runnable {
 
         @Override
         public void addPosition(int layoutPosition, int pixelDistance) {
+            if (layoutPosition < 0) {
+                // temporary fix for b/35708283
+                return;
+            }
+
             if (pixelDistance < 0) {
                 throw new IllegalArgumentException("Pixel distance must be non-negative");
             }
