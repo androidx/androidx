@@ -128,6 +128,9 @@ public class Preference implements Comparable<Preference> {
     private boolean mParentDependencyMet = true;
     private boolean mVisible = true;
 
+    private boolean mAllowDividerAbove = true;
+    private boolean mAllowDividerBelow = true;
+
     /**
      * @see #setShouldDisableView(boolean)
      */
@@ -276,6 +279,12 @@ public class Preference implements Comparable<Preference> {
 
         mDependencyKey = TypedArrayUtils.getString(a, R.styleable.Preference_dependency,
                 R.styleable.Preference_android_dependency);
+
+        mAllowDividerAbove = TypedArrayUtils.getBoolean(a, R.styleable.Preference_allowDividerAbove,
+                R.styleable.Preference_allowDividerAbove, mSelectable);
+
+        mAllowDividerBelow = TypedArrayUtils.getBoolean(a, R.styleable.Preference_allowDividerBelow,
+                R.styleable.Preference_allowDividerBelow, mSelectable);
 
         if (a.hasValue(R.styleable.Preference_defaultValue)) {
             mDefaultValue = onGetDefaultValue(a, R.styleable.Preference_defaultValue);
@@ -539,8 +548,8 @@ public class Preference implements Comparable<Preference> {
         holder.itemView.setFocusable(selectable);
         holder.itemView.setClickable(selectable);
 
-        holder.setDividerAllowedAbove(selectable);
-        holder.setDividerAllowedBelow(selectable);
+        holder.setDividerAllowedAbove(mAllowDividerAbove);
+        holder.setDividerAllowedBelow(mAllowDividerBelow);
     }
 
     /**

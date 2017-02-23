@@ -145,6 +145,13 @@
              this Preference is disabled. -->
         <attr name="shouldDisableView" format="boolean" />
         <attr name="android:shouldDisableView" />
+
+        <!-- Whether the preference allows displaying divider on top -->
+        <attr name="allowDividerAbove" format="boolean" />
+
+        <!-- Whether the preference allows displaying divider below it -->
+        <attr name="allowDividerBelow" format="boolean" />
+
     </declare-styleable>
 
     <!-- Base attributes available to CheckBoxPreference. -->
