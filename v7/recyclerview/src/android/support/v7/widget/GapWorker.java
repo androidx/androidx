@@ -107,8 +107,7 @@ final class GapWorker implements Runnable {
         @Override
         public void addPosition(int layoutPosition, int pixelDistance) {
             if (layoutPosition < 0) {
-                // temporary fix for b/35708283
-                return;
+                throw new IllegalArgumentException("Layout positions must be non-negative");
             }
 
             if (pixelDistance < 0) {
@@ -150,6 +149,7 @@ final class GapWorker implements Runnable {
             if (mPrefetchArray != null) {
                 Arrays.fill(mPrefetchArray, -1);
             }
+            mCount = 0;
         }
     }
 
@@ -226,6 +226,11 @@ final class GapWorker implements Runnable {
         int totalTaskIndex = 0;
         for (int i = 0; i < viewCount; i++) {
             RecyclerView view = mRecyclerViews.get(i);
+            if (view.getWindowVisibility() != View.VISIBLE) {
+                // Invisible view, don't bother prefetching
+                continue;
+            }
+
             LayoutPrefetchRegistryImpl prefetchRegistry = view.mPrefetchRegistry;
             final int viewVelocity = Math.abs(prefetchRegistry.mPrefetchDx)
                     + Math.abs(prefetchRegistry.mPrefetchDy);
