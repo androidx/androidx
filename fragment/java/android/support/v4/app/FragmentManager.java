@@ -601,8 +601,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
 
-    static final boolean HONEYCOMB = android.os.Build.VERSION.SDK_INT >= 11;
-
     static final String TARGET_REQUEST_CODE_STATE_TAG = "android:target_req_state";
     static final String TARGET_STATE_TAG = "android:target_state";
     static final String VIEW_STATE_TAG = "android:view_state";
@@ -1589,9 +1587,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             }
             if (f.mIsNewlyAdded && f.mContainer != null) {
                 // Make it visible and run the animations
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                    f.mView.setVisibility(View.VISIBLE);
-                } else if (f.mPostponedAlpha > 0f) {
+                if (f.mPostponedAlpha > 0f) {
                     f.mView.setAlpha(f.mPostponedAlpha);
                 }
                 f.mPostponedAlpha = 0f;
@@ -2243,12 +2239,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             final Fragment fragment = fragments.valueAt(i);
             if (!fragment.mAdded) {
                 final View view = fragment.getView();
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                    fragment.getView().setVisibility(View.INVISIBLE);
-                } else {
-                    fragment.mPostponedAlpha = view.getAlpha();
-                    view.setAlpha(0f);
-                }
+                fragment.mPostponedAlpha = view.getAlpha();
+                view.setAlpha(0f);
             }
         }
     }
@@ -2341,8 +2333,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 Fragment fragment = mActive.get(i);
                 if (fragment != null && fragment.mView != null && fragment.mIsNewlyAdded
                         && record.interactsWith(fragment.mContainerId)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
-                            && fragment.mPostponedAlpha > 0) {
+                    if (fragment.mPostponedAlpha > 0) {
                         fragment.mView.setAlpha(fragment.mPostponedAlpha);
                     }
                     if (moveToState) {
@@ -2691,18 +2682,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         endAnimatingAwayFragments();
         execPendingActions();
 
-        if (HONEYCOMB) {
-            // As of Honeycomb, we save state after pausing.  Prior to that
-            // it is before pausing.  With fragments this is an issue, since
-            // there are many things you may do after pausing but before
-            // stopping that change the fragment state.  For those older
-            // devices, we will not at this point say that we have saved
-            // the state, so we will allow them to continue doing fragment
-            // transactions.  This retains the same semantics as Honeycomb,
-            // though you do have the risk of losing the very most recent state
-            // if the process is killed...  we'll live with that.
-            mStateSaved = true;
-        }
+        mStateSaved = true;
 
         if (mActive == null || mActive.size() <= 0) {
             return null;
