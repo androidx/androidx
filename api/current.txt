@@ -9949,6 +9949,7 @@ package android.support.v7.preference {
     method public android.support.v7.preference.Preference.OnPreferenceChangeListener getOnPreferenceChangeListener();
     method public android.support.v7.preference.Preference.OnPreferenceClickListener getOnPreferenceClickListener();
     method public int getOrder();
+    method public android.support.v7.preference.PreferenceGroup getParent();
     method protected boolean getPersistedBoolean(boolean);
     method protected float getPersistedFloat(float);
     method protected int getPersistedInt(int);
