@@ -28,6 +28,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.SharedPreferencesCompat;
@@ -139,6 +140,7 @@ public class Preference implements Comparable<Preference> {
     private OnPreferenceChangeInternalListener mListener;
 
     private List<Preference> mDependents;
+    private PreferenceGroup mParentGroup;
 
     private boolean mWasDetached;
     private boolean mBaseMethodCalled;
@@ -1123,6 +1125,16 @@ public class Preference implements Comparable<Preference> {
     }
 
     /**
+     * Assigns a {@link PreferenceGroup} as the parent of this Preference. Set null to remove
+     * the current parent.
+     *
+     * @param parentGroup Parent preference group of this Preference or null if none.
+     */
+    void assignParent(@Nullable PreferenceGroup parentGroup) {
+        mParentGroup = parentGroup;
+    }
+
+    /**
      * Called when the Preference hierarchy has been attached to the
      * list of preferences. This can also be called when this
      * Preference has been attached to a group that was already attached
@@ -1322,6 +1334,17 @@ public class Preference implements Comparable<Preference> {
      */
     public String getDependency() {
         return mDependencyKey;
+    }
+
+    /**
+     * Returns the {@link PreferenceGroup} which is this Preference assigned to or null if this
+     * preference is not assigned to any group or is a root Preference.
+     *
+     * @return The parent PreferenceGroup or null if not attached to any.
+     */
+    @Nullable
+    public PreferenceGroup getParent() {
+        return mParentGroup;
     }
 
     /**

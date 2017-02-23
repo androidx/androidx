@@ -192,6 +192,7 @@ public abstract class PreferenceGroup extends Preference {
             id = preferenceManager.getNextId();
         }
         preference.onAttachedToHierarchy(preferenceManager, id);
+        preference.assignParent(this);
 
         if (mAttachedToHierarchy) {
             preference.onAttached();
@@ -217,6 +218,9 @@ public abstract class PreferenceGroup extends Preference {
     private boolean removePreferenceInt(Preference preference) {
         synchronized(this) {
             preference.onPrepareForRemoval();
+            if (preference.getParent() == this) {
+                preference.assignParent(null);
+            }
             boolean success = mPreferenceList.remove(preference);
             if (success) {
                 // If this preference, or another preference with the same key, gets re-added
