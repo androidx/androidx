@@ -24,13 +24,9 @@
                       android.support.test.espresso.idling"/>
 
     <application android:supportsRtl="true">
-        <uses-library android:name="android.test.runner"/>
         <activity android:name="android.support.v7.widget.test.RecyclerViewTestActivity"
                   android:theme="@style/noAnimTheme"/>
-        <activity android:name="android.support.v7.widget.TestActivity" android:theme="@style/noAnimTheme"/>
+        <activity android:name="android.support.v7.widget.TestActivity"
+                  android:theme="@style/noAnimTheme"/>
     </application>
-
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
-                     android:targetPackage="android.support.v7.recyclerview.test"
-    />
 </manifest>

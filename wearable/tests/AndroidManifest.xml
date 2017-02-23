@@ -26,7 +26,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application android:supportsRtl="true" >
-        <uses-library android:name="android.test.runner"/>
         <activity android:name="android.support.wearable.view.LayoutTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

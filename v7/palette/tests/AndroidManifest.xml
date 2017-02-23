@@ -21,12 +21,4 @@
     <uses-sdk android:minSdkVersion="14"
               tools:overrideLibrary="android.support.test, android.app, android.support.test.rule"/>
 
-    <application>
-        <uses-library android:name="android.test.runner"/>
-    </application>
-
-    <instrumentation
-            android:name="android.test.InstrumentationTestRunner"
-            android:targetPackage="android.support.v7.palette.test"/>
-
 </manifest>

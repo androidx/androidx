@@ -17,19 +17,8 @@
           package="android.support.v17.leanback.test">
     <uses-sdk android:minSdkVersion="17"  android:targetSdkVersion="23"/>
 
-    <!--
-        This declares that this application uses the instrumentation test runner targeting
-        the package of android.support.v17.leanback.test. To run the tests use the command:
-        "adb shell am instrument -w android.support.v17.leanback.test/android.test.InstrumentationTestRunner"
-    -->
-    <instrumentation
-            android:targetPackage="android.support.v17.leanback.test"
-            android:name="android.test.InstrumentationTestRunner" />
-
     <application
             android:supportsRtl="true">
-        <uses-library android:name="android.test.runner" />
-
         <activity android:name="android.support.v17.leanback.widget.GridActivity"
                   android:exported="true" />
 

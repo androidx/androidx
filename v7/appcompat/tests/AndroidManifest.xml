@@ -27,9 +27,6 @@
     <application
         android:theme="@style/Theme.AppCompat"
         android:supportsRtl="true">
-
-        <uses-library android:name="android.test.runner"/>
-
         <activity
                 android:name="android.support.v7.app.AppCompatActivity"/>
 
@@ -98,9 +95,5 @@
             android:name="android.support.v7.app.AppCompatVectorDrawableIntegrationActivity"/>
 
     </application>
-
-    <instrumentation
-            android:name="android.test.InstrumentationTestRunner"
-            android:targetPackage="android.support.v7.appcompat.test"/>
 
 </manifest>

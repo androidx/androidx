@@ -19,7 +19,6 @@ package android.support.v7.util;
 import android.app.Instrumentation;
 import android.os.SystemClock;
 import android.support.v7.widget.RecyclerView;
-import android.test.InstrumentationTestCase;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
