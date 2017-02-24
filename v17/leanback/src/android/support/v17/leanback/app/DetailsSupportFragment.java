@@ -707,6 +707,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
             public void onRequestChildFocus(View child, View focused) {
                 if (child != mRootView.getFocusedChild()) {
                     if (child.getId() == R.id.details_fragment_root) {
+                        slideInGridView();
                         showTitle(true);
                     } else if (child.getId() == R.id.video_surface_container) {
                         slideOutGridView();
@@ -777,4 +778,9 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         }
     }
 
+    void slideInGridView() {
+        if (getVerticalGridView() != null) {
+            getVerticalGridView().animateIn();
+        }
+    }
 }
