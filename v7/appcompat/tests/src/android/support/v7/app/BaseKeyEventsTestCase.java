@@ -30,8 +30,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
+import android.support.test.filters.Suppress;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
@@ -93,6 +95,8 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
         assertTrue("ActionMode was destroyed", destroyed.get());
     }
 
+    @Suppress
+    @FlakyTest(bugId = 34956766)
     @Test
     @LargeTest
     public void testBackCollapsesActionView() throws InterruptedException {
