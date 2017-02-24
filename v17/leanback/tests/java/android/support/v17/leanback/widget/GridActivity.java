@@ -278,6 +278,13 @@ public class GridActivity extends Activity {
     }
 
 
+    void changeItem(int position, int itemValue) {
+        mItemLengths[position] = itemValue;
+        if (mGridView.getAdapter() != null) {
+            mGridView.getAdapter().notifyItemChanged(position);
+        }
+    }
+
     void addItems(int index, int[] items) {
         int length = items.length;
         if (mItemLengths.length < mNumItems + length) {
