@@ -135,7 +135,9 @@ package android.support.customtabs {
   public class CustomTabsCallback {
     ctor public CustomTabsCallback();
     method public void extraCallback(java.lang.String, android.os.Bundle);
+    method public void onMessageChannelReady(android.os.Bundle);
     method public void onNavigationEvent(int, android.os.Bundle);
+    method public void onPostMessage(java.lang.String, android.os.Bundle);
     field public static final int NAVIGATION_ABORTED = 4; // 0x4
     field public static final int NAVIGATION_FAILED = 3; // 0x3
     field public static final int NAVIGATION_FINISHED = 2; // 0x2
@@ -215,10 +217,19 @@ package android.support.customtabs {
     method protected abstract boolean mayLaunchUrl(android.support.customtabs.CustomTabsSessionToken, android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>);
     method protected abstract boolean newSession(android.support.customtabs.CustomTabsSessionToken);
     method public android.os.IBinder onBind(android.content.Intent);
+    method protected abstract int postMessage(android.support.customtabs.CustomTabsSessionToken, java.lang.String, android.os.Bundle);
+    method protected abstract boolean requestPostMessageChannel(android.support.customtabs.CustomTabsSessionToken, android.net.Uri);
     method protected abstract boolean updateVisuals(android.support.customtabs.CustomTabsSessionToken, android.os.Bundle);
     method protected abstract boolean warmup(long);
     field public static final java.lang.String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
     field public static final java.lang.String KEY_URL = "android.support.customtabs.otherurls.URL";
+    field public static final int RESULT_FAILURE_DISALLOWED = -1; // 0xffffffff
+    field public static final int RESULT_FAILURE_MESSAGING_ERROR = -3; // 0xfffffffd
+    field public static final int RESULT_FAILURE_REMOTE_ERROR = -2; // 0xfffffffe
+    field public static final int RESULT_SUCCESS = 0; // 0x0
+  }
+
+  public static abstract class CustomTabsService.Result implements java.lang.annotation.Annotation {
   }
 
   public abstract class CustomTabsServiceConnection implements android.content.ServiceConnection {
@@ -229,6 +240,8 @@ package android.support.customtabs {
 
   public final class CustomTabsSession {
     method public boolean mayLaunchUrl(android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>);
+    method public int postMessage(java.lang.String, android.os.Bundle);
+    method public boolean requestPostMessageChannel(android.net.Uri);
     method public boolean setActionButton(android.graphics.Bitmap, java.lang.String);
     method public boolean setSecondaryToolbarViews(android.widget.RemoteViews, int[], android.app.PendingIntent);
     method public deprecated boolean setToolbarItem(int, android.graphics.Bitmap, java.lang.String);
@@ -237,6 +250,24 @@ package android.support.customtabs {
   public class CustomTabsSessionToken {
     method public android.support.customtabs.CustomTabsCallback getCallback();
     method public static android.support.customtabs.CustomTabsSessionToken getSessionTokenFromIntent(android.content.Intent);
+    method public boolean isAssociatedWith(android.support.customtabs.CustomTabsSession);
+  }
+
+  public class PostMessageService extends android.app.Service {
+    ctor public PostMessageService();
+    method public android.os.IBinder onBind(android.content.Intent);
+  }
+
+  public abstract class PostMessageServiceConnection implements android.content.ServiceConnection {
+    ctor public PostMessageServiceConnection(android.support.customtabs.CustomTabsSessionToken);
+    method public boolean bindSessionToPostMessageService(android.content.Context, java.lang.String);
+    method public final boolean notifyMessageChannelReady(android.os.Bundle);
+    method public void onPostMessageServiceConnected();
+    method public void onPostMessageServiceDisconnected();
+    method public final void onServiceConnected(android.content.ComponentName, android.os.IBinder);
+    method public final void onServiceDisconnected(android.content.ComponentName);
+    method public final boolean postMessage(java.lang.String, android.os.Bundle);
+    method public void unbindFromContext(android.content.Context);
   }
 
 }
@@ -322,7 +353,6 @@ package android.support.design.widget {
     method public boolean isShown();
     method public boolean isShownOrQueued();
     method public B removeCallback(android.support.design.widget.BaseTransientBottomBar.BaseCallback<B>);
-    method public deprecated B setCallback(android.support.design.widget.BaseTransientBottomBar.BaseCallback<B>);
     method public B setDuration(int);
     method public void show();
     field public static final int LENGTH_INDEFINITE = -2; // 0xfffffffe
@@ -355,11 +385,18 @@ package android.support.design.widget {
     method public android.content.res.ColorStateList getItemTextColor();
     method public int getMaxItemCount();
     method public android.view.Menu getMenu();
+    method public int getSelectedItemId();
     method public void inflateMenu(int);
     method public void setItemBackgroundResource(int);
     method public void setItemIconTintList(android.content.res.ColorStateList);
     method public void setItemTextColor(android.content.res.ColorStateList);
+    method public void setOnNavigationItemReselectedListener(android.support.design.widget.BottomNavigationView.OnNavigationItemReselectedListener);
     method public void setOnNavigationItemSelectedListener(android.support.design.widget.BottomNavigationView.OnNavigationItemSelectedListener);
+    method public void setSelectedItemId(int);
+  }
+
+  public static abstract interface BottomNavigationView.OnNavigationItemReselectedListener {
+    method public abstract void onNavigationItemReselected(android.view.MenuItem);
   }
 
   public static abstract interface BottomNavigationView.OnNavigationItemSelectedListener {
@@ -502,7 +539,6 @@ package android.support.design.widget {
     method public int getScrimColor(android.support.design.widget.CoordinatorLayout, V);
     method public float getScrimOpacity(android.support.design.widget.CoordinatorLayout, V);
     method public static java.lang.Object getTag(android.view.View);
-    method public deprecated boolean isDirty(android.support.design.widget.CoordinatorLayout, V);
     method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, V, android.view.View);
     method public android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.support.design.widget.CoordinatorLayout, V, android.support.v4.view.WindowInsetsCompat);
     method public void onAttachedToLayoutParams(android.support.design.widget.CoordinatorLayout.LayoutParams);
@@ -868,7 +904,8 @@ package android.support.media {
     method public java.lang.String getAttribute(java.lang.String);
     method public double getAttributeDouble(java.lang.String, double);
     method public int getAttributeInt(java.lang.String, int);
-    method public boolean getLatLong(float[]);
+    method public deprecated boolean getLatLong(float[]);
+    method public double[] getLatLong();
     method public byte[] getThumbnail();
     method public android.graphics.Bitmap getThumbnailBitmap();
     method public byte[] getThumbnailBytes();
@@ -877,6 +914,7 @@ package android.support.media {
     method public boolean isThumbnailCompressed();
     method public void saveAttributes() throws java.io.IOException;
     method public void setAttribute(java.lang.String, java.lang.String);
+    method public void setLatLong(double, double);
     field public static final int ORIENTATION_FLIP_HORIZONTAL = 2; // 0x2
     field public static final int ORIENTATION_FLIP_VERTICAL = 4; // 0x4
     field public static final int ORIENTATION_NORMAL = 1; // 0x1
@@ -1026,6 +1064,463 @@ package android.support.media {
 
 }
 
+package android.support.media.instantvideo.preload {
+
+  public class InstantVideoPreloadManager {
+    method public void clearCache();
+    method public static synchronized android.support.media.instantvideo.preload.InstantVideoPreloadManager getInstance(android.content.Context);
+    method public void preload(android.net.Uri);
+    method public void setMaxCacheSize(int);
+    method public void setMaxPreloadVideoCount(int);
+  }
+
+}
+
+package android.support.media.instantvideo.widget {
+
+  public class InstantVideoView extends android.widget.FrameLayout {
+    ctor public InstantVideoView(android.content.Context);
+    ctor public InstantVideoView(android.content.Context, android.util.AttributeSet);
+    ctor public InstantVideoView(android.content.Context, android.util.AttributeSet, int);
+    method public int getCurrentPosition();
+    method public void seekTo(int);
+    method public void setImageDrawable(android.graphics.drawable.Drawable);
+    method public void setVideoUri(android.net.Uri);
+    method public void start();
+    method public void stop();
+  }
+
+}
+
+package android.support.media.tv {
+
+  public final class Channel {
+    method public static android.support.media.tv.Channel fromCursor(android.database.Cursor);
+    method public int getAppLinkColor();
+    method public android.net.Uri getAppLinkIconUri();
+    method public android.content.Intent getAppLinkIntent() throws java.net.URISyntaxException;
+    method public android.net.Uri getAppLinkIntentUri();
+    method public android.net.Uri getAppLinkPosterArtUri();
+    method public java.lang.String getAppLinkText();
+    method public java.lang.String getChannelLogo();
+    method public java.lang.String getDescription();
+    method public java.lang.String getDisplayName();
+    method public java.lang.String getDisplayNumber();
+    method public long getId();
+    method public java.lang.String getInputId();
+    method public byte[] getInternalProviderDataByteArray();
+    method public java.lang.Long getInternalProviderFlag1();
+    method public java.lang.Long getInternalProviderFlag2();
+    method public java.lang.Long getInternalProviderFlag3();
+    method public java.lang.Long getInternalProviderFlag4();
+    method public java.lang.String getNetworkAffiliation();
+    method public int getOriginalNetworkId();
+    method public java.lang.String getPackageName();
+    method public int getServiceId();
+    method public java.lang.String getServiceType();
+    method public int getTransportStreamId();
+    method public java.lang.String getType();
+    method public java.lang.String getVideoFormat();
+    method public boolean isSearchable();
+    method public android.content.ContentValues toContentValues();
+  }
+
+  public static final class Channel.Builder {
+    ctor public Channel.Builder();
+    ctor public Channel.Builder(android.support.media.tv.Channel);
+    method public android.support.media.tv.Channel build();
+    method public android.support.media.tv.Channel.Builder setAppLinkColor(int);
+    method public android.support.media.tv.Channel.Builder setAppLinkIconUri(android.net.Uri);
+    method public android.support.media.tv.Channel.Builder setAppLinkIntent(android.content.Intent);
+    method public android.support.media.tv.Channel.Builder setAppLinkIntentUri(android.net.Uri);
+    method public android.support.media.tv.Channel.Builder setAppLinkPosterArtUri(android.net.Uri);
+    method public android.support.media.tv.Channel.Builder setAppLinkText(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setChannelLogo(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setDescription(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setDisplayName(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setDisplayNumber(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setInputId(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setInternalProviderData(byte[]);
+    method public android.support.media.tv.Channel.Builder setInternalProviderData(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setInternalProviderFlag1(long);
+    method public android.support.media.tv.Channel.Builder setInternalProviderFlag2(long);
+    method public android.support.media.tv.Channel.Builder setInternalProviderFlag3(long);
+    method public android.support.media.tv.Channel.Builder setInternalProviderFlag4(long);
+    method public android.support.media.tv.Channel.Builder setNetworkAffiliation(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setOriginalNetworkId(int);
+    method public android.support.media.tv.Channel.Builder setPackageName(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setSearchable(boolean);
+    method public android.support.media.tv.Channel.Builder setServiceId(int);
+    method public android.support.media.tv.Channel.Builder setServiceType(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setTransportStreamId(int);
+    method public android.support.media.tv.Channel.Builder setType(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setVideoFormat(java.lang.String);
+  }
+
+  public final class Program implements java.lang.Comparable {
+    method public int compareTo(android.support.media.tv.Program);
+    method public static android.support.media.tv.Program fromCursor(android.database.Cursor);
+    method public android.content.Intent getAppLinkIntent() throws java.net.URISyntaxException;
+    method public android.net.Uri getAppLinkIntentUri();
+    method public java.lang.String[] getAudioLanguages();
+    method public java.lang.String getAuthor();
+    method public java.lang.String getAvailability();
+    method public java.lang.String[] getBroadcastGenres();
+    method public java.lang.String[] getCanonicalGenres();
+    method public long getChannelId();
+    method public android.media.tv.TvContentRating[] getContentRatings();
+    method public java.lang.String getDescription();
+    method public int getDurationMillis();
+    method public long getEndTimeUtcMillis();
+    method public java.lang.String getEpisodeNumber();
+    method public java.lang.String getEpisodeTitle();
+    method public long getId();
+    method public int getInteractionCount();
+    method public java.lang.String getInteractionType();
+    method public byte[] getInternalProviderDataByteArray();
+    method public java.lang.Long getInternalProviderFlag1();
+    method public java.lang.Long getInternalProviderFlag2();
+    method public java.lang.Long getInternalProviderFlag3();
+    method public java.lang.Long getInternalProviderFlag4();
+    method public java.lang.String getInternalProviderId();
+    method public int getItemCount();
+    method public int getLastPlaybackPositionMillis();
+    method public android.net.Uri getLogoUri();
+    method public java.lang.String getLongDescription();
+    method public java.lang.String getOfferPrice();
+    method public java.lang.String getPosterArtAspectRatio();
+    method public android.net.Uri getPosterArtUri();
+    method public android.net.Uri getPreviewVideoUri();
+    method public java.lang.String getReleaseDate();
+    method public java.lang.String getReviewRating();
+    method public java.lang.String getReviewRatingStyle();
+    method public java.lang.String getSeasonNumber();
+    method public java.lang.String getSeasonTitle();
+    method public long getStartTimeUtcMillis();
+    method public java.lang.String getStartingPrice();
+    method public java.lang.String getThumbnailAspectRatio();
+    method public android.net.Uri getThumbnailUri();
+    method public java.lang.String getTitle();
+    method public java.lang.String getType();
+    method public int getVideoHeight();
+    method public int getVideoWidth();
+    method public java.lang.String getWatchNextType();
+    method public int getWeight();
+    method public boolean isLive();
+    method public boolean isRecordingProhibited();
+    method public boolean isSearchable();
+    method public android.content.ContentValues toContentValues();
+  }
+
+  public static final class Program.Builder {
+    ctor public Program.Builder();
+    ctor public Program.Builder(android.support.media.tv.Program);
+    method public android.support.media.tv.Program build();
+    method public android.support.media.tv.Program.Builder setAppLinkIntent(android.content.Intent);
+    method public android.support.media.tv.Program.Builder setAppLinkIntentUri(android.net.Uri);
+    method public android.support.media.tv.Program.Builder setAudioLanguages(java.lang.String[]);
+    method public android.support.media.tv.Program.Builder setAuthor(java.lang.String);
+    method public android.support.media.tv.Program.Builder setAvailability(java.lang.String);
+    method public android.support.media.tv.Program.Builder setBroadcastGenres(java.lang.String[]);
+    method public android.support.media.tv.Program.Builder setCanonicalGenres(java.lang.String[]);
+    method public android.support.media.tv.Program.Builder setChannelId(long);
+    method public android.support.media.tv.Program.Builder setContentRatings(android.media.tv.TvContentRating[]);
+    method public android.support.media.tv.Program.Builder setDescription(java.lang.String);
+    method public android.support.media.tv.Program.Builder setDurationMillis(int);
+    method public android.support.media.tv.Program.Builder setEndTimeUtcMillis(long);
+    method public android.support.media.tv.Program.Builder setEpisodeNumber(int);
+    method public android.support.media.tv.Program.Builder setEpisodeNumber(java.lang.String, int);
+    method public android.support.media.tv.Program.Builder setEpisodeTitle(java.lang.String);
+    method public android.support.media.tv.Program.Builder setId(long);
+    method public android.support.media.tv.Program.Builder setInteractionCount(int);
+    method public android.support.media.tv.Program.Builder setInteractionType(java.lang.String);
+    method public android.support.media.tv.Program.Builder setInternalProviderData(byte[]);
+    method public android.support.media.tv.Program.Builder setInternalProviderFlag1(long);
+    method public android.support.media.tv.Program.Builder setInternalProviderFlag2(long);
+    method public android.support.media.tv.Program.Builder setInternalProviderFlag3(long);
+    method public android.support.media.tv.Program.Builder setInternalProviderFlag4(long);
+    method public android.support.media.tv.Program.Builder setInternalProviderId(java.lang.String);
+    method public android.support.media.tv.Program.Builder setItemCount(int);
+    method public android.support.media.tv.Program.Builder setLastPlaybackPositionMillis(int);
+    method public android.support.media.tv.Program.Builder setLive(boolean);
+    method public android.support.media.tv.Program.Builder setLogoUri(android.net.Uri);
+    method public android.support.media.tv.Program.Builder setLongDescription(java.lang.String);
+    method public android.support.media.tv.Program.Builder setOfferPrice(java.lang.String);
+    method public android.support.media.tv.Program.Builder setPosterArtAspectRatio(java.lang.String);
+    method public android.support.media.tv.Program.Builder setPosterArtUri(android.net.Uri);
+    method public android.support.media.tv.Program.Builder setPreviewVideoUri(android.net.Uri);
+    method public android.support.media.tv.Program.Builder setRecordingProhibited(boolean);
+    method public android.support.media.tv.Program.Builder setReleaseDate(java.lang.String);
+    method public android.support.media.tv.Program.Builder setReleaseDate(java.util.Date);
+    method public android.support.media.tv.Program.Builder setReviewRating(java.lang.String);
+    method public android.support.media.tv.Program.Builder setReviewRatingStyle(java.lang.String);
+    method public android.support.media.tv.Program.Builder setSearchable(boolean);
+    method public android.support.media.tv.Program.Builder setSeasonNumber(int);
+    method public android.support.media.tv.Program.Builder setSeasonNumber(java.lang.String, int);
+    method public android.support.media.tv.Program.Builder setSeasonTitle(java.lang.String);
+    method public android.support.media.tv.Program.Builder setStartTimeUtcMillis(long);
+    method public android.support.media.tv.Program.Builder setStartingPrice(java.lang.String);
+    method public android.support.media.tv.Program.Builder setThumbnailAspectRatio(java.lang.String);
+    method public android.support.media.tv.Program.Builder setThumbnailUri(android.net.Uri);
+    method public android.support.media.tv.Program.Builder setTitle(java.lang.String);
+    method public android.support.media.tv.Program.Builder setType(java.lang.String);
+    method public android.support.media.tv.Program.Builder setVideoHeight(int);
+    method public android.support.media.tv.Program.Builder setVideoWidth(int);
+    method public android.support.media.tv.Program.Builder setWatchNextType(java.lang.String);
+    method public android.support.media.tv.Program.Builder setWeight(int);
+  }
+
+  public final class TvContractCompat {
+    method public static android.net.Uri buildChannelLogoUri(long);
+    method public static android.net.Uri buildChannelLogoUri(android.net.Uri);
+    method public static android.net.Uri buildChannelUri(long);
+    method public static android.net.Uri buildChannelUriForPassthroughInput(java.lang.String);
+    method public static android.net.Uri buildChannelsUriForInput(java.lang.String);
+    method public static java.lang.String buildInputId(android.content.ComponentName);
+    method public static android.net.Uri buildProgramUri(long);
+    method public static android.net.Uri buildProgramsUriForChannel(long);
+    method public static android.net.Uri buildProgramsUriForChannel(android.net.Uri);
+    method public static android.net.Uri buildProgramsUriForChannel(long, long, long);
+    method public static android.net.Uri buildProgramsUriForChannel(android.net.Uri, long, long);
+    method public static android.net.Uri buildRecordedProgramUri(long);
+    method public static boolean isChannelUri(android.net.Uri);
+    method public static boolean isChannelUriForPassthroughInput(android.net.Uri);
+    method public static boolean isChannelUriForTunerInput(android.net.Uri);
+    method public static boolean isProgramUri(android.net.Uri);
+    field public static final java.lang.String AUTHORITY = "android.media.tv";
+  }
+
+  public static abstract interface TvContractCompat.BaseTvColumns {
+    field public static final java.lang.String COLUMN_PACKAGE_NAME = "package_name";
+  }
+
+  public static final class TvContractCompat.Channels implements android.support.media.tv.TvContractCompat.BaseTvColumns {
+    method public static java.lang.String getVideoResolution(java.lang.String);
+    field public static final java.lang.String COLUMN_APP_LINK_COLOR = "app_link_color";
+    field public static final java.lang.String COLUMN_APP_LINK_ICON_URI = "app_link_icon_uri";
+    field public static final java.lang.String COLUMN_APP_LINK_INTENT_URI = "app_link_intent_uri";
+    field public static final java.lang.String COLUMN_APP_LINK_POSTER_ART_URI = "app_link_poster_art_uri";
+    field public static final java.lang.String COLUMN_APP_LINK_TEXT = "app_link_text";
+    field public static final java.lang.String COLUMN_DESCRIPTION = "description";
+    field public static final java.lang.String COLUMN_DISPLAY_NAME = "display_name";
+    field public static final java.lang.String COLUMN_DISPLAY_NUMBER = "display_number";
+    field public static final java.lang.String COLUMN_INPUT_ID = "input_id";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_DATA = "internal_provider_data";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG1 = "internal_provider_flag1";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG2 = "internal_provider_flag2";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG3 = "internal_provider_flag3";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG4 = "internal_provider_flag4";
+    field public static final java.lang.String COLUMN_NETWORK_AFFILIATION = "network_affiliation";
+    field public static final java.lang.String COLUMN_ORIGINAL_NETWORK_ID = "original_network_id";
+    field public static final java.lang.String COLUMN_SEARCHABLE = "searchable";
+    field public static final java.lang.String COLUMN_SERVICE_ID = "service_id";
+    field public static final java.lang.String COLUMN_SERVICE_TYPE = "service_type";
+    field public static final java.lang.String COLUMN_TRANSPORT_STREAM_ID = "transport_stream_id";
+    field public static final java.lang.String COLUMN_TYPE = "type";
+    field public static final java.lang.String COLUMN_VERSION_NUMBER = "version_number";
+    field public static final java.lang.String COLUMN_VIDEO_FORMAT = "video_format";
+    field public static final java.lang.String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/channel";
+    field public static final java.lang.String CONTENT_TYPE = "vnd.android.cursor.dir/channel";
+    field public static final android.net.Uri CONTENT_URI;
+    field public static final java.lang.String SERVICE_TYPE_AUDIO = "SERVICE_TYPE_AUDIO";
+    field public static final java.lang.String SERVICE_TYPE_AUDIO_VIDEO = "SERVICE_TYPE_AUDIO_VIDEO";
+    field public static final java.lang.String SERVICE_TYPE_OTHER = "SERVICE_TYPE_OTHER";
+    field public static final java.lang.String TYPE_1SEG = "TYPE_1SEG";
+    field public static final java.lang.String TYPE_ATSC_C = "TYPE_ATSC_C";
+    field public static final java.lang.String TYPE_ATSC_M_H = "TYPE_ATSC_M_H";
+    field public static final java.lang.String TYPE_ATSC_T = "TYPE_ATSC_T";
+    field public static final java.lang.String TYPE_CMMB = "TYPE_CMMB";
+    field public static final java.lang.String TYPE_DTMB = "TYPE_DTMB";
+    field public static final java.lang.String TYPE_DVB_C = "TYPE_DVB_C";
+    field public static final java.lang.String TYPE_DVB_C2 = "TYPE_DVB_C2";
+    field public static final java.lang.String TYPE_DVB_H = "TYPE_DVB_H";
+    field public static final java.lang.String TYPE_DVB_S = "TYPE_DVB_S";
+    field public static final java.lang.String TYPE_DVB_S2 = "TYPE_DVB_S2";
+    field public static final java.lang.String TYPE_DVB_SH = "TYPE_DVB_SH";
+    field public static final java.lang.String TYPE_DVB_T = "TYPE_DVB_T";
+    field public static final java.lang.String TYPE_DVB_T2 = "TYPE_DVB_T2";
+    field public static final java.lang.String TYPE_ISDB_C = "TYPE_ISDB_C";
+    field public static final java.lang.String TYPE_ISDB_S = "TYPE_ISDB_S";
+    field public static final java.lang.String TYPE_ISDB_T = "TYPE_ISDB_T";
+    field public static final java.lang.String TYPE_ISDB_TB = "TYPE_ISDB_TB";
+    field public static final java.lang.String TYPE_NTSC = "TYPE_NTSC";
+    field public static final java.lang.String TYPE_OTHER = "TYPE_OTHER";
+    field public static final java.lang.String TYPE_PAL = "TYPE_PAL";
+    field public static final java.lang.String TYPE_PREVIEW = "TYPE_PREVIEW";
+    field public static final java.lang.String TYPE_SECAM = "TYPE_SECAM";
+    field public static final java.lang.String TYPE_S_DMB = "TYPE_S_DMB";
+    field public static final java.lang.String TYPE_T_DMB = "TYPE_T_DMB";
+    field public static final java.lang.String VIDEO_FORMAT_1080I = "VIDEO_FORMAT_1080I";
+    field public static final java.lang.String VIDEO_FORMAT_1080P = "VIDEO_FORMAT_1080P";
+    field public static final java.lang.String VIDEO_FORMAT_2160P = "VIDEO_FORMAT_2160P";
+    field public static final java.lang.String VIDEO_FORMAT_240P = "VIDEO_FORMAT_240P";
+    field public static final java.lang.String VIDEO_FORMAT_360P = "VIDEO_FORMAT_360P";
+    field public static final java.lang.String VIDEO_FORMAT_4320P = "VIDEO_FORMAT_4320P";
+    field public static final java.lang.String VIDEO_FORMAT_480I = "VIDEO_FORMAT_480I";
+    field public static final java.lang.String VIDEO_FORMAT_480P = "VIDEO_FORMAT_480P";
+    field public static final java.lang.String VIDEO_FORMAT_576I = "VIDEO_FORMAT_576I";
+    field public static final java.lang.String VIDEO_FORMAT_576P = "VIDEO_FORMAT_576P";
+    field public static final java.lang.String VIDEO_FORMAT_720P = "VIDEO_FORMAT_720P";
+    field public static final java.lang.String VIDEO_RESOLUTION_ED = "VIDEO_RESOLUTION_ED";
+    field public static final java.lang.String VIDEO_RESOLUTION_FHD = "VIDEO_RESOLUTION_FHD";
+    field public static final java.lang.String VIDEO_RESOLUTION_HD = "VIDEO_RESOLUTION_HD";
+    field public static final java.lang.String VIDEO_RESOLUTION_SD = "VIDEO_RESOLUTION_SD";
+    field public static final java.lang.String VIDEO_RESOLUTION_UHD = "VIDEO_RESOLUTION_UHD";
+  }
+
+  public static final class TvContractCompat.Channels.Logo {
+    field public static final java.lang.String CONTENT_DIRECTORY = "logo";
+  }
+
+  public static final class TvContractCompat.Programs implements android.support.media.tv.TvContractCompat.BaseTvColumns {
+    field public static final java.lang.String ASPECT_RATIO_16_9 = "ASPECT_RATIO_16_9";
+    field public static final java.lang.String ASPECT_RATIO_1_1 = "ASPECT_RATIO_1_1";
+    field public static final java.lang.String ASPECT_RATIO_2_3 = "ASPECT_RATIO_2_3";
+    field public static final java.lang.String ASPECT_RATIO_3_2 = "ASPECT_RATIO_3_2";
+    field public static final java.lang.String AVAILABILITY_AVAILABLE = "AVAILABILITY_AVAILABLE";
+    field public static final java.lang.String AVAILABILITY_FREE_WITH_SUBSCRIPTION = "AVAILABILITY_FREE_WITH_SUBSCRIPTION";
+    field public static final java.lang.String AVAILABILITY_PAID_CONTENT = "AVAILABILITY_PAID_CONTENT";
+    field public static final java.lang.String COLUMN_APP_LINK_INTENT_URI = "app_link_intent_uri";
+    field public static final java.lang.String COLUMN_AUDIO_LANGUAGE = "audio_language";
+    field public static final java.lang.String COLUMN_AUTHOR = "author";
+    field public static final java.lang.String COLUMN_AVAILABILITY = "availability";
+    field public static final java.lang.String COLUMN_BROADCAST_GENRE = "broadcast_genre";
+    field public static final java.lang.String COLUMN_CANONICAL_GENRE = "canonical_genre";
+    field public static final java.lang.String COLUMN_CHANNEL_ID = "channel_id";
+    field public static final java.lang.String COLUMN_CONTENT_RATING = "content_rating";
+    field public static final java.lang.String COLUMN_DURATION_MILLIS = "duration_millis";
+    field public static final java.lang.String COLUMN_END_TIME_UTC_MILLIS = "end_time_utc_millis";
+    field public static final java.lang.String COLUMN_EPISODE_DISPLAY_NUMBER = "episode_display_number";
+    field public static final deprecated java.lang.String COLUMN_EPISODE_NUMBER = "episode_number";
+    field public static final java.lang.String COLUMN_EPISODE_TITLE = "episode_title";
+    field public static final java.lang.String COLUMN_INTERACTION_COUNT = "interaction_count";
+    field public static final java.lang.String COLUMN_INTERACTION_TYPE = "interaction_type";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_DATA = "internal_provider_data";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG1 = "internal_provider_flag1";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG2 = "internal_provider_flag2";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG3 = "internal_provider_flag3";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG4 = "internal_provider_flag4";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_ID = "internal_provider_id";
+    field public static final java.lang.String COLUMN_ITEM_COUNT = "item_count";
+    field public static final java.lang.String COLUMN_LAST_PLAYBACK_POSITION_MILLIS = "last_playback_position_millis";
+    field public static final java.lang.String COLUMN_LIVE = "live";
+    field public static final java.lang.String COLUMN_LOGO_URI = "logo_uri";
+    field public static final java.lang.String COLUMN_LONG_DESCRIPTION = "long_description";
+    field public static final java.lang.String COLUMN_OFFER_PRICE = "offer_price";
+    field public static final java.lang.String COLUMN_POSTER_ART_ASPECT_RATIO = "poster_art_aspect_ratio";
+    field public static final java.lang.String COLUMN_POSTER_ART_URI = "poster_art_uri";
+    field public static final java.lang.String COLUMN_PREVIEW_VIDEO_URI = "preview_video_uri";
+    field public static final java.lang.String COLUMN_RECORDING_PROHIBITED = "recording_prohibited";
+    field public static final java.lang.String COLUMN_RELEASE_DATE = "release_date";
+    field public static final java.lang.String COLUMN_REVIEW_RATING = "review_rating";
+    field public static final java.lang.String COLUMN_REVIEW_RATING_STYLE = "review_rating_style";
+    field public static final java.lang.String COLUMN_SEARCHABLE = "searchable";
+    field public static final java.lang.String COLUMN_SEASON_DISPLAY_NUMBER = "season_display_number";
+    field public static final deprecated java.lang.String COLUMN_SEASON_NUMBER = "season_number";
+    field public static final java.lang.String COLUMN_SEASON_TITLE = "season_title";
+    field public static final java.lang.String COLUMN_SHORT_DESCRIPTION = "short_description";
+    field public static final java.lang.String COLUMN_STARTING_PRICE = "starting_price";
+    field public static final java.lang.String COLUMN_START_TIME_UTC_MILLIS = "start_time_utc_millis";
+    field public static final java.lang.String COLUMN_THUMBNAIL_ASPECT_RATIO = "poster_thumbnail_aspect_ratio";
+    field public static final java.lang.String COLUMN_THUMBNAIL_URI = "thumbnail_uri";
+    field public static final java.lang.String COLUMN_TITLE = "title";
+    field public static final java.lang.String COLUMN_TYPE = "type";
+    field public static final java.lang.String COLUMN_VERSION_NUMBER = "version_number";
+    field public static final java.lang.String COLUMN_VIDEO_HEIGHT = "video_height";
+    field public static final java.lang.String COLUMN_VIDEO_WIDTH = "video_width";
+    field public static final java.lang.String COLUMN_WATCH_NEXT_TYPE = "watch_next_type";
+    field public static final java.lang.String COLUMN_WEIGHT = "weight";
+    field public static final java.lang.String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/program";
+    field public static final java.lang.String CONTENT_TYPE = "vnd.android.cursor.dir/program";
+    field public static final android.net.Uri CONTENT_URI;
+    field public static final java.lang.String INTERACTION_TYPE_FANS = "INTERACTION_TYPE_FANS";
+    field public static final java.lang.String INTERACTION_TYPE_FOLLOWERS = "INTERACTION_TYPE_FOLLOWERS";
+    field public static final java.lang.String INTERACTION_TYPE_LIKES = "INTERACTION_TYPE_LIKES";
+    field public static final java.lang.String INTERACTION_TYPE_LISTENS = "INTERACTION_TYPE_LISTENS";
+    field public static final java.lang.String INTERACTION_TYPE_THUMBS = "INTERACTION_TYPE_THUMBS";
+    field public static final java.lang.String INTERACTION_TYPE_VIEWERS = "INTERACTION_TYPE_VIEWERS";
+    field public static final java.lang.String INTERACTION_TYPE_VIEWS = "INTERACTION_TYPE_VIEWS";
+    field public static final java.lang.String REVIEW_RATING_STYLE_PERCENTAGE = "REVIEW_RATING_STYLE_PERCENTAGE";
+    field public static final java.lang.String REVIEW_RATING_STYLE_STARS = "REVIEW_RATING_STYLE_STARS";
+    field public static final java.lang.String REVIEW_RATING_STYLE_THUMBS_UP_DOWN = "REVIEW_RATING_STYLE_THUMBS_UP_DOWN";
+    field public static final java.lang.String TYPE_ALBUM = "TYPE_ALBUM";
+    field public static final java.lang.String TYPE_ARTIST = "TYPE_ARTIST";
+    field public static final java.lang.String TYPE_CHANNEL = "TYPE_CHANNEL";
+    field public static final java.lang.String TYPE_CLIP = "TYPE_CLIP";
+    field public static final java.lang.String TYPE_EVENT = "TYPE_EVENT";
+    field public static final java.lang.String TYPE_MOVIE = "TYPE_MOVIE";
+    field public static final java.lang.String TYPE_PLAYLIST = "TYPE_PLAYLIST";
+    field public static final java.lang.String TYPE_STATION = "TYPE_STATION";
+    field public static final java.lang.String TYPE_TRACK = "TYPE_TRACK";
+    field public static final java.lang.String TYPE_TV_EPISODE = "TYPE_TV_EPISODE";
+    field public static final java.lang.String TYPE_TV_SEASON = "TYPE_TV_SEASON";
+    field public static final java.lang.String TYPE_TV_SERIES = "TYPE_TV_SERIES";
+    field public static final java.lang.String WATCH_NEXT_TYPE_CONTINUE = "WATCH_NEXT_TYPE_CONTINUE";
+    field public static final java.lang.String WATCH_NEXT_TYPE_NEW = "WATCH_NEXT_TYPE_NEW";
+    field public static final java.lang.String WATCH_NEXT_TYPE_NEXT = "WATCH_NEXT_TYPE_NEXT";
+  }
+
+  public static final class TvContractCompat.Programs.Genres {
+    method public static java.lang.String[] decode(java.lang.String);
+    method public static java.lang.String encode(java.lang.String...);
+    method public static boolean isCanonical(java.lang.String);
+    field public static final java.lang.String ANIMAL_WILDLIFE = "ANIMAL_WILDLIFE";
+    field public static final java.lang.String ARTS = "ARTS";
+    field public static final java.lang.String COMEDY = "COMEDY";
+    field public static final java.lang.String DRAMA = "DRAMA";
+    field public static final java.lang.String EDUCATION = "EDUCATION";
+    field public static final java.lang.String ENTERTAINMENT = "ENTERTAINMENT";
+    field public static final java.lang.String FAMILY_KIDS = "FAMILY_KIDS";
+    field public static final java.lang.String GAMING = "GAMING";
+    field public static final java.lang.String LIFE_STYLE = "LIFE_STYLE";
+    field public static final java.lang.String MOVIES = "MOVIES";
+    field public static final java.lang.String MUSIC = "MUSIC";
+    field public static final java.lang.String NEWS = "NEWS";
+    field public static final java.lang.String PREMIER = "PREMIER";
+    field public static final java.lang.String SHOPPING = "SHOPPING";
+    field public static final java.lang.String SPORTS = "SPORTS";
+    field public static final java.lang.String TECH_SCIENCE = "TECH_SCIENCE";
+    field public static final java.lang.String TRAVEL = "TRAVEL";
+  }
+
+  public static final class TvContractCompat.RecordedPrograms implements android.support.media.tv.TvContractCompat.BaseTvColumns {
+    field public static final java.lang.String COLUMN_AUDIO_LANGUAGE = "audio_language";
+    field public static final java.lang.String COLUMN_BROADCAST_GENRE = "broadcast_genre";
+    field public static final java.lang.String COLUMN_CANONICAL_GENRE = "canonical_genre";
+    field public static final java.lang.String COLUMN_CHANNEL_ID = "channel_id";
+    field public static final java.lang.String COLUMN_CONTENT_RATING = "content_rating";
+    field public static final java.lang.String COLUMN_END_TIME_UTC_MILLIS = "end_time_utc_millis";
+    field public static final java.lang.String COLUMN_EPISODE_DISPLAY_NUMBER = "episode_display_number";
+    field public static final java.lang.String COLUMN_EPISODE_TITLE = "episode_title";
+    field public static final java.lang.String COLUMN_INPUT_ID = "input_id";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_DATA = "internal_provider_data";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG1 = "internal_provider_flag1";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG2 = "internal_provider_flag2";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG3 = "internal_provider_flag3";
+    field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_FLAG4 = "internal_provider_flag4";
+    field public static final java.lang.String COLUMN_LONG_DESCRIPTION = "long_description";
+    field public static final java.lang.String COLUMN_POSTER_ART_URI = "poster_art_uri";
+    field public static final java.lang.String COLUMN_RECORDING_DATA_BYTES = "recording_data_bytes";
+    field public static final java.lang.String COLUMN_RECORDING_DATA_URI = "recording_data_uri";
+    field public static final java.lang.String COLUMN_RECORDING_DURATION_MILLIS = "recording_duration_millis";
+    field public static final java.lang.String COLUMN_RECORDING_EXPIRE_TIME_UTC_MILLIS = "recording_expire_time_utc_millis";
+    field public static final java.lang.String COLUMN_SEARCHABLE = "searchable";
+    field public static final java.lang.String COLUMN_SEASON_DISPLAY_NUMBER = "season_display_number";
+    field public static final java.lang.String COLUMN_SEASON_TITLE = "season_title";
+    field public static final java.lang.String COLUMN_SHORT_DESCRIPTION = "short_description";
+    field public static final java.lang.String COLUMN_START_TIME_UTC_MILLIS = "start_time_utc_millis";
+    field public static final java.lang.String COLUMN_THUMBNAIL_URI = "thumbnail_uri";
+    field public static final java.lang.String COLUMN_TITLE = "title";
+    field public static final java.lang.String COLUMN_VERSION_NUMBER = "version_number";
+    field public static final java.lang.String COLUMN_VIDEO_HEIGHT = "video_height";
+    field public static final java.lang.String COLUMN_VIDEO_WIDTH = "video_width";
+    field public static final java.lang.String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/recorded_program";
+    field public static final java.lang.String CONTENT_TYPE = "vnd.android.cursor.dir/recorded_program";
+    field public static final android.net.Uri CONTENT_URI;
+  }
+
+}
+
 package android.support.percent {
 
   public class PercentFrameLayout extends android.widget.FrameLayout {
@@ -1128,29 +1623,42 @@ package android.support.transition {
     method public android.support.transition.Transition addListener(android.support.transition.Transition.TransitionListener);
     method public android.support.transition.Transition addTarget(android.view.View);
     method public android.support.transition.Transition addTarget(int);
+    method public android.support.transition.Transition addTarget(java.lang.String);
+    method public android.support.transition.Transition addTarget(java.lang.Class);
     method public abstract void captureEndValues(android.support.transition.TransitionValues);
     method public abstract void captureStartValues(android.support.transition.TransitionValues);
+    method public android.support.transition.Transition clone();
     method public android.animation.Animator createAnimator(android.view.ViewGroup, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
     method public android.support.transition.Transition excludeChildren(android.view.View, boolean);
     method public android.support.transition.Transition excludeChildren(int, boolean);
     method public android.support.transition.Transition excludeChildren(java.lang.Class, boolean);
     method public android.support.transition.Transition excludeTarget(android.view.View, boolean);
     method public android.support.transition.Transition excludeTarget(int, boolean);
+    method public android.support.transition.Transition excludeTarget(java.lang.String, boolean);
     method public android.support.transition.Transition excludeTarget(java.lang.Class, boolean);
     method public long getDuration();
     method public android.animation.TimeInterpolator getInterpolator();
     method public java.lang.String getName();
     method public long getStartDelay();
     method public java.util.List<java.lang.Integer> getTargetIds();
+    method public java.util.List<java.lang.String> getTargetNames();
+    method public java.util.List<java.lang.Class> getTargetTypes();
     method public java.util.List<android.view.View> getTargets();
     method public java.lang.String[] getTransitionProperties();
     method public android.support.transition.TransitionValues getTransitionValues(android.view.View, boolean);
     method public android.support.transition.Transition removeListener(android.support.transition.Transition.TransitionListener);
     method public android.support.transition.Transition removeTarget(android.view.View);
     method public android.support.transition.Transition removeTarget(int);
+    method public android.support.transition.Transition removeTarget(java.lang.String);
+    method public android.support.transition.Transition removeTarget(java.lang.Class);
     method public android.support.transition.Transition setDuration(long);
     method public android.support.transition.Transition setInterpolator(android.animation.TimeInterpolator);
+    method public void setMatchOrder(int...);
     method public android.support.transition.Transition setStartDelay(long);
+    field public static final int MATCH_ID = 3; // 0x3
+    field public static final int MATCH_INSTANCE = 1; // 0x1
+    field public static final int MATCH_ITEM_ID = 4; // 0x4
+    field public static final int MATCH_NAME = 2; // 0x2
   }
 
   public static abstract interface Transition.TransitionListener {
@@ -1178,6 +1686,8 @@ package android.support.transition {
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
     method public int getOrdering();
+    method public android.support.transition.Transition getTransitionAt(int);
+    method public int getTransitionCount();
     method public android.support.transition.TransitionSet removeTransition(android.support.transition.Transition);
     method public android.support.transition.TransitionSet setOrdering(int);
     field public static final int ORDERING_SEQUENTIAL = 1; // 0x1
@@ -1211,7 +1721,7 @@ package android.support.v13.app {
   public class FragmentCompat {
     ctor public FragmentCompat();
     method public static void requestPermissions(android.app.Fragment, java.lang.String[], int);
-    method public static void setMenuVisibility(android.app.Fragment, boolean);
+    method public static deprecated void setMenuVisibility(android.app.Fragment, boolean);
     method public static void setUserVisibleHint(android.app.Fragment, boolean);
     method public static boolean shouldShowRequestPermissionRationale(android.app.Fragment, java.lang.String);
   }
@@ -1263,10 +1773,7 @@ package android.support.v13.view {
     method public abstract boolean onDragStart(android.view.View, android.support.v13.view.DragStartHelper);
   }
 
-  public class ViewCompat extends android.support.v4.view.ViewCompat {
-    method public static void cancelDragAndDrop(android.view.View);
-    method public static boolean startDragAndDrop(android.view.View, android.content.ClipData, android.view.View.DragShadowBuilder, java.lang.Object, int);
-    method public static void updateDragShadow(android.view.View, android.view.View.DragShadowBuilder);
+  public deprecated class ViewCompat extends android.support.v4.view.ViewCompat {
   }
 
 }
@@ -1277,6 +1784,8 @@ package android.support.v13.view.inputmethod {
     ctor public EditorInfoCompat();
     method public static java.lang.String[] getContentMimeTypes(android.view.inputmethod.EditorInfo);
     method public static void setContentMimeTypes(android.view.inputmethod.EditorInfo, java.lang.String[]);
+    field public static final int IME_FLAG_FORCE_ASCII = -2147483648; // 0x80000000
+    field public static final int IME_FLAG_NO_PERSONALIZED_LEARNING = 16777216; // 0x1000000
   }
 
   public final class InputConnectionCompat {
@@ -1515,6 +2024,7 @@ package android.support.v17.leanback.app {
     method public final boolean isHeadersTransitionOnBackEnabled();
     method public boolean isInHeadersTransition();
     method public boolean isShowingHeaders();
+    method public android.support.v17.leanback.app.HeadersFragment onCreateHeadersFragment();
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
     method protected void onEntranceTransitionStart();
@@ -1619,6 +2129,7 @@ package android.support.v17.leanback.app {
     method public final boolean isHeadersTransitionOnBackEnabled();
     method public boolean isInHeadersTransition();
     method public boolean isShowingHeaders();
+    method public android.support.v17.leanback.app.HeadersSupportFragment onCreateHeadersSupportFragment();
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
     method protected void onEntranceTransitionStart();
@@ -1708,6 +2219,7 @@ package android.support.v17.leanback.app {
     method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.widget.DetailsParallax getParallax();
     method public android.support.v17.leanback.app.RowsFragment getRowsFragment();
     method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
@@ -1725,11 +2237,30 @@ package android.support.v17.leanback.app {
     method protected void setupPresenter(android.support.v17.leanback.widget.Presenter);
   }
 
+  public class DetailsFragmentBackgroundController {
+    ctor public DetailsFragmentBackgroundController(android.support.v17.leanback.app.DetailsFragment);
+    method public void enableParallax();
+    method public void enableParallax(android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.support.v17.leanback.widget.ParallaxTarget.PropertyValuesHolderTarget);
+    method public final android.app.Fragment findOrCreateVideoFragment();
+    method public final android.graphics.drawable.Drawable getBottomDrawable();
+    method public final android.graphics.Bitmap getCoverBitmap();
+    method public final android.graphics.drawable.Drawable getCoverDrawable();
+    method public final int getParallaxDrawableMaxOffset();
+    method public final int getSolidColor();
+    method public android.support.v17.leanback.media.PlaybackGlueHost onCreateGlueHost();
+    method public android.app.Fragment onCreateVideoFragment();
+    method public final void setCoverBitmap(android.graphics.Bitmap);
+    method public final void setParallaxDrawableMaxOffset(int);
+    method public final void setSolidColor(int);
+    method public void setupVideoPlayback(android.support.v17.leanback.media.PlaybackGlue);
+  }
+
   public class DetailsSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
     ctor public DetailsSupportFragment();
     method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.widget.DetailsParallax getParallax();
     method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
     method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
@@ -1745,6 +2276,24 @@ package android.support.v17.leanback.app {
     method public void setSelectedPosition(int, boolean);
     method protected void setupDetailsOverviewRowPresenter(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter);
     method protected void setupPresenter(android.support.v17.leanback.widget.Presenter);
+  }
+
+  public class DetailsSupportFragmentBackgroundController {
+    ctor public DetailsSupportFragmentBackgroundController(android.support.v17.leanback.app.DetailsSupportFragment);
+    method public void enableParallax();
+    method public void enableParallax(android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.support.v17.leanback.widget.ParallaxTarget.PropertyValuesHolderTarget);
+    method public final android.support.v4.app.Fragment findOrCreateVideoSupportFragment();
+    method public final android.graphics.drawable.Drawable getBottomDrawable();
+    method public final android.graphics.Bitmap getCoverBitmap();
+    method public final android.graphics.drawable.Drawable getCoverDrawable();
+    method public final int getParallaxDrawableMaxOffset();
+    method public final int getSolidColor();
+    method public android.support.v17.leanback.media.PlaybackGlueHost onCreateGlueHost();
+    method public android.support.v4.app.Fragment onCreateVideoSupportFragment();
+    method public final void setCoverBitmap(android.graphics.Bitmap);
+    method public final void setParallaxDrawableMaxOffset(int);
+    method public final void setSolidColor(int);
+    method public void setupVideoPlayback(android.support.v17.leanback.media.PlaybackGlue);
   }
 
   public class ErrorFragment extends android.support.v17.leanback.app.BrandedFragment {
@@ -2049,6 +2598,7 @@ package android.support.v17.leanback.app {
     method public void setFadingEnabled(boolean);
     method public void setHostCallback(android.support.v17.leanback.media.PlaybackGlueHost.HostCallback);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
+    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.BaseOnItemViewSelectedListener);
     method public final void setOnKeyInterceptListener(android.view.View.OnKeyListener);
     method public void setOnPlaybackItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
     method public void setPlaybackRow(android.support.v17.leanback.widget.Row);
@@ -2133,6 +2683,7 @@ package android.support.v17.leanback.app {
     method public void setFadingEnabled(boolean);
     method public void setHostCallback(android.support.v17.leanback.media.PlaybackGlueHost.HostCallback);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
+    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.BaseOnItemViewSelectedListener);
     method public final void setOnKeyInterceptListener(android.view.View.OnKeyListener);
     method public void setOnPlaybackItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
     method public void setPlaybackRow(android.support.v17.leanback.widget.Row);
@@ -2221,6 +2772,7 @@ package android.support.v17.leanback.app {
     method public void displayCompletions(android.view.inputmethod.CompletionInfo[]);
     method public android.graphics.drawable.Drawable getBadgeDrawable();
     method public android.content.Intent getRecognizerIntent();
+    method public android.support.v17.leanback.app.RowsFragment getRowsFragment();
     method public java.lang.String getTitle();
     method public static android.support.v17.leanback.app.SearchFragment newInstance(java.lang.String);
     method public void setBadgeDrawable(android.graphics.drawable.Drawable);
@@ -2250,6 +2802,7 @@ package android.support.v17.leanback.app {
     method public void displayCompletions(android.view.inputmethod.CompletionInfo[]);
     method public android.graphics.drawable.Drawable getBadgeDrawable();
     method public android.content.Intent getRecognizerIntent();
+    method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
     method public java.lang.String getTitle();
     method public static android.support.v17.leanback.app.SearchSupportFragment newInstance(java.lang.String);
     method public void setBadgeDrawable(android.graphics.drawable.Drawable);
@@ -2299,6 +2852,28 @@ package android.support.v17.leanback.app {
     method public void setSelectedPosition(int);
   }
 
+  public class VideoFragment extends android.support.v17.leanback.app.PlaybackFragment {
+    ctor public VideoFragment();
+    method public android.view.SurfaceView getSurfaceView();
+    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
+  }
+
+  public class VideoFragmentGlueHost extends android.support.v17.leanback.app.PlaybackFragmentGlueHost implements android.support.v17.leanback.media.SurfaceHolderGlueHost {
+    ctor public VideoFragmentGlueHost(android.support.v17.leanback.app.VideoFragment);
+    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
+  }
+
+  public class VideoSupportFragment extends android.support.v17.leanback.app.PlaybackSupportFragment {
+    ctor public VideoSupportFragment();
+    method public android.view.SurfaceView getSurfaceView();
+    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
+  }
+
+  public class VideoSupportFragmentGlueHost extends android.support.v17.leanback.app.PlaybackSupportFragmentGlueHost implements android.support.v17.leanback.media.SurfaceHolderGlueHost {
+    ctor public VideoSupportFragmentGlueHost(android.support.v17.leanback.app.VideoSupportFragment);
+    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
+  }
+
 }
 
 package android.support.v17.leanback.database {
@@ -2313,6 +2888,26 @@ package android.support.v17.leanback.database {
 }
 
 package android.support.v17.leanback.graphics {
+
+  public class BoundsRule {
+    ctor public BoundsRule();
+    ctor public BoundsRule(android.support.v17.leanback.graphics.BoundsRule);
+    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule absoluteValue(int);
+    method public void calculateBounds(android.graphics.Rect, android.graphics.Rect);
+    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParent(float);
+    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParentWithOffset(float, int);
+    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule bottom;
+    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule left;
+    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule right;
+    field public android.support.v17.leanback.graphics.BoundsRule.ValueRule top;
+  }
+
+  public static final class BoundsRule.ValueRule {
+    method public int getAbsoluteValue();
+    method public float getFraction();
+    method public void setAbsoluteValue(int);
+    method public void setFraction(float);
+  }
 
   public final class ColorFilterCache {
     method public static android.support.v17.leanback.graphics.ColorFilterCache getColorFilterCache(int);
@@ -2338,6 +2933,54 @@ package android.support.v17.leanback.graphics {
     method public android.graphics.Paint getPaint();
     method public boolean needsDraw();
     method public void setActiveLevel(float);
+  }
+
+  public class CompositeDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
+    ctor public CompositeDrawable();
+    method public void addChildDrawable(android.graphics.drawable.Drawable);
+    method public void draw(android.graphics.Canvas);
+    method public android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable getChildAt(int);
+    method public int getChildCount();
+    method public android.graphics.drawable.Drawable getDrawable(int);
+    method public int getOpacity();
+    method public void invalidateDrawable(android.graphics.drawable.Drawable);
+    method public void removeChild(int);
+    method public void removeDrawable(android.graphics.drawable.Drawable);
+    method public void scheduleDrawable(android.graphics.drawable.Drawable, java.lang.Runnable, long);
+    method public void setAlpha(int);
+    method public void setChildDrawableAt(int, android.graphics.drawable.Drawable);
+    method public void setColorFilter(android.graphics.ColorFilter);
+    method public void unscheduleDrawable(android.graphics.drawable.Drawable, java.lang.Runnable);
+  }
+
+  public static final class CompositeDrawable.ChildDrawable {
+    ctor public CompositeDrawable.ChildDrawable(android.graphics.drawable.Drawable, android.support.v17.leanback.graphics.CompositeDrawable);
+    method public android.support.v17.leanback.graphics.BoundsRule getBoundsRule();
+    method public android.graphics.drawable.Drawable getDrawable();
+    method public void recomputeBounds();
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> BOTTOM_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> BOTTOM_FRACTION;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> LEFT_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> LEFT_FRACTION;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> RIGHT_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> RIGHT_FRACTION;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Integer> TOP_ABSOLUTE;
+    field public static final android.util.Property<android.support.v17.leanback.graphics.CompositeDrawable.ChildDrawable, java.lang.Float> TOP_FRACTION;
+  }
+
+  public class FitWidthBitmapDrawable extends android.graphics.drawable.Drawable {
+    ctor public FitWidthBitmapDrawable();
+    method public void draw(android.graphics.Canvas);
+    method public android.graphics.Bitmap getBitmap();
+    method public int getOpacity();
+    method public android.graphics.Rect getSource();
+    method public int getVerticalOffset();
+    method public void setAlpha(int);
+    method public void setBitmap(android.graphics.Bitmap);
+    method public void setColorFilter(android.graphics.ColorFilter);
+    method public void setSource(android.graphics.Rect);
+    method public void setVerticalOffset(int);
+    field public static final android.util.Property<android.support.v17.leanback.graphics.FitWidthBitmapDrawable, java.lang.Integer> PROPERTY_VERTICAL_OFFSET;
   }
 
 }
@@ -2447,6 +3090,7 @@ package android.support.v17.leanback.media {
 
   public static abstract class PlaybackGlueHost.HostCallback {
     ctor public PlaybackGlueHost.HostCallback();
+    method public void onHostDestroy();
     method public void onHostPause();
     method public void onHostResume();
     method public void onHostStart();
@@ -2736,6 +3380,12 @@ package android.support.v17.leanback.widget {
     field public final android.support.v17.leanback.widget.Presenter.ViewHolder mDetailsDescriptionViewHolder;
   }
 
+  public class DetailsParallax extends android.support.v17.leanback.widget.RecyclerViewParallax {
+    ctor public DetailsParallax();
+    method public android.support.v17.leanback.widget.Parallax.IntProperty getOverviewRowBottom();
+    method public android.support.v17.leanback.widget.Parallax.IntProperty getOverviewRowTop();
+  }
+
   public class DividerPresenter extends android.support.v17.leanback.widget.Presenter {
     ctor public DividerPresenter();
     method public void onBindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object);
@@ -2768,6 +3418,7 @@ package android.support.v17.leanback.widget {
     ctor public FocusHighlightHelper();
     method public static void setupBrowseItemFocusHighlight(android.support.v17.leanback.widget.ItemBridgeAdapter, int, boolean);
     method public static void setupHeaderItemFocusHighlight(android.support.v17.leanback.widget.VerticalGridView);
+    method public static void setupHeaderItemFocusHighlight(android.support.v17.leanback.widget.VerticalGridView, boolean);
   }
 
   public abstract interface FragmentAnimationProvider {
@@ -3169,6 +3820,7 @@ package android.support.v17.leanback.widget {
     method public final void onViewRecycled(android.support.v7.widget.RecyclerView.ViewHolder);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setAdapterListener(android.support.v17.leanback.widget.ItemBridgeAdapter.AdapterListener);
+    method public void setPresenter(android.support.v17.leanback.widget.PresenterSelector);
     method public void setPresenterMapper(java.util.ArrayList<android.support.v17.leanback.widget.Presenter>);
     method public void setWrapper(android.support.v17.leanback.widget.ItemBridgeAdapter.Wrapper);
   }
@@ -3354,6 +4006,115 @@ package android.support.v17.leanback.widget {
   public class PageRow extends android.support.v17.leanback.widget.Row {
     ctor public PageRow(android.support.v17.leanback.widget.HeaderItem);
     method public final boolean isRenderedAsRowView();
+  }
+
+  public abstract class Parallax<PropertyT extends android.util.Property> {
+    ctor public Parallax();
+    method public void addEffect(android.support.v17.leanback.widget.ParallaxEffect);
+    method public android.support.v17.leanback.widget.ParallaxEffect addEffect(android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue...);
+    method public android.support.v17.leanback.widget.ParallaxEffect addEffect(android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue...);
+    method public abstract PropertyT addProperty(java.lang.String);
+    method public abstract PropertyT createProperty(java.lang.String, int);
+    method public java.util.List<android.support.v17.leanback.widget.ParallaxEffect> getEffects();
+    method public final java.util.List<PropertyT> getProperties();
+    method public void removeAllEffects();
+    method public void removeEffect(android.support.v17.leanback.widget.ParallaxEffect);
+    method public void updateValues();
+    method public abstract void verifyProperties() throws java.lang.IllegalStateException;
+  }
+
+  public static abstract class Parallax.FloatParallax<FloatPropertyT extends android.support.v17.leanback.widget.Parallax.FloatProperty> extends android.support.v17.leanback.widget.Parallax {
+    ctor public Parallax.FloatParallax();
+    method public final FloatPropertyT addProperty(java.lang.String);
+    method public abstract float getMaxValue();
+    method public final float getPropertyValue(int);
+    method public final void setPropertyValue(int, float);
+    method public final void verifyProperties() throws java.lang.IllegalStateException;
+  }
+
+  public static class Parallax.FloatProperty extends android.util.Property {
+    ctor public Parallax.FloatProperty(java.lang.String, int);
+    method public final android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue at(float, float);
+    method public final android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue atAbsolute(float);
+    method public final android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue atFraction(float);
+    method public final java.lang.Float get(android.support.v17.leanback.widget.Parallax.FloatParallax);
+    method public final int getIndex();
+    method public final void set(android.support.v17.leanback.widget.Parallax.FloatParallax, java.lang.Float);
+    field public static final float UNKNOWN_AFTER = 3.4028235E38f;
+    field public static final float UNKNOWN_BEFORE = -3.4028235E38f;
+  }
+
+  public static class Parallax.FloatPropertyMarkerValue extends android.support.v17.leanback.widget.Parallax.PropertyMarkerValue {
+    ctor public Parallax.FloatPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.FloatProperty, float);
+    ctor public Parallax.FloatPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.FloatProperty, float, float);
+    method public final float getMarkerValue(android.support.v17.leanback.widget.Parallax.FloatParallax);
+  }
+
+  public static abstract class Parallax.IntParallax<IntPropertyT extends android.support.v17.leanback.widget.Parallax.IntProperty> extends android.support.v17.leanback.widget.Parallax {
+    ctor public Parallax.IntParallax();
+    method public final IntPropertyT addProperty(java.lang.String);
+    method public abstract int getMaxValue();
+    method public final int getPropertyValue(int);
+    method public final void setPropertyValue(int, int);
+    method public final void verifyProperties() throws java.lang.IllegalStateException;
+  }
+
+  public static class Parallax.IntProperty extends android.util.Property {
+    ctor public Parallax.IntProperty(java.lang.String, int);
+    method public final android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue at(int, float);
+    method public final android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue atAbsolute(int);
+    method public final android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue atFraction(float);
+    method public final java.lang.Integer get(android.support.v17.leanback.widget.Parallax.IntParallax);
+    method public final int getIndex();
+    method public final void set(android.support.v17.leanback.widget.Parallax.IntParallax, java.lang.Integer);
+    field public static final int UNKNOWN_AFTER = 2147483647; // 0x7fffffff
+    field public static final int UNKNOWN_BEFORE = -2147483648; // 0x80000000
+  }
+
+  public static class Parallax.IntPropertyMarkerValue extends android.support.v17.leanback.widget.Parallax.PropertyMarkerValue {
+    ctor public Parallax.IntPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.IntProperty, int);
+    ctor public Parallax.IntPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.IntProperty, int, float);
+    method public final int getMarkerValue(android.support.v17.leanback.widget.Parallax.IntParallax);
+  }
+
+  public static class Parallax.PropertyMarkerValue<PropertyT> {
+    ctor public Parallax.PropertyMarkerValue(PropertyT);
+    method public PropertyT getProperty();
+  }
+
+  public abstract class ParallaxEffect<ParallaxEffectT extends android.support.v17.leanback.widget.ParallaxEffect, PropertyMarkerValueT extends android.support.v17.leanback.widget.Parallax.PropertyMarkerValue> {
+    ctor public ParallaxEffect();
+    method public final void addTarget(android.support.v17.leanback.widget.ParallaxTarget);
+    method protected abstract float calculateFraction(android.support.v17.leanback.widget.Parallax);
+    method public final java.util.List<PropertyMarkerValueT> getPropertyRanges();
+    method public final java.util.List<android.support.v17.leanback.widget.ParallaxTarget> getTargets();
+    method public final void performMapping(android.support.v17.leanback.widget.Parallax);
+    method public final void removeTarget(android.support.v17.leanback.widget.ParallaxTarget);
+    method public final void setPropertyRanges(PropertyMarkerValueT...);
+    method public final android.support.v17.leanback.widget.ParallaxEffect target(android.support.v17.leanback.widget.ParallaxTarget);
+    method public final android.support.v17.leanback.widget.ParallaxEffect target(java.lang.Object, android.animation.PropertyValuesHolder);
+  }
+
+  public static final class ParallaxEffect.FloatEffect extends android.support.v17.leanback.widget.ParallaxEffect {
+    ctor public ParallaxEffect.FloatEffect();
+    method protected float calculateFraction(android.support.v17.leanback.widget.Parallax);
+  }
+
+  public static final class ParallaxEffect.IntEffect extends android.support.v17.leanback.widget.ParallaxEffect {
+    ctor public ParallaxEffect.IntEffect();
+    method protected float calculateFraction(android.support.v17.leanback.widget.Parallax);
+  }
+
+  public abstract class ParallaxTarget {
+    ctor public ParallaxTarget();
+    method public abstract float getFraction();
+    method public abstract void update(float);
+  }
+
+  public static final class ParallaxTarget.PropertyValuesHolderTarget extends android.support.v17.leanback.widget.ParallaxTarget {
+    ctor public ParallaxTarget.PropertyValuesHolderTarget(java.lang.Object, android.animation.PropertyValuesHolder);
+    method public float getFraction();
+    method public void update(float);
   }
 
   public class PlaybackControlsRow extends android.support.v17.leanback.widget.Row {
@@ -3543,6 +4304,25 @@ package android.support.v17.leanback.widget {
     method public void select(java.lang.Object);
     method protected void showView(android.view.View, boolean);
     method public void unselect();
+  }
+
+  public class RecyclerViewParallax extends android.support.v17.leanback.widget.Parallax.IntParallax {
+    ctor public RecyclerViewParallax();
+    method public android.support.v17.leanback.widget.RecyclerViewParallax.ChildPositionProperty createProperty(java.lang.String, int);
+    method public int getMaxValue();
+    method public android.support.v7.widget.RecyclerView getRecyclerView();
+    method public void setRecyclerView(android.support.v7.widget.RecyclerView);
+  }
+
+  public static final class RecyclerViewParallax.ChildPositionProperty extends android.support.v17.leanback.widget.Parallax.IntProperty {
+    method public android.support.v17.leanback.widget.RecyclerViewParallax.ChildPositionProperty adapterPosition(int);
+    method public android.support.v17.leanback.widget.RecyclerViewParallax.ChildPositionProperty fraction(float);
+    method public int getAdapterPosition();
+    method public float getFraction();
+    method public int getOffset();
+    method public int getViewId();
+    method public android.support.v17.leanback.widget.RecyclerViewParallax.ChildPositionProperty offset(int);
+    method public android.support.v17.leanback.widget.RecyclerViewParallax.ChildPositionProperty viewId(int);
   }
 
   public class Row {
@@ -3966,6 +4746,18 @@ package android.support.v17.leanback.widget.picker {
     method public void setStaticLabels(java.lang.CharSequence[]);
   }
 
+  public class TimePicker extends android.support.v17.leanback.widget.picker.Picker {
+    ctor public TimePicker(android.content.Context, android.util.AttributeSet);
+    ctor public TimePicker(android.content.Context, android.util.AttributeSet, int);
+    method public int getHour();
+    method public int getMinute();
+    method public boolean is24Hour();
+    method public boolean isPm();
+    method public void setHour(int);
+    method public void setIs24Hour(boolean);
+    method public void setMinute(int);
+  }
+
 }
 
 package android.support.v17.preference {
@@ -4130,6 +4922,13 @@ package android.support.v4.app {
     field public static final java.lang.String EXTRA_USAGE_TIME_REPORT_PACKAGES = "android.usage_time_packages";
   }
 
+  public final class AlarmManagerCompat {
+    method public static void setAlarmClock(android.app.AlarmManager, long, android.app.PendingIntent, android.app.PendingIntent);
+    method public static void setAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
+    method public static void setExact(android.app.AlarmManager, int, long, android.app.PendingIntent);
+    method public static void setExactAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
+  }
+
   public class AppLaunchChecker {
     ctor public AppLaunchChecker();
     method public static boolean hasStartedFromLauncher(android.content.Context);
@@ -4212,6 +5011,7 @@ package android.support.v4.app {
     method public final boolean isInLayout();
     method public final boolean isRemoving();
     method public final boolean isResumed();
+    method public final boolean isStateSaved();
     method public final boolean isVisible();
     method public void onActivityCreated(android.os.Bundle);
     method public void onActivityResult(int, int, android.content.Intent);
@@ -4301,7 +5101,7 @@ package android.support.v4.app {
     method public void startActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int, android.os.Bundle);
     method public void startIntentSenderFromFragment(android.support.v4.app.Fragment, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) throws android.content.IntentSender.SendIntentException;
     method public void supportFinishAfterTransition();
-    method public void supportInvalidateOptionsMenu();
+    method public deprecated void supportInvalidateOptionsMenu();
     method public void supportPostponeEnterTransition();
     method public void supportStartPostponedEnterTransition();
     method public final void validateRequestPermissionsRequestCode(int);
@@ -4309,6 +5109,7 @@ package android.support.v4.app {
 
   public abstract class FragmentContainer {
     ctor public FragmentContainer();
+    method public android.support.v4.app.Fragment instantiate(android.content.Context, java.lang.String, android.os.Bundle);
     method public abstract android.view.View onFindViewById(int);
     method public abstract boolean onHasView();
   }
@@ -4387,6 +5188,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentManager.BackStackEntry getBackStackEntryAt(int);
     method public abstract int getBackStackEntryCount();
     method public abstract android.support.v4.app.Fragment getFragment(android.os.Bundle, java.lang.String);
+    method public abstract android.support.v4.app.Fragment getPrimaryNavigationFragment();
     method public abstract boolean isDestroyed();
     method public abstract void popBackStack();
     method public abstract void popBackStack(java.lang.String, int);
@@ -4474,6 +5276,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentTransaction hide(android.support.v4.app.Fragment);
     method public abstract boolean isAddToBackStackAllowed();
     method public abstract boolean isEmpty();
+    method public abstract android.support.v4.app.FragmentTransaction postOnCommit(java.lang.Runnable);
     method public abstract android.support.v4.app.FragmentTransaction remove(android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment, java.lang.String);
@@ -4484,6 +5287,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbTitle(java.lang.CharSequence);
     method public abstract android.support.v4.app.FragmentTransaction setCustomAnimations(int, int);
     method public abstract android.support.v4.app.FragmentTransaction setCustomAnimations(int, int, int, int);
+    method public abstract android.support.v4.app.FragmentTransaction setPrimaryNavigationFragment(android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction setTransition(int);
     method public abstract android.support.v4.app.FragmentTransaction setTransitionStyle(int);
     method public abstract android.support.v4.app.FragmentTransaction show(android.support.v4.app.Fragment);
@@ -4544,6 +5348,7 @@ package android.support.v4.app {
     method public static android.support.v4.app.NotificationCompat.Action getAction(android.app.Notification, int);
     method public static int getActionCount(android.app.Notification);
     method public static java.lang.String getCategory(android.app.Notification);
+    method public static java.lang.String getChannel(android.app.Notification);
     method public static android.os.Bundle getExtras(android.app.Notification);
     method public static java.lang.String getGroup(android.app.Notification);
     method public static boolean getLocalOnly(android.app.Notification);
@@ -4569,6 +5374,7 @@ package android.support.v4.app {
     field public static final int DEFAULT_LIGHTS = 4; // 0x4
     field public static final int DEFAULT_SOUND = 1; // 0x1
     field public static final int DEFAULT_VIBRATE = 2; // 0x2
+    field public static final java.lang.String EXTRA_AUDIO_CONTENTS_URI = "android.audioContents";
     field public static final java.lang.String EXTRA_BACKGROUND_IMAGE_URI = "android.backgroundImageUri";
     field public static final java.lang.String EXTRA_BIG_TEXT = "android.bigText";
     field public static final java.lang.String EXTRA_COMPACT_ACTIONS = "android.compactActions";
@@ -4620,6 +5426,7 @@ package android.support.v4.app {
     ctor public NotificationCompat.Action(int, java.lang.CharSequence, android.app.PendingIntent);
     method public android.app.PendingIntent getActionIntent();
     method public boolean getAllowGeneratedReplies();
+    method public android.support.v4.app.RemoteInput[] getDataOnlyRemoteInputs();
     method public android.os.Bundle getExtras();
     method public int getIcon();
     method public android.support.v4.app.RemoteInput[] getRemoteInputs();
@@ -4693,6 +5500,7 @@ package android.support.v4.app {
     method protected static java.lang.CharSequence limitCharSequenceLength(java.lang.CharSequence);
     method public android.support.v4.app.NotificationCompat.Builder setAutoCancel(boolean);
     method public android.support.v4.app.NotificationCompat.Builder setCategory(java.lang.String);
+    method public android.support.v4.app.NotificationCompat.Builder setChannel(java.lang.String);
     method public android.support.v4.app.NotificationCompat.Builder setColor(int);
     method public android.support.v4.app.NotificationCompat.Builder setContent(android.widget.RemoteViews);
     method public android.support.v4.app.NotificationCompat.Builder setContentInfo(java.lang.CharSequence);
@@ -4906,13 +5714,17 @@ package android.support.v4.app {
   }
 
   public final class RemoteInput extends android.support.v4.app.RemoteInputCompatBase.RemoteInput {
+    method public static void addDataResultToIntent(android.support.v4.app.RemoteInput, android.content.Intent, java.util.Map<java.lang.String, android.net.Uri>);
     method public static void addResultsToIntent(android.support.v4.app.RemoteInput[], android.content.Intent, android.os.Bundle);
     method public boolean getAllowFreeFormInput();
+    method public java.util.Set<java.lang.String> getAllowedDataTypes();
     method public java.lang.CharSequence[] getChoices();
+    method public static java.util.Map<java.lang.String, android.net.Uri> getDataResultsFromIntent(android.content.Intent, java.lang.String);
     method public android.os.Bundle getExtras();
     method public java.lang.CharSequence getLabel();
     method public java.lang.String getResultKey();
     method public static android.os.Bundle getResultsFromIntent(android.content.Intent);
+    method public boolean isDataOnly();
     field public static final java.lang.String EXTRA_RESULTS_DATA = "android.remoteinput.resultsData";
     field public static final java.lang.String RESULTS_CLIP_LABEL = "android.remoteinput.results";
   }
@@ -4922,17 +5734,19 @@ package android.support.v4.app {
     method public android.support.v4.app.RemoteInput.Builder addExtras(android.os.Bundle);
     method public android.support.v4.app.RemoteInput build();
     method public android.os.Bundle getExtras();
+    method public android.support.v4.app.RemoteInput.Builder setAllowDataType(java.lang.String, boolean);
     method public android.support.v4.app.RemoteInput.Builder setAllowFreeFormInput(boolean);
     method public android.support.v4.app.RemoteInput.Builder setChoices(java.lang.CharSequence[]);
     method public android.support.v4.app.RemoteInput.Builder setLabel(java.lang.CharSequence);
   }
 
-   class RemoteInputCompatBase {
+   deprecated class RemoteInputCompatBase {
   }
 
   public static abstract class RemoteInputCompatBase.RemoteInput {
     ctor public RemoteInputCompatBase.RemoteInput();
     method protected abstract boolean getAllowFreeFormInput();
+    method protected abstract java.util.Set<java.lang.String> getAllowedDataTypes();
     method protected abstract java.lang.CharSequence[] getChoices();
     method protected abstract android.os.Bundle getExtras();
     method protected abstract java.lang.CharSequence getLabel();
@@ -5106,17 +5920,17 @@ package android.support.v4.content {
   }
 
   public final class IntentCompat {
-    method public static android.content.Intent makeMainActivity(android.content.ComponentName);
+    method public static deprecated android.content.Intent makeMainActivity(android.content.ComponentName);
     method public static android.content.Intent makeMainSelectorActivity(java.lang.String, java.lang.String);
-    method public static android.content.Intent makeRestartActivityTask(android.content.ComponentName);
-    field public static final java.lang.String ACTION_EXTERNAL_APPLICATIONS_AVAILABLE = "android.intent.action.EXTERNAL_APPLICATIONS_AVAILABLE";
-    field public static final java.lang.String ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE = "android.intent.action.EXTERNAL_APPLICATIONS_UNAVAILABLE";
+    method public static deprecated android.content.Intent makeRestartActivityTask(android.content.ComponentName);
+    field public static final deprecated java.lang.String ACTION_EXTERNAL_APPLICATIONS_AVAILABLE = "android.intent.action.EXTERNAL_APPLICATIONS_AVAILABLE";
+    field public static final deprecated java.lang.String ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE = "android.intent.action.EXTERNAL_APPLICATIONS_UNAVAILABLE";
     field public static final java.lang.String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
-    field public static final java.lang.String EXTRA_CHANGED_PACKAGE_LIST = "android.intent.extra.changed_package_list";
-    field public static final java.lang.String EXTRA_CHANGED_UID_LIST = "android.intent.extra.changed_uid_list";
+    field public static final deprecated java.lang.String EXTRA_CHANGED_PACKAGE_LIST = "android.intent.extra.changed_package_list";
+    field public static final deprecated java.lang.String EXTRA_CHANGED_UID_LIST = "android.intent.extra.changed_uid_list";
     field public static final java.lang.String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
-    field public static final int FLAG_ACTIVITY_CLEAR_TASK = 32768; // 0x8000
-    field public static final int FLAG_ACTIVITY_TASK_ON_HOME = 16384; // 0x4000
+    field public static final deprecated int FLAG_ACTIVITY_CLEAR_TASK = 32768; // 0x8000
+    field public static final deprecated int FLAG_ACTIVITY_TASK_ON_HOME = 16384; // 0x4000
   }
 
   public class Loader<D> {
@@ -5172,8 +5986,15 @@ package android.support.v4.content {
     method public void unregisterReceiver(android.content.BroadcastReceiver);
   }
 
-  public final class ParallelExecutorCompat {
-    method public static java.util.concurrent.Executor getParallelExecutor();
+  public final class MimeTypeFilter {
+    method public static boolean matches(java.lang.String, java.lang.String);
+    method public static java.lang.String matches(java.lang.String, java.lang.String[]);
+    method public static java.lang.String matches(java.lang.String[], java.lang.String);
+    method public static java.lang.String[] matchesMany(java.lang.String[], java.lang.String);
+  }
+
+  public final deprecated class ParallelExecutorCompat {
+    method public static deprecated java.util.concurrent.Executor getParallelExecutor();
   }
 
   public final class PermissionChecker {
@@ -5211,15 +6032,38 @@ package android.support.v4.content.pm {
     field public static final int CONFIG_UI_MODE = 512; // 0x200
   }
 
+  public class ShortcutInfoCompat {
+  }
+
+  public static class ShortcutInfoCompat.Builder {
+    ctor public ShortcutInfoCompat.Builder(android.content.Context, java.lang.String);
+    method public android.support.v4.content.pm.ShortcutInfoCompat build();
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setActivity(android.content.ComponentName);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setDisabledMessage(java.lang.CharSequence);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(android.graphics.Bitmap);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(int);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIntents(android.content.Intent[]);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setLongLabel(java.lang.CharSequence);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setShortLabel(java.lang.CharSequence);
+  }
+
+  public class ShortcutManagerCompat {
+    ctor public ShortcutManagerCompat();
+    method public static android.content.Intent createShortcutResultIntent(android.content.Context, android.support.v4.content.pm.ShortcutInfoCompat);
+    method public static boolean isRequestPinShortcutSupported(android.content.Context);
+    method public static boolean requestPinShortcut(android.content.Context, android.support.v4.content.pm.ShortcutInfoCompat, android.content.IntentSender);
+  }
+
 }
 
 package android.support.v4.content.res {
 
   public final class ConfigurationHelper {
     method public static int getDensityDpi(android.content.res.Resources);
-    method public static int getScreenHeightDp(android.content.res.Resources);
-    method public static int getScreenWidthDp(android.content.res.Resources);
-    method public static int getSmallestScreenWidthDp(android.content.res.Resources);
+    method public static deprecated int getScreenHeightDp(android.content.res.Resources);
+    method public static deprecated int getScreenWidthDp(android.content.res.Resources);
+    method public static deprecated int getSmallestScreenWidthDp(android.content.res.Resources);
   }
 
   public final class ResourcesCompat {
@@ -5269,6 +6113,10 @@ package android.support.v4.graphics {
     method public static int compositeColors(int, int);
     method public static double distanceEuclidean(double[], double[]);
     method public static int setAlphaComponent(int, int);
+  }
+
+  public final class PaintCompat {
+    method public static boolean hasGlyph(android.graphics.Paint, java.lang.String);
   }
 
 }
@@ -5394,6 +6242,7 @@ package android.support.v4.media {
     method public android.content.ComponentName getServiceComponent();
     method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
     method public boolean isConnected();
+    method public void search(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.SearchCallback);
     method public void subscribe(java.lang.String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
     method public void subscribe(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
     method public void unsubscribe(java.lang.String);
@@ -5431,6 +6280,12 @@ package android.support.v4.media {
     field public static final int FLAG_PLAYABLE = 2; // 0x2
   }
 
+  public static abstract class MediaBrowserCompat.SearchCallback {
+    ctor public MediaBrowserCompat.SearchCallback();
+    method public void onError(java.lang.String, android.os.Bundle);
+    method public void onSearchResult(java.lang.String, android.os.Bundle, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>);
+  }
+
   public static abstract class MediaBrowserCompat.SubscriptionCallback {
     ctor public MediaBrowserCompat.SubscriptionCallback();
     method public void onChildrenLoaded(java.lang.String, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>);
@@ -5451,6 +6306,7 @@ package android.support.v4.media {
     method public abstract void onLoadChildren(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>);
     method public void onLoadChildren(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>, android.os.Bundle);
     method public void onLoadItem(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<android.support.v4.media.MediaBrowserCompat.MediaItem>);
+    method public void onSearch(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>);
     method public void setSessionToken(android.support.v4.media.session.MediaSessionCompat.Token);
     field public static final java.lang.String SERVICE_INTERFACE = "android.media.browse.MediaBrowserService";
   }
@@ -5462,7 +6318,7 @@ package android.support.v4.media {
     field public static final java.lang.String EXTRA_OFFLINE = "android.service.media.extra.OFFLINE";
     field public static final java.lang.String EXTRA_RECENT = "android.service.media.extra.RECENT";
     field public static final java.lang.String EXTRA_SUGGESTED = "android.service.media.extra.SUGGESTED";
-    field public static final java.lang.String EXTRA_SUGGESTION_KEYWORDS = "android.service.media.extra.SUGGESTION_KEYWORDS";
+    field public static final deprecated java.lang.String EXTRA_SUGGESTION_KEYWORDS = "android.service.media.extra.SUGGESTION_KEYWORDS";
   }
 
   public static class MediaBrowserServiceCompat.Result<T> {
@@ -5523,6 +6379,7 @@ package android.support.v4.media {
     method public int size();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.support.v4.media.MediaMetadataCompat> CREATOR;
+    field public static final java.lang.String METADATA_KEY_ADVERTISEMENT = "android.media.metadata.ADVERTISEMENT";
     field public static final java.lang.String METADATA_KEY_ALBUM = "android.media.metadata.ALBUM";
     field public static final java.lang.String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
     field public static final java.lang.String METADATA_KEY_ALBUM_ARTIST = "android.media.metadata.ALBUM_ARTIST";
@@ -5591,72 +6448,72 @@ package android.support.v4.media {
     field public static final int RATING_THUMB_UP_DOWN = 2; // 0x2
   }
 
-  public abstract class TransportController {
-    ctor public TransportController();
-    method public abstract int getBufferPercentage();
-    method public abstract long getCurrentPosition();
-    method public abstract long getDuration();
-    method public abstract int getTransportControlFlags();
-    method public abstract boolean isPlaying();
-    method public abstract void pausePlaying();
-    method public abstract void registerStateListener(android.support.v4.media.TransportStateListener);
-    method public abstract void seekTo(long);
-    method public abstract void startPlaying();
-    method public abstract void stopPlaying();
-    method public abstract void unregisterStateListener(android.support.v4.media.TransportStateListener);
+  public abstract deprecated class TransportController {
+    ctor public deprecated TransportController();
+    method public abstract deprecated int getBufferPercentage();
+    method public abstract deprecated long getCurrentPosition();
+    method public abstract deprecated long getDuration();
+    method public abstract deprecated int getTransportControlFlags();
+    method public abstract deprecated boolean isPlaying();
+    method public abstract deprecated void pausePlaying();
+    method public abstract deprecated void registerStateListener(android.support.v4.media.TransportStateListener);
+    method public abstract deprecated void seekTo(long);
+    method public abstract deprecated void startPlaying();
+    method public abstract deprecated void stopPlaying();
+    method public abstract deprecated void unregisterStateListener(android.support.v4.media.TransportStateListener);
   }
 
-  public class TransportMediator extends android.support.v4.media.TransportController {
-    ctor public TransportMediator(android.app.Activity, android.support.v4.media.TransportPerformer);
-    ctor public TransportMediator(android.view.View, android.support.v4.media.TransportPerformer);
-    method public void destroy();
-    method public boolean dispatchKeyEvent(android.view.KeyEvent);
-    method public int getBufferPercentage();
-    method public long getCurrentPosition();
-    method public long getDuration();
-    method public java.lang.Object getRemoteControlClient();
-    method public int getTransportControlFlags();
-    method public boolean isPlaying();
-    method public void pausePlaying();
-    method public void refreshState();
-    method public void registerStateListener(android.support.v4.media.TransportStateListener);
-    method public void seekTo(long);
-    method public void startPlaying();
-    method public void stopPlaying();
-    method public void unregisterStateListener(android.support.v4.media.TransportStateListener);
-    field public static final int FLAG_KEY_MEDIA_FAST_FORWARD = 64; // 0x40
-    field public static final int FLAG_KEY_MEDIA_NEXT = 128; // 0x80
-    field public static final int FLAG_KEY_MEDIA_PAUSE = 16; // 0x10
-    field public static final int FLAG_KEY_MEDIA_PLAY = 4; // 0x4
-    field public static final int FLAG_KEY_MEDIA_PLAY_PAUSE = 8; // 0x8
-    field public static final int FLAG_KEY_MEDIA_PREVIOUS = 1; // 0x1
-    field public static final int FLAG_KEY_MEDIA_REWIND = 2; // 0x2
-    field public static final int FLAG_KEY_MEDIA_STOP = 32; // 0x20
-    field public static final int KEYCODE_MEDIA_PAUSE = 127; // 0x7f
-    field public static final int KEYCODE_MEDIA_PLAY = 126; // 0x7e
-    field public static final int KEYCODE_MEDIA_RECORD = 130; // 0x82
+  public deprecated class TransportMediator extends android.support.v4.media.TransportController {
+    ctor public deprecated TransportMediator(android.app.Activity, android.support.v4.media.TransportPerformer);
+    ctor public deprecated TransportMediator(android.view.View, android.support.v4.media.TransportPerformer);
+    method public deprecated void destroy();
+    method public deprecated boolean dispatchKeyEvent(android.view.KeyEvent);
+    method public deprecated int getBufferPercentage();
+    method public deprecated long getCurrentPosition();
+    method public deprecated long getDuration();
+    method public deprecated java.lang.Object getRemoteControlClient();
+    method public deprecated int getTransportControlFlags();
+    method public deprecated boolean isPlaying();
+    method public deprecated void pausePlaying();
+    method public deprecated void refreshState();
+    method public deprecated void registerStateListener(android.support.v4.media.TransportStateListener);
+    method public deprecated void seekTo(long);
+    method public deprecated void startPlaying();
+    method public deprecated void stopPlaying();
+    method public deprecated void unregisterStateListener(android.support.v4.media.TransportStateListener);
+    field public static final deprecated int FLAG_KEY_MEDIA_FAST_FORWARD = 64; // 0x40
+    field public static final deprecated int FLAG_KEY_MEDIA_NEXT = 128; // 0x80
+    field public static final deprecated int FLAG_KEY_MEDIA_PAUSE = 16; // 0x10
+    field public static final deprecated int FLAG_KEY_MEDIA_PLAY = 4; // 0x4
+    field public static final deprecated int FLAG_KEY_MEDIA_PLAY_PAUSE = 8; // 0x8
+    field public static final deprecated int FLAG_KEY_MEDIA_PREVIOUS = 1; // 0x1
+    field public static final deprecated int FLAG_KEY_MEDIA_REWIND = 2; // 0x2
+    field public static final deprecated int FLAG_KEY_MEDIA_STOP = 32; // 0x20
+    field public static final deprecated int KEYCODE_MEDIA_PAUSE = 127; // 0x7f
+    field public static final deprecated int KEYCODE_MEDIA_PLAY = 126; // 0x7e
+    field public static final deprecated int KEYCODE_MEDIA_RECORD = 130; // 0x82
   }
 
-  public abstract class TransportPerformer {
-    ctor public TransportPerformer();
-    method public void onAudioFocusChange(int);
-    method public int onGetBufferPercentage();
-    method public abstract long onGetCurrentPosition();
-    method public abstract long onGetDuration();
-    method public int onGetTransportControlFlags();
-    method public abstract boolean onIsPlaying();
-    method public boolean onMediaButtonDown(int, android.view.KeyEvent);
-    method public boolean onMediaButtonUp(int, android.view.KeyEvent);
-    method public abstract void onPause();
-    method public abstract void onSeekTo(long);
-    method public abstract void onStart();
-    method public abstract void onStop();
+  public abstract deprecated class TransportPerformer {
+    ctor public deprecated TransportPerformer();
+    method public deprecated void onAudioFocusChange(int);
+    method public deprecated int onGetBufferPercentage();
+    method public abstract deprecated long onGetCurrentPosition();
+    method public abstract deprecated long onGetDuration();
+    method public deprecated int onGetTransportControlFlags();
+    method public abstract deprecated boolean onIsPlaying();
+    method public deprecated boolean onMediaButtonDown(int, android.view.KeyEvent);
+    method public deprecated boolean onMediaButtonUp(int, android.view.KeyEvent);
+    method public abstract deprecated void onPause();
+    method public abstract deprecated void onSeekTo(long);
+    method public abstract deprecated void onStart();
+    method public abstract deprecated void onStop();
   }
 
-  public class TransportStateListener {
-    ctor public TransportStateListener();
-    method public void onPlayingChanged(android.support.v4.media.TransportController);
-    method public void onTransportControlsChanged(android.support.v4.media.TransportController);
+  public deprecated class TransportStateListener {
+    ctor public deprecated TransportStateListener();
+    method public deprecated void onPlayingChanged(android.support.v4.media.TransportController);
+    method public deprecated void onTransportControlsChanged(android.support.v4.media.TransportController);
   }
 
   public abstract class VolumeProviderCompat {
@@ -5694,6 +6551,8 @@ package android.support.v4.media.session {
   public final class MediaControllerCompat {
     ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat);
     ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token) throws android.os.RemoteException;
+    method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat, int);
     method public void adjustVolume(int, int);
     method public boolean dispatchMediaButtonEvent(android.view.KeyEvent);
     method public android.os.Bundle getExtras();
@@ -5714,6 +6573,8 @@ package android.support.v4.media.session {
     method public boolean isShuffleModeEnabled();
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback, android.os.Handler);
+    method public void removeQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void removeQueueItemAt(int);
     method public void sendCommand(java.lang.String, android.os.Bundle, android.os.ResultReceiver);
     method public static void setMediaController(android.app.Activity, android.support.v4.media.session.MediaControllerCompat);
     method public void setVolumeTo(int, int);
@@ -5800,11 +6661,14 @@ package android.support.v4.media.session {
     method public void setSessionActivity(android.app.PendingIntent);
     method public void setShuffleModeEnabled(boolean);
     field public static final int FLAG_HANDLES_MEDIA_BUTTONS = 1; // 0x1
+    field public static final int FLAG_HANDLES_QUEUE_COMMANDS = 4; // 0x4
     field public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 2; // 0x2
   }
 
   public static abstract class MediaSessionCompat.Callback {
     ctor public MediaSessionCompat.Callback();
+    method public void onAddQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void onAddQueueItem(android.support.v4.media.MediaDescriptionCompat, int);
     method public void onCommand(java.lang.String, android.os.Bundle, android.os.ResultReceiver);
     method public void onCustomAction(java.lang.String, android.os.Bundle);
     method public void onFastForward();
@@ -5818,6 +6682,8 @@ package android.support.v4.media.session {
     method public void onPrepareFromMediaId(java.lang.String, android.os.Bundle);
     method public void onPrepareFromSearch(java.lang.String, android.os.Bundle);
     method public void onPrepareFromUri(android.net.Uri, android.os.Bundle);
+    method public void onRemoveQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void onRemoveQueueItemAt(int);
     method public void onRewind();
     method public void onSeekTo(long);
     method public void onSetRating(android.support.v4.media.RatingCompat);
@@ -5875,6 +6741,7 @@ package android.support.v4.media.session {
     method public long getActiveQueueItemId();
     method public long getBufferedPosition();
     method public java.util.List<android.support.v4.media.session.PlaybackStateCompat.CustomAction> getCustomActions();
+    method public int getErrorCode();
     method public java.lang.CharSequence getErrorMessage();
     method public android.os.Bundle getExtras();
     method public long getLastPositionUpdateTime();
@@ -5905,6 +6772,18 @@ package android.support.v4.media.session {
     field public static final long ACTION_SKIP_TO_QUEUE_ITEM = 4096L; // 0x1000L
     field public static final long ACTION_STOP = 1L; // 0x1L
     field public static final android.os.Parcelable.Creator<android.support.v4.media.session.PlaybackStateCompat> CREATOR;
+    field public static final int ERROR_CODE_ACTION_ABORTED = 10; // 0xa
+    field public static final int ERROR_CODE_APP_ERROR = 1; // 0x1
+    field public static final int ERROR_CODE_AUTHENTICATION_EXPIRED = 3; // 0x3
+    field public static final int ERROR_CODE_CONCURRENT_STREAM_LIMIT = 5; // 0x5
+    field public static final int ERROR_CODE_CONTENT_ALREADY_PLAYING = 8; // 0x8
+    field public static final int ERROR_CODE_END_OF_QUEUE = 11; // 0xb
+    field public static final int ERROR_CODE_NOT_AVAILABLE_IN_REGION = 7; // 0x7
+    field public static final int ERROR_CODE_NOT_SUPPORTED = 2; // 0x2
+    field public static final int ERROR_CODE_PARENTAL_CONTROL_RESTRICTED = 6; // 0x6
+    field public static final int ERROR_CODE_PREMIUM_ACCOUNT_REQUIRED = 4; // 0x4
+    field public static final int ERROR_CODE_SKIP_LIMIT_REACHED = 9; // 0x9
+    field public static final int ERROR_CODE_UNKNOWN_ERROR = 0; // 0x0
     field public static final long PLAYBACK_POSITION_UNKNOWN = -1L; // 0xffffffffffffffffL
     field public static final int REPEAT_MODE_ALL = 2; // 0x2
     field public static final int REPEAT_MODE_NONE = 0; // 0x0
@@ -5932,7 +6811,8 @@ package android.support.v4.media.session {
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setActions(long);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setActiveQueueItemId(long);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setBufferedPosition(long);
-    method public android.support.v4.media.session.PlaybackStateCompat.Builder setErrorMessage(java.lang.CharSequence);
+    method public deprecated android.support.v4.media.session.PlaybackStateCompat.Builder setErrorMessage(java.lang.CharSequence);
+    method public android.support.v4.media.session.PlaybackStateCompat.Builder setErrorMessage(int, java.lang.CharSequence);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setExtras(android.os.Bundle);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setState(int, long, float);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setState(int, long, float, long);
@@ -5970,23 +6850,23 @@ package android.support.v4.net {
   }
 
   public final class TrafficStatsCompat {
-    method public static void clearThreadStatsTag();
-    method public static int getThreadStatsTag();
-    method public static void incrementOperationCount(int);
-    method public static void incrementOperationCount(int, int);
-    method public static void setThreadStatsTag(int);
+    method public static deprecated void clearThreadStatsTag();
+    method public static deprecated int getThreadStatsTag();
+    method public static deprecated void incrementOperationCount(int);
+    method public static deprecated void incrementOperationCount(int, int);
+    method public static deprecated void setThreadStatsTag(int);
     method public static void tagDatagramSocket(java.net.DatagramSocket) throws java.net.SocketException;
-    method public static void tagSocket(java.net.Socket) throws java.net.SocketException;
+    method public static deprecated void tagSocket(java.net.Socket) throws java.net.SocketException;
     method public static void untagDatagramSocket(java.net.DatagramSocket) throws java.net.SocketException;
-    method public static void untagSocket(java.net.Socket) throws java.net.SocketException;
+    method public static deprecated void untagSocket(java.net.Socket) throws java.net.SocketException;
   }
 
 }
 
 package android.support.v4.os {
 
-  public final class AsyncTaskCompat {
-    method public static <Params, Progress, Result> android.os.AsyncTask<Params, Progress, Result> executeParallel(android.os.AsyncTask<Params, Progress, Result>, Params...);
+  public final deprecated class AsyncTaskCompat {
+    method public static deprecated <Params, Progress, Result> android.os.AsyncTask<Params, Progress, Result> executeParallel(android.os.AsyncTask<Params, Progress, Result>, Params...);
   }
 
   public class BuildCompat {
@@ -6468,25 +7348,26 @@ package android.support.v4.view {
     field public static final int SOURCE_UNKNOWN = 0; // 0x0
   }
 
-  public final class KeyEventCompat {
+  public final deprecated class KeyEventCompat {
     method public static deprecated boolean dispatch(android.view.KeyEvent, android.view.KeyEvent.Callback, java.lang.Object, java.lang.Object);
     method public static deprecated java.lang.Object getKeyDispatcherState(android.view.View);
-    method public static boolean hasModifiers(android.view.KeyEvent, int);
-    method public static boolean hasNoModifiers(android.view.KeyEvent);
-    method public static boolean isCtrlPressed(android.view.KeyEvent);
+    method public static deprecated boolean hasModifiers(android.view.KeyEvent, int);
+    method public static deprecated boolean hasNoModifiers(android.view.KeyEvent);
+    method public static deprecated boolean isCtrlPressed(android.view.KeyEvent);
     method public static deprecated boolean isTracking(android.view.KeyEvent);
-    method public static boolean metaStateHasModifiers(int, int);
-    method public static boolean metaStateHasNoModifiers(int);
-    method public static int normalizeMetaState(int);
+    method public static deprecated boolean metaStateHasModifiers(int, int);
+    method public static deprecated boolean metaStateHasNoModifiers(int);
+    method public static deprecated int normalizeMetaState(int);
     method public static deprecated void startTracking(android.view.KeyEvent);
   }
 
   public final class LayoutInflaterCompat {
-    method public static android.support.v4.view.LayoutInflaterFactory getFactory(android.view.LayoutInflater);
-    method public static void setFactory(android.view.LayoutInflater, android.support.v4.view.LayoutInflaterFactory);
+    method public static deprecated android.support.v4.view.LayoutInflaterFactory getFactory(android.view.LayoutInflater);
+    method public static deprecated void setFactory(android.view.LayoutInflater, android.support.v4.view.LayoutInflaterFactory);
+    method public static void setFactory2(android.view.LayoutInflater, android.view.LayoutInflater.Factory2);
   }
 
-  public abstract interface LayoutInflaterFactory {
+  public abstract deprecated interface LayoutInflaterFactory {
     method public abstract android.view.View onCreateView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
   }
 
@@ -6506,95 +7387,99 @@ package android.support.v4.view {
   }
 
   public final class MenuItemCompat {
-    method public static boolean collapseActionView(android.view.MenuItem);
-    method public static boolean expandActionView(android.view.MenuItem);
+    method public static deprecated boolean collapseActionView(android.view.MenuItem);
+    method public static deprecated boolean expandActionView(android.view.MenuItem);
     method public static android.support.v4.view.ActionProvider getActionProvider(android.view.MenuItem);
-    method public static android.view.View getActionView(android.view.MenuItem);
-    method public static boolean isActionViewExpanded(android.view.MenuItem);
+    method public static deprecated android.view.View getActionView(android.view.MenuItem);
+    method public static java.lang.CharSequence getContentDescription(android.view.MenuItem);
+    method public static java.lang.CharSequence getTooltipText(android.view.MenuItem);
+    method public static deprecated boolean isActionViewExpanded(android.view.MenuItem);
     method public static android.view.MenuItem setActionProvider(android.view.MenuItem, android.support.v4.view.ActionProvider);
-    method public static android.view.MenuItem setActionView(android.view.MenuItem, android.view.View);
-    method public static android.view.MenuItem setActionView(android.view.MenuItem, int);
-    method public static android.view.MenuItem setOnActionExpandListener(android.view.MenuItem, android.support.v4.view.MenuItemCompat.OnActionExpandListener);
-    method public static void setShowAsAction(android.view.MenuItem, int);
-    field public static final int SHOW_AS_ACTION_ALWAYS = 2; // 0x2
-    field public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8; // 0x8
-    field public static final int SHOW_AS_ACTION_IF_ROOM = 1; // 0x1
-    field public static final int SHOW_AS_ACTION_NEVER = 0; // 0x0
-    field public static final int SHOW_AS_ACTION_WITH_TEXT = 4; // 0x4
+    method public static deprecated android.view.MenuItem setActionView(android.view.MenuItem, android.view.View);
+    method public static deprecated android.view.MenuItem setActionView(android.view.MenuItem, int);
+    method public static void setContentDescription(android.view.MenuItem, java.lang.CharSequence);
+    method public static deprecated android.view.MenuItem setOnActionExpandListener(android.view.MenuItem, android.support.v4.view.MenuItemCompat.OnActionExpandListener);
+    method public static deprecated void setShowAsAction(android.view.MenuItem, int);
+    method public static void setTooltipText(android.view.MenuItem, java.lang.CharSequence);
+    field public static final deprecated int SHOW_AS_ACTION_ALWAYS = 2; // 0x2
+    field public static final deprecated int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8; // 0x8
+    field public static final deprecated int SHOW_AS_ACTION_IF_ROOM = 1; // 0x1
+    field public static final deprecated int SHOW_AS_ACTION_NEVER = 0; // 0x0
+    field public static final deprecated int SHOW_AS_ACTION_WITH_TEXT = 4; // 0x4
   }
 
-  public static abstract interface MenuItemCompat.OnActionExpandListener {
+  public static abstract deprecated interface MenuItemCompat.OnActionExpandListener {
     method public abstract boolean onMenuItemActionCollapse(android.view.MenuItem);
     method public abstract boolean onMenuItemActionExpand(android.view.MenuItem);
   }
 
   public final class MotionEventCompat {
     method public static deprecated int findPointerIndex(android.view.MotionEvent, int);
-    method public static int getActionIndex(android.view.MotionEvent);
-    method public static int getActionMasked(android.view.MotionEvent);
-    method public static float getAxisValue(android.view.MotionEvent, int);
-    method public static float getAxisValue(android.view.MotionEvent, int, int);
-    method public static int getButtonState(android.view.MotionEvent);
+    method public static deprecated int getActionIndex(android.view.MotionEvent);
+    method public static deprecated int getActionMasked(android.view.MotionEvent);
+    method public static deprecated float getAxisValue(android.view.MotionEvent, int);
+    method public static deprecated float getAxisValue(android.view.MotionEvent, int, int);
+    method public static deprecated int getButtonState(android.view.MotionEvent);
     method public static deprecated int getPointerCount(android.view.MotionEvent);
     method public static deprecated int getPointerId(android.view.MotionEvent, int);
     method public static deprecated int getSource(android.view.MotionEvent);
     method public static deprecated float getX(android.view.MotionEvent, int);
     method public static deprecated float getY(android.view.MotionEvent, int);
     method public static boolean isFromSource(android.view.MotionEvent, int);
-    field public static final int ACTION_HOVER_ENTER = 9; // 0x9
-    field public static final int ACTION_HOVER_EXIT = 10; // 0xa
-    field public static final int ACTION_HOVER_MOVE = 7; // 0x7
-    field public static final int ACTION_MASK = 255; // 0xff
-    field public static final int ACTION_POINTER_DOWN = 5; // 0x5
-    field public static final int ACTION_POINTER_INDEX_MASK = 65280; // 0xff00
-    field public static final int ACTION_POINTER_INDEX_SHIFT = 8; // 0x8
-    field public static final int ACTION_POINTER_UP = 6; // 0x6
-    field public static final int ACTION_SCROLL = 8; // 0x8
-    field public static final int AXIS_BRAKE = 23; // 0x17
-    field public static final int AXIS_DISTANCE = 24; // 0x18
-    field public static final int AXIS_GAS = 22; // 0x16
-    field public static final int AXIS_GENERIC_1 = 32; // 0x20
-    field public static final int AXIS_GENERIC_10 = 41; // 0x29
-    field public static final int AXIS_GENERIC_11 = 42; // 0x2a
-    field public static final int AXIS_GENERIC_12 = 43; // 0x2b
-    field public static final int AXIS_GENERIC_13 = 44; // 0x2c
-    field public static final int AXIS_GENERIC_14 = 45; // 0x2d
-    field public static final int AXIS_GENERIC_15 = 46; // 0x2e
-    field public static final int AXIS_GENERIC_16 = 47; // 0x2f
-    field public static final int AXIS_GENERIC_2 = 33; // 0x21
-    field public static final int AXIS_GENERIC_3 = 34; // 0x22
-    field public static final int AXIS_GENERIC_4 = 35; // 0x23
-    field public static final int AXIS_GENERIC_5 = 36; // 0x24
-    field public static final int AXIS_GENERIC_6 = 37; // 0x25
-    field public static final int AXIS_GENERIC_7 = 38; // 0x26
-    field public static final int AXIS_GENERIC_8 = 39; // 0x27
-    field public static final int AXIS_GENERIC_9 = 40; // 0x28
-    field public static final int AXIS_HAT_X = 15; // 0xf
-    field public static final int AXIS_HAT_Y = 16; // 0x10
-    field public static final int AXIS_HSCROLL = 10; // 0xa
-    field public static final int AXIS_LTRIGGER = 17; // 0x11
-    field public static final int AXIS_ORIENTATION = 8; // 0x8
-    field public static final int AXIS_PRESSURE = 2; // 0x2
+    field public static final deprecated int ACTION_HOVER_ENTER = 9; // 0x9
+    field public static final deprecated int ACTION_HOVER_EXIT = 10; // 0xa
+    field public static final deprecated int ACTION_HOVER_MOVE = 7; // 0x7
+    field public static final deprecated int ACTION_MASK = 255; // 0xff
+    field public static final deprecated int ACTION_POINTER_DOWN = 5; // 0x5
+    field public static final deprecated int ACTION_POINTER_INDEX_MASK = 65280; // 0xff00
+    field public static final deprecated int ACTION_POINTER_INDEX_SHIFT = 8; // 0x8
+    field public static final deprecated int ACTION_POINTER_UP = 6; // 0x6
+    field public static final deprecated int ACTION_SCROLL = 8; // 0x8
+    field public static final deprecated int AXIS_BRAKE = 23; // 0x17
+    field public static final deprecated int AXIS_DISTANCE = 24; // 0x18
+    field public static final deprecated int AXIS_GAS = 22; // 0x16
+    field public static final deprecated int AXIS_GENERIC_1 = 32; // 0x20
+    field public static final deprecated int AXIS_GENERIC_10 = 41; // 0x29
+    field public static final deprecated int AXIS_GENERIC_11 = 42; // 0x2a
+    field public static final deprecated int AXIS_GENERIC_12 = 43; // 0x2b
+    field public static final deprecated int AXIS_GENERIC_13 = 44; // 0x2c
+    field public static final deprecated int AXIS_GENERIC_14 = 45; // 0x2d
+    field public static final deprecated int AXIS_GENERIC_15 = 46; // 0x2e
+    field public static final deprecated int AXIS_GENERIC_16 = 47; // 0x2f
+    field public static final deprecated int AXIS_GENERIC_2 = 33; // 0x21
+    field public static final deprecated int AXIS_GENERIC_3 = 34; // 0x22
+    field public static final deprecated int AXIS_GENERIC_4 = 35; // 0x23
+    field public static final deprecated int AXIS_GENERIC_5 = 36; // 0x24
+    field public static final deprecated int AXIS_GENERIC_6 = 37; // 0x25
+    field public static final deprecated int AXIS_GENERIC_7 = 38; // 0x26
+    field public static final deprecated int AXIS_GENERIC_8 = 39; // 0x27
+    field public static final deprecated int AXIS_GENERIC_9 = 40; // 0x28
+    field public static final deprecated int AXIS_HAT_X = 15; // 0xf
+    field public static final deprecated int AXIS_HAT_Y = 16; // 0x10
+    field public static final deprecated int AXIS_HSCROLL = 10; // 0xa
+    field public static final deprecated int AXIS_LTRIGGER = 17; // 0x11
+    field public static final deprecated int AXIS_ORIENTATION = 8; // 0x8
+    field public static final deprecated int AXIS_PRESSURE = 2; // 0x2
     field public static final int AXIS_RELATIVE_X = 27; // 0x1b
     field public static final int AXIS_RELATIVE_Y = 28; // 0x1c
-    field public static final int AXIS_RTRIGGER = 18; // 0x12
-    field public static final int AXIS_RUDDER = 20; // 0x14
-    field public static final int AXIS_RX = 12; // 0xc
-    field public static final int AXIS_RY = 13; // 0xd
-    field public static final int AXIS_RZ = 14; // 0xe
-    field public static final int AXIS_SIZE = 3; // 0x3
-    field public static final int AXIS_THROTTLE = 19; // 0x13
-    field public static final int AXIS_TILT = 25; // 0x19
-    field public static final int AXIS_TOOL_MAJOR = 6; // 0x6
-    field public static final int AXIS_TOOL_MINOR = 7; // 0x7
-    field public static final int AXIS_TOUCH_MAJOR = 4; // 0x4
-    field public static final int AXIS_TOUCH_MINOR = 5; // 0x5
-    field public static final int AXIS_VSCROLL = 9; // 0x9
-    field public static final int AXIS_WHEEL = 21; // 0x15
-    field public static final int AXIS_X = 0; // 0x0
-    field public static final int AXIS_Y = 1; // 0x1
-    field public static final int AXIS_Z = 11; // 0xb
-    field public static final int BUTTON_PRIMARY = 1; // 0x1
+    field public static final deprecated int AXIS_RTRIGGER = 18; // 0x12
+    field public static final deprecated int AXIS_RUDDER = 20; // 0x14
+    field public static final deprecated int AXIS_RX = 12; // 0xc
+    field public static final deprecated int AXIS_RY = 13; // 0xd
+    field public static final deprecated int AXIS_RZ = 14; // 0xe
+    field public static final deprecated int AXIS_SIZE = 3; // 0x3
+    field public static final deprecated int AXIS_THROTTLE = 19; // 0x13
+    field public static final deprecated int AXIS_TILT = 25; // 0x19
+    field public static final deprecated int AXIS_TOOL_MAJOR = 6; // 0x6
+    field public static final deprecated int AXIS_TOOL_MINOR = 7; // 0x7
+    field public static final deprecated int AXIS_TOUCH_MAJOR = 4; // 0x4
+    field public static final deprecated int AXIS_TOUCH_MINOR = 5; // 0x5
+    field public static final deprecated int AXIS_VSCROLL = 9; // 0x9
+    field public static final deprecated int AXIS_WHEEL = 21; // 0x15
+    field public static final deprecated int AXIS_X = 0; // 0x0
+    field public static final deprecated int AXIS_Y = 1; // 0x1
+    field public static final deprecated int AXIS_Z = 11; // 0xb
+    field public static final deprecated int BUTTON_PRIMARY = 1; // 0x1
   }
 
   public abstract interface NestedScrollingChild {
@@ -6744,17 +7629,18 @@ package android.support.v4.view {
     method public abstract void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
   }
 
-  public final class VelocityTrackerCompat {
-    method public static float getXVelocity(android.view.VelocityTracker, int);
-    method public static float getYVelocity(android.view.VelocityTracker, int);
+  public final deprecated class VelocityTrackerCompat {
+    method public static deprecated float getXVelocity(android.view.VelocityTracker, int);
+    method public static deprecated float getYVelocity(android.view.VelocityTracker, int);
   }
 
   public class ViewCompat {
     ctor protected ViewCompat();
     method public static android.support.v4.view.ViewPropertyAnimatorCompat animate(android.view.View);
-    method public static boolean canScrollHorizontally(android.view.View, int);
-    method public static boolean canScrollVertically(android.view.View, int);
-    method public static int combineMeasuredStates(int, int);
+    method public static deprecated boolean canScrollHorizontally(android.view.View, int);
+    method public static deprecated boolean canScrollVertically(android.view.View, int);
+    method public static void cancelDragAndDrop(android.view.View);
+    method public static deprecated int combineMeasuredStates(int, int);
     method public static android.support.v4.view.WindowInsetsCompat dispatchApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
     method public static void dispatchFinishTemporaryDetach(android.view.View);
     method public static boolean dispatchNestedFling(android.view.View, float, float, boolean);
@@ -6764,7 +7650,7 @@ package android.support.v4.view {
     method public static void dispatchStartTemporaryDetach(android.view.View);
     method public static int getAccessibilityLiveRegion(android.view.View);
     method public static android.support.v4.view.accessibility.AccessibilityNodeProviderCompat getAccessibilityNodeProvider(android.view.View);
-    method public static float getAlpha(android.view.View);
+    method public static deprecated float getAlpha(android.view.View);
     method public static android.content.res.ColorStateList getBackgroundTintList(android.view.View);
     method public static android.graphics.PorterDuff.Mode getBackgroundTintMode(android.view.View);
     method public static android.graphics.Rect getClipBounds(android.view.View);
@@ -6773,33 +7659,33 @@ package android.support.v4.view {
     method public static boolean getFitsSystemWindows(android.view.View);
     method public static int getImportantForAccessibility(android.view.View);
     method public static int getLabelFor(android.view.View);
-    method public static int getLayerType(android.view.View);
+    method public static deprecated int getLayerType(android.view.View);
     method public static int getLayoutDirection(android.view.View);
-    method public static android.graphics.Matrix getMatrix(android.view.View);
-    method public static int getMeasuredHeightAndState(android.view.View);
-    method public static int getMeasuredState(android.view.View);
-    method public static int getMeasuredWidthAndState(android.view.View);
+    method public static deprecated android.graphics.Matrix getMatrix(android.view.View);
+    method public static deprecated int getMeasuredHeightAndState(android.view.View);
+    method public static deprecated int getMeasuredState(android.view.View);
+    method public static deprecated int getMeasuredWidthAndState(android.view.View);
     method public static int getMinimumHeight(android.view.View);
     method public static int getMinimumWidth(android.view.View);
     method public static deprecated int getOverScrollMode(android.view.View);
     method public static int getPaddingEnd(android.view.View);
     method public static int getPaddingStart(android.view.View);
     method public static android.view.ViewParent getParentForAccessibility(android.view.View);
-    method public static float getPivotX(android.view.View);
-    method public static float getPivotY(android.view.View);
-    method public static float getRotation(android.view.View);
-    method public static float getRotationX(android.view.View);
-    method public static float getRotationY(android.view.View);
-    method public static float getScaleX(android.view.View);
-    method public static float getScaleY(android.view.View);
+    method public static deprecated float getPivotX(android.view.View);
+    method public static deprecated float getPivotY(android.view.View);
+    method public static deprecated float getRotation(android.view.View);
+    method public static deprecated float getRotationX(android.view.View);
+    method public static deprecated float getRotationY(android.view.View);
+    method public static deprecated float getScaleX(android.view.View);
+    method public static deprecated float getScaleY(android.view.View);
     method public static int getScrollIndicators(android.view.View);
     method public static java.lang.String getTransitionName(android.view.View);
-    method public static float getTranslationX(android.view.View);
-    method public static float getTranslationY(android.view.View);
+    method public static deprecated float getTranslationX(android.view.View);
+    method public static deprecated float getTranslationY(android.view.View);
     method public static float getTranslationZ(android.view.View);
     method public static int getWindowSystemUiVisibility(android.view.View);
-    method public static float getX(android.view.View);
-    method public static float getY(android.view.View);
+    method public static deprecated float getX(android.view.View);
+    method public static deprecated float getY(android.view.View);
     method public static float getZ(android.view.View);
     method public static boolean hasAccessibilityDelegate(android.view.View);
     method public static boolean hasNestedScrollingParent(android.view.View);
@@ -6814,61 +7700,64 @@ package android.support.v4.view {
     method public static boolean isNestedScrollingEnabled(android.view.View);
     method public static deprecated boolean isOpaque(android.view.View);
     method public static boolean isPaddingRelative(android.view.View);
-    method public static void jumpDrawablesToCurrentState(android.view.View);
+    method public static deprecated void jumpDrawablesToCurrentState(android.view.View);
     method public static void offsetLeftAndRight(android.view.View, int);
     method public static void offsetTopAndBottom(android.view.View, int);
     method public static android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
-    method public static void onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public static deprecated void onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
     method public static void onInitializeAccessibilityNodeInfo(android.view.View, android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
-    method public static void onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public static deprecated void onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
     method public static boolean performAccessibilityAction(android.view.View, int, android.os.Bundle);
     method public static void postInvalidateOnAnimation(android.view.View);
     method public static void postInvalidateOnAnimation(android.view.View, int, int, int, int);
     method public static void postOnAnimation(android.view.View, java.lang.Runnable);
     method public static void postOnAnimationDelayed(android.view.View, java.lang.Runnable, long);
     method public static void requestApplyInsets(android.view.View);
-    method public static int resolveSizeAndState(int, int, int);
+    method public static deprecated int resolveSizeAndState(int, int, int);
     method public static void setAccessibilityDelegate(android.view.View, android.support.v4.view.AccessibilityDelegateCompat);
     method public static void setAccessibilityLiveRegion(android.view.View, int);
-    method public static void setActivated(android.view.View, boolean);
-    method public static void setAlpha(android.view.View, float);
+    method public static deprecated void setActivated(android.view.View, boolean);
+    method public static deprecated void setAlpha(android.view.View, float);
     method public static void setBackground(android.view.View, android.graphics.drawable.Drawable);
     method public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList);
     method public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode);
     method public static void setChildrenDrawingOrderEnabled(android.view.ViewGroup, boolean);
     method public static void setClipBounds(android.view.View, android.graphics.Rect);
     method public static void setElevation(android.view.View, float);
-    method public static void setFitsSystemWindows(android.view.View, boolean);
+    method public static deprecated void setFitsSystemWindows(android.view.View, boolean);
     method public static void setHasTransientState(android.view.View, boolean);
     method public static void setImportantForAccessibility(android.view.View, int);
     method public static void setLabelFor(android.view.View, int);
     method public static void setLayerPaint(android.view.View, android.graphics.Paint);
-    method public static void setLayerType(android.view.View, int, android.graphics.Paint);
+    method public static deprecated void setLayerType(android.view.View, int, android.graphics.Paint);
     method public static void setLayoutDirection(android.view.View, int);
     method public static void setNestedScrollingEnabled(android.view.View, boolean);
     method public static void setOnApplyWindowInsetsListener(android.view.View, android.support.v4.view.OnApplyWindowInsetsListener);
     method public static deprecated void setOverScrollMode(android.view.View, int);
     method public static void setPaddingRelative(android.view.View, int, int, int, int);
-    method public static void setPivotX(android.view.View, float);
-    method public static void setPivotY(android.view.View, float);
+    method public static deprecated void setPivotX(android.view.View, float);
+    method public static deprecated void setPivotY(android.view.View, float);
     method public static void setPointerIcon(android.view.View, android.support.v4.view.PointerIconCompat);
-    method public static void setRotation(android.view.View, float);
-    method public static void setRotationX(android.view.View, float);
-    method public static void setRotationY(android.view.View, float);
-    method public static void setSaveFromParentEnabled(android.view.View, boolean);
-    method public static void setScaleX(android.view.View, float);
-    method public static void setScaleY(android.view.View, float);
+    method public static deprecated void setRotation(android.view.View, float);
+    method public static deprecated void setRotationX(android.view.View, float);
+    method public static deprecated void setRotationY(android.view.View, float);
+    method public static deprecated void setSaveFromParentEnabled(android.view.View, boolean);
+    method public static deprecated void setScaleX(android.view.View, float);
+    method public static deprecated void setScaleY(android.view.View, float);
     method public static void setScrollIndicators(android.view.View, int);
     method public static void setScrollIndicators(android.view.View, int, int);
+    method public static void setTooltipText(android.view.View, java.lang.CharSequence);
     method public static void setTransitionName(android.view.View, java.lang.String);
-    method public static void setTranslationX(android.view.View, float);
-    method public static void setTranslationY(android.view.View, float);
+    method public static deprecated void setTranslationX(android.view.View, float);
+    method public static deprecated void setTranslationY(android.view.View, float);
     method public static void setTranslationZ(android.view.View, float);
-    method public static void setX(android.view.View, float);
-    method public static void setY(android.view.View, float);
+    method public static deprecated void setX(android.view.View, float);
+    method public static deprecated void setY(android.view.View, float);
     method public static void setZ(android.view.View, float);
+    method public static boolean startDragAndDrop(android.view.View, android.content.ClipData, android.view.View.DragShadowBuilder, java.lang.Object, int);
     method public static boolean startNestedScroll(android.view.View, int);
     method public static void stopNestedScroll(android.view.View);
+    method public static void updateDragShadow(android.view.View, android.view.View.DragShadowBuilder);
     field public static final int ACCESSIBILITY_LIVE_REGION_ASSERTIVE = 2; // 0x2
     field public static final int ACCESSIBILITY_LIVE_REGION_NONE = 0; // 0x0
     field public static final int ACCESSIBILITY_LIVE_REGION_POLITE = 1; // 0x1
@@ -6876,17 +7765,17 @@ package android.support.v4.view {
     field public static final int IMPORTANT_FOR_ACCESSIBILITY_NO = 2; // 0x2
     field public static final int IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS = 4; // 0x4
     field public static final int IMPORTANT_FOR_ACCESSIBILITY_YES = 1; // 0x1
-    field public static final int LAYER_TYPE_HARDWARE = 2; // 0x2
-    field public static final int LAYER_TYPE_NONE = 0; // 0x0
-    field public static final int LAYER_TYPE_SOFTWARE = 1; // 0x1
+    field public static final deprecated int LAYER_TYPE_HARDWARE = 2; // 0x2
+    field public static final deprecated int LAYER_TYPE_NONE = 0; // 0x0
+    field public static final deprecated int LAYER_TYPE_SOFTWARE = 1; // 0x1
     field public static final int LAYOUT_DIRECTION_INHERIT = 2; // 0x2
     field public static final int LAYOUT_DIRECTION_LOCALE = 3; // 0x3
     field public static final int LAYOUT_DIRECTION_LTR = 0; // 0x0
     field public static final int LAYOUT_DIRECTION_RTL = 1; // 0x1
-    field public static final int MEASURED_HEIGHT_STATE_SHIFT = 16; // 0x10
-    field public static final int MEASURED_SIZE_MASK = 16777215; // 0xffffff
-    field public static final int MEASURED_STATE_MASK = -16777216; // 0xff000000
-    field public static final int MEASURED_STATE_TOO_SMALL = 16777216; // 0x1000000
+    field public static final deprecated int MEASURED_HEIGHT_STATE_SHIFT = 16; // 0x10
+    field public static final deprecated int MEASURED_SIZE_MASK = 16777215; // 0xffffff
+    field public static final deprecated int MEASURED_STATE_MASK = -16777216; // 0xff000000
+    field public static final deprecated int MEASURED_STATE_TOO_SMALL = 16777216; // 0x1000000
     field public static final deprecated int OVER_SCROLL_ALWAYS = 0; // 0x0
     field public static final deprecated int OVER_SCROLL_IF_CONTENT_SCROLLS = 1; // 0x1
     field public static final deprecated int OVER_SCROLL_NEVER = 2; // 0x2
@@ -6901,18 +7790,18 @@ package android.support.v4.view {
     field public static final int SCROLL_INDICATOR_TOP = 1; // 0x1
   }
 
-  public final class ViewConfigurationCompat {
+  public final deprecated class ViewConfigurationCompat {
     method public static deprecated int getScaledPagingTouchSlop(android.view.ViewConfiguration);
-    method public static boolean hasPermanentMenuKey(android.view.ViewConfiguration);
+    method public static deprecated boolean hasPermanentMenuKey(android.view.ViewConfiguration);
   }
 
   public final class ViewGroupCompat {
     method public static int getLayoutMode(android.view.ViewGroup);
     method public static int getNestedScrollAxes(android.view.ViewGroup);
     method public static boolean isTransitionGroup(android.view.ViewGroup);
-    method public static boolean onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public static deprecated boolean onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent);
     method public static void setLayoutMode(android.view.ViewGroup, int);
-    method public static void setMotionEventSplittingEnabled(android.view.ViewGroup, boolean);
+    method public static deprecated void setMotionEventSplittingEnabled(android.view.ViewGroup, boolean);
     method public static void setTransitionGroup(android.view.ViewGroup, boolean);
     field public static final int LAYOUT_MODE_CLIP_BOUNDS = 0; // 0x0
     field public static final int LAYOUT_MODE_OPTICAL_BOUNDS = 1; // 0x1
@@ -7001,7 +7890,7 @@ package android.support.v4.view {
     method public static void onNestedScrollAccepted(android.view.ViewParent, android.view.View, android.view.View, int);
     method public static boolean onStartNestedScroll(android.view.ViewParent, android.view.View, android.view.View, int);
     method public static void onStopNestedScroll(android.view.ViewParent, android.view.View);
-    method public static boolean requestSendAccessibilityEvent(android.view.ViewParent, android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public static deprecated boolean requestSendAccessibilityEvent(android.view.ViewParent, android.view.View, android.view.accessibility.AccessibilityEvent);
   }
 
   public final class ViewPropertyAnimatorCompat {
@@ -7151,7 +8040,7 @@ package android.support.v4.view.accessibility {
   }
 
   public class AccessibilityNodeInfoCompat {
-    ctor public AccessibilityNodeInfoCompat(java.lang.Object);
+    ctor public deprecated AccessibilityNodeInfoCompat(java.lang.Object);
     method public void addAction(int);
     method public void addAction(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat);
     method public void addChild(android.view.View);
@@ -7174,7 +8063,7 @@ package android.support.v4.view.accessibility {
     method public int getDrawingOrder();
     method public java.lang.CharSequence getError();
     method public android.os.Bundle getExtras();
-    method public java.lang.Object getInfo();
+    method public deprecated java.lang.Object getInfo();
     method public int getInputType();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getLabelFor();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getLabeledBy();
@@ -7271,6 +8160,8 @@ package android.support.v4.view.accessibility {
     method public void setTraversalBefore(android.view.View, int);
     method public void setViewIdResourceName(java.lang.String);
     method public void setVisibleToUser(boolean);
+    method public android.view.accessibility.AccessibilityNodeInfo unwrap();
+    method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat wrap(android.view.accessibility.AccessibilityNodeInfo);
     field public static final int ACTION_ACCESSIBILITY_FOCUS = 64; // 0x40
     field public static final java.lang.String ACTION_ARGUMENT_COLUMN_INT = "android.view.accessibility.action.ARGUMENT_COLUMN_INT";
     field public static final java.lang.String ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN = "ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN";
@@ -7646,15 +8537,16 @@ package android.support.v4.widget {
   }
 
   public final class EdgeEffectCompat {
-    ctor public EdgeEffectCompat(android.content.Context);
-    method public boolean draw(android.graphics.Canvas);
-    method public void finish();
-    method public boolean isFinished();
-    method public boolean onAbsorb(int);
+    ctor public deprecated EdgeEffectCompat(android.content.Context);
+    method public deprecated boolean draw(android.graphics.Canvas);
+    method public deprecated void finish();
+    method public deprecated boolean isFinished();
+    method public deprecated boolean onAbsorb(int);
     method public deprecated boolean onPull(float);
-    method public boolean onPull(float, float);
-    method public boolean onRelease();
-    method public void setSize(int, int);
+    method public deprecated boolean onPull(float, float);
+    method public static void onPull(android.widget.EdgeEffect, float, float);
+    method public deprecated boolean onRelease();
+    method public deprecated void setSize(int, int);
   }
 
   public abstract class ExploreByTouchHelper extends android.support.v4.view.AccessibilityDelegateCompat {
@@ -7744,47 +8636,47 @@ package android.support.v4.widget {
     method public void setViewResource(int);
   }
 
-  public final class ScrollerCompat {
-    method public void abortAnimation();
-    method public boolean computeScrollOffset();
-    method public static android.support.v4.widget.ScrollerCompat create(android.content.Context);
-    method public static android.support.v4.widget.ScrollerCompat create(android.content.Context, android.view.animation.Interpolator);
-    method public void fling(int, int, int, int, int, int, int, int);
-    method public void fling(int, int, int, int, int, int, int, int, int, int);
-    method public float getCurrVelocity();
-    method public int getCurrX();
-    method public int getCurrY();
-    method public int getFinalX();
-    method public int getFinalY();
-    method public boolean isFinished();
-    method public boolean isOverScrolled();
-    method public void notifyHorizontalEdgeReached(int, int, int);
-    method public void notifyVerticalEdgeReached(int, int, int);
-    method public boolean springBack(int, int, int, int, int, int);
-    method public void startScroll(int, int, int, int);
-    method public void startScroll(int, int, int, int, int);
+  public final deprecated class ScrollerCompat {
+    method public deprecated void abortAnimation();
+    method public deprecated boolean computeScrollOffset();
+    method public static deprecated android.support.v4.widget.ScrollerCompat create(android.content.Context);
+    method public static deprecated android.support.v4.widget.ScrollerCompat create(android.content.Context, android.view.animation.Interpolator);
+    method public deprecated void fling(int, int, int, int, int, int, int, int);
+    method public deprecated void fling(int, int, int, int, int, int, int, int, int, int);
+    method public deprecated float getCurrVelocity();
+    method public deprecated int getCurrX();
+    method public deprecated int getCurrY();
+    method public deprecated int getFinalX();
+    method public deprecated int getFinalY();
+    method public deprecated boolean isFinished();
+    method public deprecated boolean isOverScrolled();
+    method public deprecated void notifyHorizontalEdgeReached(int, int, int);
+    method public deprecated void notifyVerticalEdgeReached(int, int, int);
+    method public deprecated boolean springBack(int, int, int, int, int, int);
+    method public deprecated void startScroll(int, int, int, int);
+    method public deprecated void startScroll(int, int, int, int, int);
   }
 
-  public final class SearchViewCompat {
-    method public static java.lang.CharSequence getQuery(android.view.View);
-    method public static boolean isIconified(android.view.View);
-    method public static boolean isQueryRefinementEnabled(android.view.View);
-    method public static boolean isSubmitButtonEnabled(android.view.View);
-    method public static android.view.View newSearchView(android.content.Context);
-    method public static void setIconified(android.view.View, boolean);
-    method public static void setImeOptions(android.view.View, int);
-    method public static void setInputType(android.view.View, int);
-    method public static void setMaxWidth(android.view.View, int);
-    method public static void setOnCloseListener(android.view.View, android.support.v4.widget.SearchViewCompat.OnCloseListener);
-    method public static void setOnQueryTextListener(android.view.View, android.support.v4.widget.SearchViewCompat.OnQueryTextListener);
-    method public static void setQuery(android.view.View, java.lang.CharSequence, boolean);
-    method public static void setQueryHint(android.view.View, java.lang.CharSequence);
-    method public static void setQueryRefinementEnabled(android.view.View, boolean);
-    method public static void setSearchableInfo(android.view.View, android.content.ComponentName);
-    method public static void setSubmitButtonEnabled(android.view.View, boolean);
+  public final deprecated class SearchViewCompat {
+    method public static deprecated java.lang.CharSequence getQuery(android.view.View);
+    method public static deprecated boolean isIconified(android.view.View);
+    method public static deprecated boolean isQueryRefinementEnabled(android.view.View);
+    method public static deprecated boolean isSubmitButtonEnabled(android.view.View);
+    method public static deprecated android.view.View newSearchView(android.content.Context);
+    method public static deprecated void setIconified(android.view.View, boolean);
+    method public static deprecated void setImeOptions(android.view.View, int);
+    method public static deprecated void setInputType(android.view.View, int);
+    method public static deprecated void setMaxWidth(android.view.View, int);
+    method public static deprecated void setOnCloseListener(android.view.View, android.support.v4.widget.SearchViewCompat.OnCloseListener);
+    method public static deprecated void setOnQueryTextListener(android.view.View, android.support.v4.widget.SearchViewCompat.OnQueryTextListener);
+    method public static deprecated void setQuery(android.view.View, java.lang.CharSequence, boolean);
+    method public static deprecated void setQueryHint(android.view.View, java.lang.CharSequence);
+    method public static deprecated void setQueryRefinementEnabled(android.view.View, boolean);
+    method public static deprecated void setSearchableInfo(android.view.View, android.content.ComponentName);
+    method public static deprecated void setSubmitButtonEnabled(android.view.View, boolean);
   }
 
-  public static abstract interface SearchViewCompat.OnCloseListener {
+  public static abstract deprecated interface SearchViewCompat.OnCloseListener {
     method public abstract boolean onClose();
   }
 
@@ -7793,7 +8685,7 @@ package android.support.v4.widget {
     method public boolean onClose();
   }
 
-  public static abstract interface SearchViewCompat.OnQueryTextListener {
+  public static abstract deprecated interface SearchViewCompat.OnQueryTextListener {
     method public abstract boolean onQueryTextChange(java.lang.String);
     method public abstract boolean onQueryTextSubmit(java.lang.String);
   }
@@ -9059,6 +9951,7 @@ package android.support.v7.preference {
     method public android.support.v7.preference.Preference.OnPreferenceChangeListener getOnPreferenceChangeListener();
     method public android.support.v7.preference.Preference.OnPreferenceClickListener getOnPreferenceClickListener();
     method public int getOrder();
+    method public android.support.v7.preference.PreferenceGroup getParent();
     method protected boolean getPersistedBoolean(boolean);
     method protected float getPersistedFloat(float);
     method protected int getPersistedInt(int);
@@ -10010,6 +10903,7 @@ package android.support.v7.widget {
     method public android.support.v7.widget.RecyclerViewAccessibilityDelegate getCompatAccessibilityDelegate();
     method public void getDecoratedBoundsWithMargins(android.view.View, android.graphics.Rect);
     method public android.support.v7.widget.RecyclerView.ItemAnimator getItemAnimator();
+    method public android.support.v7.widget.RecyclerView.ItemDecoration getItemDecorationAt(int);
     method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
     method public int getMaxFlingVelocity();
     method public int getMinFlingVelocity();
@@ -10262,6 +11156,7 @@ package android.support.v7.widget {
     method public boolean isLayoutHierarchical(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public boolean isMeasurementCacheEnabled();
     method public boolean isSmoothScrolling();
+    method public boolean isViewPartiallyVisible(android.view.View, boolean, boolean);
     method public void layoutDecorated(android.view.View, int, int, int, int);
     method public void layoutDecoratedWithMargins(android.view.View, int, int, int, int);
     method public void measureChild(android.view.View, int, int);
@@ -10306,6 +11201,7 @@ package android.support.v7.widget {
     method public void removeView(android.view.View);
     method public void removeViewAt(int);
     method public boolean requestChildRectangleOnScreen(android.support.v7.widget.RecyclerView, android.view.View, android.graphics.Rect, boolean);
+    method public boolean requestChildRectangleOnScreen(android.support.v7.widget.RecyclerView, android.view.View, android.graphics.Rect, boolean, boolean);
     method public void requestLayout();
     method public void requestSimpleAnimationsInNextLayout();
     method public int scrollHorizontallyBy(int, android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
@@ -10479,6 +11375,10 @@ package android.support.v7.widget {
   public class RecyclerViewAccessibilityDelegate extends android.support.v4.view.AccessibilityDelegateCompat {
     ctor public RecyclerViewAccessibilityDelegate(android.support.v7.widget.RecyclerView);
     method public android.support.v4.view.AccessibilityDelegateCompat getItemDelegate();
+  }
+
+  public static class RecyclerViewAccessibilityDelegate.ItemDelegate extends android.support.v4.view.AccessibilityDelegateCompat {
+    ctor public RecyclerViewAccessibilityDelegate.ItemDelegate(android.support.v7.widget.RecyclerViewAccessibilityDelegate);
   }
 
   public class SearchView extends android.support.v7.widget.LinearLayoutCompat implements android.support.v7.view.CollapsibleActionView {
@@ -10844,6 +11744,52 @@ package android.support.v7.widget.util {
     method public void onInserted(int, int);
     method public void onMoved(int, int);
     method public void onRemoved(int, int);
+  }
+
+}
+
+package android.support.wearable.view {
+
+  public class BoxInsetLayout extends android.view.ViewGroup {
+    ctor public BoxInsetLayout(android.content.Context);
+    ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet);
+    ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet, int);
+    method protected void onLayout(boolean, int, int, int, int);
+  }
+
+  public static class BoxInsetLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams {
+    ctor public BoxInsetLayout.LayoutParams(android.content.Context, android.util.AttributeSet);
+    ctor public BoxInsetLayout.LayoutParams(int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int, int);
+    ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(android.widget.FrameLayout.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(android.support.wearable.view.BoxInsetLayout.LayoutParams);
+    field public static final int BOX_ALL = 15; // 0xf
+    field public static final int BOX_BOTTOM = 8; // 0x8
+    field public static final int BOX_LEFT = 1; // 0x1
+    field public static final int BOX_NONE = 0; // 0x0
+    field public static final int BOX_RIGHT = 4; // 0x4
+    field public static final int BOX_TOP = 2; // 0x2
+    field public int boxedEdges;
+  }
+
+  public class SwipeDismissFrameLayout extends android.widget.FrameLayout {
+    ctor public SwipeDismissFrameLayout(android.content.Context);
+    ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet);
+    ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet, int);
+    ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet, int, int);
+    method public void addCallback(android.support.wearable.view.SwipeDismissFrameLayout.Callback);
+    method public void removeCallback(android.support.wearable.view.SwipeDismissFrameLayout.Callback);
+    method public void reset();
+  }
+
+  public static abstract class SwipeDismissFrameLayout.Callback {
+    ctor public SwipeDismissFrameLayout.Callback();
+    method public void onDismissed(android.support.wearable.view.SwipeDismissFrameLayout);
+    method public void onSwipeCancelled();
+    method public void onSwipeStarted();
   }
 
 }
