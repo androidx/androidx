@@ -1004,21 +1004,39 @@ abstract class BaseGridView extends RecyclerView {
 
     /**
      * Temporarily slide out child views to bottom (for VerticalGridView) or end
-     * (for HorizontalGridView). The views will be automatically slide-in in next
-     * {@link #smoothScrollToPosition(int)} or {@link #scrollToPosition(int)}.
+     * (for HorizontalGridView). Layout and scrolling will be suppressed until
+     * {@link #animateIn()} is called.
      */
     public void animateOut() {
         mLayoutManager.slideOut();
     }
 
     /**
-     * @deprecated No longer needed. Children being slide out by {@link #animateOut()} will be
-     * slide in next focus or (smooth)scrollToPosition action.
+     * Undo animateOut() and slide in child views.
      */
-    @Deprecated
     public void animateIn() {
+        mLayoutManager.slideIn();
     }
 
+    @Override
+    public void scrollToPosition(int position) {
+        // dont abort the animateOut() animation, just record the position
+        if (mLayoutManager.mIsSlidingChildViews) {
+            mLayoutManager.setSelectionWithSub(position, 0, 0);
+            return;
+        }
+        super.scrollToPosition(position);
+    }
+
+    @Override
+    public void smoothScrollToPosition(int position) {
+        // dont abort the animateOut() animation, just record the position
+        if (mLayoutManager.mIsSlidingChildViews) {
+            mLayoutManager.setSelectionWithSub(position, 0, 0);
+            return;
+        }
+        super.smoothScrollToPosition(position);
+    }
 
     /**
      * Sets the number of items to prefetch in
