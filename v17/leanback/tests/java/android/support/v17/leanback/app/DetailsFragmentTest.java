@@ -241,7 +241,6 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         }
     }
 
-    @Suppress // Disabled due to flakiness.
     @Test
     public void navigateBetweenRowsAndVideoUsingRequestFocus() throws Throwable {
         launchAndWaitActivity(DetailsFragmentWithVideo.class,
@@ -296,7 +295,6 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         assertTrue(detailsFragment.isShowingTitle());
     }
 
-    @Suppress // Disabled due to flakiness.
     @Test
     public void navigateBetweenRowsAndVideoUsingDPAD() throws Throwable {
         launchAndWaitActivity(DetailsFragmentWithVideo.class,
