@@ -187,9 +187,11 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
             }
         });
         int oldOffset = mRecyclerView.computeVerticalScrollOffset();
+        int[] absoluteCoords = new int[2];
+        mRecyclerView.getLocationOnScreen(absoluteCoords);
         TouchUtils.drag(InstrumentationRegistry.getInstrumentation(), mRecyclerView.getWidth() - 10,
-                mRecyclerView.getWidth() - 10, mScroller.mVerticalThumbCenterY,
-                mRecyclerView.getHeight(), 100);
+                mRecyclerView.getWidth() - 10, mScroller.mVerticalThumbCenterY + absoluteCoords[1],
+                mRecyclerView.getHeight() + absoluteCoords[1], 100);
         assertTrue("Expected dragging thumb to move recyclerView",
                 mRecyclerView.computeVerticalScrollOffset() > oldOffset);
     }
