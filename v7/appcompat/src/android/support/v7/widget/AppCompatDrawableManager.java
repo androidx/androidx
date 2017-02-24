@@ -48,10 +48,10 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.util.LruCache;
+import android.support.v4.util.SparseArrayCompat;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.SparseArray;
 import android.util.TypedValue;
 import android.util.Xml;
 
@@ -174,9 +174,9 @@ public final class AppCompatDrawableManager {
             R.drawable.abc_btn_radio_material
     };
 
-    private WeakHashMap<Context, SparseArray<ColorStateList>> mTintLists;
+    private WeakHashMap<Context, SparseArrayCompat<ColorStateList>> mTintLists;
     private ArrayMap<String, InflateDelegate> mDelegates;
-    private SparseArray<String> mKnownDrawableIdTags;
+    private SparseArrayCompat<String> mKnownDrawableIdTags;
 
     private final Object mDrawableCacheLock = new Object();
     private final WeakHashMap<Context, LongSparseArray<WeakReference<Drawable.ConstantState>>>
@@ -321,7 +321,7 @@ public final class AppCompatDrawableManager {
                 }
             } else {
                 // Create an id cache as we'll need one later
-                mKnownDrawableIdTags = new SparseArray<>();
+                mKnownDrawableIdTags = new SparseArrayCompat<>();
             }
 
             if (mTypedValue == null) {
@@ -423,7 +423,7 @@ public final class AppCompatDrawableManager {
                     cache = new LongSparseArray<>();
                     mDrawableCaches.put(context, cache);
                 }
-                cache.put(key, new WeakReference<ConstantState>(cs));
+                cache.put(key, new WeakReference<>(cs));
             }
             return true;
         }
@@ -562,7 +562,7 @@ public final class AppCompatDrawableManager {
 
     private ColorStateList getTintListFromCache(@NonNull Context context, @DrawableRes int resId) {
         if (mTintLists != null) {
-            final SparseArray<ColorStateList> tints = mTintLists.get(context);
+            final SparseArrayCompat<ColorStateList> tints = mTintLists.get(context);
             return tints != null ? tints.get(resId) : null;
         }
         return null;
@@ -573,9 +573,9 @@ public final class AppCompatDrawableManager {
         if (mTintLists == null) {
             mTintLists = new WeakHashMap<>();
         }
-        SparseArray<ColorStateList> themeTints = mTintLists.get(context);
+        SparseArrayCompat<ColorStateList> themeTints = mTintLists.get(context);
         if (themeTints == null) {
-            themeTints = new SparseArray<>();
+            themeTints = new SparseArrayCompat<>();
             mTintLists.put(context, themeTints);
         }
         themeTints.append(resId, tintList);
