@@ -11775,5 +11775,22 @@ package android.support.wearable.view {
     field public int boxedEdges;
   }
 
+  public class SwipeDismissFrameLayout extends android.widget.FrameLayout {
+    ctor public SwipeDismissFrameLayout(android.content.Context);
+    ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet);
+    ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet, int);
+    ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet, int, int);
+    method public void addCallback(android.support.wearable.view.SwipeDismissFrameLayout.Callback);
+    method public void removeCallback(android.support.wearable.view.SwipeDismissFrameLayout.Callback);
+    method public void reset();
+  }
+
+  public static abstract class SwipeDismissFrameLayout.Callback {
+    ctor public SwipeDismissFrameLayout.Callback();
+    method public void onDismissed(android.support.wearable.view.SwipeDismissFrameLayout);
+    method public void onSwipeCancelled();
+    method public void onSwipeStarted();
+  }
+
 }
 

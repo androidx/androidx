@@ -4,6 +4,7 @@ archivesBaseName = 'wearable'
 dependencies {
     compile project(':support-annotations')
     compile project(':support-core-ui')
+    compile project(':support-recyclerview-v7')
 
     androidTestCompile (libs.test_runner) {
         exclude module: 'support-annotations'
@@ -15,7 +16,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 20
+        minSdkVersion 23
     }
 
     sourceSets {
