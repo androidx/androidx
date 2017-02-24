@@ -18,6 +18,8 @@ package com.android.support.lifecycle;
 
 import android.support.annotation.Nullable;
 
+import com.android.support.executors.AppToolkitTaskExecutor;
+
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -49,7 +51,6 @@ public final class LiveDataReactiveStreams {
      */
     public static <T> Publisher<T> toPublisher(
             final LifecycleProvider lifecycle, final LiveData<T> liveData) {
-        final Object lock = new Object();
 
         return new Publisher<T>() {
             boolean mObserving;
@@ -66,63 +67,63 @@ public final class LiveDataReactiveStreams {
                         if (mCanceled) {
                             return;
                         }
-                        synchronized (lock) {
-                            if (mCanceled) {
-                                return;
+                        if (mRequested > 0) {
+                            mLatest = null;
+                            subscriber.onNext(t);
+                            if (mRequested != Long.MAX_VALUE) {
+                                mRequested--;
                             }
-                            if (mRequested > 0) {
-                                mLatest = null;
-                                subscriber.onNext(t);
-                                if (mRequested != Long.MAX_VALUE) {
-                                    mRequested--;
-                                }
-                            } else {
-                                mLatest = t;
-                            }
+                        } else {
+                            mLatest = t;
                         }
                     }
                 };
 
                 subscriber.onSubscribe(new Subscription() {
                     @Override
-                    public void request(long n) {
-                        if (n < 0) {
+                    public void request(final long n) {
+                        if (n < 0 || mCanceled) {
                             return;
                         }
-                        if (mCanceled) {
-                            return;
-                        }
-                        synchronized (lock) {
-                            if (mCanceled) {
-                                return;
+                        AppToolkitTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mCanceled) {
+                                    return;
+                                }
+                                // Prevent overflowage.
+                                mRequested = mRequested + n >= mRequested
+                                        ? mRequested + n : Long.MAX_VALUE;
+                                if (!mObserving) {
+                                    mObserving = true;
+                                    liveData.observe(lifecycle, observer);
+                                } else if (mLatest != null) {
+                                    observer.onChanged(mLatest);
+                                    mLatest = null;
+                                }
                             }
-                            // Prevent overflowage.
-                            mRequested =
-                                    mRequested + n >= mRequested ? mRequested + n : Long.MAX_VALUE;
-                            if (!mObserving) {
-                                mObserving = true;
-                                liveData.observe(lifecycle, observer);
-                            } else if (mLatest != null) {
-                                observer.onChanged(mLatest);
-                                mLatest = null;
-                            }
-                        }
+                        });
                     }
 
                     @Override
                     public void cancel() {
-                        if (!mCanceled) {
-                            synchronized (lock) {
-                                if (!mCanceled) {
-                                    if (mObserving) {
-                                        liveData.removeObserver(observer);
-                                        mObserving = false;
-                                    }
-                                    mLatest = null;
-                                    mCanceled = true;
-                                }
-                            }
+                        if (mCanceled) {
+                            return;
                         }
+                        AppToolkitTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mCanceled) {
+                                    return;
+                                }
+                                if (mObserving) {
+                                    liveData.removeObserver(observer);
+                                    mObserving = false;
+                                }
+                                mLatest = null;
+                                mCanceled = true;
+                            }
+                        });
                     }
                 });
             }
@@ -147,10 +148,15 @@ public final class LiveDataReactiveStreams {
             }
 
             @Override
-            public void onNext(T t) {
-                LiveData<T> liveData = liveDataRef.get();
+            public void onNext(final T t) {
+                final LiveData<T> liveData = liveDataRef.get();
                 if (liveData != null) {
-                    liveData.setValue(t);
+                    AppToolkitTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            liveData.setValue(t);
+                        }
+                    });
                 }
             }
 

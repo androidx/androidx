@@ -17,6 +17,8 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
+sourceCompatibility = '1.7'
+
 android {
     compileSdkVersion compile_sdk_version
     buildToolsVersion build_tools_version
@@ -43,8 +45,11 @@ android {
 
 allprojects {
     dependencies {
+        compile project(":apptoolkit-core")
+        compile project(":lifecycle:common")
         compile project(":lifecycle:extensions")
         compile project(":lifecycle:runtime")
+        compile "com.android.support:support-annotations:$support_lib_version"
         compile "org.reactivestreams:reactive-streams:$reactivestreams_version"
 
         testCompile "junit:junit:$junit_version"
