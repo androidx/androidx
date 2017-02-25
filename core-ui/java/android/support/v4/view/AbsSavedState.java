@@ -18,8 +18,6 @@ package android.support.v4.view;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v4.os.ParcelableCompat;
-import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 
 /**
  * A {@link Parcelable} implementation that should be used by inheritance
@@ -83,20 +81,24 @@ public abstract class AbsSavedState implements Parcelable {
         dest.writeParcelable(mSuperState, flags);
     }
 
-    public static final Parcelable.Creator<AbsSavedState> CREATOR = ParcelableCompat.newCreator(
-            new ParcelableCompatCreatorCallbacks<AbsSavedState>() {
-                @Override
-                public AbsSavedState createFromParcel(Parcel in, ClassLoader loader) {
-                    Parcelable superState = in.readParcelable(loader);
-                    if (superState != null) {
-                        throw new IllegalStateException("superState must be null");
-                    }
-                    return EMPTY_STATE;
-                }
+    public static final Creator<AbsSavedState> CREATOR = new ClassLoaderCreator<AbsSavedState>() {
+        @Override
+        public AbsSavedState createFromParcel(Parcel in, ClassLoader loader) {
+            Parcelable superState = in.readParcelable(loader);
+            if (superState != null) {
+                throw new IllegalStateException("superState must be null");
+            }
+            return EMPTY_STATE;
+        }
 
-                @Override
-                public AbsSavedState[] newArray(int size) {
-                    return new AbsSavedState[size];
-                }
-            });
+        @Override
+        public AbsSavedState createFromParcel(Parcel in) {
+            return createFromParcel(in, null);
+        }
+
+        @Override
+        public AbsSavedState[] newArray(int size) {
+            return new AbsSavedState[size];
+        }
+    };
 }
