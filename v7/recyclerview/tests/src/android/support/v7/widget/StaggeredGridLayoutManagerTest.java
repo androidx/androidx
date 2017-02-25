@@ -39,8 +39,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.test.filters.LargeTest;
 import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.accessibility.AccessibilityEventCompat;
-import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.StateSet;
@@ -1256,8 +1254,6 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                 delegateCompat.onInitializeAccessibilityEvent(mRecyclerView, event);
             }
         });
-        final AccessibilityRecordCompat record = AccessibilityEventCompat
-                .asRecord(event);
         final int start = mRecyclerView
                 .getChildLayoutPosition(
                         mLayoutManager.findFirstVisibleItemClosestToStart(false));
@@ -1265,9 +1261,9 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                 .getChildLayoutPosition(
                         mLayoutManager.findFirstVisibleItemClosestToEnd(false));
         assertEquals("first item position should match",
-                Math.min(start, end), record.getFromIndex());
+                Math.min(start, end), event.getFromIndex());
         assertEquals("last item position should match",
-                Math.max(start, end), record.getToIndex());
+                Math.max(start, end), event.getToIndex());
 
     }
 }

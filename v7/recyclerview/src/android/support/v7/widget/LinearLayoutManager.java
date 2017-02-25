@@ -27,8 +27,6 @@ import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.os.TraceCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.accessibility.AccessibilityEventCompat;
-import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v7.widget.RecyclerView.LayoutParams;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.AttributeSet;
@@ -238,10 +236,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(event);
         if (getChildCount() > 0) {
-            final AccessibilityRecordCompat record = AccessibilityEventCompat
-                    .asRecord(event);
-            record.setFromIndex(findFirstVisibleItemPosition());
-            record.setToIndex(findLastVisibleItemPosition());
+            event.setFromIndex(findFirstVisibleItemPosition());
+            event.setToIndex(findLastVisibleItemPosition());
         }
     }
 

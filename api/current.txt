@@ -8116,13 +8116,13 @@ package android.support.v4.view {
 package android.support.v4.view.accessibility {
 
   public final class AccessibilityEventCompat {
-    method public static void appendRecord(android.view.accessibility.AccessibilityEvent, android.support.v4.view.accessibility.AccessibilityRecordCompat);
-    method public static android.support.v4.view.accessibility.AccessibilityRecordCompat asRecord(android.view.accessibility.AccessibilityEvent);
+    method public static deprecated void appendRecord(android.view.accessibility.AccessibilityEvent, android.support.v4.view.accessibility.AccessibilityRecordCompat);
+    method public static deprecated android.support.v4.view.accessibility.AccessibilityRecordCompat asRecord(android.view.accessibility.AccessibilityEvent);
     method public int getAction(android.view.accessibility.AccessibilityEvent);
     method public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent);
     method public int getMovementGranularity(android.view.accessibility.AccessibilityEvent);
-    method public static android.support.v4.view.accessibility.AccessibilityRecordCompat getRecord(android.view.accessibility.AccessibilityEvent, int);
-    method public static int getRecordCount(android.view.accessibility.AccessibilityEvent);
+    method public static deprecated android.support.v4.view.accessibility.AccessibilityRecordCompat getRecord(android.view.accessibility.AccessibilityEvent, int);
+    method public static deprecated int getRecordCount(android.view.accessibility.AccessibilityEvent);
     method public void setAction(android.view.accessibility.AccessibilityEvent, int);
     method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent, int);
     method public void setMovementGranularity(android.view.accessibility.AccessibilityEvent, int);
@@ -8135,20 +8135,20 @@ package android.support.v4.view.accessibility {
     field public static final int TYPE_ASSIST_READING_CONTEXT = 16777216; // 0x1000000
     field public static final int TYPE_GESTURE_DETECTION_END = 524288; // 0x80000
     field public static final int TYPE_GESTURE_DETECTION_START = 262144; // 0x40000
-    field public static final int TYPE_TOUCH_EXPLORATION_GESTURE_END = 1024; // 0x400
-    field public static final int TYPE_TOUCH_EXPLORATION_GESTURE_START = 512; // 0x200
+    field public static final deprecated int TYPE_TOUCH_EXPLORATION_GESTURE_END = 1024; // 0x400
+    field public static final deprecated int TYPE_TOUCH_EXPLORATION_GESTURE_START = 512; // 0x200
     field public static final int TYPE_TOUCH_INTERACTION_END = 2097152; // 0x200000
     field public static final int TYPE_TOUCH_INTERACTION_START = 1048576; // 0x100000
     field public static final int TYPE_VIEW_ACCESSIBILITY_FOCUSED = 32768; // 0x8000
     field public static final int TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED = 65536; // 0x10000
     field public static final int TYPE_VIEW_CONTEXT_CLICKED = 8388608; // 0x800000
-    field public static final int TYPE_VIEW_HOVER_ENTER = 128; // 0x80
-    field public static final int TYPE_VIEW_HOVER_EXIT = 256; // 0x100
-    field public static final int TYPE_VIEW_SCROLLED = 4096; // 0x1000
-    field public static final int TYPE_VIEW_TEXT_SELECTION_CHANGED = 8192; // 0x2000
+    field public static final deprecated int TYPE_VIEW_HOVER_ENTER = 128; // 0x80
+    field public static final deprecated int TYPE_VIEW_HOVER_EXIT = 256; // 0x100
+    field public static final deprecated int TYPE_VIEW_SCROLLED = 4096; // 0x1000
+    field public static final deprecated int TYPE_VIEW_TEXT_SELECTION_CHANGED = 8192; // 0x2000
     field public static final int TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY = 131072; // 0x20000
     field public static final int TYPE_WINDOWS_CHANGED = 4194304; // 0x400000
-    field public static final int TYPE_WINDOW_CONTENT_CHANGED = 2048; // 0x800
+    field public static final deprecated int TYPE_WINDOW_CONTENT_CHANGED = 2048; // 0x800
   }
 
   public final class AccessibilityManagerCompat {
@@ -8419,53 +8419,58 @@ package android.support.v4.view.accessibility {
 
   public class AccessibilityRecordCompat {
     ctor public deprecated AccessibilityRecordCompat(java.lang.Object);
-    method public int getAddedCount();
-    method public java.lang.CharSequence getBeforeText();
-    method public java.lang.CharSequence getClassName();
-    method public java.lang.CharSequence getContentDescription();
-    method public int getCurrentItemIndex();
-    method public int getFromIndex();
+    method public deprecated int getAddedCount();
+    method public deprecated java.lang.CharSequence getBeforeText();
+    method public deprecated java.lang.CharSequence getClassName();
+    method public deprecated java.lang.CharSequence getContentDescription();
+    method public deprecated int getCurrentItemIndex();
+    method public deprecated int getFromIndex();
     method public deprecated java.lang.Object getImpl();
-    method public int getItemCount();
-    method public int getMaxScrollX();
-    method public int getMaxScrollY();
-    method public android.os.Parcelable getParcelableData();
-    method public int getRemovedCount();
-    method public int getScrollX();
-    method public int getScrollY();
-    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getSource();
-    method public java.util.List<java.lang.CharSequence> getText();
-    method public int getToIndex();
-    method public int getWindowId();
-    method public boolean isChecked();
-    method public boolean isEnabled();
-    method public boolean isFullScreen();
-    method public boolean isPassword();
-    method public boolean isScrollable();
-    method public static android.support.v4.view.accessibility.AccessibilityRecordCompat obtain(android.support.v4.view.accessibility.AccessibilityRecordCompat);
-    method public static android.support.v4.view.accessibility.AccessibilityRecordCompat obtain();
-    method public void recycle();
-    method public void setAddedCount(int);
-    method public void setBeforeText(java.lang.CharSequence);
-    method public void setChecked(boolean);
-    method public void setClassName(java.lang.CharSequence);
-    method public void setContentDescription(java.lang.CharSequence);
-    method public void setCurrentItemIndex(int);
-    method public void setEnabled(boolean);
-    method public void setFromIndex(int);
-    method public void setFullScreen(boolean);
-    method public void setItemCount(int);
-    method public void setMaxScrollX(int);
-    method public void setMaxScrollY(int);
-    method public void setParcelableData(android.os.Parcelable);
-    method public void setPassword(boolean);
-    method public void setRemovedCount(int);
-    method public void setScrollX(int);
-    method public void setScrollY(int);
-    method public void setScrollable(boolean);
-    method public void setSource(android.view.View);
-    method public void setSource(android.view.View, int);
-    method public void setToIndex(int);
+    method public deprecated int getItemCount();
+    method public deprecated int getMaxScrollX();
+    method public static int getMaxScrollX(android.view.accessibility.AccessibilityRecord);
+    method public deprecated int getMaxScrollY();
+    method public static int getMaxScrollY(android.view.accessibility.AccessibilityRecord);
+    method public deprecated android.os.Parcelable getParcelableData();
+    method public deprecated int getRemovedCount();
+    method public deprecated int getScrollX();
+    method public deprecated int getScrollY();
+    method public deprecated android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getSource();
+    method public deprecated java.util.List<java.lang.CharSequence> getText();
+    method public deprecated int getToIndex();
+    method public deprecated int getWindowId();
+    method public deprecated boolean isChecked();
+    method public deprecated boolean isEnabled();
+    method public deprecated boolean isFullScreen();
+    method public deprecated boolean isPassword();
+    method public deprecated boolean isScrollable();
+    method public static deprecated android.support.v4.view.accessibility.AccessibilityRecordCompat obtain(android.support.v4.view.accessibility.AccessibilityRecordCompat);
+    method public static deprecated android.support.v4.view.accessibility.AccessibilityRecordCompat obtain();
+    method public deprecated void recycle();
+    method public deprecated void setAddedCount(int);
+    method public deprecated void setBeforeText(java.lang.CharSequence);
+    method public deprecated void setChecked(boolean);
+    method public deprecated void setClassName(java.lang.CharSequence);
+    method public deprecated void setContentDescription(java.lang.CharSequence);
+    method public deprecated void setCurrentItemIndex(int);
+    method public deprecated void setEnabled(boolean);
+    method public deprecated void setFromIndex(int);
+    method public deprecated void setFullScreen(boolean);
+    method public deprecated void setItemCount(int);
+    method public deprecated void setMaxScrollX(int);
+    method public static void setMaxScrollX(android.view.accessibility.AccessibilityRecord, int);
+    method public deprecated void setMaxScrollY(int);
+    method public static void setMaxScrollY(android.view.accessibility.AccessibilityRecord, int);
+    method public deprecated void setParcelableData(android.os.Parcelable);
+    method public deprecated void setPassword(boolean);
+    method public deprecated void setRemovedCount(int);
+    method public deprecated void setScrollX(int);
+    method public deprecated void setScrollY(int);
+    method public deprecated void setScrollable(boolean);
+    method public deprecated void setSource(android.view.View);
+    method public deprecated void setSource(android.view.View, int);
+    method public static void setSource(android.view.accessibility.AccessibilityRecord, android.view.View, int);
+    method public deprecated void setToIndex(int);
   }
 
   public class AccessibilityWindowInfoCompat {

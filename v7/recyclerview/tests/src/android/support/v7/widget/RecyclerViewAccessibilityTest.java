@@ -24,9 +24,7 @@ import static org.junit.Assert.assertTrue;
 import android.os.Build;
 import android.support.test.filters.MediumTest;
 import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -172,11 +170,9 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
                 delegateCompat.onInitializeAccessibilityEvent(recyclerView, event);
             }
         });
-        final AccessibilityRecordCompat record = AccessibilityEventCompat
-                .asRecord(event);
-        assertEquals(record.isScrollable(), mVerticalScrollAfter || mHorizontalScrollAfter ||
-                mVerticalScrollBefore || mHorizontalScrollBefore);
-        assertEquals(record.getItemCount(), adapter.getItemCount());
+        assertEquals(event.isScrollable(), mVerticalScrollAfter || mHorizontalScrollAfter
+                || mVerticalScrollBefore || mHorizontalScrollBefore);
+        assertEquals(event.getItemCount(), adapter.getItemCount());
 
         getInstrumentation().waitForIdleSync();
         if (SUPPORTS_COLLECTION_INFO) {
