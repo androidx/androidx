@@ -22,7 +22,7 @@ import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
 
-class CursorQueryResultBinder : QueryResultBinder(NO_OP_ROW_ADAPTER) {
+class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
     override fun convertAndReturn(roomSQLiteQueryVar: String, dbField: FieldSpec,
                                   scope: CodeGenScope) {
         scope.builder().apply {
@@ -30,7 +30,7 @@ class CursorQueryResultBinder : QueryResultBinder(NO_OP_ROW_ADAPTER) {
         }
     }
     companion object {
-        private val NO_OP_ROW_ADAPTER = object : QueryResultAdapter() {
+        private val NO_OP_RESULT_ADAPTER = object : QueryResultAdapter(null) {
             override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
             }
         }

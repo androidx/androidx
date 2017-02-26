@@ -25,18 +25,19 @@ import defaultValue
 /**
  * Wraps a row adapter when there is only 1 item in the result
  */
-class SingleEntityQueryResultAdapter(val rowAdapter: RowAdapter) : QueryResultAdapter() {
+class SingleEntityQueryResultAdapter(rowAdapter: RowAdapter) : QueryResultAdapter(rowAdapter) {
     val type = rowAdapter.out
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            val converter = rowAdapter.init(cursorVarName, scope)
+            rowAdapter?.onCursorReady(cursorVarName, scope)
             addStatement("final $T $L", type.typeName(), outVarName)
             beginControlFlow("if($L.moveToFirst())", cursorVarName)
-                converter.convert(outVarName, cursorVarName)
+                rowAdapter?.convert(outVarName, cursorVarName, scope)
             nextControlFlow("else").apply {
-                addStatement("$L = $L", outVarName, rowAdapter.out.defaultValue())
+                addStatement("$L = $L", outVarName, rowAdapter?.out?.defaultValue())
             }
             endControlFlow()
+            rowAdapter?.onCursorFinished()?.invoke(scope)
         }
     }
 }

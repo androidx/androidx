@@ -26,6 +26,7 @@ import com.android.support.room.verifier.QueryResultInfo
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldWithIndex
 import com.android.support.room.vo.Pojo
+import com.android.support.room.vo.RelationCollector
 import com.android.support.room.vo.Warning
 import com.android.support.room.writer.FieldReadWriteWriter
 import javax.lang.model.type.TypeMirror
@@ -35,9 +36,10 @@ import javax.lang.model.type.TypeMirror
  * <p>
  * The info comes from the query processor so we know about the order of columns in the result etc.
  */
-class PojoRowAdapter(context : Context, val info: QueryResultInfo,
+class PojoRowAdapter(context: Context, val info: QueryResultInfo,
                      val pojo: Pojo, out: TypeMirror) : RowAdapter(out) {
     val mapping: Mapping
+    val relationCollectors: List<RelationCollector>
 
     init {
         // toMutableList documentation is not clear if it copies so lets be safe.
@@ -70,6 +72,8 @@ class PojoRowAdapter(context : Context, val info: QueryResultInfo,
             context.logger.e(ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
         }
 
+        relationCollectors = RelationCollector.createCollectors(context, pojo.relations)
+
         mapping = Mapping(
                 associations = associations,
                 unusedColumns = unusedColumns,
@@ -77,17 +81,48 @@ class PojoRowAdapter(context : Context, val info: QueryResultInfo,
         )
     }
 
-    override fun init(cursorVarName: String, scope: CodeGenScope): RowConverter {
-        return object : RowConverter {
-            override fun convert(outVarName: String, cursorVarName: String) {
-                scope.builder().apply {
-                    addStatement("$L = new $T()", outVarName, out.typeName())
-                    FieldReadWriteWriter.readFromCursor(outVarName, cursorVarName,
-                            mapping.associations, scope)
-                }
+    fun relationTableNames(): List<String> {
+        return relationCollectors.flatMap {
+            val queryTableNames = it.loadAllQuery.tables.map { it.name }
+            if (it.rowAdapter is PojoRowAdapter) {
+                it.rowAdapter.relationTableNames() + queryTableNames
+            } else {
+                queryTableNames
+            }
+        }.distinct()
+    }
+
+    override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
+        relationCollectors.forEach { it.writeInitCode(scope) }
+    }
+
+    override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
+        scope.builder().apply {
+            addStatement("$L = new $T()", outVarName, out.typeName())
+            FieldReadWriteWriter.readFromCursor(outVarName, cursorVarName,
+                    mapping.associations, scope)
+            relationCollectors.forEach {
+                it.writeReadParentKeyCode(
+                        cursorVarName = cursorVarName,
+                        itemVar = outVarName,
+                        fieldsWithIndices = mapping.associations,
+                        scope = scope)
             }
         }
     }
+
+    override fun onCursorFinished(): ((CodeGenScope) -> Unit)? =
+            if (relationCollectors.isEmpty()) {
+                // it is important to return empty to notify that we don't need any post process
+                // task
+                null
+            } else {
+                { scope ->
+                    relationCollectors.forEach { collector ->
+                        collector.writeCollectionCode(scope)
+                    }
+                }
+            }
 
     data class Mapping(val associations: List<FieldWithIndex>,
                        val unusedColumns: List<String>,

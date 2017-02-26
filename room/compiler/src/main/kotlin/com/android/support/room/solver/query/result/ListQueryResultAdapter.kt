@@ -24,11 +24,11 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import java.util.ArrayList
 
-class ListQueryResultAdapter(val rowAdapter: RowAdapter) : QueryResultAdapter() {
+class ListQueryResultAdapter(rowAdapter: RowAdapter) : QueryResultAdapter(rowAdapter) {
     val type = rowAdapter.out
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            val converter = rowAdapter.init(cursorVarName, scope)
+            rowAdapter?.onCursorReady(cursorVarName, scope)
             val collectionType = ParameterizedTypeName
                     .get(ClassName.get(List::class.java), type.typeName())
             val arrayListType = ParameterizedTypeName
@@ -38,10 +38,11 @@ class ListQueryResultAdapter(val rowAdapter: RowAdapter) : QueryResultAdapter() 
             val tmpVarName = scope.getTmpVar("_item")
             beginControlFlow("while($L.moveToNext())", cursorVarName).apply {
                 addStatement("final $T $L", type.typeName(), tmpVarName)
-                converter.convert(tmpVarName, cursorVarName)
+                rowAdapter?.convert(tmpVarName, cursorVarName, scope)
                 addStatement("$L.add($L)", outVarName, tmpVarName)
             }
             endControlFlow()
+            rowAdapter?.onCursorFinished()?.invoke(scope)
         }
     }
 }

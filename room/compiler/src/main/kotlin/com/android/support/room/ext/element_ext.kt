@@ -27,6 +27,7 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
@@ -51,11 +52,13 @@ fun Element.hasAllOf(vararg klasses: KClass<out Annotation>): Boolean {
  * gets all members including super privates. does not handle duplicate field names!!!
  */
 // TODO handle conflicts with super: b/35568142
-fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: ProcessingEnvironment) :
-    Set<Element> {
-    val myMembers = processingEnvironment.elementUtils.getAllMembers(this).filter {
-        it.kind == ElementKind.FIELD
-    }.toSet()
+fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: ProcessingEnvironment):
+        Set<VariableElement> {
+    val myMembers = processingEnvironment.elementUtils.getAllMembers(this)
+            .filter { it.kind == ElementKind.FIELD }
+            .filter { it is VariableElement }
+            .map { it as VariableElement }
+            .toSet()
     if (superclass.kind != TypeKind.NONE) {
         return myMembers + MoreTypes.asTypeElement(superclass)
                 .getAllFieldsIncludingPrivateSupers(processingEnvironment)

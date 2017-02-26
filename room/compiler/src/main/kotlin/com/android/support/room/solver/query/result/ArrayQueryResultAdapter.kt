@@ -23,11 +23,12 @@ import com.android.support.room.solver.CodeGenScope
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
 
-class ArrayQueryResultAdapter(val rowAdapter: RowAdapter) : QueryResultAdapter() {
+class ArrayQueryResultAdapter(rowAdapter: RowAdapter) : QueryResultAdapter(rowAdapter) {
     val type = rowAdapter.out
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            val converter = rowAdapter.init(cursorVarName, scope)
+            rowAdapter?.onCursorReady(cursorVarName, scope)
+
             val arrayType = ArrayTypeName.of(type.typeName())
             addStatement("final $T $L = new $T[$L.getCount()]",
                     arrayType, outVarName, type.typeName(), cursorVarName)
@@ -36,11 +37,12 @@ class ArrayQueryResultAdapter(val rowAdapter: RowAdapter) : QueryResultAdapter()
             addStatement("$T $L = 0", TypeName.INT, indexVar)
             beginControlFlow("while($L.moveToNext())", cursorVarName).apply {
                 addStatement("final $T $L", type.typeName(), tmpVarName)
-                converter.convert(tmpVarName, cursorVarName)
+                rowAdapter?.convert(tmpVarName, cursorVarName, scope)
                 addStatement("$L[$L] = $L", outVarName, indexVar, tmpVarName)
                 addStatement("$L ++", indexVar)
             }
             endControlFlow()
+            rowAdapter?.onCursorFinished()?.invoke(scope)
         }
     }
 }

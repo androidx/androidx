@@ -50,6 +50,15 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
             "${parent.field.getPath()} > $name"
         }
     }
+
+    val pathWithDotNotation : String by lazy {
+        if (parent == null) {
+            name
+        } else {
+            "${parent.field.pathWithDotNotation}.$name"
+        }
+    }
+
     /**
      * List of names that include variations.
      * e.g. if it is mUser, user is added to the list

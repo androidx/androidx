@@ -27,4 +27,5 @@ abstract class ColumnTypeAdapter(val out: TypeMirror, val typeAffinity: SQLTypeA
         StatementValueBinder, CursorValueReader {
     val outTypeName: TypeName by lazy { TypeName.get(out) }
     override fun typeMirror() = out
+    override fun affinity(): SQLTypeAffinity = typeAffinity
 }

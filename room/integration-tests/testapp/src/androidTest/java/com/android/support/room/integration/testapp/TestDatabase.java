@@ -23,16 +23,18 @@ import com.android.support.room.TypeConverters;
 import com.android.support.room.integration.testapp.dao.PetCoupleDao;
 import com.android.support.room.integration.testapp.dao.PetDao;
 import com.android.support.room.integration.testapp.dao.SchoolDao;
+import com.android.support.room.integration.testapp.dao.ToyDao;
 import com.android.support.room.integration.testapp.dao.UserDao;
 import com.android.support.room.integration.testapp.dao.UserPetDao;
 import com.android.support.room.integration.testapp.vo.Pet;
 import com.android.support.room.integration.testapp.vo.PetCouple;
 import com.android.support.room.integration.testapp.vo.School;
+import com.android.support.room.integration.testapp.vo.Toy;
 import com.android.support.room.integration.testapp.vo.User;
 
 import java.util.Date;
 
-@Database(entities = {User.class, Pet.class, School.class, PetCouple.class})
+@Database(entities = {User.class, Pet.class, School.class, PetCouple.class, Toy.class})
 @TypeConverters(TestDatabase.Converters.class)
 public abstract class TestDatabase extends RoomDatabase {
     public abstract UserDao getUserDao();
@@ -40,7 +42,7 @@ public abstract class TestDatabase extends RoomDatabase {
     public abstract UserPetDao getUserPetDao();
     public abstract SchoolDao getSchoolDao();
     public abstract PetCoupleDao getPetCoupleDao();
-
+    public abstract ToyDao getToyDao();
 
     @SuppressWarnings("unused")
     public static class Converters {

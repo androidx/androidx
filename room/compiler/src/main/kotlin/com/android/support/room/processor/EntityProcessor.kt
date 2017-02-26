@@ -21,6 +21,7 @@ import com.android.support.room.ext.getAsString
 import com.android.support.room.ext.getAsStringList
 import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.processor.ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
+import com.android.support.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import com.android.support.room.vo.DecomposedField
 import com.android.support.room.vo.Entity
 import com.android.support.room.vo.Field
@@ -49,6 +50,7 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                 element = element,
                 bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                 parent = null).process()
+        context.checker.check(pojo.relations.isEmpty(), element, RELATION_IN_ENTITY)
         val annotation = MoreElements.getAnnotationMirror(element,
                 com.android.support.room.Entity::class.java).orNull()
         val tableName: String

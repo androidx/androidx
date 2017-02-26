@@ -20,6 +20,7 @@ import com.android.support.room.log.RLog
 import com.android.support.room.preconditions.Checks
 import com.android.support.room.solver.TypeAdapterStore
 import com.android.support.room.solver.types.TypeConverter
+import com.android.support.room.verifier.DatabaseVerifier
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
@@ -30,6 +31,9 @@ data class Context private constructor(val processingEnv: ProcessingEnvironment,
     val COMMON_TYPES: Context.CommonTypes = Context.CommonTypes(processingEnv)
 
     val typeAdapterStore by lazy { TypeAdapterStore(this, typeConverters) }
+
+    // set when database and its entities are processed.
+    var databaseVerifier : DatabaseVerifier? = null
 
     constructor(processingEnv: ProcessingEnvironment) : this(processingEnv,
             RLog(RLog.ProcessingEnvMessager(processingEnv), emptySet(), null), emptyList()) {
@@ -46,6 +50,7 @@ data class Context private constructor(val processingEnv: ProcessingEnvironment,
         val subContext = Context(processingEnv,
                 RLog(collector, logger.suppressedWarnings, logger.defaultElement),
                 this.typeConverters)
+        subContext.databaseVerifier = databaseVerifier
         val result = handler(subContext)
         return Pair(result, collector)
     }
@@ -53,8 +58,10 @@ data class Context private constructor(val processingEnv: ProcessingEnvironment,
     fun fork(element: Element): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
         val converters = CustomConverterProcessor.findConverters(this, element)
-        return Context(processingEnv,
+        val subContext = Context(processingEnv,
                 RLog(logger.messager, logger.suppressedWarnings + suppressedWarnings, element),
                 converters + this.typeConverters)
+        subContext.databaseVerifier = databaseVerifier
+        return subContext
     }
 }

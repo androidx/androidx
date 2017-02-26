@@ -21,15 +21,16 @@ import com.android.support.room.ext.N
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.vo.Entity
 import com.android.support.room.writer.EntityCursorConverterWriter
+import com.squareup.javapoet.MethodSpec
 
-class EntityRowAdapter(val entity : Entity) : RowAdapter(entity.type) {
-    override fun init(cursorVarName: String, scope : CodeGenScope) : RowConverter {
-        val methodSpec = scope.writer.getOrCreateMethod(EntityCursorConverterWriter(entity))
-        return object : RowConverter {
-            override fun convert(outVarName: String, cursorVarName: String) {
-                scope.builder()
-                        .addStatement("$L = $N($L)", outVarName, methodSpec, cursorVarName)
-            }
-        }
+class EntityRowAdapter(val entity: Entity) : RowAdapter(entity.type) {
+    lateinit var methodSpec: MethodSpec
+    override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
+        methodSpec = scope.writer.getOrCreateMethod(EntityCursorConverterWriter(entity))
+    }
+
+    override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
+        scope.builder()
+                .addStatement("$L = $N($L)", outVarName, methodSpec, cursorVarName)
     }
 }

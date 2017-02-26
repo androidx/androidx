@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package com.android.support.room.solver.query.result
+package com.android.support.room.integration.testapp.vo;
 
-import com.android.support.room.solver.CodeGenScope
-import com.android.support.room.solver.types.CursorValueReader
+import com.android.support.room.ColumnInfo;
+import com.android.support.room.Relation;
+
+import java.util.List;
 
 /**
- * Wraps a row adapter when there is only 1 item  with 1 column in the response.
+ * Same as Pet class but only keeps name and user id
  */
-class SingleColumnRowAdapter(val reader: CursorValueReader) : RowAdapter(reader.typeMirror()) {
-    override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
-        reader.readFromCursor(outVarName, cursorVarName, "0", scope)
-    }
+public class UserIdAndPetNames {
+    @ColumnInfo(name = "mId")
+    public int userId;
+    @Relation(entity = Pet.class, parentField = "userId", entityField = "mUserId",
+            projection = "mPetName")
+    public List<String> names;
 }

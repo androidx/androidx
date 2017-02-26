@@ -92,4 +92,10 @@ public class RoomWarnings {
      */
     public static final String INDEX_FROM_PARENT_FIELD_IS_DROPPED =
             "ROOM_PARENT_FIELD_INDEX_IS_DROPPED";
+
+    /**
+     * Reported when a {@link Relation} {@link Entity}'s SQLite column type does not match the type
+     * in the parent. Room will still do the matching using {@code String} representations.
+     */
+    public static final String RELATION_TYPE_MISMATCH = "ROOM_RELATION_TYPE_MISMATCH";
 }

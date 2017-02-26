@@ -16,23 +16,30 @@
 
 package com.android.support.room.processor
 
+import com.android.support.room.Relation
 import com.android.support.room.ColumnInfo
 import com.android.support.room.Decompose
 import com.android.support.room.Ignore
 import com.android.support.room.ext.getAllFieldsIncludingPrivateSupers
 import com.android.support.room.ext.getAnnotationValue
+import com.android.support.room.ext.getAsString
+import com.android.support.room.ext.getAsStringList
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
+import com.android.support.room.ext.isCollection
+import com.android.support.room.ext.toClassType
 import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
-import com.android.support.room.processor.ProcessorErrors.FIELD_WITH_DECOMPOSE_AND_COLUMN_INFO
+import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import com.android.support.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
 import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
 import com.android.support.room.vo.DecomposedField
+import com.android.support.room.vo.Entity
 import com.android.support.room.vo.FieldSetter
 import com.android.support.room.vo.Pojo
+import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.Element
@@ -44,6 +51,7 @@ import javax.lang.model.element.Modifier.PROTECTED
 import javax.lang.model.element.Modifier.PUBLIC
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
@@ -55,31 +63,59 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
                     val bindingScope: FieldProcessor.BindingScope,
                     val parent: DecomposedField?) {
     val context = baseContext.fork(element)
+    companion object {
+        val PROCESSED_ANNOTATIONS = listOf(ColumnInfo::class, Decompose::class,
+                    Relation::class)
+    }
     fun process(): Pojo {
+        // TODO handle recursion: b/35980205
         val declaredType = MoreTypes.asDeclared(element.asType())
         // TODO handle conflicts with super: b/35568142
         val allFields = element.getAllFieldsIncludingPrivateSupers(context.processingEnv)
                 .filter {
                     !it.hasAnnotation(Ignore::class) && !it.hasAnyOf(Modifier.STATIC)
                 }
-        val myFields = allFields
-                .filterNot { it.hasAnnotation(Decompose::class) }
-                .map {
+                .groupBy { field ->
+                    context.checker.check(
+                            PROCESSED_ANNOTATIONS.count { field.hasAnnotation(it) } < 2, field,
+                            ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION
+                    )
+                    if (field.hasAnnotation(Decompose::class)) {
+                        Decompose::class
+                    } else if (field.hasAnnotation(Relation::class)) {
+                        Relation::class
+                    } else {
+                        null
+                    }
+                }
+        val myFields = allFields[null]
+                ?.map {
                     FieldProcessor(
                             baseContext = context,
                             containing = declaredType,
                             element = it,
                             bindingScope = bindingScope,
                             fieldParent = parent).process()
-                }
-        val decomposedFields = allFields
-                .filter { it.hasAnnotation(Decompose::class) }
-                .map {
+                } ?: emptyList()
+
+        val decomposedFields = allFields[Decompose::class]
+                ?.map {
                     processDecomposedField(declaredType, it)
-                }
+                } ?: emptyList()
         val subFields = decomposedFields.flatMap { it.pojo.fields }
 
         val fields = myFields + subFields
+
+        val myRelationsList = allFields[Relation::class]
+                ?.map {
+                    processRelationField(fields, declaredType, it)
+                }
+                ?.filterNotNull() ?: emptyList()
+
+        val subRelations = decomposedFields.flatMap { it.pojo.relations }
+
+        val relations = myRelationsList + subRelations
+
         fields.groupBy { it.columnName }
                 .filter { it.value.size > 1 }
                 .forEach {
@@ -108,19 +144,26 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
 
         assignGetters(myFields, getterCandidates)
         assignSetters(myFields, setterCandidates)
-        val decomposedsAsFields = decomposedFields.map { it.field }
-        assignGetters(decomposedsAsFields, getterCandidates)
-        assignSetters(decomposedsAsFields, setterCandidates)
+
+        decomposedFields.forEach {
+            assignGetter(it.field, getterCandidates)
+            assignSetter(it.field, setterCandidates)
+        }
+
+        myRelationsList.forEach {
+            assignGetter(it.field, getterCandidates)
+            assignSetter(it.field, setterCandidates)
+        }
+
         val pojo = Pojo(element = element,
                 type = declaredType,
                 fields = fields,
-                decomposedFields = decomposedFields)
+                decomposedFields = decomposedFields,
+                relations = relations)
         return pojo
     }
 
     private fun processDecomposedField(declaredType: DeclaredType?, it: Element): DecomposedField {
-        context.checker.check(!it.hasAnnotation(ColumnInfo::class), it,
-                FIELD_WITH_DECOMPOSE_AND_COLUMN_INFO)
         val fieldPrefix = it.getAnnotationValue(Decompose::class.java, "prefix")
                 ?.toString() ?: ""
         val inheritedPrefix = parent?.prefix ?: ""
@@ -142,61 +185,168 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
         return subParent
     }
 
+    private fun processRelationField(myFields : List<Field>, container: DeclaredType?,
+                                     relationElement: VariableElement)
+            : com.android.support.room.vo.Relation? {
+        val annotation = MoreElements.getAnnotationMirror(relationElement, Relation::class.java)
+                .orNull()!!
+        val parentFieldInput = AnnotationMirrors.getAnnotationValue(annotation, "parentField")
+                .getAsString("") ?: ""
+
+        val parentField = myFields.firstOrNull {
+            it.pathWithDotNotation == parentFieldInput
+        }
+        if (parentField == null) {
+            context.logger.e(relationElement,
+                    ProcessorErrors.relationCannotFindParentEntityField(
+                            entityName = element.qualifiedName.toString(),
+                            fieldName = parentFieldInput,
+                            availableFields = myFields.map { it.pathWithDotNotation }))
+            return null
+        }
+        // parse it as an entity.
+        val asMember = MoreTypes
+                .asMemberOf(context.processingEnv.typeUtils, container, relationElement)
+        if (asMember.kind == TypeKind.ERROR) {
+            context.logger.e(ProcessorErrors.CANNOT_FIND_TYPE, element)
+            return null
+        }
+        val declared = MoreTypes.asDeclared(asMember)
+        if (!declared.isCollection()) {
+            context.logger.e(relationElement, ProcessorErrors.RELATION_NOT_COLLECTION)
+            return null
+        }
+        val typeArg = declared.typeArguments.first()
+        if (typeArg.kind == TypeKind.ERROR) {
+            context.logger.e(MoreTypes.asTypeElement(typeArg), CANNOT_FIND_TYPE)
+            return null
+        }
+        val typeArgElement = MoreTypes.asTypeElement(typeArg)
+        val entityClassInput = AnnotationMirrors
+                .getAnnotationValue(annotation, "entity").toClassType()
+        val pojo : Pojo
+        val entity : Entity
+        if (entityClassInput == null
+                || MoreTypes.isTypeOf(Any::class.java, entityClassInput)) {
+            entity = EntityProcessor(context, typeArgElement).process()
+            pojo = entity
+        } else {
+            entity = EntityProcessor(context, MoreTypes.asTypeElement(entityClassInput)).process()
+            pojo = PojoProcessor(baseContext = context,
+                    element = typeArgElement,
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    parent = parent).process()
+        }
+        // now find the field in the entity.
+        val entityFieldInput = AnnotationMirrors.getAnnotationValue(annotation, "entityField")
+                .getAsString() ?: ""
+        val entityField = entity.fields.firstOrNull {
+            it.pathWithDotNotation == entityFieldInput
+        }
+
+        if (entityField == null) {
+            context.logger.e(relationElement,
+                    ProcessorErrors.relationCannotFindEntityField(
+                            entityName = entity.typeName.toString(),
+                            fieldName = entityFieldInput,
+                            availableFields = entity.fields.map { it.pathWithDotNotation }))
+            return null
+        }
+
+        val field = Field(
+                element = relationElement,
+                name = relationElement.simpleName.toString(),
+                type = context.processingEnv.typeUtils.asMemberOf(container, relationElement),
+                affinity = null,
+                parent = parent)
+
+        val projection = AnnotationMirrors.getAnnotationValue(annotation, "projection")
+                .getAsStringList()
+        if(projection.isNotEmpty()) {
+            val missingColumns = projection.filterNot { columnName ->
+                entity.fields.any { columnName == it.columnName }
+            }
+            if (missingColumns.isNotEmpty()) {
+                context.logger.e(relationElement,
+                        ProcessorErrors.relationBadProject(entity.typeName.toString(),
+                                missingColumns, entity.fields.map { it.columnName }))
+            }
+        }
+
+        // if types don't match, row adapter prints a warning
+        return com.android.support.room.vo.Relation(
+                entity = entity,
+                pojo = pojo,
+                field = field,
+                parentField = parentField,
+                entityField = entityField,
+                projection = projection
+        )
+    }
+
     private fun assignGetters(fields: List<Field>, getterCandidates: List<ExecutableElement>) {
         fields.forEach { field ->
-            val success = chooseAssignment(field = field,
-                    candidates = getterCandidates,
-                    nameVariations = field.getterNameWithVariations,
-                    getType = { method ->
-                        method.returnType
-                    },
-                    assignFromField = {
-                        field.getter = FieldGetter(
-                                name = field.name,
-                                type = field.type,
-                                callType = CallType.FIELD)
-                    },
-                    assignFromMethod = { match ->
-                        field.getter = FieldGetter(
-                                name = match.simpleName.toString(),
-                                type = match.returnType,
-                                callType = CallType.METHOD)
-                    },
-                    reportAmbiguity = { matching ->
-                        context.logger.e(field.element,
-                                ProcessorErrors.tooManyMatchingGetters(field, matching))
-                    })
-            context.checker.check(success, field.element, CANNOT_FIND_GETTER_FOR_FIELD)
+            assignGetter(field, getterCandidates)
         }
+    }
+
+    private fun assignGetter(field: Field, getterCandidates: List<ExecutableElement>) {
+        val success = chooseAssignment(field = field,
+                candidates = getterCandidates,
+                nameVariations = field.getterNameWithVariations,
+                getType = { method ->
+                    method.returnType
+                },
+                assignFromField = {
+                    field.getter = FieldGetter(
+                            name = field.name,
+                            type = field.type,
+                            callType = CallType.FIELD)
+                },
+                assignFromMethod = { match ->
+                    field.getter = FieldGetter(
+                            name = match.simpleName.toString(),
+                            type = match.returnType,
+                            callType = CallType.METHOD)
+                },
+                reportAmbiguity = { matching ->
+                    context.logger.e(field.element,
+                            ProcessorErrors.tooManyMatchingGetters(field, matching))
+                })
+        context.checker.check(success, field.element, CANNOT_FIND_GETTER_FOR_FIELD)
     }
 
     private fun assignSetters(fields: List<Field>, setterCandidates: List<ExecutableElement>) {
         fields.forEach { field ->
-            val success = chooseAssignment(field = field,
-                    candidates = setterCandidates,
-                    nameVariations = field.setterNameWithVariations,
-                    getType = { method ->
-                        method.parameters.first().asType()
-                    },
-                    assignFromField = {
-                        field.setter = FieldSetter(
-                                name = field.name,
-                                type = field.type,
-                                callType = CallType.FIELD)
-                    },
-                    assignFromMethod = { match ->
-                        val paramType = match.parameters.first().asType()
-                        field.setter = FieldSetter(
-                                name = match.simpleName.toString(),
-                                type = paramType,
-                                callType = CallType.METHOD)
-                    },
-                    reportAmbiguity = { matching ->
-                        context.logger.e(field.element,
-                                ProcessorErrors.tooManyMatchingSetter(field, matching))
-                    })
-            context.checker.check(success, field.element, CANNOT_FIND_SETTER_FOR_FIELD)
+            assignSetter(field, setterCandidates)
         }
+    }
+
+    private fun assignSetter(field: Field, setterCandidates: List<ExecutableElement>) {
+        val success = chooseAssignment(field = field,
+                candidates = setterCandidates,
+                nameVariations = field.setterNameWithVariations,
+                getType = { method ->
+                    method.parameters.first().asType()
+                },
+                assignFromField = {
+                    field.setter = FieldSetter(
+                            name = field.name,
+                            type = field.type,
+                            callType = CallType.FIELD)
+                },
+                assignFromMethod = { match ->
+                    val paramType = match.parameters.first().asType()
+                    field.setter = FieldSetter(
+                            name = match.simpleName.toString(),
+                            type = paramType,
+                            callType = CallType.METHOD)
+                },
+                reportAmbiguity = { matching ->
+                    context.logger.e(field.element,
+                            ProcessorErrors.tooManyMatchingSetter(field, matching))
+                })
+        context.checker.check(success, field.element, CANNOT_FIND_SETTER_FOR_FIELD)
     }
 
     /**

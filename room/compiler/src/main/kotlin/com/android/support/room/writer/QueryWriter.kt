@@ -22,6 +22,8 @@ import com.android.support.room.ext.RoomTypeNames.STRING_UTIL
 import com.android.support.room.ext.S
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
+import com.android.support.room.parser.ParsedQuery
+import com.android.support.room.parser.Section
 import com.android.support.room.parser.SectionType.BIND_VAR
 import com.android.support.room.parser.SectionType.NEWLINE
 import com.android.support.room.parser.SectionType.TEXT
@@ -34,7 +36,14 @@ import com.squareup.javapoet.TypeName
 /**
  * Writes the SQL query and arguments for a QueryMethod.
  */
-class QueryWriter(val queryMethod: QueryMethod) {
+class QueryWriter constructor(val parameters : List<QueryParameter>,
+                              val sectionToParamMapping : List<Pair<Section, QueryParameter?>>,
+                              val query : ParsedQuery) {
+
+    constructor(queryMethod: QueryMethod) : this(queryMethod.parameters,
+            queryMethod.sectionToParamMapping, queryMethod.query) {
+    }
+
     fun prepareReadAndBind(outSqlQueryName: String, outRoomSQLiteQueryVar: String,
                            scope: CodeGenScope) {
         val listSizeVars = createSqlQueryAndArgs(outSqlQueryName, outRoomSQLiteQueryVar, scope)
@@ -48,9 +57,9 @@ class QueryWriter(val queryMethod: QueryMethod) {
     private fun createSqlQueryAndArgs(outSqlQueryName: String, outArgsName: String?,
                                       scope: CodeGenScope): List<Pair<QueryParameter, String>> {
         val listSizeVars = arrayListOf<Pair<QueryParameter, String>>()
-        val varargParams = queryMethod.parameters
+        val varargParams = parameters
                 .filter { it.queryParamAdapter?.isMultiple ?: false }
-        val sectionToParamMapping = queryMethod.sectionToParamMapping
+        val sectionToParamMapping = sectionToParamMapping
         val knownQueryArgsCount = sectionToParamMapping.filterNot {
             it.second?.queryParamAdapter?.isMultiple ?: false
         }.size
@@ -59,7 +68,7 @@ class QueryWriter(val queryMethod: QueryMethod) {
                 val stringBuilderVar = scope.getTmpVar("_stringBuilder")
                 addStatement("$T $L = $T.newStringBuilder()",
                         ClassName.get(StringBuilder::class.java), stringBuilderVar, STRING_UTIL)
-                queryMethod.query.sections.forEach {
+                query.sections.forEach {
                     when (it.type) {
                         TEXT -> addStatement("$L.append($S)", stringBuilderVar, it.text)
                         NEWLINE -> addStatement("$L.append($S)", "\n")
@@ -97,7 +106,7 @@ class QueryWriter(val queryMethod: QueryMethod) {
                 }
             } else {
                 addStatement("final $T $L = $S", String::class.typeName(),
-                        outSqlQueryName, queryMethod.query.queryWithReplacedBindParams)
+                        outSqlQueryName, query.queryWithReplacedBindParams)
                 if (outArgsName != null) {
                     addStatement("final $T $L = $T.acquire($L, $L)",
                             ROOM_SQL_QUERY, outArgsName, ROOM_SQL_QUERY, outSqlQueryName,
@@ -110,7 +119,7 @@ class QueryWriter(val queryMethod: QueryMethod) {
 
     fun bindArgs(outArgsName: String, listSizeVars : List<Pair<QueryParameter, String>>,
                          scope: CodeGenScope) {
-        if (queryMethod.parameters.isEmpty()) {
+        if (parameters.isEmpty()) {
             return
         }
         scope.builder().apply {
@@ -120,7 +129,7 @@ class QueryWriter(val queryMethod: QueryMethod) {
             var constInputs = 0
             // variable names for size of the bindings that have multiple  args
             val varInputs = arrayListOf<String>()
-            queryMethod.sectionToParamMapping.forEach { pair ->
+            sectionToParamMapping.forEach { pair ->
                 // reset the argIndex to the correct start index
                 if (constInputs > 0 || varInputs.isNotEmpty()) {
                     addStatement("$L = $L$L", argIndex,

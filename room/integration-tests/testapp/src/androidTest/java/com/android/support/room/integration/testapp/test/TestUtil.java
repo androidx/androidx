@@ -62,6 +62,16 @@ public class TestUtil {
         return pet;
     }
 
+    public static Pet[] createPetsForUser(int uid, int petStartId, int count) {
+        Pet[] pets = new Pet[count];
+        for (int i = 0; i < count; i++) {
+            Pet pet = createPet(petStartId++);
+            pet.setUserId(uid);
+            pets[i] = pet;
+        }
+        return pets;
+    }
+
     public static School createSchool(int id, int managerId) {
         School school = new School();
         school.setId(id);

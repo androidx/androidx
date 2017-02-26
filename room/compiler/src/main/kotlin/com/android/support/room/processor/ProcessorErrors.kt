@@ -21,6 +21,7 @@ import com.android.support.room.Insert
 import com.android.support.room.Query
 import com.android.support.room.Update
 import com.android.support.room.ext.RoomTypeNames
+import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.vo.CustomTypeConverter
 import com.android.support.room.vo.Field
 import com.squareup.javapoet.TypeName
@@ -268,9 +269,6 @@ object ProcessorErrors {
                 " field in $grandParent."
     }
 
-    val FIELD_WITH_DECOMPOSE_AND_COLUMN_INFO = "You cannot annotate a Decomposed field" +
-            " with ColumnInfo. Its sub fields are the columns."
-
     fun droppedDecomposedIndex(entityName: String, fieldPath: String, grandParent: String)
             : String {
         return "Indices defined in $entityName will be dropped when it is merged into" +
@@ -289,5 +287,45 @@ object ProcessorErrors {
                 " $childEntity. " +
                 "If you want to inherit it, you must re-declare it in $childEntity." +
                 " Alternatively, you can set inheritSuperIndices to true in the @Entity annotation."
+    }
+
+    val RELATION_NOT_COLLECTION = "Fields annotated with @Relation must be a List or Set."
+
+    fun relationCannotFindEntityField(entityName : String, fieldName : String,
+                                      availableFields : List<String>) : String {
+        return "Cannot find the child entity field `$fieldName` in $entityName." +
+                " Options: ${availableFields.joinToString(", ")}"
+    }
+
+    fun relationCannotFindParentEntityField(entityName : String, fieldName : String,
+                                            availableFields : List<String>) : String {
+        return "Cannot find the parent entity field `$fieldName` in $entityName." +
+                " Options: ${availableFields.joinToString(", ")}"
+    }
+
+    val RELATION_IN_ENTITY = "Entities cannot have relations."
+
+    val CANNOT_FIND_TYPE = "Cannot find type."
+
+    fun relationAffinityMismatch(parentField : String, childField : String,
+                                 parentAffinity : SQLTypeAffinity?,
+                                 childAffinity : SQLTypeAffinity?) : String {
+        return """
+        The affinity of parent field ($parentField : $parentAffinity) does not match the type
+        affinity of the child field ($childField : $childAffinity).
+        """.trim()
+    }
+
+    val CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION = "A field can be annotated with only" +
+            " one of the following:" + PojoProcessor.PROCESSED_ANNOTATIONS.joinToString(",") {
+        it.java.simpleName
+    }
+
+    fun relationBadProject(entityQName : String, missingColumnNames : List<String>,
+                           availableColumnNames : List<String>) : String {
+        return """
+        $entityQName does not have the following columns: ${missingColumnNames.joinToString(",")}.
+        Available columns are: ${availableColumnNames.joinToString(",")}
+        """.trim()
     }
 }

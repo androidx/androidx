@@ -22,9 +22,8 @@ import javax.lang.model.type.DeclaredType
 // TODO make data class when move to kotlin 1.1
 class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
              fields: List<Field>, decomposedFields: List<DecomposedField>,
-             val primaryKey: PrimaryKey,
-             val indices: List<Index>)
-    : Pojo(element, type, fields, decomposedFields) {
+             val primaryKey: PrimaryKey, val indices: List<Index>)
+    : Pojo(element, type, fields, decomposedFields, emptyList()) {
 
     val createTableQuery by lazy {
         val definitions = (fields.map {

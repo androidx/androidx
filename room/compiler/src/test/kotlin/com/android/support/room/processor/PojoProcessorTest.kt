@@ -16,9 +16,17 @@
 
 package com.android.support.room.processor
 
+import COMMON
+import com.android.support.room.parser.SQLTypeAffinity
+import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
+import com.android.support.room.processor.ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY
 import com.android.support.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
+import com.android.support.room.processor.ProcessorErrors.RELATION_NOT_COLLECTION
+import com.android.support.room.processor.ProcessorErrors.relationCannotFindEntityField
+import com.android.support.room.processor.ProcessorErrors.relationCannotFindParentEntityField
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.vo.Pojo
+import com.android.support.room.vo.RelationCollector
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
@@ -31,6 +39,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import simpleRun
+import javax.tools.JavaFileObject
 
 /**
  * Some of the functionality is tested via EntityProcessor.
@@ -43,6 +52,7 @@ class PojoProcessorTest {
         val HEADER = """
             package foo.bar;
             import com.android.support.room.*;
+            import java.util.*;
             public class MyPojo {
             """
         val FOOTER = "\n}"
@@ -212,23 +222,195 @@ class PojoProcessorTest {
         }.compilesWithoutError().withWarningCount(0)
     }
 
-    fun singleRun(code: String, handler: (Pojo) -> Unit): CompileTester {
-        return singleRun(code) { pojo, invocation ->
+    @Test
+    fun relation_notCollection() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentField = "id", entityField = "uid")
+                public User user;
+                """, COMMON.USER
+        ) { pojo ->
+        }.failsToCompile().withErrorContaining(RELATION_NOT_COLLECTION)
+    }
+
+    @Test
+    fun relation_columnInfo() {
+        singleRun(
+                """
+                int id;
+                @ColumnInfo
+                @Relation(parentField = "id", entityField = "uid")
+                public List<User> user;
+                """, COMMON.USER
+        ) { pojo ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION)
+    }
+
+    @Test
+    fun relation_notEntity() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentField = "id", entityField = "uid")
+                public List<NotAnEntity> user;
+                """, COMMON.NOT_AN_ENTITY
+        ) { pojo ->
+        }.failsToCompile().withErrorContaining(ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
+    }
+
+    @Test
+    fun relation_missingParent() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentField = "idk", entityField = "uid")
+                public List<User> user;
+                """, COMMON.USER
+        ) { pojo ->
+        }.failsToCompile().withErrorContaining(
+                relationCannotFindParentEntityField("foo.bar.MyPojo", "idk", listOf("id"))
+        )
+    }
+
+    @Test
+    fun relation_missingEntityField() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentField = "id", entityField = "idk")
+                public List<User> user;
+                """, COMMON.USER
+        ) { pojo ->
+        }.failsToCompile().withErrorContaining(
+                relationCannotFindEntityField("foo.bar.User", "idk",
+                        listOf("uid", "name", "lastName", "age"))
+        )
+    }
+
+    @Test
+    fun relation_missingType() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentField = "id", entityField = "uid")
+                public List<User> user;
+                """
+        ) { pojo ->
+        }.failsToCompile().withErrorContaining(CANNOT_FIND_TYPE)
+    }
+
+    @Test
+    fun relation_nestedField() {
+        singleRun(
+                """
+                static class Nested {
+                    @ColumnInfo(name = "foo")
+                    public int id;
+                }
+                @Decompose
+                Nested nested;
+                @Relation(parentField = "nested.id", entityField = "uid")
+                public List<User> user;
+                """, COMMON.USER
+        ) { pojo ->
+            assertThat(pojo.relations.first().parentField.columnName, `is`("foo"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun relation_nestedRelation() {
+        singleRun(
+                """
+                static class UserWithNested {
+                    @Decompose
+                    public User user;
+                    @Relation(parentField = "user.uid", entityField = "uid")
+                    public List<User> selfs;
+                }
+                int id;
+                @Relation(parentField = "id", entityField = "uid", entity = User.class)
+                public List<UserWithNested> user;
+                """, COMMON.USER
+        ) { pojo, invocation ->
+            assertThat(pojo.relations.first().parentField.name, `is`("id"))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun relation_affinityMismatch() {
+        singleRun(
+                """
+                String id;
+                @Relation(parentField = "id", entityField = "uid")
+                public List<User> user;
+                """, COMMON.USER
+        ) { pojo, invocation ->
+            // trigger assignment evaluation
+            RelationCollector.createCollectors(invocation.context, pojo.relations)
+            assertThat(pojo.relations.size, `is`(1))
+            assertThat(pojo.relations.first().entityField.name, `is`("uid"))
+            assertThat(pojo.relations.first().parentField.name, `is`("id"))
+        }.compilesWithoutError().withWarningContaining(
+                ProcessorErrors.relationAffinityMismatch(
+                        parentAffinity = SQLTypeAffinity.TEXT,
+                        childAffinity = SQLTypeAffinity.INTEGER,
+                        parentField = "id",
+                        childField = "uid")
+        )
+    }
+
+    @Test
+    fun relation_simple() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentField = "id", entityField = "uid")
+                public List<User> user;
+                """, COMMON.USER
+        ) { pojo ->
+            assertThat(pojo.relations.size, `is`(1))
+            assertThat(pojo.relations.first().entityField.name, `is`("uid"))
+            assertThat(pojo.relations.first().parentField.name, `is`("id"))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun relation_badProjection() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentField = "id", entityField = "uid", projection={"i_dont_exist"})
+                public List<User> user;
+                """, COMMON.USER
+        ) { pojo ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.relationBadProject("foo.bar.User", listOf("i_dont_exist"),
+                        listOf("uid", "name", "lastName", "ageColumn"))
+        )
+    }
+
+    fun singleRun(code: String, vararg jfos:JavaFileObject, handler: (Pojo) -> Unit)
+            : CompileTester {
+        return singleRun(code, *jfos) { pojo, invocation ->
             handler(pojo)
         }
     }
 
-    fun singleRun(code: String, handler: (Pojo, TestInvocation) -> Unit): CompileTester {
-        return simpleRun(
-                """
+    fun singleRun(code: String, vararg jfos:JavaFileObject,
+                  handler: (Pojo, TestInvocation) -> Unit): CompileTester {
+        val pojoJFO = """
                 $HEADER
                 $code
                 $FOOTER
-                """.toJFO(MY_POJO.toString())) { invocation ->
+                """.toJFO(MY_POJO.toString())
+        val all = (jfos.toList() + pojoJFO).toTypedArray()
+        return simpleRun(*all) { invocation ->
             handler.invoke(
                     PojoProcessor(baseContext = invocation.context,
                             element = invocation.typeElement(MY_POJO.toString()),
-                            bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
+                            bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                             parent = null).process(),
                     invocation
             )

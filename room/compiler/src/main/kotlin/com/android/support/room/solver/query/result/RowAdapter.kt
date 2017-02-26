@@ -26,12 +26,18 @@ import javax.lang.model.type.TypeMirror
  */
 abstract class RowAdapter(val out : TypeMirror) {
     /**
-     * Receives this at the beginning of the conversion. Can declare variables etc to access later.
-     * It should return a function that handles the conversion in the given scope.
+     * Called when cursor variable is ready, good place to put initialization code.
      */
-    abstract fun init(cursorVarName: String, scope : CodeGenScope) : RowConverter
+    open fun onCursorReady(cursorVarName: String, scope : CodeGenScope) {}
 
-    interface RowConverter {
-        fun convert(outVarName : String, cursorVarName : String)
-    }
+    /**
+     * Called to convert a single row.
+     */
+    abstract fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope)
+
+    /**
+     * Called when the cursor is finished. It is important to return null if no operation is
+     * necessary so that caller can understand that we can do lazy loading.
+     */
+    open fun onCursorFinished() : ((scope : CodeGenScope) -> Unit)? = null
 }

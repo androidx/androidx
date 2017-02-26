@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+import com.android.support.room.ColumnInfo
 import com.android.support.room.Decompose
 import com.android.support.room.Entity
 import com.android.support.room.PrimaryKey
 import com.android.support.room.Query
+import com.android.support.room.Relation
 import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.processor.EntityProcessor
 import com.android.support.room.solver.CodeGenScope
@@ -25,15 +27,18 @@ import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.verifier.DatabaseVerifier
 import com.android.support.room.writer.ClassWriter
+import com.android.support.room.writer.EntityCursorConverterWriter
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeSpec
 import org.mockito.Mockito
 import java.io.File
 import javax.lang.model.element.Element
+import javax.lang.model.element.Modifier
 import javax.tools.JavaFileObject
 
 object COMMON {
@@ -79,7 +84,8 @@ fun simpleRun(vararg jfos : JavaFileObject, f: (TestInvocation) -> Unit): Compil
                         f(it)
                         true
                     }
-                    .forAnnotations(Query::class, PrimaryKey::class, Decompose::class)
+                    .forAnnotations(Query::class, PrimaryKey::class, Decompose::class,
+                            ColumnInfo::class, Relation::class, Entity::class)
                     .build())
 }
 

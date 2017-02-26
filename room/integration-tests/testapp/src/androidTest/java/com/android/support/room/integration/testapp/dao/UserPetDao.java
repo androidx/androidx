@@ -16,10 +16,14 @@
 
 package com.android.support.room.integration.testapp.dao;
 
+import com.android.support.lifecycle.LiveData;
 import com.android.support.room.Dao;
 import com.android.support.room.Query;
+import com.android.support.room.integration.testapp.vo.UserAndAllPets;
 import com.android.support.room.integration.testapp.vo.UserAndPet;
 import com.android.support.room.integration.testapp.vo.UserAndPetNonNull;
+import com.android.support.room.integration.testapp.vo.UserIdAndPetNames;
+import com.android.support.room.integration.testapp.vo.UserWithPetsAndToys;
 
 import java.util.List;
 
@@ -36,4 +40,19 @@ public interface UserPetDao {
 
     @Query("SELECT * FROM Pet p LEFT OUTER JOIN User u ON u.mId = p.mUserId")
     List<UserAndPet> loadPets();
+
+    @Query("SELECT * FROM User u")
+    List<UserAndAllPets> loadAllUsersWithTheirPets();
+
+    @Query("SELECT * FROM User u")
+    List<UserIdAndPetNames> loadUserAndPetNames();
+
+    @Query("SELECT * FROM User u")
+    List<UserWithPetsAndToys> loadUserWithPetsAndToys();
+
+    @Query("SELECT * FROM User UNION ALL SELECT * FROM USER")
+    List<UserAndAllPets> unionByItself();
+
+    @Query("SELECT * FROM User u where u.mId = ?")
+    LiveData<UserAndAllPets> liveUserWithPets(int userId);
 }

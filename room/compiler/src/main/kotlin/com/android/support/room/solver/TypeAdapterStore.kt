@@ -255,7 +255,7 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
             } else {
                 if (isLiveData(declared)) {
                     val liveDataTypeArg = declared.typeArguments.first()
-                    LiveDataQueryResultBinder(liveDataTypeArg, query.tables,
+                    LiveDataQueryResultBinder(liveDataTypeArg, query.tables.map { it.name },
                             findQueryResultAdapter(liveDataTypeArg, query))
                 } else {
                     InstantQueryResultBinder(findQueryResultAdapter(typeMirror, query))
@@ -316,9 +316,8 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
                 return EntityRowAdapter(EntityProcessor(context,
                         MoreElements.asType(asElement)).process())
             }
-            // if result is unknown, we are fine w/ single column result
-            val resultInfo = query.resultInfo
 
+            val resultInfo = query.resultInfo
 
             val (rowAdapter, rowAdapterLogs) = if (resultInfo != null && query.errors.isEmpty()
                     && resultInfo.error == null) {

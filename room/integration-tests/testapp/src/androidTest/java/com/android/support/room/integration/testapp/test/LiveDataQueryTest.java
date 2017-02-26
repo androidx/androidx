@@ -21,9 +21,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.content.Context;
 import android.support.annotation.Nullable;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -33,13 +31,11 @@ import com.android.support.lifecycle.LifecycleProvider;
 import com.android.support.lifecycle.LifecycleRegistry;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.Observer;
-import com.android.support.room.Room;
-import com.android.support.room.integration.testapp.TestDatabase;
-import com.android.support.room.integration.testapp.dao.UserDao;
 import com.android.support.room.integration.testapp.vo.AvgWeightByAge;
+import com.android.support.room.integration.testapp.vo.Pet;
 import com.android.support.room.integration.testapp.vo.User;
+import com.android.support.room.integration.testapp.vo.UserAndAllPets;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -57,17 +53,7 @@ import java.util.concurrent.TimeUnit;
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class LiveDataQueryTest {
-    private UserDao mUserDao;
-    private TestDatabase mDb;
-
-    @Before
-    public void createDb() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        mDb = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
-        mUserDao = mDb.getUserDao();
-    }
-
+public class LiveDataQueryTest extends TestDatabaseTest {
     @Test
     public void observeById() throws InterruptedException, ExecutionException {
         final LiveData<User> userLiveData = mUserDao.liveUserById(5);
@@ -185,6 +171,30 @@ public class LiveDataQueryTest {
         mUserDao.insertOrReplace(user3);
 
         assertThat(observer.get(), is(new AvgWeightByAge(10, 50)));
+    }
+
+    @Test
+    public void withRelation() throws ExecutionException, InterruptedException {
+        final LiveData<UserAndAllPets> liveData = mUserPetDao.liveUserWithPets(3);
+        final LatchObserver<UserAndAllPets> observer = new LatchObserver<>();
+        final TestLifecycleProvider lifecycleProvider = new TestLifecycleProvider();
+        lifecycleProvider.handleEvent(Lifecycle.ON_START);
+        observe(liveData, lifecycleProvider, observer);
+        assertThat(observer.get(), is(nullValue()));
+
+        observer.reset();
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        final UserAndAllPets noPets = observer.get();
+        assertThat(noPets.user, is(user));
+
+        observer.reset();
+        Pet[] pets = TestUtil.createPetsForUser(3, 1, 2);
+        mPetDao.insertAll(pets);
+
+        final UserAndAllPets withPets = observer.get();
+        assertThat(withPets.user, is(user));
+        assertThat(withPets.pets, is(Arrays.asList(pets)));
     }
 
     private void observe(final LiveData liveData, final LifecycleProvider provider,

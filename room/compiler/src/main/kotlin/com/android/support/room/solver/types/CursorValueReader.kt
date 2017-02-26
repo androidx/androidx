@@ -16,6 +16,7 @@
 
 package com.android.support.room.solver.types
 
+import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.solver.CodeGenScope
 import javax.lang.model.type.TypeMirror
 
@@ -24,6 +25,7 @@ import javax.lang.model.type.TypeMirror
  * see: StatementValueBinder
  */
 interface CursorValueReader {
+    fun affinity() : SQLTypeAffinity
     fun typeMirror() : TypeMirror
     fun readFromCursor(outVarName : String, cursorVarName: String, indexVarName: String,
                                 scope: CodeGenScope)

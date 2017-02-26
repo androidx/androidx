@@ -17,6 +17,7 @@
 package com.android.support.room.processor
 
 import com.android.support.room.parser.SQLTypeAffinity
+import com.android.support.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
@@ -704,7 +705,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.FIELD_WITH_DECOMPOSE_AND_COLUMN_INFO
+                ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION
         )
     }
 
@@ -1040,5 +1041,18 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     `is`(listOf("id")))
         }.compilesWithoutError().withNoteContaining(
                 "PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
+    }
+
+    @Test
+    fun relationInEntity() {
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                @Relation(parentField = "id", entityField = "uid")
+                java.util.List<User> users;
+                """, jfos = listOf(COMMON.USER)
+        ) { entity, invocation ->
+        }.failsToCompile().withErrorContaining(RELATION_IN_ENTITY)
     }
 }

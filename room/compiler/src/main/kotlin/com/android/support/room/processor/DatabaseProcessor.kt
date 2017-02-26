@@ -62,6 +62,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         } else {
             DatabaseVerifier.create(context, element, entities)
         }
+        context.databaseVerifier = dbVerifier
 
         val daoMethods = allMembers.filter {
             it.hasAnyOf(Modifier.ABSTRACT) && it.kind == ElementKind.METHOD

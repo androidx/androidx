@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.support.room.vo
+package com.android.support.room.integration.testapp.dao;
 
-import com.android.support.room.ext.typeName
-import com.squareup.javapoet.TypeName
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
+import com.android.support.room.Dao;
+import com.android.support.room.Insert;
+import com.android.support.room.integration.testapp.vo.Toy;
 
-/**
- * A class is turned into a Pojo if it is used in a query response.
- */
-// TODO make data class when move to kotlin 1.1
-open class Pojo(val element : TypeElement, val type: DeclaredType, val fields : List<Field>,
-                val decomposedFields : List<DecomposedField>, val relations: List<Relation>) {
-    val typeName: TypeName by lazy { type.typeName() }
+@Dao
+public interface ToyDao {
+    @Insert
+    void insert(Toy... toys);
 }

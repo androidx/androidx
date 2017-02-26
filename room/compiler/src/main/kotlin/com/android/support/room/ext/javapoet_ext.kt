@@ -75,4 +75,10 @@ object LifecyclesTypeNames {
 
 object AndroidTypeNames {
     val CURSOR : ClassName = ClassName.get("android.database", "Cursor")
+    val ARRAY_MAP : ClassName = ClassName.get("android.support.v4.util", "ArrayMap")
+}
+
+object CommonTypeNames {
+    val LIST = ClassName.get("java.util", "List")
+    val SET = ClassName.get("java.util", "Set")
 }

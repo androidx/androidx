@@ -24,7 +24,6 @@ import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.RoomTypeNames.INVALIDATION_OBSERVER
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
-import com.android.support.room.parser.Table
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
@@ -38,9 +37,11 @@ import javax.lang.model.type.TypeMirror
 /**
  * Converts the query into a LiveData and returns it. No query is run until necessary.
  */
-class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Table>,
+class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<String>,
                                 adapter: QueryResultAdapter?)
     : QueryResultBinder(adapter) {
+    @Suppress("JoinDeclarationAndAssignment")
+    val tableNames = ((adapter?.accessedTableNames() ?: emptyList()) + queryTableNames).toSet()
     override fun convertAndReturn(roomSQLiteQueryVar : String, dbField: FieldSpec,
                                   scope: CodeGenScope) {
         val typeName = typeArg.typeName()
@@ -106,7 +107,7 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Tab
     }
 
     private fun createAnonymousObserver(): TypeSpec {
-        val tableNamesList = tableNames.joinToString(",") { "\"${it.name}\"" }
+        val tableNamesList = tableNames.joinToString(",") { "\"$it\"" }
         return TypeSpec.anonymousClassBuilder(tableNamesList).apply {
             superclass(INVALIDATION_OBSERVER)
             addMethod(MethodSpec.methodBuilder("onInvalidated").apply {

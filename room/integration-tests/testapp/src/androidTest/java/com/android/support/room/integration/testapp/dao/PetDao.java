@@ -25,4 +25,7 @@ import com.android.support.room.integration.testapp.vo.Pet;
 public interface PetDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertOrReplace(Pet... pets);
+
+    @Insert
+    void insertAll(Pet[] pets);
 }
