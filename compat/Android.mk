@@ -27,9 +27,6 @@ LOCAL_MODULE := android-support-compat
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_AIDL_INCLUDES := $(LOCAL_PATH)/java
 LOCAL_SRC_FILES := \
-    $(call all-java-files-under,gingerbread) \
-    $(call all-java-files-under,honeycomb) \
-    $(call all-java-files-under,honeycomb_mr1) \
     $(call all-java-files-under,honeycomb_mr2) \
     $(call all-java-files-under,ics) \
     $(call all-java-files-under,ics-mr1) \

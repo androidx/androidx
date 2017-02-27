@@ -28,7 +28,6 @@ LOCAL_MODULE := android-support-core-utils
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := \
     $(call all-java-files-under,gingerbread) \
-    $(call all-java-files-under,honeycomb) \
     $(call all-java-files-under,jellybean) \
     $(call all-java-files-under,kitkat) \
     $(call all-java-files-under,api20) \
