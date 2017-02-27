@@ -113,14 +113,14 @@ public class AccessibilityManagerSupportActivity extends Activity {
                 AccessibilityServiceInfo service = enabledServices.get(i);
                 // Some new APIs were added in ICS for getting more information about
                 // an accessibility service. Again accessed them via the support library.
-                ResolveInfo resolveInfo = AccessibilityServiceInfoCompat.getResolveInfo(service);
+                ResolveInfo resolveInfo = service.getResolveInfo();
                 String serviceDescription = getString(
                         R.string.accessibility_manager_enabled_service,
                         resolveInfo.loadLabel(getPackageManager()),
                         AccessibilityServiceInfoCompat.feedbackTypeToString(service.feedbackType),
                         AccessibilityServiceInfoCompat.loadDescription(
                                 service, getPackageManager()),
-                        AccessibilityServiceInfoCompat.getSettingsActivityName(service));
+                        service.getSettingsActivityName());
                 builder.append(serviceDescription);
             }
             mAccessibilityStateView.setText(builder);
