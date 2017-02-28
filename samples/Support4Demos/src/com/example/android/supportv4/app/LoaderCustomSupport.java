@@ -228,6 +228,7 @@ public class LoaderCustomSupport extends FragmentActivity {
          */
         @Override public List<AppEntry> loadInBackground() {
             // Retrieve all known applications.
+            //noinspection WrongConstant
             List<ApplicationInfo> apps = mPm.getInstalledApplications(
                     PackageManager.MATCH_UNINSTALLED_PACKAGES
                             | PackageManager.MATCH_DISABLED_COMPONENTS);

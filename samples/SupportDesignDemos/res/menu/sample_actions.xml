@@ -18,11 +18,11 @@
     <item android:id="@+id/action_search"
           android:title="@string/menu_search"
           android:icon="@drawable/ic_search"
-          app:showAsAction="ifRoom"/>
+          android:showAsAction="ifRoom"/>
     <item android:id="@+id/action_toggle_expand"
           android:title="@string/menu_expand"
-          app:showAsAction="never" />
+          android:showAsAction="never" />
     <item android:id="@+id/action_toggle_collapse"
           android:title="@string/menu_collapse"
-          app:showAsAction="never" />
+          android:showAsAction="never" />
 </menu>

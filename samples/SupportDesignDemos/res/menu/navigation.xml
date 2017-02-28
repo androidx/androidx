@@ -59,6 +59,7 @@
                     android:title="@string/navigation_sub_item_2"/>
             <item
                     android:id="@+id/navigation_sub_item_3"
+                    android:title="@string/navigation_sub_item_3"
                     app:actionLayout="@layout/action_layout_custom"/>
         </menu>
     </item>
