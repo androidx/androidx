@@ -14,6 +14,7 @@
 package com.example.android.leanback;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.widget.Action;
@@ -123,7 +124,9 @@ public class PlaybackOverlayFragment
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == R.id.lb_control_picture_in_picture) {
-                    getActivity().enterPictureInPictureMode();
+                    if (Build.VERSION.SDK_INT >= 24) {
+                        getActivity().enterPictureInPictureMode();
+                    }
                     return;
                 }
                 super.onActionClicked(action);

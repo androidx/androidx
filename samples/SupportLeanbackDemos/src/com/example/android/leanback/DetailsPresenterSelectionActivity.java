@@ -76,7 +76,7 @@ public class DetailsPresenterSelectionActivity extends Activity {
             String title = getString(R.string.guidedstep_second_title);
             String breadcrumb = getString(R.string.guidedstep_second_breadcrumb);
             String description = getString(R.string.guidedstep_second_description);
-            Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
+            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
             return new Guidance(title, description, breadcrumb, icon);
         }
 
