@@ -6,14 +6,6 @@
 ##
 ##############################################################################
 
-# Pick the correct fullsdk for this OS.
-if [ "$os" = "Darwin" ]; then
-    plat="darwin"
-else
-    plat="linux"
-fi
-DEFAULT_JVM_OPTS="-DLINT_API_DATABASE=../../prebuilts/fullsdk-$plat/platform-tools/api/api-versions.xml"
-
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 
 APP_NAME="Gradle"
@@ -68,6 +60,14 @@ APP_HOME="`pwd -P`"
 cd "$SAVED" >/dev/null
 
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+
+# Pick the correct fullsdk for this OS.
+if [ "$os" = "Darwin" ]; then
+    plat="darwin"
+else
+    plat="linux"
+fi
+DEFAULT_JVM_OPTS="-DLINT_API_DATABASE=$APP_HOME/../../prebuilts/fullsdk-$plat/platform-tools/api/api-versions.xml"
 
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then

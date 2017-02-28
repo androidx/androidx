@@ -19,7 +19,6 @@ package android.support.v7.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,7 +28,6 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.view.WindowCallbackWrapper;
 import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.TintTypedArray;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -37,7 +35,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.Window;
 
-@RequiresApi(9)
+@RequiresApi(14)
 abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
     static final boolean DEBUG = false;

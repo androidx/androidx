@@ -91,7 +91,7 @@ import android.widget.TextView;
 
 import org.xmlpull.v1.XmlPullParser;
 
-@RequiresApi(9)
+@RequiresApi(14)
 class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         implements MenuBuilder.Callback, LayoutInflater.Factory2 {
 

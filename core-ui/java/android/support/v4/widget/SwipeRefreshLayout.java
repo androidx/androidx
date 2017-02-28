@@ -176,7 +176,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         public void onAnimationRepeat(Animation animation) {
         }
 
-        @SuppressLint("NewApi")
         @Override
         public void onAnimationEnd(Animation animation) {
             if (mRefreshing) {
@@ -223,7 +222,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         reset();
     }
 
-    @SuppressLint("NewApi")
     private void setColorViewAlpha(int targetAlpha) {
         mCircleView.getBackground().setAlpha(targetAlpha);
         mProgress.setAlpha(targetAlpha);
@@ -417,7 +415,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         }
     }
 
-    @SuppressLint("NewApi")
     private void startScaleUpAnimation(AnimationListener listener) {
         mCircleView.setVisibility(View.VISIBLE);
         if (android.os.Build.VERSION.SDK_INT >= 11) {
@@ -475,10 +472,12 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         mCircleView.startAnimation(mScaleDownAnimation);
     }
 
+    @SuppressLint("NewApi")
     private void startProgressAlphaStartAnimation() {
         mAlphaStartAnimation = startAlphaAnimation(mProgress.getAlpha(), STARTING_PROGRESS_ALPHA);
     }
 
+    @SuppressLint("NewApi")
     private void startProgressAlphaMaxAnimation() {
         mAlphaMaxAnimation = startAlphaAnimation(mProgress.getAlpha(), MAX_ALPHA);
     }
@@ -1060,7 +1059,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         return true;
     }
 
-    @SuppressLint("NewApi")
     private void startDragging(float y) {
         final float yDiff = y - mInitialDownY;
         if (yDiff > mTouchSlop && !mIsBeingDragged) {
@@ -1130,7 +1128,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         }
     };
 
-    @SuppressLint("NewApi")
     private void startScaleDownReturnToStartAnimation(int from,
             Animation.AnimationListener listener) {
         mFrom = from;

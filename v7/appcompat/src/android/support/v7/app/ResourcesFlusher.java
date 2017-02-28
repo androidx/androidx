@@ -16,6 +16,7 @@
 
 package android.support.v7.app;
 
+import android.annotation.TargetApi;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -41,17 +42,17 @@ class ResourcesFlusher {
     private static boolean sResourcesImplFieldFetched;
 
     static boolean flush(@NonNull final Resources resources) {
-        final int sdk = Build.VERSION.SDK_INT;
-        if (sdk >= 24) {
+        if (Build.VERSION.SDK_INT >= 24) {
             return flushNougats(resources);
-        } else if (sdk >= 23) {
+        } else if (Build.VERSION.SDK_INT >= 23) {
             return flushMarshmallows(resources);
-        } else if (sdk >= 21) {
+        } else if (Build.VERSION.SDK_INT >= 21) {
             return flushLollipops(resources);
         }
         return false;
     }
 
+    @TargetApi(21)
     private static boolean flushLollipops(@NonNull final Resources resources) {
         if (!sDrawableCacheFieldFetched) {
             try {
@@ -77,6 +78,7 @@ class ResourcesFlusher {
         return false;
     }
 
+    @TargetApi(23)
     private static boolean flushMarshmallows(@NonNull final Resources resources) {
         if (!sDrawableCacheFieldFetched) {
             try {
@@ -105,6 +107,7 @@ class ResourcesFlusher {
         return drawableCache != null && flushThemedResourcesCache(drawableCache);
     }
 
+    @TargetApi(24)
     private static boolean flushNougats(@NonNull final Resources resources) {
         if (!sResourcesImplFieldFetched) {
             try {
@@ -155,6 +158,7 @@ class ResourcesFlusher {
         return drawableCache != null && flushThemedResourcesCache(drawableCache);
     }
 
+    @TargetApi(16)
     private static boolean flushThemedResourcesCache(@NonNull final Object cache) {
         if (!sThemedResourceCacheClazzFetched) {
             try {

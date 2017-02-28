@@ -22,7 +22,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.Window;
 
-@RequiresApi(11)
+@RequiresApi(14)
 class AppCompatDelegateImplV11 extends AppCompatDelegateImplV9 {
 
     AppCompatDelegateImplV11(Context context, Window window, AppCompatCallback callback) {
