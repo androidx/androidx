@@ -18,15 +18,16 @@ package com.android.support.room.solver.query.result
 
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.solver.types.ColumnTypeAdapter
+import com.android.support.room.solver.types.CursorValueReader
 
 /**
  * Wraps a row adapter when there is only 1 item  with 1 column in the response.
  */
-class SingleColumnRowAdapter(val adapter : ColumnTypeAdapter) : RowAdapter(adapter.out) {
+class SingleColumnRowAdapter(val reader: CursorValueReader) : RowAdapter(reader.typeMirror()) {
     override fun init(cursorVarName: String, scope: CodeGenScope) : RowConverter {
         return object : RowConverter {
             override fun convert(outVarName: String, cursorVarName: String) {
-                adapter.readFromCursor(outVarName, cursorVarName, "0", scope)
+                reader.readFromCursor(outVarName, cursorVarName, "0", scope)
             }
         }
     }

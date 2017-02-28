@@ -19,6 +19,7 @@ package com.android.support.room.solver
 import com.android.support.room.Entity
 import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.ext.hasAnnotation
+import com.android.support.room.log.RLog
 import com.android.support.room.parser.ParsedQuery
 import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.processor.Context
@@ -132,6 +133,9 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
      */
     fun findStatementValueBinder(input : TypeMirror, affinity: SQLTypeAffinity?)
             : StatementValueBinder? {
+        if (input.kind == TypeKind.ERROR) {
+            return null
+        }
         val adapter = findDirectAdapterFor(input, affinity)
         if (adapter != null) {
             return adapter
@@ -157,6 +161,9 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
      * Searches 1 way to read it from cursor
      */
     fun findCursorValueReader(output: TypeMirror, affinity: SQLTypeAffinity?) : CursorValueReader? {
+        if (output.kind == TypeKind.ERROR) {
+            return null
+        }
         val adapter = findColumnTypeAdapter(output, affinity)
         if (adapter != null) {
             // two way is better
@@ -197,6 +204,9 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
      */
     fun findColumnTypeAdapter(out: TypeMirror, affinity: SQLTypeAffinity?)
             : ColumnTypeAdapter? {
+        if (out.kind == TypeKind.ERROR) {
+            return null
+        }
         val adapter = findDirectAdapterFor(out, affinity)
         if (adapter != null) {
             return adapter
@@ -252,6 +262,9 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
 
     private fun findQueryResultAdapter(typeMirror: TypeMirror, query: ParsedQuery)
             : QueryResultAdapter? {
+        if (typeMirror.kind == TypeKind.ERROR) {
+            return null
+        }
         if (typeMirror.kind == TypeKind.DECLARED) {
             val declared = MoreTypes.asDeclared(typeMirror)
             if (declared.typeArguments.isEmpty()) {
@@ -281,6 +294,9 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
      */
     @VisibleForTesting
     fun findRowAdapter(typeMirror: TypeMirror, query: ParsedQuery): RowAdapter? {
+        if (typeMirror.kind == TypeKind.ERROR) {
+            return null
+        }
         if (typeMirror.kind == TypeKind.DECLARED) {
             val declared = MoreTypes.asDeclared(typeMirror)
             if (declared.typeArguments.isNotEmpty()) {
@@ -296,30 +312,48 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
             }
             // if result is unknown, we are fine w/ single column result
             val resultInfo = query.resultInfo
+
+
+            val (rowAdapter, rowAdapterLogs) = if (resultInfo != null && query.errors.isEmpty()
+                    && resultInfo.error == null) {
+                // if result info is not null, first try a pojo row adapter
+                context.collectLogs { subContext ->
+                    val pojo = PojoProcessor(
+                            baseContext = subContext,
+                            element = MoreTypes.asTypeElement(typeMirror),
+                            bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                            parent = null
+                    ).process()
+                    PojoRowAdapter(
+                            context = subContext,
+                            info = resultInfo,
+                            pojo = pojo,
+                            out = typeMirror)
+                }
+            } else {
+                Pair(null, null)
+            }
+
+            if (rowAdapter != null && !(rowAdapterLogs?.hasErrors() ?: false)) {
+                rowAdapterLogs?.writeTo(context.processingEnv)
+                return rowAdapter
+            }
+
             if ((resultInfo?.columns?.size ?: 1) == 1) {
-                val singleColumn = findColumnTypeAdapter(typeMirror,
+                val singleColumn = findCursorValueReader(typeMirror,
                         resultInfo?.columns?.get(0)?.type)
                 if (singleColumn != null) {
                     return SingleColumnRowAdapter(singleColumn)
                 }
             }
-            // try to map the result only if the query is valid
-            if (resultInfo != null && resultInfo.error == null) {
-                val pojo = PojoProcessor(
-                        baseContext = context,
-                        element = MoreTypes.asTypeElement(typeMirror),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                        parent = null
-                ).process()
-                return PojoRowAdapter(
-                        context = context,
-                        info = resultInfo,
-                        pojo = pojo,
-                        out = typeMirror)
+            // if we tried, return its errors
+            if (rowAdapter != null) {
+                rowAdapterLogs?.writeTo(context.processingEnv)
+                return rowAdapter
             }
             return null
         } else {
-            val singleColumn = findColumnTypeAdapter(typeMirror, null) ?: return null
+            val singleColumn = findCursorValueReader(typeMirror, null) ?: return null
             return SingleColumnRowAdapter(singleColumn)
         }
     }

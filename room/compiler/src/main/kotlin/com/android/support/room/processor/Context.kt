@@ -25,14 +25,14 @@ import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
 
 data class Context private constructor(val processingEnv: ProcessingEnvironment,
-                   val logger : RLog, val typeConverters: List<TypeConverter>) {
-    val checker : Checks = Checks(logger)
-    val COMMON_TYPES : Context.CommonTypes = Context.CommonTypes(processingEnv)
+                                       val logger: RLog, val typeConverters: List<TypeConverter>) {
+    val checker: Checks = Checks(logger)
+    val COMMON_TYPES: Context.CommonTypes = Context.CommonTypes(processingEnv)
 
     val typeAdapterStore by lazy { TypeAdapterStore(this, typeConverters) }
 
     constructor(processingEnv: ProcessingEnvironment) : this(processingEnv,
-            RLog(processingEnv, emptySet(), null), emptyList()) {
+            RLog(RLog.ProcessingEnvMessager(processingEnv), emptySet(), null), emptyList()) {
     }
 
     class CommonTypes(val processingEnv: ProcessingEnvironment) {
@@ -41,11 +41,20 @@ data class Context private constructor(val processingEnv: ProcessingEnvironment,
         }
     }
 
-    fun fork(element: Element) : Context {
+    fun <T> collectLogs(handler: (Context) -> T): Pair<T, RLog.CollectingMessager> {
+        val collector = RLog.CollectingMessager()
+        val subContext = Context(processingEnv,
+                RLog(collector, logger.suppressedWarnings, logger.defaultElement),
+                this.typeConverters)
+        val result = handler(subContext)
+        return Pair(result, collector)
+    }
+
+    fun fork(element: Element): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
         val converters = CustomConverterProcessor.findConverters(this, element)
         return Context(processingEnv,
-                RLog(processingEnv, logger.suppressedWarnings + suppressedWarnings, element),
+                RLog(logger.messager, logger.suppressedWarnings + suppressedWarnings, element),
                 converters + this.typeConverters)
     }
 }

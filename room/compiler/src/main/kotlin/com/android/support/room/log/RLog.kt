@@ -22,12 +22,13 @@ import com.android.support.room.vo.Warning
 import java.util.UnknownFormatConversionException
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
+import javax.tools.Diagnostic
 import javax.tools.Diagnostic.Kind.ERROR
 import javax.tools.Diagnostic.Kind.NOTE
 import javax.tools.Diagnostic.Kind.WARNING
 
-class RLog(val processingEnv: ProcessingEnvironment,
-           val suppressedWarnings : Set<Warning>, val defaultElement : Element?) {
+class RLog(val messager : Messager, val suppressedWarnings : Set<Warning>,
+           val defaultElement : Element?) {
     private fun String.safeFormat(vararg args: Any): String {
         try {
             return format(args)
@@ -39,26 +40,26 @@ class RLog(val processingEnv: ProcessingEnvironment,
     }
 
     fun d(element: Element, msg: String, vararg args: Any) {
-        processingEnv.messager.printMessage(NOTE, msg.safeFormat(args), element)
+        messager.printMessage(NOTE, msg.safeFormat(args), element)
     }
 
     fun d(msg: String, vararg args: Any) {
-        processingEnv.messager.printMessage(NOTE, msg.safeFormat(args))
+        messager.printMessage(NOTE, msg.safeFormat(args))
     }
 
     fun e(element: Element, msg: String, vararg args: Any) {
-        processingEnv.messager.printMessage(ERROR, msg.safeFormat(args), element)
+        messager.printMessage(ERROR, msg.safeFormat(args), element)
     }
 
     fun e(msg: String, vararg args: Any) {
-        processingEnv.messager.printMessage(ERROR, msg.safeFormat(args), defaultElement)
+        messager.printMessage(ERROR, msg.safeFormat(args), defaultElement)
     }
 
     fun w(warning: Warning, element: Element? = null, msg: String, vararg args: Any) {
         if (suppressedWarnings.contains(warning)) {
             return
         }
-        processingEnv.messager.printMessage(WARNING, msg.safeFormat(args),
+        messager.printMessage(WARNING, msg.safeFormat(args),
                 element ?: defaultElement)
     }
 
@@ -66,6 +67,36 @@ class RLog(val processingEnv: ProcessingEnvironment,
         if (suppressedWarnings.contains(warning)) {
             return
         }
-        processingEnv.messager.printMessage(WARNING, msg.safeFormat(args), defaultElement)
+        messager.printMessage(WARNING, msg.safeFormat(args), defaultElement)
+    }
+
+    interface Messager {
+        fun printMessage(kind: Diagnostic.Kind, msg: String, element: Element? = null)
+    }
+
+    class ProcessingEnvMessager(val processingEnv: ProcessingEnvironment) : Messager {
+        override fun printMessage(kind: Diagnostic.Kind, msg: String, element: Element?) {
+            processingEnv.messager.printMessage(kind, msg, element)
+        }
+    }
+
+    class CollectingMessager : Messager {
+        private val messages = mutableMapOf<Diagnostic.Kind, MutableList<Pair<String, Element?>>> ()
+        override fun printMessage(kind: Diagnostic.Kind, msg: String, element: Element?) {
+            messages.getOrPut(kind, {
+                arrayListOf<Pair<String, Element?>>()
+            }).add(Pair(msg, element))
+        }
+
+        fun hasErrors() = messages.containsKey(Diagnostic.Kind.ERROR)
+
+        fun writeTo(env : ProcessingEnvironment) {
+            messages.forEach { pair ->
+                val kind = pair.key
+                pair.value.forEach {
+                    env.messager.printMessage(kind, it.first, it.second)
+                }
+            }
+        }
     }
 }
