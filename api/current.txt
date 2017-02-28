@@ -6899,11 +6899,11 @@ package android.support.v4.os {
     ctor public OperationCanceledException(java.lang.String);
   }
 
-  public final class ParcelableCompat {
-    method public static <T> android.os.Parcelable.Creator<T> newCreator(android.support.v4.os.ParcelableCompatCreatorCallbacks<T>);
+  public final deprecated class ParcelableCompat {
+    method public static deprecated <T> android.os.Parcelable.Creator<T> newCreator(android.support.v4.os.ParcelableCompatCreatorCallbacks<T>);
   }
 
-  public abstract interface ParcelableCompatCreatorCallbacks<T> {
+  public abstract deprecated interface ParcelableCompatCreatorCallbacks<T> {
     method public abstract T createFromParcel(android.os.Parcel, java.lang.ClassLoader);
     method public abstract T[] newArray(int);
   }

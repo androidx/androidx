@@ -41,8 +41,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.support.v4.os.ParcelableCompat;
-import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.os.TraceCompat;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.InputDeviceCompat;
@@ -11466,7 +11464,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     /**
-     * This is public so that the CREATOR can be access on cold launch.
+     * This is public so that the CREATOR can be accessed on cold launch.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -11500,18 +11498,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mLayoutState = other.mLayoutState;
         }
 
-        public static final Creator<SavedState> CREATOR = ParcelableCompat.newCreator(
-                new ParcelableCompatCreatorCallbacks<SavedState>() {
-                    @Override
-                    public SavedState createFromParcel(Parcel in, ClassLoader loader) {
-                        return new SavedState(in, loader);
-                    }
+        public static final Creator<SavedState> CREATOR = new ClassLoaderCreator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                return new SavedState(in, loader);
+            }
 
-                    @Override
-                    public SavedState[] newArray(int size) {
-                        return new SavedState[size];
-                    }
-                });
+            @Override
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in, null);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
     /**
      * <p>Contains useful information about the current RecyclerView state like target scroll
