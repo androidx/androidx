@@ -352,6 +352,15 @@ public final class MediaControllerCompat {
     }
 
     /**
+     * Return whether captioning is enabled for this session.
+     *
+     * @return {@code true} if captioning is enabled, {@code false} if disabled or not set.
+     */
+    public boolean isCaptioningEnabled() {
+        return mImpl.isCaptioningEnabled();
+    }
+
+    /**
      * Get the repeat mode for this session.
      *
      * @return The latest repeat mode set to the session, or
@@ -613,6 +622,14 @@ public final class MediaControllerCompat {
         }
 
         /**
+         * Override to handle changes to the captioning enabled status.
+         *
+         * @param enabled {@code true} if captioning is enabled, {@code false} otherwise.
+         */
+        public void onCaptioningEnabledChanged(boolean enabled) {
+        }
+
+        /**
          * Override to handle changes to the repeat mode.
          *
          * @param repeatMode The repeat mode. It should be one of followings:
@@ -735,6 +752,11 @@ public final class MediaControllerCompat {
             }
 
             @Override
+            public void onCaptioningEnabledChanged(boolean enabled) throws RemoteException {
+                mHandler.post(MessageHandler.MSG_UPDATE_CAPTIONING_ENABLED, enabled, null);
+            }
+
+            @Override
             public void onRepeatModeChanged(int repeatMode) throws RemoteException {
                 mHandler.post(MessageHandler.MSG_UPDATE_REPEAT_MODE, repeatMode, null);
             }
@@ -771,6 +793,7 @@ public final class MediaControllerCompat {
             private static final int MSG_DESTROYED = 8;
             private static final int MSG_UPDATE_REPEAT_MODE = 9;
             private static final int MSG_UPDATE_SHUFFLE_MODE = 10;
+            private static final int MSG_UPDATE_CAPTIONING_ENABLED = 11;
 
             public MessageHandler(Looper looper) {
                 super(looper);
@@ -796,6 +819,9 @@ public final class MediaControllerCompat {
                         break;
                     case MSG_UPDATE_QUEUE_TITLE:
                         onQueueTitleChanged((CharSequence) msg.obj);
+                        break;
+                    case MSG_UPDATE_CAPTIONING_ENABLED:
+                        onCaptioningEnabledChanged((boolean) msg.obj);
                         break;
                     case MSG_UPDATE_REPEAT_MODE:
                         onRepeatModeChanged((int) msg.obj);
@@ -978,6 +1004,13 @@ public final class MediaControllerCompat {
         public abstract void setRating(RatingCompat rating);
 
         /**
+         * Enable/disable captioning for this session.
+         *
+         * @param enabled {@code true} to enable captioning, {@code false} to disable.
+         */
+        public abstract void setCaptioningEnabled(boolean enabled);
+
+        /**
          * Set the repeat mode for this session.
          *
          * @param repeatMode The repeat mode. Must be one of the followings:
@@ -1125,6 +1158,7 @@ public final class MediaControllerCompat {
         CharSequence getQueueTitle();
         Bundle getExtras();
         int getRatingType();
+        boolean isCaptioningEnabled();
         int getRepeatMode();
         boolean isShuffleModeEnabled();
         long getFlags();
@@ -1314,6 +1348,16 @@ public final class MediaControllerCompat {
                 Log.e(TAG, "Dead object in getRatingType.", e);
             }
             return 0;
+        }
+
+        @Override
+        public boolean isCaptioningEnabled() {
+            try {
+                return mBinder.isCaptioningEnabled();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in isCaptioningEnabled.", e);
+            }
+            return false;
         }
 
         @Override
@@ -1574,6 +1618,15 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public void setCaptioningEnabled(boolean enabled) {
+            try {
+                mBinder.setCaptioningEnabled(enabled);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in setCaptioningEnabled.", e);
+            }
+        }
+
+        @Override
         public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
             try {
                 mBinder.setRepeatMode(repeatMode);
@@ -1785,6 +1838,18 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public boolean isCaptioningEnabled() {
+            if (mExtraBinder != null) {
+                try {
+                    return mExtraBinder.isCaptioningEnabled();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in isCaptioningEnabled.", e);
+                }
+            }
+            return false;
+        }
+
+        @Override
         public int getRepeatMode() {
             if (mExtraBinder != null) {
                 try {
@@ -1953,6 +2018,16 @@ public final class MediaControllerCompat {
             }
 
             @Override
+            public void onCaptioningEnabledChanged(final boolean enabled) throws RemoteException {
+                mCallback.mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onCaptioningEnabledChanged(enabled);
+                    }
+                });
+            }
+
+            @Override
             public void onRepeatModeChanged(final int repeatMode) throws RemoteException {
                 mCallback.mHandler.post(new Runnable() {
                     @Override
@@ -2066,6 +2141,13 @@ public final class MediaControllerCompat {
         public void setRating(RatingCompat rating) {
             MediaControllerCompatApi21.TransportControls.setRating(mControlsObj,
                     rating != null ? rating.getRating() : null);
+        }
+
+        @Override
+        public void setCaptioningEnabled(boolean enabled) {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(MediaSessionCompat.ACTION_ARGUMENT_CAPTIONING_ENABLED, enabled);
+            sendCustomAction(MediaSessionCompat.ACTION_SET_CAPTIONING_ENABLED, bundle);
         }
 
         @Override

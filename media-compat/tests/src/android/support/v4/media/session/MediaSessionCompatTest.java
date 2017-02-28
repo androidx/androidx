@@ -306,6 +306,31 @@ public class MediaSessionCompatTest {
     }
 
     /**
+     * Tests {@link MediaSessionCompat#setCaptioningEnabled}.
+     */
+    @Test
+    @SmallTest
+    public void testSetCaptioningEnabled() throws Exception {
+        MediaControllerCompat controller = mSession.getController();
+        controller.registerCallback(mCallback, mHandler);
+        synchronized (mWaitLock) {
+            mCallback.resetLocked();
+            mSession.setCaptioningEnabled(true);
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(mCallback.mOnCaptioningEnabledChangedCalled);
+            assertEquals(true, mCallback.mCaptioningEnabled);
+            assertEquals(true, controller.isCaptioningEnabled());
+
+            mCallback.resetLocked();
+            mSession.setCaptioningEnabled(false);
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(mCallback.mOnCaptioningEnabledChangedCalled);
+            assertEquals(false, mCallback.mCaptioningEnabled);
+            assertEquals(false, controller.isCaptioningEnabled());
+        }
+    }
+
+    /**
      * Tests {@link MediaSessionCompat#setRepeatMode}.
      */
     @Test
@@ -335,7 +360,6 @@ public class MediaSessionCompatTest {
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
-            final int repeatMode = PlaybackStateCompat.REPEAT_MODE_ALL;
             mSession.setShuffleModeEnabled(shuffleModeEnabled);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCallback.mOnShuffleModeChangedCalled);
@@ -615,6 +639,7 @@ public class MediaSessionCompatTest {
         private volatile boolean mOnAudioInfoChangedCalled;
         private volatile boolean mOnSessionDestroyedCalled;
         private volatile boolean mOnSessionEventCalled;
+        private volatile boolean mOnCaptioningEnabledChangedCalled;
         private volatile boolean mOnRepeatModeChangedCalled;
         private volatile boolean mOnShuffleModeChangedCalled;
 
@@ -625,6 +650,7 @@ public class MediaSessionCompatTest {
         private volatile String mEvent;
         private volatile Bundle mExtras;
         private volatile MediaControllerCompat.PlaybackInfo mPlaybackInfo;
+        private volatile boolean mCaptioningEnabled;
         private volatile int mRepeatMode;
         private volatile boolean mShuffleModeEnabled;
 
@@ -646,6 +672,7 @@ public class MediaSessionCompatTest {
             mTitle = null;
             mExtras = null;
             mPlaybackInfo = null;
+            mCaptioningEnabled = false;
             mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
             mShuffleModeEnabled = false;
         }
@@ -718,6 +745,15 @@ public class MediaSessionCompatTest {
                 mOnSessionEventCalled = true;
                 mEvent = event;
                 mExtras = (Bundle) extras.clone();
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
+        public void onCaptioningEnabledChanged(boolean enabled) {
+            synchronized (mWaitLock) {
+                mOnCaptioningEnabledChangedCalled = true;
+                mCaptioningEnabled = enabled;
                 mWaitLock.notify();
             }
         }

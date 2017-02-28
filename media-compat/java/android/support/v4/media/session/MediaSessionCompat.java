@@ -165,6 +165,12 @@ public class MediaSessionCompat {
             "android.support.v4.media.session.action.PREPARE_FROM_URI";
 
     /**
+     * Custom action to invoke setCaptioningEnabled() for the forward compatibility.
+     */
+    static final String ACTION_SET_CAPTIONING_ENABLED =
+            "android.support.v4.media.session.action.SET_CAPTIONING_ENABLED";
+
+    /**
      * Custom action to invoke setRepeatMode() for the forward compatibility.
      */
     static final String ACTION_SET_REPEAT_MODE =
@@ -200,6 +206,13 @@ public class MediaSessionCompat {
      */
     static final String ACTION_ARGUMENT_EXTRAS =
             "android.support.v4.media.session.action.ARGUMENT_EXTRAS";
+
+    /**
+     * Argument for use with {@link #ACTION_SET_CAPTIONING_ENABLED} indicating whether captioning is
+     * enabled.
+     */
+    static final String ACTION_ARGUMENT_CAPTIONING_ENABLED =
+            "android.support.v4.media.session.action.ARGUMENT_CAPTIONING_ENABLED";
 
     /**
      * Argument for use with {@link #ACTION_SET_REPEAT_MODE} indicating repeat mode.
@@ -553,6 +566,15 @@ public class MediaSessionCompat {
     }
 
     /**
+     * Enable/disable captioning for this session.
+     *
+     * @param enabled {@code true} to enable captioning, {@code false} to disable.
+     */
+    public void setCaptioningEnabled(boolean enabled) {
+        mImpl.setCaptioningEnabled(enabled);
+    }
+
+    /**
      * Set the repeat mode for this session.
      * <p>
      * Note that if this method is not called before, {@link MediaControllerCompat#getRepeatMode}
@@ -866,6 +888,14 @@ public class MediaSessionCompat {
         }
 
         /**
+         * Override to handle requests to enable/disable captioning.
+         *
+         * @param enabled {@code true} to enable captioning, {@code false} to disable.
+         */
+        public void onSetCaptioningEnabled(boolean enabled) {
+        }
+
+        /**
          * Override to handle the setting of the repeat mode.
          * <p>
          * You should call {@link #setRepeatMode} before end of this method in order to notify
@@ -1072,6 +1102,9 @@ public class MediaSessionCompat {
                     Uri uri = extras.getParcelable(ACTION_ARGUMENT_URI);
                     Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
                     Callback.this.onPrepareFromUri(uri, bundle);
+                } else if (action.equals(ACTION_SET_CAPTIONING_ENABLED)) {
+                    boolean enabled = extras.getBoolean(ACTION_ARGUMENT_CAPTIONING_ENABLED);
+                    Callback.this.onSetCaptioningEnabled(enabled);
                 } else if (action.equals(ACTION_SET_REPEAT_MODE)) {
                     int repeatMode = extras.getInt(ACTION_ARGUMENT_REPEAT_MODE);
                     Callback.this.onSetRepeatMode(repeatMode);
@@ -1492,6 +1525,7 @@ public class MediaSessionCompat {
         void setQueueTitle(CharSequence title);
 
         void setRatingType(@RatingCompat.Style int type);
+        void setCaptioningEnabled(boolean enabled);
         void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode);
         void setShuffleModeEnabled(boolean enabled);
         void setExtras(Bundle extras);
@@ -1533,6 +1567,7 @@ public class MediaSessionCompat {
         List<QueueItem> mQueue;
         CharSequence mQueueTitle;
         @RatingCompat.Style int mRatingType;
+        boolean mCaptioningEnabled;
         @PlaybackStateCompat.RepeatMode int mRepeatMode;
         boolean mShuffleModeEnabled;
         Bundle mExtras;
@@ -1834,6 +1869,14 @@ public class MediaSessionCompat {
         }
 
         @Override
+        public void setCaptioningEnabled(boolean enabled) {
+            if (mCaptioningEnabled != enabled) {
+                mCaptioningEnabled = enabled;
+                sendCaptioningEnabled(enabled);
+            }
+        }
+
+        @Override
         public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
             if (mRepeatMode != repeatMode) {
                 mRepeatMode = repeatMode;
@@ -2068,6 +2111,18 @@ public class MediaSessionCompat {
             mControllerCallbacks.finishBroadcast();
         }
 
+        private void sendCaptioningEnabled(boolean enabled) {
+            int size = mControllerCallbacks.beginBroadcast();
+            for (int i = size - 1; i >= 0; i--) {
+                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                try {
+                    cb.onCaptioningEnabledChanged(enabled);
+                } catch (RemoteException e) {
+                }
+            }
+            mControllerCallbacks.finishBroadcast();
+        }
+
         private void sendRepeatMode(int repeatMode) {
             int size = mControllerCallbacks.beginBroadcast();
             for (int i = size - 1; i >= 0; i--) {
@@ -2288,6 +2343,11 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void setCaptioningEnabled(boolean enabled) throws RemoteException {
+                postToHandler(MessageHandler.MSG_SET_CAPTIONING_ENABLED, enabled);
+            }
+
+            @Override
             public void setRepeatMode(int repeatMode) throws RemoteException {
                 postToHandler(MessageHandler.MSG_SET_REPEAT_MODE, repeatMode);
             }
@@ -2359,6 +2419,11 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public boolean isCaptioningEnabled() {
+                return mCaptioningEnabled;
+            }
+
+            @Override
             @PlaybackStateCompat.RepeatMode
             public int getRepeatMode() {
                 return mRepeatMode;
@@ -2417,6 +2482,7 @@ public class MediaSessionCompat {
             private static final int MSG_ADD_QUEUE_ITEM_AT = 26;
             private static final int MSG_REMOVE_QUEUE_ITEM = 27;
             private static final int MSG_REMOVE_QUEUE_ITEM_AT = 28;
+            private static final int MSG_SET_CAPTIONING_ENABLED = 29;
 
             // KeyEvent constants only available on API 11+
             private static final int KEYCODE_MEDIA_PAUSE = 127;
@@ -2536,6 +2602,9 @@ public class MediaSessionCompat {
                     case MSG_SET_VOLUME:
                         setVolumeTo(msg.arg1, 0);
                         break;
+                    case MSG_SET_CAPTIONING_ENABLED:
+                        cb.onSetCaptioningEnabled((boolean) msg.obj);
+                        break;
                     case MSG_SET_REPEAT_MODE:
                         cb.onSetRepeatMode(msg.arg1);
                         break;
@@ -2617,6 +2686,7 @@ public class MediaSessionCompat {
 
         private PlaybackStateCompat mPlaybackState;
         @RatingCompat.Style int mRatingType;
+        boolean mCaptioningEnabled;
         @PlaybackStateCompat.RepeatMode int mRepeatMode;
         boolean mShuffleModeEnabled;
 
@@ -2749,6 +2819,22 @@ public class MediaSessionCompat {
                 mRatingType = type;
             } else {
                 MediaSessionCompatApi22.setRatingType(mSessionObj, type);
+            }
+        }
+
+        @Override
+        public void setCaptioningEnabled(boolean enabled) {
+            if (mCaptioningEnabled != enabled) {
+                mCaptioningEnabled = enabled;
+                int size = mExtraControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onCaptioningEnabledChanged(enabled);
+                    } catch (RemoteException e) {
+                    }
+                }
+                mExtraControllerCallbacks.finishBroadcast();
             }
         }
 
@@ -2979,6 +3065,12 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void setCaptioningEnabled(boolean enabled) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
             public void setRepeatMode(int repeatMode) throws RemoteException {
                 // Will not be called.
                 throw new AssertionError();
@@ -3053,6 +3145,11 @@ public class MediaSessionCompat {
             @RatingCompat.Style
             public int getRatingType() {
                 return mRatingType;
+            }
+
+            @Override
+            public boolean isCaptioningEnabled() {
+                return mCaptioningEnabled;
             }
 
             @Override

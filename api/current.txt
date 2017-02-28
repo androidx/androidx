@@ -6089,6 +6089,7 @@ package android.support.v4.media.session {
     method public android.app.PendingIntent getSessionActivity();
     method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
     method public android.support.v4.media.session.MediaControllerCompat.TransportControls getTransportControls();
+    method public boolean isCaptioningEnabled();
     method public boolean isShuffleModeEnabled();
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback, android.os.Handler);
@@ -6104,6 +6105,7 @@ package android.support.v4.media.session {
     ctor public MediaControllerCompat.Callback();
     method public void binderDied();
     method public void onAudioInfoChanged(android.support.v4.media.session.MediaControllerCompat.PlaybackInfo);
+    method public void onCaptioningEnabledChanged(boolean);
     method public void onExtrasChanged(android.os.Bundle);
     method public void onMetadataChanged(android.support.v4.media.MediaMetadataCompat);
     method public void onPlaybackStateChanged(android.support.v4.media.session.PlaybackStateCompat);
@@ -6140,6 +6142,7 @@ package android.support.v4.media.session {
     method public abstract void seekTo(long);
     method public abstract void sendCustomAction(android.support.v4.media.session.PlaybackStateCompat.CustomAction, android.os.Bundle);
     method public abstract void sendCustomAction(java.lang.String, android.os.Bundle);
+    method public abstract void setCaptioningEnabled(boolean);
     method public abstract void setRating(android.support.v4.media.RatingCompat);
     method public abstract void setRepeatMode(int);
     method public abstract void setShuffleModeEnabled(boolean);
@@ -6166,6 +6169,7 @@ package android.support.v4.media.session {
     method public void setActive(boolean);
     method public void setCallback(android.support.v4.media.session.MediaSessionCompat.Callback);
     method public void setCallback(android.support.v4.media.session.MediaSessionCompat.Callback, android.os.Handler);
+    method public void setCaptioningEnabled(boolean);
     method public void setExtras(android.os.Bundle);
     method public void setFlags(int);
     method public void setMediaButtonReceiver(android.app.PendingIntent);
@@ -6207,6 +6211,7 @@ package android.support.v4.media.session {
     method public void onRemoveQueueItemAt(int);
     method public void onRewind();
     method public void onSeekTo(long);
+    method public void onSetCaptioningEnabled(boolean);
     method public void onSetRating(android.support.v4.media.RatingCompat);
     method public void onSetRepeatMode(int);
     method public void onSetShuffleModeEnabled(boolean);
@@ -6285,6 +6290,7 @@ package android.support.v4.media.session {
     field public static final long ACTION_PREPARE_FROM_URI = 131072L; // 0x20000L
     field public static final long ACTION_REWIND = 8L; // 0x8L
     field public static final long ACTION_SEEK_TO = 256L; // 0x100L
+    field public static final long ACTION_SET_CAPTIONING_ENABLED = 1048576L; // 0x100000L
     field public static final long ACTION_SET_RATING = 128L; // 0x80L
     field public static final long ACTION_SET_REPEAT_MODE = 262144L; // 0x40000L
     field public static final long ACTION_SET_SHUFFLE_MODE_ENABLED = 524288L; // 0x80000L
