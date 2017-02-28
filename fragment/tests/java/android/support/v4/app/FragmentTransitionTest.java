@@ -698,6 +698,73 @@ public class FragmentTransitionTest {
         verifyNoOtherTransitions(fragment);
     }
 
+    // No crash when transitioning a shared element and there is no shared element transition.
+    @Test
+    public void noSharedElementTransition() throws Throwable {
+        TransitionFragment fragment1 = setupInitialFragment();
+
+        final View startBlue = findBlue();
+        final View startGreen = findGreen();
+        final Rect startBlueBounds = getBoundsOnScreen(startBlue);
+
+        TransitionFragment fragment2 = new TransitionFragment();
+        fragment2.setLayoutId(R.layout.scene2);
+
+        mFragmentManager.beginTransaction()
+                .setAllowOptimization(mOptimize)
+                .addSharedElement(startBlue, "blueSquare")
+                .replace(R.id.fragmentContainer, fragment2)
+                .addToBackStack(null)
+                .commit();
+
+        fragment1.waitForTransition();
+        fragment2.waitForTransition();
+        final View midGreen = findGreen();
+        final View midBlue = findBlue();
+        final Rect midBlueBounds = getBoundsOnScreen(midBlue);
+        verifyAndClearTransition(fragment1.exitTransition, startBlueBounds, startGreen);
+        verifyAndClearTransition(fragment2.sharedElementEnter, startBlueBounds, startBlue, midBlue);
+        verifyAndClearTransition(fragment2.enterTransition, midBlueBounds, midGreen);
+        verifyNoOtherTransitions(fragment1);
+        verifyNoOtherTransitions(fragment2);
+
+        final TransitionFragment fragment3 = new TransitionFragment();
+        fragment3.setLayoutId(R.layout.scene3);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+                fm.popBackStack();
+                fm.beginTransaction()
+                        .setAllowOptimization(mOptimize)
+                        .replace(R.id.fragmentContainer, fragment3)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        // This shouldn't give an error.
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+
+        fragment2.waitForTransition();
+        // It does not transition properly for unoptimized transactions, though.
+        if (mOptimize) {
+            verifyAndClearTransition(fragment2.returnTransition, null, midGreen, midBlue);
+            final View endGreen = findGreen();
+            final View endBlue = findBlue();
+            final View endRed = findRed();
+            verifyAndClearTransition(fragment3.enterTransition, null, endGreen, endBlue, endRed);
+            verifyNoOtherTransitions(fragment2);
+            verifyNoOtherTransitions(fragment3);
+        } else {
+            // fragment3 doesn't get a transition since it conflicts with the pop transition
+            verifyNoOtherTransitions(fragment3);
+            // Everything else is just doing its best. Unoptimized transactions can't handle
+            // multiple transitions acting together except for popping multiple together.
+        }
+    }
+
     private TransitionFragment setupInitialFragment() throws Throwable {
         TransitionFragment fragment1 = new TransitionFragment();
         fragment1.setLayoutId(R.layout.scene1);
