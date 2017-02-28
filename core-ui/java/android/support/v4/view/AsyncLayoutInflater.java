@@ -169,28 +169,35 @@ public final class AsyncLayoutInflater {
         private ArrayBlockingQueue<InflateRequest> mQueue = new ArrayBlockingQueue<>(10);
         private SynchronizedPool<InflateRequest> mRequestPool = new SynchronizedPool<>(10);
 
+        // Extracted to its own method to ensure locals have a constrained liveness
+        // scope by the GC. This is needed to avoid keeping previous request references
+        // alive for an indeterminate amount of time, see b/33158143 for details
+        public void runInner() {
+            InflateRequest request;
+            try {
+                request = mQueue.take();
+            } catch (InterruptedException ex) {
+                // Odd, just continue
+                Log.w(TAG, ex);
+                return;
+            }
+
+            try {
+                request.view = request.inflater.mInflater.inflate(
+                        request.resid, request.parent, false);
+            } catch (RuntimeException ex) {
+                // Probably a Looper failure, retry on the UI thread
+                Log.w(TAG, "Failed to inflate resource in the background! Retrying on the UI"
+                        + " thread", ex);
+            }
+            Message.obtain(request.inflater.mHandler, 0, request)
+                    .sendToTarget();
+        }
+
         @Override
         public void run() {
             while (true) {
-                InflateRequest request;
-                try {
-                    request = mQueue.take();
-                } catch (InterruptedException ex) {
-                    // Odd, just continue
-                    Log.w(TAG, ex);
-                    continue;
-                }
-
-                try {
-                    request.view = request.inflater.mInflater.inflate(
-                            request.resid, request.parent, false);
-                } catch (RuntimeException ex) {
-                    // Probably a Looper failure, retry on the UI thread
-                    Log.w(TAG, "Failed to inflate resource in the background! Retrying on the UI"
-                            + " thread", ex);
-                }
-                Message.obtain(request.inflater.mHandler, 0, request)
-                        .sendToTarget();
+                runInner();
             }
         }
 
