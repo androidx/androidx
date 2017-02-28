@@ -19,6 +19,7 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.DetailsSupportFragmentBackgroundController;
@@ -79,8 +80,8 @@ public class NewDetailsSupportFragment extends android.support.v17.leanback.app.
             new DetailsSupportFragmentBackgroundController(this);
 
     private void initializeTest() {
-        TEST_SHARED_ELEMENT_TRANSITION = null != getActivity().getWindow()
-                .getSharedElementEnterTransition();
+        TEST_SHARED_ELEMENT_TRANSITION = Build.VERSION.SDK_INT >= 21
+                && null != getActivity().getWindow().getSharedElementEnterTransition();
         TEST_OVERVIEW_ROW_ON_SECOND = !TEST_SHARED_ELEMENT_TRANSITION;
         TEST_ENTRANCE_TRANSITION = false;
     }
