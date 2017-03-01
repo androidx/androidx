@@ -721,17 +721,15 @@ class PathParser {
                 double q2x = e2x - alpha * ep2x;
                 double q2y = e2y - alpha * ep2y;
 
-                // Use the extra math below and relative cubicTo function, just to work around
-                // one issue with VM and proguard.
-                final float delta_q1x = (float) q1x - (float) e1x;
-                final float delta_q1y = (float) q1y - (float) e1y;
-                final float delta_q2x = (float) q2x - (float) e1x;
-                final float delta_q2y = (float) q2y - (float) e1y;
-                final float delta_e2x = (float) e2x - (float) e1x;
-                final float delta_e2y = (float) e2y - (float) e1y;
+                // Adding this no-op call to workaround a proguard related issue.
+                p.rLineTo(0, 0);
 
-                p.rCubicTo(delta_q1x, delta_q1y, delta_q2x, delta_q2y, delta_e2x, delta_e2y);
-
+                p.cubicTo((float) q1x,
+                        (float) q1y,
+                        (float) q2x,
+                        (float) q2y,
+                        (float) e2x,
+                        (float) e2y);
                 eta1 = eta2;
                 e1x = e2x;
                 e1y = e2y;
