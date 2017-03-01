@@ -1492,7 +1492,7 @@ public final class Program implements Comparable<Program> {
         }
 
         /**
-         * Sets the available audio languages for this program as a comma-separated String.
+         * Sets the available audio languages for this program as an array of strings.
          *
          * @param audioLanguages An array of audio languages, in ISO 639-1 or 639-2/T codes, that
          *                       apply to this program which will be stored in a database.
