@@ -18,21 +18,26 @@
     <item android:id="@+id/action_search"
           android:title="@string/action_bar_search"
           android:icon="@drawable/ic_search"
+          android:alphabeticShortcut="s"
+          android:alphabeticModifiers="ALT"
           app:showAsAction="ifRoom|collapseActionView"
           app:actionViewClass="android.support.v7.widget.SearchView" />
     <item android:id="@+id/action_add"
           android:icon="@android:drawable/ic_menu_add"
           android:title="@string/action_bar_add"
+          android:alphabeticShortcut="a"
           app:contentDescription="@string/action_bar_add_description"
           app:tooltipText="@string/action_bar_add_tooltip" />
     <item android:id="@+id/action_edit"
           android:icon="@android:drawable/ic_menu_edit"
           android:title="@string/action_bar_edit"
+          android:alphabeticShortcut="e"
           app:showAsAction="always" />
     <item android:id="@+id/action_share"
           android:icon="@android:drawable/ic_menu_share"
           android:title="@string/action_bar_share"
           android:enabled="false"
+          android:alphabeticShortcut="s"
           app:showAsAction="ifRoom" />
     <item android:id="@+id/action_sort"
           android:icon="@android:drawable/ic_menu_sort_by_size"
@@ -41,10 +46,14 @@
         <menu>
             <item android:id="@+id/action_sort_size"
                   android:icon="@android:drawable/ic_menu_sort_by_size"
-                  android:title="@string/action_bar_sort_size" />
+                  android:title="@string/action_bar_sort_size"
+                  android:alphabeticShortcut="s"
+                  android:alphabeticModifiers="CTRL|SHIFT" />
             <item android:id="@+id/action_sort_alpha"
                   android:icon="@android:drawable/ic_menu_sort_alphabetically"
-                  android:title="@string/action_bar_sort_alpha" />
+                  android:title="@string/action_bar_sort_alpha"
+                  android:alphabeticShortcut="a"
+                  android:alphabeticModifiers="CTRL|SHIFT" />
         </menu>
     </item>
 </menu>
