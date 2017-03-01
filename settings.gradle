@@ -82,6 +82,9 @@ project(':support-animated-vector-drawable').projectDir = new File(rootDir, 'gra
 include ':support-transition'
 project(':support-transition').projectDir = new File(rootDir, 'transition')
 
+include ':support-dynamic-animation'
+project(':support-dynamic-animation').projectDir = new File(rootDir, 'dynamic-animation')
+
 include ':support-exifinterface'
 project(':support-exifinterface').projectDir = new File(rootDir, 'exifinterface')
 
