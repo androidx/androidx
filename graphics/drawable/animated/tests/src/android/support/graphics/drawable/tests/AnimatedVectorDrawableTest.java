@@ -19,15 +19,20 @@ package android.support.graphics.drawable.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import static java.lang.Thread.sleep;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable.ConstantState;
 import android.support.annotation.DrawableRes;
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.graphics.drawable.animated.test.R;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -55,6 +60,11 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 public class AnimatedVectorDrawableTest {
     @Rule public final ActivityTestRule<DrawableStubActivity> mActivityTestRule;
+
+    private static final float PIXEL_ERROR_THRESHOLD = 0.3f;
+    private static final float PIXEL_DIFF_THRESHOLD = 0.03f;
+    private static final float PIXEL_DIFF_COUNT_THRESHOLD = 0.1f;
+
     private static final String LOGTAG = AnimatedVectorDrawableTest.class.getSimpleName();
 
     private static final int IMAGE_WIDTH = 64;
@@ -84,7 +94,8 @@ public class AnimatedVectorDrawableTest {
     }
 
     // This is only for debugging or golden image (re)generation purpose.
-    private void saveVectorDrawableIntoPNG(Bitmap bitmap, int resId) throws IOException {
+    private void saveVectorDrawableIntoPNG(Bitmap bitmap, int resId, String filename)
+            throws IOException {
         // Save the image to the disk.
         FileOutputStream out = null;
         try {
@@ -93,10 +104,15 @@ public class AnimatedVectorDrawableTest {
             if (!folder.exists()) {
                 folder.mkdir();
             }
-            String originalFilePath = mResources.getString(resId);
-            File originalFile = new File(originalFilePath);
-            String fileFullName = originalFile.getName();
-            String fileTitle = fileFullName.substring(0, fileFullName.lastIndexOf("."));
+            String fileTitle = "unname";
+            if (resId >= 0) {
+                String originalFilePath = mResources.getString(resId);
+                File originalFile = new File(originalFilePath);
+                String fileFullName = originalFile.getName();
+                fileTitle = fileFullName.substring(0, fileFullName.lastIndexOf("."));
+            } else if (filename != null) {
+                fileTitle = filename;
+            }
             String outputFilename = outputFolder + fileTitle + "_golden.png";
             File outputFile = new File(outputFilename);
             if (!outputFile.exists()) {
@@ -141,8 +157,107 @@ public class AnimatedVectorDrawableTest {
         assertTrue(earthColor == 0xFF5656EA);
 
         if (DBG_DUMP_PNG) {
-            saveVectorDrawableIntoPNG(mBitmap, DRAWABLE_RES_ID);
+            saveVectorDrawableIntoPNG(mBitmap, DRAWABLE_RES_ID, null);
         }
+    }
+
+    /**
+     * Render AVD sequence in an bitmap for several frames with the same content, and make sure
+     * there is no image corruptions.
+     *
+     * @throws IOException only if DBG_DUMP_PNG is true when dumping images for debugging purpose.
+     */
+    @Test
+    public void testRenderCorrectness() throws IOException {
+        final int numTests = 5;
+        final Bitmap bitmap = Bitmap.createBitmap(IMAGE_WIDTH, IMAGE_WIDTH,
+                Bitmap.Config.ARGB_8888);
+        final Canvas c = new Canvas(bitmap);
+
+        final AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
+                R.drawable.animation_vector_drawable_circle);
+        avd.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                avd.start();
+            }
+        });
+
+        // First make sure the content is drawn into the bitmap.
+        // Then save the first frame as the golden images.
+        bitmap.eraseColor(0);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                avd.draw(c);
+            }
+        });
+        int centerColor = bitmap.getPixel(IMAGE_WIDTH / 2 , IMAGE_WIDTH / 2);
+        assertTrue(centerColor != 0);
+        Bitmap firstFrame = Bitmap.createBitmap(bitmap);
+        if (DBG_DUMP_PNG) {
+            saveVectorDrawableIntoPNG(firstFrame, -1, "firstframe");
+        }
+
+        // Now compare the following frames with the 1st frames. Expect some minor difference like
+        // Anti-Aliased edges, so the compare is fuzzy.
+        for (int i = 0; i < numTests; i++) {
+            bitmap.eraseColor(0);
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    avd.draw(c);
+                }
+            });
+            if (DBG_DUMP_PNG) {
+                saveVectorDrawableIntoPNG(bitmap, -1, "correctness_" + i);
+            }
+            compareImages(firstFrame, bitmap, "correctness_" + i);
+        }
+    }
+
+    /**
+     * Utility function for fuzzy image comparison b/t 2 bitmap. Failed if the difference is bigger
+     * than a threshold.
+     */
+    private void compareImages(Bitmap ideal, Bitmap given, String filename) {
+        int idealWidth = ideal.getWidth();
+        int idealHeight = ideal.getHeight();
+
+        assertTrue(idealWidth == given.getWidth());
+        assertTrue(idealHeight == given.getHeight());
+
+        int totalDiffPixelCount = 0;
+        float totalPixelCount = idealWidth * idealHeight;
+        for (int x = 0; x < idealWidth; x++) {
+            for (int y = 0; y < idealHeight; y++) {
+                int idealColor = ideal.getPixel(x, y);
+                int givenColor = given.getPixel(x, y);
+                if (idealColor == givenColor) {
+                    continue;
+                }
+
+                float totalError = 0;
+                totalError += Math.abs(Color.red(idealColor) - Color.red(givenColor));
+                totalError += Math.abs(Color.green(idealColor) - Color.green(givenColor));
+                totalError += Math.abs(Color.blue(idealColor) - Color.blue(givenColor));
+                totalError += Math.abs(Color.alpha(idealColor) - Color.alpha(givenColor));
+
+                if ((totalError / 1024.0f) >= PIXEL_ERROR_THRESHOLD) {
+                    fail((filename + ": totalError is " + totalError));
+                }
+
+                if ((totalError / 1024.0f) >= PIXEL_DIFF_THRESHOLD) {
+                    totalDiffPixelCount++;
+                }
+            }
+        }
+        if ((totalDiffPixelCount / totalPixelCount) >= PIXEL_DIFF_COUNT_THRESHOLD) {
+            fail((filename + ": totalDiffPixelCount is " + totalDiffPixelCount));
+        }
+
     }
 
     @Test
@@ -211,7 +326,7 @@ public class AnimatedVectorDrawableTest {
         // Check the view several times during the animation to verify that it only
         // has red color in it
         for (int i = 0; i < numTests; ++i) {
-            Thread.sleep(100);
+            sleep(100);
             // check fill
             verifyRedOnly(pixelX, pixelY, imageButton, bitmap, c, latch);
             // check stroke
