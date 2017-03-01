@@ -30,10 +30,10 @@ import static org.mockito.Mockito.when;
 
 import android.database.Cursor;
 
+import com.android.support.apptoolkit.testing.JunitTaskExecutorRule;
 import com.android.support.db.SupportSQLiteDatabase;
 import com.android.support.db.SupportSQLiteOpenHelper;
 import com.android.support.db.SupportSQLiteStatement;
-import com.android.support.room.testutil.JunitTaskExecutorRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,8 +53,7 @@ public class InvalidationTrackerTest {
     private InvalidationTracker mTracker;
     private RoomDatabase mRoomDatabase;
     @Rule
-    public JunitTaskExecutorRule mTaskExecutorRule = new JunitTaskExecutorRule(1,
-            true);
+    public JunitTaskExecutorRule mTaskExecutorRule = new JunitTaskExecutorRule(1, true);
 
     @Before
     public void setup() {

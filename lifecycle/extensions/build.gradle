@@ -30,6 +30,7 @@ dependencies {
     compile project(":lifecycle:runtime")
     compile project(":apptoolkit-core")
     compile "com.android.support:support-fragment:$support_lib_version"
+    testCompile project(":apptoolkit-core-testing")
     testCompile "junit:junit:$junit_version"
     testCompile "org.mockito:mockito-all:$mockito_version"
     testCompile("com.android.support.test:runner:$atsl_version") {

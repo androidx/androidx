@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.support.room.testutil;
+package com.android.support.apptoolkit.testing;
 
 import android.support.annotation.NonNull;
 
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * A TaskExecutor that has a real thread for main thread operations and can wait for execution etc.
  */
-public class TaskExecutorWIthFakeMainThread extends TaskExecutor {
+class TaskExecutorWithFakeMainThread extends TaskExecutor {
     private List<Throwable> mCaughtExceptions = Collections.synchronizedList(new ArrayList
             <Throwable>());
 
@@ -50,7 +50,7 @@ public class TaskExecutorWIthFakeMainThread extends TaskExecutor {
                 }
             });
 
-    TaskExecutorWIthFakeMainThread(int ioThreadCount) {
+    TaskExecutorWithFakeMainThread(int ioThreadCount) {
         mIOThreadCount = ioThreadCount;
         mIOService = Executors.newFixedThreadPool(ioThreadCount, new ThreadFactory() {
             @Override
@@ -66,7 +66,11 @@ public class TaskExecutorWIthFakeMainThread extends TaskExecutor {
     }
 
     @Override
-    public void executeOnMainThread(Runnable runnable) {
+    public void postToMainThread(Runnable runnable) {
+        // Tasks in SingleThreadExecutor are guaranteed to execute sequentially,
+        // and no more than one task will be active at any given time.
+        // So if we call this method from the main thread, new task will be scheduled,
+        // which is equivalent to post.
         mMainThreadService.execute(runnable);
     }
 
@@ -79,8 +83,7 @@ public class TaskExecutorWIthFakeMainThread extends TaskExecutor {
         return mCaughtExceptions;
     }
 
-    void shutdown(@SuppressWarnings("SameParameterValue") int timeoutInSeconds)
-            throws InterruptedException {
+    void shutdown(int timeoutInSeconds) throws InterruptedException {
         mMainThreadService.shutdown();
         mIOService.shutdown();
         mMainThreadService.awaitTermination(timeoutInSeconds, TimeUnit.SECONDS);
@@ -88,6 +91,9 @@ public class TaskExecutorWIthFakeMainThread extends TaskExecutor {
     }
 
     void drainTasks(int seconds) throws InterruptedException {
+        if (isMainThread()) {
+            throw new IllegalStateException();
+        }
         final CountDownLatch enterLatch = new CountDownLatch(mIOThreadCount);
         final CountDownLatch exitLatch = new CountDownLatch(1);
         for (int i = 0; i < mIOThreadCount; i++) {
@@ -105,7 +111,7 @@ public class TaskExecutorWIthFakeMainThread extends TaskExecutor {
         }
 
         final CountDownLatch mainLatch = new CountDownLatch(1);
-        executeOnMainThread(new Runnable() {
+        postToMainThread(new Runnable() {
             @Override
             public void run() {
                 mainLatch.countDown();
@@ -122,7 +128,7 @@ public class TaskExecutorWIthFakeMainThread extends TaskExecutor {
         }
     }
 
-
+    @SuppressWarnings("WeakerAccess")
     class LoggingThread extends Thread {
         LoggingThread(final Runnable target) {
             super(new Runnable() {

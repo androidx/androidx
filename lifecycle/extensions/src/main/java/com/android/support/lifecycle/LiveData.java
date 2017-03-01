@@ -95,6 +95,18 @@ public class LiveData<T> {
     private boolean mDispatchingValue;
     @SuppressWarnings("FieldCanBeLocal")
     private boolean mDispatchInvalidated;
+    private final Runnable mPostValueRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Object newValue;
+            synchronized (mDataLock) {
+                newValue = mPendingData;
+                mPendingData = NOT_SET;
+            }
+            //noinspection unchecked
+            setValue((T) newValue);
+        }
+    };
 
     private void considerNotify(LifecycleBoundObserver observer) {
         if (!observer.active) {
@@ -230,34 +242,46 @@ public class LiveData<T> {
     }
 
     /**
-     * Sets the value. If there are active observers, the value will be dispatched to them.
+     * Posts a task to a main thread to set the given value. So if you have a following code
+     * executed in the main thread:
+     * <pre class="prettyprint">
+     * liveData.postValue("a");
+     * liveData.setValue("b");
+     * </pre>
+     * The value "b" would be set at first and later the main thread would override it with
+     * the value "a".
      * <p>
-     * If this method is called on a background thread, the call will be forwarded to the main
-     * thread so calling {@link #getValue()} right after calling {@code setValue} may
-     * not return the value that was set.
+     * If you called this method multiple times before a main thread executed a posted task, only
+     * the last value would be dispatched.
      *
      * @param value The new value
      */
-    public void setValue(T value) {
-        // we keep it in pending data so that last set data wins (e.g. we won't be in a case where
-        // data is set on the main thread at a later time is overridden by data that was set on a
-        // background thread.
+    public void postValue(T value) {
+        boolean postTask;
         synchronized (mDataLock) {
+            postTask = mPendingData == NOT_SET;
             mPendingData = value;
         }
-        AppToolkitTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (mDataLock) {
-                    if (mPendingData != NOT_SET) {
-                        mVersion++;
-                        mData = mPendingData;
-                        mPendingData = NOT_SET;
-                    }
-                }
-                dispatchingValue(null);
-            }
-        });
+        if (!postTask) {
+            return;
+        }
+        AppToolkitTaskExecutor.getInstance().postToMainThread(mPostValueRunnable);
+    }
+
+    /**
+     * Sets the value. If there are active observers, the value will be dispatched to them.
+     * <p>
+     * This method must be called from the main thread. If you need set a value from a background
+     * thread, you can use {@link #postValue(Object)}
+     *
+     * @param value The new value
+     */
+    @MainThread
+    public void setValue(T value) {
+        assertMainThread("setValue");
+        mVersion++;
+        mData = value;
+        dispatchingValue(null);
     }
 
     /**

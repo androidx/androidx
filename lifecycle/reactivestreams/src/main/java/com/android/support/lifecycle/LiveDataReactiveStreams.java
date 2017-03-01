@@ -29,6 +29,7 @@ import java.lang.ref.WeakReference;
 /**
  * Adapts {@link LiveData} input and output to the ReactiveStreams spec.
  */
+@SuppressWarnings("WeakerAccess")
 public final class LiveDataReactiveStreams {
     private LiveDataReactiveStreams() {
     }
@@ -135,7 +136,7 @@ public final class LiveDataReactiveStreams {
      * Creates an Observable {@link LiveData} stream from a ReactiveStreams publisher.
      */
     public static <T> LiveData<T> fromPublisher(final Publisher<T> publisher) {
-        LiveData<T> liveData = new LiveData<T>();
+        LiveData<T> liveData = new LiveData<>();
         // Since we don't have a way to directly observe cancels, weakly hold the live data.
         final WeakReference<LiveData<T>> liveDataRef = new WeakReference<>(liveData);
 
@@ -151,12 +152,7 @@ public final class LiveDataReactiveStreams {
             public void onNext(final T t) {
                 final LiveData<T> liveData = liveDataRef.get();
                 if (liveData != null) {
-                    AppToolkitTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            liveData.setValue(t);
-                        }
-                    });
+                    liveData.postValue(t);
                 }
             }
 

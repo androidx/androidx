@@ -20,6 +20,9 @@
 include ':apptoolkit-core'
 project(':apptoolkit-core').projectDir = new File("core")
 
+include ':apptoolkit-core-testing'
+project(':apptoolkit-core-testing').projectDir = new File("core-testing")
+
 include ':lifecycle:extensions'
 project(':lifecycle:extensions').projectDir = new File("../lifecycle/extensions")
 

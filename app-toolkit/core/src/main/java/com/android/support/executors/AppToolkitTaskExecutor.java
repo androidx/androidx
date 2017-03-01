@@ -42,7 +42,9 @@ public class AppToolkitTaskExecutor extends TaskExecutor {
 
     private AppToolkitTaskExecutor() {
         mDefaultTaskExecutor = new TaskExecutor() {
+            private final Object mLock = new Object();
             private ExecutorService mDiskIO = Executors.newFixedThreadPool(2);
+
             @Nullable
             private volatile Handler mMainHandler;
 
@@ -52,19 +54,16 @@ public class AppToolkitTaskExecutor extends TaskExecutor {
             }
 
             @Override
-            public void executeOnMainThread(Runnable runnable) {
-                if (isMainThread()) {
-                    runnable.run();
-                } else {
-                    if (mMainHandler == null) {
-                        synchronized (this) {
-                            if (mMainHandler == null) {
-                                mMainHandler = new Handler(Looper.getMainLooper());
-                            }
+            public void postToMainThread(Runnable runnable) {
+                if (mMainHandler == null) {
+                    synchronized (mLock) {
+                        if (mMainHandler == null) {
+                            mMainHandler = new Handler(Looper.getMainLooper());
                         }
                     }
-                    mMainHandler.post(runnable);
                 }
+                //noinspection ConstantConditions
+                mMainHandler.post(runnable);
             }
 
             @Override
@@ -112,8 +111,8 @@ public class AppToolkitTaskExecutor extends TaskExecutor {
     }
 
     @Override
-    public void executeOnMainThread(Runnable runnable) {
-        mDelegate.executeOnMainThread(runnable);
+    public void postToMainThread(Runnable runnable) {
+        mDelegate.postToMainThread(runnable);
     }
 
     @Override

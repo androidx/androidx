@@ -25,7 +25,7 @@ public class InstantTaskExecutor extends TaskExecutor {
     }
 
     @Override
-    public void executeOnMainThread(Runnable runnable) {
+    public void postToMainThread(Runnable runnable) {
         runnable.run();
     }
 

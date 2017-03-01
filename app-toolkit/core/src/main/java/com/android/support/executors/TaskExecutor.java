@@ -36,11 +36,26 @@ public abstract class TaskExecutor {
     public abstract void executeOnDiskIO(Runnable runnable);
 
     /**
-     * Executes the given task on the main thread.
+     * Posts the given task to the main thread.
      *
      * @param runnable The runnable to run on the main thread.
      */
-    public abstract void executeOnMainThread(Runnable runnable);
+    public abstract void postToMainThread(Runnable runnable);
+
+    /**
+     * Executes the given task on the main thread.
+     * <p>
+     * If the current thread is a main thread, immediately runs the given runnable.
+     *
+     * @param runnable The runnable to run on the main thread.
+     */
+    public void executeOnMainThread(Runnable runnable) {
+        if (isMainThread()) {
+            runnable.run();
+        } else {
+            postToMainThread(runnable);
+        }
+    }
 
     /**
      * Returns true if the current thread is the main thread, false otherwise.

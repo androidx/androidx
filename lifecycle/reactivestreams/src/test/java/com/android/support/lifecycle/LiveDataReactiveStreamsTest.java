@@ -93,7 +93,8 @@ public class LiveDataReactiveStreamsTest {
             }
 
             @Override
-            public void executeOnMainThread(final Runnable runnable) {
+            public void postToMainThread(Runnable runnable) {
+                // Wrong implementation, but it is fine for test
                 runnable.run();
             }
 

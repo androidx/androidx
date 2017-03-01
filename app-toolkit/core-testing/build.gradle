@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.android.builder.core.BuilderConstants
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
@@ -26,9 +25,6 @@ android {
         targetSdkVersion target_sdk_version
         versionCode 1
         versionName "1.0"
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
     buildTypes {
         release {
@@ -37,9 +33,6 @@ android {
         }
     }
 
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
@@ -47,22 +40,20 @@ android {
 }
 
 dependencies {
-    compile project(":room:common")
-    compile project(":room:db")
-    compile project(":room:db-impl")
     compile project(":apptoolkit-core")
+    compile "com.android.support:support-annotations:$support_lib_version"
     compile "com.android.support:support-core-utils:$support_lib_version"
-
-    testCompile project(":apptoolkit-core-testing")
-    testCompile "junit:junit:$junit_version"
-    testCompile "org.mockito:mockito-all:$mockito_version"
+    compile("junit:junit:$junit_version") {
+        exclude module: 'hamcrest-core'
+    }
+    compile "org.mockito:mockito-all:$mockito_version"
 }
 
 uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: rootProject.ext.localMavenRepo)
-            pom.artifactId = "runtime"
+            pom.artifactId = "apptoolkit-core-testing"
         }
     }
 }
@@ -72,7 +63,7 @@ createAndroidCheckstyle(project)
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
     def suffix = name.capitalize()
-    project.tasks.create(name: "jar${suffix}", type: Jar){
+    project.tasks.create(name: "jar${suffix}", type: Jar) {
         dependsOn variant.javaCompile
         from variant.javaCompile.destinationDir
         destinationDir new File(project.buildDir, "libJar")

@@ -47,6 +47,7 @@ public abstract class ComputableLiveData<T> {
      * It can also be invalidated via {@link #invalidate()} which will result in a call to
      * {@link #compute()} if there are active observers (or when they start observing)
      */
+    @SuppressWarnings("WeakerAccess")
     public ComputableLiveData() {
         mLiveData = new LiveData<T>() {
             @Override
@@ -73,7 +74,7 @@ public abstract class ComputableLiveData<T> {
         @Override
         public void run() {
             if (mInvalid.compareAndSet(true, false)) {
-                mLiveData.setValue(compute());
+                mLiveData.postValue(compute());
             }
         }
     };

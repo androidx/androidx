@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.support.room.testutil;
+package com.android.support.apptoolkit.testing;
+
+import android.support.annotation.RestrictTo;
 
 import com.android.support.executors.AppToolkitTaskExecutor;
+import com.android.support.executors.TaskExecutor;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -29,15 +32,17 @@ import java.util.List;
 /**
  * A JUnit rule that swaps the task executor with a more controllable one.
  * Once we have the TaskExecutor API, we should consider making this public (via some test package).
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class JunitTaskExecutorRule implements TestRule {
-    private final TaskExecutorWIthFakeMainThread mTaskExecutor;
+    private final TaskExecutorWithFakeMainThread mTaskExecutor;
 
     public JunitTaskExecutorRule(int ioThreadCount, boolean spyOnExecutor) {
         if (spyOnExecutor) {
-            mTaskExecutor = Mockito.spy(new TaskExecutorWIthFakeMainThread(ioThreadCount));
+            mTaskExecutor = Mockito.spy(new TaskExecutorWithFakeMainThread(ioThreadCount));
         } else {
-            mTaskExecutor = new TaskExecutorWIthFakeMainThread(ioThreadCount);
+            mTaskExecutor = new TaskExecutorWithFakeMainThread(ioThreadCount);
         }
 
     }
@@ -50,10 +55,15 @@ public class JunitTaskExecutorRule implements TestRule {
         AppToolkitTaskExecutor.getInstance().setDelegate(null);
     }
 
-    public TaskExecutorWIthFakeMainThread getTaskExecutor() {
+    public TaskExecutor getTaskExecutor() {
         return mTaskExecutor;
     }
 
+    /**
+     * Awaits while all currently posted tasks will be finished
+     * @param seconds timeout in seconds
+     * @throws InterruptedException
+     */
     public void drainTasks(int seconds) throws InterruptedException {
         mTaskExecutor.drainTasks(seconds);
     }
