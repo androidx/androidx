@@ -9229,10 +9229,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * bounds.
          *
          * @param child The child view to be examined.
-         * @param completelyVisible If true, the method returns true iff the child is completely
-         *                          visible. If false, the method returns true iff the child is only
-         *                          partially visible (that is it will return false if the child is
-         *                          either completely visible or out of RV's bounds).
+         * @param completelyVisible If true, the method returns true if and only if the child is
+         *                          completely visible. If false, the method returns true if and
+         *                          only if the child is only partially visible (that is it will
+         *                          return false if the child is either completely visible or out
+         *                          of RV's bounds).
          * @param acceptEndPointInclusion If the view's endpoint intersection with RV's start of end
          *                                bounds is enough to consider it partially visible,
          *                                false otherwise.
