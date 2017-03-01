@@ -1,111 +1,33 @@
-apply plugin: 'com.android.library'
+apply plugin: android.support.SupportLibraryPlugin
 archivesBaseName = 'support-dynamic-animation'
 
 dependencies {
     compile project(':support-core-utils')
-    androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
-        exclude module: 'support-annotations'
-    }
-    androidTestCompile ("com.android.support.test.espresso:espresso-core:${project.rootProject.ext.espressoVersion}") {
-        exclude module: 'support-annotations'
-    }
 
-    testCompile 'junit:junit:4.12'
-    testCompile "org.mockito:mockito-core:1.9.5"
-
-    testCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
+    androidTestCompile (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile 'org.mockito:mockito-core:1.9.5'
-    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
-    compile 'com.google.code.findbugs:jsr305:2.0.1'
+    androidTestCompile (libs.espresso_core) {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile libs.mockito_core
+    androidTestCompile libs.dexmaker
+    androidTestCompile libs.dexmaker_mockito
 }
 
 android {
-    compileSdkVersion project.ext.currentSdk
-
     defaultConfig {
         minSdkVersion 16
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
-        main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDir 'src'
         main.res.srcDirs 'res', 'res-public'
-
-        androidTest.setRoot('tests')
-        androidTest.java.srcDir 'tests/src'
-        androidTest.res.srcDir 'tests/res'
-        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
-
-    lintOptions {
-        // TODO: fix errors and reenable.
-        abortOnError false
-    }
-
-    packagingOptions {
-        exclude 'LICENSE.txt'
-    }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
     }
 }
 
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-
-    if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
-        return; // Skip debug builds.
-    }
-    def suffix = name.capitalize()
-
-    def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
-        classifier = 'sources'
-        from android.sourceSets.main.java.srcDirs
-    }
-
-    artifacts.add('archives', sourcesJarTask);
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri(rootProject.ext.supportRepoOut)) {
-            }
-
-            pom.project {
-                name 'Android Support DynamicAnimation v16'
-                description "Physics-based animation in support library, where the animations are driven by physics force. You can use this Animation library to create smooth and realistic animations."
-                url 'http://developer.android.com/tools/extras/support-library.html'
-                inceptionYear '2017'
-
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-
-                scm {
-                    url "http://source.android.com"
-                    connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
-                }
-                developers {
-                    developer {
-                        name 'The Android Open Source Project'
-                    }
-                }
-            }
-        }
-    }
+supportLibrary {
+    name 'Android Support DynamicAnimation'
+    inceptionYear '2017'
+    description "Physics-based animation in support library, where the animations are driven by physics force. You can use this Animation library to create smooth and realistic animations."
 }
