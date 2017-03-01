@@ -20,16 +20,15 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Notification;
 import android.app.Service;
+import android.os.Build;
 import android.support.annotation.IntDef;
 import android.support.annotation.RestrictTo;
-import android.support.v4.os.BuildCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Helper for accessing features in {@link android.app.Service}
- * introduced after API level 9 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.app.Service} in a backwards compatible fashion.
  */
 public final class ServiceCompat {
 
@@ -86,31 +85,6 @@ public final class ServiceCompat {
     @Retention(RetentionPolicy.SOURCE)
     public @interface StopForegroundFlags {}
 
-    interface ServiceCompatImpl {
-        void stopForeground(Service service, @ServiceCompat.StopForegroundFlags int flags);
-    }
-
-    static class BaseServiceCompatImpl implements ServiceCompat.ServiceCompatImpl {
-        public void stopForeground(Service service, @ServiceCompat.StopForegroundFlags int flags) {
-            service.stopForeground((flags & ServiceCompat.STOP_FOREGROUND_REMOVE) != 0);
-        }
-    }
-
-    static class Api24ServiceCompatImpl implements ServiceCompat.ServiceCompatImpl {
-        public void stopForeground(Service service, @ServiceCompat.StopForegroundFlags int flags) {
-            ServiceCompatApi24.stopForeground(service, flags);
-        }
-    }
-
-    static final ServiceCompatImpl IMPL;
-    static {
-        if (BuildCompat.isAtLeastN()) {
-            IMPL = new Api24ServiceCompatImpl();
-        } else {
-            IMPL = new BaseServiceCompatImpl();
-        }
-    }
-
     /**
      * Remove the passed service from foreground state, allowing it to be killed if
      * more memory is needed.
@@ -118,8 +92,11 @@ public final class ServiceCompat {
      * {@link #STOP_FOREGROUND_DETACH}.
      * @see Service#startForeground(int, Notification)
      */
-    public static void stopForeground(Service service,
-            @ServiceCompat.StopForegroundFlags int flags) {
-        IMPL.stopForeground(service, flags);
+    public static void stopForeground(Service service, @StopForegroundFlags int flags) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            service.stopForeground(flags);
+        } else {
+            service.stopForeground((flags & ServiceCompat.STOP_FOREGROUND_REMOVE) != 0);
+        }
     }
 }
