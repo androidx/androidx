@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,18 @@
 
 package android.support.transition;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.view.View;
+import android.animation.ObjectAnimator;
+import android.graphics.Path;
+import android.util.Property;
 
-@RequiresApi(14)
-interface ViewUtilsImpl {
+interface ObjectAnimatorUtilsImpl {
 
-    ViewOverlayImpl getOverlay(@NonNull View view);
+    <T> ObjectAnimator ofInt(T target, String xPropertyName, String yPropertyName, Path path);
 
-    WindowIdImpl getWindowId(@NonNull View view);
+    <T> ObjectAnimator ofInt(T target, Property<T, Integer> xProperty,
+            Property<T, Integer> yProperty, Path path);
 
-    void setTransitionAlpha(@NonNull View view, float alpha);
-
-    float getTransitionAlpha(@NonNull View view);
+    <T> ObjectAnimator ofFloat(T target, Property<T, Float> xProperty,
+            Property<T, Float> yProperty, Path path);
 
 }

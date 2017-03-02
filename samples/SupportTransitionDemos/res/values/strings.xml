@@ -19,7 +19,9 @@
     <string name="scene">Scene</string>
     <string name="custom">Custom Transition</string>
     <string name="beginDelayed">Begin Delayed Transition</string>
+    <string name="arcMotion">Arc Motion</string>
     <string name="toggle">Toggle</string>
     <string name="begin">Begin</string>
     <string name="hello_world">Hello, world!</string>
+    <string name="move">Move</string>
 </resources>

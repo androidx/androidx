@@ -45,6 +45,16 @@ public class FadeTest extends BaseTest {
     }
 
     @Test
+    public void testMode() {
+        assertThat(Fade.IN, is(Visibility.MODE_IN));
+        assertThat(Fade.OUT, is(Visibility.MODE_OUT));
+        final Fade fade = new Fade();
+        assertThat(fade.getMode(), is(Visibility.MODE_IN | Visibility.MODE_OUT));
+        fade.setMode(Visibility.MODE_IN);
+        assertThat(fade.getMode(), is(Visibility.MODE_IN));
+    }
+
+    @Test
     @UiThreadTest
     public void testDisappear() {
         final Fade fade = new Fade();

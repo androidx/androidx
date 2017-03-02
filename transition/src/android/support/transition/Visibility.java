@@ -16,11 +16,19 @@
 
 package android.support.transition;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * This transition tracks changes to the visibility of target views in the
@@ -37,6 +45,28 @@ public abstract class Visibility extends Transition {
 
     private static final String PROPNAME_VISIBILITY = "android:visibility:visibility";
     private static final String PROPNAME_PARENT = "android:visibility:parent";
+    private static final String PROPNAME_SCREEN_LOCATION = "android:visibility:screenLocation";
+
+    /**
+     * Mode used in {@link #setMode(int)} to make the transition
+     * operate on targets that are appearing. Maybe be combined with
+     * {@link #MODE_OUT} to target Visibility changes both in and out.
+     */
+    public static final int MODE_IN = 0x1;
+
+    /**
+     * Mode used in {@link #setMode(int)} to make the transition
+     * operate on targets that are disappearing. Maybe be combined with
+     * {@link #MODE_IN} to target Visibility changes both in and out.
+     */
+    public static final int MODE_OUT = 0x2;
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef(flag = true, value = {MODE_IN, MODE_OUT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Mode {
+    }
 
     private static final String[] sTransitionProperties = {
             PROPNAME_VISIBILITY,
@@ -52,7 +82,34 @@ public abstract class Visibility extends Transition {
         ViewGroup mEndParent;
     }
 
+    private int mMode = MODE_IN | MODE_OUT;
+
     public Visibility() {
+    }
+
+    /**
+     * Changes the transition to support appearing and/or disappearing Views, depending
+     * on <code>mode</code>.
+     *
+     * @param mode The behavior supported by this transition, a combination of
+     *             {@link #MODE_IN} and {@link #MODE_OUT}.
+     */
+    public void setMode(@Mode int mode) {
+        if ((mode & ~(MODE_IN | MODE_OUT)) != 0) {
+            throw new IllegalArgumentException("Only MODE_IN and MODE_OUT flags are allowed");
+        }
+        mMode = mode;
+    }
+
+    /**
+     * Returns whether appearing and/or disappearing Views are supported.
+     *
+     * @return whether appearing and/or disappearing Views are supported. A combination of
+     * {@link #MODE_IN} and {@link #MODE_OUT}.
+     */
+    @Mode
+    public int getMode() {
+        return mMode;
     }
 
     @Nullable
@@ -65,6 +122,9 @@ public abstract class Visibility extends Transition {
         int visibility = transitionValues.view.getVisibility();
         transitionValues.values.put(PROPNAME_VISIBILITY, visibility);
         transitionValues.values.put(PROPNAME_PARENT, transitionValues.view.getParent());
+        int[] loc = new int[2];
+        transitionValues.view.getLocationOnScreen(loc);
+        transitionValues.values.put(PROPNAME_SCREEN_LOCATION, loc);
     }
 
     @Override
@@ -107,14 +167,14 @@ public abstract class Visibility extends Transition {
         final VisibilityInfo visInfo = new VisibilityInfo();
         visInfo.mVisibilityChange = false;
         visInfo.mFadeIn = false;
-        if (startValues != null) {
+        if (startValues != null && startValues.values.containsKey(PROPNAME_VISIBILITY)) {
             visInfo.mStartVisibility = (Integer) startValues.values.get(PROPNAME_VISIBILITY);
             visInfo.mStartParent = (ViewGroup) startValues.values.get(PROPNAME_PARENT);
         } else {
             visInfo.mStartVisibility = -1;
             visInfo.mStartParent = null;
         }
-        if (endValues != null) {
+        if (endValues != null && endValues.values.containsKey(PROPNAME_VISIBILITY)) {
             visInfo.mEndVisibility = (Integer) endValues.values.get(PROPNAME_VISIBILITY);
             visInfo.mEndParent = (ViewGroup) endValues.values.get(PROPNAME_PARENT);
         } else {
@@ -145,11 +205,10 @@ public abstract class Visibility extends Transition {
                     }
                 }
             }
-        }
-        if (startValues == null) {
+        } else if (startValues == null && visInfo.mEndVisibility == View.VISIBLE) {
             visInfo.mFadeIn = true;
             visInfo.mVisibilityChange = true;
-        } else if (endValues == null) {
+        } else if (endValues == null && visInfo.mStartVisibility == View.VISIBLE) {
             visInfo.mFadeIn = false;
             visInfo.mVisibilityChange = true;
         }
@@ -161,24 +220,15 @@ public abstract class Visibility extends Transition {
     public Animator createAnimator(@NonNull ViewGroup sceneRoot,
             @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         VisibilityInfo visInfo = getVisibilityChangeInfo(startValues, endValues);
-        if (visInfo.mVisibilityChange) {
-            // Only transition views that are either targets of this transition
-            // or whose parent hierarchies remain stable between scenes
-            boolean isTarget = false;
-            if (mTargets.size() > 0 || mTargetIds.size() > 0) {
-                View startView = startValues != null ? startValues.view : null;
-                View endView = endValues != null ? endValues.view : null;
-                isTarget = isValidTarget(startView) || isValidTarget(endView);
-            }
-            if (isTarget || ((visInfo.mStartParent != null || visInfo.mEndParent != null))) {
-                if (visInfo.mFadeIn) {
-                    return onAppear(sceneRoot, startValues, visInfo.mStartVisibility,
-                            endValues, visInfo.mEndVisibility);
-                } else {
-                    return onDisappear(sceneRoot, startValues, visInfo.mStartVisibility,
-                            endValues, visInfo.mEndVisibility
-                    );
-                }
+        if (visInfo.mVisibilityChange
+                && (visInfo.mStartParent != null || visInfo.mEndParent != null)) {
+            if (visInfo.mFadeIn) {
+                return onAppear(sceneRoot, startValues, visInfo.mStartVisibility,
+                        endValues, visInfo.mEndVisibility);
+            } else {
+                return onDisappear(sceneRoot, startValues, visInfo.mStartVisibility,
+                        endValues, visInfo.mEndVisibility
+                );
             }
         }
         return null;
@@ -202,6 +252,42 @@ public abstract class Visibility extends Transition {
     @SuppressWarnings("UnusedParameters")
     public Animator onAppear(ViewGroup sceneRoot, TransitionValues startValues, int startVisibility,
             TransitionValues endValues, int endVisibility) {
+        if ((mMode & MODE_IN) != MODE_IN || endValues == null) {
+            return null;
+        }
+        if (startValues == null) {
+            View endParent = (View) endValues.view.getParent();
+            TransitionValues startParentValues = getMatchedTransitionValues(endParent,
+                    false);
+            TransitionValues endParentValues = getTransitionValues(endParent, false);
+            VisibilityInfo parentVisibilityInfo =
+                    getVisibilityChangeInfo(startParentValues, endParentValues);
+            if (parentVisibilityInfo.mVisibilityChange) {
+                return null;
+            }
+        }
+        return onAppear(sceneRoot, endValues.view, startValues, endValues);
+    }
+
+    /**
+     * The default implementation of this method returns a null Animator. Subclasses should
+     * override this method to make targets appear with the desired transition. The
+     * method should only be called from
+     * {@link #onAppear(ViewGroup, TransitionValues, int, TransitionValues, int)}.
+     *
+     * @param sceneRoot   The root of the transition hierarchy
+     * @param view        The View to make appear. This will be in the target scene's View
+     *                    hierarchy
+     *                    and
+     *                    will be VISIBLE.
+     * @param startValues The target values in the start scene
+     * @param endValues   The target values in the end scene
+     * @return An Animator to be started at the appropriate time in the
+     * overall transition for this scene change. A null value means no animation
+     * should be run.
+     */
+    public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,
+            TransitionValues endValues) {
         return null;
     }
 
@@ -223,6 +309,154 @@ public abstract class Visibility extends Transition {
     @SuppressWarnings("UnusedParameters")
     public Animator onDisappear(ViewGroup sceneRoot, TransitionValues startValues,
             int startVisibility, TransitionValues endValues, int endVisibility) {
+        if ((mMode & MODE_OUT) != MODE_OUT) {
+            return null;
+        }
+
+        View startView = (startValues != null) ? startValues.view : null;
+        View endView = (endValues != null) ? endValues.view : null;
+        View overlayView = null;
+        View viewToKeep = null;
+        if (endView == null || endView.getParent() == null) {
+            if (endView != null) {
+                // endView was removed from its parent - add it to the overlay
+                overlayView = endView;
+            } else if (startView != null) {
+                // endView does not exist. Use startView only under certain
+                // conditions, because placing a view in an overlay necessitates
+                // it being removed from its current parent
+                if (startView.getParent() == null) {
+                    // no parent - safe to use
+                    overlayView = startView;
+                } else if (startView.getParent() instanceof View) {
+                    View startParent = (View) startView.getParent();
+                    TransitionValues startParentValues = getTransitionValues(startParent, true);
+                    TransitionValues endParentValues = getMatchedTransitionValues(startParent,
+                            true);
+                    VisibilityInfo parentVisibilityInfo =
+                            getVisibilityChangeInfo(startParentValues, endParentValues);
+                    if (!parentVisibilityInfo.mVisibilityChange) {
+                        overlayView = TransitionUtils.copyViewImage(sceneRoot, startView,
+                                startParent);
+                    } else if (startParent.getParent() == null) {
+                        int id = startParent.getId();
+                        if (id != View.NO_ID && sceneRoot.findViewById(id) != null
+                                && mCanRemoveViews) {
+                            // no parent, but its parent is unparented  but the parent
+                            // hierarchy has been replaced by a new hierarchy with the same id
+                            // and it is safe to un-parent startView
+                            overlayView = startView;
+                        }
+                    }
+                }
+            }
+        } else {
+            // visibility change
+            if (endVisibility == View.INVISIBLE) {
+                viewToKeep = endView;
+            } else {
+                // Becoming GONE
+                if (startView == endView) {
+                    viewToKeep = endView;
+                } else {
+                    overlayView = startView;
+                }
+            }
+        }
+        final int finalVisibility = endVisibility;
+
+        if (overlayView != null && startValues != null) {
+            // TODO: Need to do this for general case of adding to overlay
+            int[] screenLoc = (int[]) startValues.values.get(PROPNAME_SCREEN_LOCATION);
+            int screenX = screenLoc[0];
+            int screenY = screenLoc[1];
+            int[] loc = new int[2];
+            sceneRoot.getLocationOnScreen(loc);
+            overlayView.offsetLeftAndRight((screenX - loc[0]) - overlayView.getLeft());
+            overlayView.offsetTopAndBottom((screenY - loc[1]) - overlayView.getTop());
+            final ViewGroupOverlayImpl overlay = ViewGroupUtils.getOverlay(sceneRoot);
+            overlay.add(overlayView);
+            Animator animator = onDisappear(sceneRoot, overlayView, startValues, endValues);
+            if (animator == null) {
+                overlay.remove(overlayView);
+            } else {
+                final View finalOverlayView = overlayView;
+                animator.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        overlay.remove(finalOverlayView);
+                    }
+                });
+            }
+            return animator;
+        }
+
+        if (viewToKeep != null) {
+            int originalVisibility = -1;
+            originalVisibility = viewToKeep.getVisibility();
+            viewToKeep.setVisibility(View.VISIBLE);
+            Animator animator = onDisappear(sceneRoot, viewToKeep, startValues, endValues);
+            if (animator != null) {
+                final View finalViewToKeep = viewToKeep;
+                animator.addListener(new AnimatorListenerAdapter() {
+                    boolean mCanceled = false;
+
+                    @Override
+                    public void onAnimationPause(Animator animation) {
+                        if (!mCanceled) {
+                            //noinspection WrongConstant
+                            finalViewToKeep.setVisibility(finalVisibility);
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationResume(Animator animation) {
+                        if (!mCanceled) {
+                            finalViewToKeep.setVisibility(View.VISIBLE);
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                        mCanceled = true;
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        if (!mCanceled) {
+                            //noinspection WrongConstant
+                            finalViewToKeep.setVisibility(finalVisibility);
+                        }
+                    }
+                });
+            } else {
+                viewToKeep.setVisibility(originalVisibility);
+            }
+            return animator;
+        }
+        return null;
+
+
+    }
+
+    /**
+     * The default implementation of this method returns a null Animator. Subclasses should
+     * override this method to make targets disappear with the desired transition. The
+     * method should only be called from
+     * {@link #onDisappear(ViewGroup, TransitionValues, int, TransitionValues, int)}.
+     *
+     * @param sceneRoot   The root of the transition hierarchy
+     * @param view        The View to make disappear. This will be in the target scene's View
+     *                    hierarchy or in an {@link android.view.ViewGroupOverlay} and will be
+     *                    VISIBLE.
+     * @param startValues The target values in the start scene
+     * @param endValues   The target values in the end scene
+     * @return An Animator to be started at the appropriate time in the
+     * overall transition for this scene change. A null value means no animation
+     * should be run.
+     */
+    public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,
+            TransitionValues endValues) {
         return null;
     }
 
@@ -236,7 +470,6 @@ public abstract class Visibility extends Transition {
                 || changeInfo.mEndVisibility == View.VISIBLE);
     }
 
-    // TODO: Implement API 21; onAppear (4 params), onDisappear (4 params), getMode, setMode
     // TODO: Implement API 23; isTransitionRequired
 
 }

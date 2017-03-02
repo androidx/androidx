@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,18 @@
 
 package android.support.transition;
 
-import android.support.annotation.NonNull;
+import android.animation.PropertyValuesHolder;
+import android.graphics.Path;
+import android.graphics.PointF;
 import android.support.annotation.RequiresApi;
-import android.view.View;
+import android.util.Property;
 
-@RequiresApi(14)
-interface ViewUtilsImpl {
+@RequiresApi(21)
+class PropertyValuesHolderUtilsApi21 implements PropertyValuesHolderUtilsImpl {
 
-    ViewOverlayImpl getOverlay(@NonNull View view);
-
-    WindowIdImpl getWindowId(@NonNull View view);
-
-    void setTransitionAlpha(@NonNull View view, float alpha);
-
-    float getTransitionAlpha(@NonNull View view);
+    @Override
+    public PropertyValuesHolder ofPointF(Property<?, PointF> property, Path path) {
+        return PropertyValuesHolder.ofObject(property, null, path);
+    }
 
 }

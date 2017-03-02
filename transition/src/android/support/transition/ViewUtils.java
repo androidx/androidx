@@ -16,9 +16,14 @@
 
 package android.support.transition;
 
+import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewCompat;
+import android.util.Property;
 import android.view.View;
+import android.view.ViewParent;
 
 /**
  * Compatibility utilities for platform features of {@link View}.
@@ -28,12 +33,47 @@ class ViewUtils {
     private static final ViewUtilsImpl IMPL;
 
     static {
-        if (Build.VERSION.SDK_INT >= 18) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            IMPL = new ViewUtilsApi19();
+        } else if (Build.VERSION.SDK_INT >= 18) {
             IMPL = new ViewUtilsApi18();
         } else {
             IMPL = new ViewUtilsApi14();
         }
     }
+
+    /**
+     * A {@link Property} for animating transitionAlpha value of a View.
+     */
+    static final Property<View, Float> TRANSITION_ALPHA =
+            new Property<View, Float>(Float.class, "translationAlpha") {
+
+                @Override
+                public Float get(View view) {
+                    return getTransitionAlpha(view);
+                }
+
+                @Override
+                public void set(View view, Float alpha) {
+                    setTransitionAlpha(view, alpha);
+                }
+
+            };
+
+    static final Property<View, Rect> CLIP_BOUNDS =
+            new Property<View, Rect>(Rect.class, "clipBounds") {
+
+                @Override
+                public Rect get(View view) {
+                    return ViewCompat.getClipBounds(view);
+                }
+
+                @Override
+                public void set(View view, Rect clipBounds) {
+                    ViewCompat.setClipBounds(view, clipBounds);
+                }
+
+            };
 
     /**
      * Backward-compatible {@link View#getOverlay()}.
@@ -47,6 +87,59 @@ class ViewUtils {
      */
     static WindowIdImpl getWindowId(@NonNull View view) {
         return IMPL.getWindowId(view);
+    }
+
+    static void setTransitionAlpha(@NonNull View view, float alpha) {
+        IMPL.setTransitionAlpha(view, alpha);
+    }
+
+    static float getTransitionAlpha(@NonNull View view) {
+        return IMPL.getTransitionAlpha(view);
+    }
+
+    /**
+     * Modifies the input matrix such that it maps view-local coordinates to
+     * on-screen coordinates.
+     *
+     * @param view target view
+     * @param matrix input matrix to modify
+     */
+    static void transformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix) {
+        final ViewParent parent = view.getParent();
+        if (parent instanceof View) {
+            final View vp = (View) parent;
+            transformMatrixToGlobal(vp, matrix);
+            matrix.preTranslate(-vp.getScrollX(), -vp.getScrollY());
+        }
+        matrix.preTranslate(view.getLeft(), view.getTop());
+        final Matrix vm = view.getMatrix();
+        if (!vm.isIdentity()) {
+            matrix.preConcat(vm);
+        }
+    }
+
+    /**
+     * Modifies the input matrix such that it maps on-screen coordinates to
+     * view-local coordinates.
+     *
+     * @param view target view
+     * @param matrix input matrix to modify
+     */
+    static void transformMatrixToLocal(@NonNull View view, @NonNull Matrix matrix) {
+        final ViewParent parent = view.getParent();
+        if (parent instanceof View) {
+            final View vp = (View) parent;
+            transformMatrixToLocal(vp, matrix);
+            matrix.postTranslate(vp.getScrollX(), vp.getScrollY());
+        }
+        matrix.postTranslate(view.getLeft(), view.getTop());
+        final Matrix vm = view.getMatrix();
+        if (!vm.isIdentity()) {
+            final Matrix inverted = new Matrix();
+            if (vm.invert(inverted)) {
+                matrix.postConcat(inverted);
+            }
+        }
     }
 
 }

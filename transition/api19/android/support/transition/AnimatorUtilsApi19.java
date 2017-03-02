@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package android.support.transition;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.view.View;
 
-@RequiresApi(14)
-interface ViewUtilsImpl {
+@RequiresApi(19)
+class AnimatorUtilsApi19 extends AnimatorUtilsApi14 {
 
-    ViewOverlayImpl getOverlay(@NonNull View view);
-
-    WindowIdImpl getWindowId(@NonNull View view);
-
-    void setTransitionAlpha(@NonNull View view, float alpha);
-
-    float getTransitionAlpha(@NonNull View view);
+    @Override
+    public void addPauseListener(@NonNull Animator animator,
+            @NonNull AnimatorListenerAdapter listener) {
+        animator.addPauseListener(listener);
+    }
 
 }

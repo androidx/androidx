@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,26 @@
 
 package android.support.transition;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.view.View;
 
-@RequiresApi(14)
-interface ViewUtilsImpl {
+class AnimatorUtils {
 
-    ViewOverlayImpl getOverlay(@NonNull View view);
+    private static final AnimatorUtilsImpl IMPL;
 
-    WindowIdImpl getWindowId(@NonNull View view);
+    static {
+        if (Build.VERSION.SDK_INT >= 19) {
+            IMPL = new AnimatorUtilsApi19();
+        } else {
+            IMPL = new AnimatorUtilsApi14();
+        }
+    }
 
-    void setTransitionAlpha(@NonNull View view, float alpha);
-
-    float getTransitionAlpha(@NonNull View view);
+    static void addPauseListener(@NonNull Animator animator,
+            @NonNull AnimatorListenerAdapter listener) {
+        IMPL.addPauseListener(animator, listener);
+    }
 
 }

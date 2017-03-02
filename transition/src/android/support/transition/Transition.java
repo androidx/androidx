@@ -21,6 +21,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
+import android.graphics.Path;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
@@ -113,6 +114,16 @@ public abstract class Transition implements Cloneable {
             MATCH_ITEM_ID,
     };
 
+    private static final PathMotion STRAIGHT_PATH_MOTION = new PathMotion() {
+        @Override
+        public Path getPath(float startX, float startY, float endX, float endY) {
+            Path path = new Path();
+            path.moveTo(startX, startY);
+            path.lineTo(endX, endY);
+            return path;
+        }
+    };
+
     private String mName = getClass().getName();
 
     private long mStartDelay = -1;
@@ -176,6 +187,10 @@ public abstract class Transition implements Cloneable {
     // For Fragment shared element transitions, linking views explicitly by mismatching
     // transitionNames.
     private ArrayMap<String, String> mNameOverrides;
+
+    // The function used to interpolate along two-dimensional points. Typically used
+    // for adding curves to x/y View motion.
+    private PathMotion mPathMotion = STRAIGHT_PATH_MOTION;
 
     /**
      * Constructs a Transition object with no target objects. A transition with
@@ -1074,14 +1089,13 @@ public abstract class Transition implements Cloneable {
      * id, their instance reference, their transitionName, or by the Class of that view
      * (eg, {@link Spinner}).</p>
      *
+     * @param targetName The name of a target to ignore when running this transition.
+     * @param exclude    Whether to add the target to or remove the target from the
+     *                   current list of excluded targets.
+     * @return This transition object.
      * @see #excludeTarget(View, boolean)
      * @see #excludeTarget(int, boolean)
      * @see #excludeTarget(Class, boolean)
-     *
-     * @param targetName The name of a target to ignore when running this transition.
-     * @param exclude Whether to add the target to or remove the target from the
-     * current list of excluded targets.
-     * @return This transition object.
      */
     @NonNull
     public Transition excludeTarget(@NonNull String targetName, boolean exclude) {
@@ -1861,6 +1875,43 @@ public abstract class Transition implements Cloneable {
             mListeners = null;
         }
         return this;
+    }
+
+    /**
+     * Sets the algorithm used to calculate two-dimensional interpolation.
+     * <p>
+     * Transitions such as {@link android.transition.ChangeBounds} move Views, typically
+     * in a straight path between the start and end positions. Applications that desire to
+     * have these motions move in a curve can change how Views interpolate in two dimensions
+     * by extending PathMotion and implementing
+     * {@link android.transition.PathMotion#getPath(float, float, float, float)}.
+     * </p>
+     *
+     * @param pathMotion Algorithm object to use for determining how to interpolate in two
+     *                   dimensions. If null, a straight-path algorithm will be used.
+     * @see android.transition.ArcMotion
+     * @see PatternPathMotion
+     * @see android.transition.PathMotion
+     */
+    public void setPathMotion(PathMotion pathMotion) {
+        if (pathMotion == null) {
+            mPathMotion = STRAIGHT_PATH_MOTION;
+        } else {
+            mPathMotion = pathMotion;
+        }
+    }
+
+    /**
+     * Returns the algorithm object used to interpolate along two dimensions. This is typically
+     * used to determine the View motion between two points.
+     *
+     * @return The algorithm object used to interpolate along two dimensions.
+     * @see android.transition.ArcMotion
+     * @see PatternPathMotion
+     * @see android.transition.PathMotion
+     */
+    public PathMotion getPathMotion() {
+        return mPathMotion;
     }
 
     Transition setSceneRoot(ViewGroup sceneRoot) {
