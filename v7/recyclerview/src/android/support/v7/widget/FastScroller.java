@@ -32,12 +32,16 @@ import android.support.v7.widget.RecyclerView.OnItemTouchListener;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.view.MotionEvent;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Class responsible to animate and provide a fast scroller.
  */
 @VisibleForTesting
 class FastScroller extends ItemDecoration implements OnItemTouchListener {
     @IntDef({STATE_HIDDEN, STATE_VISIBLE, STATE_DRAGGING})
+    @Retention(RetentionPolicy.SOURCE)
     private @interface State { }
     // Scroll thumb not showing
     private static final int STATE_HIDDEN = 0;
@@ -47,6 +51,7 @@ class FastScroller extends ItemDecoration implements OnItemTouchListener {
     private static final int STATE_DRAGGING = 2;
 
     @IntDef({DRAG_X, DRAG_Y, DRAG_NONE})
+    @Retention(RetentionPolicy.SOURCE)
     private @interface DragState{ }
     private static final int DRAG_NONE = 0;
     private static final int DRAG_X = 1;
@@ -54,6 +59,7 @@ class FastScroller extends ItemDecoration implements OnItemTouchListener {
 
     @IntDef({ANIMATION_STATE_OUT, ANIMATION_STATE_FADING_IN, ANIMATION_STATE_IN,
         ANIMATION_STATE_FADING_OUT})
+    @Retention(RetentionPolicy.SOURCE)
     private @interface AnimationState { }
     private static final int ANIMATION_STATE_OUT = 0;
     private static final int ANIMATION_STATE_FADING_IN = 1;
