@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import org.gradle.internal.os.OperatingSystem
-ext.integrateWithSupportLib = System.getenv("WITH_SUPPORTLIB")
 def root = ext.supportRootFolder
 ext.usePrebuilts = "true" // for doclava
-if (ext.integrateWithSupportLib) {
+ext.inAppToolkitProject = rootProject.name == "app-toolkit"
+
+if (ext.inAppToolkitProject) {
     apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
+    init.loadDefaultVersions()
+    init.setSdkInLocalPropertiesFile()
 }
+
 def checkoutRoot = "${root}/../.."
 ext.checkoutRoot = checkoutRoot
 ext.prebuiltsRoot = "$checkoutRoot/prebuilts"
 ext.prebuiltsRootUri = "file://${prebuiltsRoot}"
-
 
 final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
 final String fullSdkPath = new File("${checkoutRoot}/prebuilts/fullsdk-${platform}").getCanonicalPath()
@@ -35,7 +39,7 @@ props.write "sdk.dir=${fullSdkPath}"
 def buildDir
 def distDir
 def supportLibBuildDir
-ext.runningInBuildServer = System.env.DIST_DIR != null && System.env.OUT_DIR != null
+
 if (ext.runningInBuildServer) {
     supportLibBuildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile();
     buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/app-toolkit/build').getCanonicalFile()
@@ -43,13 +47,15 @@ if (ext.runningInBuildServer) {
 } else {
     supportLibBuildDir = file("${checkoutRoot}/out/host/gradle/frameworks/support/build")
     buildDir = file("${checkoutRoot}/out/host/gradle/frameworks/app-toolkit/build")
-    distDir = file("${project.rootDir}/../../out/dist")
+    distDir = file("${checkoutRoot}/out/dist")
 }
 
 def localMavenRepo = "file://${new File(buildDir, "flatfoot_repo").absolutePath}"
 ext.testApkDistOut = distDir
 ext.testResultsDistDir = new File(distDir, "host-test-reports")
 ext.localMavenRepo = localMavenRepo
+file(localMavenRepo).delete()
+file(localMavenRepo).mkdirs()
 
 ext.repoNames = ["$prebuiltsRootUri/maven_repo",
                  "$prebuiltsRootUri/gradle-plugin",
@@ -60,38 +66,38 @@ ext.repoNames = ["$prebuiltsRootUri/maven_repo",
                  "file://$fullSdkPath/extras/android/m2repository",
                  "file://${new File(supportLibBuildDir, "support_repo").absolutePath}"]
 
-ext.kotlin_version = "1.0.5"
-ext.android_gradle_plugin_version = "2.2.4"
-ext.auto_common_version = "0.6"
-ext.javapoet_version = "1.8.0"
-ext.compile_testing_version = "0.9"
-ext.localize_maven_version = "1.1"
-ext.support_lib_version = "25.1.0-SNAPSHOT"
-ext.junit_version = "4.12"
-ext.mockito_version = "1.9.5"
-ext.min_sdk_version = 14
-ext.target_sdk_version = 26
-ext.compile_sdk_version = 26
-ext.build_tools_version = "26.0.0"
-ext.intellij_annotation = "12.0"
-ext.espresso_version = "2.2.2"
-ext.release_version = "1.0-SNAPSHOT"
-ext.atsl_version = "0.6-alpha"
-ext.rxjava2_version = "2.0.6"
-ext.reactivestreams_version = "1.0.0"
-// this Xerial version is newer than we want but we need it to fix
-// https://github.com/xerial/sqlite-jdbc/issues/97
-ext.xerial_version = "3.16.1"
-ext.antlr_version = "4.5.3"
+apply from: "${ext.supportRootFolder}/app-toolkit/dependencies.gradle"
 ext.enablePublicRepos = System.getenv("ALLOW_PUBLIC_REPOS")
 
 // repository creation task
-def createRepoDistTask = rootProject.tasks.create(name : "createArchive", type: Zip) {
+def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompilationTasks",
+    description: "Anchor task for everything we want to run in build server.")
+
+// flatfoot and its dependencies only repo. does not include history
+def createFFDistTask = rootProject.tasks.create(name : "createFlatfootArchive", type: Zip) {
     from localMavenRepo
     destinationDir distDir
     into 'appToolkitRepository'
-    baseName = String.format("sdk-repo-linux-appToolkitRepository-%s", rootProject.ext.release_version)
+    baseName = String.format("sdk-repo-linux-appToolkitRepository-%s", rootProject.ext.flatfoot.release_version)
 }
+
+if (ext.inAppToolkitProject) {
+    init.addMavenRepositories(repositories)
+    init.setupRepoOutAndBuildNumber()
+    init.configureSubProjects()
+    init.setupRelease()
+    init.enableDoclavaAndJDiff(this)
+}
+
+// skip check api tasks because we are not building them.
+if (ext.inAppToolkitProject) {
+    checkApiStable.enabled = false
+    checkApi.enabled = false
+}
+buildServerAnchorTask.dependsOn createArchive
+// TODO remove when build server is updated
+createArchive.dependsOn createFFDistTask
+buildServerAnchorTask.dependsOn createFFDistTask
 
 subprojects {
     configurations.all {
@@ -99,6 +105,7 @@ subprojects {
             force "com.google.guava:guava-jdk5:17.0"
         }
     }
+    init.addMavenRepositories(project.repositories)
     if (project.name == 'doclava' || project.name == 'jdiff') {
         project.tasks.whenTaskAdded { task ->
             if (task instanceof org.gradle.api.tasks.testing.Test) {
@@ -107,61 +114,24 @@ subprojects {
         }
         return
     }
-    def mavenGroup = project.getPath().split(":")[1]
-    project.group = "com.android.support.$mavenGroup"
-    project.version = release_version
-    addRepos(project.repositories)
-
-    // copy test results to DIST
     project.tasks.whenTaskAdded { task ->
-        if (task instanceof org.gradle.api.tasks.testing.Test) {
-            def junitReport = task.reports.junitXml
-            if (junitReport.enabled) {
-                def zipTask = project.tasks.create(name : "zipResultsOf${task.name.capitalize()}", type : Zip) {
-                    destinationDir(testResultsDistDir)
-                    archiveName("${project.name}.zip")
-                }
-                if (project.rootProject.ext.runningInBuildServer) {
-                    task.ignoreFailures = true
-                }
-                task.finalizedBy zipTask
-                task.doFirst {
-                    zipTask.from(junitReport.destination)
-                }
-            }
-        }
-    }
-
-    // Copy instrumentation test APKs and app APKs into the dist dir
-    // For test apks, they are uploaded only if we have java test sources.
-    // For regular app apks, they are uploaded only if they have java sources.
-    project.tasks.whenTaskAdded { task ->
-        if (task.name.startsWith("packageDebug")) {
-            def testApk = task.name.contains("AndroidTest")
+        if (task.name.startsWith("uploadArchives")) {
+            createFFDistTask.dependsOn task
             task.doLast {
-                def source = testApk ? project.android.sourceSets.androidTest
-                                     : project.android.sourceSets.main
-                if (task.hasProperty("outputFile") && !source.java.sourceFiles.isEmpty()) {
-                    copy {
-                        from(task.outputFile)
-                        into(rootProject.ext.testApkDistOut)
-                        rename { String fileName ->
-                            "${project.getPath().replace(':', '-').substring(1)}_${fileName}"
-                        }
-                    }
+                copy {
+                    from(task.outputs)
+                    into(localMavenRepo)
                 }
             }
         }
     }
-
-    project.afterEvaluate {
-        if (project.plugins.hasPlugin('maven')) {
-            def uploadArchivesTask = project.tasks.findByPath("uploadArchives")
-            if (uploadArchivesTask != null) {
-                createRepoDistTask.dependsOn(uploadArchivesTask)
-            }
-        }
+    def mavenGroup = project.getPath().split(":")[1]
+    if (mavenGroup != "room" && mavenGroup != "lifecycle" && mavenGroup != "apptoolkit-core") {
+        return
     }
+
+    project.group = "com.android.support.$mavenGroup"
+    project.version = flatfoot.release_version
 
     if (enablePublicRepos) {
         project.afterEvaluate {
@@ -170,20 +140,6 @@ subprojects {
                 localRepoDir = file("$prebuiltsRoot/tools/common/m2/repository")
                 otherRepoDirs = repoNames
             }
-        }
-    }
-}
-
-
-
-def addRepos(RepositoryHandler handler) {
-    repoNames.each { repo ->
-        handler.maven {
-            url repo
-        }
-        if (ext.enablePublicRepos) {
-            handler.mavenCentral()
-            handler.jcenter()
         }
     }
 }
@@ -242,13 +198,5 @@ def createCheckstyleTask(project, taskName, configFile, inputFiles) {
     return checkStyle;
 }
 
-def buildDir
-if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
-    buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile()
-} else {
-    buildDir = file("${ext.prebuiltsRootUri}/../out/host/gradle/frameworks/support/build")
-}
-ext.localMavenRepo = "file://${new File(buildDir, "flatfoot_repo").absolutePath}"
-ext.addRepos = this.&addRepos
 ext.createKotlinCheckstyle = this.&createKotlinCheckstyle
 ext.createAndroidCheckstyle = this.&createAndroidCheckstyle

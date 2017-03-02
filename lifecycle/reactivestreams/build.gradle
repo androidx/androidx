@@ -20,12 +20,12 @@ apply plugin: 'maven'
 sourceCompatibility = '1.7'
 
 android {
-    compileSdkVersion compile_sdk_version
-    buildToolsVersion build_tools_version
+    compileSdkVersion tools.current_sdk
+    buildToolsVersion tools.build_tools_version
 
     defaultConfig {
-        minSdkVersion min_sdk_version
-        targetSdkVersion target_sdk_version
+        minSdkVersion flatfoot.min_sdk
+        targetSdkVersion tools.current_sdk
         versionCode 1
         versionName "1.0"
 
@@ -45,20 +45,20 @@ android {
 
 allprojects {
     dependencies {
-        compile project(":apptoolkit-core")
+        compile project(":apptoolkit:core")
         compile project(":lifecycle:common")
         compile project(":lifecycle:extensions")
         compile project(":lifecycle:runtime")
-        compile "com.android.support:support-annotations:$support_lib_version"
-        compile "org.reactivestreams:reactive-streams:$reactivestreams_version"
+        compile libs.support.annotations
+        compile libs.reactive_streams
 
-        testCompile "junit:junit:$junit_version"
-        testCompile "io.reactivex.rxjava2:rxjava:$rxjava2_version"
+        testCompile libs.junit
+        testCompile libs.rx_java
 
-        testCompile("com.android.support.test:runner:$atsl_version") {
+        testCompile(libs.test_runner) {
             exclude module: 'support-annotations'
         }
-        androidTestCompile "com.android.support:appcompat-v7:$support_lib_version"
+        androidTestCompile libs.support.app_compat
     }
 }
 

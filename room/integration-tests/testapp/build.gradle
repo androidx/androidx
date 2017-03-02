@@ -18,12 +18,12 @@ apply plugin: 'com.android.library'
 project.ext.noDocs = true
 
 android {
-    compileSdkVersion compile_sdk_version
-    buildToolsVersion build_tools_version
+    compileSdkVersion tools.current_sdk
+    buildToolsVersion tools.build_tools_version
 
     defaultConfig {
-        minSdkVersion min_sdk_version
-        targetSdkVersion target_sdk_version
+        minSdkVersion flatfoot.min_sdk
+        targetSdkVersion tools.current_sdk
         versionCode 1
         versionName "1.0"
 
@@ -44,26 +44,28 @@ dependencies {
     compile project(":room:db")
     compile project(":room:db-impl")
     compile project(':room:runtime')
-    compile project(':apptoolkit-core')
+    compile project(':apptoolkit:core')
 
-    compile "com.android.support:appcompat-v7:$support_lib_version"
+    compile libs.support.app_compat
     annotationProcessor project(":room:compiler")
     androidTestAnnotationProcessor project(":room:compiler")
 
-    androidTestCompile("com.android.support.test:runner:$atsl_version") {
+    androidTestCompile(libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile("com.android.support.test.espresso:espresso-core:$espresso_version", {
+    androidTestCompile(libs.espresso_core, {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     // IJ's gradle integration just cannot figure this out ...
     androidTestCompile project(':lifecycle:extensions')
     androidTestCompile project(':lifecycle:common')
     androidTestCompile project(':lifecycle:runtime')
-    testCompile "junit:junit:$junit_version"
-    testCompile "org.mockito:mockito-core:$mockito_version"
+    testCompile libs.junit
+    testCompile libs.mockito_core
 
 }
 
 createAndroidCheckstyle(project)
 tasks['check'].dependsOn(tasks['connectedCheck'])
+
+uploadArchives.enabled = false

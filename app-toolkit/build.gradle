@@ -17,18 +17,12 @@
 buildscript {
     ext.supportRootFolder = new File(project.projectDir, "../")
     apply from: 'init.gradle'
-    ext.addRepos(repositories)
+    init.addMavenRepositories(repositories)
     dependencies {
-        classpath "com.android.tools.build:gradle:$android_gradle_plugin_version"
+        classpath libs.gradle
+        classpath libs.kotlin.gradle_plugin
         if (enablePublicRepos) {
-            classpath "com.android.databinding:localizemaven:${localize_maven_version}"
+            classpath libs.localize_maven
         }
     }
-}
-if (ext.integrateWithSupportLib) {
-    ext.init.loadDefaultVersions()
-    ext.init.setSdkInLocalPropertiesFile()
-    ext.init.setupRepoOutAndBuildNumber()
-    ext.addRepos(repositories)
-    ext.init.enableDoclavaAndJDiff(this)
 }

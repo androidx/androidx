@@ -18,12 +18,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
 android {
-    compileSdkVersion compile_sdk_version
-    buildToolsVersion build_tools_version
+    compileSdkVersion tools.current_sdk
+    buildToolsVersion tools.build_tools_version
 
     defaultConfig {
-        minSdkVersion min_sdk_version
-        targetSdkVersion target_sdk_version
+        minSdkVersion flatfoot.min_sdk
+        targetSdkVersion tools.current_sdk
         versionCode 1
         versionName "1.0"
 
@@ -47,11 +47,11 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:support-annotations:$support_lib_version"
-    compile "com.android.support:support-core-utils:$support_lib_version"
-    testCompile "junit:junit:$junit_version"
-    testCompile "org.mockito:mockito-all:$mockito_version"
-    testCompile("com.android.support.test:runner:$atsl_version") {
+    compile libs.support.annotations
+    compile libs.support.core_utils
+    testCompile libs.junit
+    testCompile libs.mockito.all
+    testCompile(libs.test_runner) {
         exclude module: 'support-annotations'
     }
 }

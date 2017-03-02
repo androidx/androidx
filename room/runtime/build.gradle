@@ -18,12 +18,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
 android {
-    compileSdkVersion compile_sdk_version
-    buildToolsVersion build_tools_version
+    compileSdkVersion tools.current_sdk
+    buildToolsVersion tools.build_tools_version
 
     defaultConfig {
-        minSdkVersion min_sdk_version
-        targetSdkVersion target_sdk_version
+        minSdkVersion flatfoot.min_sdk
+        targetSdkVersion tools.current_sdk
         versionCode 1
         versionName "1.0"
 
@@ -50,12 +50,12 @@ dependencies {
     compile project(":room:common")
     compile project(":room:db")
     compile project(":room:db-impl")
-    compile project(":apptoolkit-core")
-    compile "com.android.support:support-core-utils:$support_lib_version"
+    compile project(":apptoolkit:core")
+    compile libs.support.core_utils
 
-    testCompile project(":apptoolkit-core-testing")
-    testCompile "junit:junit:$junit_version"
-    testCompile "org.mockito:mockito-all:$mockito_version"
+    testCompile project(":apptoolkit:core-testing")
+    testCompile libs.junit
+    testCompile libs.mockito.all
 }
 
 uploadArchives {

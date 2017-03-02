@@ -2,12 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
 android {
-    compileSdkVersion compile_sdk_version
-    buildToolsVersion build_tools_version
+    compileSdkVersion tools.current_sdk
+    buildToolsVersion tools.build_tools_version
 
     defaultConfig {
-        minSdkVersion min_sdk_version
-        targetSdkVersion target_sdk_version
+        minSdkVersion flatfoot.min_sdk
+        targetSdkVersion tools.current_sdk
         versionCode 1
         versionName "1.0"
 
@@ -28,21 +28,21 @@ android {
 
 dependencies {
     compile project(":lifecycle:common")
-    compile project(":apptoolkit-core")
-    compile "com.android.support:support-core-utils:$support_lib_version"
+    compile project(":apptoolkit:core")
+    compile libs.support.core_utils
     // using classes like Pair from support core allows Lifecycle to be compatible w/ junit tests
-    compile "com.android.support:support-fragment:$support_lib_version"
+    compile libs.support.fragments
     // necessary for IJ to resolve dependencies.
-    compile "com.android.support:support-annotations:$support_lib_version"
+    compile libs.support.annotations
 
-    testCompile "junit:junit:$junit_version"
-    testCompile "org.mockito:mockito-core:$mockito_version"
+    testCompile libs.junit
+    testCompile libs.mockito_core
 
-    androidTestCompile("com.android.support.test:runner:$atsl_version") {
+    androidTestCompile(libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile "com.android.support:appcompat-v7:$support_lib_version"
-    androidTestCompile("com.android.support.test.espresso:espresso-core:$espresso_version", {
+    androidTestCompile libs.support.app_compat
+    androidTestCompile(libs.espresso_core, {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 }

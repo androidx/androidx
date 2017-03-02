@@ -20,14 +20,14 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.app.Instrumentation.ActivityMonitor;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.UiThreadTestRule;
+import android.support.test.rule.ActivityTestRule;
 
 public class TestUtils {
 
     private static final long TIMEOUT_MS = 2000;
 
     @SuppressWarnings("unchecked")
-    public static <T extends Activity> T recreateActivity(final T activity, UiThreadTestRule rule)
+    public static <T extends Activity> T recreateActivity(final T activity, ActivityTestRule rule)
             throws Throwable {
         ActivityMonitor monitor = new ActivityMonitor(
                 activity.getClass().getCanonicalName(), null, false);

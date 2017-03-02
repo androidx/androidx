@@ -17,58 +17,78 @@
 // If you change this file, you should also change the settings gradle inside
 // the sub project.
 
-include ':apptoolkit-core'
-project(':apptoolkit-core').projectDir = new File("core")
+def inAppToolkitProject = rootProject.name == "app-toolkit"
+def supportRoot
+if (inAppToolkitProject) {
+    supportRoot = new File(rootProject.projectDir, "..").getCanonicalFile()
+} else {
+    supportRoot = rootProject.projectDir
+}
 
-include ':apptoolkit-core-testing'
-project(':apptoolkit-core-testing').projectDir = new File("core-testing")
+println "support root:${supportRoot}"
+
+include ':apptoolkit:core'
+project(':apptoolkit:core').projectDir = new File(supportRoot, "app-toolkit/core")
+
+include ':apptoolkit:core-testing'
+project(':apptoolkit:core-testing').projectDir = new File(supportRoot, "app-toolkit/core-testing")
 
 include ':lifecycle:extensions'
-project(':lifecycle:extensions').projectDir = new File("../lifecycle/extensions")
+project(':lifecycle:extensions').projectDir = new File(supportRoot, "lifecycle/extensions")
 
 include ':lifecycle:reactivestreams'
-project(':lifecycle:reactivestreams').projectDir = new File("../lifecycle/reactivestreams")
+project(':lifecycle:reactivestreams').projectDir = new File(supportRoot, "lifecycle/reactivestreams")
 
 include ':lifecycle:runtime'
-project(':lifecycle:runtime').projectDir = new File("../lifecycle/runtime")
+project(':lifecycle:runtime').projectDir = new File(supportRoot, "lifecycle/runtime")
 
 include ':lifecycle:common'
-project(':lifecycle:common').projectDir = new File("../lifecycle/common")
+project(':lifecycle:common').projectDir = new File(supportRoot, "lifecycle/common")
 
 include ':lifecycle:compiler'
-project(':lifecycle:compiler').projectDir = new File("../lifecycle/compiler")
+project(':lifecycle:compiler').projectDir = new File(supportRoot, "lifecycle/compiler")
 
 include ':lifecycle:integration-tests:test-app'
-project(':lifecycle:integration-tests:test-app').projectDir = new File("../lifecycle/integration-tests/test-app")
+project(':lifecycle:integration-tests:test-app').projectDir = new File(supportRoot, "lifecycle/integration-tests/test-app")
 
 include ':room:common'
-project(':room:common').projectDir = new File("../room/common")
+project(':room:common').projectDir = new File(supportRoot, "room/common")
 
 include ':room:runtime'
-project(':room:runtime').projectDir = new File("../room/runtime")
+project(':room:runtime').projectDir = new File(supportRoot, "room/runtime")
 
 include ':room:compiler'
-project(':room:compiler').projectDir = new File("../room/compiler")
+project(':room:compiler').projectDir = new File(supportRoot, "room/compiler")
 
 include ':room:db'
-project(':room:db').projectDir = new File("../room/db")
+project(':room:db').projectDir = new File(supportRoot, "room/db")
 
 include ":room:db-impl"
-project(':room:db-impl').projectDir = new File("../room/db-impl")
+project(':room:db-impl').projectDir = new File(supportRoot, "room/db-impl")
 
 include ':room:integration-tests:testapp'
-project(':room:integration-tests:testapp').projectDir = new File("../room/integration-tests/testapp")
+project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "room/integration-tests/testapp")
+
+/////////////////////////////
+//
+// SupportLib
+//
+/////////////////////////////
+if (inAppToolkitProject && System.getenv("USE_SUPPORT_LIB_SOURCE")) {
+    apply from: "${supportRoot.absolutePath}/app-toolkit/settings_support_lib.gradle"
+}
 
 /////////////////////////////
 //
 // External
 //
 /////////////////////////////
+if (inAppToolkitProject) {
+    File externalRoot = new File(supportRoot, '../../external')
 
-File externalRoot = new File(rootDir, '../../../external')
+    include ':doclava'
+    project(':doclava').projectDir = new File(externalRoot, 'doclava')
 
-include ':doclava'
-project(':doclava').projectDir = new File(externalRoot, 'doclava')
-
-include ':jdiff'
-project(':jdiff').projectDir = new File(externalRoot, 'jdiff')
+    include ':jdiff'
+    project(':jdiff').projectDir = new File(externalRoot, 'jdiff')
+}

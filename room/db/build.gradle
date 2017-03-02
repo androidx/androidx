@@ -18,12 +18,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
 android {
-    compileSdkVersion compile_sdk_version
-    buildToolsVersion build_tools_version
+    compileSdkVersion tools.current_sdk
+    buildToolsVersion tools.build_tools_version
 
     defaultConfig {
-        minSdkVersion min_sdk_version
-        targetSdkVersion target_sdk_version
+        minSdkVersion flatfoot.min_sdk
+        targetSdkVersion tools.current_sdk
         versionCode 1
         versionName "1.0"
 
@@ -56,7 +56,7 @@ uploadArchives {
 }
 
 dependencies {
-    compile "com.android.support:support-annotations:$support_lib_version"
+    compile libs.support.annotations
 }
 createAndroidCheckstyle(project)
 
