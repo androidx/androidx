@@ -1185,5 +1185,10 @@ public class AdapterHelperTest extends AndroidTestCase {
         public MockViewHolder(View itemView) {
             super(itemView);
         }
+
+        @Override
+        public String toString() {
+            return mItem == null ? "null" : mItem.toString();
+        }
     }
 }

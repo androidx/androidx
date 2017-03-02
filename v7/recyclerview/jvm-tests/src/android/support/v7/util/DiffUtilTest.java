@@ -22,7 +22,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.support.annotation.Nullable;
-import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 
 import org.hamcrest.CoreMatchers;
@@ -102,8 +101,9 @@ public class DiffUtilTest {
         check();
     }
 
-    @Test
-    @LargeTest
+    //@Test
+    //@LargeTest
+    // Used for development
     public void testRandom() {
         for (int x = 0; x < 100; x++) {
             for (int i = 0; i < 100; i++) {
