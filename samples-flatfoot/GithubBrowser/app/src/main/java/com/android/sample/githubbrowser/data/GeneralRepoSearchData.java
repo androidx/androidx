@@ -16,16 +16,15 @@
 package com.android.sample.githubbrowser.data;
 
 import com.android.support.room.Entity;
-import com.android.support.room.PrimaryKey;
 
 /**
  * Contains information on a single locally persisted entry from repo search.
  */
-@Entity
+@Entity(primaryKeys = {"searchQuery", "resultIndex", "repoId"})
 public class GeneralRepoSearchData {
-    @PrimaryKey public String searchQuery;
-    @PrimaryKey public int resultIndex;
-    @PrimaryKey public String repoId;
+    public String searchQuery;
+    public int resultIndex;
+    public String repoId;
 
     public GeneralRepoSearchData() {
     }

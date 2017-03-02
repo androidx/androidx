@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * View model for the full person data.
  */
-public class PersonDataModel implements ViewModel {
+public class PersonDataModel extends ViewModel {
     private AtomicBoolean mHasNetworkRequestPending = new AtomicBoolean(false);
     private LiveData<PersonData> mPersonData;
 

@@ -16,19 +16,17 @@
 package com.android.sample.githubbrowser.data;
 
 import com.android.support.room.Entity;
-import com.android.support.room.PrimaryKey;
 
 /**
  * Contains information about locally persisted data on a single paginable query.
  */
-@Entity
+@Entity(primaryKeys = {"searchQuery", "searchKind"})
 public class SearchQueryData {
     public static final int GENERAL_REPOSITORIES = 0;
     public static final int REPOSITORY_CONTRIBUTORS = 1;
-    public static final int USER_REPOSITORIES = 2;
 
-    @PrimaryKey public String searchQuery;
-    @PrimaryKey public int searchKind;
+    public String searchQuery;
+    public int searchKind;
     public long timestamp;
     public int indexOfLastFetchedPage;
     public int numberOfFetchedItems;

@@ -15,6 +15,7 @@
  */
 package com.android.sample.githubbrowser.data;
 
+import com.android.support.room.Decompose;
 import com.android.support.room.Entity;
 import com.android.support.room.PrimaryKey;
 
@@ -26,14 +27,14 @@ public class RepositoryData {
     @PrimaryKey public String id;
     public String name;
     public String full_name;
-    public PersonData owner;
+    @Decompose(prefix = "owner_") public PersonData owner;
     public String description;
     public String created_at;
     public int stargazers_count;
     public String language;
     public int forks_count;
     public int open_issues_count;
-    public PersonData organization;
+    @Decompose(prefix = "organization_") public PersonData organization;
     public int subscribers_count;
 
     public RepositoryData() {

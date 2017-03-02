@@ -23,7 +23,7 @@ import com.android.support.lifecycle.ViewModel;
 /**
  * Model for the top-level search.
  */
-public class RepositorySearchModel implements ViewModel {
+public class RepositorySearchModel extends ViewModel {
     private LiveData<String> mSearchQuery = new LiveData<>();
 
     /**

@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * View model for repository list data.
  */
-public class RepositoryListModel implements ViewModel {
+public class RepositoryListModel extends ViewModel {
     /** Constant for the initial loading state. */
     public static final int STATE_INITIAL_LOADING = 0;
     /** Constant for the empty / no data state. */

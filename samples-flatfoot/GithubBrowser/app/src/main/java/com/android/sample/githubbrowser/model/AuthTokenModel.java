@@ -22,7 +22,7 @@ import com.android.support.lifecycle.ViewModel;
 /**
  * Model for the auth token.
  */
-public class AuthTokenModel implements ViewModel {
+public class AuthTokenModel extends ViewModel {
     private LiveData<String> mAuthToken = new LiveData<>();
     private AuthTokenLifecycle mAuthTokenLifecycle;
 

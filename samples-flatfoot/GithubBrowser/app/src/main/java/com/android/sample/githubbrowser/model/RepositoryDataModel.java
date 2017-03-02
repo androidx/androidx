@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * View model for the full repository data.
  */
-public class RepositoryDataModel implements ViewModel {
+public class RepositoryDataModel extends ViewModel {
     private AtomicBoolean mHasNetworkRequestPending = new AtomicBoolean(false);
     private LiveData<RepositoryData> mRepositoryData;
 

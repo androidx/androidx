@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * View model for contributor list data.
  */
-public class ContributorListModel implements ViewModel {
+public class ContributorListModel extends ViewModel {
     private String mOwner;
     private String mProject;
 

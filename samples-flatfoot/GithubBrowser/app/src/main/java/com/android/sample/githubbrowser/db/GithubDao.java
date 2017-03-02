@@ -25,6 +25,7 @@ import com.android.sample.githubbrowser.data.SearchQueryData;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.room.Dao;
 import com.android.support.room.Insert;
+import com.android.support.room.OnConflictStrategy;
 import com.android.support.room.Query;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public interface GithubDao {
     /**
      * Insert or update full data for a person.
      */
-    @Insert(onConflict = Insert.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertOrReplacePerson(PersonData personData);
 
     /** Load search data for the specified query. */
@@ -52,19 +53,19 @@ public interface GithubDao {
     SearchQueryData getSearchQueryData(String searchQuery, int searchKind);
 
     /** Updates search data. */
-    @Insert(onConflict = Insert.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void update(SearchQueryData searchQueryData);
 
     /** Inserts or updates metadata for results of repository search. */
-    @Insert(onConflict = Insert.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(GeneralRepoSearchData[] generalRepoSearchDataArray);
 
     /** Inserts or updates the repository data objects. */
-    @Insert(onConflict = Insert.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(RepositoryData[] repoDataArray);
 
     /** Insert or update full data for a repository. */
-    @Insert(onConflict = Insert.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertOrReplaceRepository(RepositoryData repositoryData);
 
     /** Loads full data for a repository. */
@@ -72,11 +73,11 @@ public interface GithubDao {
     LiveData<RepositoryData> loadRepository(String id);
 
     /** Inserts or updates metadata for results of contributor search. */
-    @Insert(onConflict = Insert.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(ContributorSearchData[] contributorSearchDataArray);
 
     /** Inserts or updates the person data objects. */
-    @Insert(onConflict = Insert.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(PersonData[] personDataArray);
 
     /**

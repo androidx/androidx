@@ -16,16 +16,15 @@
 package com.android.sample.githubbrowser.data;
 
 import com.android.support.room.Entity;
-import com.android.support.room.PrimaryKey;
 
 /**
  * Contains information on a single locally persisted entry from contributor list.
  */
-@Entity
+@Entity(primaryKeys = {"searchQuery", "resultIndex", "contributorId"})
 public class ContributorSearchData {
-    @PrimaryKey public String searchQuery;
-    @PrimaryKey public int resultIndex;
-    @PrimaryKey public String contributorId;
+    public String searchQuery;
+    public int resultIndex;
+    public String contributorId;
     public int contributions;
 
     public ContributorSearchData() {
