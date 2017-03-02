@@ -38,6 +38,10 @@ dependencies {
     testCompile libs.junit
     testCompile libs.mockito_core
 
+    testCompile(libs.test_runner) {
+        exclude module: 'support-annotations'
+    }
+
     androidTestCompile(libs.test_runner) {
         exclude module: 'support-annotations'
     }

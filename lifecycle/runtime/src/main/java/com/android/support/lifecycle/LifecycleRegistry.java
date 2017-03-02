@@ -30,10 +30,11 @@ import java.util.Map;
  */
 @SuppressWarnings("WeakerAccess")
 public class LifecycleRegistry implements Lifecycle {
+
     /**
      * Custom list that keeps observers and can handle removals / additions during traversal.
      */
-    private SafeIterableMap<LifecycleObserver, GenericLifecycleObserver> mObserverSet =
+    private SafeIterableMap<LifecycleObserver, ObserverWithState> mObserverSet =
             new SafeIterableMap<>();
     /**
      * Current state
@@ -77,20 +78,33 @@ public class LifecycleRegistry implements Lifecycle {
             return;
         }
         mLastEvent = event;
-        // TODO fake intermediate events
         mState = getStateAfter(event);
-        for (Map.Entry<LifecycleObserver, GenericLifecycleObserver> entry: mObserverSet) {
-            entry.getValue().onStateChanged(mLifecycleProvider, mLastEvent);
+        for (Map.Entry<LifecycleObserver, ObserverWithState> entry : mObserverSet) {
+            entry.getValue().sync();
         }
     }
 
     @Override
     public void addObserver(LifecycleObserver observer) {
-        mObserverSet.putIfAbsent(observer, Lifecycling.getCallback(observer));
+        ObserverWithState observerWithState = new ObserverWithState(observer);
+        mObserverSet.putIfAbsent(observer, observerWithState);
+        observerWithState.sync();
     }
 
     @Override
     public void removeObserver(LifecycleObserver observer) {
+        // we consciously decided not to send destruction events here in opposition to addObserver.
+        // Our reasons for that:
+        // 1. These events haven't yet happened at all. In contrast to events in addObservers, that
+        // actually occurred but earlier.
+        // 2. There are cases when removeObserver happens as a consequence of some kind of fatal
+        // event. If removeObserver method sends destruction events, then a clean up routine becomes
+        // more cumbersome. More specific example of that is: your LifecycleObserver listens for
+        // a web connection, in the usual routine in OnStop method you report to a server that a
+        // session has just ended and you close the connection. Now let's assume now that you
+        // lost an internet and as a result you removed this observer. If you get destruction
+        // events in removeObserver, you should have a special case in your onStop method that
+        // checks if your web connection died and you shouldn't try to report anything to a server.
         mObserverSet.remove(observer);
     }
 
@@ -126,6 +140,58 @@ public class LifecycleRegistry implements Lifecycle {
             case Lifecycle.ANY:
                 break;
         }
-        throw new RuntimeException("Unexpected state value");
+        throw new IllegalArgumentException("Unexpected event value " + event);
+    }
+
+    @Event
+    static int downEvent(@State int state) {
+        switch (state) {
+            case INITIALIZED:
+                throw new IllegalArgumentException();
+            case STOPPED:
+                return ON_DESTROY;
+            case STARTED:
+                return ON_STOP;
+            case RESUMED:
+                return ON_PAUSE;
+            case DESTROYED:
+                throw new IllegalArgumentException();
+        }
+        throw new IllegalArgumentException("Unexpected state value " + state);
+    }
+
+    @Event
+    static int upEvent(@State int state) {
+        switch (state) {
+            case INITIALIZED:
+                return ON_CREATE;
+            case STOPPED:
+                return ON_START;
+            case STARTED:
+                return ON_RESUME;
+            case RESUMED:
+            case DESTROYED:
+                throw new IllegalArgumentException();
+        }
+        throw new IllegalArgumentException("Unexpected state value " + state);
+    }
+
+    class ObserverWithState {
+        @State
+        private int mObserverCurrentState = INITIALIZED;
+        private GenericLifecycleObserver mCallback;
+
+        ObserverWithState(LifecycleObserver observer) {
+            mCallback = Lifecycling.getCallback(observer);
+        }
+
+        void sync() {
+            while (mObserverCurrentState != mState) {
+                int event = mObserverCurrentState > mState ? downEvent(mObserverCurrentState)
+                        : upEvent(mObserverCurrentState);
+                mObserverCurrentState = getStateAfter(event);
+                mCallback.onStateChanged(mLifecycleProvider, event);
+            }
+        }
     }
 }

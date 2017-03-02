@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
+import android.support.test.filters.SmallTest;
 import android.support.v4.app.FragmentManager;
 
 import org.junit.Test;
@@ -31,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(JUnit4.class)
+@SmallTest
 public class FragmentCallbackTest {
     private final FragmentLifecycleDispatcher.FragmentCallback mCallback =
             new FragmentLifecycleDispatcher.FragmentCallback();

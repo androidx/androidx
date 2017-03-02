@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.test.filters.SmallTest;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
@@ -33,6 +34,7 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
+@SmallTest
 public class DispatcherActivityCallbackTest {
     @Test
     public void onCreateFrameworkActivity() {

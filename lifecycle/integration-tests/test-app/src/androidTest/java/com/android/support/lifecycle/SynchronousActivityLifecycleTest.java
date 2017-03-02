@@ -62,7 +62,7 @@ public class SynchronousActivityLifecycleTest {
     public void testOnStartCall() throws Throwable {
         testSynchronousCall(Lifecycle.ON_START,
                 activity -> getInstrumentation().callActivityOnCreate(activity, null),
-                activity -> performStart(activity));
+                SynchronousActivityLifecycleTest::performStart);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class SynchronousActivityLifecycleTest {
                     getInstrumentation().callActivityOnCreate(activity, null);
                     performStart(activity);
                 },
-                activity -> performResume(activity));
+                SynchronousActivityLifecycleTest::performResume);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class SynchronousActivityLifecycleTest {
                     getInstrumentation().callActivityOnCreate(activity, null);
                     performStart(activity);
                 },
-                activity -> performStop(activity));
+                SynchronousActivityLifecycleTest::performStop);
     }
 
     @Test
@@ -110,6 +110,7 @@ public class SynchronousActivityLifecycleTest {
                 preInit.call(testActivity);
                 TestObserver testObserver = new TestObserver(testActivity, event);
                 testActivity.getLifecycle().addObserver(testObserver);
+                testObserver.unmute();
                 call.call(testActivity);
 
                 assertThat(testObserver.mEventReceived, is(true));
@@ -156,15 +157,23 @@ public class SynchronousActivityLifecycleTest {
         private final LifecycleTestActivity mActivity;
         private final int mExpectedEvent;
         boolean mEventReceived = false;
+        boolean mMuted = true;
 
         private TestObserver(LifecycleTestActivity activity, int expectedEvent) {
             this.mActivity = activity;
             this.mExpectedEvent = expectedEvent;
         }
 
+        void unmute() {
+            mMuted = false;
+        }
+
         @Override
         public void onStateChanged(LifecycleProvider lifecycleProvider,
                 @Lifecycle.Event int event) {
+            if (mMuted) {
+                return;
+            }
             assertThat(event, is(mExpectedEvent));
             assertThat(mActivity.mLifecycleCallFinished, is(true));
             mEventReceived = true;

@@ -51,7 +51,7 @@ public class ProcessProviderTest {
             new ActivityTestRule<>(NavigationTestActivityFirst.class);
 
     static class ProcessObserver implements LifecycleObserver {
-        boolean mChangedState;
+        volatile boolean mChangedState;
 
         @OnLifecycleEvent(Lifecycle.ANY)
         public void onEvent() {
@@ -137,6 +137,7 @@ public class ProcessProviderTest {
             }
         };
         addProcessObserver(collectingObserver);
+        events.clear();
         assertThat(activity.moveTaskToBack(true), is(true));
         Thread.sleep(ProcessProvider.TIMEOUT_MS * 2);
         assertThat(events.toArray(), is(new Integer[] {Lifecycle.ON_PAUSE, Lifecycle.ON_STOP}));
@@ -144,8 +145,8 @@ public class ProcessProviderTest {
         Context context = InstrumentationRegistry.getContext();
         context.startActivity(new Intent(activity, NavigationDialogActivity.class));
         waitTillResumed(dialogActivity);
-        removeProcessObserver(collectingObserver);
         assertThat(events.toArray(), is(new Integer[] {Lifecycle.ON_START, Lifecycle.ON_RESUME}));
+        removeProcessObserver(collectingObserver);
         dialogActivity.finish();
     }
 
@@ -153,6 +154,7 @@ public class ProcessProviderTest {
         LifecycleActivity firstActivity = activityTestRule.getActivity();
         waitTillResumed(firstActivity);
         addProcessObserver(mObserver);
+        mObserver.mChangedState = false;
         return firstActivity;
     }
 
@@ -168,8 +170,8 @@ public class ProcessProviderTest {
 
     private void checkProcessObserverSilent(LifecycleActivity activity) throws Throwable {
         waitTillResumed(activity);
+        assertThat(mObserver.mChangedState, is(false));
         activityTestRule.runOnUiThread(() ->
                 ProcessProvider.get().getLifecycle().removeObserver(mObserver));
-        assertThat(mObserver.mChangedState, is(false));
     }
 }
