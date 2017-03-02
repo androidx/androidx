@@ -197,7 +197,7 @@ abstract class BaseGridView extends RecyclerView {
     /**
      * Number of items to prefetch when first coming on screen with new data.
      */
-    int mInitialItemPrefetchCount = 4;
+    int mInitialPrefetchItemCount = 4;
 
     public BaseGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -1063,12 +1063,12 @@ abstract class BaseGridView extends RecyclerView {
      *
      * @param itemCount Number of items to prefetch
      *
-     * @see #getInitialItemPrefetchCount()
+     * @see #getInitialPrefetchItemCount()
      * @see RecyclerView.LayoutManager#isItemPrefetchEnabled()
      * @see RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, RecyclerView.LayoutManager.LayoutPrefetchRegistry)
      */
     public void setInitialPrefetchItemCount(int itemCount) {
-        mInitialItemPrefetchCount = itemCount;
+        mInitialPrefetchItemCount = itemCount;
     }
 
     /**
@@ -1083,7 +1083,7 @@ abstract class BaseGridView extends RecyclerView {
      *
      * @return number of items to prefetch.
      */
-    public int getInitialItemPrefetchCount() {
-        return mInitialItemPrefetchCount;
+    public int getInitialPrefetchItemCount() {
+        return mInitialPrefetchItemCount;
     }
 }

@@ -787,7 +787,7 @@ public class RecyclerViewCacheTest {
     @Test
     public void nestedPrefetchSimple() {
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
-        assertEquals(2, llm.getInitialItemPrefetchCount());
+        assertEquals(2, llm.getInitialPrefetchItemCount());
 
         mRecyclerView.setLayoutManager(llm);
         mRecyclerView.setAdapter(new OuterAdapter());
@@ -1079,7 +1079,7 @@ public class RecyclerViewCacheTest {
     @Test
     public void nestedPrefetchDiscardStaleChildren() {
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
-        assertEquals(2, llm.getInitialItemPrefetchCount());
+        assertEquals(2, llm.getInitialPrefetchItemCount());
 
         mRecyclerView.setLayoutManager(llm);
         OuterNotifyAdapter outerAdapter = new OuterNotifyAdapter();
