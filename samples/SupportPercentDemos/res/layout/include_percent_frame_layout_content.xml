@@ -18,12 +18,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <View
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_widthPercent="60%"
         app:layout_heightPercent="60%"
         app:layout_marginTopPercent="20%"
         app:layout_marginLeftPercent="20%"
         android:background="#FF0000" />
     <View
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         app:layout_widthPercent="20%"
         app:layout_heightPercent="20%"

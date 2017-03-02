@@ -35,7 +35,8 @@
                 android:padding="24dp"
                 android:background="#ffffff"
                 android:textColor="#000000"
-                android:text="@string/accessibility_roledescription_item"/>
+                android:text="@string/accessibility_roledescription_item"
+                android:layout_marginLeft="24dp"/>
 
         </LinearLayout>
 
@@ -56,7 +57,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
                 android:textSize="24sp"
-                android:text="@string/accessibility_roledescription_h1_item"/>
+                android:text="@string/accessibility_roledescription_h1_item"
+                android:layout_marginLeft="0dp"/>
 
             <TextView
                 android:id="@+id/text_heading_2"
@@ -64,7 +66,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:textSize="20sp"
-                android:text="@string/accessibility_roledescription_h2_item"/>
+                android:text="@string/accessibility_roledescription_h2_item"
+                android:layout_marginLeft="24dp"/>
 
             <TextView
                 android:id="@+id/text_heading_3"
@@ -72,7 +75,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="48dp"
                 android:textSize="16sp"
-                android:text="@string/accessibility_roledescription_h3_item"/>
+                android:text="@string/accessibility_roledescription_h3_item"
+                android:layout_marginLeft="48dp"/>
 
         </LinearLayout>
 

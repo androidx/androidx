@@ -16,6 +16,10 @@
 
 package com.example.android.supportv4.media;
 
+import static com.example.android.supportv4.media.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
+import static com.example.android.supportv4.media.utils.MediaIDHelper.MEDIA_ID_ROOT;
+import static com.example.android.supportv4.media.utils.MediaIDHelper.createBrowseCategoryMediaID;
+
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -26,10 +30,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaDescriptionCompat;
-import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserServiceCompat;
+import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -46,10 +50,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static com.example.android.supportv4.media.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
-import static com.example.android.supportv4.media.utils.MediaIDHelper.MEDIA_ID_ROOT;
-import static com.example.android.supportv4.media.utils.MediaIDHelper.createBrowseCategoryMediaID;
 
 /**
  * This class provides a MediaBrowser through a service. It exposes the media library to a browsing
@@ -119,8 +119,8 @@ public class MediaBrowserServiceSupport extends MediaBrowserServiceCompat
     // A value of a CMD_NAME key in the extras of the incoming Intent that
     // indicates that the music playback should be paused (see {@link #onStartCommand})
     public static final String CMD_PAUSE = "CMD_PAUSE";
-
-    private static final String TAG = "SampleMediaBrowserService";
+    // Log tag must be <= 23 characters, so truncate class name.
+    private static final String TAG = "MediaBrowserService";
     // Action to thumbs up a media item
     private static final String CUSTOM_ACTION_THUMBS_UP =
             "com.example.android.supportv4.media.THUMBS_UP";

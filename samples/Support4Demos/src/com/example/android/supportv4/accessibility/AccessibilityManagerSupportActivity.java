@@ -88,7 +88,8 @@ public class AccessibilityManagerSupportActivity extends Activity {
             @Override
             public void onAccessibilityStateChanged(boolean enabled) {
                 Toast.makeText(AccessibilityManagerSupportActivity.this,
-                        getString(R.string.accessibility_manager_accessibility_state, enabled),
+                        getString(R.string.accessibility_manager_accessibility_state,
+                                Boolean.toString(enabled)),
                         Toast.LENGTH_SHORT).show();
             }
         });

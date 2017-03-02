@@ -16,12 +16,10 @@
 
 package com.example.android.supportv4.media;
 
+import android.content.Context;
 import android.support.v4.media.TransportController;
 import android.support.v4.media.TransportMediator;
 import android.support.v4.media.TransportStateListener;
-import com.example.android.supportv4.R;
-
-import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,9 +27,10 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.example.android.supportv4.R;
 
 import java.util.Formatter;
 import java.util.Locale;
@@ -45,7 +44,7 @@ public class MediaController extends FrameLayout {
 
     private TransportController mController;
     private Context mContext;
-    private ProgressBar mProgress;
+    private SeekBar mProgress;
     private TextView mEndTime, mCurrentTime;
     private boolean mDragging;
     private boolean mUseFastForward;
@@ -149,12 +148,9 @@ public class MediaController extends FrameLayout {
             mPrevButton.setVisibility(View.GONE);
         }
 
-        mProgress = (ProgressBar) findViewById(R.id.mediacontroller_progress);
+        mProgress = (SeekBar) findViewById(R.id.mediacontroller_progress);
         if (mProgress != null) {
-            if (mProgress instanceof SeekBar) {
-                SeekBar seeker = (SeekBar) mProgress;
-                seeker.setOnSeekBarChangeListener(mSeekListener);
-            }
+            mProgress.setOnSeekBarChangeListener(mSeekListener);
             mProgress.setMax(1000);
         }
 

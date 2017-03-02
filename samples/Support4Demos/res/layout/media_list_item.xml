@@ -40,7 +40,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_text_view"
             android:layout_marginTop="@dimen/margin_text_view"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_marginLeft="@dimen/margin_text_view"/>
 
         <TextView
             android:id="@+id/description"
@@ -48,7 +49,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_text_view"
             android:layout_marginTop="@dimen/margin_text_view"
-            android:textAppearance="?android:attr/textAppearanceSmall"/>
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_marginLeft="@dimen/margin_text_view"/>
 
     </LinearLayout>
 
