@@ -196,38 +196,44 @@ public class RepositoryListModel extends ViewModel {
 
     @WorkerThread
     private void processNewPageOfData(RepositoryData... data) {
-        int newDataCount = data.length;
+        try {
+            mDatabase.beginTransaction();
+            int newDataCount = data.length;
 
-        final GithubDao githubDao = mDatabase.getGithubDao();
-        final int indexOfFirstData = mSearchQueryData.numberOfFetchedItems;
-        // Update the metadata about our current search query (in the database)
-        if (newDataCount == 0) {
-            mSearchQueryData.hasNoMoreData = true;
-        } else {
-            if (mSearchQueryData.indexOfLastFetchedPage == 0) {
-                mSearchQueryData.timestamp = System.currentTimeMillis();
+            final GithubDao githubDao = mDatabase.getGithubDao();
+            final int indexOfFirstData = mSearchQueryData.numberOfFetchedItems;
+            // Update the metadata about our current search query (in the database)
+            if (newDataCount == 0) {
+                mSearchQueryData.hasNoMoreData = true;
+            } else {
+                if (mSearchQueryData.indexOfLastFetchedPage == 0) {
+                    mSearchQueryData.timestamp = System.currentTimeMillis();
+                }
+                mSearchQueryData.indexOfLastFetchedPage++;
+                mSearchQueryData.numberOfFetchedItems += newDataCount;
             }
-            mSearchQueryData.indexOfLastFetchedPage++;
-            mSearchQueryData.numberOfFetchedItems += newDataCount;
-        }
-        githubDao.update(mSearchQueryData);
+            githubDao.update(mSearchQueryData);
 
-        if (newDataCount > 0) {
-            // Insert entries for the newly loaded repositories in two places:
-            // 1. The table that stores repository IDs that match a specific query.
-            // 2. The table that stores full data on each individual repository.
-            // This way we don't store multiple full entries for the same repository
-            // that happens to match two or more search queries.
-            GeneralRepoSearchData[] generalRepoSearchDataArray =
-                    new GeneralRepoSearchData[newDataCount];
-            for (int i = 0; i < newDataCount; i++) {
-                generalRepoSearchDataArray[i] = new GeneralRepoSearchData();
-                generalRepoSearchDataArray[i].searchQuery = mSearchTerm;
-                generalRepoSearchDataArray[i].resultIndex = indexOfFirstData + i;
-                generalRepoSearchDataArray[i].repoId = data[i].id;
+            if (newDataCount > 0) {
+                // Insert entries for the newly loaded repositories in two places:
+                // 1. The table that stores repository IDs that match a specific query.
+                // 2. The table that stores full data on each individual repository.
+                // This way we don't store multiple full entries for the same repository
+                // that happens to match two or more search queries.
+                GeneralRepoSearchData[] generalRepoSearchDataArray =
+                        new GeneralRepoSearchData[newDataCount];
+                for (int i = 0; i < newDataCount; i++) {
+                    generalRepoSearchDataArray[i] = new GeneralRepoSearchData();
+                    generalRepoSearchDataArray[i].searchQuery = mSearchTerm;
+                    generalRepoSearchDataArray[i].resultIndex = indexOfFirstData + i;
+                    generalRepoSearchDataArray[i].repoId = data[i].id;
+                }
+                githubDao.insert(generalRepoSearchDataArray);
+                githubDao.insert(data);
             }
-            githubDao.insert(generalRepoSearchDataArray);
-            githubDao.insert(data);
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            mDatabase.endTransaction();
         }
 
         mHasNetworkRequestPending.set(false);

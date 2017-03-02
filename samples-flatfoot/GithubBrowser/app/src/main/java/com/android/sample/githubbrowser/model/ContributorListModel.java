@@ -135,7 +135,6 @@ public class ContributorListModel extends ViewModel {
 
                     @Override
                     public void onLoadSuccess(List<ContributorData> data) {
-                        int newDataCount = data.size();
                         new AsyncTask<ContributorData, Void, Void>() {
                             @Override
                             protected Void doInBackground(ContributorData... params) {
@@ -155,39 +154,45 @@ public class ContributorListModel extends ViewModel {
 
     @WorkerThread
     private void processNewPageOfData(ContributorData... data) {
-        int newDataCount = data.length;
+        try {
+            mDatabase.beginTransaction();
+            int newDataCount = data.length;
 
-        final GithubDao githubDao = mDatabase.getGithubDao();
-        final int indexOfFirstData = mSearchQueryData.numberOfFetchedItems;
-        // Update the metadata about our current search query (in the database)
-        if (newDataCount == 0) {
-            mSearchQueryData.hasNoMoreData = true;
-        } else {
-            if (mSearchQueryData.indexOfLastFetchedPage == 0) {
-                mSearchQueryData.timestamp = System.currentTimeMillis();
+            final GithubDao githubDao = mDatabase.getGithubDao();
+            final int indexOfFirstData = mSearchQueryData.numberOfFetchedItems;
+            // Update the metadata about our current search query (in the database)
+            if (newDataCount == 0) {
+                mSearchQueryData.hasNoMoreData = true;
+            } else {
+                if (mSearchQueryData.indexOfLastFetchedPage == 0) {
+                    mSearchQueryData.timestamp = System.currentTimeMillis();
+                }
+                mSearchQueryData.indexOfLastFetchedPage++;
+                mSearchQueryData.numberOfFetchedItems += newDataCount;
             }
-            mSearchQueryData.indexOfLastFetchedPage++;
-            mSearchQueryData.numberOfFetchedItems += newDataCount;
-        }
-        githubDao.update(mSearchQueryData);
+            githubDao.update(mSearchQueryData);
 
-        if (newDataCount > 0) {
-            // Insert entries for the newly loaded contributors in two places:
-            // 1. The table that stores contributor IDs that match a specific query.
-            // 2. The table that stores full data on each individual contributor.
-            // This way we don't store multiple full entries for the same contributor
-            // that happens to match two or more search queries.
-            ContributorSearchData[] contributorSearchDataArray =
-                    new ContributorSearchData[newDataCount];
-            for (int i = 0; i < newDataCount; i++) {
-                contributorSearchDataArray[i] = new ContributorSearchData();
-                contributorSearchDataArray[i].searchQuery = mOwner + "/" + mProject;
-                contributorSearchDataArray[i].resultIndex = indexOfFirstData + i;
-                contributorSearchDataArray[i].contributorId = data[i].id;
-                contributorSearchDataArray[i].contributions = data[i].contributions;
+            if (newDataCount > 0) {
+                // Insert entries for the newly loaded contributors in two places:
+                // 1. The table that stores contributor IDs that match a specific query.
+                // 2. The table that stores full data on each individual contributor.
+                // This way we don't store multiple full entries for the same contributor
+                // that happens to match two or more search queries.
+                ContributorSearchData[] contributorSearchDataArray =
+                        new ContributorSearchData[newDataCount];
+                for (int i = 0; i < newDataCount; i++) {
+                    contributorSearchDataArray[i] = new ContributorSearchData();
+                    contributorSearchDataArray[i].searchQuery = mOwner + "/" + mProject;
+                    contributorSearchDataArray[i].resultIndex = indexOfFirstData + i;
+                    contributorSearchDataArray[i].contributorId = data[i].id;
+                    contributorSearchDataArray[i].contributions = data[i].contributions;
+                }
+                githubDao.insert(contributorSearchDataArray);
+                githubDao.insert(data);
             }
-            githubDao.insert(contributorSearchDataArray);
-            githubDao.insert(data);
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            mDatabase.endTransaction();
         }
 
         mHasNetworkRequestPending.set(false);
