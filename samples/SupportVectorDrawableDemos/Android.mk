@@ -18,17 +18,18 @@ include $(CLEAR_VARS)
 
 LOCAL_USE_AAPT2 := true
 
-LOCAL_MODULE_TAGS := tests
+LOCAL_MODULE_TAGS := samples tests
 
 LOCAL_SDK_VERSION := current
 
-LOCAL_MIN_SDK_VERSION := 11
+LOCAL_MIN_SDK_VERSION := 14
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-LOCAL_PACKAGE_NAME := SupportAnimatedVectorDrawable
+LOCAL_PACKAGE_NAME := SupportVectorDrawableDemos
 
 LOCAL_STATIC_ANDROID_LIBRARIES := \
+        android-support-v7-appcompat \
         android-support-animatedvectordrawable \
         android-support-vectordrawable \
         android-support-v4

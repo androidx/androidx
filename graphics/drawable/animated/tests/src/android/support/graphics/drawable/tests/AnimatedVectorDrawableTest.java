@@ -17,6 +17,7 @@
 package android.support.graphics.drawable.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -28,8 +29,10 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
 import android.support.annotation.DrawableRes;
+import android.support.graphics.drawable.Animatable2Compat;
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.graphics.drawable.animated.test.R;
 import android.support.test.InstrumentationRegistry;
@@ -69,8 +72,9 @@ public class AnimatedVectorDrawableTest {
 
     private static final int IMAGE_WIDTH = 64;
     private static final int IMAGE_HEIGHT = 64;
-    private static final @DrawableRes int DRAWABLE_RES_ID =
-            R.drawable.animation_vector_drawable_grouping_1;
+
+    @DrawableRes
+    private static final int DRAWABLE_RES_ID = R.drawable.animation_vector_drawable_grouping_1;
 
     private Context mContext;
     private Resources mResources;
@@ -78,6 +82,26 @@ public class AnimatedVectorDrawableTest {
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private static final boolean DBG_DUMP_PNG = false;
+
+    // States to check for animation callback tests.
+    private boolean mAnimationStarted = false;
+    private boolean mAnimationEnded = false;
+
+    // Animation callback used for all callback related tests.
+    private Animatable2Compat.AnimationCallback mAnimationCallback =
+            new Animatable2Compat.AnimationCallback() {
+                @Override
+                public void onAnimationStart(
+                        Drawable drawable) {
+                    mAnimationStarted = true;
+                }
+
+                @Override
+                public void onAnimationEnd(
+                        Drawable drawable) {
+                    mAnimationEnded = true;
+                }
+            };
 
     public AnimatedVectorDrawableTest() {
         mActivityTestRule = new ActivityTestRule<>(DrawableStubActivity.class);
@@ -388,5 +412,82 @@ public class AnimatedVectorDrawableTest {
         } else {
             assertEquals(d1.mutate(), d1);
         }
+    }
+
+    /**
+     * A helper function to setup the AVDC for callback tests.
+     */
+    private AnimatedVectorDrawableCompat setupAnimatedVectorDrawableCompat() {
+        final ImageButton imageButton =
+                (ImageButton) mActivityTestRule.getActivity().findViewById(R.id.imageButton);
+        mAnimationStarted = false;
+        mAnimationEnded = false;
+
+        AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
+                R.drawable.animation_vector_drawable_grouping_1); // Duration is 50 ms.
+        ViewCompat.setBackground(imageButton, avd);
+        return avd;
+    }
+
+    @Test
+    /**
+     * Test show that callback is successfully registered.
+     * Note that this test requires screen is on.
+     */
+    public void testRegisterCallback() throws Throwable {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                AnimatedVectorDrawableCompat avd = setupAnimatedVectorDrawableCompat();
+                avd.registerAnimationCallback(mAnimationCallback);
+                avd.start();
+            }
+        });
+        Thread.sleep(500);
+        assertTrue(mAnimationStarted);
+        assertTrue(mAnimationEnded);
+    }
+
+    @Test
+    /**
+     * Test show that callback is successfully removed.
+     * Note that this test requires screen is on.
+     */
+    public void testClearCallback() throws Throwable {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                AnimatedVectorDrawableCompat avd =
+                        setupAnimatedVectorDrawableCompat();
+                avd.registerAnimationCallback(mAnimationCallback);
+                avd.clearAnimationCallbacks();
+                avd.start();
+            }
+        });
+        Thread.sleep(500);
+        assertFalse(mAnimationStarted);
+        assertFalse(mAnimationEnded);
+    }
+
+    @Test
+    /**
+     * Test show that callback is successfully unregistered.
+     * Note that this test requires screen is on.
+     */
+    public void testUnregisterCallback() throws Throwable {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                AnimatedVectorDrawableCompat avd =
+                        setupAnimatedVectorDrawableCompat();
+
+                avd.registerAnimationCallback(mAnimationCallback);
+                avd.unregisterAnimationCallback(mAnimationCallback);
+                avd.start();
+            }
+        });
+        Thread.sleep(500);
+        assertFalse(mAnimationStarted);
+        assertFalse(mAnimationEnded);
     }
 }
