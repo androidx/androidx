@@ -117,6 +117,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     private final DrawerLayout mDrawerLayout;
 
     private DrawerArrowDrawable mSlider;
+    private boolean mDrawerSlideAnimationEnabled = true;
     private Drawable mHomeAsUpIndicator;
     boolean mDrawerIndicatorEnabled = true;
     private boolean mHasCustomUpIndicator;
@@ -379,11 +380,30 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     /**
      * Sets the DrawerArrowDrawable that should be shown by this ActionBarDrawerToggle.
      *
-     * @param drawable DrawerArrowDrawable that should be shown by this ActionBarDrawerToggle.
+     * @param drawable DrawerArrowDrawable that should be shown by this ActionBarDrawerToggle
      */
     public void setDrawerArrowDrawable(@NonNull DrawerArrowDrawable drawable) {
         mSlider = drawable;
         syncState();
+    }
+
+    /**
+     * Specifies whether the drawer arrow should animate when the drawer position changes.
+     *
+     * @param enabled if this is {@code true} then the animation will run, else it will be skipped
+     */
+    public void setDrawerSlideAnimationEnabled(boolean enabled) {
+        mDrawerSlideAnimationEnabled = enabled;
+        if (!enabled) {
+            setPosition(0);
+        }
+    }
+
+    /**
+     * @return whether the drawer slide animation is enabled
+     */
+    public boolean isDrawerSlideAnimationEnabled() {
+        return mDrawerSlideAnimationEnabled;
     }
 
     /**
@@ -396,7 +416,11 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
      */
     @Override
     public void onDrawerSlide(View drawerView, float slideOffset) {
-        setPosition(Math.min(1f, Math.max(0, slideOffset)));
+        if (mDrawerSlideAnimationEnabled) {
+            setPosition(Math.min(1f, Math.max(0, slideOffset)));
+        } else {
+            setPosition(0); // disable animation.
+        }
     }
 
     /**
