@@ -6327,8 +6327,7 @@ package android.support.v4.hardware.fingerprint {
 package android.support.v4.math {
 
   public class MathUtils {
-    ctor public MathUtils();
-    method public static float clamp(float, int, int);
+    method public static float clamp(float, float, float);
     method public static double clamp(double, double, double);
     method public static int clamp(int, int, int);
   }

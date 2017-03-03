@@ -4828,18 +4828,18 @@ package android.support.v4.accessibilityservice {
     method public static java.lang.String capabilityToString(int);
     method public static java.lang.String feedbackTypeToString(int);
     method public static java.lang.String flagToString(int);
-    method public static boolean getCanRetrieveWindowContent(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static deprecated boolean getCanRetrieveWindowContent(android.accessibilityservice.AccessibilityServiceInfo);
     method public static int getCapabilities(android.accessibilityservice.AccessibilityServiceInfo);
     method public static deprecated java.lang.String getDescription(android.accessibilityservice.AccessibilityServiceInfo);
-    method public static java.lang.String getId(android.accessibilityservice.AccessibilityServiceInfo);
-    method public static android.content.pm.ResolveInfo getResolveInfo(android.accessibilityservice.AccessibilityServiceInfo);
-    method public static java.lang.String getSettingsActivityName(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static deprecated java.lang.String getId(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static deprecated android.content.pm.ResolveInfo getResolveInfo(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static deprecated java.lang.String getSettingsActivityName(android.accessibilityservice.AccessibilityServiceInfo);
     method public static java.lang.String loadDescription(android.accessibilityservice.AccessibilityServiceInfo, android.content.pm.PackageManager);
     field public static final int CAPABILITY_CAN_FILTER_KEY_EVENTS = 8; // 0x8
     field public static final int CAPABILITY_CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY = 4; // 0x4
     field public static final int CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION = 2; // 0x2
     field public static final int CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT = 1; // 0x1
-    field public static final int DEFAULT = 1; // 0x1
+    field public static final deprecated int DEFAULT = 1; // 0x1
     field public static final int FEEDBACK_ALL_MASK = -1; // 0xffffffff
     field public static final int FEEDBACK_BRAILLE = 32; // 0x20
     field public static final int FLAG_INCLUDE_NOT_IMPORTANT_VIEWS = 2; // 0x2
@@ -5190,6 +5190,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.Fragment getFragment(android.os.Bundle, java.lang.String);
     method public abstract android.support.v4.app.Fragment getPrimaryNavigationFragment();
     method public abstract boolean isDestroyed();
+    method public abstract boolean isStateSaved();
     method public abstract void popBackStack();
     method public abstract void popBackStack(java.lang.String, int);
     method public abstract void popBackStack(int, int);
@@ -6222,8 +6223,7 @@ package android.support.v4.hardware.fingerprint {
 package android.support.v4.math {
 
   public class MathUtils {
-    ctor public MathUtils();
-    method public static float clamp(float, int, int);
+    method public static float clamp(float, float, float);
     method public static double clamp(double, double, double);
     method public static int clamp(int, int, int);
   }
@@ -6898,11 +6898,11 @@ package android.support.v4.os {
     ctor public OperationCanceledException(java.lang.String);
   }
 
-  public final class ParcelableCompat {
-    method public static <T> android.os.Parcelable.Creator<T> newCreator(android.support.v4.os.ParcelableCompatCreatorCallbacks<T>);
+  public final deprecated class ParcelableCompat {
+    method public static deprecated <T> android.os.Parcelable.Creator<T> newCreator(android.support.v4.os.ParcelableCompatCreatorCallbacks<T>);
   }
 
-  public abstract interface ParcelableCompatCreatorCallbacks<T> {
+  public abstract deprecated interface ParcelableCompatCreatorCallbacks<T> {
     method public abstract T createFromParcel(android.os.Parcel, java.lang.ClassLoader);
     method public abstract T[] newArray(int);
   }

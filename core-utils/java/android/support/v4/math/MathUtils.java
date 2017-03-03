@@ -21,6 +21,8 @@ package android.support.v4.math;
  */
 public class MathUtils {
 
+    private MathUtils() {}
+
     /**
      * This method takes a numerical value and ensures it fits in a given numerical range. If the
      * number is smaller than the minimum required by the range, then the minimum of the range will
@@ -33,7 +35,7 @@ public class MathUtils {
      *
      * @return the clamped value.
      */
-    public static float clamp(float value, int min, int max) {
+    public static float clamp(float value, float min, float max) {
         if (value < min) {
             return min;
         } else if (value > max) {
