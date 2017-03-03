@@ -2240,7 +2240,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void collectInitialPrefetchPositions(int adapterItemCount,
             LayoutPrefetchRegistry layoutPrefetchRegistry) {
-        int numToPrefetch = mBaseGridView.mInitialItemPrefetchCount;
+        int numToPrefetch = mBaseGridView.mInitialPrefetchItemCount;
         if (adapterItemCount != 0 && numToPrefetch != 0) {
             // prefetch items centered around mFocusPosition
             int initialPos = Math.max(0, Math.min(mFocusPosition - (numToPrefetch - 1)/ 2,
