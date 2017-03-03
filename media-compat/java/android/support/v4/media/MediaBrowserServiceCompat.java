@@ -215,8 +215,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
         @Override
         public Bundle getBrowserRootHints() {
             if (mCurConnection == null) {
-                throw new IllegalStateException("This should be called inside of onLoadChildren or"
-                        + " onLoadItem methods");
+                throw new IllegalStateException("This should be called inside of onLoadChildren,"
+                        + " onLoadItem or onSearch methods");
             }
             return mCurConnection.rootHints == null ? null : new Bundle(mCurConnection.rootHints);
         }
@@ -277,8 +277,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 return null;
             }
             if (mCurConnection == null) {
-                throw new IllegalStateException("This should be called inside of onLoadChildren or"
-                        + " onLoadItem methods");
+                throw new IllegalStateException("This should be called inside of onLoadChildren,"
+                        + " onLoadItem or onSearch methods");
             }
             return mCurConnection.rootHints == null ? null : new Bundle(mCurConnection.rootHints);
         }
@@ -527,6 +527,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      *
      * @see MediaBrowserServiceCompat#onLoadChildren
      * @see MediaBrowserServiceCompat#onLoadItem
+     * @see MediaBrowserServiceCompat#onSearch
      */
     public static class Result<T> {
         private Object mDebug;
@@ -1016,8 +1017,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * Note that this will return null when connected to {@link android.media.browse.MediaBrowser}
      * and running on API 23 or lower.
      *
-     * @throws IllegalStateException If this method is called outside of {@link #onLoadChildren}
-     *             or {@link #onLoadItem}
+     * @throws IllegalStateException If this method is called outside of {@link #onLoadChildren},
+     *             {@link #onLoadItem} or {@link #onSearch}.
      * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_RECENT
      * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_OFFLINE
      * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_SUGGESTED
