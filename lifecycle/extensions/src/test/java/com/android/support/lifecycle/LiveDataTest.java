@@ -18,6 +18,8 @@ package com.android.support.lifecycle;
 
 import static com.android.support.lifecycle.Lifecycle.ON_CREATE;
 import static com.android.support.lifecycle.Lifecycle.ON_DESTROY;
+import static com.android.support.lifecycle.Lifecycle.ON_PAUSE;
+import static com.android.support.lifecycle.Lifecycle.ON_RESUME;
 import static com.android.support.lifecycle.Lifecycle.ON_START;
 import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 
@@ -364,6 +366,28 @@ public class LiveDataTest {
         mLiveData.setValue("bla");
         verify(observer1, Mockito.atMost(2)).onChanged("gt");
         verify(observer2, Mockito.atMost(2)).onChanged("gt");
+    }
+
+    @Test
+    public void testDataChangeDuringStateChange() {
+        mRegistry.handleLifecycleEvent(ON_START);
+        mRegistry.addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(ON_STOP)
+            public void onStop() {
+                // change data in onStop, observer should not be called!
+                mLiveData.setValue("b");
+            }
+        });
+        Observer<String> observer = (Observer<String>) mock(Observer.class);
+        mLiveData.setValue("a");
+        mLiveData.observe(mProvider, observer);
+        verify(observer).onChanged("a");
+        mRegistry.handleLifecycleEvent(ON_PAUSE);
+        mRegistry.handleLifecycleEvent(ON_STOP);
+        verify(observer, never()).onChanged("b");
+
+        mRegistry.handleLifecycleEvent(ON_RESUME);
+        verify(observer).onChanged("b");
     }
 
     @SuppressWarnings("WeakerAccess")

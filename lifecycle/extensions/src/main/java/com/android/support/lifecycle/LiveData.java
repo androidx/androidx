@@ -112,6 +112,14 @@ public class LiveData<T> {
         if (!observer.active) {
             return;
         }
+        // Check latest state b4 dispatch. Maybe it changed state but we didn't get the event yet.
+        //
+        // we still first check observer.active to keep it as the entrance for events. So even if
+        // the observer moved to an active state, if we've not received that event, we better not
+        // notify for a more predictable notification order.
+        if (!isActiveState(observer.provider.getLifecycle().getCurrentState())) {
+            return;
+        }
         if (observer.lastVersion >= mVersion) {
             return;
         }
