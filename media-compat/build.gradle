@@ -5,15 +5,15 @@ dependencies {
     compile project(':support-annotations')
     compile project(':support-compat')
 
-    androidTestCompile (libs.test_runner) {
+    androidTestCompile(libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile (libs.espresso_core) {
+    androidTestCompile(libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker
-    androidTestCompile libs.dexmaker_mockito
+    androidTestCompile(libs.mockito_core)
+    androidTestCompile(libs.dexmaker)
+    androidTestCompile(libs.dexmaker_mockito)
     androidTestCompile project(':support-testutils')
 }
 

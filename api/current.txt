@@ -6577,6 +6577,49 @@ package android.support.v4.math {
 
 package android.support.v4.media {
 
+  public class AudioAttributesCompat {
+    method public int getContentType();
+    method public int getFlags();
+    method public int getLegacyStreamType();
+    method public int getUsage();
+    method public int getVolumeControlStream();
+    method public java.lang.Object unwrap();
+    method public static android.support.v4.media.AudioAttributesCompat wrap(java.lang.Object);
+    field public static final int CONTENT_TYPE_MOVIE = 3; // 0x3
+    field public static final int CONTENT_TYPE_MUSIC = 2; // 0x2
+    field public static final int CONTENT_TYPE_SONIFICATION = 4; // 0x4
+    field public static final int CONTENT_TYPE_SPEECH = 1; // 0x1
+    field public static final int CONTENT_TYPE_UNKNOWN = 0; // 0x0
+    field public static final int FLAG_AUDIBILITY_ENFORCED = 1; // 0x1
+    field public static final int FLAG_HW_AV_SYNC = 16; // 0x10
+    field public static final int USAGE_ALARM = 4; // 0x4
+    field public static final int USAGE_ASSISTANCE_ACCESSIBILITY = 11; // 0xb
+    field public static final int USAGE_ASSISTANCE_NAVIGATION_GUIDANCE = 12; // 0xc
+    field public static final int USAGE_ASSISTANCE_SONIFICATION = 13; // 0xd
+    field public static final int USAGE_ASSISTANT = 16; // 0x10
+    field public static final int USAGE_GAME = 14; // 0xe
+    field public static final int USAGE_MEDIA = 1; // 0x1
+    field public static final int USAGE_NOTIFICATION = 5; // 0x5
+    field public static final int USAGE_NOTIFICATION_COMMUNICATION_DELAYED = 9; // 0x9
+    field public static final int USAGE_NOTIFICATION_COMMUNICATION_INSTANT = 8; // 0x8
+    field public static final int USAGE_NOTIFICATION_COMMUNICATION_REQUEST = 7; // 0x7
+    field public static final int USAGE_NOTIFICATION_EVENT = 10; // 0xa
+    field public static final int USAGE_NOTIFICATION_RINGTONE = 6; // 0x6
+    field public static final int USAGE_UNKNOWN = 0; // 0x0
+    field public static final int USAGE_VOICE_COMMUNICATION = 2; // 0x2
+    field public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING = 3; // 0x3
+  }
+
+  public static class AudioAttributesCompat.Builder {
+    ctor public AudioAttributesCompat.Builder();
+    ctor public AudioAttributesCompat.Builder(android.support.v4.media.AudioAttributesCompat);
+    method public android.support.v4.media.AudioAttributesCompat build();
+    method public android.support.v4.media.AudioAttributesCompat.Builder setContentType(int);
+    method public android.support.v4.media.AudioAttributesCompat.Builder setFlags(int);
+    method public android.support.v4.media.AudioAttributesCompat.Builder setLegacyStreamType(int);
+    method public android.support.v4.media.AudioAttributesCompat.Builder setUsage(int);
+  }
+
   public final class MediaBrowserCompat {
     ctor public MediaBrowserCompat(android.content.Context, android.content.ComponentName, android.support.v4.media.MediaBrowserCompat.ConnectionCallback, android.os.Bundle);
     method public void connect();
