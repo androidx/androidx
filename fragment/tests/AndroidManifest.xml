@@ -37,6 +37,8 @@
         <activity android:name="android.support.v4.app.test.EmptyFragmentTestActivity" />
 
         <activity android:name="android.support.v4.app.test.FragmentResultActivity" />
+
+        <activity android:name="android.support.v4.app.test.LoaderActivity" />
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
