@@ -15,7 +15,6 @@
  */
 package android.support.v4.content.pm;
 
-import android.support.annotation.RequiresApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +23,11 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
+
+import java.util.Arrays;
 
 /**
  * Helper for accessing features in {@link android.content.pm.ShortcutInfo}
@@ -80,6 +83,84 @@ public class ShortcutInfoCompat {
             outIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, mIconBitmap);
         }
         return outIntent;
+    }
+
+    /**
+     * Returns the ID of a shortcut.
+     *
+     * <p>Shortcut IDs are unique within each publisher app and must be stable across
+     * devices so that shortcuts will still be valid when restored on a different device.
+     * See {@link android.content.pm.ShortcutManager} for details.
+     */
+    @NonNull
+    public String getId() {
+        return mId;
+    }
+
+    /**
+     * Return the target activity.
+     *
+     * <p>This has nothing to do with the activity that this shortcut will launch.
+     * Launcher apps should show the launcher icon for the returned activity alongside
+     * this shortcut.
+     *
+     * @see Builder#setActivity(ComponentName)
+     */
+    @Nullable
+    public ComponentName getActivity() {
+        return mActivity;
+    }
+
+    /**
+     * Return the short description of a shortcut.
+     *
+     * @see Builder#setShortLabel(CharSequence)
+     */
+    @NonNull
+    public CharSequence getShortLabel() {
+        return mLabel;
+    }
+
+    /**
+     * Return the long description of a shortcut.
+     *
+     * @see Builder#setLongLabel(CharSequence)
+     */
+    @Nullable
+    public CharSequence getLongLabel() {
+        return mLongLabel;
+    }
+
+    /**
+     * Return the message that should be shown when the user attempts to start a shortcut
+     * that is disabled.
+     *
+     * @see Builder#setDisabledMessage(CharSequence)
+     */
+    @Nullable
+    public CharSequence getDisabledMessage() {
+        return mDisabledMessage;
+    }
+
+    /**
+     * Returns the intent that is executed when the user selects this shortcut.
+     * If setIntents() was used, then return the last intent in the array.
+     *
+     * @see Builder#setIntent(Intent)
+     */
+    @NonNull
+    public Intent getIntent() {
+        return mIntents[mIntents.length - 1];
+    }
+
+    /**
+     * Return the intent set with {@link Builder#setIntents(Intent[])}.
+     *
+     * @see Builder#setIntents(Intent[])
+     */
+    @NonNull
+    public Intent[] getIntents() {
+        return Arrays.copyOf(mIntents, mIntents.length);
     }
 
     /**
@@ -194,7 +275,7 @@ public class ShortcutInfoCompat {
         }
 
         /**
-         * Sets an icon of a shortcut.
+         * Creates a {@link ShortcutInfoCompat} instance.
          */
         @NonNull
         public ShortcutInfoCompat build() {
