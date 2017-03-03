@@ -227,7 +227,7 @@ public class SimpleArrayMap<K, V> {
     /**
      * Create a new ArrayMap with the mappings from the given ArrayMap.
      */
-    public SimpleArrayMap(SimpleArrayMap map) {
+    public SimpleArrayMap(SimpleArrayMap<K, V> map) {
         this();
         if (map != null) {
             putAll(map);
