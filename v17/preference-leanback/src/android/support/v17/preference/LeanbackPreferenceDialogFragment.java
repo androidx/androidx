@@ -39,8 +39,8 @@ public class LeanbackPreferenceDialogFragment extends Fragment {
 
         final Fragment rawFragment = getTargetFragment();
         if (!(rawFragment instanceof DialogPreference.TargetFragment)) {
-            throw new IllegalStateException("Target fragment must implement TargetFragment" +
-                    " interface");
+            throw new IllegalStateException("Target fragment " + rawFragment
+                    + " must implement TargetFragment interface");
         }
     }
 
