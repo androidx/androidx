@@ -922,7 +922,6 @@ public class ViewCompat {
         }
 
         public void setTooltipText(View view, CharSequence tooltipText) {
-            ViewCompatICS.setTooltipText(view, tooltipText);
         }
     }
 
@@ -3321,12 +3320,9 @@ public class ViewCompat {
 
     /**
      * Sets the tooltip for the view.
-     * <p>
-     * Compatibility:
-     * <ul>
-     * <li>API &lt; 26: Sets or clears (when tooltip is null) the view's OnLongClickListener and
-     * OnHoverListener. Creates a Toast on long click or mouse hover.
-     * </ul>
+     *
+     * <p>Prior to API 26 this does nothing. Use TooltipCompat class from v7 appcompat library
+     * for a compatible tooltip implementation.</p>
      *
      * @param tooltipText the tooltip text
      */

@@ -323,7 +323,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
         mSearchHintIcon = a.getDrawable(R.styleable.SearchView_searchHintIcon);
 
-        ViewCompat.setTooltipText(mSearchButton,
+        TooltipCompat.setTooltipText(mSearchButton,
                 getResources().getString(R.string.abc_searchview_description_search));
 
         // Extract dropdown layout resource IDs for later use.

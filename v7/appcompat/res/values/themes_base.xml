@@ -276,6 +276,10 @@
         <item name="windowFixedWidthMinor">@null</item>
         <item name="windowFixedHeightMajor">@null</item>
         <item name="windowFixedHeightMinor">@null</item>
+
+        <!-- Tooltip attributes -->
+        <item name="tooltipFrameBackground">@drawable/tooltip_frame_light</item>
+        <item name="tooltipForegroundColor">@color/foreground_material_light</item>
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
@@ -437,6 +441,10 @@
         <item name="windowFixedWidthMinor">@null</item>
         <item name="windowFixedHeightMajor">@null</item>
         <item name="windowFixedHeightMinor">@null</item>
+
+        <!-- Tooltip attributes -->
+        <item name="tooltipFrameBackground">@drawable/tooltip_frame_dark</item>
+        <item name="tooltipForegroundColor">@color/foreground_material_dark</item>
     </style>
 
     <style name="Base.Theme.AppCompat" parent="Base.V7.Theme.AppCompat">

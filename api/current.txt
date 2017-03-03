@@ -11784,6 +11784,10 @@ package android.support.v7.widget {
     field public static final android.os.Parcelable.Creator<android.support.v7.widget.Toolbar.SavedState> CREATOR;
   }
 
+  public class TooltipCompat {
+    method public static void setTooltipText(android.view.View, java.lang.CharSequence);
+  }
+
 }
 
 package android.support.v7.widget.helper {

@@ -392,6 +392,16 @@
 
         <!-- Default menu-style ListView style. -->
         <attr name="listMenuViewStyle" format="reference" />
+
+        <!-- ===================== -->
+        <!-- Tooltip styles -->
+        <!-- ===================== -->
+        <eat-comment />
+
+        <!-- Background to use for tooltips -->
+        <attr name="tooltipFrameBackground" format="reference" />
+        <!-- Foreground color to use for tooltips -->
+        <attr name="tooltipForegroundColor" format="reference|color" />
     </declare-styleable>
 
 

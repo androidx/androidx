@@ -25,7 +25,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionBarPolicy;
@@ -511,7 +510,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
                 if (mIconView != null) {
                     mIconView.setContentDescription(tab.getContentDescription());
                 }
-                ViewCompat.setTooltipText(this, hasText ? null : tab.getContentDescription());
+                TooltipCompat.setTooltipText(this, hasText ? null : tab.getContentDescription());
             }
         }
 

@@ -28,4 +28,8 @@
     <!-- The color of the material notification background for media notifications when no custom
      color is specified -->
     <color name="notification_material_background_media_default_color">#ff424242</color>
+
+    <!-- Tooltip specific colors -->
+    <color name="tooltip_background_dark">#e6616161</color>
+    <color name="tooltip_background_light">#e6FFFFFF</color>
 </resources>
