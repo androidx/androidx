@@ -26,15 +26,18 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
 import com.example.android.support.vectordrawable.R;
 
 import java.text.DecimalFormat;
 
-public class SimpleButtonBackground extends Activity {
-    private static final String LOG_TAG = "SimpleButtonBackground";
+/**
+ * Simple demo for VectorDrawableCompat.
+ */
+public class SimpleStaticVectorDrawable extends Activity {
+    private static final String LOG_TAG = "SimpleStaticVectorDrawable";
 
-    private static final String LOGCAT = "VectorDrawable1";
-    protected int[] icon = {
+    protected int[] mIcons = {
             R.drawable.vector_drawable_scale0,
             R.drawable.vector_drawable_scale1,
             R.drawable.vector_drawable_scale2,
@@ -84,12 +87,12 @@ public class SimpleButtonBackground extends Activity {
         container.setOrientation(LinearLayout.VERTICAL);
         Resources res = this.getResources();
         container.setBackgroundColor(0xFF888888);
-        VectorDrawableCompat []d = new VectorDrawableCompat[icon.length];
-        long time =  android.os.SystemClock.currentThreadTimeMillis();
-        for (int i = 0; i < icon.length; i++) {
-             d[i] = VectorDrawableCompat.create(res, icon[i], getTheme());
+        VectorDrawableCompat[] d = new VectorDrawableCompat[mIcons.length];
+        long time = android.os.SystemClock.currentThreadTimeMillis();
+        for (int i = 0; i < mIcons.length; i++) {
+            d[i] = VectorDrawableCompat.create(res, mIcons[i], getTheme());
         }
-        time =  android.os.SystemClock.currentThreadTimeMillis()-time;
+        time = android.os.SystemClock.currentThreadTimeMillis() - time;
 
         // Testing Tint on one particular case.
         if (d.length > 3) {
@@ -99,7 +102,7 @@ public class SimpleButtonBackground extends Activity {
 
         // Testing Constant State like operation by creating the first 2 icons
         // from the 3rd one's constant state.
-        VectorDrawableCompat []extras = new VectorDrawableCompat[EXTRA_TESTS];
+        VectorDrawableCompat[] extras = new VectorDrawableCompat[EXTRA_TESTS];
         ConstantState state = d[0].getConstantState();
         extras[0] = (VectorDrawableCompat) state.newDrawable();
         extras[1] = (VectorDrawableCompat) state.newDrawable();
@@ -113,7 +116,7 @@ public class SimpleButtonBackground extends Activity {
         // Just show the average create time as the first view.
         TextView t = new TextView(this);
         DecimalFormat df = new DecimalFormat("#.##");
-        t.setText("avgL=" + df.format(time / (icon.length)) + " ms");
+        t.setText("avgL=" + df.format(time / (mIcons.length)) + " ms");
         container.addView(t);
 
         addDrawableButtons(container, extras);

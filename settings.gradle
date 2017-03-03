@@ -121,6 +121,9 @@ project(':support-v7-demos').projectDir = new File(samplesRoot, 'Support7Demos')
 include ':support-v13-demos'
 project(':support-v13-demos').projectDir = new File(samplesRoot, 'Support13Demos')
 
+include ':support-vector-drawable-demos'
+project(':support-vector-drawable-demos').projectDir = new File(samplesRoot, 'SupportVectorDrawableDemos')
+
 /////////////////////////////
 //
 // External
