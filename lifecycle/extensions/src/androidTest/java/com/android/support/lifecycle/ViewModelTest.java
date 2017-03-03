@@ -87,6 +87,13 @@ public class ViewModelTest {
         });
     }
 
+    @Test
+    public void testGetApplication() {
+        TestViewModel activityModel = mActivityRule.getActivity().activityModel;
+        assertThat(activityModel.getApplication(),
+                is(InstrumentationRegistry.getTargetContext().getApplicationContext()));
+    }
+
     private ViewModelFragment getFragment(FragmentActivity activity, String tag) {
         return (ViewModelFragment) activity.getSupportFragmentManager()
                 .findFragmentByTag(tag);
@@ -108,6 +115,7 @@ public class ViewModelTest {
 
         // this guarantee that we will reinstall monitor between notifications about onDestroy
         // and onCreate
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (monitor) {
             do {
                 // the documetation says "Block until an Activity is created

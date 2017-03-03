@@ -16,9 +16,12 @@
 
 package com.android.support.lifecycle;
 
+import android.app.Application;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
 import com.android.support.lifecycle.state.HolderFragment;
@@ -41,6 +44,8 @@ public class ViewModelStore {
      * The state key prefix used by ViewModel utility.
      */
     private static final String KEY_PREFIX = "com.android.support.lifecycle.extensions.viewModel.";
+
+    private static Application sApplication;
 
     /**
      * Returns an existing ViewModel or creates a new one for the given scope with the given key.
@@ -67,9 +72,16 @@ public class ViewModelStore {
         if (viewModel == null) {
             //noinspection TryWithIdenticalCatches
             try {
+                HolderFragment holderFragment = StateProviders.holderFragmentFor(scope);
+                if (sApplication == null) {
+                    FragmentActivity activity = holderFragment.getActivity();
+                    if (activity == null) {
+                        throw new IllegalStateException("Can't create VM for detached fragment");
+                    }
+                    sApplication = activity.getApplication();
+                }
                 viewModel = createViewModel(modelClass);
                 stateValue.set(viewModel);
-                HolderFragment holderFragment = StateProviders.holderFragmentFor(scope);
                 add(holderFragment, viewModel);
                 holderFragment.getFragmentManager().registerFragmentLifecycleCallbacks(
                         new FragmentManager.FragmentLifecycleCallbacks() {
@@ -112,5 +124,13 @@ public class ViewModelStore {
     private static <T extends ViewModel> T createViewModel(Class<T> modelClass)
             throws IllegalAccessException, InstantiationException {
         return modelClass.newInstance();
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    static Application getApplication() {
+        return sApplication;
     }
 }
