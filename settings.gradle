@@ -145,3 +145,7 @@ project(':doclava').projectDir = new File(externalRoot, 'doclava')
 
 include ':jdiff'
 project(':jdiff').projectDir = new File(externalRoot, 'jdiff')
+
+///// FLATFOOT START
+
+///// FLATFOOT END
