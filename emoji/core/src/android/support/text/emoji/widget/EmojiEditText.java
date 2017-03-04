@@ -59,8 +59,8 @@ public class EmojiEditText extends EditText {
     }
 
     @Override
-    public void setKeyListener(android.text.method.KeyListener input) {
-        super.setKeyListener(getEmojiEditTextHelper().getKeyListener(input));
+    public void setKeyListener(android.text.method.KeyListener keyListener) {
+        super.setKeyListener(getEmojiEditTextHelper().getKeyListener(keyListener));
     }
 
     @Override
