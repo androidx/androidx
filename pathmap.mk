@@ -38,7 +38,8 @@ FRAMEWORKS_SUPPORT_SUBDIRS := \
     v14/preference \
     v17/preference-leanback \
     customtabs \
-    exifinterface
+    exifinterface \
+    dynamic-animation
 
 #
 # A version of FRAMEWORKS_SUPPORT_SUBDIRS that is expanded to full paths from
