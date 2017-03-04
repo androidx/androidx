@@ -5814,6 +5814,35 @@ package android.support.v4.app {
     field public static final int TRANSIT_UNSET = -1; // 0xffffffff
   }
 
+  public class FrameMetricsAggregator {
+    ctor public FrameMetricsAggregator();
+    ctor public FrameMetricsAggregator(int);
+    method public void add(android.app.Activity);
+    method public android.util.SparseIntArray[] getMetrics();
+    method public android.util.SparseIntArray[] remove(android.app.Activity);
+    method public android.util.SparseIntArray[] reset();
+    method public android.util.SparseIntArray[] stop();
+    field public static final int ANIMATION_DURATION = 256; // 0x100
+    field public static final int ANIMATION_INDEX = 8; // 0x8
+    field public static final int COMMAND_DURATION = 32; // 0x20
+    field public static final int COMMAND_INDEX = 5; // 0x5
+    field public static final int DELAY_DURATION = 128; // 0x80
+    field public static final int DELAY_INDEX = 7; // 0x7
+    field public static final int DRAW_DURATION = 8; // 0x8
+    field public static final int DRAW_INDEX = 3; // 0x3
+    field public static final int EVERY_DURATION = 511; // 0x1ff
+    field public static final int INPUT_DURATION = 2; // 0x2
+    field public static final int INPUT_INDEX = 1; // 0x1
+    field public static final int LAYOUT_MEASURE_DURATION = 4; // 0x4
+    field public static final int LAYOUT_MEASURE_INDEX = 2; // 0x2
+    field public static final int SWAP_DURATION = 64; // 0x40
+    field public static final int SWAP_INDEX = 6; // 0x6
+    field public static final int SYNC_DURATION = 16; // 0x10
+    field public static final int SYNC_INDEX = 4; // 0x4
+    field public static final int TOTAL_DURATION = 1; // 0x1
+    field public static final int TOTAL_INDEX = 0; // 0x0
+  }
+
   public class ListFragment extends android.support.v4.app.Fragment {
     ctor public ListFragment();
     method public android.widget.ListAdapter getListAdapter();
@@ -6531,9 +6560,6 @@ package android.support.v4.content {
     field public static final int PERMISSION_DENIED = -1; // 0xffffffff
     field public static final int PERMISSION_DENIED_APP_OP = -2; // 0xfffffffe
     field public static final int PERMISSION_GRANTED = 0; // 0x0
-  }
-
-  public static abstract class PermissionChecker.PermissionResult implements java.lang.annotation.Annotation {
   }
 
   public final class SharedPreferencesCompat {
@@ -7613,9 +7639,6 @@ package android.support.v4.text.util {
     method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String);
     method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
     method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, java.lang.String[], android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
-  }
-
-  public static abstract class LinkifyCompat.LinkifyMask implements java.lang.annotation.Annotation {
   }
 
 }
