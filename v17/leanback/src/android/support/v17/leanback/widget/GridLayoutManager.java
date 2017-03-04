@@ -209,6 +209,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 super.onStop();
                 return;
             }
+            if (mFocusPosition != getTargetPosition()) {
+                // This should not happen since we cropped value in startPositionSmoothScroller()
+                mFocusPosition = getTargetPosition();
+            }
             if (hasFocus()) {
                 mInSelection = true;
                 targetView.requestFocus();
@@ -2442,7 +2446,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                             + "not be called before first layout pass");
                     return;
                 }
-                startPositionSmoothScroller(position);
+                position = startPositionSmoothScroller(position);
+                if (position != mFocusPosition) {
+                    // gets cropped by adapter size
+                    mFocusPosition = position;
+                    mSubFocusPosition = 0;
+                }
             } else {
                 mForceFullLayout = true;
                 requestLayout();
@@ -2451,7 +2460,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (TRACE) TraceCompat.endSection();
     }
 
-    void startPositionSmoothScroller(int position) {
+    int startPositionSmoothScroller(int position) {
         LinearSmoothScroller linearSmoothScroller = new GridLinearSmoothScroller() {
             @Override
             public PointF computeScrollVectorForPosition(int targetPosition) {
@@ -2474,6 +2483,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         };
         linearSmoothScroller.setTargetPosition(position);
         startSmoothScroll(linearSmoothScroller);
+        return linearSmoothScroller.getTargetPosition();
     }
 
     private void processPendingMovement(boolean forward) {
