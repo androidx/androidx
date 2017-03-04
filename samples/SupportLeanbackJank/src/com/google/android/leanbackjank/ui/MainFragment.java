@@ -27,6 +27,7 @@ import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
+import android.support.v4.content.res.ResourcesCompat;
 
 import com.google.android.leanbackjank.IntentDefaults;
 import com.google.android.leanbackjank.IntentKeys;
@@ -90,9 +91,9 @@ public class MainFragment extends BrowseFragment {
             } else if (whichVideo == IntentKeys.VIDEO_480P_60FPS) {
                 resource = R.raw.bbb_480p;
             }
-            Uri uri = Uri.parse("android.resource://" + getContext().getPackageName() + "/"
+            Uri uri = Uri.parse("android.resource://" + getActivity().getPackageName() + "/"
                     + resource);
-            Intent videoIntent = new Intent(Intent.ACTION_VIEW, uri, getContext(),
+            Intent videoIntent = new Intent(Intent.ACTION_VIEW, uri, getActivity(),
                     VideoActivity.class);
             startActivity(videoIntent);
         }
@@ -102,19 +103,21 @@ public class MainFragment extends BrowseFragment {
         mBackgroundManager = BackgroundManager.getInstance(getActivity());
         mBackgroundManager.attach(getActivity().getWindow());
         mBackgroundManager.setDrawable(
-                getResources().getDrawable(R.drawable.default_background, null));
+                ResourcesCompat.getDrawable(getResources(), R.drawable.default_background, null));
     }
 
     private void setupUIElements() {
-        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.app_banner, null));
+        setBadgeDrawable(ResourcesCompat.getDrawable(
+                getActivity().getResources(), R.drawable.app_banner, null));
         // Badge, when set, takes precedent over title
         setTitle(getString(R.string.browse_title));
         setHeadersState(HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
         // set headers background color
-        setBrandColor(getResources().getColor(R.color.jank_yellow));
+        setBrandColor(ResourcesCompat.getColor(getResources(), R.color.jank_yellow, null));
         // set search icon color
-        setSearchAffordanceColor(getResources().getColor(R.color.search_opaque));
+        setSearchAffordanceColor(
+                ResourcesCompat.getColor(getResources(), R.color.search_opaque, null));
 
         setHeaderPresenterSelector(new PresenterSelector() {
             @Override
@@ -130,7 +133,7 @@ public class MainFragment extends BrowseFragment {
         listRowPresenter.setShadowEnabled(!disableShadows);
         mRowsAdapter = new ArrayObjectAdapter(listRowPresenter);
         HashMap<String, List<VideoInfo>> data = VideoProvider.buildMedia(categoryCount,
-                entriesPerCat, cardWidth, cardHeight, getContext(), useSingleBitmap);
+                entriesPerCat, cardWidth, cardHeight, getActivity(), useSingleBitmap);
         CardPresenter cardPresenter = new CardPresenter(cardWidth, cardHeight);
 
         int i = 0;

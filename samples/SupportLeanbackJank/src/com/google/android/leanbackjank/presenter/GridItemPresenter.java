@@ -19,6 +19,7 @@ package com.google.android.leanbackjank.presenter;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -38,7 +39,8 @@ public class GridItemPresenter extends Presenter {
         view.setLayoutParams(new ViewGroup.LayoutParams(width, height));
         view.setFocusable(true);
         view.setFocusableInTouchMode(true);
-        view.setBackgroundColor(parent.getResources().getColor(R.color.jank_yellow, null));
+        view.setBackgroundColor(
+                ResourcesCompat.getColor(parent.getResources(), R.color.jank_yellow, null));
         view.setTextColor(Color.WHITE);
         view.setGravity(Gravity.CENTER);
         return new ViewHolder(view);

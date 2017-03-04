@@ -131,7 +131,8 @@ public final class VideoProvider {
 
         canvas.drawText(string, width / 2, (height + rect.height()) / 2, paint);
 
-        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file);
             bitmap.compress(CompressFormat.JPEG, 90, outputStream);
         } catch (IOException e) {
             Log.e(TAG, "Cannot write image to file: " + file, e);
