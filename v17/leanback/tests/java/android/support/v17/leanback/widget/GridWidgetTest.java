@@ -3377,4 +3377,50 @@ public class GridWidgetTest {
                 mGridView.getChildAt(0).getRight());
     }
 
+    @Test
+    public void testSmoothScrollerOutRange() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button_onleft);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
+        int[] items = new int[30];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 680;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        final View button = mActivity.findViewById(R.id.button);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                button.requestFocus();
+            }
+        });
+
+        mGridView.setSelectedPositionSmooth(0);
+        waitForScrollIdle(mVerifyLayout);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(120);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        assertTrue(button.hasFocus());
+        int key;
+        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+            key = KeyEvent.KEYCODE_DPAD_LEFT;
+        } else {
+            key = KeyEvent.KEYCODE_DPAD_RIGHT;
+        }
+        sendKey(key);
+        // the GridView should has focus in its children
+        assertTrue(mGridView.hasFocus());
+        assertFalse(mGridView.isFocused());
+        assertEquals(29, mGridView.getSelectedPosition());
+    }
 }
