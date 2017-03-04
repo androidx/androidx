@@ -33,7 +33,33 @@ import android.text.TextUtils;
 import java.net.URISyntaxException;
 
 /**
- * A convenience class to create and insert channel entries into the database.
+ * A convenience class to access {@link TvContractCompat.Channels} entries in the system content
+ * provider.
+ *
+ * <p>This class makes it easy to insert or retrieve a channel from the system content provider,
+ * which is defined in {@link TvContractCompat}.
+ *
+ * <p>Usage example when inserting a channel:
+ * <pre>
+ * Channel channel = new Channel.Builder()
+ *         .setDisplayName("Channel Name")
+ *         .setDescription("Channel description")
+ *         .setType(Channels.TYPE_PREVIEW)
+ *         // Set more attributes...
+ *         .build();
+ * Uri channelUri = getContentResolver().insert(Channels.CONTENT_URI, channel.toContentValues());
+ * </pre>
+ *
+ * <p>Usage example when retrieving a channel:
+ * <pre>
+ * Channel channel;
+ * try (Cursor cursor = resolver.query(channelUri, null, null, null, null)) {
+ *     if (cursor != null && cursor.getCount() != 0) {
+ *         cursor.moveToNext();
+ *         channel = Channel.fromCursor(cursor);
+ *     }
+ * }
+ * </pre>
  */
 public final class Channel {
     /**

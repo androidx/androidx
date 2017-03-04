@@ -43,7 +43,34 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * A convenience class to create and insert program information into the database.
+ * A convenience class to access {@link TvContractCompat.Programs} entries in the system content
+ * provider.
+ *
+ * <p>This class makes it easy to insert or retrieve a program from the system content provider,
+ * which is defined in {@link TvContractCompat}.
+ *
+ * <p>Usage example when inserting a program:
+ * <pre>
+ * Program program = new Program.Builder()
+ *         .setChannelId(channel.getId())
+ *         .setTitle("Program Title")
+ *         .setDescription("Program Description")
+ *         .setPosterArtUri(Uri.parse("http://example.com/poster_art.png"))
+ *         // Set more attributes...
+ *         .build();
+ * Uri programUri = getContentResolver().insert(Programs.CONTENT_URI, program.toContentValues());
+ * </pre>
+ *
+ * <p>Usage example when retrieving a program:
+ * <pre>
+ * Program program;
+ * try (Cursor cursor = resolver.query(programUri, null, null, null, null)) {
+ *     if (cursor != null && cursor.getCount() != 0) {
+ *         cursor.moveToNext();
+ *         program = Program.fromCursor(cursor);
+ *     }
+ * }
+ * </pre>
  */
 public final class Program implements Comparable<Program> {
     /**
