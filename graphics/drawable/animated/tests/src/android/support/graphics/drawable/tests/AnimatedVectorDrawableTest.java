@@ -32,10 +32,11 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
 import android.support.annotation.DrawableRes;
-import android.support.graphics.drawable.Animatable2Compat;
+import android.support.graphics.drawable.Animatable2Compat.AnimationCallback;
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.graphics.drawable.animated.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -88,8 +89,8 @@ public class AnimatedVectorDrawableTest {
     private boolean mAnimationEnded = false;
 
     // Animation callback used for all callback related tests.
-    private Animatable2Compat.AnimationCallback mAnimationCallback =
-            new Animatable2Compat.AnimationCallback() {
+    private AnimationCallback mAnimationCallback =
+            new AnimationCallback() {
                 @Override
                 public void onAnimationStart(
                         Drawable drawable) {
@@ -489,5 +490,88 @@ public class AnimatedVectorDrawableTest {
         Thread.sleep(500);
         assertFalse(mAnimationStarted);
         assertFalse(mAnimationEnded);
+    }
+
+    /**
+     * Render AVD with path morphing, make sure the bitmap is different when it render at the start
+     * and the end.
+     *
+     * @throws Exception for time out or I/O problem while dumping debug images.
+     */
+    @Test
+    public void testPathMorphing() throws Exception {
+        final Object lock = new Object();
+        final Bitmap bitmap = Bitmap.createBitmap(IMAGE_WIDTH, IMAGE_WIDTH,
+                Bitmap.Config.ARGB_8888);
+        final Canvas c = new Canvas(bitmap);
+
+        final AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
+                R.drawable.animation_path_morphing_rect);
+        avd.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+        bitmap.eraseColor(0);
+        avd.draw(c);
+        int centerColor = bitmap.getPixel(IMAGE_WIDTH / 2 , IMAGE_WIDTH / 2);
+        assertTrue(centerColor == 0xffff0000);
+
+        if (DBG_DUMP_PNG) {
+            saveVectorDrawableIntoPNG(bitmap, -1, "start");
+        }
+
+        avd.registerAnimationCallback(new AnimationCallback() {
+            @Override
+            public void onAnimationStart(Drawable drawable) {
+                // Nothing to do.
+            }
+
+            @Override
+            public void onAnimationEnd(Drawable drawable) {
+                bitmap.eraseColor(0);
+                drawable.draw(c);
+                int centerColor = bitmap.getPixel(IMAGE_WIDTH / 2 , IMAGE_WIDTH / 2);
+                assertTrue(centerColor == 0);
+
+                synchronized (lock) {
+                    lock.notify();
+                }
+            }
+        });
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                avd.start();
+            }
+        });
+
+        synchronized (lock) {
+            lock.wait(1000);
+        }
+
+        if (DBG_DUMP_PNG) {
+            saveVectorDrawableIntoPNG(bitmap, -1, "ended");
+        }
+    }
+
+    /**
+     * Make sure when path didn't match, we got an exception.
+     */
+    @Test
+    @UiThreadTest
+    public void testPathMorphingException() throws Exception {
+        final Bitmap bitmap = Bitmap.createBitmap(IMAGE_WIDTH, IMAGE_WIDTH,
+                Bitmap.Config.ARGB_8888);
+
+        boolean hasException = false;
+        try {
+            final AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
+                    R.drawable.animation_path_morphing_rect_exception);
+        } catch (Exception e) {
+            // Expected to come in here, so nothing happen.
+            hasException = true;
+        }
+
+        assertTrue(hasException);
+
     }
 }
