@@ -62,6 +62,7 @@ public class PlaybackTestFragment extends PlaybackFragment {
     private ListRowPresenter mListRowPresenter;
     boolean mDestroyCalled;
 
+    @Override
     public SparseArrayObjectAdapter getAdapter() {
         return (SparseArrayObjectAdapter) super.getAdapter();
     }

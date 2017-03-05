@@ -59,6 +59,7 @@ public class BrowseSupportFragmentTest {
     @After
     public void afterTest() throws Throwable {
         activityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 if (mActivity != null) {
                     mActivity.finish();
@@ -188,6 +189,7 @@ public class BrowseSupportFragmentTest {
             this.expectedRow = expectedRow;
         }
 
+        @Override
         public void run(Presenter.ViewHolder holder) {
             android.util.Log.d(TAG, dumpRecyclerView(activity.getBrowseTestSupportFragment()
                     .getGridView()));

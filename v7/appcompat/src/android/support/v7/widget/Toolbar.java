@@ -476,6 +476,7 @@ public class Toolbar extends ViewGroup {
         requestLayout();
     }
 
+    @Override
     public void onRtlPropertiesChanged(int layoutDirection) {
         if (Build.VERSION.SDK_INT >= 17) {
             super.onRtlPropertiesChanged(layoutDirection);

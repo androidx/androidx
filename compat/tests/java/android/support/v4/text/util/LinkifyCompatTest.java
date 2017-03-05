@@ -49,6 +49,7 @@ public class LinkifyCompatTest {
             "(test:)?[a-zA-Z0-9]+(\\.pattern)?");
 
     private MatchFilter mMatchFilterStartWithDot = new MatchFilter() {
+        @Override
         public final boolean acceptMatch(final CharSequence s, final int start, final int end) {
             if (start == 0) {
                 return true;
@@ -63,6 +64,7 @@ public class LinkifyCompatTest {
     };
 
     private TransformFilter mTransformFilterUpperChar = new TransformFilter() {
+        @Override
         public final String transformUrl(final Matcher match, String url) {
             StringBuilder buffer = new StringBuilder();
             String matchingRegion = match.group();

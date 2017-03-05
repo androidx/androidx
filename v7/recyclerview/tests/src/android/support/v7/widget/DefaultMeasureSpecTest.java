@@ -152,6 +152,7 @@ public class DefaultMeasureSpecTest extends AndroidTestCase {
         runTest();
     }
 
+    @Override
     @Test
     public void runTest() {
         mRecyclerView.defaultOnMeasure(mWSpec, mHSpec);

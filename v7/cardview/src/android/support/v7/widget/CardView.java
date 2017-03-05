@@ -126,6 +126,7 @@ public class CardView extends FrameLayout {
         // NO OP
     }
 
+    @Override
     public void setPaddingRelative(int start, int top, int end, int bottom) {
         // NO OP
     }

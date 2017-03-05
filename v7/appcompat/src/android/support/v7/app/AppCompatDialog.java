@@ -143,6 +143,7 @@ public class AppCompatDialog extends Dialog implements AppCompatCallback {
     /**
      * @hide
      */
+    @Override
     @RestrictTo(LIBRARY_GROUP)
     public void invalidateOptionsMenu() {
         getDelegate().invalidateOptionsMenu();

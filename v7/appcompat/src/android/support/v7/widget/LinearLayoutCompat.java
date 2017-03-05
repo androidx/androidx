@@ -1751,6 +1751,7 @@ public class LinearLayoutCompat extends ViewGroup {
         return p instanceof LinearLayoutCompat.LayoutParams;
     }
 
+    @Override
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         if (Build.VERSION.SDK_INT >= 14) {
             super.onInitializeAccessibilityEvent(event);
@@ -1758,6 +1759,7 @@ public class LinearLayoutCompat extends ViewGroup {
         }
     }
 
+    @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         if (Build.VERSION.SDK_INT >= 14) {
             super.onInitializeAccessibilityNodeInfo(info);

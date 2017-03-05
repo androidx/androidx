@@ -78,6 +78,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @see android.app.ActionBar
      * @see #setActionView(View)
      */
+    @Override
     void setShowAsAction(int actionEnum);
 
     /**
@@ -98,6 +99,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @see android.app.ActionBar
      * @see #setActionView(View)
      */
+    @Override
     MenuItem setShowAsActionFlags(int actionEnum);
 
     /**
@@ -112,6 +114,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @return This Item so additional setters can be called.
      * @see #setShowAsAction(int)
      */
+    @Override
     MenuItem setActionView(View view);
 
     /**
@@ -126,6 +129,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @return This Item so additional setters can be called.
      * @see #setShowAsAction(int)
      */
+    @Override
     MenuItem setActionView(int resId);
 
     /**
@@ -135,6 +139,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @see #setActionView(View)
      * @see #setShowAsAction(int)
      */
+    @Override
     View getActionView();
 
     /**
@@ -172,6 +177,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      *
      * @return true if the action view was expanded, false otherwise.
      */
+    @Override
     boolean expandActionView();
 
     /**
@@ -185,6 +191,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      *
      * @return true if the action view was collapsed, false otherwise.
      */
+    @Override
     boolean collapseActionView();
 
     /**
@@ -196,6 +203,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @see #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
      * @see MenuItem.OnActionExpandListener
      */
+    @Override
     boolean isActionViewExpanded();
 
     /**
@@ -214,6 +222,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @param contentDescription The new content description.
      * @return This menu item instance for call chaining.
      */
+    @Override
     SupportMenuItem setContentDescription(CharSequence contentDescription);
 
     /**
@@ -221,6 +230,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      *
      * @return The content description.
      */
+    @Override
     CharSequence getContentDescription();
 
     /**
@@ -229,6 +239,7 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @param tooltipText The new tooltip text.
      * @return This menu item instance for call chaining.
      */
+    @Override
     SupportMenuItem setTooltipText(CharSequence tooltipText);
 
     /**
@@ -236,5 +247,6 @@ public interface SupportMenuItem extends android.view.MenuItem {
      *
      * @return The tooltip text.
      */
+    @Override
     CharSequence getTooltipText();
 }

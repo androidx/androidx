@@ -43,6 +43,7 @@ public class ParallaxFloatTest {
     public void setUp() throws Exception {
         mSource = new Parallax.FloatParallax<Parallax.FloatProperty>() {
 
+            @Override
             public float getMaxValue() {
                 return mScreenMax;
             }

@@ -460,6 +460,7 @@ public class MenuBuilder implements SupportMenu {
                 defaultShowAsAction);
     }
 
+    @Override
     public MenuItem add(CharSequence title) {
         return addInternal(0, 0, 0, title);
     }

@@ -106,6 +106,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     };
 
     private final Runnable mRemoveActionBarHideOffset = new Runnable() {
+        @Override
         public void run() {
             haltActionBarHideOffsetAnimations();
             mCurrentActionBarTopAnimator = mActionBarTop.animate().translationY(0)
@@ -114,6 +115,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     };
 
     private final Runnable mAddActionBarHideOffset = new Runnable() {
+        @Override
         public void run() {
             haltActionBarHideOffsetAnimations();
             mCurrentActionBarTopAnimator = mActionBarTop.animate()
@@ -214,12 +216,14 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 //        }
     }
 
+    @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         init(getContext());
         ViewCompat.requestApplyInsets(this);
     }
 
+    @Override
     public void onWindowSystemUiVisibilityChanged(int visible) {
         if (Build.VERSION.SDK_INT >= 16) {
             super.onWindowSystemUiVisibilityChanged(visible);

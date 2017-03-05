@@ -486,6 +486,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
             MainTable.COLUMN_NAME_DATA,
         };
 
+        @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             CursorLoader cl = new CursorLoader(getActivity(), MainTable.CONTENT_URI,
                     PROJECTION, null, null, null);
@@ -493,6 +494,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
             return cl;
         }
 
+        @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             mAdapter.swapCursor(data);
 
@@ -504,6 +506,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
             }
         }
 
+        @Override
         public void onLoaderReset(Loader<Cursor> loader) {
             mAdapter.swapCursor(null);
         }

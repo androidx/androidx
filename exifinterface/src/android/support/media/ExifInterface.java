@@ -3614,6 +3614,7 @@ public class ExifInterface {
             return skipped;
         }
 
+        @Override
         public int readUnsignedShort() throws IOException {
             mPosition += 2;
             if (mPosition > mLength) {
@@ -3692,10 +3693,12 @@ public class ExifInterface {
             mByteOrder = byteOrder;
         }
 
+        @Override
         public void write(byte[] bytes) throws IOException {
             mOutputStream.write(bytes);
         }
 
+        @Override
         public void write(byte[] bytes, int offset, int length) throws IOException {
             mOutputStream.write(bytes, offset, length);
         }

@@ -3149,10 +3149,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         mPrimaryNav = f;
     }
 
+    @Override
     public Fragment getPrimaryNavigationFragment() {
         return mPrimaryNav;
     }
 
+    @Override
     public void registerFragmentLifecycleCallbacks(FragmentLifecycleCallbacks cb,
             boolean recursive) {
         if (mLifecycleCallbacks == null) {
@@ -3161,6 +3163,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         mLifecycleCallbacks.add(new Pair(cb, recursive));
     }
 
+    @Override
     public void unregisterFragmentLifecycleCallbacks(FragmentLifecycleCallbacks cb) {
         if (mLifecycleCallbacks == null) {
             return;

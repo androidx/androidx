@@ -47,6 +47,7 @@ public class FragmentAlertDialogSupport extends FragmentActivity {
         // Watch for button clicks.
         Button button = (Button)findViewById(R.id.show);
         button.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 showDialog();
             }
@@ -91,6 +92,7 @@ public class FragmentAlertDialogSupport extends FragmentActivity {
                     .setTitle(title)
                     .setPositiveButton(R.string.alert_dialog_ok,
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 ((FragmentAlertDialogSupport)getActivity()).doPositiveClick();
                             }
@@ -98,6 +100,7 @@ public class FragmentAlertDialogSupport extends FragmentActivity {
                     )
                     .setNegativeButton(R.string.alert_dialog_cancel,
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 ((FragmentAlertDialogSupport)getActivity()).doNegativeClick();
                             }

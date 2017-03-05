@@ -84,6 +84,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
 
     @TargetApi(16)
     static class TaskStackBuilderApi16Impl extends TaskStackBuilderBaseImpl {
+        @Override
         public PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,
                 int flags, Bundle options) {
             intents[0] = new Intent(intents[0]).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -270,6 +271,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
     /**
      * @deprecated Use editIntentAt instead
      */
+    @Override
     @Deprecated
     public Iterator<Intent> iterator() {
         return mIntents.iterator();

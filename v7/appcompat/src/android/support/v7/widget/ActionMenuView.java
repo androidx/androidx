@@ -618,18 +618,21 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     }
 
     /** @hide */
+    @Override
     @RestrictTo(LIBRARY_GROUP)
     public boolean invokeItem(MenuItemImpl item) {
         return mMenu.performItemAction(item, 0);
     }
 
     /** @hide */
+    @Override
     @RestrictTo(LIBRARY_GROUP)
     public int getWindowAnimations() {
         return 0;
     }
 
     /** @hide */
+    @Override
     @RestrictTo(LIBRARY_GROUP)
     public void initialize(MenuBuilder menu) {
         mMenu = menu;
@@ -741,6 +744,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
         return result;
     }
 
+    @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
         return false;
     }

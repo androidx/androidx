@@ -240,6 +240,7 @@ public class SearchSupportFragment extends Fragment {
         }
     };
 
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
         if (requestCode == AUDIO_PERMISSION_REQUEST_CODE && permissions.length > 0) {

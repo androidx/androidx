@@ -50,6 +50,7 @@ public class VerticalGridFragmentTest extends SingleFragmentTestBase {
         launchAndWaitActivity(GridFragment.class, 500);
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
             public void run() {
                 GridFragment f = new GridFragment();
                 mActivity.getFragmentManager().beginTransaction()

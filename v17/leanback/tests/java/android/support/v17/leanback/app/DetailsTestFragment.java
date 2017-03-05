@@ -103,6 +103,7 @@ public class DetailsTestFragment extends android.support.v17.leanback.app.Detail
         mPhotoItem = photoItem;
         mRowsAdapter.clear();
         new Handler().postDelayed(new Runnable() {
+            @Override
             public void run() {
                 if (getActivity() == null) {
                     return;
@@ -121,6 +122,7 @@ public class DetailsTestFragment extends android.support.v17.leanback.app.Detail
 
 
         new Handler().postDelayed(new Runnable() {
+            @Override
             public void run() {
                 if (getActivity() == null) {
                     return;

@@ -314,12 +314,15 @@ public class TransitionTest extends BaseTest {
 
     public static class EmptyTransition extends Transition {
 
+        @Override
         public void captureEndValues(@NonNull TransitionValues transitionValues) {
         }
 
+        @Override
         public void captureStartValues(@NonNull TransitionValues transitionValues) {
         }
 
+        @Override
         public Animator createAnimator(@NonNull ViewGroup sceneRoot,
                 @Nullable TransitionValues startValues,
                 @Nullable TransitionValues endValues) {
@@ -330,18 +333,23 @@ public class TransitionTest extends BaseTest {
 
     public static class EmptyTransitionListener implements Transition.TransitionListener {
 
+        @Override
         public void onTransitionStart(@NonNull Transition transition) {
         }
 
+        @Override
         public void onTransitionEnd(@NonNull Transition transition) {
         }
 
+        @Override
         public void onTransitionCancel(@NonNull Transition transition) {
         }
 
+        @Override
         public void onTransitionPause(@NonNull Transition transition) {
         }
 
+        @Override
         public void onTransitionResume(@NonNull Transition transition) {
         }
 

@@ -52,6 +52,7 @@ public class QueueAdapter extends ArrayAdapter<MediaSessionCompat.QueueItem> {
         TextView mDescriptionView;
     }
 
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
 

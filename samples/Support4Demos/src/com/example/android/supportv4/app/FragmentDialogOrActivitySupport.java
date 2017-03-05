@@ -48,6 +48,7 @@ public class FragmentDialogOrActivitySupport extends FragmentActivity {
         // Watch for button clicks.
         Button button = (Button)findViewById(R.id.show_dialog);
         button.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 showDialog();
             }

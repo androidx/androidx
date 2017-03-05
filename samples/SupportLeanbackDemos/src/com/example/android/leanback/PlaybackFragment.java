@@ -59,6 +59,7 @@ public class PlaybackFragment
     private PlaybackControlGlue mGlue;
     private ListRowPresenter mListRowPresenter;
 
+    @Override
     public SparseArrayObjectAdapter getAdapter() {
         return (SparseArrayObjectAdapter) super.getAdapter();
     }

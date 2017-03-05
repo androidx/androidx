@@ -189,6 +189,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
     /**
      * @return Alpha value between 0(inclusive) and 255(inclusive)
      */
+    @Override
     public int getAlpha() {
         final Drawable dr = getFirstNonNullDrawable();
         if (dr != null) {

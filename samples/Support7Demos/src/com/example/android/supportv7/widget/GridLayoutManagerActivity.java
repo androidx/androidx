@@ -110,6 +110,7 @@ public class GridLayoutManagerActivity extends BaseLayoutManagerActivity<GridLay
         }
     }
 
+    @Override
     protected RecyclerView.Adapter createAdapter() {
         mAdapter = new SimpleStringAdapter(this, Cheeses.sCheeseStrings) {
             @Override

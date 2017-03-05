@@ -56,6 +56,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
         final String secondFragmentName = generateMethodTestName("second");
         GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
         doAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) {
                 List actions = (List) invocation.getArguments()[0];
                 actions.add(new GuidedAction.Builder().id(1000).title("OK").build());
@@ -63,6 +64,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
             }
         }).when(first).onCreateActions(any(List.class), any(Bundle.class));
         doAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) {
                 GuidedAction action = (GuidedAction) invocation.getArguments()[0];
                 GuidedStepTestFragment.Provider obj = (GuidedStepTestFragment.Provider)
@@ -131,6 +133,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
         final String secondFragmentName = generateMethodTestName("second");
         GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
         doAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) {
                 List actions = (List) invocation.getArguments()[0];
                 actions.add(new GuidedAction.Builder().id(1000).title("OK").build());
@@ -142,6 +145,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
             }
         }).when(first).onCreateActions(any(List.class), any(Bundle.class));
         doAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) {
                 GuidedAction action = (GuidedAction) invocation.getArguments()[0];
                 GuidedStepTestFragment.Provider obj = (GuidedStepTestFragment.Provider)
@@ -197,6 +201,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
         final String firstFragmentName = generateMethodTestName("first");
         GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
         doAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) {
                 List actions = (List) invocation.getArguments()[0];
                 actions.add(new GuidedAction.Builder().id(1001).title("Finish activity").build());
@@ -204,6 +209,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
             }
         }).when(first).onCreateActions(any(List.class), any(Bundle.class));
         doAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) {
                 GuidedAction action = (GuidedAction) invocation.getArguments()[0];
                 GuidedStepTestFragment.Provider obj = (GuidedStepTestFragment.Provider)
@@ -229,6 +235,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
         final String firstFragmentName = generateMethodTestName("first");
         GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
         doAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) {
                 List actions = (List) invocation.getArguments()[0];
                 actions.add(new GuidedAction.Builder().id(1001).title("Finish fragments").build());
@@ -236,6 +243,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
             }
         }).when(first).onCreateActions(any(List.class), any(Bundle.class));
         doAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) {
                 GuidedAction action = (GuidedAction) invocation.getArguments()[0];
                 GuidedStepTestFragment.Provider obj = (GuidedStepTestFragment.Provider)
@@ -266,6 +274,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
         final boolean[] expandSubActionInOnCreateView = new boolean[] {false};
         GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
         doAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) {
                 GuidedStepTestFragment.Provider obj = (GuidedStepTestFragment.Provider)
                         invocation.getMock();
@@ -277,6 +286,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
         }).when(first).onCreateView(any(LayoutInflater.class), any(ViewGroup.class),
                 any(Bundle.class), any(View.class));
         doAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) {
                 List actions = (List) invocation.getArguments()[0];
                 List<GuidedAction> subActions = new ArrayList<GuidedAction>();
@@ -288,6 +298,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
             }
         }).when(first).onCreateActions(any(List.class), any(Bundle.class));
         doAnswer(new Answer<Boolean>() {
+            @Override
             public Boolean answer(InvocationOnMock invocation) {
                 GuidedStepTestFragment.Provider obj = (GuidedStepTestFragment.Provider)
                         invocation.getMock();
@@ -358,6 +369,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
         final String firstFragmentName = generateMethodTestName("first");
         GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
         doAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) {
                 List actions = (List) invocation.getArguments()[0];
                 List<GuidedAction> subActions = new ArrayList<GuidedAction>();
@@ -368,6 +380,7 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
             }
         }).when(first).onCreateActions(any(List.class), any(Bundle.class));
         doAnswer(new Answer<Boolean>() {
+            @Override
             public Boolean answer(InvocationOnMock invocation) {
                 GuidedStepTestFragment.Provider obj = (GuidedStepTestFragment.Provider)
                         invocation.getMock();

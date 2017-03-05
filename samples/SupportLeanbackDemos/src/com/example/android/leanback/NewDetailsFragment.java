@@ -228,6 +228,7 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         }
         mRowsAdapter.clear();
         new Handler().postDelayed(new Runnable() {
+            @Override
             public void run() {
                 if (TEST_OVERVIEW_ROW_ON_SECOND) {
                     ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
@@ -259,6 +260,7 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         }, TIME_TO_LOAD_OVERVIEW_ROW_MS);
 
         new Handler().postDelayed(new Runnable() {
+            @Override
             public void run() {
                 for (int i = 0; i < NUM_ROWS; ++i) {
                     ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);

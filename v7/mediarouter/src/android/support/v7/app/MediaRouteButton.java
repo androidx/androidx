@@ -342,7 +342,7 @@ public class MediaRouteButton extends View {
         return super.verifyDrawable(who) || who == mRemoteIndicator;
     }
 
-    //@Override defined in v11
+    @Override
     public void jumpDrawablesToCurrentState() {
         // We can't call super to handle the background so we do it ourselves.
         //super.jumpDrawablesToCurrentState();

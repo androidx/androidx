@@ -41,6 +41,7 @@ public class FragmentMenuSupport extends FragmentActivity {
 
     // Update fragment visibility when check boxes are changed.
     final OnClickListener mClickListener = new OnClickListener() {
+        @Override
         public void onClick(View v) {
             updateFragmentVisibility();
         }

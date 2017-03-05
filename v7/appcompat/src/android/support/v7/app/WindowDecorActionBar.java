@@ -257,6 +257,7 @@ public class WindowDecorActionBar extends ActionBar implements
         return ViewCompat.getElevation(mContainerView);
     }
 
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         setHasEmbeddedTabs(ActionBarPolicy.get(mContext).hasEmbeddedTabs());
     }
@@ -318,6 +319,7 @@ public class WindowDecorActionBar extends ActionBar implements
         }
     }
 
+    @Override
     public void onWindowVisibilityChanged(int visibility) {
         mCurWindowVisibility = visibility;
     }
@@ -329,6 +331,7 @@ public class WindowDecorActionBar extends ActionBar implements
      *
      * @param enabled true to animate, false to not animate.
      */
+    @Override
     public void setShowHideAnimationEnabled(boolean enabled) {
         mShowHideAnimationEnabled = enabled;
         if (!enabled && mCurrentShowAnim != null) {
@@ -336,14 +339,17 @@ public class WindowDecorActionBar extends ActionBar implements
         }
     }
 
+    @Override
     public void addOnMenuVisibilityListener(OnMenuVisibilityListener listener) {
         mMenuVisibilityListeners.add(listener);
     }
 
+    @Override
     public void removeOnMenuVisibilityListener(OnMenuVisibilityListener listener) {
         mMenuVisibilityListeners.remove(listener);
     }
 
+    @Override
     public void dispatchMenuVisibilityChanged(boolean isVisible) {
         if (isVisible == mLastMenuVisibility) {
             return;
@@ -402,6 +408,7 @@ public class WindowDecorActionBar extends ActionBar implements
         setSubtitle(mContext.getString(resId));
     }
 
+    @Override
     public void setSelectedNavigationItem(int position) {
         switch (mDecorToolbar.getNavigationMode()) {
             case NAVIGATION_MODE_TABS:
@@ -416,6 +423,7 @@ public class WindowDecorActionBar extends ActionBar implements
         }
     }
 
+    @Override
     public void removeAllTabs() {
         cleanupTabs();
     }
@@ -431,6 +439,7 @@ public class WindowDecorActionBar extends ActionBar implements
         mSavedTabPosition = INVALID_POSITION;
     }
 
+    @Override
     public void setTitle(CharSequence title) {
         mDecorToolbar.setTitle(title);
     }
@@ -450,10 +459,12 @@ public class WindowDecorActionBar extends ActionBar implements
         return false;
     }
 
+    @Override
     public void setSubtitle(CharSequence subtitle) {
         mDecorToolbar.setSubtitle(subtitle);
     }
 
+    @Override
     public void setDisplayOptions(int options) {
         if ((options & DISPLAY_HOME_AS_UP) != 0) {
             mDisplayHomeAsUpSet = true;
@@ -461,6 +472,7 @@ public class WindowDecorActionBar extends ActionBar implements
         mDecorToolbar.setDisplayOptions(options);
     }
 
+    @Override
     public void setDisplayOptions(int options, int mask) {
         final int current = mDecorToolbar.getDisplayOptions();
         if ((mask & DISPLAY_HOME_AS_UP) != 0) {
@@ -469,38 +481,47 @@ public class WindowDecorActionBar extends ActionBar implements
         mDecorToolbar.setDisplayOptions((options & mask) | (current & ~mask));
     }
 
+    @Override
     public void setBackgroundDrawable(Drawable d) {
         mContainerView.setPrimaryBackground(d);
     }
 
+    @Override
     public void setStackedBackgroundDrawable(Drawable d) {
         mContainerView.setStackedBackground(d);
     }
 
+    @Override
     public void setSplitBackgroundDrawable(Drawable d) {
         // no-op. We don't support split action bars
     }
 
+    @Override
     public View getCustomView() {
         return mDecorToolbar.getCustomView();
     }
 
+    @Override
     public CharSequence getTitle() {
         return mDecorToolbar.getTitle();
     }
 
+    @Override
     public CharSequence getSubtitle() {
         return mDecorToolbar.getSubtitle();
     }
 
+    @Override
     public int getNavigationMode() {
         return mDecorToolbar.getNavigationMode();
     }
 
+    @Override
     public int getDisplayOptions() {
         return mDecorToolbar.getDisplayOptions();
     }
 
+    @Override
     public ActionMode startActionMode(ActionMode.Callback callback) {
         if (mActionMode != null) {
             mActionMode.finish();
@@ -651,6 +672,7 @@ public class WindowDecorActionBar extends ActionBar implements
         return mContainerView.getHeight();
     }
 
+    @Override
     public void enableContentAnimations(boolean enabled) {
         mContentAnimations = enabled;
     }
@@ -673,6 +695,7 @@ public class WindowDecorActionBar extends ActionBar implements
         }
     }
 
+    @Override
     public void showForSystem() {
         if (mHiddenBySystem) {
             mHiddenBySystem = false;
@@ -698,6 +721,7 @@ public class WindowDecorActionBar extends ActionBar implements
         }
     }
 
+    @Override
     public void hideForSystem() {
         if (!mHiddenBySystem) {
             mHiddenBySystem = true;
@@ -845,6 +869,7 @@ public class WindowDecorActionBar extends ActionBar implements
         }
     }
 
+    @Override
     public boolean isShowing() {
         final int height = getHeight();
         // Take into account the case where the bar has a 0 height due to not being measured yet.
@@ -896,6 +921,7 @@ public class WindowDecorActionBar extends ActionBar implements
         return ViewCompat.isLaidOut(mContainerView);
     }
 
+    @Override
     public Context getThemedContext() {
         if (mThemedContext == null) {
             TypedValue outValue = new TypedValue();
@@ -1096,6 +1122,7 @@ public class WindowDecorActionBar extends ActionBar implements
             return mCustomView != null ? mCustomView.get() : null;
         }
 
+        @Override
         public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
             if (mCallback != null) {
                 return mCallback.onActionItemClicked(this, item);
@@ -1123,6 +1150,7 @@ public class WindowDecorActionBar extends ActionBar implements
         public void onCloseSubMenu(SubMenuBuilder menu) {
         }
 
+        @Override
         public void onMenuModeChange(MenuBuilder menu) {
             if (mCallback == null) {
                 return;
@@ -1367,6 +1395,7 @@ public class WindowDecorActionBar extends ActionBar implements
         return mDecorToolbar.hasLogo();
     }
 
+    @Override
     public void setDefaultDisplayHomeAsUpEnabled(boolean enable) {
         if (!mDisplayHomeAsUpSet) {
             setDisplayHomeAsUpEnabled(enable);

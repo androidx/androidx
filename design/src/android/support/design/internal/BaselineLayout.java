@@ -42,6 +42,7 @@ public class BaselineLayout extends ViewGroup {
         super(context, attrs, defStyleAttr);
     }
 
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         final int count = getChildCount();
         int maxWidth = 0;

@@ -312,6 +312,7 @@ class DrawableWrapperApi14 extends Drawable
     /**
      * Returns the wrapped {@link Drawable}
      */
+    @Override
     public final Drawable getWrappedDrawable() {
         return mDrawable;
     }
@@ -319,6 +320,7 @@ class DrawableWrapperApi14 extends Drawable
     /**
      * Sets the current wrapped {@link Drawable}
      */
+    @Override
     public final void setWrappedDrawable(Drawable dr) {
         if (mDrawable != null) {
             mDrawable.setCallback(null);
@@ -367,6 +369,7 @@ class DrawableWrapperApi14 extends Drawable
             return newDrawable(null);
         }
 
+        @Override
         public abstract Drawable newDrawable(@Nullable Resources res);
 
         @Override

@@ -376,8 +376,10 @@ public class GuidedStepActivity extends Activity {
             mExpandPaymentListInOnCreateView = true;
         }
 
+        @Override
         public GuidedActionsStylist onCreateActionsStylist() {
             return new GuidedActionsStylist() {
+                @Override
                 protected void setupImeOptions(GuidedActionsStylist.ViewHolder vh,
                         GuidedAction action) {
                     if (action.getId() == PASSWORD) {

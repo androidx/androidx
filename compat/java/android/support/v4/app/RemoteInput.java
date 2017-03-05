@@ -87,6 +87,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         return mChoices;
     }
 
+    @Override
     public Set<String> getAllowedDataTypes() {
         return mAllowedDataTypes;
     }

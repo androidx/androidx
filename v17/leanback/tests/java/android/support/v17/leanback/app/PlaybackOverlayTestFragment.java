@@ -84,6 +84,7 @@ public class PlaybackOverlayTestFragment extends PlaybackOverlayFragment {
         }
     };
 
+    @Override
     public SparseArrayObjectAdapter getAdapter() {
         return (SparseArrayObjectAdapter) super.getAdapter();
     }

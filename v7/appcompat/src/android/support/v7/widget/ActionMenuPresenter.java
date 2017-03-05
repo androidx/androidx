@@ -285,6 +285,7 @@ class ActionMenuPresenter extends BaseMenuPresenter
         return super.filterLeftoverView(parent, childIndex);
     }
 
+    @Override
     public boolean onSubMenuSelected(SubMenuBuilder subMenu) {
         if (!subMenu.hasVisibleItems()) return false;
 
@@ -418,6 +419,7 @@ class ActionMenuPresenter extends BaseMenuPresenter
         return mReserveOverflow;
     }
 
+    @Override
     public boolean flagActionItems() {
         final ArrayList<MenuItemImpl> visibleItems;
         final int itemsSize;
@@ -626,10 +628,12 @@ class ActionMenuPresenter extends BaseMenuPresenter
 
         public static final Parcelable.Creator<SavedState> CREATOR
                 = new Parcelable.Creator<SavedState>() {
+            @Override
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);
             }
 
+            @Override
             public SavedState[] newArray(int size) {
                 return new SavedState[size];
             }
@@ -798,6 +802,7 @@ class ActionMenuPresenter extends BaseMenuPresenter
             mPopup = popup;
         }
 
+        @Override
         public void run() {
             if (mMenu != null) {
                 mMenu.changeMenuMode();

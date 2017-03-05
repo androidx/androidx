@@ -102,6 +102,7 @@ public class MultiSelectListPreferenceDialogFragmentCompat extends PreferenceDia
         }
         builder.setMultiChoiceItems(mEntries, checkedItems,
                 new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                         if (isChecked) {
                             mPreferenceChanged |= mNewValues.add(

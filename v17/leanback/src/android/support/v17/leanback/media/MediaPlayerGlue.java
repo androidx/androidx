@@ -140,6 +140,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     /**
      * Sets the callback, which would tell the listener that video is ready to be played.
      */
+    @Override
     public void setPlayerCallback(PlayerCallback callback) {
         this.mPlayerCallback = callback;
     }

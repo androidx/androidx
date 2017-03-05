@@ -88,6 +88,7 @@ class MenuDialogHelper implements DialogInterface.OnKeyListener,
         mDialog.show();
     }
 
+    @Override
     public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_BACK) {
             if (event.getAction() == KeyEvent.ACTION_DOWN
@@ -162,6 +163,7 @@ class MenuDialogHelper implements DialogInterface.OnKeyListener,
         return false;
     }
 
+    @Override
     public void onClick(DialogInterface dialog, int which) {
         mMenu.performItemAction((MenuItemImpl) mPresenter.getAdapter().getItem(which), 0);
     }

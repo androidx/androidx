@@ -210,6 +210,7 @@ public class AsyncListUtilTest {
             return mDataItemCount;
         }
 
+        @Override
         public int getMaxCachedTiles() {
             return mCacheSize;
         }

@@ -40,6 +40,7 @@ public class FragmentMenuFragmentSupport extends Fragment {
 
     // Update fragment visibility when check boxes are changed.
     final OnClickListener mClickListener = new OnClickListener() {
+        @Override
         public void onClick(View v) {
             updateFragmentVisibility();
         }
@@ -64,13 +65,13 @@ public class FragmentMenuFragmentSupport extends Fragment {
             ft.add(mFragment2, "f2");
         }
         ft.commit();
-        
+
         // Watch check box clicks.
         mCheckBox1 = (CheckBox)v.findViewById(R.id.menu1);
         mCheckBox1.setOnClickListener(mClickListener);
         mCheckBox2 = (CheckBox)v.findViewById(R.id.menu2);
         mCheckBox2.setOnClickListener(mClickListener);
-        
+
         // Make sure fragments start out with correct visibility.
         updateFragmentVisibility();
 

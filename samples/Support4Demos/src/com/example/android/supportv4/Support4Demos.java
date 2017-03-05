@@ -38,10 +38,10 @@ public class Support4Demos extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         Intent intent = getIntent();
         String path = intent.getStringExtra("com.example.android.apis.Path");
-        
+
         if (path == null) {
             path = "";
         }
@@ -66,16 +66,16 @@ public class Support4Demos extends ListActivity {
 
         String[] prefixPath;
         String prefixWithSlash = prefix;
-        
+
         if (prefix.equals("")) {
             prefixPath = null;
         } else {
             prefixPath = prefix.split("/");
             prefixWithSlash = prefix + "/";
         }
-        
+
         int len = list.size();
-        
+
         Map<String, Boolean> entries = new HashMap<String, Boolean>();
 
         for (int i = 0; i < len; i++) {
@@ -84,9 +84,9 @@ public class Support4Demos extends ListActivity {
             String label = labelSeq != null
                     ? labelSeq.toString()
                     : info.activityInfo.name;
-            
+
             if (prefixWithSlash.length() == 0 || label.startsWith(prefixWithSlash)) {
-                
+
                 String[] labelPath = label.split("/");
 
                 String nextLabel = prefixPath == null ? labelPath[0] : labelPath[prefixPath.length];
@@ -105,7 +105,7 @@ public class Support4Demos extends ListActivity {
         }
 
         Collections.sort(myData, sDisplayNameComparator);
-        
+
         return myData;
     }
 
@@ -113,6 +113,7 @@ public class Support4Demos extends ListActivity {
         new Comparator<Map<String, Object>>() {
         private final Collator   collator = Collator.getInstance();
 
+        @Override
         public int compare(Map<String, Object> map1, Map<String, Object> map2) {
             return collator.compare(map1.get("title"), map2.get("title"));
         }
@@ -123,7 +124,7 @@ public class Support4Demos extends ListActivity {
         result.setClassName(pkg, componentName);
         return result;
     }
-    
+
     protected Intent browseIntent(String path) {
         Intent result = new Intent();
         result.setClass(this, Support4Demos.class);

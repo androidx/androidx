@@ -43,12 +43,14 @@ public class FragmentStackSupport extends FragmentActivity {
         // Watch for button clicks.
         Button button = (Button) findViewById(R.id.new_fragment);
         button.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 addFragmentToStack();
             }
         });
         button = (Button) findViewById(R.id.home);
         button.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 // If there is a back stack, pop it all.
                 FragmentManager fm = getSupportFragmentManager();

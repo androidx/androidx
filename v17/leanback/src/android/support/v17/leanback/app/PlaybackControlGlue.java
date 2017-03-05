@@ -250,6 +250,7 @@ public abstract class PlaybackControlGlue extends
         return getControlsRowPresenter();
     }
 
+    @Override
     protected SparseArrayObjectAdapter createPrimaryActionsAdapter(
             PresenterSelector presenterSelector) {
         return super.createPrimaryActionsAdapter(presenterSelector);

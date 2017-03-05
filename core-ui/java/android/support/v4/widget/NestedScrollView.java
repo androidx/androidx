@@ -312,6 +312,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     // ScrollView import
 
+    @Override
     public boolean shouldDelayChildPressedState() {
         return true;
     }
@@ -891,6 +892,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         }
     }
 
+    @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
         if ((event.getSource() & InputDeviceCompat.SOURCE_CLASS_POINTER) != 0) {
             switch (event.getAction()) {

@@ -169,6 +169,7 @@ public class ActionBarContainer extends FrameLayout {
         }
     }
 
+    @Override
     public void jumpDrawablesToCurrentState() {
         if (Build.VERSION.SDK_INT >= 11) {
             super.jumpDrawablesToCurrentState();
@@ -228,12 +229,14 @@ public class ActionBarContainer extends FrameLayout {
         return mTabContainer;
     }
 
+    @Override
     public android.view.ActionMode startActionModeForChild(View child,
             android.view.ActionMode.Callback callback) {
         // No starting an action mode for an action bar child! (Where would it go?)
         return null;
     }
 
+    @Override
     public android.view.ActionMode startActionModeForChild(View child,
             android.view.ActionMode.Callback callback, int type) {
         if (type != android.view.ActionMode.TYPE_PRIMARY) {

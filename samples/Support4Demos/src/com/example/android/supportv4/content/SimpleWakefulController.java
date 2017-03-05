@@ -44,6 +44,7 @@ public class SimpleWakefulController extends Activity {
     }
 
     private View.OnClickListener mScheduleListener = new View.OnClickListener() {
+        @Override
         public void onClick(View v) {
             // When the alarm goes off, we want to broadcast an Intent to our
             // BroadcastReceiver.  Here we make an Intent with an explicit class

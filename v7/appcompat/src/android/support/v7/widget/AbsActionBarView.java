@@ -198,6 +198,7 @@ abstract class AbsActionBarView extends ViewGroup {
 
     public void postShowOverflowMenu() {
         post(new Runnable() {
+            @Override
             public void run() {
                 showOverflowMenu();
             }
