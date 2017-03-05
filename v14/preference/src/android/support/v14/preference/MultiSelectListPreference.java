@@ -169,6 +169,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
      *
      * @return The list as an array.
      */
+    @Override
     public CharSequence[] getEntries() {
         return mEntries;
     }
@@ -197,6 +198,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
      *
      * @return The array of values.
      */
+    @Override
     public CharSequence[] getEntryValues() {
         return mEntryValues;
     }
@@ -207,6 +209,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
      *
      * @param values The values to set for the key.
      */
+    @Override
     public void setValues(Set<String> values) {
         mValues.clear();
         mValues.addAll(values);
@@ -217,6 +220,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
     /**
      * Retrieves the current value of the key.
      */
+    @Override
     public Set<String> getValues() {
         return mValues;
     }
@@ -320,10 +324,12 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
 
         public static final Parcelable.Creator<SavedState> CREATOR =
                 new Parcelable.Creator<SavedState>() {
+                    @Override
                     public SavedState createFromParcel(Parcel in) {
                         return new SavedState(in);
                     }
 
+                    @Override
                     public SavedState[] newArray(int size) {
                         return new SavedState[size];
                     }

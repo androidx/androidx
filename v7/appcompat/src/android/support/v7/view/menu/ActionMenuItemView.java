@@ -86,6 +86,7 @@ public class ActionMenuItemView extends AppCompatTextView
         setSaveEnabled(false);
     }
 
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
@@ -112,10 +113,12 @@ public class ActionMenuItemView extends AppCompatTextView
         super.setPadding(l, t, r, b);
     }
 
+    @Override
     public MenuItemImpl getItemData() {
         return mItemData;
     }
 
+    @Override
     public void initialize(MenuItemImpl itemData, int menuType) {
         mItemData = itemData;
 
@@ -156,14 +159,17 @@ public class ActionMenuItemView extends AppCompatTextView
         mPopupCallback = popupCallback;
     }
 
+    @Override
     public boolean prefersCondensedTitle() {
         return true;
     }
 
+    @Override
     public void setCheckable(boolean checkable) {
         // TODO Support checkable action items
     }
 
+    @Override
     public void setChecked(boolean checked) {
         // TODO Support checkable action items
     }
@@ -202,6 +208,7 @@ public class ActionMenuItemView extends AppCompatTextView
         }
     }
 
+    @Override
     public void setIcon(Drawable icon) {
         mIcon = icon;
         if (icon != null) {
@@ -228,24 +235,29 @@ public class ActionMenuItemView extends AppCompatTextView
         return !TextUtils.isEmpty(getText());
     }
 
+    @Override
     public void setShortcut(boolean showShortcut, char shortcutKey) {
         // Action buttons don't show text for shortcut keys.
     }
 
+    @Override
     public void setTitle(CharSequence title) {
         mTitle = title;
 
         updateTextButtonVisibility();
     }
 
+    @Override
     public boolean showsIcon() {
         return true;
     }
 
+    @Override
     public boolean needsDividerBefore() {
         return hasText() && mItemData.getIcon() == null;
     }
 
+    @Override
     public boolean needsDividerAfter() {
         return hasText();
     }

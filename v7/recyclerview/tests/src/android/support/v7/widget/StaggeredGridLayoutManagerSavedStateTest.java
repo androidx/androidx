@@ -153,6 +153,7 @@ public class StaggeredGridLayoutManagerSavedStateTest extends BaseStaggeredGridL
                 void onBoundItem(TestViewHolder vh, int position) {
                 }
 
+                @Override
                 boolean assignRandomSize() {
                     return false;
                 }

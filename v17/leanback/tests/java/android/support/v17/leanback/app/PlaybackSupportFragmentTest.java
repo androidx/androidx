@@ -58,6 +58,7 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         final PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) mActivity.getTestFragment();
         PlaybackGlue glue = fragment.getGlue();
         activityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mActivity.finish();
             }

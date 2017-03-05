@@ -248,6 +248,7 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
      *
      * @param tint the tint to apply, may be {@code null} to clear tint
      */
+    @Override
     public void setBackgroundTintList(@Nullable ColorStateList tint) {
         if (mBackgroundTint != tint) {
             mBackgroundTint = tint;
@@ -277,6 +278,7 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
      * @param tintMode the blending mode used to apply the tint, may be
      *                 {@code null} to clear tint
      */
+    @Override
     public void setBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mBackgroundTintMode != tintMode) {
             mBackgroundTintMode = tintMode;

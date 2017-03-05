@@ -43,6 +43,7 @@ public class ParallaxIntEffectTest {
         MockitoAnnotations.initMocks(this);
         mSource = new Parallax.IntParallax<Parallax.IntProperty>() {
 
+            @Override
             public int getMaxValue() {
                 return mScreenMax;
             }

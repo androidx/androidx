@@ -38,6 +38,7 @@ public class CustomDrawerLayout extends DrawerLayout {
         super(context, attrs, defStyle);
     }
 
+    @Override
     public WindowInsets dispatchApplyWindowInsets(WindowInsets insets) {
         mSystemWindowInsetTop = insets.getSystemWindowInsetTop();
         return super.dispatchApplyWindowInsets(insets);

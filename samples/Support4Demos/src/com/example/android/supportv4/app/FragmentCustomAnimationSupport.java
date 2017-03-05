@@ -42,6 +42,7 @@ public class FragmentCustomAnimationSupport extends FragmentActivity {
         // Watch for button clicks.
         Button button = (Button) findViewById(R.id.new_fragment);
         button.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 addFragmentToStack();
             }

@@ -55,6 +55,7 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
         final PlaybackTestFragment fragment = (PlaybackTestFragment) mActivity.getTestFragment();
         PlaybackGlue glue = fragment.getGlue();
         activityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mActivity.finish();
             }

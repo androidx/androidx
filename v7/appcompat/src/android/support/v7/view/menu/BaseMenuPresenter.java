@@ -85,6 +85,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
     /**
      * Reuses item views when it can
      */
+    @Override
     public void updateMenuView(boolean cleared) {
         final ViewGroup parent = (ViewGroup) mMenuView;
         if (parent == null) return;
@@ -147,6 +148,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
         return true;
     }
 
+    @Override
     public void setCallback(Callback cb) {
         mCallback = cb;
     }
@@ -205,12 +207,14 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
         return true;
     }
 
+    @Override
     public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
         if (mCallback != null) {
             mCallback.onCloseMenu(menu, allMenusAreClosing);
         }
     }
 
+    @Override
     public boolean onSubMenuSelected(SubMenuBuilder menu) {
         if (mCallback != null) {
             return mCallback.onOpenSubMenu(menu);
@@ -218,18 +222,22 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
         return false;
     }
 
+    @Override
     public boolean flagActionItems() {
         return false;
     }
 
+    @Override
     public boolean expandItemActionView(MenuBuilder menu, MenuItemImpl item) {
         return false;
     }
 
+    @Override
     public boolean collapseItemActionView(MenuBuilder menu, MenuItemImpl item) {
         return false;
     }
 
+    @Override
     public int getId() {
         return mId;
     }

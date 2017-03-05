@@ -57,6 +57,7 @@ public class FragmentHideShowSupport extends FragmentActivity {
     void addShowHideListener(int buttonId, final Fragment fragment) {
         final Button button = (Button)findViewById(buttonId);
         button.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.setCustomAnimations(android.R.anim.fade_in,

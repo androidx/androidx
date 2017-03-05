@@ -2583,7 +2583,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     /**
      * Returns true if RecyclerView is attached to window.
      */
-    // @override
+    @Override
     public boolean isAttachedToWindow() {
         return mIsAttached;
     }
@@ -2991,7 +2991,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
     }
 
-    // @Override
+    @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
         if (mLayout == null) {
             return false;

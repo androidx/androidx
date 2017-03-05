@@ -84,6 +84,7 @@ public class PlaybackOverlayFragment
                 }
     };
 
+    @Override
     public SparseArrayObjectAdapter getAdapter() {
         return (SparseArrayObjectAdapter) super.getAdapter();
     }

@@ -276,6 +276,7 @@ public abstract class RoundedBitmapDrawable extends Drawable {
         }
     }
 
+    @Override
     public int getAlpha() {
         return mPaint.getAlpha();
     }
@@ -286,6 +287,7 @@ public abstract class RoundedBitmapDrawable extends Drawable {
         invalidateSelf();
     }
 
+    @Override
     public ColorFilter getColorFilter() {
         return mPaint.getColorFilter();
     }

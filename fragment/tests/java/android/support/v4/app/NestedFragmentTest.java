@@ -60,6 +60,7 @@ public class NestedFragmentTest {
         fragmentManager.beginTransaction().add(mParentFragment, "parent").commit();
         final CountDownLatch latch = new CountDownLatch(1);
         mActivityRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 fragmentManager.executePendingTransactions();
                 latch.countDown();
@@ -89,6 +90,7 @@ public class NestedFragmentTest {
 
         final CountDownLatch latch = new CountDownLatch(1);
         mActivityRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mParentFragment.getChildFragment().startActivityForResult(
                         new Intent(Intent.ACTION_CALL),

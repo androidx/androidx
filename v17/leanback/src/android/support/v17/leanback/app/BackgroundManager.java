@@ -200,6 +200,7 @@ public final class BackgroundManager {
             invalidateSelf();
         }
 
+        @Override
         public ColorFilter getColorFilter() {
             return mState.mPaint.getColorFilter();
         }
@@ -269,6 +270,7 @@ public final class BackgroundManager {
         }
 
         // Queried by system transitions
+        @Override
         public int getAlpha() {
             return mAlpha;
         }

@@ -62,6 +62,7 @@ public class FragmentReceiveResultSupport extends FragmentActivity {
         private TextView mResults;
 
         private OnClickListener mGetListener = new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 // Start the activity whose result we want to retrieve.  The
                 // result will come back with request code GET_CODE.
@@ -71,6 +72,7 @@ public class FragmentReceiveResultSupport extends FragmentActivity {
         };
 
         private OnClickListener mIntentSenderListener = new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 // Start the intent sender whose result we want to retrieve.  The
                 // result will come back with request code GET_INTENT_SENDER_CODE.

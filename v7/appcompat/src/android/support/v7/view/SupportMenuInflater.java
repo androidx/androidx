@@ -251,6 +251,7 @@ public class SupportMenuInflater extends MenuInflater {
             }
         }
 
+        @Override
         public boolean onMenuItemClick(MenuItem item) {
             try {
                 if (mMethod.getReturnType() == Boolean.TYPE) {

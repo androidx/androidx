@@ -186,6 +186,7 @@ public class DetailsSupportFragment extends android.support.v17.leanback.app.Det
         }
         mRowsAdapter.clear();
         new Handler().postDelayed(new Runnable() {
+            @Override
             public void run() {
                 final Context context = getActivity();
                 DetailsOverviewRow dor = new DetailsOverviewRow(mPhotoItem.getTitle());
@@ -201,6 +202,7 @@ public class DetailsSupportFragment extends android.support.v17.leanback.app.Det
         }, TIME_TO_LOAD_OVERVIEW_ROW_MS);
 
         new Handler().postDelayed(new Runnable() {
+            @Override
             public void run() {
                 for (int i = 0; i < NUM_ROWS; ++i) {
                     ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);

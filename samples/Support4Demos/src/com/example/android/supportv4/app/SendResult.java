@@ -58,6 +58,7 @@ public class SendResult extends Activity
 
     private OnClickListener mCorkyListener = new OnClickListener()
     {
+        @Override
         public void onClick(View v)
         {
             // To send a result, simply call setResult() before your
@@ -69,6 +70,7 @@ public class SendResult extends Activity
 
     private OnClickListener mVioletListener = new OnClickListener()
     {
+        @Override
         public void onClick(View v)
         {
             // To send a result, simply call setResult() before your

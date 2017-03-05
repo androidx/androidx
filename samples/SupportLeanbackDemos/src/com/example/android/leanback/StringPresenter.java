@@ -23,6 +23,7 @@ import android.widget.TextView;
 public class StringPresenter extends Presenter {
     private static final String TAG = "StringPresenter";
 
+    @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         Log.d(TAG, "onCreateViewHolder");
         final Context context = parent.getContext();
@@ -34,12 +35,14 @@ public class StringPresenter extends Presenter {
         return new ViewHolder(tv);
     }
 
+    @Override
     public void onBindViewHolder(ViewHolder viewHolder, Object item) {
         Log.d(TAG, "onBindViewHolder for " + item.toString());
         ((TextView) viewHolder.view).setText(item.toString());
     }
 
+    @Override
     public void onUnbindViewHolder(ViewHolder viewHolder) {
-        Log.d(TAG, "onUnbindViewHolder"); 
+        Log.d(TAG, "onUnbindViewHolder");
     }
 }

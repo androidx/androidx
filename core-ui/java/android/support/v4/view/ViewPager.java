@@ -2680,6 +2680,7 @@ public class ViewPager extends ViewGroup {
      * @return Whether this ViewPager can be scrolled in the specified direction. It will always
      *         return false if the specified direction is 0.
      */
+    @Override
     public boolean canScrollHorizontally(int direction) {
         if (mAdapter == null) {
             return false;

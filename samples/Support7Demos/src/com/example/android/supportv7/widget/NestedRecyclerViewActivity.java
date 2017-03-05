@@ -146,6 +146,7 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
         }
     }
 
+    @Override
     protected RecyclerView.Adapter createAdapter() {
         return new OuterAdapter(Cheeses.sCheeseStrings);
     }

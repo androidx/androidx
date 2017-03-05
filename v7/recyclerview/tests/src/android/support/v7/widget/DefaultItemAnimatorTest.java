@@ -111,6 +111,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
         mDummyParent = getActivity().getContainer();
     }
 
+    @Override
     void checkForMainThreadException() throws Throwable {
         if (mainThreadException != null) {
             throw mainThreadException;
@@ -385,6 +386,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
         return vh;
     }
 
+    @Override
     void postExceptionToInstrumentation(Throwable t) {
         if (mainThreadException == null) {
             mainThreadException = t;

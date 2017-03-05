@@ -92,6 +92,7 @@ public class ActionBarContextView extends AbsActionBarView {
         }
     }
 
+    @Override
     public void setContentHeight(int height) {
         mContentHeight = height;
     }
@@ -167,6 +168,7 @@ public class ActionBarContextView extends AbsActionBarView {
 
         View closeButton = mClose.findViewById(R.id.action_mode_close_button);
         closeButton.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 mode.finish();
             }

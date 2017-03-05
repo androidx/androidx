@@ -491,14 +491,17 @@ class ToolbarActionBar extends ActionBar {
         mDecorToolbar.getViewGroup().removeCallbacks(mMenuInvalidator);
     }
 
+    @Override
     public void addOnMenuVisibilityListener(OnMenuVisibilityListener listener) {
         mMenuVisibilityListeners.add(listener);
     }
 
+    @Override
     public void removeOnMenuVisibilityListener(OnMenuVisibilityListener listener) {
         mMenuVisibilityListeners.remove(listener);
     }
 
+    @Override
     public void dispatchMenuVisibilityChanged(boolean isVisible) {
         if (isVisible == mLastMenuVisibility) {
             return;

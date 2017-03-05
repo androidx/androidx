@@ -217,6 +217,7 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 new Runnable() {
+                    @Override
                     public void run() {
                         mActivity.recreate();
                     }

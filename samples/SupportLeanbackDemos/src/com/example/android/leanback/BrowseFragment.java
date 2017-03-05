@@ -106,6 +106,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
         // simulates in a real world use case  data being loaded two seconds later
         new Handler().postDelayed(new Runnable() {
+            @Override
             public void run() {
                 setupRows();
                 loadData();
@@ -289,6 +290,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             setAdapter(adapter);
             // simulates late data loading:
             new Handler().postDelayed(new Runnable() {
+                @Override
                 public void run() {
                     loadFragmentData();
                 }

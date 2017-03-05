@@ -84,11 +84,12 @@ class TransportMediatorJellybeanMR2 {
             };
     final RemoteControlClient.OnPlaybackPositionUpdateListener mPlaybackPositionUpdateListener
             = new RemoteControlClient.OnPlaybackPositionUpdateListener() {
+                @Override
                 public void onPlaybackPositionUpdate(long newPositionMs) {
                     mTransportCallback.playbackPositionUpdate(newPositionMs);
                 }
             };
- 
+
     PendingIntent mPendingIntent;
     RemoteControlClient mRemoteControl;
     boolean mFocused;

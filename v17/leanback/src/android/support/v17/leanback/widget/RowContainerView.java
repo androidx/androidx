@@ -72,6 +72,7 @@ final class RowContainerView extends LinearLayout {
         mHeaderDock.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    @Override
     public void setForeground(Drawable d) {
         mForeground = d;
         setWillNotDraw(mForeground == null);
@@ -87,6 +88,7 @@ final class RowContainerView extends LinearLayout {
         }
     }
 
+    @Override
     public Drawable getForeground() {
         return mForeground;
     }

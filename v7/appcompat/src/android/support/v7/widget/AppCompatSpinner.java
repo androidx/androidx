@@ -290,6 +290,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     /**
      * @return the context used to inflate the Spinner's popup or dialog window
      */
+    @Override
     public Context getPopupContext() {
         if (mPopup != null) {
             return mPopupContext;
@@ -299,6 +300,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         return null;
     }
 
+    @Override
     public void setPopupBackgroundDrawable(Drawable background) {
         if (mPopup != null) {
             mPopup.setBackgroundDrawable(background);
@@ -307,10 +309,12 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         }
     }
 
+    @Override
     public void setPopupBackgroundResource(@DrawableRes int resId) {
         setPopupBackgroundDrawable(AppCompatResources.getDrawable(getPopupContext(), resId));
     }
 
+    @Override
     public Drawable getPopupBackground() {
         if (mPopup != null) {
             return mPopup.getBackground();
@@ -320,6 +324,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         return null;
     }
 
+    @Override
     public void setDropDownVerticalOffset(int pixels) {
         if (mPopup != null) {
             mPopup.setVerticalOffset(pixels);
@@ -328,6 +333,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         }
     }
 
+    @Override
     public int getDropDownVerticalOffset() {
         if (mPopup != null) {
             return mPopup.getVerticalOffset();
@@ -337,6 +343,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         return 0;
     }
 
+    @Override
     public void setDropDownHorizontalOffset(int pixels) {
         if (mPopup != null) {
             mPopup.setHorizontalOffset(pixels);
@@ -351,6 +358,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *
      * @return Horizontal offset in pixels
      */
+    @Override
     public int getDropDownHorizontalOffset() {
         if (mPopup != null) {
             return mPopup.getHorizontalOffset();
@@ -360,6 +368,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         return 0;
     }
 
+    @Override
     public void setDropDownWidth(int pixels) {
         if (mPopup != null) {
             mDropDownWidth = pixels;
@@ -368,6 +377,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         }
     }
 
+    @Override
     public int getDropDownWidth() {
         if (mPopup != null) {
             return mDropDownWidth;
@@ -620,37 +630,45 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
             }
         }
 
+        @Override
         public int getCount() {
             return mAdapter == null ? 0 : mAdapter.getCount();
         }
 
+        @Override
         public Object getItem(int position) {
             return mAdapter == null ? null : mAdapter.getItem(position);
         }
 
+        @Override
         public long getItemId(int position) {
             return mAdapter == null ? -1 : mAdapter.getItemId(position);
         }
 
+        @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             return getDropDownView(position, convertView, parent);
         }
 
+        @Override
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
             return (mAdapter == null) ? null
                     : mAdapter.getDropDownView(position, convertView, parent);
         }
 
+        @Override
         public boolean hasStableIds() {
             return mAdapter != null && mAdapter.hasStableIds();
         }
 
+        @Override
         public void registerDataSetObserver(DataSetObserver observer) {
             if (mAdapter != null) {
                 mAdapter.registerDataSetObserver(observer);
             }
         }
 
+        @Override
         public void unregisterDataSetObserver(DataSetObserver observer) {
             if (mAdapter != null) {
                 mAdapter.unregisterDataSetObserver(observer);
@@ -661,6 +679,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
          * If the wrapped SpinnerAdapter is also a ListAdapter, delegate this call.
          * Otherwise, return true.
          */
+        @Override
         public boolean areAllItemsEnabled() {
             final ListAdapter adapter = mListAdapter;
             if (adapter != null) {
@@ -674,6 +693,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
          * If the wrapped SpinnerAdapter is also a ListAdapter, delegate this call.
          * Otherwise, return true.
          */
+        @Override
         public boolean isEnabled(int position) {
             final ListAdapter adapter = mListAdapter;
             if (adapter != null) {
@@ -683,14 +703,17 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
             }
         }
 
+        @Override
         public int getItemViewType(int position) {
             return 0;
         }
 
+        @Override
         public int getViewTypeCount() {
             return 1;
         }
 
+        @Override
         public boolean isEmpty() {
             return getCount() == 0;
         }
@@ -773,6 +796,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
             setHorizontalOffset(hOffset);
         }
 
+        @Override
         public void show() {
             final boolean wasShowing = isShowing();
 

@@ -237,6 +237,7 @@ public class MediaController extends FrameLayout {
     }
 
     private View.OnClickListener mPauseListener = new View.OnClickListener() {
+        @Override
         public void onClick(View v) {
             doPauseResume();
         }
@@ -274,10 +275,12 @@ public class MediaController extends FrameLayout {
     // case there WON'T BE onStartTrackingTouch/onStopTrackingTouch notifications,
     // we will simply apply the updated position without suspending regular updates.
     private SeekBar.OnSeekBarChangeListener mSeekListener = new SeekBar.OnSeekBarChangeListener() {
+        @Override
         public void onStartTrackingTouch(SeekBar bar) {
             mDragging = true;
         }
 
+        @Override
         public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
             if (!fromuser) {
                 // We're not interested in programmatically generated changes to
@@ -292,6 +295,7 @@ public class MediaController extends FrameLayout {
                 mCurrentTime.setText(stringForTime( (int) newposition));
         }
 
+        @Override
         public void onStopTrackingTouch(SeekBar bar) {
             mDragging = false;
             updateProgress();
@@ -318,6 +322,7 @@ public class MediaController extends FrameLayout {
     }
 
     private View.OnClickListener mRewListener = new View.OnClickListener() {
+        @Override
         public void onClick(View v) {
             long pos = mController.getCurrentPosition();
             pos -= 5000; // milliseconds
@@ -327,6 +332,7 @@ public class MediaController extends FrameLayout {
     };
 
     private View.OnClickListener mFfwdListener = new View.OnClickListener() {
+        @Override
         public void onClick(View v) {
             long pos = mController.getCurrentPosition();
             pos += 15000; // milliseconds

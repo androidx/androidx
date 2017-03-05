@@ -63,6 +63,7 @@ public class StableIdActivity extends BaseLayoutManagerActivity<LinearLayoutMana
         return new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
     }
 
+    @Override
     protected RecyclerView.Adapter createAdapter() {
         return new StableIdAdapter(Cheeses.sCheeseStrings);
     }

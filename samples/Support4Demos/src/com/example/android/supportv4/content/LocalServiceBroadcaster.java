@@ -95,12 +95,14 @@ public class LocalServiceBroadcaster extends Activity {
     }
 
     private OnClickListener mStartListener = new OnClickListener() {
+        @Override
         public void onClick(View v) {
             startService(new Intent(LocalServiceBroadcaster.this, LocalService.class));
         }
     };
 
     private OnClickListener mStopListener = new OnClickListener() {
+        @Override
         public void onClick(View v) {
             stopService(new Intent(LocalServiceBroadcaster.this, LocalService.class));
         }
@@ -136,6 +138,7 @@ public class LocalServiceBroadcaster extends Activity {
             mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
         }
 
+        @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
             // Tell any local interested parties about the start.
             mLocalBroadcastManager.sendBroadcast(new Intent(ACTION_STARTED));

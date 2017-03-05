@@ -69,6 +69,7 @@ public class PreferenceImageView extends ImageView {
         super.setMaxWidth(maxWidth);
     }
 
+    @Override
     public int getMaxWidth() {
         return mMaxWidth;
     }
@@ -79,6 +80,7 @@ public class PreferenceImageView extends ImageView {
         super.setMaxHeight(maxHeight);
     }
 
+    @Override
     public int getMaxHeight() {
         return mMaxHeight;
     }

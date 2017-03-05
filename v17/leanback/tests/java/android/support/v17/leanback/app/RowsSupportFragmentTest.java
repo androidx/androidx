@@ -220,6 +220,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 new Runnable() {
+                    @Override
                     public void run() {
                         mActivity.recreate();
                     }

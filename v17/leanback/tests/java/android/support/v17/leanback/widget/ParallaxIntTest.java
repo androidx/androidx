@@ -40,6 +40,7 @@ public class ParallaxIntTest {
     public void setUp() throws Exception {
         mSource = new Parallax.IntParallax<Parallax.IntProperty>() {
 
+            @Override
             public int getMaxValue() {
                 return mScreenMax;
             }

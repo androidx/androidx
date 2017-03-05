@@ -82,6 +82,7 @@ public class GridWidgetTest {
     protected int[] mRemovedItems;
 
     private final Comparator<View> mRowSortComparator = new Comparator<View>() {
+        @Override
         public int compare(View lhs, View rhs) {
             if (mOrientation == BaseGridView.HORIZONTAL) {
                 return lhs.getLeft() - rhs.getLeft();
@@ -121,6 +122,7 @@ public class GridWidgetTest {
      */
     private void changeArraySize(final int size) throws Throwable {
         performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 mActivity.changeArraySize(size);
             }
@@ -141,6 +143,7 @@ public class GridWidgetTest {
      */
     private void setSelectedPosition(final int position, final int scrollExtra) throws Throwable {
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPosition(position, scrollExtra);
             }
@@ -356,6 +359,7 @@ public class GridWidgetTest {
         mActivityTestRule = new ActivityTestRule<GridActivity>(GridActivity.class, false, false);
         mActivity = mActivityTestRule.launchActivity(intent);
         mActivityTestRule.runOnUiThread(new Runnable() {
+                @Override
                 public void run() {
                     mActivity.setTitle(testName.getMethodName());
                 }
@@ -547,6 +551,7 @@ public class GridWidgetTest {
         final int decorationBottom = 2;
 
         performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 mGridView.addItemDecoration(new DividerDecoration(decorationLeft, decorationTop,
                         decorationRight, decorationBottom));
@@ -614,6 +619,7 @@ public class GridWidgetTest {
         assertTrue(opticalInsetsBottom > 0);
 
         performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 mGridView.addItemDecoration(new DividerDecoration(decorationLeft, decorationTop,
                         decorationRight, decorationBottom));
@@ -841,16 +847,19 @@ public class GridWidgetTest {
         final int focusToIndex = 49;
         final ViewGroup parent = (ViewGroup) mGridView.getParent();
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 parent.removeView(mGridView);
             }
         });
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(focusToIndex);
             }
         });
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 parent.addView(mGridView);
                 mGridView.requestFocus();
@@ -862,16 +871,19 @@ public class GridWidgetTest {
 
         final int focusToIndex2 = 0;
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 parent.removeView(mGridView);
             }
         });
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPosition(focusToIndex2);
             }
         });
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 parent.addView(mGridView);
                 mGridView.requestFocus();
@@ -895,6 +907,7 @@ public class GridWidgetTest {
 
         final int focusToIndex = mGridView.getChildCount() - 1;
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(focusToIndex);
             }
@@ -902,6 +915,7 @@ public class GridWidgetTest {
 
         waitForScrollIdle();
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(focusToIndex + 1);
             }
@@ -909,6 +923,7 @@ public class GridWidgetTest {
         // let the scroll running for a while and requestLayout during scroll
         Thread.sleep(80);
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 assertEquals(mGridView.getScrollState(), BaseGridView.SCROLL_STATE_SETTLING);
                 mGridView.requestLayout();
@@ -919,6 +934,7 @@ public class GridWidgetTest {
         int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.requestLayout();
             }
@@ -941,6 +957,7 @@ public class GridWidgetTest {
 
         final int focusToIndex = mGridView.getChildCount() - 1;
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(focusToIndex);
             }
@@ -957,6 +974,7 @@ public class GridWidgetTest {
         int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.requestLayout();
             }
@@ -984,6 +1002,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(150);
             }
@@ -993,6 +1012,7 @@ public class GridWidgetTest {
         View view =  mGridView.getChildAt(mGridView.getChildCount() - 1);
         final int focusToIndex = mGridView.getChildAdapterPosition(view);
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(focusToIndex);
             }
@@ -1025,6 +1045,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(150);
             }
@@ -1034,6 +1055,7 @@ public class GridWidgetTest {
         View view =  mGridView.getChildAt(mGridView.getChildCount() - 1);
         final int focusToIndex = mGridView.getChildAdapterPosition(view);
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(focusToIndex);
             }
@@ -1061,12 +1083,14 @@ public class GridWidgetTest {
 
         final int focusToIndex = 40;
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(focusToIndex);
             }
         });
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mActivity.removeItems(focusToIndex, 1);
             }
@@ -1078,6 +1102,7 @@ public class GridWidgetTest {
         int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.requestLayout();
             }
@@ -1100,6 +1125,7 @@ public class GridWidgetTest {
 
         final int focusToIndex = 40;
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(focusToIndex);
             }
@@ -1107,6 +1133,7 @@ public class GridWidgetTest {
 
         startWaitLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 final int removeIndex = mGridView.getChildViewHolder(
                         mGridView.getChildAt(mGridView.getChildCount() - 1)).getAdapterPosition();
@@ -1121,6 +1148,7 @@ public class GridWidgetTest {
         int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.requestLayout();
             }
@@ -1159,6 +1187,7 @@ public class GridWidgetTest {
         assertTrue(mGridView.getLayoutManager().isSmoothScrolling());
         startWaitLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 final int removeIndex = mGridView.getChildViewHolder(
                         mGridView.getChildAt(mGridView.getChildCount() - 1)).getAdapterPosition();
@@ -1175,6 +1204,7 @@ public class GridWidgetTest {
         int topEdge = mGridView.getLayoutManager().findViewByPosition(focusIndex).getTop();
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.requestLayout();
             }
@@ -1196,6 +1226,7 @@ public class GridWidgetTest {
         mNumRows = 3;
 
         performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 mRemovedItems = mActivity.removeItems(0, 200);
             }
@@ -1203,6 +1234,7 @@ public class GridWidgetTest {
 
         humanDelay(500);
         performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 mActivity.addItems(0, mRemovedItems);
             }
@@ -1673,6 +1705,7 @@ public class GridWidgetTest {
 
         final boolean[] scrolled = new boolean[]{false};
         mGridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy){
                 if (dy > 0) {
                     scrolled[0] = true;
@@ -1705,6 +1738,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(3);
             }
@@ -1745,6 +1779,7 @@ public class GridWidgetTest {
 
         // scroll to invisible item that is far away.
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(100);
             }
@@ -1772,6 +1807,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(10);
             }
@@ -1813,6 +1849,7 @@ public class GridWidgetTest {
 
         // scroll to invisible item that is far away.
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(200);
             }
@@ -1875,6 +1912,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(10);
             }
@@ -1916,6 +1954,7 @@ public class GridWidgetTest {
 
         // scroll to invisible item that is far away.
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(200);
             }
@@ -1943,6 +1982,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(30);
             }
@@ -1982,6 +2022,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(10);
             }
@@ -2021,6 +2062,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(99);
             }
@@ -2030,12 +2072,14 @@ public class GridWidgetTest {
 
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(50);
             }
         });
         Thread.sleep(100);
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.requestLayout();
                 mGridView.setSelectedPositionSmooth(0);
@@ -2102,6 +2146,7 @@ public class GridWidgetTest {
         int targetPosition = items.length - 1;
         mGridView.setSelectedPositionSmooth(targetPosition);
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.stopScroll();
             }
@@ -2135,6 +2180,7 @@ public class GridWidgetTest {
         mActivity.addItems(items.length, new int[]{300});
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 ((VerticalGridView) mGridView).setNumColumns(2);
             }
@@ -2163,6 +2209,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(1);
             }
@@ -2194,6 +2241,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(0);
             }
@@ -2202,6 +2250,7 @@ public class GridWidgetTest {
         verifyMargin();
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(1);
             }
@@ -2226,6 +2275,7 @@ public class GridWidgetTest {
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mActivity.attachToNewAdapter(new int[0]);
             }
@@ -2275,6 +2325,7 @@ public class GridWidgetTest {
 
         // 1 Save view states
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 Selection.setSelection((Spannable)(((TextView) mGridView.getChildAt(0))
                         .getText()), 0, 1);
@@ -2286,6 +2337,7 @@ public class GridWidgetTest {
 
         // 2 Change view states
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 Selection.setSelection((Spannable)(((TextView) mGridView.getChildAt(0))
                         .getText()), 1, 2);
@@ -2296,6 +2348,7 @@ public class GridWidgetTest {
 
         // 3 Detached and re-attached,  should still maintain state of (2)
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(1);
             }
@@ -2308,12 +2361,14 @@ public class GridWidgetTest {
 
         // 4 Recycled and rebound, should load state from (2)
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(20);
             }
         });
         waitForScrollIdle(mVerifyLayout);
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setSelectedPositionSmooth(0);
             }
@@ -2347,6 +2402,7 @@ public class GridWidgetTest {
 
         // 1. Set text selection, save view states should do nothing on child
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 for (int i = 0; i < mGridView.getChildCount(); i++) {
                     Selection.setSelection((Spannable)(((TextView) mGridView.getChildAt(i))
@@ -2358,6 +2414,7 @@ public class GridWidgetTest {
 
         // 2. clear the text selection
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 for (int i = 0; i < mGridView.getChildCount(); i++) {
                     Selection.removeSelection((Spannable)(((TextView) mGridView.getChildAt(i))
@@ -2368,6 +2425,7 @@ public class GridWidgetTest {
 
         // 3. Restore view states should be a no-op for child
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.restoreHierarchyState(container);
                 for (int i = 0; i < mGridView.getChildCount(); i++) {
@@ -2620,6 +2678,7 @@ public class GridWidgetTest {
         mNumRows = 1;
 
         performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 mActivity.addItems(0, new int[]{300, 300});
                 mGridView.setSelectedPosition(0);
@@ -2650,11 +2709,13 @@ public class GridWidgetTest {
         final View firstView = mGridView.getLayoutManager().findViewByPosition(0);
         final View[] selectedViewByTask = new View[1];
         final ViewHolderTask task = new ViewHolderTask() {
+            @Override
             public void run(RecyclerView.ViewHolder viewHolder) {
                 selectedViewByTask[0] = viewHolder.itemView;
             }
         };
         performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 mActivity.removeItems(0, 1);
                 if (smooth) {
@@ -2685,12 +2746,14 @@ public class GridWidgetTest {
 
         final ArrayList<Integer> selectedLog = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
+            @Override
             public void onChildSelected(ViewGroup parent, View view, int position, long id) {
                 selectedLog.add(position);
             }
         });
 
         performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 ChangeableViewTypesProvider.setViewType(0, 1);
                 mGridView.getAdapter().notifyItemChanged(0, 1);
@@ -2712,6 +2775,7 @@ public class GridWidgetTest {
         mNumRows = 1;
 
         performAndWaitForAnimation(new Runnable() {
+            @Override
             public void run() {
                 mActivity.addItems(0, new int[]{300, 300});
                 mGridView.setSelectedPositionSmooth(0);
@@ -2737,6 +2801,7 @@ public class GridWidgetTest {
         // add extra layout space
         startWaitLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setExtraLayoutSpace(extraLayoutSize);
             }
@@ -2755,6 +2820,7 @@ public class GridWidgetTest {
 
         // clear extra layout space
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.setExtraLayoutSpace(0);
                 verifyMargin();
@@ -2906,6 +2972,7 @@ public class GridWidgetTest {
         // item0 and item2 for the best match of focusSearch(FOCUS_LEFT).  The grid widget
         // must override default addFocusables(), not to add item0 or item2.
         mActivity.mAdapterListener = new GridActivity.AdapterListener() {
+            @Override
             public void onBind(RecyclerView.ViewHolder vh, int position) {
                 if (position == 1) {
                     vh.itemView.setPaddingRelative(500, 0, 0, 0);
@@ -2995,6 +3062,7 @@ public class GridWidgetTest {
     void slideInAndWaitIdle(long timeout) throws Throwable {
         // animateIn() would reset position
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.animateIn();
             }
@@ -3028,6 +3096,7 @@ public class GridWidgetTest {
                 mGridView.getChildAt(0).getTop());
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.animateOut();
             }
@@ -3041,6 +3110,7 @@ public class GridWidgetTest {
         });
         // scrollToPosition() should not affect slideOut status
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.scrollToPosition(0);
             }
@@ -3079,6 +3149,7 @@ public class GridWidgetTest {
                 mGridView.getChildAt(0).getTop());
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.animateOut();
             }
@@ -3092,6 +3163,7 @@ public class GridWidgetTest {
         });
         // smoothScrollToPosition() should not affect slideOut status
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.smoothScrollToPosition(29);
             }
@@ -3131,6 +3203,7 @@ public class GridWidgetTest {
                 mGridView.getChildAt(0).getTop());
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.animateOut();
             }
@@ -3144,6 +3217,7 @@ public class GridWidgetTest {
         });
         // smoothScrollToPosition() should not affect slideOut status
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.scrollToPosition(29);
             }
@@ -3183,6 +3257,7 @@ public class GridWidgetTest {
                 mGridView.getChildAt(0).getTop());
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.animateOut();
             }
@@ -3196,6 +3271,7 @@ public class GridWidgetTest {
         });
         // change adapter should not affect slideOut status
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mActivity.changeItem(0, 200);
             }
@@ -3243,6 +3319,7 @@ public class GridWidgetTest {
                 mGridView.getChildAt(0).getTop());
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.animateOut();
                 mActivity.findViewById(R.id.button).requestFocus();
@@ -3256,6 +3333,7 @@ public class GridWidgetTest {
             }
         });
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.requestFocus();
             }
@@ -3294,6 +3372,7 @@ public class GridWidgetTest {
                 mGridView.getChildAt(0).getLeft());
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.animateOut();
             }
@@ -3305,6 +3384,7 @@ public class GridWidgetTest {
             }
         });
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.scrollToPosition(0);
             }
@@ -3346,6 +3426,7 @@ public class GridWidgetTest {
                 mGridView.getChildAt(0).getRight());
 
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.animateOut();
             }
@@ -3358,6 +3439,7 @@ public class GridWidgetTest {
             }
         });
         mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 mGridView.smoothScrollToPosition(0);
             }

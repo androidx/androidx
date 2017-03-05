@@ -42,6 +42,7 @@ public class SingleFragmentTestBase {
         if (activity != null) {
             mActivity = null;
             activityTestRule.runOnUiThread(new Runnable() {
+                @Override
                 public void run() {
                     activity.finish();
                 }

@@ -147,10 +147,12 @@ public class DragStartHelperTest {
             this(anchor.getWidth() / 2 + x, anchor.getHeight() / 2 + y);
         }
 
+        @Override
         public boolean matches(Object actual) {
             return mExpectedPosition.equals(actual);
         }
 
+        @Override
         public void describeTo(Description description) {
             description.appendText("TouchPositionMatcher: " + mExpectedPosition);
         }

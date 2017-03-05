@@ -63,6 +63,7 @@ public class FragmentRetainInstanceSupport extends FragmentActivity {
             // Watch for button clicks.
             Button button = (Button)v.findViewById(R.id.restart);
             button.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     mWorkFragment.restart();
                 }

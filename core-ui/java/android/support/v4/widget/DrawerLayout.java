@@ -1330,6 +1330,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         invalidate();
     }
 
+    @Override
     public void onRtlPropertiesChanged(int layoutDirection) {
         resolveShadowDrawables();
     }

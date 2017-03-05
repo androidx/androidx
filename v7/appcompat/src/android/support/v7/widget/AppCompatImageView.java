@@ -161,6 +161,7 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
         }
     }
 
+    @Override
     public boolean hasOverlappingRendering() {
         return mImageHelper.hasOverlappingRendering() && super.hasOverlappingRendering();
     }

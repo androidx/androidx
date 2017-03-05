@@ -68,6 +68,7 @@ public class VerticalGridSupportFragment extends android.support.v17.leanback.ap
         }
         // simulates in a real world use case  data being loaded two seconds later
         new Handler().postDelayed(new Runnable() {
+            @Override
             public void run() {
                 loadData();
                 startEntranceTransition();

@@ -75,13 +75,13 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
     @Test
     public void onInitializeAccessibilityNodeInfoTest() throws Throwable {
         final RecyclerView recyclerView = new RecyclerView(getActivity()) {
-            //@Override
+            @Override
             public boolean canScrollHorizontally(int direction) {
                 return direction < 0 && mHorizontalScrollBefore ||
                         direction > 0 && mHorizontalScrollAfter;
             }
 
-            //@Override
+            @Override
             public boolean canScrollVertically(int direction) {
                 return direction < 0 && mVerticalScrollBefore ||
                         direction > 0 && mVerticalScrollAfter;
@@ -240,11 +240,13 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
     public void ignoreAccessibilityIfAdapterHasChanged() throws Throwable {
         final RecyclerView recyclerView = new RecyclerView(getActivity()) {
             //@Override
+            @Override
             public boolean canScrollHorizontally(int direction) {
                 return true;
             }
 
             //@Override
+            @Override
             public boolean canScrollVertically(int direction) {
                 return true;
             }

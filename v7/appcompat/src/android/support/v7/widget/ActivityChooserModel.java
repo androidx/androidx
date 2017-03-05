@@ -893,6 +893,7 @@ class ActivityChooserModel extends DataSetObservable {
             return true;
         }
 
+        @Override
         public int compareTo(ActivityResolveInfo another) {
             return  Float.floatToIntBits(another.weight) - Float.floatToIntBits(weight);
         }
@@ -920,6 +921,7 @@ class ActivityChooserModel extends DataSetObservable {
         DefaultSorter() {
         }
 
+        @Override
         public void sort(Intent intent, List<ActivityResolveInfo> activities,
                 List<HistoricalRecord> historicalRecords) {
             Map<ComponentName, ActivityResolveInfo> componentNameToActivityMap =

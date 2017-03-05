@@ -135,6 +135,7 @@ public class StandaloneActionMode extends ActionMode implements MenuBuilder.Call
         return new SupportMenuInflater(mContextView.getContext());
     }
 
+    @Override
     public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
         return mCallback.onActionItemClicked(this, item);
     }
@@ -154,11 +155,13 @@ public class StandaloneActionMode extends ActionMode implements MenuBuilder.Call
     public void onCloseSubMenu(SubMenuBuilder menu) {
     }
 
+    @Override
     public void onMenuModeChange(MenuBuilder menu) {
         invalidate();
         mContextView.showOverflowMenu();
     }
 
+    @Override
     public boolean isUiFocusable() {
         return mFocusable;
     }
