@@ -25,10 +25,9 @@ import android.support.v4.view.TintableBackgroundView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.CheckedTextView;
 import android.widget.ImageView;
-import junit.framework.Assert;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;

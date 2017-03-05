@@ -29,11 +29,11 @@ import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+
 import com.example.android.support.design.Cheeses;
 import com.example.android.support.design.R;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * This demonstrates idiomatic usage of TabLayout with a ViewPager

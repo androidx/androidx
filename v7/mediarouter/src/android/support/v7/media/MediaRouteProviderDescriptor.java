@@ -15,7 +15,6 @@
  */
 package android.support.v7.media;
 
-import android.content.IntentFilter;
 import android.os.Bundle;
 
 import java.util.ArrayList;

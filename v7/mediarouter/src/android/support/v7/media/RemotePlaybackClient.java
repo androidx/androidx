@@ -24,8 +24,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
-import java.util.Iterator;
-
 /**
  * A helper class for playing media on remote routes using the remote playback protocol
  * defined by {@link MediaControlIntent}.

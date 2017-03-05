@@ -16,14 +16,9 @@
 
 package android.support.v4.testutils;
 
-import java.lang.String;
-import java.util.List;
-
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.test.espresso.matcher.BoundedMatcher;
-import android.support.v4.testutils.TestUtils;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +29,8 @@ import junit.framework.Assert;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+
+import java.util.List;
 
 public class TestUtilsMatchers {
     /**

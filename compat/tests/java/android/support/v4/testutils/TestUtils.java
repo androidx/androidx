@@ -17,9 +17,6 @@
 
 package android.support.v4.testutils;
 
-import java.lang.IllegalArgumentException;
-import java.lang.RuntimeException;
-
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;

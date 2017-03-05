@@ -16,12 +16,10 @@
 
 package android.support.v7.widget;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.view.View;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;

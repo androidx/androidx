@@ -17,11 +17,10 @@ import android.content.Context;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.system.Settings;
 import android.support.v17.leanback.transition.TransitionHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.util.Log;
 
 /**
  * A presenter that renders objects in a {@link VerticalGridView}.

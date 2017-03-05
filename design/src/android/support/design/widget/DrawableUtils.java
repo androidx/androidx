@@ -18,10 +18,8 @@ package android.support.design.widget;
 
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
-import android.os.Build;
 import android.util.Log;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**

@@ -18,8 +18,6 @@ package android.support.v17.leanback.testutils;
 import android.app.Activity;
 import android.view.View;
 
-import java.util.concurrent.Callable;
-
 import junit.framework.Assert;
 
 public abstract class PollingCheck {

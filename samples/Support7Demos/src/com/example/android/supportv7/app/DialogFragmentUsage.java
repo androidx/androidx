@@ -15,13 +15,8 @@
  */
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
-import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDialog;
 import android.support.v7.app.AppCompatDialogFragment;
@@ -33,6 +28,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.example.android.supportv7.R;
 
 /**
  * This demonstrates idiomatic usage of AppCompatDialogFragment.

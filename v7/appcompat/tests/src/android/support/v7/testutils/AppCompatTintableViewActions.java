@@ -16,22 +16,20 @@
 
 package android.support.v7.testutils;
 
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+
+import static org.hamcrest.core.AllOf.allOf;
+
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
-import android.support.v4.view.TintableBackgroundView;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
-import org.hamcrest.Matcher;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
-import static org.hamcrest.core.AllOf.allOf;
+import org.hamcrest.Matcher;
 
 public class AppCompatTintableViewActions {
     /**

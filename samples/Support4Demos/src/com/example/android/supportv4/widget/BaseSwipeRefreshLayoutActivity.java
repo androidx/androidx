@@ -16,8 +16,6 @@
 
 package com.example.android.supportv4.widget;
 
-import com.example.android.supportv4.R;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,9 +25,8 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+
+import com.example.android.supportv4.R;
 
 /**
  * Example of using the SwipeRefreshLayout.

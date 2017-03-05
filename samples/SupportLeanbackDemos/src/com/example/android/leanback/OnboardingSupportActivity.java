@@ -18,7 +18,6 @@ package com.example.android.leanback;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.view.ViewTreeObserver;
 
 public class OnboardingSupportActivity extends FragmentActivity {
     @Override

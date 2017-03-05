@@ -16,18 +16,12 @@
 
 package com.example.android.support.transition.widget;
 
-import android.support.annotation.LayoutRes;
-import com.example.android.support.transition.R;
-
 import android.os.Bundle;
-import android.support.transition.Scene;
-import android.support.transition.TransitionManager;
+import android.support.annotation.LayoutRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
+
+import com.example.android.support.transition.R;
 
 /**
  * Base class for usages of the Transition API.

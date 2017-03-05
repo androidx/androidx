@@ -14,13 +14,10 @@
 package android.support.v17.leanback.widget;
 
 import android.animation.Animator;
-import android.animation.AnimatorInflater;
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.R;
 import android.text.TextUtils;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

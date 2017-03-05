@@ -18,12 +18,6 @@ package com.example.android.support.design.widget;
 
 import com.example.android.support.design.R;
 
-import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.ViewGroup;
-
 /**
  * This demonstrates idiomatic usage of Snackbar with a Floating Action Button present
  */
