@@ -18,13 +18,13 @@ package android.support.v4.os;
 
 import android.content.Context;
 import android.os.Build;
-import android.os.UserManager;
 
 /**
  * Helper for accessing features in {@link android.os.UserManager} in a backwards compatible
  * fashion.
  */
 public class UserManagerCompat {
+
     private UserManagerCompat() {
     }
 
@@ -36,9 +36,10 @@ public class UserManagerCompat {
      */
     public static boolean isUserUnlocked(Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
-            return context.getSystemService(UserManager.class).isUserUnlocked();
+            return UserManagerCompatApi24.isUserUnlocked(context);
         } else {
             return true;
         }
     }
+
 }

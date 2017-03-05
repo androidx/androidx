@@ -18,6 +18,7 @@ package android.support.v4.view.accessibility;
 
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 /**
  * Helper for accessing {@link android.view.accessibility.AccessibilityWindowInfo}
@@ -128,6 +129,7 @@ public class AccessibilityWindowInfoCompat {
         }
     }
 
+    @RequiresApi(21)
     private static class AccessibilityWindowInfoApi21Impl extends AccessibilityWindowInfoStubImpl {
         AccessibilityWindowInfoApi21Impl() {
         }
@@ -203,6 +205,7 @@ public class AccessibilityWindowInfoCompat {
         }
     }
 
+    @RequiresApi(24)
     private static class AccessibilityWindowInfoApi24Impl extends AccessibilityWindowInfoApi21Impl {
         AccessibilityWindowInfoApi24Impl() {
         }

@@ -16,7 +16,7 @@
 
 package android.support.v4.view.accessibility;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -41,7 +41,7 @@ public class AccessibilityNodeProviderCompat {
         }
     }
 
-    @TargetApi(16)
+    @RequiresApi(16)
     private static class AccessibilityNodeProviderJellyBeanImpl
             extends AccessibilityNodeProviderStubImpl {
         AccessibilityNodeProviderJellyBeanImpl() {
@@ -91,7 +91,7 @@ public class AccessibilityNodeProviderCompat {
         }
     }
 
-    @TargetApi(19)
+    @RequiresApi(19)
     private static class AccessibilityNodeProviderKitKatImpl
             extends AccessibilityNodeProviderStubImpl {
         AccessibilityNodeProviderKitKatImpl() {

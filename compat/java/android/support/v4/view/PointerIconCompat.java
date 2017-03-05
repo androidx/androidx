@@ -18,9 +18,11 @@ package android.support.v4.view;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.support.annotation.RequiresApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
 
@@ -136,6 +138,7 @@ public final class PointerIconCompat {
         }
     }
 
+    @RequiresApi(24)
     static class Api24PointerIconCompatImpl extends BasePointerIconCompatImpl {
         @Override
         public Object getSystemIcon(Context context, int style) {
@@ -155,7 +158,7 @@ public final class PointerIconCompat {
 
     static final PointerIconCompatImpl IMPL;
     static {
-        if (BuildCompat.isAtLeastN()) {
+        if (Build.VERSION.SDK_INT >= 24) {
             IMPL = new Api24PointerIconCompatImpl();
         } else {
             IMPL = new BasePointerIconCompatImpl();

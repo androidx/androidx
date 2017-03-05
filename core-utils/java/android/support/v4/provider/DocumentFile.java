@@ -107,8 +107,7 @@ public abstract class DocumentFile {
      *            {@link Intent#ACTION_CREATE_DOCUMENT} request.
      */
     public static DocumentFile fromSingleUri(Context context, Uri singleUri) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             return new SingleDocumentFile(null, context, singleUri);
         } else {
             return null;
@@ -125,8 +124,7 @@ public abstract class DocumentFile {
      *            {@link Intent#ACTION_OPEN_DOCUMENT_TREE} request.
      */
     public static DocumentFile fromTreeUri(Context context, Uri treeUri) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             return new TreeDocumentFile(null, context,
                     DocumentsContractApi21.prepareTreeUri(treeUri));
         } else {
@@ -139,8 +137,7 @@ public abstract class DocumentFile {
      * {@link android.provider.DocumentsProvider}.
      */
     public static boolean isDocumentUri(Context context, Uri uri) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             return DocumentsContractApi19.isDocumentUri(context, uri);
         } else {
             return false;

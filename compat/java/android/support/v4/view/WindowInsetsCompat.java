@@ -18,6 +18,7 @@ package android.support.v4.view;
 
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 /**
  * Describes a set of insets for window content.
@@ -144,6 +145,7 @@ public class WindowInsetsCompat {
         }
     }
 
+    @RequiresApi(20)
     private static class WindowInsetsCompatApi20Impl extends WindowInsetsCompatBaseImpl {
         WindowInsetsCompatApi20Impl() {
         }
@@ -202,6 +204,7 @@ public class WindowInsetsCompat {
         }
     }
 
+    @RequiresApi(21)
     private static class WindowInsetsCompatApi21Impl extends WindowInsetsCompatApi20Impl {
         WindowInsetsCompatApi21Impl() {
         }
@@ -251,10 +254,9 @@ public class WindowInsetsCompat {
 
     private static final WindowInsetsCompatImpl IMPL;
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new WindowInsetsCompatApi21Impl();
-        } else if (version >= 20) {
+        } else if (Build.VERSION.SDK_INT >= 20) {
             IMPL = new WindowInsetsCompatApi20Impl();
         } else {
             IMPL = new WindowInsetsCompatBaseImpl();

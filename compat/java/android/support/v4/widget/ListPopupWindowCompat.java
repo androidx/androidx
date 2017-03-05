@@ -16,6 +16,8 @@
 
 package android.support.v4.widget;
 
+import android.support.annotation.RequiresApi;
+import android.os.Build;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
@@ -44,6 +46,7 @@ public final class ListPopupWindowCompat {
     /**
      * Interface implementation for devices with at least KitKat APIs.
      */
+    @RequiresApi(19)
     static class KitKatListPopupWindowImpl extends BaseListPopupWindowImpl {
         @Override
         public OnTouchListener createDragToOpenListener(Object listPopupWindow, View src) {
@@ -56,8 +59,7 @@ public final class ListPopupWindowCompat {
      */
     static final ListPopupWindowImpl IMPL;
     static {
-        final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new KitKatListPopupWindowImpl();
         } else {
             IMPL = new BaseListPopupWindowImpl();

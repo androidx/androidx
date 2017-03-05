@@ -16,6 +16,9 @@
 
 package android.support.v4.view;
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+
 /**
  * Helper for accessing features in <code>ScaleGestureDetector</code> introduced
  * after API level 19 (KitKat) in a backwards compatible fashion.
@@ -45,6 +48,7 @@ public final class ScaleGestureDetectorCompat {
         }
     }
 
+    @RequiresApi(19)
     private static class ScaleGestureDetectorCompatKitKatImpl implements ScaleGestureDetectorImpl {
         ScaleGestureDetectorCompatKitKatImpl() {
         }
@@ -61,8 +65,7 @@ public final class ScaleGestureDetectorCompat {
     }
 
     static {
-        final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 19) { // KitKat
+        if (Build.VERSION.SDK_INT >= 19) { // KitKat
             IMPL = new ScaleGestureDetectorCompatKitKatImpl();
         } else {
             IMPL = new BaseScaleGestureDetectorImpl();

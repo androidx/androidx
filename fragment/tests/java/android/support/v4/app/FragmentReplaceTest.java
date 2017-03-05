@@ -26,7 +26,6 @@ import android.app.Instrumentation;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
-import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
@@ -98,7 +97,6 @@ public class FragmentReplaceTest {
         });
     }
 
-    @SdkSuppress(minSdkVersion = 11)
     @Test
     public void testBackPressWithFrameworkFragment() throws Throwable {
         final Activity activity = mActivityRule.getActivity();

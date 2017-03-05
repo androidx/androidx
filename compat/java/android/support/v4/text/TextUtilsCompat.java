@@ -19,6 +19,7 @@ package android.support.v4.text;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.view.ViewCompat;
 
 import java.util.Locale;
@@ -102,6 +103,7 @@ public final class TextUtilsCompat {
         }
     }
 
+    @RequiresApi(17)
     private static class TextUtilsCompatJellybeanMr1Impl extends TextUtilsCompatImpl {
         TextUtilsCompatJellybeanMr1Impl() {
         }
@@ -120,8 +122,7 @@ public final class TextUtilsCompat {
 
     private static final TextUtilsCompatImpl IMPL;
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 17) { // JellyBean MR1
+        if (Build.VERSION.SDK_INT >= 17) { // JellyBean MR1
             IMPL = new TextUtilsCompatJellybeanMr1Impl();
         } else {
             IMPL = new TextUtilsCompatImpl();

@@ -18,6 +18,7 @@ package android.support.v4.view.accessibility;
 
 import android.os.Build;
 import android.os.Parcelable;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -311,6 +312,7 @@ public class AccessibilityRecordCompat {
         }
     }
 
+    @RequiresApi(14)
     static class AccessibilityRecordIcsImpl extends AccessibilityRecordStubImpl {
         @Override
         public Object obtain() {
@@ -519,6 +521,7 @@ public class AccessibilityRecordCompat {
         }
     }
 
+    @RequiresApi(15)
     static class AccessibilityRecordIcsMr1Impl extends AccessibilityRecordIcsImpl {
         @Override
         public int getMaxScrollX(Object record) {
@@ -541,6 +544,7 @@ public class AccessibilityRecordCompat {
         }
     }
 
+    @RequiresApi(16)
     static class AccessibilityRecordJellyBeanImpl extends AccessibilityRecordIcsMr1Impl {
         @Override
         public void setSource(Object record, View root, int virtualDescendantId) {

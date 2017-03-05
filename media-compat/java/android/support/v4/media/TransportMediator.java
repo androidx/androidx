@@ -259,7 +259,10 @@ public class TransportMediator extends TransportController {
      */
     @Deprecated
     public Object getRemoteControlClient() {
-        return mController != null ? mController.getRemoteControlClient() : null;
+        if (Build.VERSION.SDK_INT >= 18) {
+            return mController != null ? mController.getRemoteControlClient() : null;
+        }
+        return null;
     }
 
     /**
@@ -327,7 +330,7 @@ public class TransportMediator extends TransportController {
     }
 
     private void pushControllerState() {
-        if (mController != null) {
+        if (mController != null && Build.VERSION.SDK_INT >= 18) {
             mController.refreshState(mCallbacks.onIsPlaying(),
                     mCallbacks.onGetCurrentPosition(),
                     mCallbacks.onGetTransportControlFlags());
@@ -353,7 +356,7 @@ public class TransportMediator extends TransportController {
     @Deprecated
     @Override
     public void startPlaying() {
-        if (mController != null) {
+        if (mController != null && Build.VERSION.SDK_INT >= 18) {
             mController.startPlaying();
         }
         mCallbacks.onStart();
@@ -370,7 +373,7 @@ public class TransportMediator extends TransportController {
     @Deprecated
     @Override
     public void pausePlaying() {
-        if (mController != null) {
+        if (mController != null && Build.VERSION.SDK_INT >= 18) {
             mController.pausePlaying();
         }
         mCallbacks.onPause();
@@ -387,7 +390,7 @@ public class TransportMediator extends TransportController {
     @Deprecated
     @Override
     public void stopPlaying() {
-        if (mController != null) {
+        if (mController != null && Build.VERSION.SDK_INT >= 18) {
             mController.stopPlaying();
         }
         mCallbacks.onStop();
@@ -483,6 +486,8 @@ public class TransportMediator extends TransportController {
      */
     @Deprecated
     public void destroy() {
-        mController.destroy();
+        if (mController != null && Build.VERSION.SDK_INT >= 18) {
+            mController.destroy();
+        }
     }
 }

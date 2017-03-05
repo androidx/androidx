@@ -17,6 +17,7 @@
 
 package android.support.v4.view;
 
+import android.support.annotation.RequiresApi;
 import android.graphics.Rect;
 import android.os.Build;
 import android.view.Gravity;
@@ -59,6 +60,7 @@ public final class GravityCompat {
         }
     }
 
+    @RequiresApi(17)
     static class GravityCompatImplJellybeanMr1 implements GravityCompatImpl {
         @Override
         public int getAbsoluteGravity(int gravity, int layoutDirection) {
@@ -86,8 +88,7 @@ public final class GravityCompat {
 
     static final GravityCompatImpl IMPL;
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 17) {
+        if (Build.VERSION.SDK_INT >= 17) {
             IMPL = new GravityCompatImplJellybeanMr1();
         } else {
             IMPL = new GravityCompatImplBase();

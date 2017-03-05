@@ -17,6 +17,7 @@ package android.support.graphics.drawable;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
+import android.support.annotation.RequiresApi;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -263,7 +264,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
     @Override
     public ConstantState getConstantState() {
-        if (mDelegateDrawable != null) {
+        if (mDelegateDrawable != null && Build.VERSION.SDK_INT >= 24) {
             // Such that the configuration can be refreshed.
             return new VectorDrawableDelegateState(mDelegateDrawable.getConstantState());
         }
@@ -884,6 +885,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * Instead of creating a VectorDrawable, create a VectorDrawableCompat instance which contains
      * a delegated VectorDrawable instance.
      */
+    @RequiresApi(24)
     private static class VectorDrawableDelegateState extends ConstantState {
         private final ConstantState mDelegateState;
 

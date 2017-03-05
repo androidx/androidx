@@ -16,7 +16,7 @@
 
 package android.support.v13.view.inputmethod;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -102,7 +102,7 @@ public final class EditorInfoCompat {
         }
     }
 
-    @TargetApi(25)
+    @RequiresApi(25)
     private static final class EditorInfoCompatApi25Impl implements EditorInfoCompatImpl {
         @Override
         public void setContentMimeTypes(@NonNull EditorInfo editorInfo,

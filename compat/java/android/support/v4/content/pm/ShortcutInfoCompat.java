@@ -15,7 +15,7 @@
  */
 package android.support.v4.content.pm;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -47,7 +47,7 @@ public class ShortcutInfoCompat {
 
     private ShortcutInfoCompat() { }
 
-    @TargetApi(25)
+    @RequiresApi(25)
     ShortcutInfo toShortcutInfo() {
         ShortcutInfo.Builder builder = new ShortcutInfo.Builder(mContext, mId)
                 .setShortLabel(mLabel)

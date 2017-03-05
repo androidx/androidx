@@ -16,6 +16,8 @@
 
 package android.support.v4.widget;
 
+import android.support.annotation.RequiresApi;
+import android.os.Build;
 import android.view.View.OnTouchListener;
 
 /**
@@ -43,6 +45,7 @@ public final class PopupMenuCompat {
     /**
      * Interface implementation for devices with at least KitKat APIs.
      */
+    @RequiresApi(19)
     static class KitKatPopupMenuImpl extends BasePopupMenuImpl {
         @Override
         public OnTouchListener getDragToOpenListener(Object popupMenu) {
@@ -55,8 +58,7 @@ public final class PopupMenuCompat {
      */
     static final PopupMenuImpl IMPL;
     static {
-        final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new KitKatPopupMenuImpl();
         } else {
             IMPL = new BasePopupMenuImpl();

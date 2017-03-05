@@ -137,8 +137,7 @@ public final class LayoutInflaterCompat {
 
     static final LayoutInflaterCompatBaseImpl IMPL;
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new LayoutInflaterCompatApi21Impl();
         } else {
             IMPL = new LayoutInflaterCompatBaseImpl();

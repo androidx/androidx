@@ -18,6 +18,7 @@ package android.support.v4.view.accessibility;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v4.view.accessibility.AccessibilityManagerCompatIcs.AccessibilityStateChangeListenerBridge;
 import android.support.v4.view.accessibility.AccessibilityManagerCompatIcs.AccessibilityStateChangeListenerWrapper;
 import android.support.v4.view.accessibility.AccessibilityManagerCompatKitKat.TouchExplorationStateChangeListenerBridge;
@@ -108,6 +109,7 @@ public final class AccessibilityManagerCompat {
         }
     }
 
+    @RequiresApi(14)
     static class AccessibilityManagerIcsImpl extends AccessibilityManagerStubImpl {
         @Override
         public AccessibilityStateChangeListenerWrapper newAccessibilityStateChangeListener(
@@ -154,6 +156,7 @@ public final class AccessibilityManagerCompat {
         }
     }
 
+    @RequiresApi(19)
     static class AccessibilityManagerKitKatImpl extends AccessibilityManagerIcsImpl {
         @Override
         public TouchExplorationStateChangeListenerWrapper newTouchExplorationStateChangeListener(

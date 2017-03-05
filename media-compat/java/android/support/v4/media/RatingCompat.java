@@ -324,37 +324,38 @@ public final class RatingCompat implements Parcelable {
      * @return An equivalent {@link RatingCompat} object, or null if none.
      */
     public static RatingCompat fromRating(Object ratingObj) {
-        if (ratingObj == null || Build.VERSION.SDK_INT < 19) {
+        if (ratingObj != null && Build.VERSION.SDK_INT >= 19) {
+            final int ratingStyle = RatingCompatKitkat.getRatingStyle(ratingObj);
+            final RatingCompat rating;
+            if (RatingCompatKitkat.isRated(ratingObj)) {
+                switch (ratingStyle) {
+                    case RATING_HEART:
+                        rating = newHeartRating(RatingCompatKitkat.hasHeart(ratingObj));
+                        break;
+                    case RATING_THUMB_UP_DOWN:
+                        rating = newThumbRating(RatingCompatKitkat.isThumbUp(ratingObj));
+                        break;
+                    case RATING_3_STARS:
+                    case RATING_4_STARS:
+                    case RATING_5_STARS:
+                        rating = newStarRating(ratingStyle,
+                                RatingCompatKitkat.getStarRating(ratingObj));
+                        break;
+                    case RATING_PERCENTAGE:
+                        rating = newPercentageRating(
+                                RatingCompatKitkat.getPercentRating(ratingObj));
+                        break;
+                    default:
+                        return null;
+                }
+            } else {
+                rating = newUnratedRating(ratingStyle);
+            }
+            rating.mRatingObj = ratingObj;
+            return rating;
+        } else {
             return null;
         }
-
-        final int ratingStyle = RatingCompatKitkat.getRatingStyle(ratingObj);
-        final RatingCompat rating;
-        if (RatingCompatKitkat.isRated(ratingObj)) {
-            switch (ratingStyle) {
-                case RATING_HEART:
-                    rating = newHeartRating(RatingCompatKitkat.hasHeart(ratingObj));
-                    break;
-                case RATING_THUMB_UP_DOWN:
-                    rating = newThumbRating(RatingCompatKitkat.isThumbUp(ratingObj));
-                    break;
-                case RATING_3_STARS:
-                case RATING_4_STARS:
-                case RATING_5_STARS:
-                    rating = newStarRating(ratingStyle,
-                            RatingCompatKitkat.getStarRating(ratingObj));
-                    break;
-                case RATING_PERCENTAGE:
-                    rating = newPercentageRating(RatingCompatKitkat.getPercentRating(ratingObj));
-                    break;
-                default:
-                    return null;
-            }
-        } else {
-            rating = newUnratedRating(ratingStyle);
-        }
-        rating.mRatingObj = ratingObj;
-        return rating;
     }
 
     /**
@@ -366,30 +367,29 @@ public final class RatingCompat implements Parcelable {
      * @return An equivalent {@link android.media.Rating} object, or null if none.
      */
     public Object getRating() {
-        if (mRatingObj != null || Build.VERSION.SDK_INT < 19) {
-            return mRatingObj;
-        }
-
-        if (isRated()) {
-            switch (mRatingStyle) {
-                case RATING_HEART:
-                    mRatingObj = RatingCompatKitkat.newHeartRating(hasHeart());
-                    break;
-                case RATING_THUMB_UP_DOWN:
-                    mRatingObj = RatingCompatKitkat.newThumbRating(isThumbUp());
-                    break;
-                case RATING_3_STARS:
-                case RATING_4_STARS:
-                case RATING_5_STARS:
-                    mRatingObj = RatingCompatKitkat.newStarRating(mRatingStyle, getStarRating());
-                    break;
-                case RATING_PERCENTAGE:
-                    mRatingObj = RatingCompatKitkat.newPercentageRating(getPercentRating());
-                default:
-                    return null;
+        if (mRatingObj == null && Build.VERSION.SDK_INT >= 19) {
+            if (isRated()) {
+                switch (mRatingStyle) {
+                    case RATING_HEART:
+                        mRatingObj = RatingCompatKitkat.newHeartRating(hasHeart());
+                        break;
+                    case RATING_THUMB_UP_DOWN:
+                        mRatingObj = RatingCompatKitkat.newThumbRating(isThumbUp());
+                        break;
+                    case RATING_3_STARS:
+                    case RATING_4_STARS:
+                    case RATING_5_STARS:
+                        mRatingObj = RatingCompatKitkat.newStarRating(mRatingStyle,
+                                getStarRating());
+                        break;
+                    case RATING_PERCENTAGE:
+                        mRatingObj = RatingCompatKitkat.newPercentageRating(getPercentRating());
+                    default:
+                        return null;
+                }
+            } else {
+                mRatingObj = RatingCompatKitkat.newUnratedRating(mRatingStyle);
             }
-        } else {
-            mRatingObj = RatingCompatKitkat.newUnratedRating(mRatingStyle);
         }
         return mRatingObj;
     }

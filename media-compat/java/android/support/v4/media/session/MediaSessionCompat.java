@@ -681,10 +681,10 @@ public class MediaSessionCompat {
      * @return An equivalent {@link MediaSessionCompat} object, or null if none.
      */
     public static MediaSessionCompat fromMediaSession(Context context, Object mediaSession) {
-        if (context == null || mediaSession == null || Build.VERSION.SDK_INT < 21) {
-            return null;
+        if (context != null && mediaSession != null && Build.VERSION.SDK_INT >= 21) {
+            return new MediaSessionCompat(context, new MediaSessionImplApi21(mediaSession));
         }
-        return new MediaSessionCompat(context, new MediaSessionImplApi21(mediaSession));
+        return null;
     }
 
     /**
@@ -944,6 +944,7 @@ public class MediaSessionCompat {
         public void onRemoveQueueItemAt(int index) {
         }
 
+        @RequiresApi(21)
         private class StubApi21 implements MediaSessionCompatApi21.Callback {
 
             StubApi21() {
@@ -1079,6 +1080,7 @@ public class MediaSessionCompat {
             }
         }
 
+        @RequiresApi(23)
         private class StubApi23 extends StubApi21 implements MediaSessionCompatApi23.Callback {
 
             StubApi23() {
@@ -1090,6 +1092,7 @@ public class MediaSessionCompat {
             }
         }
 
+        @RequiresApi(24)
         private class StubApi24 extends StubApi23 implements MediaSessionCompatApi24.Callback {
 
             StubApi24() {
@@ -1116,6 +1119,7 @@ public class MediaSessionCompat {
             }
         }
 
+        @RequiresApi(26)
         private class StubApi26 extends StubApi24 implements MediaSessionCompatApi26.Callback {
             @Override
             public void onSetRepeatMode(int repeatMode) {
@@ -1153,10 +1157,10 @@ public class MediaSessionCompat {
          * @return A compat Token for use with {@link MediaControllerCompat}.
          */
         public static Token fromToken(Object token) {
-            if (token == null || android.os.Build.VERSION.SDK_INT < 21) {
-                return null;
+            if (token != null && android.os.Build.VERSION.SDK_INT >= 21) {
+                return new Token(MediaSessionCompatApi21.verifyToken(token));
             }
-            return new Token(MediaSessionCompatApi21.verifyToken(token));
+            return null;
         }
 
         @Override

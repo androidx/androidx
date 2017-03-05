@@ -17,6 +17,7 @@
 
 package android.support.v4.widget;
 
+import android.support.annotation.RequiresApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -321,6 +322,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         }
     }
 
+    @RequiresApi(21)
     static class DrawerLayoutCompatImplApi21 implements DrawerLayoutCompatImpl {
         @Override
         public void configureApplyInsets(View drawerLayout) {
@@ -349,8 +351,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     }
 
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new DrawerLayoutCompatImplApi21();
         } else {
             IMPL = new DrawerLayoutCompatImplBase();

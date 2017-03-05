@@ -101,10 +101,9 @@ public final class ViewGroupCompat {
 
     static final ViewGroupCompatBaseImpl IMPL;
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new ViewGroupCompatApi21Impl();
-        } else if (version >= 18) {
+        } else if (Build.VERSION.SDK_INT >= 18) {
             IMPL = new ViewGroupCompatApi18Impl();
         } else {
             IMPL = new ViewGroupCompatBaseImpl();

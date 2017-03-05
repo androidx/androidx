@@ -26,7 +26,6 @@ import android.os.SystemClock;
 import android.support.design.test.R;
 import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
-import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.Suppress;
 import android.widget.ImageView;
 
@@ -536,7 +535,6 @@ public class AppBarWithCollapsingToolbarTest extends AppBarLayoutBaseTest {
     @Suppress
     @FlakyTest(bugId = 30701044)
     @Test
-    @SdkSuppress(minSdkVersion = 11)
     public void testPinnedToolbarWithMargins() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_collapse_pin_margins,
                 R.string.design_appbar_collapsing_toolbar_pin_margins);

@@ -15,10 +15,9 @@
  */
 package android.support.v4.graphics;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.os.Build.VERSION_CODES;
 
 /**
  * Helper for accessing features in {@link android.graphics.Bitmap}
@@ -38,7 +37,7 @@ public final class BitmapCompat {
         }
     }
 
-    @TargetApi(VERSION_CODES.JELLY_BEAN_MR2)
+    @RequiresApi(18)
     static class BitmapCompatApi18Impl extends BitmapCompatBaseImpl {
         @Override
         public boolean hasMipMap(Bitmap bitmap){
@@ -51,7 +50,7 @@ public final class BitmapCompat {
         }
     }
 
-    @TargetApi(VERSION_CODES.KITKAT)
+    @RequiresApi(19)
     static class BitmapCompatApi19Impl extends BitmapCompatApi18Impl {
         @Override
         public int getAllocationByteCount(Bitmap bitmap) {
@@ -64,10 +63,9 @@ public final class BitmapCompat {
      */
     static final BitmapCompatBaseImpl IMPL;
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new BitmapCompatApi19Impl();
-        } else if (version >= 18) {
+        } else if (Build.VERSION.SDK_INT >= 18) {
             IMPL = new BitmapCompatApi18Impl();
         } else {
             IMPL = new BitmapCompatBaseImpl();

@@ -16,7 +16,7 @@
 
 package android.support.v4.widget;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -38,10 +38,9 @@ public final class CompoundButtonCompat {
     private static final CompoundButtonCompatBaseImpl IMPL;
 
     static {
-        final int sdk = Build.VERSION.SDK_INT;
-        if (sdk >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             IMPL = new CompoundButtonCompatApi23Impl();
-        } else if (sdk >= 21) {
+        } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new CompoundButtonCompatApi21Impl();
         } else {
             IMPL = new CompoundButtonCompatBaseImpl();
@@ -103,7 +102,7 @@ public final class CompoundButtonCompat {
         }
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     static class CompoundButtonCompatApi21Impl extends CompoundButtonCompatBaseImpl {
         @Override
         public void setButtonTintList(CompoundButton button, ColorStateList tint) {
@@ -126,7 +125,7 @@ public final class CompoundButtonCompat {
         }
     }
 
-    @TargetApi(23)
+    @RequiresApi(23)
     static class CompoundButtonCompatApi23Impl extends CompoundButtonCompatApi21Impl {
         @Override
         public Drawable getButtonDrawable(CompoundButton button) {

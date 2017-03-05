@@ -17,6 +17,7 @@
 package android.support.v4.view.accessibility;
 
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.view.accessibility.AccessibilityEvent;
 
 /**
@@ -83,6 +84,7 @@ public final class AccessibilityEventCompat {
         }
     }
 
+    @RequiresApi(14)
     static class AccessibilityEventIcsImpl extends AccessibilityEventStubImpl {
 
         @Override
@@ -101,6 +103,7 @@ public final class AccessibilityEventCompat {
         }
     }
 
+    @RequiresApi(16)
     static class AccessibilityEventJellyBeanImpl extends AccessibilityEventIcsImpl {
         @Override
         public void setMovementGranularity(AccessibilityEvent event, int granularity) {
@@ -123,6 +126,7 @@ public final class AccessibilityEventCompat {
         }
     }
 
+    @RequiresApi(19)
     static class AccessibilityEventKitKatImpl extends AccessibilityEventJellyBeanImpl {
 
         @Override

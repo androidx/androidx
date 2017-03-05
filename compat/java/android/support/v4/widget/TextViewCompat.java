@@ -16,7 +16,7 @@
 
 package android.support.v4.widget;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
@@ -135,7 +135,7 @@ public final class TextViewCompat {
         }
     }
 
-    @TargetApi(16)
+    @RequiresApi(16)
     static class TextViewCompatApi16Impl extends TextViewCompatBaseImpl {
         @Override
         public int getMaxLines(TextView textView) {
@@ -148,7 +148,7 @@ public final class TextViewCompat {
         }
     }
 
-    @TargetApi(17)
+    @RequiresApi(17)
     static class TextViewCompatApi17Impl extends TextViewCompatApi16Impl {
         @Override
         public void setCompoundDrawablesRelative(@NonNull TextView textView,
@@ -191,7 +191,7 @@ public final class TextViewCompat {
         }
     }
 
-    @TargetApi(18)
+    @RequiresApi(18)
     static class TextViewCompatApi18Impl extends TextViewCompatApi17Impl {
         @Override
         public void setCompoundDrawablesRelative(@NonNull TextView textView,
@@ -220,7 +220,7 @@ public final class TextViewCompat {
         }
     }
 
-    @TargetApi(23)
+    @RequiresApi(23)
     static class TextViewCompatApi23Impl extends TextViewCompatApi18Impl {
         @Override
         public void setTextAppearance(@NonNull TextView textView, @StyleRes int resId) {

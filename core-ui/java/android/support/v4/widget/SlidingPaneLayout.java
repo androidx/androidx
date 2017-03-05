@@ -16,6 +16,7 @@
 
 package android.support.v4.widget;
 
+import android.support.annotation.RequiresApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -197,10 +198,9 @@ public class SlidingPaneLayout extends ViewGroup {
     static final SlidingPanelLayoutImpl IMPL;
 
     static {
-        final int deviceVersion = Build.VERSION.SDK_INT;
-        if (deviceVersion >= 17) {
+        if (Build.VERSION.SDK_INT >= 17) {
             IMPL = new SlidingPanelLayoutImplJBMR1();
-        } else if (deviceVersion >= 16) {
+        } else if (Build.VERSION.SDK_INT >= 16) {
             IMPL = new SlidingPanelLayoutImplJB();
         } else {
             IMPL = new SlidingPanelLayoutImplBase();
@@ -1507,6 +1507,7 @@ public class SlidingPaneLayout extends ViewGroup {
         }
     }
 
+    @RequiresApi(16)
     static class SlidingPanelLayoutImplJB extends SlidingPanelLayoutImplBase {
         /*
          * Private API hacks! Nasty! Bad!
@@ -1551,6 +1552,7 @@ public class SlidingPaneLayout extends ViewGroup {
         }
     }
 
+    @RequiresApi(17)
     static class SlidingPanelLayoutImplJBMR1 extends SlidingPanelLayoutImplBase {
         @Override
         public void invalidateChildRegion(SlidingPaneLayout parent, View child) {

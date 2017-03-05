@@ -18,6 +18,7 @@ package android.support.animation;
 
 import android.os.Build;
 import android.os.Looper;
+import android.support.v4.view.ViewCompat;
 import android.util.AndroidRuntimeException;
 import android.view.View;
 
@@ -89,18 +90,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     public static final ViewProperty TRANSLATION_Z = new ViewProperty("translationZ") {
         @Override
         void setValue(View view, float value) {
-            if (isZSupported()) {
-                view.setTranslationZ(value);
-            }
+            ViewCompat.setTranslationZ(view, value);
         }
 
         @Override
         float getValue(View view) {
-            if (isZSupported()) {
-                return view.getTranslationZ();
-            } else {
-                return 0;
-            }
+            return ViewCompat.getTranslationZ(view);
         }
     };
 
@@ -215,18 +210,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     public static final ViewProperty Z = new ViewProperty("z") {
         @Override
         void setValue(View view, float value) {
-            if (isZSupported()) {
-                view.setZ(value);
-            }
+            ViewCompat.setZ(view, value);
         }
 
         @Override
         float getValue(View view) {
-            if (isZSupported()) {
-                return view.getZ();
-            } else {
-                return 0;
-            }
+            return ViewCompat.getZ(view);
         }
     };
 
@@ -614,13 +603,6 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
             }
         }
         removeNullEntries(mEndListeners);
-    }
-
-    /**
-     * Returns whether z and translationZ are supported on the current build version.
-     */
-    private static boolean isZSupported() {
-        return Build.VERSION.SDK_INT >= 21;
     }
 
     /**

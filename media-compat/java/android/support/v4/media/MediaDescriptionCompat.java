@@ -334,44 +334,44 @@ public final class MediaDescriptionCompat implements Parcelable {
      *         none.
      */
     public static MediaDescriptionCompat fromMediaDescription(Object descriptionObj) {
-        if (descriptionObj == null || Build.VERSION.SDK_INT < 21) {
+        if (descriptionObj != null && Build.VERSION.SDK_INT >= 21) {
+            Builder bob = new Builder();
+            bob.setMediaId(MediaDescriptionCompatApi21.getMediaId(descriptionObj));
+            bob.setTitle(MediaDescriptionCompatApi21.getTitle(descriptionObj));
+            bob.setSubtitle(MediaDescriptionCompatApi21.getSubtitle(descriptionObj));
+            bob.setDescription(MediaDescriptionCompatApi21.getDescription(descriptionObj));
+            bob.setIconBitmap(MediaDescriptionCompatApi21.getIconBitmap(descriptionObj));
+            bob.setIconUri(MediaDescriptionCompatApi21.getIconUri(descriptionObj));
+            Bundle extras = MediaDescriptionCompatApi21.getExtras(descriptionObj);
+            Uri mediaUri = extras == null ? null :
+                    (Uri) extras.getParcelable(DESCRIPTION_KEY_MEDIA_URI);
+            if (mediaUri != null) {
+                if (extras.containsKey(DESCRIPTION_KEY_NULL_BUNDLE_FLAG) && extras.size() == 2) {
+                    // The extras were only created for the media URI, so we set it back to null to
+                    // ensure mediaDescriptionCompat.getExtras() equals
+                    // fromMediaDescription(getMediaDescription(mediaDescriptionCompat)).getExtras()
+                    extras = null;
+                } else {
+                    // Remove media URI keys to ensure mediaDescriptionCompat.getExtras().keySet()
+                    // equals fromMediaDescription(getMediaDescription(mediaDescriptionCompat))
+                    // .getExtras().keySet()
+                    extras.remove(DESCRIPTION_KEY_MEDIA_URI);
+                    extras.remove(DESCRIPTION_KEY_NULL_BUNDLE_FLAG);
+                }
+            }
+            bob.setExtras(extras);
+            if (mediaUri != null) {
+                bob.setMediaUri(mediaUri);
+            } else if (Build.VERSION.SDK_INT >= 23) {
+                bob.setMediaUri(MediaDescriptionCompatApi23.getMediaUri(descriptionObj));
+            }
+            MediaDescriptionCompat descriptionCompat = bob.build();
+            descriptionCompat.mDescriptionObj = descriptionObj;
+
+            return descriptionCompat;
+        } else {
             return null;
         }
-
-        Builder bob = new Builder();
-        bob.setMediaId(MediaDescriptionCompatApi21.getMediaId(descriptionObj));
-        bob.setTitle(MediaDescriptionCompatApi21.getTitle(descriptionObj));
-        bob.setSubtitle(MediaDescriptionCompatApi21.getSubtitle(descriptionObj));
-        bob.setDescription(MediaDescriptionCompatApi21.getDescription(descriptionObj));
-        bob.setIconBitmap(MediaDescriptionCompatApi21.getIconBitmap(descriptionObj));
-        bob.setIconUri(MediaDescriptionCompatApi21.getIconUri(descriptionObj));
-        Bundle extras = MediaDescriptionCompatApi21.getExtras(descriptionObj);
-        Uri mediaUri = extras == null ? null :
-                (Uri) extras.getParcelable(DESCRIPTION_KEY_MEDIA_URI);
-        if (mediaUri != null) {
-            if (extras.containsKey(DESCRIPTION_KEY_NULL_BUNDLE_FLAG) && extras.size() == 2) {
-                // The extras were only created for the media URI, so we set it back to null to
-                // ensure mediaDescriptionCompat.getExtras() equals
-                // fromMediaDescription(getMediaDescription(mediaDescriptionCompat)).getExtras()
-                extras = null;
-            } else {
-                // Remove media URI keys to ensure mediaDescriptionCompat.getExtras().keySet()
-                // equals fromMediaDescription(getMediaDescription(mediaDescriptionCompat))
-                // .getExtras().keySet()
-                extras.remove(DESCRIPTION_KEY_MEDIA_URI);
-                extras.remove(DESCRIPTION_KEY_NULL_BUNDLE_FLAG);
-            }
-        }
-        bob.setExtras(extras);
-        if (mediaUri != null) {
-            bob.setMediaUri(mediaUri);
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            bob.setMediaUri(MediaDescriptionCompatApi23.getMediaUri(descriptionObj));
-        }
-        MediaDescriptionCompat descriptionCompat = bob.build();
-        descriptionCompat.mDescriptionObj = descriptionObj;
-
-        return descriptionCompat;
     }
 
     public static final Parcelable.Creator<MediaDescriptionCompat> CREATOR =
