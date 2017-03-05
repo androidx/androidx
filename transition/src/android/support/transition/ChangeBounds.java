@@ -20,6 +20,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Path;
@@ -30,6 +31,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
+import android.util.AttributeSet;
 import android.util.Property;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +42,8 @@ import java.util.Map;
  * This transition captures the layout bounds of target views before and after
  * the scene change and animates those changes during the transition.
  *
- * <p>Unlike the platform version, this does not support use in XML resources.</p>
+ * <p>A ChangeBounds transition can be described in a resource file by using the
+ * tag <code>changeBounds</code>, along with the other standard attributes of Transition.</p>
  */
 public class ChangeBounds extends Transition {
 
@@ -78,6 +81,13 @@ public class ChangeBounds extends Transition {
     private boolean mReparent = false;
 
     private static RectEvaluator sRectEvaluator = new RectEvaluator();
+
+    public ChangeBounds() {
+    }
+
+    public ChangeBounds(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
     @Nullable
     @Override

@@ -19,7 +19,12 @@ package android.support.transition;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.content.res.XmlResourceParser;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v4.view.ViewCompat;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +54,9 @@ import android.view.ViewGroup;
  * created from a layout resource file}, then it is considered safe to un-parent
  * the starting scene view in order to fade it out.</p>
  *
- * <p>Unlike the platform version, this does not support use in XML resources.</p>
+ * <p>A Fade transition can be described in a resource file by using the
+ * tag <code>fade</code>, along with the standard
+ * attributes of {@code Fade} and {@link Transition}.</p>
  */
 public class Fade extends Visibility {
 
@@ -84,6 +91,16 @@ public class Fade extends Visibility {
      * Constructs a Fade transition that will fade targets in and out.
      */
     public Fade() {
+    }
+
+    public Fade(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        TypedArray a = context.obtainStyledAttributes(attrs, Styleable.FADE);
+        @Mode
+        int fadingMode = TypedArrayUtils.getNamedInt(a, (XmlResourceParser) attrs, "fadingMode",
+                Styleable.Fade.FADING_MODE, getMode());
+        setMode(fadingMode);
+        a.recycle();
     }
 
     /**

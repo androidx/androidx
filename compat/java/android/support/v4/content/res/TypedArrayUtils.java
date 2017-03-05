@@ -88,8 +88,8 @@ public class TypedArrayUtils {
      * @return an int value in the {@link TypedArray} with the specified {@code resId}, or
      * {@code defaultValue} if it does not exist.
      */
-    public static int getNamedInt(TypedArray a, XmlPullParser parser, String attrName,
-            int resId, int defaultValue) {
+    public static int getNamedInt(@NonNull TypedArray a, @NonNull XmlPullParser parser,
+            String attrName, @StyleableRes int resId, int defaultValue) {
         final boolean hasAttr = hasAttribute(parser, attrName);
         if (!hasAttr) {
             return defaultValue;
@@ -113,6 +113,41 @@ public class TypedArrayUtils {
             return defaultValue;
         } else {
             return a.getColor(resId, defaultValue);
+        }
+    }
+
+    /**
+     * Retrieves a resource ID attribute value. In addition to the styleable resource ID, we also
+     * make sure that the attribute name matches.
+     *
+     * @return a resource ID value in the {@link TypedArray} with the specified {@code resId}, or
+     * {@code defaultValue} if it does not exist.
+     */
+    @AnyRes
+    public static int getNamedResourceId(@NonNull TypedArray a, @NonNull XmlPullParser parser,
+            String attrName, @StyleableRes int resId, @AnyRes int defaultValue) {
+        final boolean hasAttr = hasAttribute(parser, attrName);
+        if (!hasAttr) {
+            return defaultValue;
+        } else {
+            return a.getResourceId(resId, defaultValue);
+        }
+    }
+
+    /**
+     * Retrieves a string attribute value. In addition to the styleable resource ID, we also
+     * make sure that the attribute name matches.
+     *
+     * @return a string value in the {@link TypedArray} with the specified {@code resId}, or
+     * null if it does not exist.
+     */
+    public static String getNamedString(@NonNull TypedArray a, @NonNull XmlPullParser parser,
+            String attrName, @StyleableRes int resId) {
+        final boolean hasAttr = hasAttribute(parser, attrName);
+        if (!hasAttr) {
+            return null;
+        } else {
+            return a.getString(resId);
         }
     }
 

@@ -20,10 +20,15 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.content.res.XmlResourceParser;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.v4.content.res.TypedArrayUtils;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -39,7 +44,9 @@ import java.lang.annotation.RetentionPolicy;
  * information to determine the specific animations to run when visibility
  * changes occur. Subclasses should implement one or both of the methods
  * {@link #onAppear(ViewGroup, TransitionValues, int, TransitionValues, int)},
- * {@link #onDisappear(ViewGroup, TransitionValues, int, TransitionValues, int)},
+ * {@link #onDisappear(ViewGroup, TransitionValues, int, TransitionValues, int)} or
+ * {@link #onAppear(ViewGroup, View, TransitionValues, TransitionValues)},
+ * {@link #onDisappear(ViewGroup, View, TransitionValues, TransitionValues)}.
  */
 public abstract class Visibility extends Transition {
 
@@ -85,6 +92,19 @@ public abstract class Visibility extends Transition {
     private int mMode = MODE_IN | MODE_OUT;
 
     public Visibility() {
+    }
+
+    public Visibility(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        TypedArray a = context.obtainStyledAttributes(attrs, Styleable.VISIBILITY_TRANSITION);
+        @Mode
+        int mode = TypedArrayUtils.getNamedInt(a, (XmlResourceParser) attrs,
+                "transitionVisibilityMode",
+                Styleable.VisibilityTransition.TRANSITION_VISIBILITY_MODE, 0);
+        a.recycle();
+        if (mode != 0) {
+            setMode(mode);
+        }
     }
 
     /**
