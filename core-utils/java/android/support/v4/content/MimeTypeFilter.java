@@ -27,14 +27,16 @@ import java.util.ArrayList;
  * <p>Wildcards are allowed only instead of the entire type or subtype with a tree prefix.
  * Eg. image\/*, *\/* is a valid filter and will match image/jpeg, but image/j* is invalid and
  * it will not match image/jpeg. Suffixes and parameters are not supported, and they are treated
- * as part of the subtype during matching.
+ * as part of the subtype during matching. Neither type nor subtype can be empty.
  *
  * <p><em>Note: MIME type matching in the Android framework is case-sensitive, unlike the formal
  * RFC definitions. As a result, you should always write these elements with lower case letters,
  * or use {@link android.content.Intent#normalizeMimeType} to ensure that they are converted to
  * lower case.</em>
  *
- * <p>Null MIME type doesn't match anything.
+ * <p>MIME types can be null or ill-formatted. In such case they won't match anything.
+ *
+ * <p>MIME type filters must be correctly formatted, or an exception will be thrown.
  */
 public final class MimeTypeFilter {
 
@@ -42,8 +44,16 @@ public final class MimeTypeFilter {
     }
 
     private static boolean mimeTypeAgainstFilter(
-            @NonNull String[] mimeTypeParts, @NonNull String[]filterParts) {
-        if (mimeTypeParts.length != 2 || filterParts.length != 2) {
+            @NonNull String[] mimeTypeParts, @NonNull String[] filterParts) {
+        if (filterParts.length != 2) {
+            throw new IllegalArgumentException(
+                    "Ill-formatted MIME type filter. Must be type/subtype.");
+        }
+        if (filterParts[0].isEmpty() || filterParts[1].isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Ill-formatted MIME type filter. Type or subtype empty.");
+        }
+        if (mimeTypeParts.length != 2) {
             return false;
         }
         if (!"*".equals(filterParts[0])
@@ -59,7 +69,7 @@ public final class MimeTypeFilter {
     }
 
     /**
-     * See the class description for the matching behavior details.
+     * Matches one nullable MIME type against one MIME type filter.
      * @return True if the {@code mimeType} matches the {@code filter}.
      */
     public static boolean matches(@Nullable String mimeType, @NonNull String filter) {
@@ -74,7 +84,7 @@ public final class MimeTypeFilter {
     }
 
     /**
-     * See the class description for the matching behavior details.
+     * Matches one nullable MIME type against an array of MIME type filters.
      * @return The first matching filter, or null if nothing matches.
      */
     public static String matches(
@@ -95,7 +105,7 @@ public final class MimeTypeFilter {
     }
 
     /**
-     * See the class description for the matching behavior details.
+     * Matches multiple MIME types against an array of MIME type filters.
      * @return The first matching MIME type, or null if nothing matches.
      */
     public static String matches(
@@ -116,8 +126,8 @@ public final class MimeTypeFilter {
     }
 
     /**
-     * See the class description for the matching behavior details.
-     * @return The list of matching MIME types, or empty list if nothing matches.
+     * Matches multiple MIME types against an array of MIME type filters.
+     * @return The list of matching MIME types, or empty array if nothing matches.
      */
     public static String[] matchesMany(
             @Nullable String[] mimeTypes, @NonNull String filter) {

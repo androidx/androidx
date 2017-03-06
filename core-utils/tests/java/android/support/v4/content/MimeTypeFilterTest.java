@@ -25,6 +25,8 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.MoreAsserts;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -53,14 +55,11 @@ public class MimeTypeFilterTest {
         assertFalse(MimeTypeFilter.matches((String) null, "image/"));
         assertFalse(MimeTypeFilter.matches((String) null, "image/jpeg"));
 
-        // Invalid MIME types, filters or swapped arguments.
-        assertFalse(MimeTypeFilter.matches((String) null, ""));
-        assertFalse(MimeTypeFilter.matches("", ""));
-        assertFalse(MimeTypeFilter.matches("", "*/"));
+        // Null and invalid MIME types.
+        assertFalse(MimeTypeFilter.matches((String) null, "*/*"));
         assertFalse(MimeTypeFilter.matches("", "*/*"));
         assertFalse(MimeTypeFilter.matches("image/", "*/*"));
-        assertFalse(MimeTypeFilter.matches("image/", "image/"));
-        assertFalse(MimeTypeFilter.matches("*/*", "image/jpeg"));
+        assertFalse(MimeTypeFilter.matches("*/", "*/*"));
     }
 
     @Test
@@ -83,7 +82,6 @@ public class MimeTypeFilterTest {
                 "image/jpeg", new String[] {"*/png", "*/jpeg"}));
 
         assertNull(MimeTypeFilter.matches("image/jpeg", new String[] {}));
-        assertNull(MimeTypeFilter.matches("image/jpeg", new String[] {}));
 
         assertNull(MimeTypeFilter.matches("image/jpeg", new String[] {"image/png", "video/jpeg"}));
         assertNull(MimeTypeFilter.matches("image/jpeg", new String[] {"video/jpeg", "image/png"}));
@@ -92,14 +90,11 @@ public class MimeTypeFilterTest {
         assertNull(MimeTypeFilter.matches(null, new String[] {"image/"}));
         assertNull(MimeTypeFilter.matches(null, new String[] {"image/jpeg"}));
 
-        // Invalid MIME types, filters or swapped arguments.
-        assertNull(MimeTypeFilter.matches(null, new String[] {""}));
-        assertNull(MimeTypeFilter.matches("", new String[] {""}));
-        assertNull(MimeTypeFilter.matches("", new String[] {"*/"}));
-        assertNull(MimeTypeFilter.matches("", new String[] {"*/*"}));
-        assertNull(MimeTypeFilter.matches("image/", new String[] {"*/*"}));
-        assertNull(MimeTypeFilter.matches("image/", new String[] {"image/"}));
-        assertNull(MimeTypeFilter.matches("*/*", new String[] {"image/jpeg"}));
+        // Null and invalid MIME types.
+        assertNull(MimeTypeFilter.matches((String) null, new String[] { "*/*" }));
+        assertNull(MimeTypeFilter.matches("", new String[] { "*/*" }));
+        assertNull(MimeTypeFilter.matches("image/", new String[] { "*/*" }));
+        assertNull(MimeTypeFilter.matches("*/", new String[] { "*/*" }));
     }
 
     @Test
@@ -112,10 +107,151 @@ public class MimeTypeFilterTest {
                 MimeTypeFilter.matchesMany(new String[] {"image/jpeg", "image/png"}, "*/JpEg"));
 
         MoreAsserts.assertEquals(new String[] {},
-                MimeTypeFilter.matchesMany(new String[] {"image/jpeg", "image/png"}, "video/ogv"));
-        MoreAsserts.assertEquals(new String[] {},
-                MimeTypeFilter.matchesMany(new String[] {"image/jpeg", "image/png"}, ""));
+                MimeTypeFilter.matchesMany(new String[] {"*/", "image/"}, "*/*"));
         MoreAsserts.assertEquals(new String[] {},
                 MimeTypeFilter.matchesMany(new String[] {}, "*/*"));
+    }
+
+    @Test
+    public void illegalFilters() throws Exception {
+        try {
+            MimeTypeFilter.matches("image/jpeg", "");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches("image/jpeg", "*");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches("image/jpeg", "*/");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches("image/jpeg", "/*");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches("image/jpeg", "*/*/*");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches(new String[] { "image/jpeg" }, "");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches(new String[] { "image/jpeg" }, "*");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches(new String[] { "image/jpeg" }, "*/");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches(new String[] { "image/jpeg" }, "/*");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches(new String[] { "image/jpeg" }, "*/*/*");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches("image/jpeg", new String[] { "" });
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches("image/jpeg", new String[] { "*" });
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches("image/jpeg", new String[] { "*/" });
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches("image/jpeg", new String[] { "/*" });
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matches("image/jpeg", new String[] { "*/*/*" });
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matchesMany(new String[] { "image/jpeg" }, "");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matchesMany(new String[] { "image/jpeg" }, "*");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matchesMany(new String[] { "image/jpeg" }, "*/");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matchesMany(new String[] { "image/jpeg" }, "/*");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+
+        try {
+            MimeTypeFilter.matchesMany(new String[] { "image/jpeg" }, "*/*/*");
+            Assert.fail("Illegal filter, should throw.");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
     }
 }
