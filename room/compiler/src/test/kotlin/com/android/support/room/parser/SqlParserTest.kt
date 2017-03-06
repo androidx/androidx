@@ -75,6 +75,14 @@ class SqlParserTest {
     }
 
     @Test
+    fun unescapeTableNames() {
+        assertThat(SqlParser.parse("select * from `users`").tables,
+                `is`(setOf(Table("users", "users"))))
+        assertThat(SqlParser.parse("select * from \"users\"").tables,
+                `is`(setOf(Table("users", "users"))))
+    }
+
+    @Test
     fun findBindVariables() {
         assertVariables("select * from users")
         assertVariables("select * from users where name like ?", "?")

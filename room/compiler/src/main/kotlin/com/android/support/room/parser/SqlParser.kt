@@ -89,9 +89,21 @@ class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
         val tableName = ctx.table_name()?.text
         if (tableName != null) {
             val tableAlias = ctx.table_alias()?.text
-            tableNames.add(Table(tableName, tableAlias ?: tableName))
+            tableNames.add(Table(unescapeIdentifier(tableName),
+                    unescapeIdentifier(tableAlias ?: tableName)))
         }
         return super.visitTable_or_subquery(ctx)
+    }
+
+    private fun unescapeIdentifier(text : String) : String {
+        val trimmed = text.trim()
+        if (trimmed.startsWith("`") && trimmed.endsWith('`')) {
+            return unescapeIdentifier(trimmed.substring(1, trimmed.length - 1))
+        }
+        if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+            return unescapeIdentifier(trimmed.substring(1, trimmed.length - 1))
+        }
+        return trimmed
     }
 }
 
