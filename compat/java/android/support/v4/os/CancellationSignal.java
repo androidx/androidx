@@ -78,7 +78,7 @@ public final class CancellationSignal {
             if (listener != null) {
                 listener.onCancel();
             }
-            if (obj != null) {
+            if (obj != null && Build.VERSION.SDK_INT >= 16) {
                 CancellationSignalCompatJellybean.cancel(obj);
             }
         } finally {

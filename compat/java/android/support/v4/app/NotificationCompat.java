@@ -20,6 +20,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -1029,6 +1030,7 @@ public class NotificationCompat {
 
     static {
         if (BuildCompat.isAtLeastO()) {
+            //noinspection AndroidLintNewApi
             IMPL = new NotificationCompatApi26Impl();
         } else if (Build.VERSION.SDK_INT >= 24) {
             IMPL = new NotificationCompatApi24Impl();

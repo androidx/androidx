@@ -35,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.support.annotation.RequiresApi;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -77,6 +78,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
 
     @Test
     @SdkSuppress(minSdkVersion = 16)
+    @RequiresApi(16)
     public void testFitSystemWindowsReachesContent() {
         final FitWindowsContentLayout content =
                 (FitWindowsContentLayout) getActivity().findViewById(R.id.test_content);
@@ -91,6 +93,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
+    @RequiresApi(21)
     public void testOnApplyWindowInsetsReachesContent() {
         final View content = getActivity().findViewById(R.id.test_content);
         assertNotNull(content);

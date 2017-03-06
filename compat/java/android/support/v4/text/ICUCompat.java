@@ -16,7 +16,7 @@
 
 package android.support.v4.text;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.os.Build;
 import android.support.annotation.Nullable;
 
@@ -29,7 +29,7 @@ public final class ICUCompat {
         }
     }
 
-    @TargetApi(23)
+    @RequiresApi(21)
     static class ICUCompatApi21Impl extends ICUCompatBaseImpl {
         @Override
         public String maximizeAndGetScript(Locale locale) {
@@ -40,8 +40,7 @@ public final class ICUCompat {
     private static final ICUCompatBaseImpl IMPL;
 
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new ICUCompatApi21Impl();
         } else {
             IMPL = new ICUCompatBaseImpl();

@@ -16,6 +16,7 @@
 
 package android.support.v4.app;
 
+import android.support.annotation.RequiresApi;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -122,6 +123,7 @@ public final class ShareCompat {
         }
     }
 
+    @RequiresApi(14)
     static class ShareCompatImplICS extends ShareCompatImplBase {
         @Override
         public void configureMenuItem(MenuItem item, IntentBuilder shareIntent) {
@@ -137,6 +139,7 @@ public final class ShareCompat {
         }
     }
 
+    @RequiresApi(16)
     static class ShareCompatImplJB extends ShareCompatImplICS {
         @Override
         public String escapeHtml(CharSequence html) {

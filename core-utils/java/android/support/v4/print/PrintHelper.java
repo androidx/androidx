@@ -16,6 +16,7 @@
 
 package android.support.v4.print;
 
+import android.support.annotation.RequiresApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -79,11 +80,8 @@ public final class PrintHelper {
      * @return True if printing is supported.
      */
     public static boolean systemSupportsPrint() {
-        if (Build.VERSION.SDK_INT >= 19) {
-            // Supported on Android 4.4 or later.
-            return true;
-        }
-        return false;
+        // Supported on Android 4.4 or later.
+        return Build.VERSION.SDK_INT >= 19;
     }
 
     /**
@@ -154,6 +152,7 @@ public final class PrintHelper {
     /**
      * Generic implementation for KitKat to Api24
      */
+    @RequiresApi(19)
     private static class PrintHelperImpl<RealHelper extends PrintHelperKitkat>
             implements PrintHelperVersionImpl {
         private final RealHelper mPrintHelper;
@@ -226,6 +225,7 @@ public final class PrintHelper {
     /**
      * Implementation used on KitKat
      */
+    @RequiresApi(19)
     private static final class PrintHelperKitkatImpl extends PrintHelperImpl<PrintHelperKitkat> {
         PrintHelperKitkatImpl(Context context) {
             super(new PrintHelperKitkat(context));
@@ -235,6 +235,7 @@ public final class PrintHelper {
     /**
      * Implementation used on Api20 to Api22
      */
+    @RequiresApi(20)
     private static final class PrintHelperApi20Impl extends PrintHelperImpl<PrintHelperApi20> {
         PrintHelperApi20Impl(Context context) {
             super(new PrintHelperApi20(context));
@@ -244,6 +245,7 @@ public final class PrintHelper {
     /**
      * Implementation used on Api23
      */
+    @RequiresApi(23)
     private static final class PrintHelperApi23Impl extends PrintHelperImpl<PrintHelperApi23> {
         PrintHelperApi23Impl(Context context) {
             super(new PrintHelperApi23(context));
@@ -254,6 +256,7 @@ public final class PrintHelper {
     /**
      * Implementation used on Api24 and above
      */
+    @RequiresApi(24)
     private static final class PrintHelperApi24Impl extends PrintHelperImpl<PrintHelperApi24> {
         PrintHelperApi24Impl(Context context) {
             super(new PrintHelperApi24(context));
@@ -267,17 +270,16 @@ public final class PrintHelper {
      * @return the <code>PrintHelper</code> to support printing images.
      */
     public PrintHelper(Context context) {
-        if (systemSupportsPrint()) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                mImpl = new PrintHelperApi24Impl(context);
-            } else if (Build.VERSION.SDK_INT >= 23) {
-                mImpl = new PrintHelperApi23Impl(context);
-            } else if (Build.VERSION.SDK_INT >= 20) {
-                mImpl = new PrintHelperApi20Impl(context);
-            } else {
-                mImpl = new PrintHelperKitkatImpl(context);
-            }
+        if (Build.VERSION.SDK_INT >= 24) {
+            mImpl = new PrintHelperApi24Impl(context);
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            mImpl = new PrintHelperApi23Impl(context);
+        } else if (Build.VERSION.SDK_INT >= 20) {
+            mImpl = new PrintHelperApi20Impl(context);
+        } else if (Build.VERSION.SDK_INT >= 19){
+            mImpl = new PrintHelperKitkatImpl(context);
         } else {
+            // System does not support printing.
             mImpl = new PrintHelperStubImpl();
         }
     }

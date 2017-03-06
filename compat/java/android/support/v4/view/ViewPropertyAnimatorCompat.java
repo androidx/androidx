@@ -15,7 +15,7 @@
  */
 package android.support.v4.view;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.os.Build;
 import android.view.View;
 import android.view.animation.Interpolator;
@@ -181,7 +181,7 @@ public final class ViewPropertyAnimatorCompat {
         }
     }
 
-    @TargetApi(16)
+    @RequiresApi(16)
     static class ViewPropertyAnimatorCompatApi16Impl extends ViewPropertyAnimatorCompatBaseImpl {
 
         @Override
@@ -205,7 +205,7 @@ public final class ViewPropertyAnimatorCompat {
         }
     }
 
-    @TargetApi(18)
+    @RequiresApi(18)
     static class ViewPropertyAnimatorCompatApi18Impl extends ViewPropertyAnimatorCompatApi16Impl {
 
         @Override
@@ -214,7 +214,7 @@ public final class ViewPropertyAnimatorCompat {
         }
     }
 
-    @TargetApi(19)
+    @RequiresApi(19)
     static class ViewPropertyAnimatorCompatApi19Impl extends ViewPropertyAnimatorCompatApi18Impl {
         @Override
         public void setUpdateListener(ViewPropertyAnimatorCompat vpa, View view,
@@ -223,7 +223,7 @@ public final class ViewPropertyAnimatorCompat {
         }
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     static class ViewPropertyAnimatorCompatApi21Impl extends
             ViewPropertyAnimatorCompatApi19Impl {
         @Override

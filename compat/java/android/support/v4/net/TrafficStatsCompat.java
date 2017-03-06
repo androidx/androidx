@@ -16,7 +16,7 @@
 
 package android.support.v4.net;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.net.TrafficStats;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
@@ -52,7 +52,7 @@ public final class TrafficStatsCompat {
         }
     }
 
-    @TargetApi(24)
+    @RequiresApi(24)
     static class TrafficStatsCompatApi24Impl extends TrafficStatsCompatBaseImpl {
         @Override
         public void tagDatagramSocket(DatagramSocket socket) throws SocketException {

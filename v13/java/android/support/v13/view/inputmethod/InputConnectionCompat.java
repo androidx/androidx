@@ -16,7 +16,7 @@
 
 package android.support.v13.view.inputmethod;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.content.ClipDescription;
 import android.net.Uri;
 import android.os.Build;
@@ -130,7 +130,7 @@ public final class InputConnectionCompat {
         }
     }
 
-    @TargetApi(25)
+    @RequiresApi(25)
     private static final class InputContentInfoCompatApi25Impl
             implements InputConnectionCompatImpl {
         @Override

@@ -19,6 +19,7 @@ package android.support.v4.app;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in android.app.AppOpsManager
@@ -64,6 +65,7 @@ public final class AppOpsManagerCompat {
         }
     }
 
+    @RequiresApi(23)
     private static class AppOpsManager23 extends AppOpsManagerImpl {
         AppOpsManager23() {
         }

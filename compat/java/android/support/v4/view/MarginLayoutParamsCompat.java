@@ -17,6 +17,7 @@
 
 package android.support.v4.view;
 
+import android.support.annotation.RequiresApi;
 import android.os.Build;
 import android.view.ViewGroup;
 
@@ -79,6 +80,7 @@ public final class MarginLayoutParamsCompat {
         }
     }
 
+    @RequiresApi(17)
     static class MarginLayoutParamsCompatImplJbMr1 implements MarginLayoutParamsCompatImpl {
 
         @Override
@@ -124,8 +126,7 @@ public final class MarginLayoutParamsCompat {
 
     static final MarginLayoutParamsCompatImpl IMPL;
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 17) { // jb-mr1
+        if (Build.VERSION.SDK_INT >= 17) { // jb-mr1
             IMPL = new MarginLayoutParamsCompatImplJbMr1();
         } else {
             IMPL = new MarginLayoutParamsCompatImplBase();

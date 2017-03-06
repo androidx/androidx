@@ -62,7 +62,7 @@ cd "$SAVED" >/dev/null
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
 # Pick the correct fullsdk for this OS.
-if [ "$os" = "Darwin" ]; then
+if [ darwin ]; then
     plat="darwin"
 else
     plat="linux"

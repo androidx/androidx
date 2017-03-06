@@ -16,7 +16,7 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -82,7 +82,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
         }
     }
 
-    @TargetApi(16)
+    @RequiresApi(16)
     static class TaskStackBuilderApi16Impl extends TaskStackBuilderBaseImpl {
         @Override
         public PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,

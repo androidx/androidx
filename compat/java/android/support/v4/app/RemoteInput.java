@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
@@ -338,6 +339,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         }
     }
 
+    @RequiresApi(16)
     static class ImplJellybean implements Impl {
         @Override
         public Bundle getResultsFromIntent(Intent intent) {
@@ -363,6 +365,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         }
     }
 
+    @RequiresApi(20)
     static class ImplApi20 implements Impl {
         @Override
         public Bundle getResultsFromIntent(Intent intent) {

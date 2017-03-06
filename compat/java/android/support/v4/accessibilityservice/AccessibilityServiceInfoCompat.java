@@ -18,7 +18,7 @@ package android.support.v4.accessibilityservice;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
@@ -43,7 +43,7 @@ public final class AccessibilityServiceInfoCompat {
         }
     }
 
-    @TargetApi(16)
+    @RequiresApi(16)
     static class AccessibilityServiceInfoApi16Impl extends AccessibilityServiceInfoBaseImpl {
         @Override
         public String loadDescription(AccessibilityServiceInfo info, PackageManager pm) {
@@ -51,7 +51,7 @@ public final class AccessibilityServiceInfoCompat {
         }
     }
 
-    @TargetApi(18)
+    @RequiresApi(18)
     static class AccessibilityServiceInfoApi18Impl
             extends AccessibilityServiceInfoApi16Impl {
         @Override

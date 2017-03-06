@@ -61,6 +61,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import android.annotation.TargetApi;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Parcelable;
@@ -406,6 +407,7 @@ public class NavigationViewTest
     }
 
     @SdkSuppress(minSdkVersion = 11)
+    @TargetApi(11)
     @Test
     public void testHeaderState() {
         // Open our drawer
@@ -445,6 +447,7 @@ public class NavigationViewTest
     }
 
     @SdkSuppress(minSdkVersion = 11)
+    @TargetApi(11)
     @Test
     public void testActionViewState() {
         // Open our drawer

@@ -18,6 +18,7 @@ package android.support.v7.media;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import java.lang.ref.WeakReference;
 
@@ -118,6 +119,7 @@ abstract class RemoteControlClientCompat {
      * other API available to do so in this platform version.  The UserRouteInfo itself
      * is not attached to the MediaRouter so it is transparent to the user.
      */
+    @RequiresApi(16)
     static class JellybeanImpl extends RemoteControlClientCompat {
         private final Object mRouterObj;
         private final Object mUserRouteCategoryObj;

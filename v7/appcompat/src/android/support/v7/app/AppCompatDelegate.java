@@ -195,14 +195,13 @@ public abstract class AppCompatDelegate {
 
     private static AppCompatDelegate create(Context context, Window window,
             AppCompatCallback callback) {
-        final int sdk = Build.VERSION.SDK_INT;
         if (BuildCompat.isAtLeastN()) {
             return new AppCompatDelegateImplN(context, window, callback);
-        } else if (sdk >= 23) {
+        } else if (Build.VERSION.SDK_INT >= 23) {
             return new AppCompatDelegateImplV23(context, window, callback);
-        } else if (sdk >= 14) {
+        } else if (Build.VERSION.SDK_INT >= 14) {
             return new AppCompatDelegateImplV14(context, window, callback);
-        } else if (sdk >= 11) {
+        } else if (Build.VERSION.SDK_INT >= 11) {
             return new AppCompatDelegateImplV11(context, window, callback);
         } else {
             return new AppCompatDelegateImplV9(context, window, callback);

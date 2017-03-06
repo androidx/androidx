@@ -16,7 +16,7 @@
 
 package android.support.v4.view;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.os.BuildCompat;
 import android.util.Log;
@@ -144,7 +144,7 @@ public final class MenuItemCompat {
         }
     }
 
-    @TargetApi(26)
+    @RequiresApi(26)
     static class MenuItemCompatApi26Impl extends MenuItemCompatBaseImpl {
         @Override
         public void setContentDescription(MenuItem item, CharSequence contentDescription) {
@@ -173,6 +173,7 @@ public final class MenuItemCompat {
     static final MenuVersionImpl IMPL;
     static {
         if (BuildCompat.isAtLeastO()) {
+            //noinspection AndroidLintNewApi
             IMPL = new MenuItemCompatApi26Impl();
         } else {
             IMPL = new MenuItemCompatBaseImpl();

@@ -53,8 +53,7 @@ public final class EnvironmentCompat {
      *         {@link Environment#MEDIA_UNMOUNTABLE}.
      */
     public static String getStorageState(File path) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             return EnvironmentCompatKitKat.getStorageState(path);
         }
 

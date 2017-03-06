@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.os.CancellationSignal;
 
 import java.security.Signature;
@@ -49,8 +50,7 @@ public final class FingerprintManagerCompat {
 
     static final FingerprintManagerCompatImpl IMPL;
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             IMPL = new Api23FingerprintManagerCompatImpl();
         } else {
             IMPL = new LegacyFingerprintManagerCompatImpl();
@@ -229,6 +229,7 @@ public final class FingerprintManagerCompat {
         }
     }
 
+    @RequiresApi(23)
     private static class Api23FingerprintManagerCompatImpl implements FingerprintManagerCompatImpl {
 
         public Api23FingerprintManagerCompatImpl() {

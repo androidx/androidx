@@ -17,7 +17,6 @@
 package android.support.v7.widget;
 
 import android.animation.ObjectAnimator;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -81,7 +80,6 @@ import android.widget.CompoundButton;
  * @attr ref android.support.v7.appcompat.R.styleable#SwitchCompat_track
  */
 @RequiresApi(14)
-@TargetApi(14)
 public class SwitchCompat extends CompoundButton {
     private static final int THUMB_ANIMATION_DURATION = 250;
 

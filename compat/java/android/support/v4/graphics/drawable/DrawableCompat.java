@@ -23,6 +23,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.InsetDrawable;
+import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -333,14 +334,13 @@ public final class DrawableCompat {
      */
     static final DrawableCompatBaseImpl IMPL;
     static {
-        final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             IMPL = new DrawableCompatApi23Impl();
-        } else if (version >= 21) {
+        } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new DrawableCompatApi21Impl();
-        } else if (version >= 19) {
+        } else if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new DrawableCompatApi19Impl();
-        } else if (version >= 17) {
+        } else if (Build.VERSION.SDK_INT >= 17) {
             IMPL = new DrawableCompatApi17Impl();
         } else {
             IMPL = new DrawableCompatBaseImpl();

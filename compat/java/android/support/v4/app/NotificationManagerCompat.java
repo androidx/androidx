@@ -16,7 +16,7 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -188,7 +188,7 @@ public final class NotificationManagerCompat {
         }
     }
 
-    @TargetApi(19)
+    @RequiresApi(19)
     static class ImplKitKat extends ImplBase {
         @Override
         public boolean areNotificationsEnabled(Context context,
@@ -197,7 +197,7 @@ public final class NotificationManagerCompat {
         }
     }
 
-    @TargetApi(24)
+    @RequiresApi(24)
     static class ImplApi24 extends ImplKitKat {
         @Override
         public boolean areNotificationsEnabled(Context context,

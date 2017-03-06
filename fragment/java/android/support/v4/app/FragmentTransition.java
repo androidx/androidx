@@ -17,6 +17,7 @@ package android.support.v4.app;
 
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.view.ViewCompat;
 import android.util.SparseArray;
@@ -82,38 +83,41 @@ class FragmentTransition {
     static void startTransitions(FragmentManagerImpl fragmentManager,
             ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop,
             int startIndex, int endIndex, boolean isOptimized) {
-        if (fragmentManager.mCurState < Fragment.CREATED
-                || Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        if (fragmentManager.mCurState < Fragment.CREATED) {
             return;
         }
-        SparseArray<FragmentContainerTransition> transitioningFragments =
-                new SparseArray<>();
-        for (int i = startIndex; i < endIndex; i++) {
-            final BackStackRecord record = records.get(i);
-            final boolean isPop = isRecordPop.get(i);
-            if (isPop) {
-                calculatePopFragments(record, transitioningFragments, isOptimized);
-            } else {
-                calculateFragments(record, transitioningFragments, isOptimized);
-            }
-        }
 
-        if (transitioningFragments.size() != 0) {
-            final View nonExistentView = new View(fragmentManager.mHost.getContext());
-            final int numContainers = transitioningFragments.size();
-            for (int i = 0; i < numContainers; i++) {
-                int containerId = transitioningFragments.keyAt(i);
-                ArrayMap<String, String> nameOverrides = calculateNameOverrides(containerId,
-                        records, isRecordPop, startIndex, endIndex);
-
-                FragmentContainerTransition containerTransition = transitioningFragments.valueAt(i);
-
-                if (isOptimized) {
-                    configureTransitionsOptimized(fragmentManager, containerId,
-                            containerTransition, nonExistentView, nameOverrides);
+        if (Build.VERSION.SDK_INT >= 21) {
+            SparseArray<FragmentContainerTransition> transitioningFragments =
+                    new SparseArray<>();
+            for (int i = startIndex; i < endIndex; i++) {
+                final BackStackRecord record = records.get(i);
+                final boolean isPop = isRecordPop.get(i);
+                if (isPop) {
+                    calculatePopFragments(record, transitioningFragments, isOptimized);
                 } else {
-                    configureTransitionsUnoptimized(fragmentManager, containerId,
-                            containerTransition, nonExistentView, nameOverrides);
+                    calculateFragments(record, transitioningFragments, isOptimized);
+                }
+            }
+
+            if (transitioningFragments.size() != 0) {
+                final View nonExistentView = new View(fragmentManager.mHost.getContext());
+                final int numContainers = transitioningFragments.size();
+                for (int i = 0; i < numContainers; i++) {
+                    int containerId = transitioningFragments.keyAt(i);
+                    ArrayMap<String, String> nameOverrides = calculateNameOverrides(containerId,
+                            records, isRecordPop, startIndex, endIndex);
+
+                    FragmentContainerTransition containerTransition =
+                            transitioningFragments.valueAt(i);
+
+                    if (isOptimized) {
+                        configureTransitionsOptimized(fragmentManager, containerId,
+                                containerTransition, nonExistentView, nameOverrides);
+                    } else {
+                        configureTransitionsUnoptimized(fragmentManager, containerId,
+                                containerTransition, nonExistentView, nameOverrides);
+                    }
                 }
             }
         }
@@ -185,6 +189,7 @@ class FragmentTransition {
      *                      the final fragment's Views as given in
      *                      {@link FragmentTransaction#addSharedElement(View, String)}.
      */
+    @RequiresApi(21)
     private static void configureTransitionsOptimized(FragmentManagerImpl fragmentManager,
             int containerId, FragmentContainerTransition fragments,
             View nonExistentView, ArrayMap<String, String> nameOverrides) {
@@ -246,6 +251,7 @@ class FragmentTransition {
      * the entire fragment's view GONE, make each exiting view INVISIBLE. At the end of the
      * transition, make the fragment's view GONE.
      */
+    @RequiresApi(21)
     private static void replaceHide(Object exitTransition, Fragment exitingFragment,
             final ArrayList<View> exitingViews) {
         if (exitingFragment != null && exitTransition != null && exitingFragment.mAdded
@@ -278,6 +284,7 @@ class FragmentTransition {
      *                      the final fragment's Views as given in
      *                      {@link FragmentTransaction#addSharedElement(View, String)}.
      */
+    @RequiresApi(21)
     private static void configureTransitionsUnoptimized(FragmentManagerImpl fragmentManager,
             int containerId, FragmentContainerTransition fragments,
             View nonExistentView, ArrayMap<String, String> nameOverrides) {
@@ -355,6 +362,7 @@ class FragmentTransition {
      * @param exitTransition The exit transition of the outgoing fragment
      * @param exitingViews The exiting views of the outgoing fragment
      */
+    @RequiresApi(21)
     private static void scheduleTargetChange(final ViewGroup sceneRoot,
             final Fragment inFragment, final View nonExistentView,
             final ArrayList<View> sharedElementsIn,
@@ -397,6 +405,7 @@ class FragmentTransition {
      * @return A TransitionSet wrapping the shared element transition or null if no such transition
      * exists.
      */
+    @RequiresApi(21)
     private static Object getSharedElementTransition(Fragment inFragment,
             Fragment outFragment, boolean isPop) {
         if (inFragment == null || outFragment == null) {
@@ -411,6 +420,7 @@ class FragmentTransition {
     /**
      * Returns a clone of the enter transition or null if no such transition exists.
      */
+    @RequiresApi(21)
     private static Object getEnterTransition(Fragment inFragment, boolean isPop) {
         if (inFragment == null) {
             return null;
@@ -423,6 +433,7 @@ class FragmentTransition {
     /**
      * Returns a clone of the exit transition or null if no such transition exists.
      */
+    @RequiresApi(21)
     private static Object getExitTransition(Fragment outFragment, boolean isPop) {
         if (outFragment == null) {
             return null;
@@ -459,6 +470,7 @@ class FragmentTransition {
      *                       epicenter
      * @return The shared element transition or null if no shared elements exist
      */
+    @RequiresApi(21)
     private static Object configureSharedElementsOptimized(final ViewGroup sceneRoot,
             final View nonExistentView, final ArrayMap<String, String> nameOverrides,
             final FragmentContainerTransition fragments,
@@ -587,6 +599,7 @@ class FragmentTransition {
      *                       epicenter
      * @return The shared element transition or null if no shared elements exist
      */
+    @RequiresApi(21)
     private static Object configureSharedElementsUnoptimized(final ViewGroup sceneRoot,
             final View nonExistentView, final ArrayMap<String, String> nameOverrides,
             final FragmentContainerTransition fragments,
@@ -683,6 +696,7 @@ class FragmentTransition {
      * @return The mapping of shared element names to the Views in the hierarchy or null
      * if there is no shared element transition.
      */
+    @RequiresApi(21)
     private static ArrayMap<String, View> captureOutSharedElements(
             ArrayMap<String, String> nameOverrides, Object sharedElementTransition,
             FragmentContainerTransition fragments) {
@@ -738,6 +752,7 @@ class FragmentTransition {
      * @return The mapping of shared element names to the Views in the hierarchy or null
      * if there is no shared element transition.
      */
+    @RequiresApi(21)
     private static ArrayMap<String, View> captureInSharedElements(
             ArrayMap<String, String> nameOverrides, Object sharedElementTransition,
             FragmentContainerTransition fragments) {
@@ -833,6 +848,7 @@ class FragmentTransition {
      * @param outIsPop Is the outgoing fragment being removed as a pop transaction?
      * @param outTransaction The transaction that caused the fragment to be removed.
      */
+    @RequiresApi(21)
     private static void setOutEpicenter(Object sharedElementTransition,
             Object exitTransition, ArrayMap<String, View> outSharedElements, boolean outIsPop,
             BackStackRecord outTransaction) {
@@ -897,6 +913,7 @@ class FragmentTransition {
         }
     }
 
+    @RequiresApi(21)
     private static ArrayList<View> configureEnteringExitingViews(Object transition,
             Fragment fragment, ArrayList<View> sharedElements, View nonExistentView) {
         ArrayList<View> viewList = null;
@@ -934,6 +951,7 @@ class FragmentTransition {
      * Merges exit, shared element, and enter transitions so that they act together or
      * sequentially as defined in the fragments.
      */
+    @RequiresApi(21)
     private static Object mergeTransitions(Object enterTransition,
             Object exitTransition, Object sharedElementTransition, Fragment inFragment,
             boolean isPop) {

@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.support.v17.leanback.app;
 
-import android.support.annotation.RequiresApi;
-import android.app.Fragment;
+package android.support.v4.os;
+
 import android.content.Context;
-import android.os.Build;
+import android.os.UserManager;
+import android.support.annotation.RequiresApi;
 
-class FragmentUtil {
-
-    @RequiresApi(23)
-    private static Context getContextNew(Fragment fragment) {
-        return fragment.getContext();
-    }
-
-    public static Context getContext(Fragment fragment) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return getContextNew(fragment);
-        } else {
-            return fragment.getActivity();
-        }
+@RequiresApi(24)
+class UserManagerCompatApi24 {
+    public static boolean isUserUnlocked(Context context) {
+        return context.getSystemService(UserManager.class).isUserUnlocked();
     }
 }

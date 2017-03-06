@@ -50,8 +50,7 @@ public final class IntentCompat {
 
     private static final IntentCompatBaseImpl IMPL;
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 15) {
+        if (Build.VERSION.SDK_INT >= 15) {
             IMPL = new IntentCompatApi15Impl();
         } else {
             IMPL = new IntentCompatBaseImpl();

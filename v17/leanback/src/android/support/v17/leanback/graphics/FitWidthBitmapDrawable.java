@@ -15,7 +15,7 @@
  */
 package android.support.v17.leanback.graphics;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -228,7 +228,7 @@ public class FitWidthBitmapDrawable extends Drawable {
         }
     }
 
-    @TargetApi(24)
+    @RequiresApi(24)
     static IntProperty<FitWidthBitmapDrawable> getVerticalOffsetIntProperty() {
         return new IntProperty<FitWidthBitmapDrawable>("verticalOffset") {
             @Override

@@ -44,6 +44,7 @@ import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNE
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_VERSION_CURRENT;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -59,6 +60,7 @@ import android.os.RemoteException;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -222,6 +224,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
+    @RequiresApi(21)
     class MediaBrowserServiceImplApi21 implements MediaBrowserServiceImpl,
             MediaBrowserServiceCompatApi21.ServiceCompatProxy {
         Object mServiceObj;
@@ -336,6 +339,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
+    @RequiresApi(23)
     class MediaBrowserServiceImplApi23 extends MediaBrowserServiceImplApi21 implements
             MediaBrowserServiceCompatApi23.ServiceCompatProxy {
         @Override
@@ -371,6 +375,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     // TODO: Rename to MediaBrowserServiceImplApi26 once O is released
+    @RequiresApi(26)
     class MediaBrowserServiceImplApi24 extends MediaBrowserServiceImplApi23 implements
             MediaBrowserServiceCompatApi24.ServiceCompatProxy {
         @Override
@@ -828,9 +833,11 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     @Override
+    @SuppressLint("NewApi")
     public void onCreate() {
         super.onCreate();
-        if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
+        if (BuildCompat.isAtLeastO()) {
+            //noinspection AndroidLintNewApi
             mImpl = new MediaBrowserServiceImplApi24();
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserServiceImplApi23();

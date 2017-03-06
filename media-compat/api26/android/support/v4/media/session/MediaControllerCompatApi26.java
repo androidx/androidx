@@ -16,10 +16,10 @@
 
 package android.support.v4.media.session;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.media.session.MediaController;
 
-@TargetApi(26)
+@RequiresApi(26)
 class MediaControllerCompatApi26 {
     public static Object createCallback(Callback callback) {
         return new CallbackProxy<>(callback);

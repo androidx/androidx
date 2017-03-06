@@ -18,7 +18,7 @@ package android.support.v4.view.accessibility;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -1096,7 +1096,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
-    @TargetApi(16)
+    @RequiresApi(16)
     static class AccessibilityNodeInfoApi16Impl extends AccessibilityNodeInfoBaseImpl {
         @Override
         public AccessibilityNodeInfo obtain(View root, int virtualDescendantId) {
@@ -1164,7 +1164,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
-    @TargetApi(17)
+    @RequiresApi(17)
     static class AccessibilityNodeInfoApi17Impl extends AccessibilityNodeInfoApi16Impl {
 
         @Override
@@ -1198,7 +1198,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
-    @TargetApi(18)
+    @RequiresApi(18)
     static class AccessibilityNodeInfoApi18Impl extends AccessibilityNodeInfoApi17Impl {
 
         @Override
@@ -1248,7 +1248,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
-    @TargetApi(19)
+    @RequiresApi(19)
     static class AccessibilityNodeInfoApi19Impl extends AccessibilityNodeInfoApi18Impl {
         private static final String ROLE_DESCRIPTION_KEY =
                 "AccessibilityNodeInfo.roleDescription";
@@ -1432,7 +1432,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     static class AccessibilityNodeInfoApi21Impl extends AccessibilityNodeInfoApi19Impl {
         @Override
         public Object newAccessibilityAction(int actionId, CharSequence label) {
@@ -1525,7 +1525,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
-    @TargetApi(22)
+    @RequiresApi(22)
     static class AccessibilityNodeInfoApi22Impl extends AccessibilityNodeInfoApi21Impl {
         @Override
         public Object getTraversalBefore(AccessibilityNodeInfo info) {
@@ -1560,7 +1560,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
-    @TargetApi(23)
+    @RequiresApi(23)
     static class AccessibilityNodeInfoApi23Impl extends AccessibilityNodeInfoApi22Impl {
         @Override
         public Object getActionScrollToPosition() {
@@ -1608,7 +1608,7 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
-    @TargetApi(24)
+    @RequiresApi(24)
     static class AccessibilityNodeInfoApi24Impl extends AccessibilityNodeInfoApi23Impl {
         @Override
         public Object getActionSetProgress() {

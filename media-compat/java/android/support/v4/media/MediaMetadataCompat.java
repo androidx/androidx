@@ -580,17 +580,17 @@ public final class MediaMetadataCompat implements Parcelable {
      *         none.
      */
     public static MediaMetadataCompat fromMediaMetadata(Object metadataObj) {
-        if (metadataObj == null || Build.VERSION.SDK_INT < 21) {
+        if (metadataObj != null && Build.VERSION.SDK_INT >= 21) {
+            Parcel p = Parcel.obtain();
+            MediaMetadataCompatApi21.writeToParcel(metadataObj, p, 0);
+            p.setDataPosition(0);
+            MediaMetadataCompat metadata = MediaMetadataCompat.CREATOR.createFromParcel(p);
+            p.recycle();
+            metadata.mMetadataObj = metadataObj;
+            return metadata;
+        } else {
             return null;
         }
-
-        Parcel p = Parcel.obtain();
-        MediaMetadataCompatApi21.writeToParcel(metadataObj, p, 0);
-        p.setDataPosition(0);
-        MediaMetadataCompat metadata = MediaMetadataCompat.CREATOR.createFromParcel(p);
-        p.recycle();
-        metadata.mMetadataObj = metadataObj;
-        return metadata;
     }
 
     /**
@@ -604,15 +604,13 @@ public final class MediaMetadataCompat implements Parcelable {
      *         if none.
      */
     public Object getMediaMetadata() {
-        if (mMetadataObj != null || Build.VERSION.SDK_INT < 21) {
-            return mMetadataObj;
+        if (mMetadataObj == null && Build.VERSION.SDK_INT >= 21) {
+            Parcel p = Parcel.obtain();
+            writeToParcel(p, 0);
+            p.setDataPosition(0);
+            mMetadataObj = MediaMetadataCompatApi21.createFromParcel(p);
+            p.recycle();
         }
-
-        Parcel p = Parcel.obtain();
-        writeToParcel(p, 0);
-        p.setDataPosition(0);
-        mMetadataObj = MediaMetadataCompatApi21.createFromParcel(p);
-        p.recycle();
         return mMetadataObj;
     }
 
@@ -662,7 +660,7 @@ public final class MediaMetadataCompat implements Parcelable {
          * <p>
          * This also deep-copies the bitmaps for {@link #METADATA_KEY_ART} and
          * {@link #METADATA_KEY_ALBUM_ART} on
-         * {@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWITCH} and later
+         * {@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWICH} and later
          * to prevent bitmaps from being recycled by RCC.
          *
          * @param source The original metadata to copy.

@@ -42,6 +42,7 @@ import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNE
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT_FAILED;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -59,6 +60,7 @@ import android.os.RemoteException;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.media.session.MediaControllerCompat.TransportControls;
@@ -122,11 +124,13 @@ public final class MediaBrowserCompat {
      * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_OFFLINE
      * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_SUGGESTED
      */
+    @SuppressLint("NewApi")
     public MediaBrowserCompat(Context context, ComponentName serviceComponent,
             ConnectionCallback callback, Bundle rootHints) {
         // To workaround an issue of {@link #unsubscribe(String, SubscriptionCallback)} on API 24
         // and 25 devices, use the support library version of implementation on those devices.
-        if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
+        if (BuildCompat.isAtLeastO()) {
+            //noinspection AndroidLintNewApi
             mImpl = new MediaBrowserImplApi24(context, serviceComponent, callback, rootHints);
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserImplApi23(context, serviceComponent, callback, rootHints);
@@ -600,8 +604,10 @@ public final class MediaBrowserCompat {
         private final IBinder mToken;
         WeakReference<Subscription> mSubscriptionRef;
 
+        @SuppressLint("NewApi")
         public SubscriptionCallback() {
-            if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
+            if (BuildCompat.isAtLeastO()) {
+                //noinspection AndroidLintNewApi
                 mSubscriptionCallbackObj =
                         MediaBrowserCompatApi24.createSubscriptionCallback(new StubApi24());
                 mToken = null;
@@ -1422,6 +1428,7 @@ public final class MediaBrowserCompat {
         }
     }
 
+    @RequiresApi(21)
     static class MediaBrowserImplApi21 implements MediaBrowserImpl, MediaBrowserServiceCallbackImpl,
             ConnectionCallback.ConnectionCallbackInternal {
         protected final Object mBrowserObj;
@@ -1738,6 +1745,7 @@ public final class MediaBrowserCompat {
         }
     }
 
+    @RequiresApi(23)
     static class MediaBrowserImplApi23 extends MediaBrowserImplApi21 {
         public MediaBrowserImplApi23(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
@@ -1755,6 +1763,7 @@ public final class MediaBrowserCompat {
     }
 
     // TODO: Rename to MediaBrowserImplApi26 once O is released
+    @RequiresApi(26)
     static class MediaBrowserImplApi24 extends MediaBrowserImplApi23 {
         public MediaBrowserImplApi24(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {

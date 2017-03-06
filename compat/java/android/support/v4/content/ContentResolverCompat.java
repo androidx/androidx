@@ -20,6 +20,7 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v4.os.CancellationSignal;
 import android.support.v4.os.OperationCanceledException;
 
@@ -48,6 +49,7 @@ public final class ContentResolverCompat {
         }
     }
 
+    @RequiresApi(16)
     static class ContentResolverCompatImplJB extends ContentResolverCompatImplBase {
         @Override
         public Cursor query(ContentResolver resolver, Uri uri, String[] projection,
@@ -73,8 +75,7 @@ public final class ContentResolverCompat {
 
     private static final ContentResolverCompatImpl IMPL;
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 16) {
+        if (Build.VERSION.SDK_INT >= 16) {
             IMPL = new ContentResolverCompatImplJB();
         } else {
             IMPL = new ContentResolverCompatImplBase();

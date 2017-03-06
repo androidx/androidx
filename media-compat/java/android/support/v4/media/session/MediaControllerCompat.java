@@ -28,6 +28,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.app.SupportActivity;
@@ -1621,6 +1622,7 @@ public final class MediaControllerCompat {
         }
     }
 
+    @RequiresApi(21)
     static class MediaControllerImplApi21 implements MediaControllerImpl {
         protected final Object mControllerObj;
 
@@ -2114,6 +2116,7 @@ public final class MediaControllerCompat {
         }
     }
 
+    @RequiresApi(23)
     static class MediaControllerImplApi23 extends MediaControllerImplApi21 {
 
         public MediaControllerImplApi23(Context context, MediaSessionCompat session) {
@@ -2132,6 +2135,7 @@ public final class MediaControllerCompat {
         }
     }
 
+    @RequiresApi(23)
     static class TransportControlsApi23 extends TransportControlsApi21 {
 
         public TransportControlsApi23(Object controlsObj) {
@@ -2145,6 +2149,7 @@ public final class MediaControllerCompat {
         }
     }
 
+    @RequiresApi(24)
     static class MediaControllerImplApi24 extends MediaControllerImplApi23 {
 
         public MediaControllerImplApi24(Context context, MediaSessionCompat session) {
@@ -2163,6 +2168,7 @@ public final class MediaControllerCompat {
         }
     }
 
+    @RequiresApi(24)
     static class TransportControlsApi24 extends TransportControlsApi23 {
 
         public TransportControlsApi24(Object controlsObj) {
@@ -2192,6 +2198,7 @@ public final class MediaControllerCompat {
         }
     }
 
+    @RequiresApi(26)
     static class MediaControllerImplApi26 extends MediaControllerImplApi24 {
 
         MediaControllerImplApi26(Context context, MediaSessionCompat session) {
@@ -2220,6 +2227,7 @@ public final class MediaControllerCompat {
         }
     }
 
+    @RequiresApi(26)
     static class TransportControlsApi26 extends TransportControlsApi24 {
 
         TransportControlsApi26(Object controlsObj) {

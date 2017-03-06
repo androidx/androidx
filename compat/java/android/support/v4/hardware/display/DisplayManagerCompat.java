@@ -17,6 +17,8 @@
 package android.support.v4.hardware.display;
 
 import android.content.Context;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -54,8 +56,7 @@ public abstract class DisplayManagerCompat {
         synchronized (sInstances) {
             DisplayManagerCompat instance = sInstances.get(context);
             if (instance == null) {
-                final int version = android.os.Build.VERSION.SDK_INT;
-                if (version >= 17) {
+                if (Build.VERSION.SDK_INT >= 17) {
                     instance = new JellybeanMr1Impl(context);
                 } else {
                     instance = new LegacyImpl(context);
@@ -129,6 +130,7 @@ public abstract class DisplayManagerCompat {
         }
     }
 
+    @RequiresApi(17)
     private static class JellybeanMr1Impl extends DisplayManagerCompat {
         private final Object mDisplayManagerObj;
 

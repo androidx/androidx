@@ -190,10 +190,9 @@ public final class ViewParentCompat {
 
     static final ViewParentCompatBaseImpl IMPL;
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new ViewParentCompatApi21Impl();
-        } else if (version >= 19) {
+        } else if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new ViewParentCompatApi19Impl();
         } else {
             IMPL = new ViewParentCompatBaseImpl();

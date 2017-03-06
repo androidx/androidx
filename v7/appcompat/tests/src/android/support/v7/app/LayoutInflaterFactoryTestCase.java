@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import android.support.annotation.RequiresApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.test.annotation.UiThreadTest;
@@ -77,6 +78,7 @@ public class LayoutInflaterFactoryTestCase
 
     // Propagation of themed context to children only works on API 11+.
     @SdkSuppress(minSdkVersion = 11)
+    @RequiresApi(11)
     @UiThreadTest
     @Test
     @SmallTest

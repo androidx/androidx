@@ -16,7 +16,8 @@
 
 package android.support.v4.app;
 
-import android.annotation.TargetApi;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -93,7 +94,7 @@ public final class NavUtils {
         }
     }
 
-    @TargetApi(16)
+    @RequiresApi(16)
     static class NavUtilsImplJB extends NavUtilsImplBase {
 
         @Override
@@ -134,8 +135,7 @@ public final class NavUtils {
     private static final NavUtilsImpl IMPL;
 
     static {
-        final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 16) {
+        if (Build.VERSION.SDK_INT >= 16) {
             IMPL = new NavUtilsImplJB();
         } else {
             IMPL = new NavUtilsImplBase();

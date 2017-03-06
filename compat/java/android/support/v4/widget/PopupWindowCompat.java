@@ -16,6 +16,8 @@
 
 package android.support.v4.widget;
 
+import android.support.annotation.RequiresApi;
+import android.os.Build;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.view.Gravity;
@@ -122,6 +124,7 @@ public final class PopupWindowCompat {
     /**
      * Interface implementation for devices with at least KitKat APIs.
      */
+    @RequiresApi(19)
     static class KitKatPopupWindowImpl extends BasePopupWindowImpl {
         @Override
         public void showAsDropDown(PopupWindow popup, View anchor, int xoff, int yoff,
@@ -130,6 +133,7 @@ public final class PopupWindowCompat {
         }
     }
 
+    @RequiresApi(21)
     static class Api21PopupWindowImpl extends KitKatPopupWindowImpl {
         @Override
         public void setOverlapAnchor(PopupWindow popupWindow, boolean overlapAnchor) {
@@ -142,6 +146,7 @@ public final class PopupWindowCompat {
         }
     }
 
+    @RequiresApi(23)
     static class Api23PopupWindowImpl extends Api21PopupWindowImpl {
         @Override
         public void setOverlapAnchor(PopupWindow popupWindow, boolean overlapAnchor) {
@@ -169,12 +174,11 @@ public final class PopupWindowCompat {
      */
     static final PopupWindowImpl IMPL;
     static {
-        final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             IMPL = new Api23PopupWindowImpl();
-        } else if (version >= 21) {
+        } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new Api21PopupWindowImpl();
-        } else if (version >= 19) {
+        } else if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new KitKatPopupWindowImpl();
         } else {
             IMPL = new BasePopupWindowImpl();

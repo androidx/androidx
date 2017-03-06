@@ -16,7 +16,7 @@
 
 package android.support.v7.app;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -52,7 +52,7 @@ class ResourcesFlusher {
         return false;
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     private static boolean flushLollipops(@NonNull final Resources resources) {
         if (!sDrawableCacheFieldFetched) {
             try {
@@ -78,7 +78,7 @@ class ResourcesFlusher {
         return false;
     }
 
-    @TargetApi(23)
+    @RequiresApi(23)
     private static boolean flushMarshmallows(@NonNull final Resources resources) {
         if (!sDrawableCacheFieldFetched) {
             try {
@@ -107,7 +107,7 @@ class ResourcesFlusher {
         return drawableCache != null && flushThemedResourcesCache(drawableCache);
     }
 
-    @TargetApi(24)
+    @RequiresApi(24)
     private static boolean flushNougats(@NonNull final Resources resources) {
         if (!sResourcesImplFieldFetched) {
             try {
@@ -158,7 +158,7 @@ class ResourcesFlusher {
         return drawableCache != null && flushThemedResourcesCache(drawableCache);
     }
 
-    @TargetApi(16)
+    @RequiresApi(16)
     private static boolean flushThemedResourcesCache(@NonNull final Object cache) {
         if (!sThemedResourceCacheClazzFetched) {
             try {

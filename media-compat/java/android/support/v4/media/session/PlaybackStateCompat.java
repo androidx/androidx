@@ -713,35 +713,38 @@ public final class PlaybackStateCompat implements Parcelable {
      * @return An equivalent {@link PlaybackStateCompat} object, or null if none.
      */
     public static PlaybackStateCompat fromPlaybackState(Object stateObj) {
-        if (stateObj == null || Build.VERSION.SDK_INT < 21) {
+        if (stateObj != null && Build.VERSION.SDK_INT >= 21) {
+            List<Object> customActionObjs = PlaybackStateCompatApi21.getCustomActions(stateObj);
+            List<PlaybackStateCompat.CustomAction> customActions = null;
+            if (customActionObjs != null) {
+                customActions = new ArrayList<>(customActionObjs.size());
+                for (Object customActionObj : customActionObjs) {
+                    customActions.add(CustomAction.fromCustomAction(customActionObj));
+                }
+            }
+            Bundle extras;
+            if (Build.VERSION.SDK_INT >= 22) {
+                extras = PlaybackStateCompatApi22.getExtras(stateObj);
+            } else {
+                extras = null;
+            }
+            PlaybackStateCompat state = new PlaybackStateCompat(
+                    PlaybackStateCompatApi21.getState(stateObj),
+                    PlaybackStateCompatApi21.getPosition(stateObj),
+                    PlaybackStateCompatApi21.getBufferedPosition(stateObj),
+                    PlaybackStateCompatApi21.getPlaybackSpeed(stateObj),
+                    PlaybackStateCompatApi21.getActions(stateObj),
+                    ERROR_CODE_UNKNOWN_ERROR,
+                    PlaybackStateCompatApi21.getErrorMessage(stateObj),
+                    PlaybackStateCompatApi21.getLastPositionUpdateTime(stateObj),
+                    customActions,
+                    PlaybackStateCompatApi21.getActiveQueueItemId(stateObj),
+                    extras);
+            state.mStateObj = stateObj;
+            return state;
+        } else {
             return null;
         }
-
-        List<Object> customActionObjs = PlaybackStateCompatApi21.getCustomActions(stateObj);
-        List<PlaybackStateCompat.CustomAction> customActions = null;
-        if (customActionObjs != null) {
-            customActions = new ArrayList<>(customActionObjs.size());
-            for (Object customActionObj : customActionObjs) {
-                customActions.add(CustomAction.fromCustomAction(customActionObj));
-            }
-        }
-        Bundle extras = Build.VERSION.SDK_INT >= 22
-                ? PlaybackStateCompatApi22.getExtras(stateObj)
-                : null;
-        PlaybackStateCompat state = new PlaybackStateCompat(
-                PlaybackStateCompatApi21.getState(stateObj),
-                PlaybackStateCompatApi21.getPosition(stateObj),
-                PlaybackStateCompatApi21.getBufferedPosition(stateObj),
-                PlaybackStateCompatApi21.getPlaybackSpeed(stateObj),
-                PlaybackStateCompatApi21.getActions(stateObj),
-                ERROR_CODE_UNKNOWN_ERROR,
-                PlaybackStateCompatApi21.getErrorMessage(stateObj),
-                PlaybackStateCompatApi21.getLastPositionUpdateTime(stateObj),
-                customActions,
-                PlaybackStateCompatApi21.getActiveQueueItemId(stateObj),
-                extras);
-        state.mStateObj = stateObj;
-        return state;
     }
 
     /**
@@ -753,25 +756,26 @@ public final class PlaybackStateCompat implements Parcelable {
      * @return An equivalent {@link android.media.session.PlaybackState} object, or null if none.
      */
     public Object getPlaybackState() {
-        if (mStateObj != null || Build.VERSION.SDK_INT < 21) {
-            return mStateObj;
-        }
-
-        List<Object> customActions = null;
-        if (mCustomActions != null) {
-            customActions = new ArrayList<>(mCustomActions.size());
-            for (PlaybackStateCompat.CustomAction customAction : mCustomActions) {
-                customActions.add(customAction.getCustomAction());
+        if (mStateObj == null && Build.VERSION.SDK_INT >= 21) {
+            List<Object> customActions = null;
+            if (mCustomActions != null) {
+                customActions = new ArrayList<>(mCustomActions.size());
+                for (PlaybackStateCompat.CustomAction customAction : mCustomActions) {
+                    customActions.add(customAction.getCustomAction());
+                }
             }
-        }
-        if (Build.VERSION.SDK_INT >= 22) {
-            mStateObj = PlaybackStateCompatApi22.newInstance(mState, mPosition, mBufferedPosition,
-                    mSpeed, mActions, mErrorMessage, mUpdateTime,
-                    customActions, mActiveItemId, mExtras);
-        } else {
-            mStateObj = PlaybackStateCompatApi21.newInstance(mState, mPosition, mBufferedPosition,
-                    mSpeed, mActions, mErrorMessage, mUpdateTime,
-                    customActions, mActiveItemId);
+            if (Build.VERSION.SDK_INT >= 22) {
+                mStateObj = PlaybackStateCompatApi22.newInstance(mState, mPosition,
+                        mBufferedPosition,
+                        mSpeed, mActions, mErrorMessage, mUpdateTime,
+                        customActions, mActiveItemId, mExtras);
+            } else if (Build.VERSION.SDK_INT >= 21) {
+                // The extra conditional is necessary to pass the NewApi Lint inspection.
+                mStateObj = PlaybackStateCompatApi21.newInstance(mState, mPosition,
+                        mBufferedPosition,
+                        mSpeed, mActions, mErrorMessage, mUpdateTime,
+                        customActions, mActiveItemId);
+            }
         }
         return mStateObj;
     }

@@ -191,6 +191,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         return new TextAppearanceSpan(null, 0, 0, ColorStateList.valueOf(color), null);
     }
 
+    @RequiresApi(16)
     private static void addMessagingFallBackStyle(MessagingStyle style,
             NotificationBuilderWithBuilderAccessor builder,
             android.support.v4.app.NotificationCompat.Builder b) {
@@ -441,6 +442,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
     }
 
+    @RequiresApi(14)
     private static class IceCreamSandwichExtender extends BuilderExtender {
 
         IceCreamSandwichExtender() {
@@ -462,6 +464,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
     }
 
+    @RequiresApi(16)
     private static class JellybeanExtender extends BuilderExtender {
 
         JellybeanExtender() {
@@ -482,6 +485,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
     }
 
+    @RequiresApi(21)
     private static class LollipopExtender extends BuilderExtender {
 
         LollipopExtender() {
@@ -503,6 +507,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
     }
 
+    @RequiresApi(24)
     private static class Api24Extender extends BuilderExtender {
 
         @Override
