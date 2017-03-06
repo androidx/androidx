@@ -19,7 +19,8 @@ package com.android.support.room.vo
 /**
  * Represents a processed index.
  */
-data class Index(val name : String, val unique : Boolean, val columnNames : List<String>) {
+data class Index(val name : String, val unique : Boolean, val fields : List<Field>) {
+
     fun createQuery(tableName : String) : String {
         val uniqueSQL = if (unique) {
             "UNIQUE"
@@ -28,7 +29,7 @@ data class Index(val name : String, val unique : Boolean, val columnNames : List
         }
         return """
             CREATE $uniqueSQL INDEX `$name`
-            ON `$tableName` (${columnNames.joinToString(", ") { "`$it`"}})
+            ON `$tableName` (${fields.map { it.columnName }.joinToString(", ") { "`$it`"}})
             """.trimIndent().replace(System.lineSeparator(), " ")
     }
 }

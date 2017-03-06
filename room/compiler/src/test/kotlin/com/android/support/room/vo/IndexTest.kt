@@ -16,17 +16,21 @@
 
 package com.android.support.room.vo
 
+import com.android.support.room.parser.SQLTypeAffinity
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito.mock
+import javax.lang.model.element.Element
+import javax.lang.model.type.TypeMirror
 
 @RunWith(JUnit4::class)
 class IndexTest {
     @Test
     fun createSimpleSQL() {
-        val index = Index("foo", false, listOf("bar", "baz"))
+        val index = Index("foo", false, listOf(mockField("bar"), mockField("baz")))
         MatcherAssert.assertThat(index.createQuery("my_table"), CoreMatchers.`is`(
                 "CREATE  INDEX `foo` ON `my_table` (`bar`, `baz`)"
         ))
@@ -34,9 +38,19 @@ class IndexTest {
 
     @Test
     fun createUnique() {
-        val index = Index("foo", true, listOf("bar", "baz"))
+        val index = Index("foo", true, listOf(mockField("bar"), mockField("baz")))
         MatcherAssert.assertThat(index.createQuery("my_table"), CoreMatchers.`is`(
                 "CREATE UNIQUE INDEX `foo` ON `my_table` (`bar`, `baz`)"
         ))
+    }
+
+    private fun mockField(columnName : String): Field {
+        return Field(
+                element = mock(Element::class.java),
+                name = columnName + "_field",
+                affinity = SQLTypeAffinity.TEXT,
+                type = mock(TypeMirror::class.java),
+                columnName = columnName
+        )
     }
 }

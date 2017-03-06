@@ -32,6 +32,7 @@ import com.android.support.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import stripNonJava
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.TypeElement
@@ -54,7 +55,7 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         val annotation = MoreElements.getAnnotationMirror(element,
                 com.android.support.room.Entity::class.java).orNull()
         val tableName: String
-        val entityIndices: List<Index>
+        val entityIndices: List<IndexInput>
         val inheritSuperIndices: Boolean
         if (annotation != null) {
             val annotationValue = AnnotationMirrors
@@ -93,16 +94,16 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                                 ))
                         null
                     } else {
-                        Index(
-                                name = createIndexName(listOf(it.columnName), tableName),
+                        IndexInput(
+                                name = createIndexName(listOf(it.pathWithDotNotation), tableName),
                                 unique = false,
-                                columnNames = listOf(it.columnName)
+                                fieldInputs = listOf(it.pathWithDotNotation)
                         )
                     }
                 }.filterNotNull()
         val superIndices = loadSuperIndices(element.superclass, tableName, inheritSuperIndices)
-        val indices = entityIndices + fieldIndices + superIndices
-        validateIndices(indices, pojo)
+        val indexInputs = entityIndices + fieldIndices + superIndices
+        val indices = validateAndCreateIndices(indexInputs, pojo)
 
         val primaryKey = findPrimaryKey(pojo.fields, pojo.decomposedFields)
         val affinity = primaryKey.fields.firstOrNull()?.affinity ?: SQLTypeAffinity.TEXT
@@ -255,19 +256,27 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         }
     }
 
-    private fun validateIndices(indices: List<Index>, pojo: Pojo) {
+    private fun validateAndCreateIndices(inputs: List<IndexInput>, pojo: Pojo) : List<Index> {
         // check for columns
-        indices.forEach {
-            context.checker.check(it.columnNames.isNotEmpty(), element,
+        val indices = inputs.map { input ->
+            context.checker.check(input.fieldInputs.isNotEmpty(), element,
                     INDEX_COLUMNS_CANNOT_BE_EMPTY)
-            it.columnNames.forEach { indexColumn ->
-                if (!pojo.fields.any { it.columnName == indexColumn }) {
-                    context.logger.e(element, ProcessorErrors.indexColumnDoesNotExist(
-                            indexColumn, pojo.fields.map { it.columnName }
-                    ))
+            val fields = input.fieldInputs.map { indexColumn ->
+                val field = pojo.fields.firstOrNull {
+                    it.pathWithDotNotation == indexColumn
                 }
+                context.checker.check(field != null, element,
+                        ProcessorErrors.indexColumnDoesNotExist(
+                                indexColumn, pojo.fields.map { it.pathWithDotNotation }
+                        ))
+                field
+            }.filterNotNull()
+            if (fields.isEmpty()) {
+                null
+            } else {
+                Index(name = input.name, unique = input.unique, fields = fields)
             }
-        }
+        }.filterNotNull()
 
         // check for duplicate indices
         indices
@@ -293,11 +302,12 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                 }
             }
         }
+        return indices
     }
 
     // check if parent is an Entity, if so, report its annotation indices
     private fun loadSuperIndices(typeMirror: TypeMirror?, tableName: String, inherit: Boolean)
-            : List<Index> {
+            : List<IndexInput> {
         if (typeMirror == null || typeMirror.kind == TypeKind.NONE) {
             return emptyList()
         }
@@ -310,10 +320,10 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
             } else if (inherit) {
                 // rename them
                 indices.map {
-                    Index(
-                            name = createIndexName(it.columnNames, tableName),
+                    IndexInput(
+                            name = createIndexName(it.fieldInputs, tableName),
                             unique = it.unique,
-                            columnNames = it.columnNames)
+                            fieldInputs = it.fieldInputs)
                 }
             } else {
                 context.logger.w(Warning.INDEX_FROM_PARENT_IS_DROPPED,
@@ -329,39 +339,45 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
 
     companion object {
         private fun extractIndices(annotation: AnnotationMirror, tableName: String)
-                : List<Index> {
+                : List<IndexInput> {
             val arrayOfIndexAnnotations = AnnotationMirrors.getAnnotationValue(annotation,
                     "indices")
             return INDEX_LIST_VISITOR.visit(arrayOfIndexAnnotations, tableName)
         }
 
         private val INDEX_LIST_VISITOR = object
-            : SimpleAnnotationValueVisitor6<List<Index>, String>() {
+            : SimpleAnnotationValueVisitor6<List<IndexInput>, String>() {
             override fun visitArray(values: MutableList<out AnnotationValue>?, tableName: String)
-                    : List<Index> {
+                    : List<IndexInput> {
                 return values?.map {
                     INDEX_VISITOR.visit(it, tableName)
-                }?.filterNotNull() ?: emptyList<Index>()
+                }?.filterNotNull() ?: emptyList<IndexInput>()
             }
         }
 
-        private val INDEX_VISITOR = object : SimpleAnnotationValueVisitor6<Index?, String>() {
-            override fun visitAnnotation(a: AnnotationMirror?, tableName: String): Index? {
-                val columnNames = AnnotationMirrors.getAnnotationValue(a, "value").getAsStringList()
+        private val INDEX_VISITOR = object : SimpleAnnotationValueVisitor6<IndexInput?, String>() {
+            override fun visitAnnotation(a: AnnotationMirror?, tableName: String): IndexInput? {
+                val fieldInput = AnnotationMirrors.getAnnotationValue(a, "value").getAsStringList()
                 val unique = AnnotationMirrors.getAnnotationValue(a, "unique").getAsBoolean(false)
                 val nameValue = AnnotationMirrors.getAnnotationValue(a, "name")
                         .getAsString("")
                 val name = if (nameValue == null || nameValue == "") {
-                    createIndexName(columnNames, tableName)
+                    createIndexName(fieldInput, tableName)
                 } else {
                     nameValue
                 }
-                return Index(name, unique, columnNames)
+                return IndexInput(name, unique, fieldInput)
             }
         }
 
         private fun createIndexName(columnNames: List<String>, tableName: String): String {
-            return "index_" + tableName + "_" + columnNames.joinToString("_")
+            return "index_" + tableName + "_" + columnNames.map(String::stripNonJava)
+                    .joinToString("_")
         }
     }
+
+    /**
+     * processed Index annotation output
+     */
+    data class IndexInput(val name : String, val unique : Boolean, val fieldInputs : List<String>)
 }

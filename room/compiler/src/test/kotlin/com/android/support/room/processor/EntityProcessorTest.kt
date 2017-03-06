@@ -23,6 +23,7 @@ import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
 import com.android.support.room.vo.FieldSetter
 import com.android.support.room.vo.Index
+import com.android.support.room.vo.Pojo
 import com.google.testing.compile.JavaFileObjects
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -275,6 +276,12 @@ class EntityProcessorTest : BaseEntityParserTest() {
         }.compilesWithoutError().withWarningCount(0)
     }
 
+    private fun fieldsByName(entity : Pojo, vararg fieldNames : String) : List<Field> {
+        return fieldNames
+                .map { name -> entity.fields.find { it.name == name } }
+                .filterNotNull()
+    }
+
     @Test
     fun index_simple() {
         val annotation = mapOf(
@@ -290,8 +297,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo",
                             unique = false,
-                            columnNames = listOf("foo")))
-            ))
+                            fields = fieldsByName(entity, "foo")))))
         }.compilesWithoutError()
     }
 
@@ -307,7 +313,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo",
                             unique = false,
-                            columnNames = listOf("foo")))
+                            fields = fieldsByName(entity, "foo")))
             ))
         }.compilesWithoutError()
     }
@@ -327,7 +333,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo_id",
                             unique = false,
-                            columnNames = listOf("foo", "id")))
+                            fields = fieldsByName(entity, "foo", "id")))
             ))
         }.compilesWithoutError()
     }
@@ -335,7 +341,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     @Test
     fun index_multiple() {
         val annotation = mapOf(
-                "indices" to """{@Index({"foo", "id"}), @Index({"bar_column", "foo"})}"""
+                "indices" to """{@Index({"foo", "id"}), @Index({"bar", "foo"})}"""
         )
         singleEntity(
                 """
@@ -349,10 +355,10 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo_id",
                             unique = false,
-                            columnNames = listOf("foo", "id")),
-                            Index(name = "index_MyEntity_bar_column_foo",
+                            fields = fieldsByName(entity, "foo", "id")),
+                            Index(name = "index_MyEntity_bar_foo",
                                     unique = false,
-                                    columnNames = listOf("bar_column", "foo")))
+                                    fields = fieldsByName(entity, "bar", "foo")))
             ))
         }.compilesWithoutError()
     }
@@ -372,7 +378,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo_id",
                             unique = true,
-                            columnNames = listOf("foo", "id")))
+                           fields = fieldsByName(entity, "foo", "id")))
             ))
         }.compilesWithoutError()
     }
@@ -392,7 +398,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "myName",
                             unique = false,
-                            columnNames = listOf("foo")))
+                            fields = fieldsByName(entity, "foo")))
             ))
         }.compilesWithoutError()
     }
@@ -413,7 +419,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyTable_foo",
                             unique = false,
-                            columnNames = listOf("foo")))
+                            fields = fieldsByName(entity, "foo")))
             ))
         }.compilesWithoutError()
     }
@@ -534,7 +540,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices.first(),
                     `is`(Index(name = "index_MyEntity_name_lastName",
                             unique = false,
-                            columnNames = listOf("name", "lastName"))))
+                            fields = fieldsByName(entity, "name", "lastName"))))
         }.compilesWithoutError().withWarningCount(0)
     }
 
@@ -563,7 +569,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices.first(),
                     `is`(Index(name = "index_MyEntity_name_lastName",
                             unique = false,
-                            columnNames = listOf("name", "lastName"))))
+                            fields = fieldsByName(entity, "name", "lastName"))))
         }.compilesWithoutError().withWarningCount(0)
     }
 
@@ -593,7 +599,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices.first(),
                     `is`(Index(name = "index_MyEntity_name",
                             unique = false,
-                            columnNames = listOf("name"))))
+                            fields = fieldsByName(entity, "name"))))
         }.compilesWithoutError().withWarningCount(0)
 
     }
@@ -727,6 +733,29 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 .withWarningContaining(
                         ProcessorErrors.droppedDecomposedFieldIndex("foo > a", "foo.bar.MyEntity")
                 )
+    }
+
+    @Test
+    fun index_referenceDecomposedField() {
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                @Decompose
+                public Foo foo;
+                static class Foo {
+                    public int a;
+                }
+                """, attributes = mapOf("indices" to "@Index(\"foo.a\")")) { entity, invocation ->
+            assertThat(entity.indices.size, `is`(1))
+            assertThat(entity.indices.first(), `is`(
+                    Index(
+                            name = "index_MyEntity_fooA",
+                            unique = false,
+                            fields = fieldsByName(entity, "a")
+                    )
+            ))
+        }.compilesWithoutError()
     }
 
     @Test
