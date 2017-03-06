@@ -21,6 +21,7 @@ import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.media.AudioManager;
 import android.net.Uri;
@@ -162,6 +163,15 @@ public class MediaControllerCompatTest {
             assertTrue(mCallback.mOnRemoveQueueItemCalled);
             assertEquals(mediaId, mCallback.mQueueDescription.getMediaId());
             assertEquals(mediaTitle, mCallback.mQueueDescription.getTitle());
+
+            // Try to modify the queue when the session does not support queue management.
+            mSession.setFlags(0);
+            try {
+                mController.addQueueItem(itemDescription);
+                fail();
+            } catch (UnsupportedOperationException e) {
+                // Expected.
+            }
         }
     }
 
