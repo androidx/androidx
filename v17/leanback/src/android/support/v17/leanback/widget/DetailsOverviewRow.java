@@ -17,7 +17,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.view.KeyEvent;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

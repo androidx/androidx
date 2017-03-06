@@ -16,24 +16,11 @@
 
 package com.example.android.support.design.widget;
 
-import com.example.android.support.design.Cheeses;
-import com.example.android.support.design.R;
-
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.Random;
+import com.example.android.support.design.R;
 
 /**
  * This demonstrates idiomatic usage of TabLayout with items inflated from the layout

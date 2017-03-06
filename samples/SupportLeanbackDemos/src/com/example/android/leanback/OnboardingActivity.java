@@ -15,7 +15,6 @@ package com.example.android.leanback;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.ViewTreeObserver;
 
 public class OnboardingActivity extends Activity {
     @Override

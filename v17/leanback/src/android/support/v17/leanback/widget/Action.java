@@ -15,7 +15,6 @@ package android.support.v17.leanback.widget;
 
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 
 import java.util.ArrayList;
 

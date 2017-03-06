@@ -13,8 +13,6 @@
  */
 package android.support.v17.leanback.util;
 
-import java.lang.Exception;
-
 /**
  * Math Utilities for leanback library.
  * @hide

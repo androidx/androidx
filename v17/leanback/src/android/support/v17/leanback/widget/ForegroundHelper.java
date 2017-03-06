@@ -3,7 +3,6 @@ package android.support.v17.leanback.widget;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
-import android.view.ViewGroup;
 
 final class ForegroundHelper {
 

@@ -18,7 +18,6 @@ package android.support.design.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.design.R;
 
 class ThemeUtils {
 

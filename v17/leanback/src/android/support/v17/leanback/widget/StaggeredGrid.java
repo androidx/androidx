@@ -17,8 +17,6 @@ import android.support.v4.util.CircularArray;
 import android.support.v4.util.CircularIntArray;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A dynamic data structure that caches staggered grid position information

@@ -13,13 +13,13 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.support.v17.leanback.R;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.v17.leanback.R;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
@@ -31,7 +31,6 @@ import android.util.Property;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import java.util.List;
 import java.util.Random;

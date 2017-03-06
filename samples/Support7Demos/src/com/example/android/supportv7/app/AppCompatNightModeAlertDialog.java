@@ -15,15 +15,14 @@
  */
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.app.AppCompatDialog;
 import android.view.View;
+
+import com.example.android.supportv7.R;
 
 /**
  * This demonstrates idiomatic usage of AlertDialog with Theme.AppCompat.DayNight

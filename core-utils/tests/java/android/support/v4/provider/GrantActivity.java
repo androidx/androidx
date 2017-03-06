@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.provider.DocumentFileTest;
 
 /**
  * Stub activity used to request a permission grant for

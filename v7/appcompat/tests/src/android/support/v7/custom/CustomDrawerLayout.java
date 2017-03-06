@@ -16,12 +16,9 @@
 package android.support.v7.custom;
 
 import android.content.Context;
-import android.os.Build;
-import android.util.AttributeSet;
-import android.view.View;
-import android.view.WindowInsets;
-
 import android.support.v4.widget.DrawerLayout;
+import android.util.AttributeSet;
+import android.view.WindowInsets;
 
 public class CustomDrawerLayout extends DrawerLayout {
     private int mSystemWindowInsetTop;

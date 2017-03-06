@@ -15,7 +15,6 @@ package android.support.v17.leanback.widget;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v17.leanback.widget.picker.DatePicker;
 
 import java.util.Calendar;
 import java.util.TimeZone;

@@ -15,8 +15,6 @@ package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.widget.ItemAlignmentFacet.ItemAlignmentDef;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * Interface for receiving notification when a child of this ViewGroup has been selected.

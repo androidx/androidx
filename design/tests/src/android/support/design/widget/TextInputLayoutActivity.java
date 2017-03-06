@@ -16,7 +16,6 @@
 package android.support.design.widget;
 
 import android.support.design.test.R;
-import android.support.v7.widget.Toolbar;
 
 public class TextInputLayoutActivity extends BaseTestActivity {
     @Override

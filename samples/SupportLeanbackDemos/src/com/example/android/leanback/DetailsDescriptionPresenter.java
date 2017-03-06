@@ -14,7 +14,6 @@
 package com.example.android.leanback;
 
 import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
-import android.support.v17.leanback.widget.DetailsOverviewRow;
 
 public class DetailsDescriptionPresenter extends AbstractDetailsDescriptionPresenter {
 

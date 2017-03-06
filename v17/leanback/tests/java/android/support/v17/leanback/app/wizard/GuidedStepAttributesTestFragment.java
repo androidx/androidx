@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidedAction;
-import android.util.Log;
 
 import java.util.HashMap;
 import java.util.List;
