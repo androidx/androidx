@@ -16,6 +16,8 @@
 
 package com.android.support.room.integration.testapp.dao;
 
+import android.database.Cursor;
+
 import com.android.support.lifecycle.LiveData;
 import com.android.support.room.Dao;
 import com.android.support.room.Delete;
@@ -103,4 +105,7 @@ public interface UserDao {
 
     @Query("select * from user where mBirthday > :from AND mBirthday < :to")
     List<User> findByBirthdayRange(Date from, Date to);
+
+    @Query("select mId from user where mId IN (:ids)")
+    Cursor findUsersAsCursor(int... ids);
 }

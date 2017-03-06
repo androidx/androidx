@@ -17,6 +17,7 @@
 package com.android.support.room.solver
 
 import com.android.support.room.Entity
+import com.android.support.room.ext.AndroidTypeNames
 import com.android.support.room.ext.LifecyclesTypeNames
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.log.RLog
@@ -31,6 +32,7 @@ import com.android.support.room.solver.query.parameter.BasicQueryParameterAdapte
 import com.android.support.room.solver.query.parameter.CollectionQueryParameterAdapter
 import com.android.support.room.solver.query.parameter.QueryParameterAdapter
 import com.android.support.room.solver.query.result.ArrayQueryResultAdapter
+import com.android.support.room.solver.query.result.CursorQueryResultBinder
 import com.android.support.room.solver.query.result.EntityRowAdapter
 import com.android.support.room.solver.query.result.InstantQueryResultBinder
 import com.android.support.room.solver.query.result.ListQueryResultAdapter
@@ -59,6 +61,7 @@ import com.android.support.room.solver.types.TypeConverter
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
+import com.squareup.javapoet.TypeName
 import java.util.LinkedList
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
@@ -245,6 +248,9 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
         return if (typeMirror.kind == TypeKind.DECLARED) {
             val declared = MoreTypes.asDeclared(typeMirror)
             if (declared.typeArguments.isEmpty()) {
+                if (TypeName.get(declared) == AndroidTypeNames.CURSOR) {
+                    return CursorQueryResultBinder()
+                }
                 InstantQueryResultBinder(findQueryResultAdapter(typeMirror, query))
             } else {
                 if (isLiveData(declared)) {
