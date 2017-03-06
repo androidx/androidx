@@ -48,8 +48,8 @@ project(':lifecycle:common').projectDir = new File(supportRoot, "lifecycle/commo
 include ':lifecycle:compiler'
 project(':lifecycle:compiler').projectDir = new File(supportRoot, "lifecycle/compiler")
 
-include ':lifecycle:integration-tests:test-app'
-project(':lifecycle:integration-tests:test-app').projectDir = new File(supportRoot, "lifecycle/integration-tests/test-app")
+include ':lifecycle:integration-tests:testapp'
+project(':lifecycle:integration-tests:testapp').projectDir = new File(supportRoot, "lifecycle/integration-tests/testapp")
 
 include ':room:common'
 project(':room:common').projectDir = new File(supportRoot, "room/common")
