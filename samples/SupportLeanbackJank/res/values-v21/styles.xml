@@ -17,5 +17,8 @@
 
 <resources>
     <style name="JankApp" parent="Theme.Leanback">
+        <item name="android:colorPrimary">@color/jank_yellow</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
     </style>
 </resources>

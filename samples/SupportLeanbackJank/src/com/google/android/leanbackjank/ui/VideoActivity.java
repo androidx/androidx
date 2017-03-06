@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
@@ -48,7 +49,9 @@ public class VideoActivity extends Activity {
         setContentView(mVideoView);
 
         if (checkIntent(getIntent())) {
-            enterPictureInPictureMode();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                enterPictureInPictureMode();
+            }
         }
     }
 

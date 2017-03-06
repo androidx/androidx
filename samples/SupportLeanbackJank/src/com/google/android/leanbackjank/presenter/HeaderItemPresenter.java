@@ -22,6 +22,7 @@ import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.RowHeaderPresenter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +54,8 @@ public class HeaderItemPresenter extends RowHeaderPresenter {
         rootView.setFocusable(true);
 
         ImageView iconView = (ImageView) rootView.findViewById(R.id.header_icon);
-        Drawable icon = rootView.getResources().getDrawable(R.drawable.android_header, null);
+        Drawable icon = ResourcesCompat.getDrawable(
+                rootView.getResources(), R.drawable.android_header, null);
         iconView.setImageDrawable(icon);
 
         TextView label = (TextView) rootView.findViewById(R.id.header_label);

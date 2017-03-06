@@ -18,6 +18,7 @@ package com.google.android.leanbackjank.presenter;
 
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
@@ -37,8 +38,10 @@ public class CardPresenter extends Presenter {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
-        mDefaultBackgroundColor = parent.getResources().getColor(R.color.jank_blue, null);
-        mSelectedBackgroundColor = parent.getResources().getColor(R.color.jank_red, null);
+        mDefaultBackgroundColor =
+                ResourcesCompat.getColor(parent.getResources(), R.color.jank_blue, null);
+        mSelectedBackgroundColor =
+                ResourcesCompat.getColor(parent.getResources(), R.color.jank_red, null);
 
         ImageCardView cardView = new ImageCardView(parent.getContext()) {
             @Override
