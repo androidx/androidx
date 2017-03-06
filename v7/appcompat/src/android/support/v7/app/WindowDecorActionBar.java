@@ -51,6 +51,8 @@ import android.support.v7.widget.ScrollingTabContainerView;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -1400,5 +1402,20 @@ public class WindowDecorActionBar extends ActionBar implements
         if (!mDisplayHomeAsUpSet) {
             setDisplayHomeAsUpEnabled(enable);
         }
+    }
+
+    @Override
+    public boolean onKeyShortcut(int keyCode, KeyEvent event) {
+        if (mActionMode == null) {
+            return false;
+        }
+        Menu menu = mActionMode.getMenu();
+        if (menu != null) {
+            final KeyCharacterMap kmap = KeyCharacterMap.load(
+                    event != null ? event.getDeviceId() : KeyCharacterMap.VIRTUAL_KEYBOARD);
+            menu.setQwertyMode(kmap.getKeyboardType() != KeyCharacterMap.NUMERIC);
+            return menu.performShortcut(keyCode, event, 0);
+        }
+        return false;
     }
 }
