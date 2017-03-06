@@ -808,8 +808,10 @@ public final class MediaBrowserCompat {
     public abstract static class SearchCallback {
         final Object mSearchCallbackObj;
 
+        @SuppressLint("NewApi")
         public SearchCallback() {
-            if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
+            if (BuildCompat.isAtLeastO()) {
+                //noinspection AndroidLintNewApi
                 mSearchCallbackObj = MediaBrowserCompatApi26.createSearchCallback(new StubApi26());
             } else {
                 mSearchCallbackObj = null;
