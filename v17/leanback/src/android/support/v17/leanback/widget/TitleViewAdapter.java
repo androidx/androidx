@@ -92,6 +92,10 @@ public abstract class TitleViewAdapter {
      * @param listener The listener to call when the search element is clicked.
      */
     public void setOnSearchClickedListener(View.OnClickListener listener) {
+        View view = getSearchAffordanceView();
+        if (view != null) {
+            view.setOnClickListener(listener);
+        }
     }
 
     /**
