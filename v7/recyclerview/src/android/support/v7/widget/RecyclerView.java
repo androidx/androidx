@@ -487,7 +487,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * the View's state is undefined.
      */
     @VisibleForTesting
-    final List<ViewHolder> mPendingAccessibilityImportanceChange = new ArrayList();
+    final List<ViewHolder> mPendingAccessibilityImportanceChange = new ArrayList<>();
 
     private Runnable mItemAnimatorRunner = new Runnable() {
         @Override
@@ -5105,7 +5105,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         public void putRecycledView(ViewHolder scrap) {
             final int viewType = scrap.getItemViewType();
-            final ArrayList scrapHeap = getScrapDataForType(viewType).mScrapHeap;
+            final ArrayList<ViewHolder> scrapHeap = getScrapDataForType(viewType).mScrapHeap;
             if (mScrap.get(viewType).mMaxScrap <= scrapHeap.size()) {
                 return;
             }

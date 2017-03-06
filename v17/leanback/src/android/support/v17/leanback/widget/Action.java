@@ -15,7 +15,6 @@ package android.support.v17.leanback.widget;
 
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 
 import java.util.ArrayList;
 
@@ -32,7 +31,7 @@ public class Action {
     private Drawable mIcon;
     private CharSequence mLabel1;
     private CharSequence mLabel2;
-    private ArrayList mKeyCodes = new ArrayList();
+    private ArrayList<Integer> mKeyCodes = new ArrayList<>();
 
     /**
      * Constructor for an Action.

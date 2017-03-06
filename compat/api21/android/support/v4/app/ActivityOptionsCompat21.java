@@ -55,9 +55,10 @@ class ActivityOptionsCompat21 {
                         sharedElementName));
     }
 
+    @SuppressWarnings("unchecked")
     public static ActivityOptionsCompat21 makeSceneTransitionAnimation(Activity activity,
             View[] sharedElements, String[] sharedElementNames) {
-        Pair[] pairs = null;
+        Pair<View, String>[] pairs = null;
         if (sharedElements != null) {
             pairs = new Pair[sharedElements.length];
             for (int i = 0; i < pairs.length; i++) {

@@ -224,7 +224,7 @@ public class GridWidgetTest {
      */
     protected View[][] sortByRows() {
         final HashMap<Integer, ArrayList<View>> rows = new HashMap<Integer, ArrayList<View>>();
-        ArrayList<Integer> rowLocations = new ArrayList();
+        ArrayList<Integer> rowLocations = new ArrayList<>();
         for (int i = 0; i < mGridView.getChildCount(); i++) {
             View v = mGridView.getChildAt(i);
             int rowLocation;
@@ -2890,7 +2890,7 @@ public class GridWidgetTest {
         mNumRows = 1;
 
         assertEquals(mGridView.getSelectedPosition(), 0);
-        final SparseArray states = new SparseArray();
+        final SparseArray<Parcelable> states = new SparseArray<>();
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {

@@ -267,6 +267,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
         setValues(restoreValue ? getPersistedStringSet(mValues) : (Set<String>) defaultValue);

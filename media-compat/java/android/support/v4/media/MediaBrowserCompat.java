@@ -665,7 +665,7 @@ public final class MediaBrowserCompat {
         }
 
         private void setSubscription(Subscription subscription) {
-            mSubscriptionRef = new WeakReference(subscription);
+            mSubscriptionRef = new WeakReference<>(subscription);
         }
 
         private class StubApi21 implements MediaBrowserCompatApi21.SubscriptionCallback {
@@ -1789,8 +1789,8 @@ public final class MediaBrowserCompat {
         private final List<Bundle> mOptionsList;
 
         public Subscription() {
-            mCallbacks = new ArrayList();
-            mOptionsList = new ArrayList();
+            mCallbacks = new ArrayList<>();
+            mOptionsList = new ArrayList<>();
         }
 
         public boolean isEmpty() {

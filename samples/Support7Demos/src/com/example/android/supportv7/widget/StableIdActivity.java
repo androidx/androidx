@@ -117,7 +117,7 @@ public class StableIdActivity extends BaseLayoutManagerActivity<LinearLayoutMana
                     final int pos = viewHolder.getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION) {
                         // swap item to top, and notify data set changed
-                        Pair d = mData.remove(pos);
+                        Pair<Integer, String> d = mData.remove(pos);
                         mData.add(0, d);
 
                         notifyDataSetChanged();

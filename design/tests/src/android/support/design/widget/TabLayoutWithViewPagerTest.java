@@ -72,7 +72,7 @@ public class TabLayoutWithViewPagerTest
         protected ArrayList<Pair<String, Q>> mEntries = new ArrayList<>();
 
         public void add(String title, Q content) {
-            mEntries.add(new Pair(title, content));
+            mEntries.add(new Pair<>(title, content));
         }
 
         @Override

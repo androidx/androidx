@@ -83,7 +83,7 @@ public class TestActivity extends Activity {
 
     public static final String EXTRA_PROVIDER = "testActivityProvider";
 
-    static HashMap<String, Provider> sProviders = new HashMap();
+    static HashMap<String, Provider> sProviders = new HashMap<>();
 
     String mProviderName;
     Provider mProvider;

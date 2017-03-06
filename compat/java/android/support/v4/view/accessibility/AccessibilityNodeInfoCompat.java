@@ -1439,6 +1439,7 @@ public class AccessibilityNodeInfoCompat {
             return new AccessibilityNodeInfo.AccessibilityAction(actionId, label);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public List<Object> getActionList(AccessibilityNodeInfo info) {
             Object result = info.getActionList();
