@@ -308,6 +308,8 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
         if (lm == null && create) {
             lm = new LoaderManagerImpl(who, this, started);
             mAllLoaderManagers.put(who, lm);
+        } else if (started && lm != null && !lm.mStarted) {
+            lm.doStart();
         }
         return lm;
     }
