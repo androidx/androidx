@@ -30,6 +30,9 @@ import android.util.Pair;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+
 public class FragmentTestUtil {
     private static final Runnable DO_NOTHING = new Runnable() {
         @Override
@@ -64,14 +67,18 @@ public class FragmentTestUtil {
     }
 
     public static boolean executePendingTransactions(
-            final ActivityTestRule<FragmentTestActivity> rule) {
-        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+            final ActivityTestRule<? extends FragmentActivity> rule) {
+        FragmentManager fragmentManager = rule.getActivity().getSupportFragmentManager();
+        return executePendingTransactions(rule, fragmentManager);
+    }
+
+    public static boolean executePendingTransactions(
+            final ActivityTestRule<? extends Activity> rule, final FragmentManager fm) {
         final boolean[] ret = new boolean[1];
-        instrumentation.runOnMainSync(new Runnable() {
+        runOnUiThreadRethrow(rule, new Runnable() {
             @Override
             public void run() {
-                ret[0] =
-                        rule.getActivity().getSupportFragmentManager().executePendingTransactions();
+                ret[0] = fm.executePendingTransactions();
             }
         });
         return ret[0];
@@ -210,5 +217,22 @@ public class FragmentTestUtil {
             instrumentation.runOnMainSync(check);
         } while (!hasEnded[0] && SystemClock.uptimeMillis() < endTime);
         return hasEnded[0];
+    }
+
+    /**
+     * Allocates until a garbage collection occurs.
+     */
+    public static void forceGC() {
+        // Do it twice so that we know we're not in the middle of the first collection when
+        // returning.
+        for (int i = 0; i < 2; i++) {
+            // Use a random index in the list to detect the garbage collection each time because
+            // .get() may accidentally trigger a strong reference during collection.
+            ArrayList<WeakReference<byte[]>> leak = new ArrayList<>();
+            do {
+                WeakReference<byte[]> arr = new WeakReference<byte[]>(new byte[100]);
+                leak.add(arr);
+            } while (leak.get((int) (Math.random() * leak.size())).get() != null);
+        }
     }
 }
