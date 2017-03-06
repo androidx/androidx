@@ -17,11 +17,14 @@
 package com.android.support.room.writer
 
 import android.support.annotation.VisibleForTesting
+import com.android.support.room.ext.AndroidTypeNames
 import com.android.support.room.ext.L
 import com.android.support.room.ext.N
+import com.android.support.room.ext.RoomTypeNames
 import com.android.support.room.ext.S
 import com.android.support.room.ext.SupportDbTypeNames
 import com.android.support.room.ext.T
+import com.android.support.room.ext.typeName
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.vo.Database
 import com.android.support.room.vo.Entity
@@ -35,6 +38,13 @@ import javax.lang.model.element.Modifier.PUBLIC
  * Create an open helper using SupportSQLiteOpenHelperFactory
  */
 class SQLiteOpenHelperWriter(val database : Database) {
+    companion object {
+        // must match the runtime property Room#MASTER_TABLE_NAME
+        val MASTER_TABLE_NAME = "room_master_table"
+        val MASTER_TABLE_ID_COLUMN = "id"
+        val MASTER_TABLE_IDENTITY_HASH_COLUMN = "identity_hash"
+        val MASTER_TABLE_ID = 42
+    }
     fun write(outVar : String, configuration : ParameterSpec, scope: CodeGenScope) {
         scope.builder().apply {
             val sqliteConfigVar = scope.getTmpVar("_sqliteConfig")
@@ -74,11 +84,35 @@ class SQLiteOpenHelperWriter(val database : Database) {
         return MethodSpec.methodBuilder("onOpen").apply {
             addModifiers(PUBLIC)
             addParameter(SupportDbTypeNames.DB, "_db")
+            addStatement("String identityHash = \"\"")
+            addStatement("$T cursor = _db.rawQuery($S, $T.EMPTY_STRING_ARRAY)",
+                    AndroidTypeNames.CURSOR, readIdentityHashQuery(),
+                    RoomTypeNames.STRING_UTIL)
+            beginControlFlow("try").apply {
+                beginControlFlow("if (cursor.moveToFirst())").apply {
+                    addStatement("identityHash = cursor.getString(0)")
+                }
+                endControlFlow()
+            }
+            nextControlFlow("finally").apply {
+                addStatement("cursor.close()")
+            }
+            endControlFlow()
+            beginControlFlow("if(!$S.equals(identityHash))", database.identityHash).apply {
+                addStatement("throw new $T($S)", IllegalStateException::class.typeName(),
+                        "Room cannot verify the data integrity. Looks like you've changed schema" +
+                                " but forgot to update the version number. You can simply fix" +
+                                " this by increasing the version number.")
+            }
+            endControlFlow()
+            addStatement("mDatabase = _db")
             addStatement("internalInitInvalidationTracker(_db)")
         }.build()
     }
 
     private fun MethodSpec.Builder.writeCreateStatements() {
+        addStatement("_db.execSQL($S)", createMasterTableQuery())
+        addStatement("_db.execSQL($S)", setIdentityHashQuery())
         // this is already called in transaction so no need for a transaction
         database.entities.forEach {
             addStatement("_db.execSQL($S)", createQuery(it))
@@ -88,6 +122,26 @@ class SQLiteOpenHelperWriter(val database : Database) {
                 addStatement("_db.execSQL($S)", it)
             }
         }
+    }
+
+    private fun setIdentityHashQuery(): String {
+        return "INSERT OR REPLACE INTO $MASTER_TABLE_NAME VALUES($MASTER_TABLE_ID," +
+                "\"${database.identityHash}\")"
+    }
+
+    private fun readIdentityHashQuery() : String {
+        return "SELECT $MASTER_TABLE_IDENTITY_HASH_COLUMN FROM $MASTER_TABLE_NAME WHERE" +
+                " $MASTER_TABLE_ID_COLUMN = $MASTER_TABLE_ID LIMIT 1"
+    }
+
+    private fun createMasterTableQuery() : String {
+        return "CREATE TABLE IF NOT EXISTS `$MASTER_TABLE_NAME`(" +
+                "$MASTER_TABLE_ID_COLUMN INTEGER PRIMARY KEY," +
+                "$MASTER_TABLE_IDENTITY_HASH_COLUMN TEXT)"
+    }
+
+    private fun dropMasterTableQuery() : String {
+        return "DROP TABLE IF EXISTS `$MASTER_TABLE_NAME`"
     }
 
     private fun createOnCreate() : MethodSpec {

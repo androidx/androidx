@@ -25,6 +25,10 @@ import android.support.annotation.NonNull;
 @SuppressWarnings("unused")
 public class Room {
     static final String LOG_TAG = "ROOM";
+    /**
+     * The master table where room keeps its metadata information.
+     */
+    public static final String MASTER_TABLE_NAME = "room_master_table";
     private static final String CURSOR_CONV_SUFFIX = "_CursorConverter";
 
     /**

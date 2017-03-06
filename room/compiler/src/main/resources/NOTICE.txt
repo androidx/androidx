@@ -267,6 +267,32 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+=====
+
+MIT License for codepointat.js from https://git.io/codepointat
+MIT License for fromcodepoint.js from https://git.io/vDW1m
+
+Copyright Mathias Bynens <https://mathiasbynens.be/>
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 
 
 
@@ -1171,57 +1197,46 @@ SUCH DAMAGE.
 
 
 
+
+
 <!DOCTYPE html>
-<html lang="en" class="">
-  <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# object: http://ogp.me/ns/object# article: http://ogp.me/ns/article# profile: http://ogp.me/ns/profile#">
-    <meta charset='utf-8'>
-    
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
 
-    <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/frameworks-c07e6f4b02b556d1d85052fb3853caf84c80e6b23dcdb1ae1b00f051da1115a2.css" media="all" rel="stylesheet" />
-    <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/github-85f6307e0a74c78ba00f8c5bf9c7fb17a418d361627638f51f989be45f709416.css" media="all" rel="stylesheet" />
-    
-    
-    <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/site-73b3dae8eb441c98982c7306f0e59decca409e87188e07bc1a961b8cea511aab.css" media="all" rel="stylesheet" />
-    
 
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="Content-Language" content="en">
-    <meta name="viewport" content="width=device-width">
-    
-    <title>javapoet/LICENSE.txt at master · square/javapoet · GitHub</title>
-    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub">
-    <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
-    <meta property="fb:app_id" content="1401488693436528">
 
-      <meta content="https://avatars0.githubusercontent.com/u/82592?v=3&amp;s=400" name="twitter:image:src" /><meta content="@github" name="twitter:site" /><meta content="summary" name="twitter:card" /><meta content="square/javapoet" name="twitter:title" /><meta content="javapoet - A Java API for generating .java source files." name="twitter:description" />
-      <meta content="https://avatars0.githubusercontent.com/u/82592?v=3&amp;s=400" property="og:image" /><meta content="GitHub" property="og:site_name" /><meta content="object" property="og:type" /><meta content="square/javapoet" property="og:title" /><meta content="https://github.com/square/javapoet" property="og:url" /><meta content="javapoet - A Java API for generating .java source files." property="og:description" />
-      <meta name="browser-stats-url" content="https://api.github.com/_private/browser/stats">
-    <meta name="browser-errors-url" content="https://api.github.com/_private/browser/errors">
-    <link rel="assets" href="https://assets-cdn.github.com/">
-    
-    <meta name="pjax-timeout" content="1000">
-    
-    <meta name="request-id" content="F589:4D7F:4003D62:681CE2A:588819F0" data-pjax-transient>
+  <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/frameworks-19e26a1cefb5f1e92203a9468134dbf46b5a5308aeeeee09c96b32fec8c8b044.css" media="all" rel="stylesheet" />
+  <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/github-a97f6b98170262f1be5dd5b84d3fb788f1bb65b269c11417026fe763d5eeb63b.css" media="all" rel="stylesheet" />
+  
+  
+  <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/site-1da8b9f73abeb68e6a54d0f514085224fe9e7325fd664eacacb38bebe10b9eab.css" media="all" rel="stylesheet" />
+  
 
-    <meta name="msapplication-TileImage" content="/windows-tile.png">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="selected-link" value="repo_source" data-pjax-transient>
+  <meta name="viewport" content="width=device-width">
+  
+  <title>javapoet/LICENSE.txt at master · square/javapoet · GitHub</title>
+  <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub">
+  <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub">
+  <meta property="fb:app_id" content="1401488693436528">
 
-    <meta name="google-site-verification" content="KT5gs8h0wvaagLKAVWq8bbeNwnZZK1r1XQysX3xurLU">
+    
+    <meta content="https://avatars0.githubusercontent.com/u/82592?v=3&amp;s=400" property="og:image" /><meta content="GitHub" property="og:site_name" /><meta content="object" property="og:type" /><meta content="square/javapoet" property="og:title" /><meta content="https://github.com/square/javapoet" property="og:url" /><meta content="javapoet - A Java API for generating .java source files." property="og:description" />
+
+  <link rel="assets" href="https://assets-cdn.github.com/">
+  
+  <meta name="pjax-timeout" content="1000">
+  
+  <meta name="request-id" content="D6C7:1A98:299347D:4428E57:58BD2CBF" data-pjax-transient>
+  
+
+  <meta name="selected-link" value="repo_source" data-pjax-transient>
+
+  <meta name="google-site-verification" content="KT5gs8h0wvaagLKAVWq8bbeNwnZZK1r1XQysX3xurLU">
 <meta name="google-site-verification" content="ZzhVyEFwb7w3e0-uOTltm8Jsck2F5StVihD0exw2fsA">
     <meta name="google-analytics" content="UA-3769691-2">
 
-<meta content="collector.githubapp.com" name="octolytics-host" /><meta content="github" name="octolytics-app-id" /><meta content="F589:4D7F:4003D62:681CE2A:588819F0" name="octolytics-dimension-request_id" />
+<meta content="collector.githubapp.com" name="octolytics-host" /><meta content="github" name="octolytics-app-id" /><meta content="https://collector.githubapp.com/github-external/browser_event" name="octolytics-event-url" /><meta content="D6C7:1A98:299347D:4428E57:58BD2CBF" name="octolytics-dimension-request_id" />
 <meta content="/&lt;user-name&gt;/&lt;repo-name&gt;/blob/show" data-pjax-transient="true" name="analytics-location" />
 
 
@@ -1230,22 +1245,19 @@ SUCH DAMAGE.
 
 
 
-        <meta name="hostname" content="github.com">
-    <meta name="user-login" content="">
+      <meta name="hostname" content="github.com">
+  <meta name="user-login" content="">
 
-        <meta name="expected-hostname" content="github.com">
-      <meta name="js-proxy-site-detection-payload" content="MzgwODcxZTYwMTg2MjUyOGMwYjFkNzEzZWQxOTMzODJhZTQyNmY0ZjcwOTBhYTk4NTkyZDQ0Yzg1NDQyM2FlOXx7InJlbW90ZV9hZGRyZXNzIjoiNzMuMjMxLjEzMS44IiwicmVxdWVzdF9pZCI6IkY1ODk6NEQ3Rjo0MDAzRDYyOjY4MUNFMkE6NTg4ODE5RjAiLCJ0aW1lc3RhbXAiOjE0ODUzMTQ1NDUsImhvc3QiOiJnaXRodWIuY29tIn0=">
+      <meta name="expected-hostname" content="github.com">
+    <meta name="js-proxy-site-detection-payload" content="ZDNmMzgxMGJiZDc4ODliMzdlNzI4OTYzZDY1ZDQ0OWEzOWI0MjU4ODRlYTM0MjQwZjI0YTkyMDI1ZmY2YThlZnx7InJlbW90ZV9hZGRyZXNzIjoiNzMuMjMxLjEzMS44IiwicmVxdWVzdF9pZCI6IkQ2Qzc6MUE5ODoyOTkzNDdEOjQ0MjhFNTc6NThCRDJDQkYiLCJ0aW1lc3RhbXAiOjE0ODg3OTI3NjgsImhvc3QiOiJnaXRodWIuY29tIn0=">
 
 
-      <link rel="mask-icon" href="https://assets-cdn.github.com/pinned-octocat.svg" color="#000000">
-      <link rel="icon" type="image/x-icon" href="https://assets-cdn.github.com/favicon.ico">
+  <meta name="html-safe-nonce" content="183c8e3f1a3735499d60ecdf53b57bdd88276258">
 
-    <meta name="html-safe-nonce" content="15b8293c9d294a2dbe72cb0a081192e3c4764a4a">
+  <meta http-equiv="x-pjax-version" content="11ea01c62849452917c88fc6d788a343">
+  
 
-    <meta http-equiv="x-pjax-version" content="5a52992acda5541f43c6302475c81d61">
     
-
-      
   <meta name="description" content="javapoet - A Java API for generating .java source files.">
   <meta name="go-import" content="github.com/square/javapoet git https://github.com/square/javapoet.git">
 
@@ -1253,13 +1265,28 @@ SUCH DAMAGE.
   <link href="https://github.com/square/javapoet/commits/master.atom" rel="alternate" title="Recent Commits to javapoet:master" type="application/atom+xml">
 
 
-      <link rel="canonical" href="https://github.com/square/javapoet/blob/master/LICENSE.txt" data-pjax-transient>
+    <link rel="canonical" href="https://github.com/square/javapoet/blob/master/LICENSE.txt" data-pjax-transient>
+
+
+  <meta name="browser-stats-url" content="https://api.github.com/_private/browser/stats">
+
+  <meta name="browser-errors-url" content="https://api.github.com/_private/browser/errors">
+
+  <link rel="mask-icon" href="https://assets-cdn.github.com/pinned-octocat.svg" color="#000000">
+  <link rel="icon" type="image/x-icon" href="https://assets-cdn.github.com/favicon.ico">
+
+<meta name="theme-color" content="#1e2327">
+
+
+
   </head>
 
+  <body class="logged-out env-production vis-public page-blob">
+    
 
-  <body class="logged-out  env-production  vis-public page-blob">
-    <div id="js-pjax-loader-bar" class="pjax-loader-bar"><div class="progress"></div></div>
+  <div class="position-relative js-header-wrapper ">
     <a href="#start-of-content" tabindex="1" class="accessibility-aid js-skip-to-content">Skip to content</a>
+    <div id="js-pjax-loader-bar" class="pjax-loader-bar"><div class="progress"></div></div>
 
     
     
@@ -1267,7 +1294,7 @@ SUCH DAMAGE.
 
 
 
-          <header class="site-header js-details-container Details alt-body-font" role="banner">
+          <header class="site-header js-details-container Details" role="banner">
   <div class="container-responsive">
     <a class="header-logo-invertocat" href="https://github.com/" aria-label="Homepage" data-ga-click="(Logged out) Header, go to homepage, icon:logo-wordmark">
       <svg aria-hidden="true" class="octicon octicon-mark-github" height="32" version="1.1" viewBox="0 0 16 16" width="32"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
@@ -1278,28 +1305,17 @@ SUCH DAMAGE.
     </button>
 
     <div class="site-header-menu">
-      <nav class="site-header-nav site-header-nav-main">
-        <a href="/personal" class="js-selected-navigation-item nav-item nav-item-personal" data-ga-click="Header, click, Nav menu - item:personal" data-selected-links="/personal /personal">
-          Personal
-</a>        <a href="/open-source" class="js-selected-navigation-item nav-item nav-item-opensource" data-ga-click="Header, click, Nav menu - item:opensource" data-selected-links="/open-source /open-source">
-          Open source
-</a>        <a href="/business" class="js-selected-navigation-item nav-item nav-item-business" data-ga-click="Header, click, Nav menu - item:business" data-selected-links="/business /business/partners /business/features /business/customers /business">
-          Business
-</a>        <a href="/explore" class="js-selected-navigation-item nav-item nav-item-explore" data-ga-click="Header, click, Nav menu - item:explore" data-selected-links="/explore /trending /trending/developers /integrations /integrations/feature/code /integrations/feature/collaborate /integrations/feature/ship /showcases /explore">
-          Explore
+      <nav class="site-header-nav">
+          <a href="/features" class="js-selected-navigation-item nav-item" data-ga-click="Header, click, Nav menu - item:features" data-selected-links="/features /features">
+            Features
+</a>          <a href="/explore" class="js-selected-navigation-item nav-item" data-ga-click="Header, click, Nav menu - item:explore" data-selected-links="/explore /trending /trending/developers /integrations /integrations/feature/code /integrations/feature/collaborate /integrations/feature/ship /showcases /explore">
+            Explore
+</a>        <a href="/pricing" class="js-selected-navigation-item nav-item" data-ga-click="Header, click, Nav menu - item:pricing" data-selected-links="/pricing /pricing">
+          Pricing
 </a>      </nav>
 
       <div class="site-header-actions">
-            <a class="btn btn-primary site-header-actions-btn" href="/join?source=header-repo" data-ga-click="(Logged out) Header, clicked Sign up, text:sign-up">Sign up</a>
-          <a class="btn site-header-actions-btn mr-1" href="/login?return_to=%2Fsquare%2Fjavapoet%2Fblob%2Fmaster%2FLICENSE.txt" data-ga-click="(Logged out) Header, clicked Sign in, text:sign-in">Sign in</a>
-      </div>
-
-        <nav class="site-header-nav site-header-nav-secondary mr-md-3">
-          <a class="nav-item" href="/pricing">Pricing</a>
-          <a class="nav-item" href="/blog">Blog</a>
-          <a class="nav-item" href="https://help.github.com">Support</a>
-          <a class="nav-item header-search-link" href="https://github.com/search">Search GitHub</a>
-              <div class="header-search scoped-search site-scoped-search js-site-search" role="search">
+          <div class="header-search scoped-search site-scoped-search js-site-search" role="search">
   <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/square/javapoet/search" class="js-site-search-form" data-scoped-search-url="/square/javapoet/search" data-unscoped-search-url="/search" method="get"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>
     <label class="form-control header-search-wrapper js-chromeless-input-container">
       <div class="header-search-scope">This repository</div>
@@ -1315,23 +1331,32 @@ SUCH DAMAGE.
     </label>
 </form></div>
 
-        </nav>
+
+          <a class="text-bold site-header-link" href="/login?return_to=%2Fsquare%2Fjavapoet%2Fblob%2Fmaster%2FLICENSE.txt" data-ga-click="(Logged out) Header, clicked Sign in, text:sign-in">Sign in</a>
+            <span class="text-gray">or</span>
+            <a class="text-bold site-header-link" href="/join?source=header-repo" data-ga-click="(Logged out) Header, clicked Sign up, text:sign-up">Sign up</a>
+      </div>
     </div>
   </div>
 </header>
 
 
+  </div>
 
-    <div id="start-of-content" class="accessibility-aid"></div>
+  <div id="start-of-content" class="accessibility-aid"></div>
 
-      <div id="js-flash-container">
+    <div id="js-flash-container">
 </div>
 
 
-    <div role="main">
-        <div itemscope itemtype="http://schema.org/SoftwareSourceCode">
+
+  <div role="main">
+      <div itemscope itemtype="http://schema.org/SoftwareSourceCode">
     <div id="js-repo-pjax-container" data-pjax-container>
       
+
+
+
 <div class="pagehead repohead instapaper_ignore readability-menu experiment-repo-nav">
   <div class="container repohead-details-container">
 
@@ -1347,8 +1372,8 @@ SUCH DAMAGE.
     Watch
   </a>
   <a class="social-count" href="/square/javapoet/watchers"
-     aria-label="200 users are watching this repository">
-    200
+     aria-label="212 users are watching this repository">
+    212
   </a>
 
   </li>
@@ -1362,8 +1387,8 @@ SUCH DAMAGE.
   </a>
 
     <a class="social-count js-social-count" href="/square/javapoet/stargazers"
-      aria-label="2916 users starred this repository">
-      2,916
+      aria-label="3081 users starred this repository">
+      3,081
     </a>
 
   </li>
@@ -1377,8 +1402,8 @@ SUCH DAMAGE.
       </a>
 
     <a href="/square/javapoet/network" class="social-count"
-       aria-label="421 users forked this repository">
-      421
+       aria-label="446 users forked this repository">
+      446
     </a>
   </li>
 </ul>
@@ -1411,7 +1436,7 @@ SUCH DAMAGE.
       <a href="/square/javapoet/issues" class="js-selected-navigation-item reponav-item" data-hotkey="g i" data-selected-links="repo_issues repo_labels repo_milestones /square/javapoet/issues" itemprop="url">
         <svg aria-hidden="true" class="octicon octicon-issue-opened" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"/></svg>
         <span itemprop="name">Issues</span>
-        <span class="counter">38</span>
+        <span class="counter">36</span>
         <meta itemprop="position" content="2">
 </a>    </span>
 
@@ -1449,7 +1474,7 @@ SUCH DAMAGE.
 
     
 
-<a href="/square/javapoet/blob/b66d3d543982755f1d2397066ac9ccbc5ba8c327/LICENSE.txt" class="d-none js-permalink-shortcut" data-hotkey="y">Permalink</a>
+<a href="/square/javapoet/blob/0d6bdebf124a0c0e2a52ef520231b64e98c77a64/LICENSE.txt" class="d-none js-permalink-shortcut" data-hotkey="y">Permalink</a>
 
 <!-- blob contrib key: blob_contributors:v21:d6361a7a2d71a3d3eba2cb0a1f0c07a2 -->
 
@@ -2822,9 +2847,9 @@ SUCH DAMAGE.
     </div>
   </div>
 
-    </div>
+  </div>
 
-        <div class="container site-footer-container">
+      <div class="container site-footer-container">
   <div class="site-footer" role="contentinfo">
     <ul class="site-footer-links float-right">
         <li><a href="https://github.com/contact" data-ga-click="Footer, go to contact, text:contact">Contact GitHub</a></li>
@@ -2840,7 +2865,7 @@ SUCH DAMAGE.
       <svg aria-hidden="true" class="octicon octicon-mark-github" height="24" version="1.1" viewBox="0 0 16 16" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
 </a>
     <ul class="site-footer-links">
-      <li>&copy; 2017 <span title="0.06770s from github-fe126-cp1-prd.iad.github.net">GitHub</span>, Inc.</li>
+      <li>&copy; 2017 <span title="0.17132s from github-fe133-cp1-prd.iad.github.net">GitHub</span>, Inc.</li>
         <li><a href="https://github.com/site/terms" data-ga-click="Footer, go to terms, text:terms">Terms</a></li>
         <li><a href="https://github.com/site/privacy" data-ga-click="Footer, go to privacy, text:privacy">Privacy</a></li>
         <li><a href="https://github.com/security" data-ga-click="Footer, go to security, text:security">Security</a></li>
@@ -2852,30 +2877,30 @@ SUCH DAMAGE.
 
 
 
+  
+
+  <div id="ajax-error-message" class="ajax-error-message flash flash-error">
+    <svg aria-hidden="true" class="octicon octicon-alert" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M8.865 1.52c-.18-.31-.51-.5-.87-.5s-.69.19-.87.5L.275 13.5c-.18.31-.18.69 0 1 .19.31.52.5.87.5h13.7c.36 0 .69-.19.86-.5.17-.31.18-.69.01-1L8.865 1.52zM8.995 13h-2v-2h2v2zm0-3h-2V6h2v4z"/></svg>
+    <button type="button" class="flash-close js-flash-close js-ajax-error-dismiss" aria-label="Dismiss error">
+      <svg aria-hidden="true" class="octicon octicon-x" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M7.48 8l3.75 3.75-1.48 1.48L6 9.48l-3.75 3.75-1.48-1.48L4.52 8 .77 4.25l1.48-1.48L6 6.52l3.75-3.75 1.48 1.48z"/></svg>
+    </button>
+    You can't perform that action at this time.
+  </div>
+
+
+    <script crossorigin="anonymous" src="https://assets-cdn.github.com/assets/compat-8e19569aacd39e737a14c8515582825f3c90d1794c0e5539f9b525b8eb8b5a8e.js"></script>
+    <script crossorigin="anonymous" src="https://assets-cdn.github.com/assets/frameworks-506169cb2fe76254b921e8c944dd406e5cab2d719e657eace8ada98486231472.js"></script>
+    <script async="async" crossorigin="anonymous" src="https://assets-cdn.github.com/assets/github-2682871eafdca76aa810dac6b2433150e4f9a5810fd29306c5149b29ef81cc31.js"></script>
     
-
-    <div id="ajax-error-message" class="ajax-error-message flash flash-error">
-      <svg aria-hidden="true" class="octicon octicon-alert" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M8.865 1.52c-.18-.31-.51-.5-.87-.5s-.69.19-.87.5L.275 13.5c-.18.31-.18.69 0 1 .19.31.52.5.87.5h13.7c.36 0 .69-.19.86-.5.17-.31.18-.69.01-1L8.865 1.52zM8.995 13h-2v-2h2v2zm0-3h-2V6h2v4z"/></svg>
-      <button type="button" class="flash-close js-flash-close js-ajax-error-dismiss" aria-label="Dismiss error">
-        <svg aria-hidden="true" class="octicon octicon-x" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M7.48 8l3.75 3.75-1.48 1.48L6 9.48l-3.75 3.75-1.48-1.48L4.52 8 .77 4.25l1.48-1.48L6 6.52l3.75-3.75 1.48 1.48z"/></svg>
-      </button>
-      You can't perform that action at this time.
-    </div>
-
-
-      <script crossorigin="anonymous" src="https://assets-cdn.github.com/assets/compat-8e19569aacd39e737a14c8515582825f3c90d1794c0e5539f9b525b8eb8b5a8e.js"></script>
-      <script crossorigin="anonymous" src="https://assets-cdn.github.com/assets/frameworks-d23e32e482112ba5e3ea9bd8dc7e555680116a74e002746ac91f41a4e5875a9b.js"></script>
-      <script async="async" crossorigin="anonymous" src="https://assets-cdn.github.com/assets/github-2789a710829edc0c146edb49db485fdf15e3005c2e255ed209595bfe0e4c43a5.js"></script>
-      
-      
-      
-      
-    <div class="js-stale-session-flash stale-session-flash flash flash-warn flash-banner d-none">
-      <svg aria-hidden="true" class="octicon octicon-alert" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M8.865 1.52c-.18-.31-.51-.5-.87-.5s-.69.19-.87.5L.275 13.5c-.18.31-.18.69 0 1 .19.31.52.5.87.5h13.7c.36 0 .69-.19.86-.5.17-.31.18-.69.01-1L8.865 1.52zM8.995 13h-2v-2h2v2zm0-3h-2V6h2v4z"/></svg>
-      <span class="signed-in-tab-flash">You signed in with another tab or window. <a href="">Reload</a> to refresh your session.</span>
-      <span class="signed-out-tab-flash">You signed out in another tab or window. <a href="">Reload</a> to refresh your session.</span>
-    </div>
-    <div class="facebox" id="facebox" style="display:none;">
+    
+    
+    
+  <div class="js-stale-session-flash stale-session-flash flash flash-warn flash-banner d-none">
+    <svg aria-hidden="true" class="octicon octicon-alert" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M8.865 1.52c-.18-.31-.51-.5-.87-.5s-.69.19-.87.5L.275 13.5c-.18.31-.18.69 0 1 .19.31.52.5.87.5h13.7c.36 0 .69-.19.86-.5.17-.31.18-.69.01-1L8.865 1.52zM8.995 13h-2v-2h2v2zm0-3h-2V6h2v4z"/></svg>
+    <span class="signed-in-tab-flash">You signed in with another tab or window. <a href="">Reload</a> to refresh your session.</span>
+    <span class="signed-out-tab-flash">You signed out in another tab or window. <a href="">Reload</a> to refresh your session.</span>
+  </div>
+  <div class="facebox" id="facebox" style="display:none;">
   <div class="facebox-popup">
     <div class="facebox-content" role="dialog" aria-labelledby="facebox-header" aria-describedby="facebox-description">
     </div>
@@ -2885,9 +2910,239 @@ SUCH DAMAGE.
   </div>
 </div>
 
+
   </body>
 </html>
 
+
+
+
+
+-----------------------------------------------------------------------------
+* commons-codec.jar (commons-codec:commons-codec:1.10)
+
+ ****** NOTICE:
+Apache Commons Codec
+Copyright 2002-2016 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+src/test/org/apache/commons/codec/language/DoubleMetaphoneTest.java
+contains test data from http://aspell.net/test/orig/batch0.tab.
+Copyright (C) 2002 Kevin Atkinson (kevina@gnu.org)
+
+===============================================================================
+
+The content of package org.apache.commons.codec.language.bm has been translated
+from the original php source code available at http://stevemorse.org/phoneticinfo.htm
+with permission from the original authors.
+Original source copyright:
+Copyright (c) 2008 Alexander Beider & Stephen P. Morse.
+
+ ****** LICENSE:
+
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
 
 
 

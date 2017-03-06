@@ -275,40 +275,49 @@ public class InvalidationTracker {
             if (!ensureInitialization()) {
                 return;
             }
-            // This method runs in a while loop because while changes are synced to db, another
-            // runnable may be skipped. If we cause it to skip, we need to do its work.
-            while (true) {
-                // there is a potential race condition where another mSyncTriggers runnable
-                // can start running right after we get the tables list to sync.
-                final int[] tablesToSync = mObservedTableTracker.getTablesToSync();
-                if (tablesToSync == null) {
-                    return;
-                }
-                final int limit = tablesToSync.length;
-                final SupportSQLiteDatabase writableDatabase = mDatabase.getOpenHelper()
-                        .getWritableDatabase();
-                try {
-                    writableDatabase.beginTransaction();
-                    for (int tableId = 0; tableId < limit; tableId++) {
-                        switch (tablesToSync[tableId]) {
-                            case ObservedTableTracker.ADD:
-                                startTrackingTable(writableDatabase, tableId);
-                                break;
-                            case ObservedTableTracker.REMOVE:
-                                stopTrackingTable(writableDatabase, tableId);
-                                break;
-                        }
+            try {
+                // This method runs in a while loop because while changes are synced to db, another
+                // runnable may be skipped. If we cause it to skip, we need to do its work.
+                while (true) {
+                    // there is a potential race condition where another mSyncTriggers runnable
+                    // can start running right after we get the tables list to sync.
+                    final int[] tablesToSync = mObservedTableTracker.getTablesToSync();
+                    if (tablesToSync == null) {
+                        return;
                     }
-                    writableDatabase.setTransactionSuccessful();
-                } finally {
-                    writableDatabase.endTransaction();
+                    final int limit = tablesToSync.length;
+                    final SupportSQLiteDatabase writableDatabase = mDatabase.getOpenHelper()
+                            .getWritableDatabase();
+                    try {
+                        writableDatabase.beginTransaction();
+                        for (int tableId = 0; tableId < limit; tableId++) {
+                            switch (tablesToSync[tableId]) {
+                                case ObservedTableTracker.ADD:
+                                    startTrackingTable(writableDatabase, tableId);
+                                    break;
+                                case ObservedTableTracker.REMOVE:
+                                    stopTrackingTable(writableDatabase, tableId);
+                                    break;
+                            }
+                        }
+                        writableDatabase.setTransactionSuccessful();
+                    } finally {
+                        writableDatabase.endTransaction();
+                    }
+                    mObservedTableTracker.onSyncCompleted();
                 }
-                mObservedTableTracker.onSyncCompleted();
+            } catch (IllegalStateException exception) {
+                // may happen if db is closed. just log.
+                Log.e(Room.LOG_TAG, "Cannot run invalidation tracker.", exception);
             }
         }
     };
 
     private boolean ensureInitialization() {
+        SupportSQLiteDatabase connection = mDatabase.getDatabase();
+        if (connection == null || !connection.isOpen()) {
+            return false;
+        }
         if (!mInitialized) {
             // trigger initialization
             mDatabase.getOpenHelper().getWritableDatabase();
@@ -324,31 +333,36 @@ public class InvalidationTracker {
     Runnable mRefreshRunnable = new Runnable() {
         @Override
         public void run() {
+            if (!ensureInitialization()) {
+                return;
+            }
             if (mDatabase.inTransaction()
                     || !mPendingRefresh.compareAndSet(true, false)) {
                 // no pending refresh
                 return;
             }
-            if (!ensureInitialization()) {
-                return;
-            }
-            mCleanupStatement.executeUpdateDelete();
             boolean hasUpdatedTable = false;
-            mQueryArgs[0] = Long.toString(mMaxVersion);
-            Cursor cursor = mDatabase.query(SELECT_UPDATED_TABLES_SQL, mQueryArgs);
-            //noinspection TryFinallyCanBeTryWithResources
             try {
-                while (cursor.moveToNext()) {
-                    final long version = cursor.getLong(0);
-                    final int tableId = cursor.getInt(1);
+                mCleanupStatement.executeUpdateDelete();
+                mQueryArgs[0] = Long.toString(mMaxVersion);
+                Cursor cursor = mDatabase.query(SELECT_UPDATED_TABLES_SQL, mQueryArgs);
+                //noinspection TryFinallyCanBeTryWithResources
+                try {
+                    while (cursor.moveToNext()) {
+                        final long version = cursor.getLong(0);
+                        final int tableId = cursor.getInt(1);
 
-                    mTableVersions[tableId] = version;
-                    hasUpdatedTable = true;
-                    // result is ordered so we can safely do this assignment
-                    mMaxVersion = version;
+                        mTableVersions[tableId] = version;
+                        hasUpdatedTable = true;
+                        // result is ordered so we can safely do this assignment
+                        mMaxVersion = version;
+                    }
+                } finally {
+                    cursor.close();
                 }
-            } finally {
-                cursor.close();
+            } catch (IllegalStateException exception) {
+                // may happen if db is closed. just log.
+                Log.e(Room.LOG_TAG, "Cannot run invalidation tracker.", exception);
             }
             if (hasUpdatedTable) {
                 synchronized (mObserverMap) {

@@ -36,12 +36,18 @@ ffVersions.reactivestreams = "1.0.0"
 // https://github.com/xerial/sqlite-jdbc/issues/97
 ffVersions.xerial = "3.16.1"
 ffVersions.antlr = "4.5.3"
+ffVersions.commons_codec = "1.10"
 
 ffLibs.kotlin = [
         stdlib : "org.jetbrains.kotlin:kotlin-stdlib:$ffVersions.kotlin",
         gradle_plugin : "org.jetbrains.kotlin:kotlin-gradle-plugin:$ffVersions.kotlin"
 ]
 ffLibs.auto_common = "com.google.auto:auto-common:$ffVersions.auto_common"
+ffLibs.apache = [
+    commons : [
+            codec : "commons-codec:commons-codec:$ffVersions.commons_codec"
+    ]
+]
 
 def getSupportLib(String name, String version, String artifactName = null) {
     def sourceProject = findProject(name)

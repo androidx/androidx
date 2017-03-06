@@ -17,6 +17,7 @@
 package com.android.support.room.vo
 
 import com.squareup.javapoet.ClassName
+import org.apache.commons.codec.digest.DigestUtils
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
@@ -33,7 +34,25 @@ data class Database(val element : TypeElement,
         "${typeName.simpleNames().joinToString("_")}_Impl"
     }
 
-    val implTypeName by lazy {
+    val implTypeName : ClassName by lazy {
         ClassName.get(typeName.packageName(), implClassName)
+    }
+
+    /**
+     * Create a has that identifies this database definition so that at runtime we can check to
+     * ensure developer didn't forget to update the version.
+     */
+    val identityHash : String by lazy {
+        val entityDescriptions = entities
+                .sortedBy { it.tableName }
+                .map { it.createTableQuery }
+        val indexDescriptions = entities
+                .flatMap { entity ->
+                    entity.indices.map { index ->
+                        index.createQuery(entity.tableName)
+                    }
+                }
+        val input = (entityDescriptions + indexDescriptions).joinToString("¯\\_(ツ)_/¯")
+        DigestUtils.md5Hex(input)
     }
 }

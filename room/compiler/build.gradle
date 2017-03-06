@@ -35,6 +35,7 @@ dependencies {
     compile libs.javapoet
     compile libs.antlr
     compile libs.xerial
+    compile libs.apache.commons.codec
     testCompile libs.google_compile_testing
     testCompile libs.junit
     testCompile libs.ij_annotations

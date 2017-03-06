@@ -40,7 +40,8 @@ import com.android.support.db.framework.FrameworkSQLiteOpenHelperFactory;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class RoomDatabase {
     private static final String DB_IMPL_SUFFIX = "_Impl";
-    private volatile SupportSQLiteDatabase mDatabase;
+    // set by the generated open helper.
+    protected volatile SupportSQLiteDatabase mDatabase;
     private SupportSQLiteOpenHelper mOpenHelper;
     private final InvalidationTracker mInvalidationTracker;
 
@@ -92,6 +93,18 @@ public abstract class RoomDatabase {
      * @return Creates a new InvalidationTracker.
      */
     protected abstract InvalidationTracker createInvalidationTracker();
+
+    /**
+     * Returns the database connection. Note that, if the database is not opened yet, this method
+     * will return {code null}. You can use the {@link #getOpenHelper()} method to open the
+     * database.
+     *
+     * @return The database connection or {@code null} if it is not opened yet.
+     */
+    @Nullable
+    public SupportSQLiteDatabase getDatabase() {
+        return mDatabase;
+    }
 
     // Below, there are wrapper methods for SupportSQLiteDatabase. This helps us track which
     // methods we are using and also helps unit tests to mock this class without mocking
