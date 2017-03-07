@@ -40,8 +40,8 @@ dependencies {
     doclava project(':doclava')
 }
 
-ext.supportVersion = '25.3.0-SNAPSHOT'
-ext.extraVersion = 44
+ext.supportVersion = '25.3.0'
+ext.extraVersion = 45
 ext.supportRepoOut = ''
 ext.buildNumber = Integer.toString(ext.extraVersion)
 
