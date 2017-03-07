@@ -81,6 +81,10 @@ limitations under the License.
     <!-- Talkback label for the control button to enter picture in picture mode -->
     <string name="lb_playback_controls_picture_in_picture">Enter Picture In Picture Mode</string>
 
+
+    <string name="lb_playback_controls_shown">Media controls shown</string>
+    <string name="lb_playback_controls_hidden">Media controls hidden, press d-pad to show</string>
+
     <!-- Title of standard Finish action for GuidedStepFragment -->
     <string name="lb_guidedaction_finish_title">Finish</string>
     <!-- Title of standard Continue action for GuidedStepFragment -->
