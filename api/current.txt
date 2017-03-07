@@ -7493,14 +7493,19 @@ package android.support.v4.view {
     method public static deprecated boolean expandActionView(android.view.MenuItem);
     method public static android.support.v4.view.ActionProvider getActionProvider(android.view.MenuItem);
     method public static deprecated android.view.View getActionView(android.view.MenuItem);
+    method public int getAlphabeticModifiers(android.view.MenuItem);
     method public static java.lang.CharSequence getContentDescription(android.view.MenuItem);
+    method public int getNumericModifiers(android.view.MenuItem);
     method public static java.lang.CharSequence getTooltipText(android.view.MenuItem);
     method public static deprecated boolean isActionViewExpanded(android.view.MenuItem);
     method public static android.view.MenuItem setActionProvider(android.view.MenuItem, android.support.v4.view.ActionProvider);
     method public static deprecated android.view.MenuItem setActionView(android.view.MenuItem, android.view.View);
     method public static deprecated android.view.MenuItem setActionView(android.view.MenuItem, int);
+    method public static void setAlphabeticShortcut(android.view.MenuItem, char, int);
     method public static void setContentDescription(android.view.MenuItem, java.lang.CharSequence);
+    method public static void setNumericShortcut(android.view.MenuItem, char, int);
     method public static deprecated android.view.MenuItem setOnActionExpandListener(android.view.MenuItem, android.support.v4.view.MenuItemCompat.OnActionExpandListener);
+    method public static void setShortcut(android.view.MenuItem, char, char, int, int);
     method public static deprecated void setShowAsAction(android.view.MenuItem, int);
     method public static void setTooltipText(android.view.MenuItem, java.lang.CharSequence);
     field public static final deprecated int SHOW_AS_ACTION_ALWAYS = 2; // 0x2

@@ -40,6 +40,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 /**
  * Base class for activities that use the
@@ -546,5 +547,33 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
             mResources = new VectorEnabledTintResources(this, super.getResources());
         }
         return mResources == null ? super.getResources() : mResources;
+    }
+
+    /**
+     * KeyEvents with non-default modifiers are not dispatched to menu's performShortcut in API 24
+     * or lower. Here, we check if the keypress corresponds to a menuitem's shortcut combination
+     * and perform the corresponding action.
+     */
+    private boolean performMenuItemShortcut(int keycode, KeyEvent event) {
+        if (!KeyEvent.metaStateHasNoModifiers(event.getMetaState())
+                && event.getRepeatCount() == 0
+                && !KeyEvent.isModifierKey(event.getKeyCode())) {
+            final Window currentWindow = getWindow();
+            if (currentWindow != null && currentWindow.getDecorView() != null) {
+                final View decorView = currentWindow.getDecorView();
+                if (decorView.dispatchKeyShortcutEvent(event)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (performMenuItemShortcut(keyCode, event)) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

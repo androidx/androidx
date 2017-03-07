@@ -34,6 +34,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 import android.view.InflateException;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -293,7 +294,9 @@ public class SupportMenuInflater extends MenuInflater {
         private CharSequence itemTitleCondensed;
         private int itemIconResId;
         private char itemAlphabeticShortcut;
+        private int itemAlphabeticModifiers;
         private char itemNumericShortcut;
+        private int itemNumericModifiers;
         /**
          * Sync to attrs.xml enum:
          * - 0: none
@@ -384,8 +387,12 @@ public class SupportMenuInflater extends MenuInflater {
             itemIconResId = a.getResourceId(R.styleable.MenuItem_android_icon, 0);
             itemAlphabeticShortcut =
                     getShortcut(a.getString(R.styleable.MenuItem_android_alphabeticShortcut));
+            itemAlphabeticModifiers =
+                    a.getInt(R.styleable.MenuItem_alphabeticModifiers, KeyEvent.META_CTRL_ON);
             itemNumericShortcut =
                     getShortcut(a.getString(R.styleable.MenuItem_android_numericShortcut));
+            itemNumericModifiers =
+                    a.getInt(R.styleable.MenuItem_numericModifiers, KeyEvent.META_CTRL_ON);
             if (a.hasValue(R.styleable.MenuItem_android_checkable)) {
                 // Item has attribute checkable, use it
                 itemCheckable = a.getBoolean(R.styleable.MenuItem_android_checkable, false) ? 1 : 0;
@@ -438,9 +445,7 @@ public class SupportMenuInflater extends MenuInflater {
                     .setEnabled(itemEnabled)
                     .setCheckable(itemCheckable >= 1)
                     .setTitleCondensed(itemTitleCondensed)
-                    .setIcon(itemIconResId)
-                    .setAlphabeticShortcut(itemAlphabeticShortcut)
-                    .setNumericShortcut(itemNumericShortcut);
+                    .setIcon(itemIconResId);
 
             if (itemShowAsAction >= 0) {
                 item.setShowAsAction(itemShowAsAction);
@@ -486,6 +491,9 @@ public class SupportMenuInflater extends MenuInflater {
 
             MenuItemCompat.setContentDescription(item, itemContentDescription);
             MenuItemCompat.setTooltipText(item, itemTooltipText);
+            MenuItemCompat.setAlphabeticShortcut(item, itemAlphabeticShortcut,
+                    itemAlphabeticModifiers);
+            MenuItemCompat.setNumericShortcut(item, itemNumericShortcut, itemNumericModifiers);
         }
 
         public void addItem() {
