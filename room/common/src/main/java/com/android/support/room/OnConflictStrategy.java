@@ -24,8 +24,9 @@ import java.lang.annotation.Retention;
 
 /**
  * Set of conflict handling strategies for various {@link Dao} methods.
- *
- * @see <a href="https://sqlite.org/lang_conflict.html">SQLite conflict documentation</a>w
+ * <p>
+ * Check <a href="https://sqlite.org/lang_conflict.html">SQLite conflict documentation</a> for
+ * details.
  */
 @Retention(SOURCE)
 @IntDef({OnConflictStrategy.REPLACE, OnConflictStrategy.ROLLBACK, OnConflictStrategy.ABORT,
