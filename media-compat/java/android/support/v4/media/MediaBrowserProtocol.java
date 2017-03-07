@@ -35,6 +35,7 @@ class MediaBrowserProtocol {
     public static final String EXTRA_CLIENT_VERSION = "extra_client_version";
     public static final String EXTRA_SERVICE_VERSION = "extra_service_version";
     public static final String EXTRA_MESSENGER_BINDER = "extra_messenger";
+    public static final String EXTRA_SESSION_BINDER = "extra_session_binder";
 
     /**
      * MediaBrowserCompat will check the version of the connected MediaBrowserServiceCompat,
