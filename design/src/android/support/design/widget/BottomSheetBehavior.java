@@ -385,7 +385,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             setStateInternal(STATE_EXPANDED);
             return;
         }
-        if (target != mNestedScrollingChildRef.get() || !mNestedScrolled) {
+        if (mNestedScrollingChildRef == null || target != mNestedScrollingChildRef.get()
+                || !mNestedScrolled) {
             return;
         }
         int top;
