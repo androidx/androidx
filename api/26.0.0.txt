@@ -1,3 +1,75 @@
+package android.support.animation {
+
+  public abstract class DynamicAnimation<T extends android.support.animation.DynamicAnimation<T>> {
+    method public T addEndListener(android.support.animation.DynamicAnimation.OnAnimationEndListener);
+    method public T addUpdateListener(android.support.animation.DynamicAnimation.OnAnimationUpdateListener);
+    method public void cancel();
+    method public boolean isRunning();
+    method public void removeEndListener(android.support.animation.DynamicAnimation.OnAnimationEndListener);
+    method public void removeUpdateListener(android.support.animation.DynamicAnimation.OnAnimationUpdateListener);
+    method public T setMaxValue(float);
+    method public T setMinValue(float);
+    method public T setStartValue(float);
+    method public T setStartVelocity(float);
+    method public void start();
+    field public static final android.support.animation.DynamicAnimation.ViewProperty ALPHA;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty ROTATION;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty ROTATION_X;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty ROTATION_Y;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty SCALE_X;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty SCALE_Y;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty SCROLL_X;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty SCROLL_Y;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty TRANSLATION_X;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty TRANSLATION_Y;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty TRANSLATION_Z;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty X;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty Y;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty Z;
+  }
+
+  public static abstract interface DynamicAnimation.OnAnimationEndListener {
+    method public abstract void onAnimationEnd(android.support.animation.DynamicAnimation, boolean, float, float);
+  }
+
+  public static abstract interface DynamicAnimation.OnAnimationUpdateListener {
+    method public abstract void onAnimationUpdate(android.support.animation.DynamicAnimation, float, float);
+  }
+
+  public static abstract class DynamicAnimation.ViewProperty {
+  }
+
+  public final class SpringAnimation extends android.support.animation.DynamicAnimation {
+    ctor public SpringAnimation(android.view.View, android.support.animation.DynamicAnimation.ViewProperty);
+    ctor public SpringAnimation(android.view.View, android.support.animation.DynamicAnimation.ViewProperty, float);
+    method public void animateToFinalPosition(float);
+    method public boolean canSkipToEnd();
+    method public android.support.animation.SpringForce getSpring();
+    method public android.support.animation.SpringAnimation setSpring(android.support.animation.SpringForce);
+    method public void skipToEnd();
+  }
+
+  public final class SpringForce {
+    ctor public SpringForce();
+    ctor public SpringForce(float);
+    method public float getDampingRatio();
+    method public float getFinalPosition();
+    method public float getStiffness();
+    method public android.support.animation.SpringForce setDampingRatio(float);
+    method public android.support.animation.SpringForce setFinalPosition(float);
+    method public android.support.animation.SpringForce setStiffness(float);
+    field public static final float DAMPING_RATIO_HIGH_BOUNCY = 0.2f;
+    field public static final float DAMPING_RATIO_LOW_BOUNCY = 0.75f;
+    field public static final float DAMPING_RATIO_MEDIUM_BOUNCY = 0.5f;
+    field public static final float DAMPING_RATIO_NO_BOUNCY = 1.0f;
+    field public static final float STIFFNESS_HIGH = 10000.0f;
+    field public static final float STIFFNESS_LOW = 200.0f;
+    field public static final float STIFFNESS_MEDIUM = 1500.0f;
+    field public static final float STIFFNESS_VERY_LOW = 50.0f;
+  }
+
+}
+
 package android.support.app.recommendation {
 
   public final class ContentRecommendation {
@@ -869,16 +941,34 @@ package android.support.design.widget {
 
 package android.support.graphics.drawable {
 
-  public class AnimatedVectorDrawableCompat extends android.support.graphics.drawable.VectorDrawableCommon {
+  public abstract interface Animatable2Compat {
+    method public abstract void clearAnimationCallbacks();
+    method public abstract void registerAnimationCallback(android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
+    method public abstract boolean unregisterAnimationCallback(android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
+  }
+
+  public static abstract class Animatable2Compat.AnimationCallback {
+    ctor public Animatable2Compat.AnimationCallback();
+    method public void onAnimationEnd(android.graphics.drawable.Drawable);
+    method public void onAnimationStart(android.graphics.drawable.Drawable);
+  }
+
+  public class AnimatedVectorDrawableCompat extends android.support.graphics.drawable.VectorDrawableCommon implements android.support.graphics.drawable.Animatable2Compat {
+    method public void clearAnimationCallbacks();
+    method public static void clearAnimationCallbacks(android.graphics.drawable.Drawable);
     method public static android.support.graphics.drawable.AnimatedVectorDrawableCompat create(android.content.Context, int);
     method public static android.support.graphics.drawable.AnimatedVectorDrawableCompat createFromXmlInner(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
     method public void draw(android.graphics.Canvas);
     method public int getOpacity();
     method public boolean isRunning();
+    method public void registerAnimationCallback(android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
+    method public static void registerAnimationCallback(android.graphics.drawable.Drawable, android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
     method public void setAlpha(int);
     method public void setColorFilter(android.graphics.ColorFilter);
     method public void start();
     method public void stop();
+    method public boolean unregisterAnimationCallback(android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
+    method public static boolean unregisterAnimationCallback(android.graphics.drawable.Drawable, android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
   }
 
    abstract class VectorDrawableCommon extends android.graphics.drawable.Drawable {
@@ -1589,12 +1679,25 @@ package android.support.percent {
 
 package android.support.transition {
 
+  public class ArcMotion extends android.support.transition.PathMotion {
+    ctor public ArcMotion();
+    method public float getMaximumAngle();
+    method public float getMinimumHorizontalAngle();
+    method public float getMinimumVerticalAngle();
+    method public android.graphics.Path getPath(float, float, float, float);
+    method public void setMaximumAngle(float);
+    method public void setMinimumHorizontalAngle(float);
+    method public void setMinimumVerticalAngle(float);
+  }
+
   public class AutoTransition extends android.support.transition.TransitionSet {
     ctor public AutoTransition();
+    ctor public AutoTransition(android.content.Context, android.util.AttributeSet);
   }
 
   public class ChangeBounds extends android.support.transition.Transition {
     ctor public ChangeBounds();
+    ctor public ChangeBounds(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
     method public void setResizeClip(boolean);
@@ -1603,8 +1706,22 @@ package android.support.transition {
   public class Fade extends android.support.transition.Visibility {
     ctor public Fade(int);
     ctor public Fade();
+    ctor public Fade(android.content.Context, android.util.AttributeSet);
     field public static final int IN = 1; // 0x1
     field public static final int OUT = 2; // 0x2
+  }
+
+  public abstract class PathMotion {
+    ctor public PathMotion();
+    method public abstract android.graphics.Path getPath(float, float, float, float);
+  }
+
+  public class PatternPathMotion extends android.support.transition.PathMotion {
+    ctor public PatternPathMotion();
+    ctor public PatternPathMotion(android.graphics.Path);
+    method public android.graphics.Path getPath(float, float, float, float);
+    method public android.graphics.Path getPatternPath();
+    method public void setPatternPath(android.graphics.Path);
   }
 
   public class Scene {
@@ -1620,6 +1737,7 @@ package android.support.transition {
 
   public abstract class Transition {
     ctor public Transition();
+    ctor public Transition(android.content.Context, android.util.AttributeSet);
     method public android.support.transition.Transition addListener(android.support.transition.Transition.TransitionListener);
     method public android.support.transition.Transition addTarget(android.view.View);
     method public android.support.transition.Transition addTarget(int);
@@ -1639,6 +1757,7 @@ package android.support.transition {
     method public long getDuration();
     method public android.animation.TimeInterpolator getInterpolator();
     method public java.lang.String getName();
+    method public android.support.transition.PathMotion getPathMotion();
     method public long getStartDelay();
     method public java.util.List<java.lang.Integer> getTargetIds();
     method public java.util.List<java.lang.String> getTargetNames();
@@ -1654,6 +1773,7 @@ package android.support.transition {
     method public android.support.transition.Transition setDuration(long);
     method public android.support.transition.Transition setInterpolator(android.animation.TimeInterpolator);
     method public void setMatchOrder(int...);
+    method public void setPathMotion(android.support.transition.PathMotion);
     method public android.support.transition.Transition setStartDelay(long);
     field public static final int MATCH_ID = 3; // 0x3
     field public static final int MATCH_INSTANCE = 1; // 0x1
@@ -1669,6 +1789,12 @@ package android.support.transition {
     method public abstract void onTransitionStart(android.support.transition.Transition);
   }
 
+  public class TransitionInflater {
+    method public static android.support.transition.TransitionInflater from(android.content.Context);
+    method public android.support.transition.Transition inflateTransition(int);
+    method public android.support.transition.TransitionManager inflateTransitionManager(int, android.view.ViewGroup);
+  }
+
   public class TransitionManager {
     ctor public TransitionManager();
     method public static void beginDelayedTransition(android.view.ViewGroup);
@@ -1682,6 +1808,7 @@ package android.support.transition {
 
   public class TransitionSet extends android.support.transition.Transition {
     ctor public TransitionSet();
+    ctor public TransitionSet(android.content.Context, android.util.AttributeSet);
     method public android.support.transition.TransitionSet addTransition(android.support.transition.Transition);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
@@ -1702,11 +1829,18 @@ package android.support.transition {
 
   public abstract class Visibility extends android.support.transition.Transition {
     ctor public Visibility();
+    ctor public Visibility(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
+    method public int getMode();
     method public boolean isVisible(android.support.transition.TransitionValues);
     method public android.animation.Animator onAppear(android.view.ViewGroup, android.support.transition.TransitionValues, int, android.support.transition.TransitionValues, int);
+    method public android.animation.Animator onAppear(android.view.ViewGroup, android.view.View, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
     method public android.animation.Animator onDisappear(android.view.ViewGroup, android.support.transition.TransitionValues, int, android.support.transition.TransitionValues, int);
+    method public android.animation.Animator onDisappear(android.view.ViewGroup, android.view.View, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public void setMode(int);
+    field public static final int MODE_IN = 1; // 0x1
+    field public static final int MODE_OUT = 2; // 0x2
   }
 
 }
@@ -2892,10 +3026,7 @@ package android.support.v17.leanback.graphics {
   public class BoundsRule {
     ctor public BoundsRule();
     ctor public BoundsRule(android.support.v17.leanback.graphics.BoundsRule);
-    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule absoluteValue(int);
     method public void calculateBounds(android.graphics.Rect, android.graphics.Rect);
-    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParent(float);
-    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParentWithOffset(float, int);
     field public android.support.v17.leanback.graphics.BoundsRule.ValueRule bottom;
     field public android.support.v17.leanback.graphics.BoundsRule.ValueRule left;
     field public android.support.v17.leanback.graphics.BoundsRule.ValueRule right;
@@ -2903,8 +3034,11 @@ package android.support.v17.leanback.graphics {
   }
 
   public static final class BoundsRule.ValueRule {
+    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule absoluteValue(int);
     method public int getAbsoluteValue();
     method public float getFraction();
+    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParent(float);
+    method public static android.support.v17.leanback.graphics.BoundsRule.ValueRule inheritFromParentWithOffset(float, int);
     method public void setAbsoluteValue(int);
     method public void setFraction(float);
   }
@@ -4010,71 +4144,47 @@ package android.support.v17.leanback.widget {
 
   public abstract class Parallax<PropertyT extends android.util.Property> {
     ctor public Parallax();
-    method public void addEffect(android.support.v17.leanback.widget.ParallaxEffect);
-    method public android.support.v17.leanback.widget.ParallaxEffect addEffect(android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue...);
-    method public android.support.v17.leanback.widget.ParallaxEffect addEffect(android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue...);
-    method public abstract PropertyT addProperty(java.lang.String);
+    method public android.support.v17.leanback.widget.ParallaxEffect addEffect(android.support.v17.leanback.widget.Parallax.PropertyMarkerValue...);
+    method public final PropertyT addProperty(java.lang.String);
     method public abstract PropertyT createProperty(java.lang.String, int);
     method public java.util.List<android.support.v17.leanback.widget.ParallaxEffect> getEffects();
+    method public abstract float getMaxValue();
     method public final java.util.List<PropertyT> getProperties();
     method public void removeAllEffects();
     method public void removeEffect(android.support.v17.leanback.widget.ParallaxEffect);
     method public void updateValues();
-    method public abstract void verifyProperties() throws java.lang.IllegalStateException;
-  }
-
-  public static abstract class Parallax.FloatParallax<FloatPropertyT extends android.support.v17.leanback.widget.Parallax.FloatProperty> extends android.support.v17.leanback.widget.Parallax {
-    ctor public Parallax.FloatParallax();
-    method public final FloatPropertyT addProperty(java.lang.String);
-    method public abstract float getMaxValue();
-    method public final float getPropertyValue(int);
-    method public final void setPropertyValue(int, float);
-    method public final void verifyProperties() throws java.lang.IllegalStateException;
   }
 
   public static class Parallax.FloatProperty extends android.util.Property {
     ctor public Parallax.FloatProperty(java.lang.String, int);
-    method public final android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue at(float, float);
-    method public final android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue atAbsolute(float);
-    method public final android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue atFraction(float);
-    method public final java.lang.Float get(android.support.v17.leanback.widget.Parallax.FloatParallax);
+    method public final android.support.v17.leanback.widget.Parallax.PropertyMarkerValue at(float, float);
+    method public final android.support.v17.leanback.widget.Parallax.PropertyMarkerValue atAbsolute(float);
+    method public final android.support.v17.leanback.widget.Parallax.PropertyMarkerValue atFraction(float);
+    method public final android.support.v17.leanback.widget.Parallax.PropertyMarkerValue atMax();
+    method public final android.support.v17.leanback.widget.Parallax.PropertyMarkerValue atMin();
+    method public final java.lang.Float get(android.support.v17.leanback.widget.Parallax);
     method public final int getIndex();
-    method public final void set(android.support.v17.leanback.widget.Parallax.FloatParallax, java.lang.Float);
+    method public final float getValue(android.support.v17.leanback.widget.Parallax);
+    method public final void set(android.support.v17.leanback.widget.Parallax, java.lang.Float);
+    method public final void setValue(android.support.v17.leanback.widget.Parallax, float);
     field public static final float UNKNOWN_AFTER = 3.4028235E38f;
     field public static final float UNKNOWN_BEFORE = -3.4028235E38f;
   }
 
-  public static class Parallax.FloatPropertyMarkerValue extends android.support.v17.leanback.widget.Parallax.PropertyMarkerValue {
-    ctor public Parallax.FloatPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.FloatProperty, float);
-    ctor public Parallax.FloatPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.FloatProperty, float, float);
-    method public final float getMarkerValue(android.support.v17.leanback.widget.Parallax.FloatParallax);
-  }
-
-  public static abstract class Parallax.IntParallax<IntPropertyT extends android.support.v17.leanback.widget.Parallax.IntProperty> extends android.support.v17.leanback.widget.Parallax {
-    ctor public Parallax.IntParallax();
-    method public final IntPropertyT addProperty(java.lang.String);
-    method public abstract int getMaxValue();
-    method public final int getPropertyValue(int);
-    method public final void setPropertyValue(int, int);
-    method public final void verifyProperties() throws java.lang.IllegalStateException;
-  }
-
   public static class Parallax.IntProperty extends android.util.Property {
     ctor public Parallax.IntProperty(java.lang.String, int);
-    method public final android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue at(int, float);
-    method public final android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue atAbsolute(int);
-    method public final android.support.v17.leanback.widget.Parallax.IntPropertyMarkerValue atFraction(float);
-    method public final java.lang.Integer get(android.support.v17.leanback.widget.Parallax.IntParallax);
+    method public final android.support.v17.leanback.widget.Parallax.PropertyMarkerValue at(int, float);
+    method public final android.support.v17.leanback.widget.Parallax.PropertyMarkerValue atAbsolute(int);
+    method public final android.support.v17.leanback.widget.Parallax.PropertyMarkerValue atFraction(float);
+    method public final android.support.v17.leanback.widget.Parallax.PropertyMarkerValue atMax();
+    method public final android.support.v17.leanback.widget.Parallax.PropertyMarkerValue atMin();
+    method public final java.lang.Integer get(android.support.v17.leanback.widget.Parallax);
     method public final int getIndex();
-    method public final void set(android.support.v17.leanback.widget.Parallax.IntParallax, java.lang.Integer);
+    method public final int getValue(android.support.v17.leanback.widget.Parallax);
+    method public final void set(android.support.v17.leanback.widget.Parallax, java.lang.Integer);
+    method public final void setValue(android.support.v17.leanback.widget.Parallax, int);
     field public static final int UNKNOWN_AFTER = 2147483647; // 0x7fffffff
     field public static final int UNKNOWN_BEFORE = -2147483648; // 0x80000000
-  }
-
-  public static class Parallax.IntPropertyMarkerValue extends android.support.v17.leanback.widget.Parallax.PropertyMarkerValue {
-    ctor public Parallax.IntPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.IntProperty, int);
-    ctor public Parallax.IntPropertyMarkerValue(android.support.v17.leanback.widget.Parallax.IntProperty, int, float);
-    method public final int getMarkerValue(android.support.v17.leanback.widget.Parallax.IntParallax);
   }
 
   public static class Parallax.PropertyMarkerValue<PropertyT> {
@@ -4082,39 +4192,31 @@ package android.support.v17.leanback.widget {
     method public PropertyT getProperty();
   }
 
-  public abstract class ParallaxEffect<ParallaxEffectT extends android.support.v17.leanback.widget.ParallaxEffect, PropertyMarkerValueT extends android.support.v17.leanback.widget.Parallax.PropertyMarkerValue> {
-    ctor public ParallaxEffect();
+  public abstract class ParallaxEffect {
     method public final void addTarget(android.support.v17.leanback.widget.ParallaxTarget);
-    method protected abstract float calculateFraction(android.support.v17.leanback.widget.Parallax);
-    method public final java.util.List<PropertyMarkerValueT> getPropertyRanges();
+    method public final java.util.List<android.support.v17.leanback.widget.Parallax.PropertyMarkerValue> getPropertyRanges();
     method public final java.util.List<android.support.v17.leanback.widget.ParallaxTarget> getTargets();
     method public final void performMapping(android.support.v17.leanback.widget.Parallax);
     method public final void removeTarget(android.support.v17.leanback.widget.ParallaxTarget);
-    method public final void setPropertyRanges(PropertyMarkerValueT...);
+    method public final void setPropertyRanges(android.support.v17.leanback.widget.Parallax.PropertyMarkerValue...);
     method public final android.support.v17.leanback.widget.ParallaxEffect target(android.support.v17.leanback.widget.ParallaxTarget);
     method public final android.support.v17.leanback.widget.ParallaxEffect target(java.lang.Object, android.animation.PropertyValuesHolder);
-  }
-
-  public static final class ParallaxEffect.FloatEffect extends android.support.v17.leanback.widget.ParallaxEffect {
-    ctor public ParallaxEffect.FloatEffect();
-    method protected float calculateFraction(android.support.v17.leanback.widget.Parallax);
-  }
-
-  public static final class ParallaxEffect.IntEffect extends android.support.v17.leanback.widget.ParallaxEffect {
-    ctor public ParallaxEffect.IntEffect();
-    method protected float calculateFraction(android.support.v17.leanback.widget.Parallax);
+    method public final <T, V extends java.lang.Number> android.support.v17.leanback.widget.ParallaxEffect target(T, android.util.Property<T, V>);
   }
 
   public abstract class ParallaxTarget {
     ctor public ParallaxTarget();
-    method public abstract float getFraction();
-    method public abstract void update(float);
+    method public void directUpdate(java.lang.Number);
+    method public boolean isDirectMapping();
+    method public void update(float);
+  }
+
+  public static final class ParallaxTarget.DirectPropertyTarget<T, V extends java.lang.Number> extends android.support.v17.leanback.widget.ParallaxTarget {
+    ctor public ParallaxTarget.DirectPropertyTarget(java.lang.Object, android.util.Property<T, V>);
   }
 
   public static final class ParallaxTarget.PropertyValuesHolderTarget extends android.support.v17.leanback.widget.ParallaxTarget {
     ctor public ParallaxTarget.PropertyValuesHolderTarget(java.lang.Object, android.animation.PropertyValuesHolder);
-    method public float getFraction();
-    method public void update(float);
   }
 
   public class PlaybackControlsRow extends android.support.v17.leanback.widget.Row {
@@ -4306,10 +4408,10 @@ package android.support.v17.leanback.widget {
     method public void unselect();
   }
 
-  public class RecyclerViewParallax extends android.support.v17.leanback.widget.Parallax.IntParallax {
+  public class RecyclerViewParallax extends android.support.v17.leanback.widget.Parallax {
     ctor public RecyclerViewParallax();
     method public android.support.v17.leanback.widget.RecyclerViewParallax.ChildPositionProperty createProperty(java.lang.String, int);
-    method public int getMaxValue();
+    method public float getMaxValue();
     method public android.support.v7.widget.RecyclerView getRecyclerView();
     method public void setRecyclerView(android.support.v7.widget.RecyclerView);
   }
@@ -9023,6 +9125,7 @@ package android.support.v7.app {
     method public android.support.v7.graphics.drawable.DrawerArrowDrawable getDrawerArrowDrawable();
     method public android.view.View.OnClickListener getToolbarNavigationClickListener();
     method public boolean isDrawerIndicatorEnabled();
+    method public boolean isDrawerSlideAnimationEnabled();
     method public void onConfigurationChanged(android.content.res.Configuration);
     method public void onDrawerClosed(android.view.View);
     method public void onDrawerOpened(android.view.View);
@@ -9031,6 +9134,7 @@ package android.support.v7.app {
     method public boolean onOptionsItemSelected(android.view.MenuItem);
     method public void setDrawerArrowDrawable(android.support.v7.graphics.drawable.DrawerArrowDrawable);
     method public void setDrawerIndicatorEnabled(boolean);
+    method public void setDrawerSlideAnimationEnabled(boolean);
     method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable);
     method public void setHomeAsUpIndicator(int);
     method public void setToolbarNavigationClickListener(android.view.View.OnClickListener);
@@ -10689,7 +10793,8 @@ package android.support.v7.widget {
     method public int findLastVisibleItemPosition();
     method public android.support.v7.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
     method protected int getExtraLayoutSpace(android.support.v7.widget.RecyclerView.State);
-    method public int getInitialItemPrefetchCount();
+    method public deprecated int getInitialItemPrefetchCount();
+    method public int getInitialPrefetchItemCount();
     method public int getOrientation();
     method public boolean getRecycleChildrenOnDetach();
     method public boolean getReverseLayout();
