@@ -29,11 +29,11 @@ import java.lang.annotation.Target;
  * database.
  * <p>
  * The arguments of the method will be bound to the bind arguments in the SQL statement. See
- * < href="https://www.sqlite.org/c3ref/bind_blob.html">SQLite's binding documentation</> for
+ * <href="https://www.sqlite.org/c3ref/bind_blob.html">SQLite's binding documentation</> for
  * details of bind arguments in SQLite.
  * <p>
  * Room supports only 2 types of bind arguments. {@code ?} placeholder and {@code :name}
- * named bind parameter. If there are more than 1 arguments, you must use named bind parameters to
+ * named bind parameter. If there are more than 1 argument, you must use named bind parameters to
  * avoid confusion.
  * <p>
  * Room will automatically bind the parameters of the method into the bind arguments. When named
@@ -59,7 +59,10 @@ import java.lang.annotation.Target;
  * <p>
  * For SELECT queries, Room will infer the result contents from the method's return type and
  * generate the code that will automatically convert the query result into the method's return
- * type.
+ * type. For single result queries, the return type can be any java object. For queries that return
+ * multiple values, you can use {@link java.util.List} or {@code Array}. In addition to these, any
+ * query may return {@link android.database.Cursor Cursor} or any query result can be wrapped in
+ * a {@link com.android.support.lifecycle.LiveData LiveData}.
  * <p>
  * UPDATE or DELETE queries can return {@code void} or {@code int}. If it is an {@code int},
  * the value is the number of rows affected by this query.
@@ -80,9 +83,9 @@ import java.lang.annotation.Target;
  *     public abstract UserName findOneUserName(int userId);
  * </pre>
  * And Room will create the correct implementation to convert the query result into a
- * {@code UsrName} object. If there is a mismatch between the query result and the fields of the
- * POJO, Room prints a {@link RoomWarnings#CURSOR_MISMATCH} warning and sets as many fields as it
- * can.
+ * {@code UserName} object. If there is a mismatch between the query result and the fields of the
+ * POJO, as long as there is at least 1 field match, Room prints a
+ * {@link RoomWarnings#CURSOR_MISMATCH} warning and sets as many fields as it can.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.CLASS)

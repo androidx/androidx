@@ -28,6 +28,19 @@ import java.lang.annotation.Target;
  * <p>
  * All of the parameters of the Insert method must either be classes annotated with {@link Entity}
  * or collections/array of it.
+ * <p>
+ * Example:
+ * <pre>
+ * {@literal @}Dao
+ * public interface MyDao {
+ *     {@literal @}Insert(onConflict = OnConflictStrategy.REPLACE)
+ *     public void insertUsers(User... users);
+ *     {@literal @}Insert
+ *     public void insertBoth(User user1, User user2);
+ *     {@literal @}Insert
+ *     public void insertWithFriends(User user, List&lt;User&gt; friends);
+ * }
+ * </pre>
  *
  * @see Update
  * @see Delete

@@ -28,6 +28,19 @@ import java.lang.annotation.Target;
  * <p>
  * All of the parameters of the Delete method must either be classes annotated with {@link Entity}
  * or collections/array of it.
+ * <p>
+ * Example:
+ * <pre>
+ * {@literal @}Dao
+ * public interface MyDao {
+ *     {@literal @}Delete
+ *     public void deleteUsers(User... users);
+ *     {@literal @}Delete
+ *     public void deleteAll(User user1, User user2);
+ *     {@literal @}Delete
+ *     public void deleteWithFriends(User user, List&lt;User&gt; friends);
+ * }
+ * </pre>
  *
  * @see Insert
  * @see Query

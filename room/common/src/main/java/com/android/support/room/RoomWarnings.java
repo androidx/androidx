@@ -17,16 +17,15 @@
 package com.android.support.room;
 
 /**
- * The list of warnings that are produced by Room that you can disable via {@code SurpressWarnings}.
+ * The list of warnings that are produced by Room.
+ * <p>
+ * You can use these values inside a {@link SuppressWarnings} annotation to disable the warnings.
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class RoomWarnings {
     /**
-     * The warning dispatched by Room when the return value of a @Query method does not exactly
-     * match the fields in the query result.
-     * <p>
-     * You can use this value inside a {@link SuppressWarnings} annotation to disable such warnings
-     * for a method.
+     * The warning dispatched by Room when the return value of a {@link Query} method does not
+     * exactly match the fields in the query result.
      */
     // if you change this, don't forget to change com.android.support.room.vo.Warning
     public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";

@@ -28,8 +28,8 @@ import java.lang.annotation.Target;
  * {@link com.android.support.room.RoomDatabase RoomDatabase}.
  * <p>
  * You can receive an implementation of the class via
- * {com.android.support.room.Room#databaseBuilder} or
- * {com.android.support.room.Room#inMemoryDatabaseBuilder}.
+ * {@link com.android.support.room.Room#databaseBuilder Room.databaseBuilder} or
+ * {@link com.android.support.room.Room#inMemoryDatabaseBuilder Room.inMemoryDatabaseBuilder}.
  * <p>
  * <pre>
  * // User and Book are classes annotated with {@literal @}Entity.
@@ -53,8 +53,8 @@ import java.lang.annotation.Target;
  * sql queries). It also automatically does the conversion from {@code Cursor} to your application
  * classes so you don't need to deal with lower level database APIs for most of your data access.
  * <p>
- * Room also verifies all of your queries in Dao classes while the application is being compiled so
- * that if there is a problem in one of the queries, you will be notified instantly.
+ * Room also verifies all of your queries in {@link Dao} classes while the application is being
+ * compiled so that if there is a problem in one of the queries, you will be notified instantly.
  * @see Dao
  * @see Entity
  * @see com.android.support.room.RoomDatabase RoomDatabase

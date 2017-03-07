@@ -43,7 +43,8 @@ public @interface ColumnInfo {
      * If it is not specified, Room resolves it based on the field's type and available
      * TypeConverters.
      * <p>
-     * See https://www.sqlite.org/datatype3.html for details.
+     * See <a href="https://www.sqlite.org/datatype3.html">SQLite types documentation</a> for
+     * details.
      *
      * @return The type affinity of the column.
      */

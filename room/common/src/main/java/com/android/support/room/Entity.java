@@ -25,10 +25,25 @@ import java.lang.annotation.Target;
  * Marks a class as an entity. This class will have a mapping SQLite table in the database.
  * <p>
  * Each entity must have at least 1 field annotated with {@link PrimaryKey} and it must have a
- * no-arg constructor.
+ * no-arg constructor. You can also use {@link #primaryKeys()} attribute to define the primary
+ * key.
  * <p>
  * When a class is marked as an Entity, all of its fields are persisted. If you would like to
  * exclude some of its fields, you can mark them with {@link Ignore}.
+ * <p>
+ * Example:
+ * <pre>
+ * {@literal @}Entity
+ * public class User {
+ *   {@literal @}PrimaryKey
+ *   private int uid;
+ *   private String name;
+ *   {@literal @}ColumnInfo(name = "last_name")
+ *   private String lastName;
+ *   // getters and setters are ignored for brevity but they are required for Room to work or the
+ *   // fields should be public.
+ * }
+ * </pre>
  *
  * @see Dao
  * @see Database
@@ -54,14 +69,14 @@ public @interface Entity {
     Index[] indices() default {};
 
     /**
-     * If set to {code true}, any Index defined in parent classes of this class will be carried over
-     * to the current Entity. Note that if you set this to {@code true}, even if you have a parent
-     * which sets this value to {@code false}, you will still inherit indices from it and its
-     * parents.
+     * If set to {@code true}, any Index defined in parent classes of this class will be carried
+     * over to the current {@code Entity}. Note that if you set this to {@code true}, even if the
+     * {@code Entity} has a parent which sets this value to {@code false}, the {@code Entity} will
+     * still inherit indices from it and its parents.
      * <p>
-     * When you inherit an index from the parent, it is <b>always</b> renamed with the default
-     * naming schema since SQLite <b>does not</b> allow using the same index name in multiple
-     * tables. See {@link Index} for details of the default name.
+     * When the {@code Entity} inherits an index from the parent, it is <b>always</b> renamed with
+     * the default naming schema since SQLite <b>does not</b> allow using the same index name in
+     * multiple tables. See {@link Index} for the details of the default name.
      * <p>
      * By default, indices defined in parent classes are dropped to avoid unexpected indices.
      * When this happens, you will receive a {@link RoomWarnings#INDEX_FROM_PARENT_FIELD_IS_DROPPED}
