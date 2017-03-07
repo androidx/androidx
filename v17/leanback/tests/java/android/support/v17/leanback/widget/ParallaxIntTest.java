@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 @SmallTest
 public class ParallaxIntTest {
 
-    Parallax.IntParallax mSource;
+    Parallax<Parallax.IntProperty> mSource;
     int mScreenMax;
 
     static void assertFloatEquals(float expected, float actual) {
@@ -38,9 +38,9 @@ public class ParallaxIntTest {
 
     @Before
     public void setUp() throws Exception {
-        mSource = new Parallax.IntParallax<Parallax.IntProperty>() {
+        mSource = new Parallax<Parallax.IntProperty>() {
 
-            public int getMaxValue() {
+            public float getMaxValue() {
                 return mScreenMax;
             }
 
@@ -55,8 +55,8 @@ public class ParallaxIntTest {
     public void testVariable() {
         mScreenMax = 1080;
         Parallax.IntProperty var1 = mSource.addProperty("var1");
-        var1.setIntValue(mSource, 54);
-        assertEquals((int) 54, var1.getIntValue(mSource));
+        var1.setValue(mSource, 54);
+        assertEquals((int) 54, var1.getValue(mSource));
         assertEquals(var1.getName(), "var1");
         var1.set(mSource, (int) 2000);
         assertEquals((int) 2000, var1.get(mSource).intValue());
@@ -67,7 +67,8 @@ public class ParallaxIntTest {
         mScreenMax = 1080;
         Parallax.IntProperty var1 = mSource.addProperty("var1");
 
-        Parallax.IntPropertyMarkerValue keyValue = var1.atAbsolute(1000);
+        Parallax.IntPropertyMarkerValue keyValue = (Parallax.IntPropertyMarkerValue)
+                var1.atAbsolute(1000);
         assertSame(keyValue.getProperty(), var1);
         assertEquals((int) 1000, keyValue.getMarkerValue(mSource));
     }
@@ -77,7 +78,8 @@ public class ParallaxIntTest {
         mScreenMax = 1080;
         Parallax.IntProperty var1 = mSource.addProperty("var1");
 
-        Parallax.IntPropertyMarkerValue keyValue = var1.at(0, 0.5f);
+        Parallax.IntPropertyMarkerValue keyValue = (Parallax.IntPropertyMarkerValue)
+                var1.at(0, 0.5f);
         assertSame(keyValue.getProperty(), var1);
         assertEquals((int) 540, keyValue.getMarkerValue(mSource));
     }
@@ -87,11 +89,13 @@ public class ParallaxIntTest {
         mScreenMax = 1080;
         Parallax.IntProperty var1 = mSource.addProperty("var1");
 
-        Parallax.IntPropertyMarkerValue keyValue = var1.at(-100, 0.5f);
+        Parallax.IntPropertyMarkerValue keyValue = (Parallax.IntPropertyMarkerValue)
+                var1.at(-100, 0.5f);
         assertSame(keyValue.getProperty(), var1);
         assertEquals((int) 440, keyValue.getMarkerValue(mSource));
 
-        Parallax.IntPropertyMarkerValue keyValue2 = var1.at(100, 0.5f);
+        Parallax.IntPropertyMarkerValue keyValue2 = (Parallax.IntPropertyMarkerValue)
+                var1.at(100, 0.5f);
         assertSame(keyValue2.getProperty(), var1);
         assertEquals((int) 640, keyValue2.getMarkerValue(mSource));
     }
@@ -101,10 +105,10 @@ public class ParallaxIntTest {
         Parallax.IntProperty var1 = mSource.addProperty("var1");
         Parallax.IntProperty var2 = mSource.addProperty("var2");
 
-        var1.setIntValue(mSource, (int) 500);
-        var2.setIntValue(mSource, (int) 499);
+        var1.setValue(mSource, (int) 500);
+        var2.setValue(mSource, (int) 499);
 
-        mSource.verifyProperties();
+        mSource.verifyIntProperties();
     }
 
     @Test(expected = IllegalStateException.class)
@@ -112,10 +116,10 @@ public class ParallaxIntTest {
         Parallax.IntProperty var1 = mSource.addProperty("var1");
         Parallax.IntProperty var2 = mSource.addProperty("var2");
 
-        var1.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_BEFORE);
-        var2.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_AFTER);
+        var1.setValue(mSource, Parallax.IntProperty.UNKNOWN_BEFORE);
+        var2.setValue(mSource, Parallax.IntProperty.UNKNOWN_AFTER);
 
-        mSource.verifyProperties();
+        mSource.verifyIntProperties();
     }
 
     @Test
@@ -123,19 +127,19 @@ public class ParallaxIntTest {
         Parallax.IntProperty var1 = mSource.addProperty("var1");
         Parallax.IntProperty var2 = mSource.addProperty("var2");
 
-        var1.setIntValue(mSource, (int) 499);
-        var2.setIntValue(mSource, (int) 500);
+        var1.setValue(mSource, (int) 499);
+        var2.setValue(mSource, (int) 500);
 
-        mSource.verifyProperties();
+        mSource.verifyIntProperties();
 
-        var1.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_BEFORE);
-        var2.setIntValue(mSource, (int) 500);
+        var1.setValue(mSource, Parallax.IntProperty.UNKNOWN_BEFORE);
+        var2.setValue(mSource, (int) 500);
 
-        mSource.verifyProperties();
+        mSource.verifyIntProperties();
 
-        var1.setIntValue(mSource, (int) 499);
-        var2.setIntValue(mSource, Parallax.IntProperty.UNKNOWN_AFTER);
+        var1.setValue(mSource, (int) 499);
+        var2.setValue(mSource, Parallax.IntProperty.UNKNOWN_AFTER);
 
-        mSource.verifyProperties();
+        mSource.verifyIntProperties();
     }
 }
