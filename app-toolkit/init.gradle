@@ -89,11 +89,10 @@ if (ext.inAppToolkitProject) {
     init.enableDoclavaAndJDiff(this)
 }
 
-// skip check api tasks because we are not building them.
-if (ext.inAppToolkitProject) {
-    checkApiStable.enabled = false
-    checkApi.enabled = false
-}
+// Disable API checks for now.
+checkApiStable.enabled = false
+checkApi.enabled = false
+
 buildServerAnchorTask.dependsOn createArchive
 buildServerAnchorTask.dependsOn createFFDistTask
 
