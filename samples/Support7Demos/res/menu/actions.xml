@@ -19,7 +19,7 @@
           android:title="@string/action_bar_search"
           android:icon="@drawable/ic_search"
           android:alphabeticShortcut="s"
-          android:alphabeticModifiers="ALT"
+          app:alphabeticModifiers="ALT"
           app:showAsAction="ifRoom|collapseActionView"
           app:actionViewClass="android.support.v7.widget.SearchView" />
     <item android:id="@+id/action_add"
@@ -48,12 +48,12 @@
                   android:icon="@android:drawable/ic_menu_sort_by_size"
                   android:title="@string/action_bar_sort_size"
                   android:alphabeticShortcut="s"
-                  android:alphabeticModifiers="CTRL|SHIFT" />
+                  app:alphabeticModifiers="CTRL|SHIFT" />
             <item android:id="@+id/action_sort_alpha"
                   android:icon="@android:drawable/ic_menu_sort_alphabetically"
                   android:title="@string/action_bar_sort_alpha"
                   android:alphabeticShortcut="a"
-                  android:alphabeticModifiers="CTRL|SHIFT" />
+                  app:alphabeticModifiers="CTRL|SHIFT" />
         </menu>
     </item>
 </menu>
