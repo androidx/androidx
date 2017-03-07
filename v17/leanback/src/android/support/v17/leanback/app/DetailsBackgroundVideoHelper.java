@@ -88,8 +88,6 @@ final class DetailsBackgroundVideoHelper {
         mParallaxEffect = mDetailsParallax
                 .addEffect(frameTop.atFraction(maxFrameTop), frameTop.atFraction(minFrameTop))
                 .target(new ParallaxTarget() {
-
-                    float mFraction;
                     @Override
                     public void update(float fraction) {
                         if (fraction == maxFrameTop) {
@@ -97,12 +95,6 @@ final class DetailsBackgroundVideoHelper {
                         } else {
                             updateState(PLAY_VIDEO);
                         }
-                        mFraction = fraction;
-                    }
-
-                    @Override
-                    public float getFraction() {
-                        return mFraction;
                     }
                 });
     }
