@@ -613,6 +613,8 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
                 mDescriptionFadeInAnimator.reverse();
             }
         }
+        getView().announceForAccessibility(getString(fadeIn ? R.string.lb_playback_controls_shown
+                : R.string.lb_playback_controls_hidden));
 
         // If fading in while control row is focused, set initial translationY so
         // views slide in from below.
