@@ -28,6 +28,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v17.leanback.graphics.BoundsRule.ValueRule;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,7 +69,7 @@ public class CompositeDrawableTest {
 
         // inherit from parent
         parentDrawable.addChildDrawable(drawable);
-        parentDrawable.getChildAt(0).getBoundsRule().bottom = BoundsRule.inheritFromParent(
+        parentDrawable.getChildAt(0).getBoundsRule().bottom = ValueRule.inheritFromParent(
                 fraction);
         parentDrawable.updateBounds(bounds);
 
@@ -79,7 +80,7 @@ public class CompositeDrawableTest {
 
         // absolute value
         drawable.setBounds(bounds);
-        parentDrawable.getChildAt(0).getBoundsRule().bottom = BoundsRule.absoluteValue(200);
+        parentDrawable.getChildAt(0).getBoundsRule().bottom = ValueRule.absoluteValue(200);
         parentDrawable.updateBounds(bounds);
 
         adjustedBounds = drawable.getBounds();
@@ -89,7 +90,7 @@ public class CompositeDrawableTest {
 
         // inherit with offset
         parentDrawable.getChildAt(0).getBoundsRule().bottom =
-                BoundsRule.inheritFromParentWithOffset(fraction, 100);
+                ValueRule.inheritFromParentWithOffset(fraction, 100);
         parentDrawable.updateBounds(bounds);
 
         adjustedBounds = drawable.getBounds();
@@ -100,7 +101,7 @@ public class CompositeDrawableTest {
         // inherit from parent 2
         bounds = new Rect(100, 200, WIDTH, HEIGHT);
         parentDrawable.getChildAt(0).getBoundsRule().bottom =
-                BoundsRule.inheritFromParent(fraction);
+                ValueRule.inheritFromParent(fraction);
         parentDrawable.updateBounds(bounds);
 
         adjustedBounds = drawable.getBounds();
@@ -124,8 +125,8 @@ public class CompositeDrawableTest {
 
         // inherit from parent
         BoundsRule boundsRule = parentDrawable.getChildAt(0).getBoundsRule();
-        boundsRule.top = BoundsRule.absoluteValue(-200);
-        boundsRule.bottom = BoundsRule.inheritFromParent(fraction);
+        boundsRule.top = ValueRule.absoluteValue(-200);
+        boundsRule.bottom = ValueRule.inheritFromParent(fraction);
         parentDrawable.getChildAt(0).getBoundsRule().top.setAbsoluteValue(-100);
 
         parentDrawable.updateBounds(bounds);
@@ -133,20 +134,31 @@ public class CompositeDrawableTest {
         Rect adjustedBounds = drawable.getBounds();
         Rect expectedBounds = new Rect(bounds);
         expectedBounds.top = -100;
-        expectedBounds.bottom = bounds.top + (int) (HEIGHT * fraction);
+        expectedBounds.bottom = (int) (HEIGHT * fraction);
         assertEquals(expectedBounds, adjustedBounds);
 
         // inherit from parent with offset
-        boundsRule.bottom = BoundsRule.absoluteValue(HEIGHT);
+        boundsRule.bottom = ValueRule.inheritFromParentWithOffset(1f, -100);
 
         parentDrawable.updateBounds(bounds);
 
         adjustedBounds = drawable.getBounds();
         expectedBounds = new Rect(bounds);
         expectedBounds.top = -100;
-        expectedBounds.bottom = HEIGHT;
+        expectedBounds.bottom = HEIGHT - 100;
+        assertEquals(expectedBounds, adjustedBounds);
+
+        // using property would change type:
+        CompositeDrawable.ChildDrawable.BOTTOM_ABSOLUTE.set(parentDrawable.getChildAt(0), 0);
+        CompositeDrawable.ChildDrawable.BOTTOM_FRACTION.set(parentDrawable.getChildAt(0), 0.5f);
+        parentDrawable.updateBounds(bounds);
+        adjustedBounds = drawable.getBounds();
+        expectedBounds = new Rect(bounds);
+        expectedBounds.top = -100;
+        expectedBounds.bottom = (int) (0.5f * HEIGHT);
         assertEquals(expectedBounds, adjustedBounds);
     }
+
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
@@ -184,7 +196,7 @@ public class CompositeDrawableTest {
         FitWidthBitmapDrawable child = new FitWidthBitmapDrawable();
         parent.addChildDrawable(child);
         parent.getChildAt(0).getBoundsRule().bottom =
-                BoundsRule.inheritFromParentWithOffset(.5f, 100);
+                ValueRule.inheritFromParentWithOffset(.5f, 100);
 
         CompositeDrawable.ChildDrawable newChild = new CompositeDrawable.ChildDrawable(
                 parent.getChildAt(0),
@@ -201,7 +213,7 @@ public class CompositeDrawableTest {
         FitWidthBitmapDrawable child = new FitWidthBitmapDrawable();
         parent.addChildDrawable(child);
         parent.getChildAt(0).getBoundsRule().bottom =
-                BoundsRule.inheritFromParentWithOffset(.5f, 100);
+                ValueRule.inheritFromParentWithOffset(.5f, 100);
 
         CompositeDrawable newDrawable = (CompositeDrawable) parent.getConstantState().newDrawable();
 
@@ -215,4 +227,5 @@ public class CompositeDrawableTest {
         assertEquals(parent.getChildAt(0).getBoundsRule().bottom.getFraction(),
                 newChild.getBoundsRule().bottom.getFraction(), delta);
     }
+
 }
