@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.support.annotation.NonNull;
+import android.support.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
