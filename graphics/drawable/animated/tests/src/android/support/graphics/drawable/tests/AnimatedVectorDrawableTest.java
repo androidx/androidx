@@ -16,6 +16,8 @@
 
 package android.support.graphics.drawable.tests;
 
+import static android.support.graphics.drawable.tests.DrawableUtils.saveVectorDrawableIntoPNG;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -42,7 +44,6 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.Xml;
 import android.view.View;
 import android.widget.ImageButton;
@@ -54,8 +55,6 @@ import org.junit.runner.RunWith;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -118,43 +117,6 @@ public class AnimatedVectorDrawableTest {
         mAnimatedVectorDrawable = AnimatedVectorDrawableCompat.create(mContext, DRAWABLE_RES_ID);
     }
 
-    // This is only for debugging or golden image (re)generation purpose.
-    private void saveVectorDrawableIntoPNG(Bitmap bitmap, int resId, String filename)
-            throws IOException {
-        // Save the image to the disk.
-        FileOutputStream out = null;
-        try {
-            String outputFolder = "/sdcard/temp/";
-            File folder = new File(outputFolder);
-            if (!folder.exists()) {
-                folder.mkdir();
-            }
-            String fileTitle = "unname";
-            if (resId >= 0) {
-                String originalFilePath = mResources.getString(resId);
-                File originalFile = new File(originalFilePath);
-                String fileFullName = originalFile.getName();
-                fileTitle = fileFullName.substring(0, fileFullName.lastIndexOf("."));
-            } else if (filename != null) {
-                fileTitle = filename;
-            }
-            String outputFilename = outputFolder + fileTitle + "_golden.png";
-            File outputFile = new File(outputFilename);
-            if (!outputFile.exists()) {
-                outputFile.createNewFile();
-            }
-
-            out = new FileOutputStream(outputFile, false);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            Log.v(LOGTAG, "Write test No." + outputFilename + " to file successfully.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-        }
-    }
 
     @Test
     public void testInflate() throws Exception {
@@ -182,7 +144,7 @@ public class AnimatedVectorDrawableTest {
         assertTrue(earthColor == 0xFF5656EA);
 
         if (DBG_DUMP_PNG) {
-            saveVectorDrawableIntoPNG(mBitmap, DRAWABLE_RES_ID, null);
+            saveVectorDrawableIntoPNG(mResources, mBitmap, DRAWABLE_RES_ID, null);
         }
     }
 
@@ -223,7 +185,7 @@ public class AnimatedVectorDrawableTest {
         assertTrue(centerColor != 0);
         Bitmap firstFrame = Bitmap.createBitmap(bitmap);
         if (DBG_DUMP_PNG) {
-            saveVectorDrawableIntoPNG(firstFrame, -1, "firstframe");
+            saveVectorDrawableIntoPNG(mResources, firstFrame, -1, "firstframe");
         }
 
         // Now compare the following frames with the 1st frames. Expect some minor difference like
@@ -237,7 +199,7 @@ public class AnimatedVectorDrawableTest {
                 }
             });
             if (DBG_DUMP_PNG) {
-                saveVectorDrawableIntoPNG(bitmap, -1, "correctness_" + i);
+                saveVectorDrawableIntoPNG(mResources, bitmap, -1, "correctness_" + i);
             }
             compareImages(firstFrame, bitmap, "correctness_" + i);
         }
@@ -515,7 +477,7 @@ public class AnimatedVectorDrawableTest {
         assertTrue(centerColor == 0xffff0000);
 
         if (DBG_DUMP_PNG) {
-            saveVectorDrawableIntoPNG(bitmap, -1, "start");
+            saveVectorDrawableIntoPNG(mResources, bitmap, -1, "start");
         }
 
         avd.registerAnimationCallback(new AnimationCallback() {
@@ -549,7 +511,7 @@ public class AnimatedVectorDrawableTest {
         }
 
         if (DBG_DUMP_PNG) {
-            saveVectorDrawableIntoPNG(bitmap, -1, "ended");
+            saveVectorDrawableIntoPNG(mResources, bitmap, -1, "ended");
         }
     }
 
@@ -559,9 +521,6 @@ public class AnimatedVectorDrawableTest {
     @Test
     @UiThreadTest
     public void testPathMorphingException() throws Exception {
-        final Bitmap bitmap = Bitmap.createBitmap(IMAGE_WIDTH, IMAGE_WIDTH,
-                Bitmap.Config.ARGB_8888);
-
         boolean hasException = false;
         try {
             final AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,

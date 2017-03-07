@@ -126,4 +126,22 @@ class AndroidResources {
     public static final int STYLEABLE_PROPERTY_ANIMATOR_PATH_DATA = 1;
     public static final int STYLEABLE_PROPERTY_ANIMATOR_PROPERTY_X_NAME = 2;
     public static final int STYLEABLE_PROPERTY_ANIMATOR_PROPERTY_Y_NAME = 3;
+
+
+    public static final int[] STYLEABLE_PATH_INTERPOLATOR = {
+            0x010103fc, 0x010103fd, 0x010103fe, 0x010103ff,
+            0x01010405
+    };
+
+    public static final int STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_1 = 0;
+    public static final int STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_1 = 1;
+
+    public static final int STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_2 = 2;
+    public static final int STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_2 = 3;
+
+    public static final int STYLEABLE_PATH_INTERPOLATOR_PATH_DATA = 4;
+
+    public static final int FAST_OUT_LINEAR_IN = 0x010c000f;
+    public static final int FAST_OUT_SLOW_IN = 0x010c000d;
+    public static final int LINEAR_OUT_SLOW_IN = 0x010c000e;
 }
