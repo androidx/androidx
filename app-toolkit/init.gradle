@@ -95,8 +95,6 @@ if (ext.inAppToolkitProject) {
     checkApi.enabled = false
 }
 buildServerAnchorTask.dependsOn createArchive
-// TODO remove when build server is updated
-createArchive.dependsOn createFFDistTask
 buildServerAnchorTask.dependsOn createFFDistTask
 
 subprojects {
@@ -129,7 +127,11 @@ subprojects {
     if (mavenGroup != "room" && mavenGroup != "lifecycle" && mavenGroup != "apptoolkit-core") {
         return
     }
-
+    project.tasks.whenTaskAdded { task ->
+        if (task.name.startsWith("assembleAndroidTest")) {
+            buildServerAnchorTask.dependsOn task
+        }
+    }
     project.group = "com.android.support.$mavenGroup"
     project.version = flatfoot.release_version
 
