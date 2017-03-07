@@ -34,19 +34,17 @@ import android.support.v17.leanback.app.DetailsSupportFragment;
  * @see android.support.v17.leanback.app.DetailsSupportFragmentBackgroundController
  */
 public class DetailsParallax extends RecyclerViewParallax {
-    final Parallax.IntProperty mFrameTop;
-    final Parallax.IntProperty mFrameBottom;
+    final IntProperty mFrameTop;
+    final IntProperty mFrameBottom;
 
     public DetailsParallax() {
         // track the top edge of details_frame of first item of adapter
-        mFrameTop = this
-                .addProperty("overviewRowTop")
+        mFrameTop = addProperty("overviewRowTop")
                 .adapterPosition(0)
                 .viewId(R.id.details_frame);
 
         // track the bottom edge of details_frame of first item of adapter
-        mFrameBottom = this
-                .addProperty("overviewRowBottom")
+        mFrameBottom = addProperty("overviewRowBottom")
                 .adapterPosition(0)
                 .viewId(R.id.details_frame)
                 .fraction(1.0f);

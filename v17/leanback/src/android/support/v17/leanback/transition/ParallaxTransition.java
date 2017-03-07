@@ -55,7 +55,7 @@ public class ParallaxTransition extends Visibility {
     }
 
     Animator createAnimator(View view) {
-        final Parallax<?> source = (Parallax) view.getTag(R.id.lb_parallax_source);
+        final Parallax source = (Parallax) view.getTag(R.id.lb_parallax_source);
         if (source == null) {
             return null;
         }

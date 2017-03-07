@@ -21,6 +21,7 @@ import android.support.v17.leanback.widget.Parallax.FloatProperty;
 import android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue;
 import android.support.v17.leanback.widget.Parallax.IntProperty;
 import android.support.v17.leanback.widget.Parallax.PropertyMarkerValue;
+import android.util.Property;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,15 +37,20 @@ import java.util.List;
  * on, the fraction increases from 0 at beginning to 1 at the end. Then the fraction is passed on
  * to {@link ParallaxTarget#update(float)}.
  * <p>
- * ParallaxEffect has two concrete subclasses, {@link IntEffect} and {@link FloatEffect}.
+ * App use {@link Parallax#addEffect(PropertyMarkerValue...)} to create a ParallaxEffect.
  */
-public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
-        PropertyMarkerValueT extends Parallax.PropertyMarkerValue> {
+public abstract class ParallaxEffect {
 
-    final List<PropertyMarkerValueT> mMarkerValues = new ArrayList<PropertyMarkerValueT>(2);
+    final List<Parallax.PropertyMarkerValue> mMarkerValues = new ArrayList(2);
     final List<Float> mWeights = new ArrayList<Float>(2);
     final List<Float> mTotalWeights = new ArrayList<Float>(2);
     final List<ParallaxTarget> mTargets = new ArrayList<ParallaxTarget>(4);
+
+    /**
+     * Only accessible from package
+     */
+    ParallaxEffect() {
+    }
 
     /**
      * Returns the list of {@link PropertyMarkerValue}s, which represents the range of values that
@@ -53,8 +59,8 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
      * @return A list of {@link Parallax.PropertyMarkerValue}s.
      * @see #performMapping(Parallax)
      */
-    public final List<PropertyMarkerValueT> getPropertyRanges() {
-        return  mMarkerValues;
+    public final List<Parallax.PropertyMarkerValue> getPropertyRanges() {
+        return mMarkerValues;
     }
 
     /**
@@ -75,9 +81,9 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
      * @param markerValues A list of {@link PropertyMarkerValue}s.
      * @see #performMapping(Parallax)
      */
-    public final void setPropertyRanges(PropertyMarkerValueT... markerValues) {
+    public final void setPropertyRanges(Parallax.PropertyMarkerValue... markerValues) {
         mMarkerValues.clear();
-        for (PropertyMarkerValueT markerValue : markerValues) {
+        for (Parallax.PropertyMarkerValue markerValue : markerValues) {
             mMarkerValues.add(markerValue);
         }
     }
@@ -154,6 +160,23 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
     }
 
     /**
+     * Creates a {@link ParallaxTarget} using direct mapping from source property into target
+     * property, the new {@link ParallaxTarget} will be added to its list of targets.
+     *
+     * @param targetObject Target object for property.
+     * @param targetProperty The target property that will receive values.
+     * @return This ParallaxEffect object, allowing calls to methods in this class to be chained.
+     * @param <T> Type of target object.
+     * @param <V> Type of target property value, either Integer or Float.
+     * @see ParallaxTarget#isDirectMapping()
+     */
+    public final <T, V extends Number> ParallaxEffect target(T targetObject,
+            Property<T, V> targetProperty) {
+        mTargets.add(new ParallaxTarget.DirectPropertyTarget(targetObject, targetProperty));
+        return this;
+    }
+
+    /**
      * Returns the list of {@link ParallaxTarget} objects.
      *
      * @return The list of {@link ParallaxTarget} objects.
@@ -177,10 +200,28 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
         if (mMarkerValues.size() < 2) {
             return;
         }
-        source.verifyProperties();
-        float fraction = calculateFraction(source);
+        if (this instanceof IntEffect) {
+            source.verifyIntProperties();
+        } else {
+            source.verifyFloatProperties();
+        }
+        boolean fractionCalculated = false;
+        float fraction = 0;
+        Number directValue = null;
         for (int i = 0; i < mTargets.size(); i++) {
-            mTargets.get(i).update(fraction);
+            ParallaxTarget target = mTargets.get(i);
+            if (target.isDirectMapping()) {
+                if (directValue == null) {
+                    directValue = calculateDirectValue(source);
+                }
+                target.directUpdate(directValue);
+            } else {
+                if (!fractionCalculated) {
+                    fractionCalculated = true;
+                    fraction = calculateFraction(source);
+                }
+                target.update(fraction);
+            }
         }
     }
 
@@ -191,7 +232,15 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
      *
      * @return Float value between 0 and 1.
      */
-    protected abstract float calculateFraction(Parallax source);
+    abstract float calculateFraction(Parallax source);
+
+    /**
+     * This method is expected to get the current value of the single {@link IntProperty} or
+     * {@link FloatProperty}.
+     *
+     * @return Current value of the single {@link IntProperty} or {@link FloatProperty}.
+     */
+    abstract Number calculateDirectValue(Parallax source);
 
     /**
      * When there are multiple ranges (aka three or more markerValues),  this method adjust the
@@ -226,21 +275,48 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
     /**
      * Implementation of {@link ParallaxEffect} for integer type.
      */
-    public static final class IntEffect extends ParallaxEffect<IntEffect,
-            Parallax.IntPropertyMarkerValue> {
+    static final class IntEffect extends ParallaxEffect {
 
         @Override
-        protected float calculateFraction(Parallax s) {
-            Parallax.IntParallax source = (Parallax.IntParallax) s;
+        Number calculateDirectValue(Parallax source) {
+            if (mMarkerValues.size() != 2) {
+                throw new RuntimeException("Must use two marker values for direct mapping");
+            }
+            if (mMarkerValues.get(0).getProperty() != mMarkerValues.get(1).getProperty()) {
+                throw new RuntimeException(
+                        "Marker value must use same Property for direct mapping");
+            }
+            int value1 = ((Parallax.IntPropertyMarkerValue) mMarkerValues.get(0))
+                    .getMarkerValue(source);
+            int value2 = ((Parallax.IntPropertyMarkerValue) mMarkerValues.get(1))
+                    .getMarkerValue(source);
+            if (value1 > value2) {
+                int swapValue = value2;
+                value2 = value1;
+                value1 = swapValue;
+            }
+
+            Number currentValue = ((IntProperty) mMarkerValues.get(0).getProperty()).get(source);
+            if (currentValue.intValue() < value1) {
+                currentValue = value1;
+            } else if (currentValue.intValue() > value2) {
+                currentValue = value2;
+            }
+            return currentValue;
+        }
+
+        @Override
+        float calculateFraction(Parallax source) {
             int lastIndex = 0;
             int lastValue = 0;
             int lastMarkerValue = 0;
             // go through all markerValues, find first markerValue that current value is less than.
             for (int i = 0; i <  mMarkerValues.size(); i++) {
-                Parallax.IntPropertyMarkerValue k =  mMarkerValues.get(i);
+                Parallax.IntPropertyMarkerValue k =  (Parallax.IntPropertyMarkerValue)
+                        mMarkerValues.get(i);
                 int index = k.getProperty().getIndex();
                 int markerValue = k.getMarkerValue(source);
-                int currentValue = source.getPropertyValue(index);
+                int currentValue = source.getIntPropertyValue(index);
 
                 float fraction;
                 if (i == 0) {
@@ -294,21 +370,47 @@ public abstract class ParallaxEffect<ParallaxEffectT extends ParallaxEffect,
     /**
      * Implementation of {@link ParallaxEffect} for float type.
      */
-    public static final class FloatEffect extends ParallaxEffect<FloatEffect,
-            Parallax.FloatPropertyMarkerValue> {
+    static final class FloatEffect extends ParallaxEffect {
 
         @Override
-        protected float calculateFraction(Parallax s) {
-            Parallax.FloatParallax source = (Parallax.FloatParallax) s;
+        Number calculateDirectValue(Parallax source) {
+            if (mMarkerValues.size() != 2) {
+                throw new RuntimeException("Must use two marker values for direct mapping");
+            }
+            if (mMarkerValues.get(0).getProperty() != mMarkerValues.get(1).getProperty()) {
+                throw new RuntimeException(
+                        "Marker value must use same Property for direct mapping");
+            }
+            float value1 = ((FloatPropertyMarkerValue) mMarkerValues.get(0))
+                    .getMarkerValue(source);
+            float value2 = ((FloatPropertyMarkerValue) mMarkerValues.get(1))
+                    .getMarkerValue(source);
+            if (value1 > value2) {
+                float swapValue = value2;
+                value2 = value1;
+                value1 = swapValue;
+            }
+
+            Number currentValue = ((FloatProperty) mMarkerValues.get(0).getProperty()).get(source);
+            if (currentValue.floatValue() < value1) {
+                currentValue = value1;
+            } else if (currentValue.floatValue() > value2) {
+                currentValue = value2;
+            }
+            return currentValue;
+        }
+
+        @Override
+        float calculateFraction(Parallax source) {
             int lastIndex = 0;
             float lastValue = 0;
             float lastMarkerValue = 0;
             // go through all markerValues, find first markerValue that current value is less than.
             for (int i = 0; i <  mMarkerValues.size(); i++) {
-                FloatPropertyMarkerValue k =  mMarkerValues.get(i);
+                FloatPropertyMarkerValue k = (FloatPropertyMarkerValue) mMarkerValues.get(i);
                 int index = k.getProperty().getIndex();
                 float markerValue = k.getMarkerValue(source);
-                float currentValue = source.getPropertyValue(index);
+                float currentValue = source.getFloatPropertyValue(index);
 
                 float fraction;
                 if (i == 0) {
