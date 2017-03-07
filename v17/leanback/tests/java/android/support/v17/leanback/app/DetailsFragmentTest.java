@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
-import android.support.test.filters.Suppress;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.FitWidthBitmapDrawable;
 import android.support.v17.leanback.media.MediaPlayerGlue;
@@ -125,7 +124,6 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         assertEquals(0f, frameBottom.getAdapterPosition(), delta);
     }
 
-    @Suppress // Disabled due to flakiness.
     @Test
     public void parallaxTest() throws Throwable {
         launchAndWaitActivity(DetailsFragmentParallax.class,
