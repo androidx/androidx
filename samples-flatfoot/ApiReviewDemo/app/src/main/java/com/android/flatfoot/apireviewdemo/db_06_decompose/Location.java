@@ -14,20 +14,28 @@
  * limitations under the License.
  */
 
-package com.android.flatfoot.apireviewdemo;
-
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+package com.android.flatfoot.apireviewdemo.db_06_decompose;
 
 /**
- * Example local unit test, which will execute on the development machine (host).
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
+ * Decomposed into {@link Address}.
  */
-public class ExampleUnitTest {
-    @Test
-    public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
+public class Location {
+    private long latitude;
+    private long longitude;
+
+    public long getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(long latitude) {
+        this.latitude = latitude;
+    }
+
+    public long getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(long longitude) {
+        this.longitude = longitude;
     }
 }

@@ -14,16 +14,35 @@
  * limitations under the License.
  */
 
-package com.android.flatfoot.apireviewdemo.db_01_basic;
+package com.android.flatfoot.apireviewdemo.db_06_decompose;
 
-
+import com.android.support.room.Decompose;
 import com.android.support.room.Entity;
 import com.android.support.room.PrimaryKey;
 
+/**
+ * Has decomposed address which has decomposed location so will have all the fields from 3 classes.
+ */
 @Entity
-public class User {
-    @PrimaryKey
-    public int id;
-    public String name;
-    public String lastName;
+public class School {
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+    @Decompose
+    private Address address;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 }

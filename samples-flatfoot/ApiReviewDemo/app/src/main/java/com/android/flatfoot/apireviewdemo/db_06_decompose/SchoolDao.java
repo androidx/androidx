@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
-package com.android.flatfoot.apireviewdemo.db_03_entity;
+package com.android.flatfoot.apireviewdemo.db_06_decompose;
 
 import com.android.support.room.Dao;
+import com.android.support.room.Insert;
+import com.android.support.room.OnConflictStrategy;
 import com.android.support.room.Query;
 
 import java.util.List;
 
 @Dao
-public interface PetDao {
-    @Query("select * from Pet where owner_id = :userId")
-    List<Pet> findPetsOfUser(int userId);
+public interface SchoolDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void save(School school);
+
+    @Query("SELECT * FROM school WHERE street LIKE :street")
+    List<School> findByStreetName(String street);
+
+    @Query("SELECT street, state, latitude, longitude FROM school WHERE id = ?")
+    Address findAddressOfSchool(int id);
+
+    @Query("SELECT * FROM school WHERE id = ?")
+    Location findLocaltionOfSchool(int id);
 }

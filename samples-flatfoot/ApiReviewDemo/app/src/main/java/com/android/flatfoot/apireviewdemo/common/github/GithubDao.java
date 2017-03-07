@@ -20,6 +20,7 @@ import com.android.flatfoot.apireviewdemo.common.entity.Person;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.room.Dao;
 import com.android.support.room.Insert;
+import com.android.support.room.OnConflictStrategy;
 import com.android.support.room.Query;
 
 /**
@@ -42,6 +43,6 @@ public interface GithubDao {
     /**
      * Insert or update full data for a person.
      */
-    @Insert(onConflict = Insert.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertOrReplacePerson(Person personData);
 }
