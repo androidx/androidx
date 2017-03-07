@@ -48,6 +48,7 @@ public class FragmentLifecycleTest {
 
     private Instrumentation mInstrumentation;
 
+    @SuppressWarnings("WeakerAccess")
     @Parameterized.Parameter
     public boolean mNested;
 

@@ -16,6 +16,8 @@
 
 package com.android.support.lifecycle;
 
+import static com.android.support.lifecycle.TestUtils.waitTillResumed;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -40,7 +42,6 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -61,23 +62,6 @@ public class ProcessProviderTest {
 
     private ProcessObserver mObserver = new ProcessObserver();
 
-    public void waitTillResumed(final LifecycleActivity a) throws Throwable {
-        final CountDownLatch latch = new CountDownLatch(1);
-        activityTestRule.runOnUiThread(() -> {
-            int currentState = a.getLifecycle().getCurrentState();
-            if (currentState == Lifecycle.RESUMED) {
-                latch.countDown();
-            }
-            a.getLifecycle().addObserver(new LifecycleObserver() {
-                @OnLifecycleEvent(Lifecycle.ON_RESUME)
-                public void onStateChanged(LifecycleProvider provider) {
-                    latch.countDown();
-                    provider.getLifecycle().removeObserver(this);
-                }
-            });
-        });
-        latch.await();
-    }
 
     @After
     public void tearDown() {
@@ -140,19 +124,19 @@ public class ProcessProviderTest {
         events.clear();
         assertThat(activity.moveTaskToBack(true), is(true));
         Thread.sleep(ProcessProvider.TIMEOUT_MS * 2);
-        assertThat(events.toArray(), is(new Integer[] {Lifecycle.ON_PAUSE, Lifecycle.ON_STOP}));
+        assertThat(events.toArray(), is(new Integer[]{Lifecycle.ON_PAUSE, Lifecycle.ON_STOP}));
         events.clear();
         Context context = InstrumentationRegistry.getContext();
         context.startActivity(new Intent(activity, NavigationDialogActivity.class));
-        waitTillResumed(dialogActivity);
-        assertThat(events.toArray(), is(new Integer[] {Lifecycle.ON_START, Lifecycle.ON_RESUME}));
+        waitTillResumed(dialogActivity, activityTestRule);
+        assertThat(events.toArray(), is(new Integer[]{Lifecycle.ON_START, Lifecycle.ON_RESUME}));
         removeProcessObserver(collectingObserver);
         dialogActivity.finish();
     }
 
     private LifecycleActivity setupObserverOnResume() throws Throwable {
         LifecycleActivity firstActivity = activityTestRule.getActivity();
-        waitTillResumed(firstActivity);
+        waitTillResumed(firstActivity, activityTestRule);
         addProcessObserver(mObserver);
         mObserver.mChangedState = false;
         return firstActivity;
@@ -169,7 +153,7 @@ public class ProcessProviderTest {
     }
 
     private void checkProcessObserverSilent(LifecycleActivity activity) throws Throwable {
-        waitTillResumed(activity);
+        waitTillResumed(activity, activityTestRule);
         assertThat(mObserver.mChangedState, is(false));
         activityTestRule.runOnUiThread(() ->
                 ProcessProvider.get().getLifecycle().removeObserver(mObserver));

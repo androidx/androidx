@@ -16,9 +16,7 @@
 
 package com.android.support.lifecycle;
 
-import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.annotation.RestrictTo;
 
@@ -28,12 +26,9 @@ import android.support.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ReportInitializationFragment extends Fragment {
-
-    private static final String FRAGMENT_TAG = "com.android.support.lifecycle.ReportFragment";
+public class ReportFragment extends Fragment {
 
     private ActivityInitializationListener mProcessListener;
-    private ActivityInitializationListener mActivityListener;
 
     private void dispatchCreate(ActivityInitializationListener listener) {
         if (listener != null) {
@@ -57,51 +52,51 @@ public class ReportInitializationFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         dispatchCreate(mProcessListener);
-        dispatchCreate(mActivityListener);
+        dispatch(Lifecycle.ON_CREATE);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         dispatchStart(mProcessListener);
-        dispatchStart(mActivityListener);
+        dispatch(Lifecycle.ON_START);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         dispatchResume(mProcessListener);
-        dispatchResume(mActivityListener);
+        dispatch(Lifecycle.ON_RESUME);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        dispatch(Lifecycle.ON_PAUSE);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        dispatch(Lifecycle.ON_STOP);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        dispatch(Lifecycle.ON_DESTROY);
         // just want to be sure that we won't leak reference to an activity
         mProcessListener = null;
-        mActivityListener = null;
+    }
+
+    private void dispatch(@Lifecycle.Event int event) {
+        if (getActivity() instanceof LifecycleActivity) {
+            ((LifecycleActivity) getActivity()).getLifecycle().handleLifecycleEvent(event);
+        }
     }
 
     void setProcessListener(ActivityInitializationListener processListener) {
         mProcessListener = processListener;
-    }
-
-    void setActivityListener(ActivityInitializationListener activityListener) {
-        mActivityListener = activityListener;
-    }
-
-    static ReportInitializationFragment getOrCreateFor(Activity activity) {
-        FragmentManager manager = activity.getFragmentManager();
-        ReportInitializationFragment fragment =
-                (ReportInitializationFragment) manager.findFragmentByTag(FRAGMENT_TAG);
-        if (fragment == null) {
-            fragment = new ReportInitializationFragment();
-            manager.beginTransaction().add(fragment, FRAGMENT_TAG).commit();
-
-            // Hopefully, we are the first to make a transaction.
-            manager.executePendingTransactions();
-        }
-        return fragment;
     }
 
     interface ActivityInitializationListener {

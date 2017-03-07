@@ -57,8 +57,13 @@ public class ActivityFullLifecycleTest {
 
         List<Pair<FullLifecycleTestActivity.TestEvent, Integer>> expected = new ArrayList<>();
         for (int i : expectedEvents) {
-            expected.add(new Pair<>(ACTIVITY_CALLBACK, i));
-            expected.add(new Pair<>(LIFECYCLE_EVENT, i));
+            if (i <= Lifecycle.ON_RESUME) {
+                expected.add(new Pair<>(ACTIVITY_CALLBACK, i));
+                expected.add(new Pair<>(LIFECYCLE_EVENT, i));
+            } else {
+                expected.add(new Pair<>(LIFECYCLE_EVENT, i));
+                expected.add(new Pair<>(ACTIVITY_CALLBACK, i));
+            }
         }
         assertThat(results, is(expected));
     }

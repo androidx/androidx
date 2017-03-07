@@ -38,8 +38,8 @@ import org.mockito.Mockito;
 public class DispatcherActivityCallbackTest {
     @Test
     public void onCreateFrameworkActivity() {
-        FragmentLifecycleDispatcher.DispatcherActivityCallback callback =
-                new FragmentLifecycleDispatcher.DispatcherActivityCallback();
+        LifecycleDispatcher.DispatcherActivityCallback callback =
+                new LifecycleDispatcher.DispatcherActivityCallback();
         Activity activity = mock(Activity.class);
         callback.onActivityCreated(activity, mock(Bundle.class));
         Mockito.verifyNoMoreInteractions(activity);
@@ -48,8 +48,8 @@ public class DispatcherActivityCallbackTest {
 
     @Test
     public void onCreateFragmentActivity() {
-        FragmentLifecycleDispatcher.DispatcherActivityCallback callback =
-                new FragmentLifecycleDispatcher.DispatcherActivityCallback();
+        LifecycleDispatcher.DispatcherActivityCallback callback =
+                new LifecycleDispatcher.DispatcherActivityCallback();
         FragmentActivity activity = mock(FragmentActivity.class);
         FragmentManager fragmentManager = mock(FragmentManager.class);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);

@@ -22,6 +22,8 @@ import android.app.Instrumentation.ActivityMonitor;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 
+import java.util.concurrent.CountDownLatch;
+
 public class TestUtils {
 
     private static final long TIMEOUT_MS = 2000;
@@ -55,4 +57,24 @@ public class TestUtils {
         }
         return result;
     }
+
+    static void waitTillResumed(final LifecycleActivity a, ActivityTestRule<?> activityRule)
+            throws Throwable {
+        final CountDownLatch latch = new CountDownLatch(1);
+        activityRule.runOnUiThread(() -> {
+            int currentState = a.getLifecycle().getCurrentState();
+            if (currentState == Lifecycle.RESUMED) {
+                latch.countDown();
+            }
+            a.getLifecycle().addObserver(new LifecycleObserver() {
+                @OnLifecycleEvent(Lifecycle.ON_RESUME)
+                public void onStateChanged(LifecycleProvider provider) {
+                    latch.countDown();
+                    provider.getLifecycle().removeObserver(this);
+                }
+            });
+        });
+        latch.await();
+    }
+
 }

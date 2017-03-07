@@ -23,12 +23,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
 
-import com.android.support.lifecycle.ReportInitializationFragment.ActivityInitializationListener;
+import com.android.support.lifecycle.ReportFragment.ActivityInitializationListener;
 
 /**
  * Class that provides lifecycle for the whole application process.
  * <p>
-
+ *
  * You can consider this LifecycleProvider as the composite of all of your Activities:
  * ProcessProvider will dispatch {@link Lifecycle#ON_CREATE}, {@link Lifecycle#ON_START},
  * {@link Lifecycle#ON_RESUME} events, as a first activity moves through these events.
@@ -178,8 +178,7 @@ public class ProcessProvider implements LifecycleProvider {
         app.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                ReportInitializationFragment.getOrCreateFor(activity)
-                        .setProcessListener(mInitializationListener);
+                LifecycleDispatcher.get(activity).setProcessListener(mInitializationListener);
             }
 
             @Override

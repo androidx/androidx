@@ -16,7 +16,6 @@
 
 package com.android.support.lifecycle;
 
-import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 /**
@@ -25,44 +24,12 @@ import android.support.v4.app.FragmentActivity;
  * This class is a temporary implementation detail until Lifecycles are integrated with support
  * library.
  */
-public class LifecycleActivity extends FragmentActivity implements LifecycleProvider {
+public class LifecycleActivity extends FragmentActivity implements LifecycleRegistryProvider {
 
-    private final ActivityLifecycleDispatcher mDispatcher = new ActivityLifecycleDispatcher(this,
-            this);
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mDispatcher.onActivityPostSuperOnCreate();
-    }
+    private final LifecycleRegistry mRegistry = new LifecycleRegistry(this);
 
     @Override
-    protected void onResume() {
-        mDispatcher.onActivityPreSuperOnResume();
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        mDispatcher.onActivityPreSuperOnPause();
-        super.onPause();
-    }
-
-    @Override
-    protected void onStop() {
-        mDispatcher.onActivityPreSuperOnStop();
-        super.onStop();
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        mDispatcher.onActivityPreSuperOnDestroy();
-        super.onDestroy();
-    }
-
-    @Override
-    public Lifecycle getLifecycle() {
-        return mDispatcher.getLifecycle();
+    public LifecycleRegistry getLifecycle() {
+        return mRegistry;
     }
 }

@@ -26,10 +26,14 @@ import android.support.annotation.MainThread;
  * getLifecycle} method to access the Lifecycle. You can also implement {@link LifecycleProvider}
  * in your own classes.
  * <p>
- * Each event in this class is dispatched <b>after</b> the owner {@link LifecycleProvider}'s related
- * method returns. For instance, {@link #ON_STOP} will be dispatched after
- * {@link android.app.Activity#onStop onStop} returns. This gives you certain guarantees on which
- * state the owner is in.
+ * {@link #ON_CREATE}, {@link #ON_START}, {@link #ON_RESUME} events in this class are dispatched
+ * <b>after</b> the owner {@link LifecycleProvider}'s related method returns.
+ * {@link #ON_PAUSE}, {@link #ON_STOP}, {@link #ON_DESTROY} events in this class are dispatched
+ * <b>before</b> the owner {@link LifecycleProvider}'s related method is called.
+ * For instance, {@link #ON_START} will be dispatched after
+ * {@link android.app.Activity#onStart onStart} returns, {@link #ON_STOP} will be dispatched
+ * before {@link android.app.Activity#onStop onStop} is called.
+ * This gives you certain guarantees on which state the owner is in.
  * <p>
  * Lifecycle events are observed using annotations.
  * <pre>

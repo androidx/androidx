@@ -32,8 +32,8 @@ import android.support.annotation.RestrictTo;
 public class LifecycleRuntimeTrojanProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
+        LifecycleDispatcher.init(getContext());
         ProcessProvider.init(getContext());
-        FragmentLifecycleDispatcher.init(getContext());
         return true;
     }
 

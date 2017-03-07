@@ -66,6 +66,15 @@ public class LifecycleRegistry implements Lifecycle {
     }
 
     /**
+     * Only marks the current state as the given value. It doesn't dispatch any event to its
+     * listeners.
+     * @param state new state
+     */
+    public void markState(@State int state) {
+        mState = state;
+    }
+
+    /**
      * Sets the current state and notifies the observers.
      * <p>
      * Note that if the {@code currentState} is the same state as the last call to this method,

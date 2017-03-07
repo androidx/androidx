@@ -52,5 +52,6 @@
         <activity android:name=".NavigationDialogActivity"
             android:launchMode="singleTask"
             android:theme="@android:style/Theme.DeviceDefault.Dialog" />
+        <activity android:name=".LiveDataTestActivity"/>
     </application>
 </manifest>
