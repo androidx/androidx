@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.XmlRes;
 import android.support.v4.app.Fragment;
@@ -50,7 +49,6 @@ import com.android.support.navigation.R;
  *                 android:id="@+id/my_nav_host_fragment"
  *                 android:name="android.support.navigation.app.nav.NavHostFragment"
  *                 app:navGraph="@xml/nav_sample"
- *                 app:startDestination="@+id/launcher_home"
  *                 app:defaultNavHost="true" />
  *         <android.support.design.widget.NavigationView
  *                 android:layout_width="wrap_content"
@@ -73,7 +71,6 @@ import com.android.support.navigation.R;
  */
 public class NavHostFragment extends Fragment {
     private static final String KEY_GRAPH_ID = "android-support-nav:fragment:graphId";
-    private static final String KEY_START_DEST_ID = "android-support-nav:fragment:startDestId";
     private static final String KEY_NAV_CONTROLLER_STATE =
             "android-support-nav:fragment:navControllerState";
     private static final String KEY_DEFAULT_NAV_HOST = "android-support-nav:fragment:defaultHost";
@@ -90,28 +87,10 @@ public class NavHostFragment extends Fragment {
      * @return a new NavHostFragment instance
      */
     public static NavHostFragment create(@XmlRes int graphRes) {
-        return create(graphRes, 0);
-    }
-
-    /**
-     * Create a new NavHostFragment instance with an inflated {@link NavGraph} resource
-     * and a starting destination id.
-     *
-     * @param graphRes resource id of the navigation graph to inflate
-     * @param startDestinationRes id of the initial destination
-     * @return a new NavHostFragment instance
-     */
-    public static NavHostFragment create(@XmlRes int graphRes, @IdRes int startDestinationRes) {
         Bundle b = null;
         if (graphRes != 0) {
             b = new Bundle();
             b.putInt(KEY_GRAPH_ID, graphRes);
-        }
-        if (startDestinationRes != 0) {
-            if (b == null) {
-                b = new Bundle();
-            }
-            b.putInt(KEY_START_DEST_ID, startDestinationRes);
         }
 
         final NavHostFragment result = new NavHostFragment();
@@ -149,27 +128,6 @@ public class NavHostFragment extends Fragment {
             setArguments(args);
         } else {
             mNavController.setGraph(graphRes);
-        }
-    }
-
-    /**
-     * Set a starting destination id for this navigation host.
-     * If this host has not navigated to a destination yet, the host will navigate to the start
-     * destination. The initial navigation to the starting destination is not considered part of the
-     * {@link #getNavController() host controller's} back stack.
-     *
-     * @param destRes id of the initial destination
-     */
-    public void setStartDestination(@IdRes int destRes) {
-        if (mNavController == null) {
-            Bundle args = getArguments();
-            if (args == null) {
-                args = new Bundle();
-            }
-            args.putInt(KEY_START_DEST_ID, destRes);
-            setArguments(args);
-        } else {
-            mNavController.setStartDestination(destRes);
         }
     }
 
@@ -212,15 +170,11 @@ public class NavHostFragment extends Fragment {
             mNavController.restoreState(navState);
         } else {
             final Bundle args = getArguments();
-            final int graphid = args.getInt(KEY_GRAPH_ID);
-            final int destid = args.getInt(KEY_START_DEST_ID);
-            if (graphid != 0) {
-                mNavController.setGraph(graphid);
+            final int graphId = args.getInt(KEY_GRAPH_ID);
+            if (graphId != 0) {
+                mNavController.setGraph(graphId);
             } else {
                 mNavController.addMetadataGraph();
-            }
-            if (destid != 0) {
-                mNavController.setStartDestination(destid);
             }
         }
     }
@@ -246,15 +200,11 @@ public class NavHostFragment extends Fragment {
         super.onInflate(context, attrs, savedInstanceState);
 
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.NavHostFragment);
-        final int graphid = a.getResourceId(R.styleable.NavHostFragment_navGraph, 0);
-        final int destid = a.getResourceId(R.styleable.NavHostFragment_startDestination, 0);
+        final int graphId = a.getResourceId(R.styleable.NavHostFragment_navGraph, 0);
         final boolean defaultHost = a.getBoolean(R.styleable.NavHostFragment_defaultNavHost, false);
 
-        if (graphid != 0) {
-            setGraph(graphid);
-        }
-        if (destid != 0) {
-            setStartDestination(destid);
+        if (graphId != 0) {
+            setGraph(graphId);
         }
         if (defaultHost) {
             mDefaultNavHost = true;

@@ -14,7 +14,10 @@
 <resources>
     <declare-styleable name="NavDestination">
         <attr name="android:id"/>
-        <attr name="navigator" format="string"/>
+    </declare-styleable>
+
+    <declare-styleable name="NavGraphNavigatorParams">
+        <attr name="nav_startDestination" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="FragmentNavigatorParams">
@@ -34,7 +37,6 @@
 
     <declare-styleable name="NavHostFragment">
         <attr name="navGraph" format="reference" />
-        <attr name="startDestination" format="reference" />
         <attr name="defaultNavHost" format="boolean" />
     </declare-styleable>
 </resources>

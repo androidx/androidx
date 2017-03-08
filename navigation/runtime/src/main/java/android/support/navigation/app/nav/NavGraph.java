@@ -17,13 +17,21 @@
 package android.support.navigation.app.nav;
 
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.util.SparseArray;
 
 /**
  * NavGraph is a collection of {@link NavDestination} nodes fetchable by ID.
  */
-public class NavGraph {
+public class NavGraph extends NavDestination {
     private final SparseArray<NavDestination> mNodes = new SparseArray<>();
+
+    /**
+     * NavGraphs should be created via {@link NavController#createGraph}
+     */
+    public NavGraph(@NonNull Navigator navigator) {
+        super(navigator);
+    }
 
     /**
      * Adds a destination to the collection.
@@ -31,6 +39,10 @@ public class NavGraph {
      * @param node destination to add
      */
     public void addDestination(NavDestination node) {
+        if (node.getId() == 0) {
+            throw new IllegalArgumentException("Destinations must have an id."
+                    + " Call setId() or include an android:id in your navigation XML.");
+        }
         mNodes.put(node.getId(), node);
     }
 

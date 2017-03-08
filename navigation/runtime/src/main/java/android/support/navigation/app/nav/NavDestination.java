@@ -44,25 +44,30 @@ import com.android.support.navigation.R;
  * These arguments can be overridden at the time of navigation.</p>
  */
 public class NavDestination {
+    private final Navigator mNavigator;
     private int mId;
-    private Navigator mNavigator;
     private Navigator.Params mNavParams;
     private Bundle mDefaultArgs;
     private SparseIntArray mActions;
     private int mFlowId;
 
     /**
+     * NavDestinations should be created via {@link Navigator#createDestination}.
+     */
+    public NavDestination(@NonNull Navigator navigator) {
+        mNavigator = navigator;
+    }
+
+    /**
      * Called when inflating a destination from a resource.
      *
      * @param context local context performing inflation
      * @param attrs attrs to parse during inflation
-     * @param inflater inflater currently performing the inflation
      */
-    public void onInflate(Context context, AttributeSet attrs, NavInflater inflater) {
+    public void onInflate(Context context, AttributeSet attrs) {
         final TypedArray a = context.getResources().obtainAttributes(attrs,
                 R.styleable.NavDestination);
         setId(a.getResourceId(R.styleable.NavDestination_android_id, 0));
-        setNavigator(inflater.getNavigator(a.getString(R.styleable.NavDestination_navigator)));
         a.recycle();
 
         setNavigatorParams(mNavigator.inflateParams(context, attrs));
@@ -74,6 +79,7 @@ public class NavDestination {
      *
      * @return this destination's ID
      */
+    @IdRes
     public int getId() {
         return mId;
     }
@@ -84,26 +90,8 @@ public class NavDestination {
      *
      * @param id this destination's new ID
      */
-    public void setId(int id) {
+    public void setId(@IdRes int id) {
         mId = id;
-    }
-
-    /**
-     * Sets the destination's {@link Navigator}.
-     *
-     * <p>The {@link #getNavigatorParams() current params} object will be checked for validity
-     * by the new navigator. If the params are no longer valid, the new navigator will be asked
-     * to convert the old params.</p>
-     *
-     * @param navigator navigator to set
-     */
-    public void setNavigator(Navigator navigator) {
-        if (navigator == mNavigator) {
-            return;
-        }
-        mNavigator = navigator;
-        // Apply the navigator params validity checks for the new navigator
-        setNavigatorParams(mNavParams);
     }
 
     /**
@@ -125,7 +113,7 @@ public class NavDestination {
      * @param params params to set
      */
     public void setNavigatorParams(Navigator.Params params) {
-        if (mNavigator != null && !mNavigator.checkParams(params)) {
+        if (!mNavigator.checkParams(params)) {
             Navigator.Params newParams = mNavigator.generateDefaultParams();
             newParams.copyFrom(params);
             params = newParams;
@@ -223,8 +211,9 @@ public class NavDestination {
      *
      * @param args arguments to the new destination
      * @param navOptions options for navigation
+     * @return true if navigation created a back stack entry that should be tracked
      */
-    public void navigate(Bundle args, NavOptions navOptions) {
+    public boolean navigate(Bundle args, NavOptions navOptions) {
         Bundle finalArgs = null;
         Bundle defaultArgs = getDefaultArguments();
         if (defaultArgs != null) {
@@ -237,6 +226,6 @@ public class NavDestination {
             }
             finalArgs.putAll(args);
         }
-        mNavigator.navigate(this, finalArgs, navOptions);
+        return mNavigator.navigate(this, finalArgs, navOptions);
     }
 }

@@ -62,7 +62,6 @@ public class NavController implements NavigatorProvider {
     public static final String METADATA_KEY_GRAPH = "android.nav.graph";
 
     private static final String KEY_GRAPH_ID = "android-support-nav:controller:graphId";
-    private static final String KEY_START_DEST_ID = "android-support-nav:controller:startDestId";
     private static final String KEY_CUR_DEST_ID = "android-support-nav:controller:curDestId";
 
     private Context mContext;
@@ -70,7 +69,6 @@ public class NavController implements NavigatorProvider {
     private NavGraph mGraph;
     private int mGraphId;
     private NavDestination mCurrentNode;
-    private int mStartDestId;
 
     private final HashMap<String, Navigator> mNavigators = new HashMap<>();
     private final ArrayList<Navigator> mNavigatorBackStack = new ArrayList<>();
@@ -136,6 +134,8 @@ public class NavController implements NavigatorProvider {
      */
     public NavController(Context context) {
         mContext = context;
+        final NavGraphNavigator navGraphNavigator = new NavGraphNavigator(mContext);
+        mNavigators.put(NavGraphNavigator.NAME, navGraphNavigator);
         final ActivityNavigator activityNavigator = new ActivityNavigator(mContext);
         mNavigators.put(ActivityNavigator.NAME, activityNavigator);
     }
@@ -152,6 +152,8 @@ public class NavController implements NavigatorProvider {
      */
     public NavController(Activity activity) {
         mContext = activity;
+        final NavGraphNavigator navGraphNavigator = new NavGraphNavigator(mContext);
+        mNavigators.put(NavGraphNavigator.NAME, navGraphNavigator);
         final ActivityNavigator activityNavigator = new ActivityNavigator(activity);
         mNavigators.put(ActivityNavigator.NAME, activityNavigator);
 
@@ -268,6 +270,15 @@ public class NavController implements NavigatorProvider {
     }
 
     /**
+     * Create a new NavGraph with the current {@link NavGraphNavigator}.
+     *
+     * @return an empty NavGraph
+     */
+    public NavGraph createGraph() {
+        return (NavGraph) getNavigator(NavGraphNavigator.NAME).createDestination();
+    }
+
+    /**
      * Returns the {@link NavInflater inflater} for this controller.
      *
      * @return inflater for loading navigation resources
@@ -291,6 +302,7 @@ public class NavController implements NavigatorProvider {
     public void setGraph(@XmlRes int resid) {
         mGraph = getNavInflater().inflate(resid);
         mGraphId = resid;
+        onGraphCreated();
     }
 
     /**
@@ -303,6 +315,7 @@ public class NavController implements NavigatorProvider {
     public void setGraph(NavGraph graph) {
         mGraph = graph;
         mGraphId = 0;
+        onGraphCreated();
     }
 
     /**
@@ -322,6 +335,7 @@ public class NavController implements NavigatorProvider {
         } else {
             mGraph = newGraph;
             mGraphId = resid;
+            onGraphCreated();
         }
     }
 
@@ -331,22 +345,20 @@ public class NavController implements NavigatorProvider {
      * @param graph graph to merge into this controller's graph
      */
     public void addGraph(NavGraph graph) {
-        if (mGraph == null) {
-            mGraph = new NavGraph();
-        }
-        mGraph.addAll(graph);
         mGraphId = 0;
+        if (mGraph != null) {
+            mGraph.addAll(graph);
+        } else {
+            mGraph = createGraph();
+            mGraph.addAll(graph);
+            onGraphCreated();
+        }
     }
 
-    /**
-     * Sets the starting navigation destination for this controller.
-     *
-     * @param resid destination id to set
-     */
-    public void setStartDestination(@IdRes int resid) {
-        mStartDestId = resid;
-        if (mCurrentNode == null) {
-            navigateTo(resid);
+    private void onGraphCreated() {
+        // Navigate to the first destination in the graph
+        if (mGraph != null && mCurrentNode == null) {
+            mGraph.navigate(null, null);
         }
     }
 
@@ -459,12 +471,6 @@ public class NavController implements NavigatorProvider {
             b = new Bundle();
             b.putInt(KEY_GRAPH_ID, mGraphId);
         }
-        if (mStartDestId != 0) {
-            if (b == null) {
-                b = new Bundle();
-            }
-            b.putInt(KEY_START_DEST_ID, mStartDestId);
-        }
         if (mCurrentNode != null) {
             if (b == null) {
                 b = new Bundle();
@@ -490,11 +496,10 @@ public class NavController implements NavigatorProvider {
 
         mGraphId = navState.getInt(KEY_GRAPH_ID);
         if (mGraphId != 0) {
-            setGraph(mGraphId);
+            mGraph = getNavInflater().inflate(mGraphId);
         }
-        mStartDestId = navState.getInt(KEY_START_DEST_ID);
 
-        // Restore the current location first, or setStartDestination will perform navigation
+        // Restore the current location first, or onGraphCreated will perform navigation
         // if mCurrentNode is null.
         final int loc = navState.getInt(KEY_CUR_DEST_ID);
         if (loc != 0) {
@@ -505,9 +510,7 @@ public class NavController implements NavigatorProvider {
             }
             mCurrentNode = node;
         }
-        if (mStartDestId != 0) {
-            setStartDestination(mStartDestId);
-        }
+        onGraphCreated();
     }
 
     void onNavigatorBackStackEmpty(Navigator emptyNavigator) {

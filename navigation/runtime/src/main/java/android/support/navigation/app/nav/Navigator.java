@@ -43,6 +43,14 @@ public abstract class Navigator<P extends Navigator.Params> {
             new CopyOnWriteArrayList<>();
 
     /**
+     * Construct a new NavDestination associated with this Navigator.
+     * @return a new NavDestination
+     */
+    public NavDestination createDestination() {
+        return new NavDestination(this);
+    }
+
+    /**
      * Create and return a {@link Params navigator params} object with default values
      * for this navigator.
      * @return a new {@link Params} with default values

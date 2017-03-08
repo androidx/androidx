@@ -22,7 +22,6 @@
         android:id="@+id/my_nav_host_fragment"
         android:name="android.support.navigation.app.nav.NavHostFragment"
         app:navGraph="@xml/nav_main"
-        app:startDestination="@+id/launcher_home"
         app:defaultNavHost="true"
         />
     <android.support.design.widget.NavigationView

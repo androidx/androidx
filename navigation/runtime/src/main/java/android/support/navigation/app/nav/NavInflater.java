@@ -36,8 +36,6 @@ import java.io.IOException;
  * Class which translates a navigation XML file into a {@link NavGraph}
  */
 public class NavInflater {
-    private static final String TAG_ROOT = "navigation";
-    private static final String TAG_DESTINATION = "destination";
     private static final String TAG_ARGUMENT = "default-argument";
     private static final String TAG_ACTION = "action";
 
@@ -71,8 +69,6 @@ public class NavInflater {
     public NavGraph inflate(@XmlRes int navres) {
         Resources res = mContext.getResources();
         XmlResourceParser parser = res.getXml(navres);
-        NavGraph graph = new NavGraph();
-
         final AttributeSet attrs = Xml.asAttributeSet(parser);
         try {
             int type;
@@ -84,41 +80,33 @@ public class NavInflater {
                 throw new XmlPullParserException("No start tag found");
             }
 
-            if (!TAG_ROOT.equals(parser.getName())) {
-                throw new XmlPullParserException("Expected root element <" + TAG_ROOT + ">");
+            String rootElement = parser.getName();
+            NavDestination destination = inflate(res, parser, attrs);
+            if (!(destination instanceof NavGraph)) {
+                throw new IllegalArgumentException("Root element <" + rootElement + ">"
+                        + " did not inflate into a NavGraph");
             }
-
-            while ((type = parser.next()) != XmlPullParser.END_DOCUMENT) {
-                if (type != XmlPullParser.START_TAG) {
-                    continue;
-                }
-
-                if (TAG_DESTINATION.equals(parser.getName())) {
-                    final NavDestination dest;
-                    try {
-                        dest = inflateDestination(res, parser, attrs);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Exception inflating "
-                                + res.getResourceName(navres) + " line "
-                                + parser.getLineNumber(), e);
-                    }
-                    graph.addDestination(dest);
-                }
-            }
+            return (NavGraph) destination;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Exception inflating "
+                    + res.getResourceName(navres) + " line "
+                    + parser.getLineNumber(), e);
         } finally {
             parser.close();
         }
-        return graph;
     }
 
-    private NavDestination inflateDestination(Resources res, XmlResourceParser parser,
-                                              AttributeSet attrs)
+    private NavDestination inflate(Resources res, XmlResourceParser parser, AttributeSet attrs)
             throws XmlPullParserException, IOException {
-        final NavDestination dest = new NavDestination();
+        String navigatorName = parser.getName();
+        Navigator navigator = getNavigator(parser.getName());
+        if (navigator == null) {
+            throw new IllegalArgumentException("Could not inflate " + navigatorName
+                    + ". You must call NavController.addNavigator() for each navigation type.");
+        }
+        final NavDestination dest = navigator.createDestination();
 
-        dest.onInflate(mContext, attrs, this);
+        dest.onInflate(mContext, attrs);
 
         final int innerDepth = parser.getDepth() + 1;
         int type;
@@ -139,6 +127,8 @@ public class NavInflater {
                 inflateArgument(res, dest, attrs);
             } else if (TAG_ACTION.equals(name)) {
                 inflateAction(res, dest, attrs);
+            } else if (dest instanceof NavGraph) {
+                ((NavGraph) dest).addDestination(inflate(res, parser, attrs));
             }
         }
 
