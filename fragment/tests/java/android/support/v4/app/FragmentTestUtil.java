@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
@@ -223,16 +224,22 @@ public class FragmentTestUtil {
      * Allocates until a garbage collection occurs.
      */
     public static void forceGC() {
-        // Do it twice so that we know we're not in the middle of the first collection when
-        // returning.
-        for (int i = 0; i < 2; i++) {
-            // Use a random index in the list to detect the garbage collection each time because
-            // .get() may accidentally trigger a strong reference during collection.
-            ArrayList<WeakReference<byte[]>> leak = new ArrayList<>();
-            do {
-                WeakReference<byte[]> arr = new WeakReference<byte[]>(new byte[100]);
-                leak.add(arr);
-            } while (leak.get((int) (Math.random() * leak.size())).get() != null);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+            // The following works on O+
+            Runtime.getRuntime().gc();
+            Runtime.getRuntime().gc();
+            Runtime.getRuntime().runFinalization();
+        } else {
+            // The following works on older versions
+            for (int i = 0; i < 2; i++) {
+                // Use a random index in the list to detect the garbage collection each time because
+                // .get() may accidentally trigger a strong reference during collection.
+                ArrayList<WeakReference<byte[]>> leak = new ArrayList<>();
+                do {
+                    WeakReference<byte[]> arr = new WeakReference<byte[]>(new byte[100]);
+                    leak.add(arr);
+                } while (leak.get((int) (Math.random() * leak.size())).get() != null);
+            }
         }
     }
 }
