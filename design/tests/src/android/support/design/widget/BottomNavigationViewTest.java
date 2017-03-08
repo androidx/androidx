@@ -56,6 +56,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.PointerIcon;
 import android.view.View;
+import android.view.ViewGroup;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -432,6 +433,22 @@ public class BottomNavigationViewTest
                 assertTrue(testView.getMenu().findItem(R.id.destination_profile).isChecked());
             }
         });
+    }
+
+    @UiThreadTest
+    @Test
+    @SmallTest
+    public void testContentDescription() {
+        ViewGroup menuView = (ViewGroup) mBottomNavigation.getChildAt(0);
+        final int count = menuView.getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = menuView.getChildAt(i);
+            // We're using the same strings for content description
+            assertEquals(mMenuStringContent.get(child.getId()),
+                    child.getContentDescription().toString());
+        }
+
+        menuView.getChildAt(0).getContentDescription();
     }
 
     private void checkAndVerifyExclusiveItem(final Menu menu, final int id) throws Throwable {
