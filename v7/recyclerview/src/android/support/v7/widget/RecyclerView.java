@@ -6210,7 +6210,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     continue;
                 }
 
-                final int pos = holder.getLayoutPosition();
+                final int pos = holder.mPosition;
                 if (pos >= positionStart && pos < positionEnd) {
                     holder.addFlags(ViewHolder.FLAG_UPDATE);
                     recycleCachedViewAt(i);
