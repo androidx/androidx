@@ -20,17 +20,21 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.android.support.executors.AppToolkitTaskExecutor;
+import com.android.support.executors.TaskExecutor;
 import com.android.support.room.InvalidationTracker;
 import com.android.support.room.Room;
 import com.android.support.room.integration.testapp.TestDatabase;
 import com.android.support.room.integration.testapp.dao.UserDao;
 import com.android.support.room.integration.testapp.vo.User;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +42,8 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
@@ -55,6 +61,33 @@ public class InvalidationTest {
         Context context = InstrumentationRegistry.getTargetContext();
         mDb = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
         mUserDao = mDb.getUserDao();
+    }
+
+    @Before
+    public void setSingleThreadedIO() {
+        AppToolkitTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
+            ExecutorService mIOExecutor = Executors.newSingleThreadExecutor();
+            Handler mHandler = new Handler(Looper.getMainLooper());
+            @Override
+            public void executeOnDiskIO(Runnable runnable) {
+                mIOExecutor.execute(runnable);
+            }
+
+            @Override
+            public void postToMainThread(Runnable runnable) {
+                mHandler.post(runnable);
+            }
+
+            @Override
+            public boolean isMainThread() {
+                return Thread.currentThread() == Looper.getMainLooper().getThread();
+            }
+        });
+    }
+
+    @After
+    public void clearExecutor() {
+        AppToolkitTaskExecutor.getInstance().setDelegate(null);
     }
 
     private void waitUntilIOThreadIsIdle() {
