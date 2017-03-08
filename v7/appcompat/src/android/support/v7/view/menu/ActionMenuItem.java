@@ -171,13 +171,13 @@ public class ActionMenuItem implements SupportMenuItem {
 
     @Override
     public MenuItem setAlphabeticShortcut(char alphaChar) {
-        mShortcutAlphabeticChar = alphaChar;
+        mShortcutAlphabeticChar = Character.toLowerCase(alphaChar);
         return this;
     }
 
     @Override
     public MenuItem setAlphabeticShortcut(char alphaChar, int alphaModifiers) {
-        mShortcutAlphabeticChar = alphaChar;
+        mShortcutAlphabeticChar = Character.toLowerCase(alphaChar);
         mShortcutAlphabeticModifiers = KeyEvent.normalizeMetaState(alphaModifiers);
         return this;
     }
@@ -247,7 +247,7 @@ public class ActionMenuItem implements SupportMenuItem {
     @Override
     public MenuItem setShortcut(char numericChar, char alphaChar) {
         mShortcutNumericChar = numericChar;
-        mShortcutAlphabeticChar = alphaChar;
+        mShortcutAlphabeticChar = Character.toLowerCase(alphaChar);
         return this;
     }
 
@@ -256,7 +256,7 @@ public class ActionMenuItem implements SupportMenuItem {
             int alphaModifiers) {
         mShortcutNumericChar = numericChar;
         mShortcutNumericModifiers = KeyEvent.normalizeMetaState(numericModifiers);
-        mShortcutAlphabeticChar = alphaChar;
+        mShortcutAlphabeticChar = Character.toLowerCase(alphaChar);
         mShortcutAlphabeticModifiers = KeyEvent.normalizeMetaState(alphaModifiers);
         return this;
     }
