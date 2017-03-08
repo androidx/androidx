@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * <p>Note that for now this is not publicly available because it is not a
  * complete implementation, only sufficient for the needs of
- * {@link AsyncTaskLoader}.
+ * {@link android.content.AsyncTaskLoader}.
  */
 abstract class ModernAsyncTask<Params, Progress, Result> {
     private static final String LOG_TAG = "AsyncTask";
@@ -436,6 +436,8 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
                     throw new IllegalStateException("Cannot execute task:"
                             + " the task has already been executed "
                             + "(a task can be executed only once)");
+                default:
+                    throw new IllegalStateException("We should never reach this state");
             }
         }
 

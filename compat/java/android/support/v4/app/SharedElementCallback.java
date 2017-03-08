@@ -190,9 +190,9 @@ public abstract class SharedElementCallback {
         int bitmapHeight = Math.round(screenBounds.height());
         Bitmap bitmap = null;
         if (bitmapWidth > 0 && bitmapHeight > 0) {
-            float scale = Math.min(1f, ((float)MAX_IMAGE_SIZE) / (bitmapWidth * bitmapHeight));
-            bitmapWidth *= scale;
-            bitmapHeight *= scale;
+            float scale = Math.min(1f, ((float) MAX_IMAGE_SIZE) / (bitmapWidth * bitmapHeight));
+            bitmapWidth = (int) (bitmapWidth * scale);
+            bitmapHeight = (int) (bitmapHeight * scale);
             if (mTempMatrix == null) {
                 mTempMatrix = new Matrix();
             }
