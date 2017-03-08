@@ -909,6 +909,61 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
+    public void moveAndUpdateCachedViews() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setItemViewCacheSize(3);
+        recyclerView.setItemAnimator(null);
+        final TestAdapter adapter = new TestAdapter(1000);
+        final CountDownLatch layoutLatch = new CountDownLatch(1);
+        LinearLayoutManager tlm = new LinearLayoutManager(recyclerView.getContext()) {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                layoutLatch.countDown();
+            }
+        };
+        tlm.setItemPrefetchEnabled(false);
+        recyclerView.setLayoutManager(tlm);
+        recyclerView.setAdapter(adapter);
+        setRecyclerView(recyclerView);
+        // wait first layout pass
+        layoutLatch.await();
+        // scroll and hide 0 and 1
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.smoothScrollBy(0, recyclerView.getChildAt(2).getTop() + 5);
+            }
+        });
+        waitForIdleScroll(recyclerView);
+        assertNull(recyclerView.findViewHolderForAdapterPosition(0));
+        assertNull(recyclerView.findViewHolderForAdapterPosition(1));
+        // swap 1 and 0 and update 0
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // swap 1 and 0
+                    adapter.moveInUIThread(1, 0);
+                    adapter.notifyItemMoved(1, 0);
+                    // update 0
+                    adapter.mItems.get(0).mText = "updated";
+                    adapter.notifyItemChanged(0);
+                } catch (Throwable throwable) {
+                    postExceptionToInstrumentation(throwable);
+                }
+            }
+        });
+        // scroll back to 0
+        smoothScrollToPosition(0);
+        waitForIdleScroll(recyclerView);
+        TestViewHolder vh = (TestViewHolder) recyclerView.findViewHolderForAdapterPosition(0);
+        // assert updated right item
+        assertTrue((((TextView) (vh.itemView)).getText()).toString().contains("updated"));
+        checkForMainThreadException();
+    }
+
+    @Test
     public void noLayoutIf0ItemsAreChanged() throws Throwable {
         unnecessaryNotifyEvents(new AdapterRunnable() {
             @Override
