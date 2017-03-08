@@ -66,7 +66,7 @@ LOCAL_JAVA_LIBRARIES := \
     android-support-v17-leanback
 LOCAL_ADDITIONAL_JAVA_DIR := $(call intermediates-dir-for,JAVA_LIBRARIES,android-support-v17-leanback-res,,COMMON)/src
 LOCAL_IS_HOST_MODULE := false
-LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
+LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := external/doclava/res/assets/templates-sdk
 LOCAL_DROIDDOC_OPTIONS := \
     -offlinemode \
     -hdf android.whichdoc offline \
