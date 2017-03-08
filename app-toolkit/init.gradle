@@ -78,7 +78,7 @@ def createFFDistTask = rootProject.tasks.create(name : "createFlatfootArchive", 
     from localMavenRepo
     destinationDir distDir
     into 'appToolkitRepository'
-    baseName = String.format("sdk-repo-linux-appToolkitRepository-%s", rootProject.ext.flatfoot.release_version)
+    baseName = String.format("flatfoot-repository-%s", rootProject.ext.flatfoot.release_version)
 }
 
 if (ext.inAppToolkitProject) {
@@ -88,6 +88,17 @@ if (ext.inAppToolkitProject) {
     init.setupRelease()
     init.enableDoclavaAndJDiff(this)
 }
+
+
+// flatfoot docs
+def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArchive", type : Zip) {
+    from rootProject.docsDir
+    destinationDir distDir
+    baseName = String.format("flatfoot-docs-%s", rootProject.ext.flatfoot.release_version)
+}
+
+buildServerAnchorTask.dependsOn zipFlatfootDocsTask
+zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
 
 // Disable API checks for now.
 checkApiStable.enabled = false
