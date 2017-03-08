@@ -50,9 +50,5 @@ public class MainFragment extends Fragment {
 
         Button b = (Button) view.findViewById(R.id.next_button);
         b.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.next));
-
-        Bundle bundle = new Bundle();
-        bundle.putString("myarg", "foo");
-        Navigation.findController(this).navigate(R.id.next, bundle);
     }
 }
