@@ -64,6 +64,8 @@ public class InvalidationTrackerTest {
 
         doReturn(statement).when(sqliteDb).compileStatement(eq(InvalidationTracker.CLEANUP_SQL));
         doReturn(sqliteDb).when(openHelper).getWritableDatabase();
+        doReturn(sqliteDb).when(mRoomDatabase).getDatabase();
+        doReturn(true).when(sqliteDb).isOpen();
         //noinspection ResultOfMethodCallIgnored
         doReturn(openHelper).when(mRoomDatabase).getOpenHelper();
 
