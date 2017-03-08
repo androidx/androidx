@@ -16,6 +16,7 @@
 package android.support.text.emoji.util;
 
 import android.view.KeyEvent;
+import android.view.inputmethod.InputConnection;
 
 /**
  * Utility class for KeyEvents
@@ -62,5 +63,17 @@ public class KeyboardUtil {
     public static KeyEvent keyEvent(int keycode) {
         final long currentTime = System.currentTimeMillis();
         return new KeyEvent(currentTime, currentTime, KeyEvent.ACTION_DOWN, keycode, 0);
+    }
+
+    public static void setComposingTextInBatch(InputConnection input, CharSequence text) {
+        input.beginBatchEdit();
+        input.setComposingText(text, 1);
+        input.endBatchEdit();
+    }
+
+    public static void deleteSurrondingText(InputConnection input, int before, int after) {
+        input.beginBatchEdit();
+        input.deleteSurroundingText(before, after);
+        input.endBatchEdit();
     }
 }
