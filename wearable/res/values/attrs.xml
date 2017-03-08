@@ -47,4 +47,21 @@
             <flag name="all" value="0x0F" />
         </attr>
     </declare-styleable>
+
+    <!-- Attributes that can be used with any
+        {@link android.support.wearable.view.WearableRecyclerView}.
+        These attributes relate to the circular scrolling gesture of the view. -->
+    <declare-styleable name="WearableRecyclerView">
+        <!-- Taps within this radius and the radius of the screen are considered close enough to the
+            bezel to be candidates for circular scrolling. Expressed as a fraction of the screen's
+            radius. The default is the whole screen i.e 1.0f -->
+        <attr name="bezelWidth" format="fraction" />
+        <!-- Enables/disables circular touch scrolling for this view. When enabled, circular touch
+            gestures around the edge of the screen will cause the view to scroll up or down. -->
+        <attr name="circularScrollingGestureEnabled" format="boolean" />
+        <!-- Sets how many degrees the user has to rotate by to scroll through one screen height
+            when they are using the circular scrolling gesture. The default value equates 180
+            degrees scroll to one screen.-->
+        <attr name="scrollDegreesPerScreen" format="float" />
+    </declare-styleable>
 </resources>
