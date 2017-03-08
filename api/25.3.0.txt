@@ -1,3 +1,75 @@
+package android.support.animation {
+
+  public abstract class DynamicAnimation<T extends android.support.animation.DynamicAnimation<T>> {
+    method public T addEndListener(android.support.animation.DynamicAnimation.OnAnimationEndListener);
+    method public T addUpdateListener(android.support.animation.DynamicAnimation.OnAnimationUpdateListener);
+    method public void cancel();
+    method public boolean isRunning();
+    method public void removeEndListener(android.support.animation.DynamicAnimation.OnAnimationEndListener);
+    method public void removeUpdateListener(android.support.animation.DynamicAnimation.OnAnimationUpdateListener);
+    method public T setMaxValue(float);
+    method public T setMinValue(float);
+    method public T setStartValue(float);
+    method public T setStartVelocity(float);
+    method public void start();
+    field public static final android.support.animation.DynamicAnimation.ViewProperty ALPHA;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty ROTATION;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty ROTATION_X;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty ROTATION_Y;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty SCALE_X;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty SCALE_Y;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty SCROLL_X;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty SCROLL_Y;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty TRANSLATION_X;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty TRANSLATION_Y;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty TRANSLATION_Z;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty X;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty Y;
+    field public static final android.support.animation.DynamicAnimation.ViewProperty Z;
+  }
+
+  public static abstract interface DynamicAnimation.OnAnimationEndListener {
+    method public abstract void onAnimationEnd(android.support.animation.DynamicAnimation, boolean, float, float);
+  }
+
+  public static abstract interface DynamicAnimation.OnAnimationUpdateListener {
+    method public abstract void onAnimationUpdate(android.support.animation.DynamicAnimation, float, float);
+  }
+
+  public static abstract class DynamicAnimation.ViewProperty {
+  }
+
+  public final class SpringAnimation extends android.support.animation.DynamicAnimation {
+    ctor public SpringAnimation(android.view.View, android.support.animation.DynamicAnimation.ViewProperty);
+    ctor public SpringAnimation(android.view.View, android.support.animation.DynamicAnimation.ViewProperty, float);
+    method public void animateToFinalPosition(float);
+    method public boolean canSkipToEnd();
+    method public android.support.animation.SpringForce getSpring();
+    method public android.support.animation.SpringAnimation setSpring(android.support.animation.SpringForce);
+    method public void skipToEnd();
+  }
+
+  public final class SpringForce {
+    ctor public SpringForce();
+    ctor public SpringForce(float);
+    method public float getDampingRatio();
+    method public float getFinalPosition();
+    method public float getStiffness();
+    method public android.support.animation.SpringForce setDampingRatio(float);
+    method public android.support.animation.SpringForce setFinalPosition(float);
+    method public android.support.animation.SpringForce setStiffness(float);
+    field public static final float DAMPING_RATIO_HIGH_BOUNCY = 0.2f;
+    field public static final float DAMPING_RATIO_LOW_BOUNCY = 0.75f;
+    field public static final float DAMPING_RATIO_MEDIUM_BOUNCY = 0.5f;
+    field public static final float DAMPING_RATIO_NO_BOUNCY = 1.0f;
+    field public static final float STIFFNESS_HIGH = 10000.0f;
+    field public static final float STIFFNESS_LOW = 200.0f;
+    field public static final float STIFFNESS_MEDIUM = 1500.0f;
+    field public static final float STIFFNESS_VERY_LOW = 50.0f;
+  }
+
+}
+
 package android.support.app.recommendation {
 
   public final class ContentRecommendation {
@@ -870,16 +942,34 @@ package android.support.design.widget {
 
 package android.support.graphics.drawable {
 
-  public class AnimatedVectorDrawableCompat extends android.support.graphics.drawable.VectorDrawableCommon {
+  public abstract interface Animatable2Compat {
+    method public abstract void clearAnimationCallbacks();
+    method public abstract void registerAnimationCallback(android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
+    method public abstract boolean unregisterAnimationCallback(android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
+  }
+
+  public static abstract class Animatable2Compat.AnimationCallback {
+    ctor public Animatable2Compat.AnimationCallback();
+    method public void onAnimationEnd(android.graphics.drawable.Drawable);
+    method public void onAnimationStart(android.graphics.drawable.Drawable);
+  }
+
+  public class AnimatedVectorDrawableCompat extends android.support.graphics.drawable.VectorDrawableCommon implements android.support.graphics.drawable.Animatable2Compat {
+    method public void clearAnimationCallbacks();
+    method public static void clearAnimationCallbacks(android.graphics.drawable.Drawable);
     method public static android.support.graphics.drawable.AnimatedVectorDrawableCompat create(android.content.Context, int);
     method public static android.support.graphics.drawable.AnimatedVectorDrawableCompat createFromXmlInner(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
     method public void draw(android.graphics.Canvas);
     method public int getOpacity();
     method public boolean isRunning();
+    method public void registerAnimationCallback(android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
+    method public static void registerAnimationCallback(android.graphics.drawable.Drawable, android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
     method public void setAlpha(int);
     method public void setColorFilter(android.graphics.ColorFilter);
     method public void start();
     method public void stop();
+    method public boolean unregisterAnimationCallback(android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
+    method public static boolean unregisterAnimationCallback(android.graphics.drawable.Drawable, android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
   }
 
    abstract class VectorDrawableCommon extends android.graphics.drawable.Drawable {
@@ -5877,72 +5967,72 @@ package android.support.v4.media {
     field public static final int RATING_THUMB_UP_DOWN = 2; // 0x2
   }
 
-  public abstract class TransportController {
-    ctor public TransportController();
-    method public abstract int getBufferPercentage();
-    method public abstract long getCurrentPosition();
-    method public abstract long getDuration();
-    method public abstract int getTransportControlFlags();
-    method public abstract boolean isPlaying();
-    method public abstract void pausePlaying();
-    method public abstract void registerStateListener(android.support.v4.media.TransportStateListener);
-    method public abstract void seekTo(long);
-    method public abstract void startPlaying();
-    method public abstract void stopPlaying();
-    method public abstract void unregisterStateListener(android.support.v4.media.TransportStateListener);
+  public abstract deprecated class TransportController {
+    ctor public deprecated TransportController();
+    method public abstract deprecated int getBufferPercentage();
+    method public abstract deprecated long getCurrentPosition();
+    method public abstract deprecated long getDuration();
+    method public abstract deprecated int getTransportControlFlags();
+    method public abstract deprecated boolean isPlaying();
+    method public abstract deprecated void pausePlaying();
+    method public abstract deprecated void registerStateListener(android.support.v4.media.TransportStateListener);
+    method public abstract deprecated void seekTo(long);
+    method public abstract deprecated void startPlaying();
+    method public abstract deprecated void stopPlaying();
+    method public abstract deprecated void unregisterStateListener(android.support.v4.media.TransportStateListener);
   }
 
-  public class TransportMediator extends android.support.v4.media.TransportController {
-    ctor public TransportMediator(android.app.Activity, android.support.v4.media.TransportPerformer);
-    ctor public TransportMediator(android.view.View, android.support.v4.media.TransportPerformer);
-    method public void destroy();
-    method public boolean dispatchKeyEvent(android.view.KeyEvent);
-    method public int getBufferPercentage();
-    method public long getCurrentPosition();
-    method public long getDuration();
-    method public java.lang.Object getRemoteControlClient();
-    method public int getTransportControlFlags();
-    method public boolean isPlaying();
-    method public void pausePlaying();
-    method public void refreshState();
-    method public void registerStateListener(android.support.v4.media.TransportStateListener);
-    method public void seekTo(long);
-    method public void startPlaying();
-    method public void stopPlaying();
-    method public void unregisterStateListener(android.support.v4.media.TransportStateListener);
-    field public static final int FLAG_KEY_MEDIA_FAST_FORWARD = 64; // 0x40
-    field public static final int FLAG_KEY_MEDIA_NEXT = 128; // 0x80
-    field public static final int FLAG_KEY_MEDIA_PAUSE = 16; // 0x10
-    field public static final int FLAG_KEY_MEDIA_PLAY = 4; // 0x4
-    field public static final int FLAG_KEY_MEDIA_PLAY_PAUSE = 8; // 0x8
-    field public static final int FLAG_KEY_MEDIA_PREVIOUS = 1; // 0x1
-    field public static final int FLAG_KEY_MEDIA_REWIND = 2; // 0x2
-    field public static final int FLAG_KEY_MEDIA_STOP = 32; // 0x20
-    field public static final int KEYCODE_MEDIA_PAUSE = 127; // 0x7f
-    field public static final int KEYCODE_MEDIA_PLAY = 126; // 0x7e
-    field public static final int KEYCODE_MEDIA_RECORD = 130; // 0x82
+  public deprecated class TransportMediator extends android.support.v4.media.TransportController {
+    ctor public deprecated TransportMediator(android.app.Activity, android.support.v4.media.TransportPerformer);
+    ctor public deprecated TransportMediator(android.view.View, android.support.v4.media.TransportPerformer);
+    method public deprecated void destroy();
+    method public deprecated boolean dispatchKeyEvent(android.view.KeyEvent);
+    method public deprecated int getBufferPercentage();
+    method public deprecated long getCurrentPosition();
+    method public deprecated long getDuration();
+    method public deprecated java.lang.Object getRemoteControlClient();
+    method public deprecated int getTransportControlFlags();
+    method public deprecated boolean isPlaying();
+    method public deprecated void pausePlaying();
+    method public deprecated void refreshState();
+    method public deprecated void registerStateListener(android.support.v4.media.TransportStateListener);
+    method public deprecated void seekTo(long);
+    method public deprecated void startPlaying();
+    method public deprecated void stopPlaying();
+    method public deprecated void unregisterStateListener(android.support.v4.media.TransportStateListener);
+    field public static final deprecated int FLAG_KEY_MEDIA_FAST_FORWARD = 64; // 0x40
+    field public static final deprecated int FLAG_KEY_MEDIA_NEXT = 128; // 0x80
+    field public static final deprecated int FLAG_KEY_MEDIA_PAUSE = 16; // 0x10
+    field public static final deprecated int FLAG_KEY_MEDIA_PLAY = 4; // 0x4
+    field public static final deprecated int FLAG_KEY_MEDIA_PLAY_PAUSE = 8; // 0x8
+    field public static final deprecated int FLAG_KEY_MEDIA_PREVIOUS = 1; // 0x1
+    field public static final deprecated int FLAG_KEY_MEDIA_REWIND = 2; // 0x2
+    field public static final deprecated int FLAG_KEY_MEDIA_STOP = 32; // 0x20
+    field public static final deprecated int KEYCODE_MEDIA_PAUSE = 127; // 0x7f
+    field public static final deprecated int KEYCODE_MEDIA_PLAY = 126; // 0x7e
+    field public static final deprecated int KEYCODE_MEDIA_RECORD = 130; // 0x82
   }
 
-  public abstract class TransportPerformer {
-    ctor public TransportPerformer();
-    method public void onAudioFocusChange(int);
-    method public int onGetBufferPercentage();
-    method public abstract long onGetCurrentPosition();
-    method public abstract long onGetDuration();
-    method public int onGetTransportControlFlags();
-    method public abstract boolean onIsPlaying();
-    method public boolean onMediaButtonDown(int, android.view.KeyEvent);
-    method public boolean onMediaButtonUp(int, android.view.KeyEvent);
-    method public abstract void onPause();
-    method public abstract void onSeekTo(long);
-    method public abstract void onStart();
-    method public abstract void onStop();
+  public abstract deprecated class TransportPerformer {
+    ctor public deprecated TransportPerformer();
+    method public deprecated void onAudioFocusChange(int);
+    method public deprecated int onGetBufferPercentage();
+    method public abstract deprecated long onGetCurrentPosition();
+    method public abstract deprecated long onGetDuration();
+    method public deprecated int onGetTransportControlFlags();
+    method public abstract deprecated boolean onIsPlaying();
+    method public deprecated boolean onMediaButtonDown(int, android.view.KeyEvent);
+    method public deprecated boolean onMediaButtonUp(int, android.view.KeyEvent);
+    method public abstract deprecated void onPause();
+    method public abstract deprecated void onSeekTo(long);
+    method public abstract deprecated void onStart();
+    method public abstract deprecated void onStop();
   }
 
-  public class TransportStateListener {
-    ctor public TransportStateListener();
-    method public void onPlayingChanged(android.support.v4.media.TransportController);
-    method public void onTransportControlsChanged(android.support.v4.media.TransportController);
+  public deprecated class TransportStateListener {
+    ctor public deprecated TransportStateListener();
+    method public deprecated void onPlayingChanged(android.support.v4.media.TransportController);
+    method public deprecated void onTransportControlsChanged(android.support.v4.media.TransportController);
   }
 
   public abstract class VolumeProviderCompat {
@@ -5980,6 +6070,8 @@ package android.support.v4.media.session {
   public final class MediaControllerCompat {
     ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat);
     ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token) throws android.os.RemoteException;
+    method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat, int);
     method public void adjustVolume(int, int);
     method public boolean dispatchMediaButtonEvent(android.view.KeyEvent);
     method public android.os.Bundle getExtras();
@@ -6000,6 +6092,8 @@ package android.support.v4.media.session {
     method public boolean isShuffleModeEnabled();
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback, android.os.Handler);
+    method public void removeQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void removeQueueItemAt(int);
     method public void sendCommand(java.lang.String, android.os.Bundle, android.os.ResultReceiver);
     method public static void setMediaController(android.app.Activity, android.support.v4.media.session.MediaControllerCompat);
     method public void setVolumeTo(int, int);
@@ -6086,11 +6180,14 @@ package android.support.v4.media.session {
     method public void setSessionActivity(android.app.PendingIntent);
     method public void setShuffleModeEnabled(boolean);
     field public static final int FLAG_HANDLES_MEDIA_BUTTONS = 1; // 0x1
+    field public static final int FLAG_HANDLES_QUEUE_COMMANDS = 4; // 0x4
     field public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 2; // 0x2
   }
 
   public static abstract class MediaSessionCompat.Callback {
     ctor public MediaSessionCompat.Callback();
+    method public void onAddQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void onAddQueueItem(android.support.v4.media.MediaDescriptionCompat, int);
     method public void onCommand(java.lang.String, android.os.Bundle, android.os.ResultReceiver);
     method public void onCustomAction(java.lang.String, android.os.Bundle);
     method public void onFastForward();
@@ -6104,6 +6201,8 @@ package android.support.v4.media.session {
     method public void onPrepareFromMediaId(java.lang.String, android.os.Bundle);
     method public void onPrepareFromSearch(java.lang.String, android.os.Bundle);
     method public void onPrepareFromUri(android.net.Uri, android.os.Bundle);
+    method public void onRemoveQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void onRemoveQueueItemAt(int);
     method public void onRewind();
     method public void onSeekTo(long);
     method public void onSetRating(android.support.v4.media.RatingCompat);
@@ -8431,6 +8530,7 @@ package android.support.v7.app {
     method public android.support.v7.graphics.drawable.DrawerArrowDrawable getDrawerArrowDrawable();
     method public android.view.View.OnClickListener getToolbarNavigationClickListener();
     method public boolean isDrawerIndicatorEnabled();
+    method public boolean isDrawerSlideAnimationEnabled();
     method public void onConfigurationChanged(android.content.res.Configuration);
     method public void onDrawerClosed(android.view.View);
     method public void onDrawerOpened(android.view.View);
@@ -8439,6 +8539,7 @@ package android.support.v7.app {
     method public boolean onOptionsItemSelected(android.view.MenuItem);
     method public void setDrawerArrowDrawable(android.support.v7.graphics.drawable.DrawerArrowDrawable);
     method public void setDrawerIndicatorEnabled(boolean);
+    method public void setDrawerSlideAnimationEnabled(boolean);
     method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable);
     method public void setHomeAsUpIndicator(int);
     method public void setToolbarNavigationClickListener(android.view.View.OnClickListener);
