@@ -31,7 +31,7 @@ public class Action {
     private Drawable mIcon;
     private CharSequence mLabel1;
     private CharSequence mLabel2;
-    private ArrayList mKeyCodes = new ArrayList();
+    private ArrayList<Integer> mKeyCodes = new ArrayList<>();
 
     /**
      * Constructor for an Action.

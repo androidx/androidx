@@ -126,7 +126,7 @@ public class DetailsFragment extends BaseFragment {
         final WeakReference<DetailsFragment> mRef;
 
         WaitEnterTransitionTimeout(DetailsFragment f) {
-            mRef = new WeakReference(f);
+            mRef = new WeakReference<>(f);
             f.getView().postDelayed(this, WAIT_ENTERTRANSITION_START);
         }
 

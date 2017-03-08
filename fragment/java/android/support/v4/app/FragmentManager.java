@@ -3160,7 +3160,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (mLifecycleCallbacks == null) {
             mLifecycleCallbacks = new CopyOnWriteArrayList<>();
         }
-        mLifecycleCallbacks.add(new Pair(cb, recursive));
+        mLifecycleCallbacks.add(new Pair<>(cb, recursive));
     }
 
     @Override

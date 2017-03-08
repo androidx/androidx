@@ -540,7 +540,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         Bundle rootHints;
         ServiceCallbacks callbacks;
         BrowserRoot root;
-        HashMap<String, List<Pair<IBinder, Bundle>>> subscriptions = new HashMap();
+        HashMap<String, List<Pair<IBinder, Bundle>>> subscriptions = new HashMap<>();
 
         ConnectionRecord() {
         }

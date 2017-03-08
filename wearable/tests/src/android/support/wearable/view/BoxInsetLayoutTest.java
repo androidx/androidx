@@ -359,6 +359,6 @@ public class BoxInsetLayoutTest {
     }
 
     private abstract class ViewFetchingRunnable implements Runnable {
-        Map<Integer, View> mIdViewMap = new HashMap();
+        Map<Integer, View> mIdViewMap = new HashMap<>();
     }
 }

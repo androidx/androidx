@@ -97,7 +97,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         protected ArrayList<Pair<String, Q>> mEntries = new ArrayList<>();
 
         public void add(String title, Q content) {
-            mEntries.add(new Pair(title, content));
+            mEntries.add(new Pair<>(title, content));
         }
 
         @Override

@@ -88,7 +88,7 @@ class PaintCompatApi14 {
     private static Pair<Rect, Rect> obtainEmptyRects() {
         Pair<Rect, Rect> rects = sRectThreadLocal.get();
         if (rects == null) {
-            rects = new Pair(new Rect(), new Rect());
+            rects = new Pair<>(new Rect(), new Rect());
             sRectThreadLocal.set(rects);
         } else {
             rects.first.setEmpty();

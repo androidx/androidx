@@ -50,7 +50,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1185,14 +1184,19 @@ public class ExifInterface {
             new ExifTag(TAG_JPEG_INTERCHANGE_FORMAT_LENGTH, 514, IFD_FORMAT_ULONG);
 
     // Mappings from tag number to tag name and each item represents one IFD tag group.
-    private static final HashMap[] sExifTagMapsForReading = new HashMap[EXIF_TAGS.length];
+    @SuppressWarnings("unchecked")
+    private static final HashMap<Integer, ExifTag>[] sExifTagMapsForReading =
+            new HashMap[EXIF_TAGS.length];
     // Mappings from tag name to tag number and each item represents one IFD tag group.
-    private static final HashMap[] sExifTagMapsForWriting = new HashMap[EXIF_TAGS.length];
+    @SuppressWarnings("unchecked")
+    private static final HashMap<String, ExifTag>[] sExifTagMapsForWriting =
+            new HashMap[EXIF_TAGS.length];
     private static final HashSet<String> sTagSetForCompatibility = new HashSet<>(Arrays.asList(
             TAG_F_NUMBER, TAG_DIGITAL_ZOOM_RATIO, TAG_EXPOSURE_TIME, TAG_SUBJECT_DISTANCE,
             TAG_GPS_TIMESTAMP));
     // Mappings from tag number to IFD type for pointer tags.
-    private static final HashMap sExifPointerTagMap = new HashMap();
+    @SuppressWarnings("unchecked")
+    private static final HashMap<Integer, Integer> sExifPointerTagMap = new HashMap();
 
     // See JPEG File Interchange Format Version 1.02.
     // The following values are defined for handling JPEG streams. In this implementation, we are
@@ -1245,8 +1249,8 @@ public class ExifInterface {
 
         // Build up the hash tables to look up Exif tags for reading Exif tags.
         for (int ifdType = 0; ifdType < EXIF_TAGS.length; ++ifdType) {
-            sExifTagMapsForReading[ifdType] = new HashMap();
-            sExifTagMapsForWriting[ifdType] = new HashMap();
+            sExifTagMapsForReading[ifdType] = new HashMap<>();
+            sExifTagMapsForWriting[ifdType] = new HashMap<>();
             for (ExifTag tag : EXIF_TAGS[ifdType]) {
                 sExifTagMapsForReading[ifdType].put(tag.number, tag);
                 sExifTagMapsForWriting[ifdType].put(tag.name, tag);
@@ -1265,7 +1269,8 @@ public class ExifInterface {
     private final String mFilename;
     private final AssetManager.AssetInputStream mAssetInputStream;
     private int mMimeType;
-    private final HashMap[] mAttributes = new HashMap[EXIF_TAGS.length];
+    @SuppressWarnings("unchecked")
+    private final HashMap<String, ExifAttribute>[] mAttributes = new HashMap[EXIF_TAGS.length];
     private ByteOrder mExifByteOrder = ByteOrder.BIG_ENDIAN;
     private boolean mHasThumbnail;
     // The following values used for indicating a thumbnail position.
@@ -1333,9 +1338,9 @@ public class ExifInterface {
         // Retrieves all tag groups. The value from primary image tag group has a higher priority
         // than the value from the thumbnail tag group if there are more than one candidates.
         for (int i = 0; i < EXIF_TAGS.length; ++i) {
-            Object value = mAttributes[i].get(tag);
+            ExifAttribute value = mAttributes[i].get(tag);
             if (value != null) {
-                return (ExifAttribute) value;
+                return value;
             }
         }
         return null;
@@ -1453,13 +1458,12 @@ public class ExifInterface {
             if (i == IFD_TYPE_THUMBNAIL && !mHasThumbnail) {
                 continue;
             }
-            final Object obj = sExifTagMapsForWriting[i].get(tag);
-            if (obj != null) {
+            final ExifTag exifTag = sExifTagMapsForWriting[i].get(tag);
+            if (exifTag != null) {
                 if (value == null) {
                     mAttributes[i].remove(tag);
                     continue;
                 }
-                final ExifTag exifTag = (ExifTag) obj;
                 Pair<Integer, Integer> guess = guessDataFormat(value);
                 int dataFormat;
                 if (exifTag.primaryFormat == guess.first || exifTag.primaryFormat == guess.second) {
@@ -1600,7 +1604,7 @@ public class ExifInterface {
         try {
             // Initialize mAttributes.
             for (int i = 0; i < EXIF_TAGS.length; ++i) {
-                mAttributes[i] = new HashMap();
+                mAttributes[i] = new HashMap<>();
             }
 
             // Check file type
@@ -1667,8 +1671,8 @@ public class ExifInterface {
     private void printAttributes() {
         for (int i = 0; i < mAttributes.length; ++i) {
             Log.d(TAG, "The size of tag group[" + i + "]: " + mAttributes[i].size());
-            for (Map.Entry entry : (Set<Map.Entry>) mAttributes[i].entrySet()) {
-                final ExifAttribute tagValue = (ExifAttribute) entry.getValue();
+            for (Map.Entry<String, ExifAttribute> entry : mAttributes[i].entrySet()) {
+                final ExifAttribute tagValue = entry.getValue();
                 Log.d(TAG, "tagName: " + entry.getKey() + ", tagType: " + tagValue.toString()
                         + ", tagValue: '" + tagValue.getStringValue(mExifByteOrder) + "'");
             }
@@ -2772,7 +2776,7 @@ public class ExifInterface {
             }
 
             // Recursively parse IFD when a IFD pointer tag appears.
-            Object nextIfdType = sExifPointerTagMap.get(tagNumber);
+            Integer nextIfdType = sExifPointerTagMap.get(tagNumber);
             if (DEBUG) {
                 Log.d(TAG, "nextIfdType: " + nextIfdType + " byteCount: " + byteCount);
             }
@@ -2808,7 +2812,7 @@ public class ExifInterface {
                 }
                 if (offset > 0L && offset < dataInputStream.mLength) {
                     dataInputStream.seek(offset);
-                    readImageFileDirectory(dataInputStream, (int) nextIfdType);
+                    readImageFileDirectory(dataInputStream, nextIfdType);
                 } else {
                     Log.w(TAG, "Skip jump into the IFD since its offset is invalid: " + offset);
                 }
@@ -3098,7 +3102,7 @@ public class ExifInterface {
         if (mAttributes[IFD_TYPE_THUMBNAIL].isEmpty()) {
             if (isThumbnail(mAttributes[IFD_TYPE_PREVIEW])) {
                 mAttributes[IFD_TYPE_THUMBNAIL] = mAttributes[IFD_TYPE_PREVIEW];
-                mAttributes[IFD_TYPE_PREVIEW] = new HashMap();
+                mAttributes[IFD_TYPE_PREVIEW] = new HashMap<>();
             }
         }
 
@@ -3235,8 +3239,8 @@ public class ExifInterface {
         // value which has a bigger size than 4 bytes.
         for (int i = 0; i < EXIF_TAGS.length; ++i) {
             int sum = 0;
-            for (Map.Entry entry : (Set<Map.Entry>) mAttributes[i].entrySet()) {
-                final ExifAttribute exifAttribute = (ExifAttribute) entry.getValue();
+            for (Map.Entry<String, ExifAttribute> entry : mAttributes[i].entrySet()) {
+                final ExifAttribute exifAttribute = entry.getValue();
                 final int size = exifAttribute.size();
                 if (size > 4) {
                     sum += size;
@@ -3303,12 +3307,11 @@ public class ExifInterface {
 
                 // Write entry info
                 int dataOffset = ifdOffsets[ifdType] + 2 + mAttributes[ifdType].size() * 12 + 4;
-                for (Map.Entry entry : (Set<Map.Entry>) mAttributes[ifdType].entrySet()) {
+                for (Map.Entry<String, ExifAttribute> entry : mAttributes[ifdType].entrySet()) {
                     // Convert tag name to tag number.
-                    final ExifTag tag =
-                            (ExifTag) sExifTagMapsForWriting[ifdType].get(entry.getKey());
+                    final ExifTag tag = sExifTagMapsForWriting[ifdType].get(entry.getKey());
                     final int tagNumber = tag.number;
-                    final ExifAttribute attribute = (ExifAttribute) entry.getValue();
+                    final ExifAttribute attribute = entry.getValue();
                     final int size = attribute.size();
 
                     dataOutputStream.writeUnsignedShort(tagNumber);
@@ -3338,8 +3341,8 @@ public class ExifInterface {
                 }
 
                 // Write values of data field exceeding 4 bytes after the next offset.
-                for (Map.Entry entry : (Set<Map.Entry>) mAttributes[ifdType].entrySet()) {
-                    ExifAttribute attribute = (ExifAttribute) entry.getValue();
+                for (Map.Entry<String, ExifAttribute> entry : mAttributes[ifdType].entrySet()) {
+                    ExifAttribute attribute = entry.getValue();
 
                     if (attribute.bytes.length > 4) {
                         dataOutputStream.write(attribute.bytes, 0, attribute.bytes.length);
@@ -3775,7 +3778,7 @@ public class ExifInterface {
 
             if (firstImageLengthValue < secondImageLengthValue &&
                     firstImageWidthValue < secondImageWidthValue) {
-                HashMap tempMap = mAttributes[firstIfdType];
+                HashMap<String, ExifAttribute> tempMap = mAttributes[firstIfdType];
                 mAttributes[firstIfdType] = mAttributes[secondIfdType];
                 mAttributes[secondIfdType] = tempMap;
             }

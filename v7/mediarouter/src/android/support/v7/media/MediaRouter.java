@@ -2289,7 +2289,7 @@ public final class MediaRouter {
                                 mRoutes.add(route);
                                 // 2. Create the route's contents.
                                 if (isGroup) {
-                                    addedGroups.add(new Pair(route, routeDescriptor));
+                                    addedGroups.add(new Pair<>(route, routeDescriptor));
                                 } else {
                                     route.maybeUpdateDescriptor(routeDescriptor);
                                     // 3. Notify clients about addition.
@@ -2309,7 +2309,7 @@ public final class MediaRouter {
                                         sourceIndex, targetIndex++);
                                 // 2. Update the route's contents.
                                 if (route instanceof RouteGroup) {
-                                    updatedGroups.add(new Pair(route, routeDescriptor));
+                                    updatedGroups.add(new Pair<>(route, routeDescriptor));
                                 } else {
                                     // 3. Notify clients about changes.
                                     if (updateRouteDescriptorAndNotify(route, routeDescriptor)
@@ -2413,7 +2413,7 @@ public final class MediaRouter {
             String componentName = provider.getComponentName().flattenToShortString();
             String uniqueId = componentName + ":" + routeDescriptorId;
             if (findRouteByUniqueId(uniqueId) < 0) {
-                mUniqueIdMap.put(new Pair(componentName, routeDescriptorId), uniqueId);
+                mUniqueIdMap.put(new Pair<>(componentName, routeDescriptorId), uniqueId);
                 return uniqueId;
             }
             Log.w(TAG, "Either " + routeDescriptorId + " isn't unique in " + componentName
@@ -2421,7 +2421,7 @@ public final class MediaRouter {
             for (int i = 2; ; i++) {
                 String newUniqueId = String.format(Locale.US, "%s_%d", uniqueId, i);
                 if (findRouteByUniqueId(newUniqueId) < 0) {
-                    mUniqueIdMap.put(new Pair(componentName, routeDescriptorId), newUniqueId);
+                    mUniqueIdMap.put(new Pair<>(componentName, routeDescriptorId), newUniqueId);
                     return newUniqueId;
                 }
             }
@@ -2439,7 +2439,7 @@ public final class MediaRouter {
 
         private String getUniqueId(ProviderInfo provider, String routeDescriptorId) {
             String componentName = provider.getComponentName().flattenToShortString();
-            return mUniqueIdMap.get(new Pair(componentName, routeDescriptorId));
+            return mUniqueIdMap.get(new Pair<>(componentName, routeDescriptorId));
         }
 
         private void updateSelectedRouteIfNeeded(boolean selectedRouteDescriptorChanged) {
@@ -2494,7 +2494,7 @@ public final class MediaRouter {
                 if (mSelectedRoute instanceof RouteGroup) {
                     List<RouteInfo> routes = ((RouteGroup) mSelectedRoute).getRoutes();
                     // Build a set of descriptor IDs for the new route group.
-                    Set idSet = new HashSet<String>();
+                    Set<String> idSet = new HashSet<>();
                     for (RouteInfo route : routes) {
                         idSet.add(route.mDescriptorId);
                     }
