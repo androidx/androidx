@@ -540,7 +540,7 @@ public final class Palette {
                 final int darkTitleAlpha = ColorUtils.calculateMinimumAlpha(
                         Color.BLACK, mRgb, MIN_CONTRAST_TITLE_TEXT);
 
-                if (darkBodyAlpha != -1 && darkBodyAlpha != -1) {
+                if (darkBodyAlpha != -1 && darkTitleAlpha != -1) {
                     // If we found valid dark values, use them and return
                     mBodyTextColor = ColorUtils.setAlphaComponent(Color.BLACK, darkBodyAlpha);
                     mTitleTextColor = ColorUtils.setAlphaComponent(Color.BLACK, darkTitleAlpha);
