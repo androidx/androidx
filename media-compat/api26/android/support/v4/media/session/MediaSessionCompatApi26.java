@@ -16,6 +16,7 @@
 
 package android.support.v4.media.session;
 
+import android.media.MediaDescription;
 import android.media.session.MediaSession;
 import android.support.annotation.RequiresApi;
 
@@ -37,6 +38,10 @@ class MediaSessionCompatApi26 {
     public interface Callback extends MediaSessionCompatApi24.Callback {
         void onSetRepeatMode(int repeatMode);
         void onSetShuffleModeEnabled(boolean enabled);
+        void onAddQueueItem(Object descriptionObject);
+        void onAddQueueItem(Object descriptionObject, int index);
+        void onRemoveQueueItem(Object descriptionObject);
+        void onRemoveQueueItemAt(int index);
     }
 
     static class CallbackProxy<T extends Callback>
@@ -53,6 +58,26 @@ class MediaSessionCompatApi26 {
         @Override
         public void onSetShuffleModeEnabled(boolean enabled) {
             mCallback.onSetShuffleModeEnabled(enabled);
+        }
+
+        @Override
+        public void onAddQueueItem(MediaDescription description) {
+            mCallback.onAddQueueItem(description);
+        }
+
+        @Override
+        public void onAddQueueItem(MediaDescription description, int index) {
+            mCallback.onAddQueueItem(description, index);
+        }
+
+        @Override
+        public void onRemoveQueueItem(MediaDescription description) {
+            mCallback.onRemoveQueueItem(description);
+        }
+
+        @Override
+        public void onRemoveQueueItemAt(int index) {
+            mCallback.onRemoveQueueItemAt(index);
         }
     }
 }

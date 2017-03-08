@@ -19,6 +19,7 @@ package android.support.v4.media.session;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -52,6 +53,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
+import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -695,8 +697,9 @@ public class MediaSessionCompat {
         final Object mCallbackObj;
         WeakReference<MediaSessionImpl> mSessionImpl;
 
+        @SuppressLint("NewApi")
         public Callback() {
-            if (android.os.Build.VERSION.SDK_INT >= 26) {
+            if (BuildCompat.isAtLeastO()) {
                 mCallbackObj = MediaSessionCompatApi26.createCallback(new StubApi26());
             } else if (android.os.Build.VERSION.SDK_INT >= 24) {
                 mCallbackObj = MediaSessionCompatApi24.createCallback(new StubApi24());
@@ -1130,6 +1133,29 @@ public class MediaSessionCompat {
             @Override
             public void onSetShuffleModeEnabled(boolean enabled) {
                 Callback.this.onSetShuffleModeEnabled(enabled);
+            }
+
+            @Override
+            public void onAddQueueItem(Object descriptionObject) {
+                Callback.this.onAddQueueItem(
+                        MediaDescriptionCompat.fromMediaDescription(descriptionObject));
+            }
+
+            @Override
+            public void onAddQueueItem(Object descriptionObject, int index) {
+                Callback.this.onAddQueueItem(
+                        MediaDescriptionCompat.fromMediaDescription(descriptionObject), index);
+            }
+
+            @Override
+            public void onRemoveQueueItem(Object descriptionObject) {
+                Callback.this.onRemoveQueueItem(
+                        MediaDescriptionCompat.fromMediaDescription(descriptionObject));
+            }
+
+            @Override
+            public void onRemoveQueueItemAt(int index) {
+                Callback.this.onRemoveQueueItemAt(index);
             }
         }
     }
