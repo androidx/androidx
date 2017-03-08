@@ -123,19 +123,19 @@ public class ViewModelStore {
         return viewModel;
     }
 
-    private static Map<Fragment, List<ViewModel>> holderToVm = new HashMap<>();
+    private static Map<Fragment, List<ViewModel>> sHolderToVm = new HashMap<>();
 
     private static void add(Fragment fragment, ViewModel vm) {
-        List<ViewModel> viewModels = holderToVm.get(fragment);
+        List<ViewModel> viewModels = sHolderToVm.get(fragment);
         if (viewModels == null) {
             viewModels = new ArrayList<>();
-            holderToVm.put(fragment, viewModels);
+            sHolderToVm.put(fragment, viewModels);
         }
         viewModels.add(vm);
     }
 
     private static void removeAndClear(Fragment fragment) {
-        List<ViewModel> remove = holderToVm.remove(fragment);
+        List<ViewModel> remove = sHolderToVm.remove(fragment);
         if (remove == null) {
             return;
         }
