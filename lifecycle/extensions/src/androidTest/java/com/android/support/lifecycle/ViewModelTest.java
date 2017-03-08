@@ -46,6 +46,7 @@ public class ViewModelTest {
     @Test
     public void ensureSameViewHolders() throws Throwable {
         final TestViewModel[] activityModel = new TestViewModel[1];
+        final TestViewModel[] defaultActivityModel = new TestViewModel[1];
         final TestViewModel[] fragment1Model = new TestViewModel[1];
         final TestViewModel[] fragment2Model = new TestViewModel[1];
         final ViewModelActivity[] viewModelActivity = new ViewModelActivity[1];
@@ -63,6 +64,8 @@ public class ViewModelTest {
                 assertThat(fragment1.fragmentModel, not(is(fragment2.activityModel)));
                 assertThat(mActivityRule.getActivity().activityModel, is(fragment1.activityModel));
                 activityModel[0] = mActivityRule.getActivity().activityModel;
+                defaultActivityModel[0] = mActivityRule.getActivity().defaultActivityModel;
+                assertThat(defaultActivityModel[0], not(is(activityModel[0])));
                 fragment1Model[0] = fragment1.fragmentModel;
                 fragment2Model[0] = fragment2.fragmentModel;
             }
@@ -82,7 +85,11 @@ public class ViewModelTest {
                 assertThat(fragment2.activityModel, is(activityModel[0]));
                 assertThat(fragment1.fragmentModel, is(fragment1Model[0]));
                 assertThat(fragment2.fragmentModel, is(fragment2Model[0]));
+                assertThat(fragment1.defaultActivityModel, is(defaultActivityModel[0]));
+                assertThat(fragment2.defaultActivityModel, is(defaultActivityModel[0]));
                 assertThat(mActivityRule.getActivity().activityModel, is(activityModel[0]));
+                assertThat(mActivityRule.getActivity().defaultActivityModel,
+                        is(defaultActivityModel[0]));
             }
         });
     }

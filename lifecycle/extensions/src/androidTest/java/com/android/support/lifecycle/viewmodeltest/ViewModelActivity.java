@@ -32,6 +32,7 @@ public class ViewModelActivity extends LifecycleActivity {
     public static final String FRAGMENT_TAG_2 = "f2";
 
     public TestViewModel activityModel;
+    public TestViewModel defaultActivityModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,11 +45,13 @@ public class ViewModelActivity extends LifecycleActivity {
                     .commit();
         }
         activityModel = ViewModelStore.get(this, KEY_ACTIVITY_MODEL, TestViewModel.class);
+        defaultActivityModel = ViewModelStore.get(this, TestViewModel.class);
     }
 
     public static class ViewModelFragment extends LifecycleFragment {
         public TestViewModel fragmentModel;
         public TestViewModel activityModel;
+        public TestViewModel defaultActivityModel;
 
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,6 +60,8 @@ public class ViewModelActivity extends LifecycleActivity {
                     TestViewModel.class);
             activityModel = ViewModelStore.get((LifecycleProvider) getActivity(),
                     KEY_ACTIVITY_MODEL, TestViewModel.class);
+            defaultActivityModel = ViewModelStore.get((LifecycleProvider) getActivity(),
+                    TestViewModel.class);
         }
     }
 }

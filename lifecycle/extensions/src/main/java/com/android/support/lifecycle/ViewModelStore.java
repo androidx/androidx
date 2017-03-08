@@ -45,7 +45,31 @@ public class ViewModelStore {
      */
     private static final String KEY_PREFIX = "com.android.support.lifecycle.extensions.viewModel.";
 
+    private static final String DEFAULT_KEY =
+            "com.android.support.lifecycle.extensions.ViewModelStore.DefaultKey";
+
     private static Application sApplication;
+
+
+    /**
+     * Returns an existing ViewModel or creates a new one for the given scope.
+     * <p>
+     * The created ViewModel is associated with the given LifecycleProvider and will be retained
+     * as long as the scope (LifecycleProvider) is alive (e.g. if it is an activity, until it is
+     * finished or process is killed).
+     *
+     * @param scope      The scope of the ViewModel which will retain it.
+     * @param modelClass The class of the ViewModel to create an instance of it if it is not
+     *                   present.
+     * @param <T>        The type parameter for the ViewModel.
+     * @return A ViewModel that is an instance of the given type {@code T}.
+     */
+    @NonNull
+    @MainThread
+    public static <T extends ViewModel> T get(LifecycleProvider scope,
+            Class<T> modelClass) {
+        return get(scope, DEFAULT_KEY, modelClass);
+    }
 
     /**
      * Returns an existing ViewModel or creates a new one for the given scope with the given key.
@@ -54,12 +78,11 @@ public class ViewModelStore {
      * as long as the scope (LifecycleProvider) is alive (e.g. if it is an activity, until it is
      * finished or process is killed).
      *
-     * @param scope The scope of the ViewModel which will retain it.
-     * @param key The key to use to identify the ViewModel.
+     * @param scope      The scope of the ViewModel which will retain it.
+     * @param key        The key to use to identify the ViewModel.
      * @param modelClass The class of the ViewModel to create an instance of it if it is not
      *                   present.
-     * @param <T> The type parameter for the ViewModel.
-     *
+     * @param <T>        The type parameter for the ViewModel.
      * @return A ViewModel that is an instance of the given type {@code T}.
      */
     @NonNull
@@ -111,12 +134,12 @@ public class ViewModelStore {
         viewModels.add(vm);
     }
 
-    private static  void removeAndClear(Fragment fragment) {
+    private static void removeAndClear(Fragment fragment) {
         List<ViewModel> remove = holderToVm.remove(fragment);
         if (remove == null) {
             return;
         }
-        for (ViewModel vm: remove) {
+        for (ViewModel vm : remove) {
             vm.onCleared();
         }
     }
