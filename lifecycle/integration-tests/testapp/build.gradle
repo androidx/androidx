@@ -70,5 +70,3 @@ dependencies {
 createAndroidCheckstyle(project)
 
 tasks['check'].dependsOn(tasks['connectedCheck'])
-
-uploadArchives.enabled = false

@@ -122,6 +122,8 @@ rootProject.ext.flatfootProjectGroups = [
         "arch" : "android.arch.core",
         "navigation" : "android.arch.navigation"]
 
+rootProject.ext.flatfootProjectGroups = ["room", "lifecycle", "apptoolkit", "navigation"]
+
 subprojects {
     configurations.all {
         resolutionStrategy {
@@ -186,7 +188,6 @@ subprojects {
         }
     }
 
-
     project.plugins.whenPluginAdded { plugin ->
         def isAndroidLibrary = "com.android.build.gradle.LibraryPlugin"
                 .equals(plugin.class.name)
@@ -211,6 +212,7 @@ subprojects {
             }
         }
     }
+
 
     project.tasks.whenTaskAdded { task ->
         if (task.name.startsWith("assembleAndroidTest")) {

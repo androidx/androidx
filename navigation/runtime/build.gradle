@@ -81,10 +81,3 @@ android.libraryVariants.all { variant ->
 
 // remove when we want to ship navigation
 project.ext.noDocs = true
-
-// remove when we want to ship navigation
-tasks.whenTaskAdded { task ->
-    if (task instanceof Upload && task.name == "release") {
-        task.enabled = false
-    }
-}
