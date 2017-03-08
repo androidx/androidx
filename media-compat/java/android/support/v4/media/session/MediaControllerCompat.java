@@ -253,11 +253,14 @@ public final class MediaControllerCompat {
 
     /**
      * Add a queue item from the given {@code description} at the end of the play queue
-     * of this session. Not all sessions may support this.
+     * of this session. Not all sessions may support this. To know whether the session supports
+     * this, get the session's flags with {@link #getFlags()} and check that the flag
+     * {@link MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS} is set.
      *
      * @param description The {@link MediaDescriptionCompat} for creating the
      *            {@link MediaSessionCompat.QueueItem} to be inserted.
      * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see #getFlags()
      * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
      */
     public void addQueueItem(MediaDescriptionCompat description) {
@@ -268,13 +271,16 @@ public final class MediaControllerCompat {
      * Add a queue item from the given {@code description} at the specified position
      * in the play queue of this session. Shifts the queue item currently at that position
      * (if any) and any subsequent queue items to the right (adds one to their indices).
-     * Not all sessions may support this.
+     * Not all sessions may support this. To know whether the session supports this,
+     * get the session's flags with {@link #getFlags()} and check that the flag
+     * {@link MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS} is set.
      *
      * @param description The {@link MediaDescriptionCompat} for creating the
      *            {@link MediaSessionCompat.QueueItem} to be inserted.
      * @param index The index at which the created {@link MediaSessionCompat.QueueItem}
      *            is to be inserted.
      * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see #getFlags()
      * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
      */
     public void addQueueItem(MediaDescriptionCompat description, int index) {
@@ -284,11 +290,14 @@ public final class MediaControllerCompat {
     /**
      * Remove the first occurrence of the specified {@link MediaSessionCompat.QueueItem}
      * with the given {@link MediaDescriptionCompat description} in the play queue of the
-     * associated session. Not all sessions may support this.
+     * associated session. Not all sessions may support this. To know whether the session supports
+     * this, get the session's flags with {@link #getFlags()} and check that the flag
+     * {@link MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS} is set.
      *
      * @param description The {@link MediaDescriptionCompat} for denoting the
      *            {@link MediaSessionCompat.QueueItem} to be removed.
      * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see #getFlags()
      * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
      */
     public void removeQueueItem(MediaDescriptionCompat description) {
@@ -297,10 +306,13 @@ public final class MediaControllerCompat {
 
     /**
      * Remove an queue item at the specified position in the play queue
-     * of this session. Not all sessions may support this.
+     * of this session. Not all sessions may support this. To know whether the session supports
+     * this, get the session's flags with {@link #getFlags()} and check that the flag
+     * {@link MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS} is set.
      *
      * @param index The index of the element to be removed.
      * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see #getFlags()
      * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
      */
     public void removeQueueItemAt(int index) {
@@ -1701,6 +1713,11 @@ public final class MediaControllerCompat {
 
         @Override
         public void addQueueItem(MediaDescriptionCompat description) {
+            long flags = getFlags();
+            if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                throw new UnsupportedOperationException(
+                        "This session doesn't support queue management operations");
+            }
             Bundle params = new Bundle();
             params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
             sendCommand(COMMAND_ADD_QUEUE_ITEM, params, null);
@@ -1708,6 +1725,11 @@ public final class MediaControllerCompat {
 
         @Override
         public void addQueueItem(MediaDescriptionCompat description, int index) {
+            long flags = getFlags();
+            if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                throw new UnsupportedOperationException(
+                        "This session doesn't support queue management operations");
+            }
             Bundle params = new Bundle();
             params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
             params.putInt(COMMAND_ARGUMENT_INDEX, index);
@@ -1716,6 +1738,11 @@ public final class MediaControllerCompat {
 
         @Override
         public void removeQueueItem(MediaDescriptionCompat description) {
+            long flags = getFlags();
+            if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                throw new UnsupportedOperationException(
+                        "This session doesn't support queue management operations");
+            }
             Bundle params = new Bundle();
             params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
             sendCommand(COMMAND_REMOVE_QUEUE_ITEM, params, null);
@@ -1723,6 +1750,11 @@ public final class MediaControllerCompat {
 
         @Override
         public void removeQueueItemAt(int index) {
+            long flags = getFlags();
+            if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                throw new UnsupportedOperationException(
+                        "This session doesn't support queue management operations");
+            }
             Bundle params = new Bundle();
             params.putInt(COMMAND_ARGUMENT_INDEX, index);
             sendCommand(COMMAND_REMOVE_QUEUE_ITEM_AT, params, null);
