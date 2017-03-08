@@ -29,7 +29,24 @@
         <android.support.v7.widget.SwitchCompat
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
+                android:text="SwitchCompat"/>
+
+        <android.support.v7.widget.SwitchCompat
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:enabled="false"
+                android:text="SwitchCompat disabled"/>
+
+        <Switch
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
                 android:text="Switch"/>
+
+        <Switch
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:enabled="false"
+                android:text="Switch disabled"/>
 
         <CheckBox
                 android:layout_width="wrap_content"
