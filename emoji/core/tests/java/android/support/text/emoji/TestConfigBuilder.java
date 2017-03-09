@@ -18,6 +18,7 @@ package android.support.text.emoji;
 import static org.junit.Assert.fail;
 
 import android.content.res.AssetManager;
+import android.support.annotation.GuardedBy;
 import android.support.test.InstrumentationRegistry;
 
 import java.util.concurrent.CountDownLatch;
@@ -85,7 +86,7 @@ public class TestConfigBuilder {
     public static class TestEmojiDataLoader implements EmojiCompat.MetadataLoader {
         static final Object sMetadataRepoLock = new Object();
         // keep a static instance to in order not to slow down the tests
-        // @GuardedBy("sMetadataRepoLock")
+        @GuardedBy("sMetadataRepoLock")
         static volatile MetadataRepo sMetadataRepo;
 
         TestEmojiDataLoader() {

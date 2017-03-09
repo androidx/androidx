@@ -15,6 +15,7 @@
  */
 package android.support.text.emoji.widget;
 
+import android.support.annotation.GuardedBy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
@@ -38,7 +39,7 @@ import android.text.Editable;
  */
 final class EmojiEditableFactory extends Editable.Factory {
     private static final Object sInstanceLock = new Object();
-    // @GuardedBy("sInstanceLock")
+    @GuardedBy("sInstanceLock")
     private static volatile Editable.Factory sInstance;
 
     @Nullable private static Class<?> sWatcherClass;
