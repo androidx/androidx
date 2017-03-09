@@ -43,6 +43,10 @@ public class ShortcutManagerCompat {
     @VisibleForTesting static final String INSTALL_SHORTCUT_PERMISSION =
             "com.android.launcher.permission.INSTALL_SHORTCUT";
 
+    private ShortcutManagerCompat() {
+        /* Hide constructor */
+    }
+
     /**
      * @return {@code true} if the launcher supports {@link #requestPinShortcut},
      * {@code false} otherwise

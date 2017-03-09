@@ -6252,6 +6252,13 @@ package android.support.v4.content.pm {
   }
 
   public class ShortcutInfoCompat {
+    method public android.content.ComponentName getActivity();
+    method public java.lang.CharSequence getDisabledMessage();
+    method public java.lang.String getId();
+    method public android.content.Intent getIntent();
+    method public android.content.Intent[] getIntents();
+    method public java.lang.CharSequence getLongLabel();
+    method public java.lang.CharSequence getShortLabel();
   }
 
   public static class ShortcutInfoCompat.Builder {
@@ -6268,7 +6275,6 @@ package android.support.v4.content.pm {
   }
 
   public class ShortcutManagerCompat {
-    ctor public ShortcutManagerCompat();
     method public static android.content.Intent createShortcutResultIntent(android.content.Context, android.support.v4.content.pm.ShortcutInfoCompat);
     method public static boolean isRequestPinShortcutSupported(android.content.Context);
     method public static boolean requestPinShortcut(android.content.Context, android.support.v4.content.pm.ShortcutInfoCompat, android.content.IntentSender);
