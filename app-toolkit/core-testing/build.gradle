@@ -49,14 +49,7 @@ dependencies {
     compile libs.mockito.all
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: rootProject.ext.localMavenRepo)
-            pom.artifactId = "core-testing"
-        }
-    }
-}
+archivesBaseName = "core-testing"
 
 createAndroidCheckstyle(project)
 

@@ -46,14 +46,7 @@ android {
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: rootProject.ext.localMavenRepo)
-            pom.artifactId = "support-db"
-        }
-    }
-}
+archivesBaseName = "support-db"
 
 dependencies {
     compile libs.support.annotations

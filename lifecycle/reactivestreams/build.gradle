@@ -64,11 +64,4 @@ allprojects {
 
 createAndroidCheckstyle(project)
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url : rootProject.ext.localMavenRepo)
-            pom.artifactId = "reactivestreams"
-        }
-    }
-}
+archivesBaseName = "reactivestreams"

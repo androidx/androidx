@@ -48,11 +48,4 @@ dependencies {
 
 createAndroidCheckstyle(project)
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url : rootProject.ext.localMavenRepo)
-            pom.artifactId = "extensions"
-        }
-    }
-}
+archivesBaseName = "extensions"

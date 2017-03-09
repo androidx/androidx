@@ -49,14 +49,7 @@ dependencies {
     testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: rootProject.ext.localMavenRepo)
-            pom.artifactId = 'compiler'
-        }
-    }
-}
+archivesBaseName = "compiler"
 
 def generateAntlrTask = task('generateAntlrGrammar', type: JavaExec) {
     def outFolder = file(antlrOut)

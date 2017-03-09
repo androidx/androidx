@@ -73,14 +73,6 @@ ext.enablePublicRepos = System.getenv("ALLOW_PUBLIC_REPOS")
 def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompilationTasks",
     description: "Anchor task for everything we want to run in build server.")
 
-// flatfoot and its dependencies only repo. does not include history
-def createFFDistTask = rootProject.tasks.create(name : "createFlatfootArchive", type: Zip) {
-    from localMavenRepo
-    destinationDir distDir
-    into 'appToolkitRepository'
-    baseName = String.format("flatfoot-repository-%s", rootProject.ext.flatfoot.release_version)
-}
-
 if (ext.inAppToolkitProject) {
     init.addMavenRepositories(repositories)
     init.setupRepoOutAndBuildNumber()
@@ -105,7 +97,6 @@ checkApiStable.enabled = false
 checkApi.enabled = false
 
 buildServerAnchorTask.dependsOn createArchive
-buildServerAnchorTask.dependsOn createFFDistTask
 
 subprojects {
     configurations.all {
@@ -122,17 +113,7 @@ subprojects {
         }
         return
     }
-    project.tasks.whenTaskAdded { task ->
-        if (task.name.startsWith("uploadArchives")) {
-            createFFDistTask.dependsOn task
-            task.doLast {
-                copy {
-                    from(task.outputs)
-                    into(localMavenRepo)
-                }
-            }
-        }
-    }
+
     def mavenGroup = project.getPath().split(":")[1]
     if (mavenGroup != "room" && mavenGroup != "lifecycle" && mavenGroup != "apptoolkit-core") {
         return

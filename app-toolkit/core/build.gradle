@@ -56,14 +56,7 @@ dependencies {
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: rootProject.ext.localMavenRepo)
-            pom.artifactId = "apptoolkit-core"
-        }
-    }
-}
+archivesBaseName = "core"
 
 createAndroidCheckstyle(project)
 

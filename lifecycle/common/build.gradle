@@ -9,13 +9,6 @@ dependencies {
     compile libs.support.annotations
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url : rootProject.ext.localMavenRepo)
-            pom.artifactId = "common"
-        }
-    }
-}
+archivesBaseName = "common"
 
 createAndroidCheckstyle(project)
