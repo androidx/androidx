@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInstrumentationTest {
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void dontDispatchChangeDuringLayout() throws Throwable {
         LayoutAllLayoutManager lm = new LayoutAllLayoutManager();
