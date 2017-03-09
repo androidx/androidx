@@ -600,9 +600,53 @@ public class PlaybackControlSupportGlueTest {
         playbackGlue.createControlsRowAndPresenter();
         // after a controls row is created, onRowChanged() call back is called once
         assertEquals(playbackGlue.getOnRowChangedCallCount(), 1);
+        assertEquals(3, playbackGlue.getControlsRow().getPrimaryActionsAdapter().size());
         playbackGlue.notifyMetaDataChanged();
         // onMetaDataChanged() calls updateRowMetadata which ends up calling
         // notifyPlaybackRowChanged on the old host and finally onRowChanged on the glue.
         assertEquals(playbackGlue.getOnRowChangedCallCount(), 2);
+        assertEquals(3, playbackGlue.getControlsRow().getPrimaryActionsAdapter().size());
     }
+
+
+    @Test
+    public void testWithoutValidMedia() throws Exception {
+        final PlaybackOverlaySupportFragment[] fragmentResult = new
+                PlaybackOverlaySupportFragment[1];
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragmentResult[0] = new PlaybackOverlaySupportFragment();
+            }
+        });
+        final boolean[] hasValidMedia = new boolean[] {false};
+        PlaybackOverlaySupportFragment fragment = fragmentResult[0];
+        PlayControlGlueImpl playbackGlue = new PlayControlGlueImpl(context, fragment,
+                new int[]{
+                        PlaybackControlSupportGlue.PLAYBACK_SPEED_FAST_L0,
+                        PlaybackControlSupportGlue.PLAYBACK_SPEED_FAST_L1,
+                        PlaybackControlSupportGlue.PLAYBACK_SPEED_FAST_L2
+                }) {
+            @Override
+            public boolean hasValidMedia() {
+                return hasValidMedia[0];
+            }
+        };
+
+        // before any controls row is created the count is zero
+        assertEquals(playbackGlue.getOnRowChangedCallCount(), 0);
+        playbackGlue.createControlsRowAndPresenter();
+        // after a controls row is created, onRowChanged() call back is called once
+        assertEquals(playbackGlue.getOnRowChangedCallCount(), 1);
+        // enven hasValidMedia() is false, we should still have three buttons.
+        assertEquals(3, playbackGlue.getControlsRow().getPrimaryActionsAdapter().size());
+
+        hasValidMedia[0] = true;
+        playbackGlue.notifyMetaDataChanged();
+        // onMetaDataChanged() calls updateRowMetadata which ends up calling
+        // notifyPlaybackRowChanged on the old host and finally onRowChanged on the glue.
+        assertEquals(playbackGlue.getOnRowChangedCallCount(), 2);
+        assertEquals(3, playbackGlue.getControlsRow().getPrimaryActionsAdapter().size());
+    }
+
 }
