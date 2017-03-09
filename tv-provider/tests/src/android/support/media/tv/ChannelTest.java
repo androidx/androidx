@@ -124,12 +124,12 @@ public class ChannelTest extends TestCase {
     }
 
     private static MatrixCursor getChannelCursor(ContentValues contentValues) {
-        String[] rows = Channel.PROJECTION;
-        MatrixCursor cursor = new MatrixCursor(rows);
+        String[] cols = Channel.PROJECTION;
+        MatrixCursor cursor = new MatrixCursor(cols);
         MatrixCursor.RowBuilder builder = cursor.newRow();
-        for (String row: rows) {
-            if (row != null) {
-                builder.add(row, contentValues.get(row));
+        for (String col : cols) {
+            if (col != null) {
+                builder.add(col, contentValues.get(col));
             }
         }
         cursor.moveToFirst();
