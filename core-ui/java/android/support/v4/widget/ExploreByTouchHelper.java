@@ -47,8 +47,7 @@ import java.util.List;
  * support in custom {@link View}s that represent a collection of View-like
  * logical items. It extends {@link AccessibilityNodeProviderCompat} and
  * simplifies many aspects of providing information to accessibility services
- * and managing accessibility focus. This class does not currently support
- * hierarchies of logical items.
+ * and managing accessibility focus.
  * <p>
  * Clients should override abstract methods on this class and attach it to the
  * host view using {@link ViewCompat#setAccessibilityDelegate}:
