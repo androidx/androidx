@@ -36,6 +36,7 @@ import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
 import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
+import android.support.v17.leanback.widget.ItemAlignmentFacet;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.PlaybackRowPresenter;
@@ -43,6 +44,7 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -65,8 +67,12 @@ import java.util.ArrayList;
  * of {@link RowPresenter}.
  * </p>
  * <p>
- * An instance of {@link android.support.v17.leanback.widget.PlaybackControlsRow} is expected to be
- * at position 0 in the adapter.
+ * A playback row is a row rendered by {@link PlaybackRowPresenter}.
+ * App can call {@link #setPlaybackRow(Row)} to set playback row for the first element of adapter.
+ * App can call {@link #setPlaybackRowPresenter(PlaybackRowPresenter)} to set presenter for it.
+ * {@link #setPlaybackRow(Row)} and {@link #setPlaybackRowPresenter(PlaybackRowPresenter)} are
+ * optional, app can pass playback row and PlaybackRowPresenter in the adapter using
+ * {@link #setAdapter(ObjectAdapter)}.
  * </p>
  */
 public class PlaybackSupportFragment extends Fragment {
@@ -182,8 +188,8 @@ public class PlaybackSupportFragment extends Fragment {
     private static final int IN = 1;
     private static final int OUT = 2;
 
-    private int mPaddingTop;
     private int mPaddingBottom;
+    private int mOtherRowsCenterToBottom;
     private View mRootView;
     private int mBackgroundType = BG_DARK;
     private int mBgDarkColor;
@@ -638,31 +644,30 @@ public class PlaybackSupportFragment extends Fragment {
         if (listview == null) {
             return;
         }
-        // Padding affects alignment when last row is focused
-        // (last is first when there's only one row).
-        setPadding(listview, mPaddingTop, mPaddingBottom);
 
-        // Item alignment affects focused row that isn't the last.
-        listview.setItemAlignmentOffset(0);
+        // we set the base line of alignment to -paddingBottom
+        listview.setWindowAlignmentOffset(-mPaddingBottom);
+        listview.setWindowAlignmentOffsetPercent(
+                VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
+
+        // align other rows that arent the last to center of screen, since our baseline is
+        // -mPaddingBottom, we need subtract that from mOtherRowsCenterToBottom.
+        listview.setItemAlignmentOffset(mOtherRowsCenterToBottom - mPaddingBottom);
         listview.setItemAlignmentOffsetPercent(50);
 
-        // Push rows to the bottom.
-        listview.setWindowAlignmentOffset(0);
-        listview.setWindowAlignmentOffsetPercent(50);
-        listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE);
-    }
-
-    private static void setPadding(View view, int paddingTop, int paddingBottom) {
-        view.setPadding(view.getPaddingLeft(), paddingTop,
-                view.getPaddingRight(), paddingBottom);
+        // Push last row to the bottom padding
+        // Padding affects alignment when last row is focused
+        listview.setPadding(listview.getPaddingLeft(), listview.getPaddingTop(),
+                listview.getPaddingRight(), mPaddingBottom);
+        listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mPaddingTop =
-                getResources().getDimensionPixelSize(R.dimen.lb_playback_controls_padding_top);
+        mOtherRowsCenterToBottom = getResources()
+                .getDimensionPixelSize(R.dimen.lb_playback_other_rows_center_to_bottom);
         mPaddingBottom =
                 getResources().getDimensionPixelSize(R.dimen.lb_playback_controls_padding_bottom);
         mBgDarkColor =
@@ -849,7 +854,9 @@ public class PlaybackSupportFragment extends Fragment {
     }
 
     /**
-     * Sets the playback row for the playback controls.
+     * Sets the playback row for the playback controls. The row will be set as first element
+     * of adapter if the adapter is {@link ArrayObjectAdapter} or {@link SparseArrayObjectAdapter}.
+     * @param row The row that represents the playback.
      */
     public void setPlaybackRow(Row row) {
         this.mRow = row;
@@ -858,11 +865,38 @@ public class PlaybackSupportFragment extends Fragment {
     }
 
     /**
-     * Sets the presenter for rendering the playback controls.
+     * Sets the presenter for rendering the playback row set by {@link #setPlaybackRow(Row)}. If
+     * adapter does not set a {@link PresenterSelector}, {@link #setAdapter(ObjectAdapter)} will
+     * create a {@link ClassPresenterSelector} by default and map from the row object class to this
+     * {@link PlaybackRowPresenter}.
+     *
+     * @param  presenter Presenter used to render {@link #setPlaybackRow(Row)}.
      */
     public void setPlaybackRowPresenter(PlaybackRowPresenter presenter) {
         this.mPresenter = presenter;
         setupPresenter();
+        setPlaybackRowPresenterAlignment();
+    }
+
+    void setPlaybackRowPresenterAlignment() {
+        if (mAdapter != null && mAdapter.getPresenterSelector() != null) {
+            Presenter[] presenters = mAdapter.getPresenterSelector().getPresenters();
+            if (presenters != null) {
+                for (int i = 0; i < presenters.length; i++) {
+                    if (presenters[i] instanceof PlaybackRowPresenter
+                            && presenters[i].getFacet(ItemAlignmentFacet.class) == null) {
+                        ItemAlignmentFacet itemAlignment = new ItemAlignmentFacet();
+                        ItemAlignmentFacet.ItemAlignmentDef def =
+                                new ItemAlignmentFacet.ItemAlignmentDef();
+                        def.setItemAlignmentOffset(0);
+                        def.setItemAlignmentOffsetPercent(100);
+                        itemAlignment.setAlignmentDefs(new ItemAlignmentFacet.ItemAlignmentDef[]
+                                {def});
+                        presenters[i].setFacet(ItemAlignmentFacet.class, itemAlignment);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -876,12 +910,19 @@ public class PlaybackSupportFragment extends Fragment {
     }
 
     /**
-     * Sets the list of rows for the fragment.
+     * Sets the list of rows for the fragment. A default {@link ClassPresenterSelector} will be
+     * created if {@link ObjectAdapter#getPresenterSelector()} is null. if user provides
+     * {@link #setPlaybackRow(Row)} and {@link #setPlaybackRowPresenter(PlaybackRowPresenter)},
+     * the row and presenter will be set onto the adapter.
+     *
+     * @param adapter The adapter that contains related rows and optional playback row.
      */
     public void setAdapter(ObjectAdapter adapter) {
         mAdapter = adapter;
         setupRow();
         setupPresenter();
+        setPlaybackRowPresenterAlignment();
+
         if (mRowsSupportFragment != null) {
             mRowsSupportFragment.setAdapter(adapter);
         }
@@ -895,6 +936,9 @@ public class PlaybackSupportFragment extends Fragment {
             } else {
                 adapter.replace(0, mRow);
             }
+        } else if (mAdapter instanceof SparseArrayObjectAdapter && mRow != null) {
+            SparseArrayObjectAdapter adapter = ((SparseArrayObjectAdapter) mAdapter);
+            adapter.set(0, mRow);
         }
     }
 
@@ -903,10 +947,9 @@ public class PlaybackSupportFragment extends Fragment {
             PresenterSelector selector = mAdapter.getPresenterSelector();
             if (selector == null) {
                 selector = new ClassPresenterSelector();
+                ((ClassPresenterSelector) selector).addClassPresenter(mRow.getClass(), mPresenter);
                 mAdapter.setPresenterSelector(selector);
-            }
-
-            if (selector instanceof ClassPresenterSelector) {
+            } else if (selector instanceof ClassPresenterSelector) {
                 ((ClassPresenterSelector) selector).addClassPresenter(mRow.getClass(), mPresenter);
             }
         }
