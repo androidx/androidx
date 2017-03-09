@@ -17,6 +17,7 @@
 package android.support.v4.app;
 
 import static junit.framework.Assert.assertNull;
+import static junit.framework.TestCase.assertFalse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -27,12 +28,14 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.LoaderActivity;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 
 import org.junit.After;
@@ -47,6 +50,8 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class LoaderTest {
+    private static final int DELAY_LOADER = 10;
+
     @Rule
     public ActivityTestRule<LoaderActivity> mActivityRule =
             new ActivityTestRule(LoaderActivity.class);
@@ -111,6 +116,89 @@ public class LoaderTest {
         // After orientation change, the text should still be loaded properly
         activity = LoaderActivity.sActivity;
         assertEquals("Loaded!", activity.textView.getText().toString());
+    }
+
+    /**
+     * When a change is interrupted with stop, the data in the LoaderManager remains stale.
+     */
+    @Test
+    public void noStaleData() throws Throwable {
+        final LoaderActivity activity = mActivityRule.getActivity();
+        final String[] value = new String[] { "First Value" };
+
+        final CountDownLatch[] loadedLatch = new CountDownLatch[] { new CountDownLatch(1) };
+        final Loader<String>[] loaders = new Loader[1];
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final Loader<String> loader =
+                        activity.getSupportLoaderManager().initLoader(DELAY_LOADER, null,
+                                new LoaderManager.LoaderCallbacks<String>() {
+                                    @Override
+                                    public Loader<String> onCreateLoader(int id, Bundle args) {
+                                        return new AsyncTaskLoader<String>(activity) {
+                                            @Override
+                                            protected void onStopLoading() {
+                                                cancelLoad();
+                                            }
+
+                                            @Override
+                                            public String loadInBackground() {
+                                                SystemClock.sleep(50);
+                                                return value[0];
+                                            }
+
+                                            @Override
+                                            protected void onStartLoading() {
+                                                if (takeContentChanged()) {
+                                                    forceLoad();
+                                                }
+                                                super.onStartLoading();
+                                            }
+                                        };
+                                    }
+
+                                    @Override
+                                    public void onLoadFinished(Loader<String> loader, String data) {
+                                        activity.textViewB.setText(data);
+                                        loadedLatch[0].countDown();
+                                    }
+
+                                    @Override
+                                    public void onLoaderReset(Loader<String> loader) {
+                                    }
+                                });
+                loader.forceLoad();
+                loaders[0] = loader;
+            }
+        });
+
+        assertTrue(loadedLatch[0].await(1, TimeUnit.SECONDS));
+        assertEquals("First Value", activity.textViewB.getText().toString());
+
+        loadedLatch[0] = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                value[0] = "Second Value";
+                loaders[0].onContentChanged();
+                loaders[0].stopLoading();
+            }
+        });
+
+        // Since the loader was stopped (and canceled), it shouldn't notify the change
+        assertFalse(loadedLatch[0].await(300, TimeUnit.MILLISECONDS));
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loaders[0].startLoading();
+            }
+        });
+
+        // Since the loader was stopped (and canceled), it shouldn't notify the change
+        assertTrue(loadedLatch[0].await(1, TimeUnit.SECONDS));
+        assertEquals("Second Value", activity.textViewB.getText().toString());
     }
 
     private boolean switchOrientation() throws InterruptedException {
