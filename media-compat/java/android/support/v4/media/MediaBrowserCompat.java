@@ -336,6 +336,7 @@ public final class MediaBrowserCompat {
      * @param extras The bundle of service-specific arguments to send to the media browser service.
      *            The contents of this bundle may affect the search result.
      * @param callback The callback to receive the search result. Must be non-null.
+     * @throws IllegalStateException if the browser is not connected to the media browser service.
      */
     public void search(@NonNull final String query, final Bundle extras,
             @NonNull SearchCallback callback) {
@@ -1117,7 +1118,7 @@ public final class MediaBrowserCompat {
             try {
                 mServiceBinderWrapper.getMediaItem(mediaId, receiver, mCallbacksMessenger);
             } catch (RemoteException e) {
-                Log.i(TAG, "Remote error getting media item.");
+                Log.i(TAG, "Remote error getting media item: " + mediaId);
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -1131,14 +1132,8 @@ public final class MediaBrowserCompat {
         public void search(@NonNull final String query, final Bundle extras,
                 @NonNull final SearchCallback callback) {
             if (!isConnected()) {
-                Log.i(TAG, "Not connected, unable to search.");
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onError(query, extras);
-                    }
-                });
-                return;
+                throw new IllegalStateException("search() called while not connected"
+                        + " (state=" + getStateLabel(mState) + ")");
             }
 
             ResultReceiver receiver = new SearchResultReceiver(query, extras, callback, mHandler);
@@ -1626,14 +1621,7 @@ public final class MediaBrowserCompat {
         public void search(@NonNull final String query, final Bundle extras,
                 @NonNull final SearchCallback callback) {
             if (!isConnected()) {
-                Log.i(TAG, "Not connected, unable to search.");
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onError(query, extras);
-                    }
-                });
-                return;
+                throw new IllegalStateException("search() called while not connected");
             }
             if (mServiceBinderWrapper == null) {
                 Log.i(TAG, "The connected service doesn't support search.");
