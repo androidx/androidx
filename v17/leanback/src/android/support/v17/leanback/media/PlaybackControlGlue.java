@@ -535,6 +535,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
     private void updateControlsRow() {
         updateRowMetadata();
+        updateControlButtons();
         sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
         updatePlaybackState();
     }
@@ -591,6 +592,49 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
         }
     }
 
+    void updateControlButtons() {
+        final SparseArrayObjectAdapter primaryActionsAdapter = (SparseArrayObjectAdapter)
+                getControlsRow().getPrimaryActionsAdapter();
+        final long actions = getSupportedActions();
+        if ((actions & ACTION_SKIP_TO_PREVIOUS) != 0 && mSkipPreviousAction == null) {
+            mSkipPreviousAction = new PlaybackControlsRow.SkipPreviousAction(getContext());
+            primaryActionsAdapter.set(ACTION_SKIP_TO_PREVIOUS, mSkipPreviousAction);
+        } else if ((actions & ACTION_SKIP_TO_PREVIOUS) == 0 && mSkipPreviousAction != null) {
+            primaryActionsAdapter.clear(ACTION_SKIP_TO_PREVIOUS);
+            mSkipPreviousAction = null;
+        }
+        if ((actions & ACTION_REWIND) != 0 && mRewindAction == null) {
+            mRewindAction = new PlaybackControlsRow.RewindAction(getContext(),
+                    mRewindSpeeds.length);
+            primaryActionsAdapter.set(ACTION_REWIND, mRewindAction);
+        } else if ((actions & ACTION_REWIND) == 0 && mRewindAction != null) {
+            primaryActionsAdapter.clear(ACTION_REWIND);
+            mRewindAction = null;
+        }
+        if ((actions & ACTION_PLAY_PAUSE) != 0 && mPlayPauseAction == null) {
+            mPlayPauseAction = new PlaybackControlsRow.PlayPauseAction(getContext());
+            primaryActionsAdapter.set(ACTION_PLAY_PAUSE, mPlayPauseAction);
+        } else if ((actions & ACTION_PLAY_PAUSE) == 0 && mPlayPauseAction != null) {
+            primaryActionsAdapter.clear(ACTION_PLAY_PAUSE);
+            mPlayPauseAction = null;
+        }
+        if ((actions & ACTION_FAST_FORWARD) != 0 && mFastForwardAction == null) {
+            mFastForwardAction = new PlaybackControlsRow.FastForwardAction(getContext(),
+                    mFastForwardSpeeds.length);
+            primaryActionsAdapter.set(ACTION_FAST_FORWARD, mFastForwardAction);
+        } else if ((actions & ACTION_FAST_FORWARD) == 0 && mFastForwardAction != null) {
+            primaryActionsAdapter.clear(ACTION_FAST_FORWARD);
+            mFastForwardAction = null;
+        }
+        if ((actions & ACTION_SKIP_TO_NEXT) != 0 && mSkipNextAction == null) {
+            mSkipNextAction = new PlaybackControlsRow.SkipNextAction(getContext());
+            primaryActionsAdapter.set(ACTION_SKIP_TO_NEXT, mSkipNextAction);
+        } else if ((actions & ACTION_SKIP_TO_NEXT) == 0 && mSkipNextAction != null) {
+            primaryActionsAdapter.clear(ACTION_SKIP_TO_NEXT);
+            mSkipNextAction = null;
+        }
+    }
+
     private void updatePlaybackState(int playbackSpeed) {
         if (mControlsRow == null) {
             return;
@@ -598,56 +642,6 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
         final SparseArrayObjectAdapter primaryActionsAdapter = (SparseArrayObjectAdapter)
                 getControlsRow().getPrimaryActionsAdapter();
-        final long actions = getSupportedActions();
-        if ((actions & ACTION_SKIP_TO_PREVIOUS) != 0) {
-            if (mSkipPreviousAction == null) {
-                mSkipPreviousAction = new PlaybackControlsRow.SkipPreviousAction(getContext());
-            }
-            primaryActionsAdapter.set(ACTION_SKIP_TO_PREVIOUS, mSkipPreviousAction);
-        } else {
-            primaryActionsAdapter.clear(ACTION_SKIP_TO_PREVIOUS);
-            mSkipPreviousAction = null;
-        }
-        if ((actions & ACTION_REWIND) != 0) {
-            if (mRewindAction == null) {
-                mRewindAction = new PlaybackControlsRow.RewindAction(
-                        getContext(),
-                        mRewindSpeeds.length);
-            }
-            primaryActionsAdapter.set(ACTION_REWIND, mRewindAction);
-        } else {
-            primaryActionsAdapter.clear(ACTION_REWIND);
-            mRewindAction = null;
-        }
-        if ((actions & ACTION_PLAY_PAUSE) != 0) {
-            if (mPlayPauseAction == null) {
-                mPlayPauseAction = new PlaybackControlsRow.PlayPauseAction(getContext());
-            }
-            primaryActionsAdapter.set(ACTION_PLAY_PAUSE, mPlayPauseAction);
-        } else {
-            primaryActionsAdapter.clear(ACTION_PLAY_PAUSE);
-            mPlayPauseAction = null;
-        }
-        if ((actions & ACTION_FAST_FORWARD) != 0) {
-            if (mFastForwardAction == null) {
-                mFastForwardAction = new PlaybackControlsRow.FastForwardAction(
-                        getContext(),
-                        mFastForwardSpeeds.length);
-            }
-            primaryActionsAdapter.set(ACTION_FAST_FORWARD, mFastForwardAction);
-        } else {
-            primaryActionsAdapter.clear(ACTION_FAST_FORWARD);
-            mFastForwardAction = null;
-        }
-        if ((actions & ACTION_SKIP_TO_NEXT) != 0) {
-            if (mSkipNextAction == null) {
-                mSkipNextAction = new PlaybackControlsRow.SkipNextAction(getContext());
-            }
-            primaryActionsAdapter.set(ACTION_SKIP_TO_NEXT, mSkipNextAction);
-        } else {
-            primaryActionsAdapter.clear(ACTION_SKIP_TO_NEXT);
-            mSkipNextAction = null;
-        }
 
         if (mFastForwardAction != null) {
             int index = 0;
