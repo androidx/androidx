@@ -16,6 +16,8 @@
 
 package android.support.dynamicanimation.tests;
 
+import static junit.framework.Assert.fail;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -36,11 +38,13 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.AndroidRuntimeException;
 import android.view.View;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 @MediumTest
@@ -49,6 +53,9 @@ public class SpringTests {
     @Rule public final ActivityTestRule<AnimationActivity> mActivityTestRule;
     public View mView1;
     public View mView2;
+
+    @Rule
+    public ExpectedException mExpectedException = ExpectedException.none();
 
     public SpringTests() {
         mActivityTestRule = new ActivityTestRule<>(AnimationActivity.class);
@@ -273,6 +280,26 @@ public class SpringTests {
     }
 
     /**
+     * Test negative stiffness and expect exception.
+     */
+    @Test
+    public void testInvalidStiffness() {
+        SpringForce spring = new SpringForce();
+        mExpectedException.expect(IllegalArgumentException.class);
+        spring.setStiffness(-5f);
+    }
+
+    /**
+     * Test negative dampingRatio and expect exception.
+     */
+    @Test
+    public void testInvalidDampingRatio() {
+        SpringForce spring = new SpringForce();
+        mExpectedException.expect(IllegalArgumentException.class);
+        spring.setDampingRatio(-5f);
+    }
+
+    /**
      * Remove an update listener and an end listener, and check that there are no interaction after
      * removal.
      */
@@ -425,6 +452,177 @@ public class SpringTests {
         });
         assertFalse(anim.isRunning());
         assertEquals(0, mView1.getScrollX());
+    }
+
+    /**
+     * Makes sure all the properties getter works.
+     */
+    @Test
+    public void testAllProperties() {
+        final DynamicAnimation.ViewProperty[] properties = {
+                DynamicAnimation.ALPHA, DynamicAnimation.TRANSLATION_X,
+                DynamicAnimation.TRANSLATION_Y, DynamicAnimation.TRANSLATION_Z,
+                DynamicAnimation.SCALE_X, DynamicAnimation.SCALE_Y, DynamicAnimation.ROTATION,
+                DynamicAnimation.ROTATION_X, DynamicAnimation.ROTATION_Y,
+                DynamicAnimation.X, DynamicAnimation.Y, DynamicAnimation.Z,
+                DynamicAnimation.SCROLL_X, DynamicAnimation.SCROLL_Y,
+        };
+
+        mView1.setAlpha(0f);
+        mView1.setTranslationX(0f);
+        mView1.setTranslationY(0f);
+        mView1.setTranslationZ(0f);
+
+        mView1.setScaleX(0f);
+        mView1.setScaleY(0f);
+
+        mView1.setRotation(0f);
+        mView1.setRotationX(0f);
+        mView1.setRotationY(0f);
+
+        mView1.setX(0f);
+        mView1.setY(0f);
+        mView1.setZ(0f);
+
+        mView1.setScrollX(0);
+        mView1.setScrollY(0);
+
+        View mockView = mock(View.class);
+
+        final SpringAnimation[] anims = new SpringAnimation[properties.length];
+        final DynamicAnimation.OnAnimationUpdateListener[] mockListeners =
+                new DynamicAnimation.OnAnimationUpdateListener[properties.length];
+        for (int i = 0; i < properties.length; i++) {
+            anims[i] = new SpringAnimation(mView1, properties[i], 1);
+            final int finalI = i;
+            anims[i].addUpdateListener(
+                    new DynamicAnimation.OnAnimationUpdateListener() {
+                        boolean mIsFirstFrame = true;
+                        @Override
+                        public void onAnimationUpdate(DynamicAnimation animation, float value,
+                                float velocity) {
+                            if (mIsFirstFrame) {
+                                assertEquals(value, 0f, 0f);
+                            }
+                            mIsFirstFrame = false;
+                        }
+                    });
+            mockListeners[i] = mock(DynamicAnimation.OnAnimationUpdateListener.class);
+            anims[i].addUpdateListener(mockListeners[i]);
+        }
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = properties.length - 1; i >= 0; i--) {
+                    anims[i].start();
+                }
+            }
+        });
+
+        for (int i = 0; i < properties.length; i++) {
+            int timeout = i == 0 ? 100 : 0;
+            verify(mockListeners[i], timeout(timeout).atLeast(1)).onAnimationUpdate(
+                    any(SpringAnimation.class), any(float.class), any(float.class));
+        }
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < properties.length; i++) {
+                    anims[i].cancel();
+                }
+            }
+        });
+    }
+
+    /**
+     * Test start() on a test thread.
+     */
+    @Test
+    public void testStartOnNonMainThread() {
+        mExpectedException.expect(AndroidRuntimeException.class);
+        SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
+        anim.start();
+    }
+
+    /**
+     * Test cancel() on a test thread.
+     */
+    @Test
+    public void testCancelOnNonMainThread() {
+        mExpectedException.expect(AndroidRuntimeException.class);
+        SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
+        anim.cancel();
+    }
+
+    /**
+     * Test skipToEnd() on a test thread.
+     */
+    @Test
+    public void testSkipToEndOnNonMainThread() {
+        mExpectedException.expect(AndroidRuntimeException.class);
+        SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
+        anim.skipToEnd();
+    }
+
+    /**
+     * Test invalid start condition: no spring position specified, final position > max value,
+     * and final position < min. Expect exception in all these cases.
+     */
+    @Test
+    public void testInvalidStartingCondition() {
+        final SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.X);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                // Expect exception from not setting spring final position before calling start.
+                try {
+                    anim.start();
+                    fail("No exception is thrown when calling start() from non-main thread.");
+                } catch (UnsupportedOperationException e) {
+                }
+
+                // Expect exception from having a final position < min value
+                try {
+                    anim.setMinValue(50);
+                    // Final position < min value, expect exception.
+                    anim.setStartValue(50).animateToFinalPosition(40);
+                    fail("No exception is thrown when spring position is less than min value.");
+                } catch (UnsupportedOperationException e) {
+                }
+
+                // Expect exception from not setting spring final position before calling start.
+                try {
+                    anim.setMaxValue(60);
+                    // Final position < min value, expect exception.
+                    anim.setStartValue(60).animateToFinalPosition(70);
+                    fail("No exception is thrown when spring position is greater than max value.");
+                } catch (UnsupportedOperationException e) {
+                }
+            }
+        });
+    }
+
+    /**
+     * Try skipToEnd() on an undamped spring, and expect exception.
+     */
+    @Test
+    public void testUndampedSpring() {
+        final SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.Y);
+        anim.setSpring(new SpringForce(10).setDampingRatio(0));
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                // Expect exception for ending an undamped spring.
+                try {
+                    anim.skipToEnd();
+                    fail("No exception is thrown when calling skipToEnd() on an undamped spring");
+                } catch (UnsupportedOperationException e) {
+                }
+            }
+        });
+
     }
 
     static class MyEndListener implements DynamicAnimation.OnAnimationEndListener {
