@@ -94,7 +94,7 @@ public class DetailsOverviewLogoPresenter extends Presenter {
         ViewHolder vh = new ViewHolder(view);
         ViewGroup.LayoutParams lp = view.getLayoutParams();
         vh.setSizeFromDrawableIntrinsic(lp.width == ViewGroup.LayoutParams.WRAP_CONTENT
-                && lp.width == ViewGroup.LayoutParams.WRAP_CONTENT);
+                && lp.height == ViewGroup.LayoutParams.WRAP_CONTENT);
         return vh;
     }
 
