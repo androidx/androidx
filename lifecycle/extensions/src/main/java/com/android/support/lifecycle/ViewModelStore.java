@@ -50,7 +50,6 @@ public class ViewModelStore {
 
     private static Application sApplication;
 
-
     /**
      * Returns an existing ViewModel or creates a new one for the given scope.
      * <p>
@@ -68,7 +67,11 @@ public class ViewModelStore {
     @MainThread
     public static <T extends ViewModel> T get(LifecycleProvider scope,
             Class<T> modelClass) {
-        return get(scope, DEFAULT_KEY, modelClass);
+        String canonicalName = modelClass.getCanonicalName();
+        if (canonicalName == null) {
+            throw new IllegalArgumentException("Local and anonymous classes can not be ViewModels");
+        }
+        return get(scope, DEFAULT_KEY + ":" + canonicalName, modelClass);
     }
 
     /**

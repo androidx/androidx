@@ -32,6 +32,7 @@ import com.android.support.lifecycle.viewmodeltest.TestViewModel;
 import com.android.support.lifecycle.viewmodeltest.ViewModelActivity;
 import com.android.support.lifecycle.viewmodeltest.ViewModelActivity.ViewModelFragment;
 
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -99,6 +100,33 @@ public class ViewModelTest {
         TestViewModel activityModel = mActivityRule.getActivity().activityModel;
         assertThat(activityModel.getApplication(),
                 is(InstrumentationRegistry.getTargetContext().getApplicationContext()));
+    }
+
+    @Test
+    public void twoViewModels() {
+        ViewModelActivity activity = mActivityRule.getActivity();
+        ViewModel1 model1 = ViewModelStore.get(activity, ViewModel1.class);
+        ViewModel2 model2 = ViewModelStore.get(activity, ViewModel2.class);
+        assertThat(ViewModelStore.get(activity, ViewModel1.class), is(model1));
+        assertThat(ViewModelStore.get(activity, ViewModel2.class), is(model2));
+    }
+
+    @Test
+    public void localViewModel() {
+        ViewModelActivity activity = mActivityRule.getActivity();
+        class VM extends ViewModel1 {
+        }
+        try {
+            ViewModelStore.get(activity, VM.class);
+            Assert.fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+    }
+
+    public static class ViewModel1 extends ViewModel {
+    }
+
+    public static class ViewModel2 extends ViewModel {
     }
 
     private ViewModelFragment getFragment(FragmentActivity activity, String tag) {
