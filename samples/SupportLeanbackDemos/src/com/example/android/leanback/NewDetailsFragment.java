@@ -230,6 +230,10 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                final Context context = getActivity();
+                if (context == null) {
+                    return;
+                }
                 if (TEST_OVERVIEW_ROW_ON_SECOND) {
                     ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
                     listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_1));
@@ -240,7 +244,6 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
                     mRowsAdapter.add(0, new ListRow(header, listRowAdapter));
                 }
 
-                final Context context = getActivity();
                 DetailsOverviewRow dor = new DetailsOverviewRow(mPhotoItem.getTitle());
                 dor.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
                         mPhotoItem.getImageResourceId(), context.getTheme()));
@@ -262,6 +265,9 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                if (getActivity() == null) {
+                    return;
+                }
                 for (int i = 0; i < NUM_ROWS; ++i) {
                     ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
                     listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_1));
