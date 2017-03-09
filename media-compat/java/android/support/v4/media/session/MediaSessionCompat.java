@@ -120,6 +120,22 @@ public class MediaSessionCompat {
     public static final int FLAG_HANDLES_QUEUE_COMMANDS = 1 << 2;
 
     /**
+     * Predefined custom action to flag the media that is currently playing as inappropriate.
+     *
+     * @see Callback#onCustomAction
+     */
+    public static final String ACTION_FLAG_AS_INAPPROPRIATE =
+            "android.support.v4.media.session.action.FLAG_AS_INAPPROPRIATE";
+
+    /**
+     * Predefined custom action to skip the advertisement that is currently playing.
+     *
+     * @see Callback#onCustomAction
+     */
+    public static final String ACTION_SKIP_AD =
+            "android.support.v4.media.session.action.SKIP_AD";
+
+    /**
      * Custom action to invoke playFromUri() for the forward compatibility.
      */
     static final String ACTION_PLAY_FROM_URI =
@@ -884,6 +900,8 @@ public class MediaSessionCompat {
          *            {@link PlaybackStateCompat.CustomAction}.
          * @param extras Optional extras specified by the
          *            {@link MediaControllerCompat}.
+         * @see #ACTION_FLAG_AS_INAPPROPRIATE
+         * @see #ACTION_SKIP_AD
          */
         public void onCustomAction(String action, Bundle extras) {
         }
