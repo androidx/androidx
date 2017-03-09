@@ -1192,7 +1192,6 @@ package android.support.media.tv {
     method public android.net.Uri getAppLinkIntentUri();
     method public android.net.Uri getAppLinkPosterArtUri();
     method public java.lang.String getAppLinkText();
-    method public java.lang.String getChannelLogo();
     method public java.lang.String getDescription();
     method public java.lang.String getDisplayName();
     method public java.lang.String getDisplayNumber();
@@ -1225,7 +1224,6 @@ package android.support.media.tv {
     method public android.support.media.tv.Channel.Builder setAppLinkIntentUri(android.net.Uri);
     method public android.support.media.tv.Channel.Builder setAppLinkPosterArtUri(android.net.Uri);
     method public android.support.media.tv.Channel.Builder setAppLinkText(java.lang.String);
-    method public android.support.media.tv.Channel.Builder setChannelLogo(java.lang.String);
     method public android.support.media.tv.Channel.Builder setDescription(java.lang.String);
     method public android.support.media.tv.Channel.Builder setDisplayName(java.lang.String);
     method public android.support.media.tv.Channel.Builder setDisplayNumber(java.lang.String);
@@ -1238,7 +1236,6 @@ package android.support.media.tv {
     method public android.support.media.tv.Channel.Builder setInternalProviderFlag4(long);
     method public android.support.media.tv.Channel.Builder setNetworkAffiliation(java.lang.String);
     method public android.support.media.tv.Channel.Builder setOriginalNetworkId(int);
-    method public android.support.media.tv.Channel.Builder setPackageName(java.lang.String);
     method public android.support.media.tv.Channel.Builder setSearchable(boolean);
     method public android.support.media.tv.Channel.Builder setServiceId(int);
     method public android.support.media.tv.Channel.Builder setServiceType(java.lang.String);

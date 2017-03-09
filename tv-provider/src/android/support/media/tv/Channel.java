@@ -80,7 +80,6 @@ public final class Channel {
     private final String mDisplayNumber;
     private final String mDisplayName;
     private final String mDescription;
-    private final String mChannelLogo;
     private final String mVideoFormat;
     private final int mOriginalNetworkId;
     private final int mTransportStreamId;
@@ -117,7 +116,6 @@ public final class Channel {
         mAppLinkIconUri = builder.mAppLinkIconUri;
         mAppLinkPosterArtUri = builder.mAppLinkPosterArtUri;
         mAppLinkIntentUri = builder.mAppLinkIntentUri;
-        mChannelLogo = builder.mChannelLogo;
         mInternalProviderData = builder.mInternalProviderData;
         mNetworkAffiliation = builder.mNetworkAffiliation;
         mSearchable = builder.mSearchable;
@@ -250,13 +248,6 @@ public final class Channel {
 
 
     /**
-     * @return The value of {@link Channels.Logo} for the channel.
-     */
-    public String getChannelLogo() {
-        return mChannelLogo;
-    }
-
-    /**
      * @return The value of {@link Channels#COLUMN_NETWORK_AFFILIATION} for the channel.
      */
     public String getNetworkAffiliation() {
@@ -335,7 +326,6 @@ public final class Channel {
                 + ", displayNumber=" + mDisplayNumber
                 + ", displayName=" + mDisplayName
                 + ", description=" + mDescription
-                + ", channelLogo=" + mChannelLogo
                 + ", videoFormat=" + mVideoFormat
                 + ", appLinkText=" + mAppLinkText + "}";
     }
@@ -606,7 +596,6 @@ public final class Channel {
         private String mDisplayNumber;
         private String mDisplayName;
         private String mDescription;
-        private String mChannelLogo;
         private String mVideoFormat;
         private int mOriginalNetworkId = INVALID_INTEGER_VALUE;
         private int mTransportStreamId;
@@ -646,7 +635,6 @@ public final class Channel {
             mAppLinkIconUri = other.mAppLinkIconUri;
             mAppLinkPosterArtUri = other.mAppLinkPosterArtUri;
             mAppLinkIntentUri = other.mAppLinkIntentUri;
-            mChannelLogo = other.mChannelLogo;
             mInternalProviderData = other.mInternalProviderData;
             mNetworkAffiliation = other.mNetworkAffiliation;
             mSearchable = other.mSearchable;
@@ -674,8 +662,10 @@ public final class Channel {
          *
          * @param packageName The value of {@link Channels#COLUMN_PACKAGE_NAME} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @hide
          */
-        public Builder setPackageName(String packageName) {
+        @RestrictTo(LIBRARY_GROUP)
+        Builder setPackageName(String packageName) {
             mPackageName = packageName;
             return this;
         }
@@ -732,18 +722,6 @@ public final class Channel {
          */
         public Builder setDescription(String description) {
             mDescription = description;
-            return this;
-        }
-
-        /**
-         * Sets the logo of the channel.
-         *
-         * @param channelLogo The Uri corresponding to the logo for the channel.
-         * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Channels.Logo
-         */
-        public Builder setChannelLogo(String channelLogo) {
-            mChannelLogo = channelLogo;
             return this;
         }
 
