@@ -147,6 +147,9 @@ project(':support-vector-drawable-demos').projectDir = new File(samplesRoot, 'Su
 include ':support-animation-demos'
 project(':support-animation-demos').projectDir = new File(samplesRoot, 'SupportAnimationDemos')
 
+include ':support-app-navigation'
+project(':support-app-navigation').projectDir = new File(samplesRoot, 'SupportAppNavigation')
+
 /////////////////////////////
 //
 // External
