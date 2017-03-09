@@ -1033,6 +1033,8 @@ public final class MediaControllerCompat {
          *
          * @see #sendCustomAction(PlaybackStateCompat.CustomAction action,
          *      Bundle args)
+         * @see MediaSessionCompat#ACTION_FLAG_AS_INAPPROPRIATE
+         * @see MediaSessionCompat#ACTION_SKIP_AD
          * @param action The action identifier of the
          *            {@link PlaybackStateCompat.CustomAction} as specified by
          *            the {@link MediaSessionCompat}.
