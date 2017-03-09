@@ -24,6 +24,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.concurrent.CountDownLatch;
@@ -34,6 +35,7 @@ public class LoaderActivity extends FragmentActivity {
     public static CountDownLatch sResumed;
 
     public TextView textView;
+    public TextView textViewB;
 
     public static void clearState() {
         sActivity = null;
@@ -47,6 +49,10 @@ public class LoaderActivity extends FragmentActivity {
 
         setContentView(R.layout.fragment_a);
         textView = (TextView) findViewById(R.id.textA);
+        ViewGroup container = (ViewGroup) textView.getParent();
+        textViewB = new TextView(this);
+        textViewB.setId(R.id.textB);
+        container.addView(textViewB);
     }
 
     @Override
