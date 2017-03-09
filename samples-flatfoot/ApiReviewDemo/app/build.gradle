@@ -18,10 +18,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "com.android.flatfoot.apireviewdemo"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -44,12 +44,14 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+
+    compile 'com.android.support:support-fragment:25.2.0'
     //noinspection GradleCompatible
-    compile 'com.android.support:appcompat-v7:26.+'
+    compile 'com.android.support:appcompat-v7:25.2.0'
     //noinspection GradleCompatible
-    compile 'com.android.support:recyclerview-v7:26.+'
+    compile 'com.android.support:recyclerview-v7:25.2.0'
     //noinspection GradleCompatible
-    compile 'com.android.support:cardview-v7:26.+'
+    compile 'com.android.support:cardview-v7:25.2.0'
 
     compile "com.android.support.lifecycle:extensions:1.0-SNAPSHOT"
     compile "com.android.support.room:runtime:1.0-SNAPSHOT"

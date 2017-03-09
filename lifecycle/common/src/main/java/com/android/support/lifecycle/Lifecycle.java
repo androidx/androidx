@@ -73,8 +73,9 @@ public interface Lifecycle {
      * Adds a LifecycleObserver that will be notified when the owner LifecycleProvider changes
      * state.
      * <p>
-     * If this method is called while a state change is being dispatched, the given observer will
-     * not receive that event.
+     * The given observer will be brought to the current state of the owner LifecycleProvider.
+     * For example, if the owner LifecycleProvider is in {@link #STARTED} state, the given observer
+     * will receive {@link #ON_CREATE}, {@link #ON_START} events.
      *
      * @param observer The observer to notify.
      */

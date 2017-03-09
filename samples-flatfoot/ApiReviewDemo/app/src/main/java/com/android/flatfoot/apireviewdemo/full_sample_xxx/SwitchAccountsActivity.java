@@ -36,8 +36,7 @@ public class SwitchAccountsActivity extends LifecycleActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final AccountViewModel viewModel = ViewModelStore.get(this, "switchaccounts",
-                AccountViewModel.class);
+        final AccountViewModel viewModel = ViewModelStore.get(this, AccountViewModel.class);
         viewModel.setUser(USERS[0]);
         setContentView(R.layout.switch_accounts);
 
@@ -62,7 +61,7 @@ public class SwitchAccountsActivity extends LifecycleActivity {
 
         viewModel.statusData.observe(this, new Observer<AccountViewModel.Status>() {
             @Override
-            public void onChanged(@Nullable AccountViewModel.Status status) {
+            public void onChanged(AccountViewModel.Status status) {
                 findViewById(R.id.loading_spinner).setVisibility(
                         status.updating ? View.VISIBLE : View.GONE);
             }

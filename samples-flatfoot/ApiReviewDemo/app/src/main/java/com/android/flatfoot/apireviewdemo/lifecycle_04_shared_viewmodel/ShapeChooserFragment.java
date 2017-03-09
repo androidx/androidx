@@ -37,8 +37,7 @@ public class ShapeChooserFragment extends LifecycleFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         LifecycleActivity activity = (LifecycleActivity) getActivity();
-        final SharedViewModel sharedViewModel = ViewModelStore.get(activity, "shared",
-                SharedViewModel.class);
+        final SharedViewModel sharedViewModel = ViewModelStore.get(activity, SharedViewModel.class);
 
         RecyclerView rv = new RecyclerView(activity);
         rv.setLayoutManager(new GridLayoutManager(activity, 3));

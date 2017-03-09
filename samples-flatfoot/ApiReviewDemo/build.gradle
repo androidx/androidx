@@ -35,9 +35,6 @@ allprojects { p ->
         maven {
             url "file://${new File(outFolder, "support/build/support_repo").absolutePath}"
         }
-        maven {
-            url "file://${new File(outFolder, "app-toolkit/build/flatfoot_repo").absolutePath}"
-        }
     }
 }
 

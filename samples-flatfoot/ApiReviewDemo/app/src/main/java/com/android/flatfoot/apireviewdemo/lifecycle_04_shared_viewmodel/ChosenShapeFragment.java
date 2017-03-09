@@ -42,7 +42,7 @@ public class ChosenShapeFragment extends LifecycleFragment {
         mNoneShapeView = layout.findViewById(R.id.none);
         mShapeView = layout.findViewById(R.id.color);
         LifecycleActivity activity = (LifecycleActivity) getActivity();
-        SharedViewModel viewModel = ViewModelStore.get(activity, "shared", SharedViewModel.class);
+        SharedViewModel viewModel = ViewModelStore.get(activity, SharedViewModel.class);
         viewModel.shapeDrawableData.observe(this, new Observer<ShapeDrawable>() {
             @Override
             public void onChanged(@Nullable ShapeDrawable shapeDrawable) {

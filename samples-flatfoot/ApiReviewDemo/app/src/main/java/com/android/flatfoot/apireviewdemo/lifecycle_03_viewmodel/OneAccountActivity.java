@@ -17,7 +17,6 @@
 package com.android.flatfoot.apireviewdemo.lifecycle_03_viewmodel;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.TextView;
 
@@ -33,7 +32,7 @@ public class OneAccountActivity extends LifecycleActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_model1);
 
-        AccountViewModel viewModel = ViewModelStore.get(this, "oneaccount", AccountViewModel.class);
+        AccountViewModel viewModel = ViewModelStore.get(this, AccountViewModel.class);
         viewModel.personData.observe(this, new Observer<AccountViewModel.PersonDataWithStatus>() {
             @Override
             public void onChanged(AccountViewModel.PersonDataWithStatus data) {

@@ -27,9 +27,9 @@ import com.android.support.lifecycle.LifecycleProvider;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
 @SuppressWarnings("MissingPermission")
-public class LocationListener implements LifecycleObserver {
+class LocationListener implements LifecycleObserver {
 
-    public static void listenLocation(LifecycleProvider provider,
+    static void listenLocation(LifecycleProvider provider,
             SimpleLocationListener listener) {
         new LocationListener(provider, listener);
     }
@@ -37,12 +37,9 @@ public class LocationListener implements LifecycleObserver {
     private android.location.LocationManager mLocationManager;
     private final SimpleLocationListener mListener;
 
-    LocationListener(LifecycleProvider provider, SimpleLocationListener listener) {
+    private LocationListener(LifecycleProvider provider, SimpleLocationListener listener) {
         provider.getLifecycle().addObserver(this);
         mListener = listener;
-        if (provider.getLifecycle().getCurrentState() == Lifecycle.RESUMED) {
-            start();
-        }
     }
 
     @OnLifecycleEvent(Lifecycle.ON_RESUME)

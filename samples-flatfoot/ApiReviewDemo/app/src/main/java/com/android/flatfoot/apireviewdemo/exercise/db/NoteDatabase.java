@@ -32,7 +32,7 @@ abstract public class NoteDatabase extends RoomDatabase {
     /**
      * Gets a database instance.
      */
-    public static synchronized NoteDatabase getDatabase() {
+    public static synchronized NoteDatabase getInstance() {
         if (sInstance == null) {
             Context context = DemoApplication.context();
             sInstance = Room.databaseBuilder(context, NoteDatabase.class, "notes.db").build();
