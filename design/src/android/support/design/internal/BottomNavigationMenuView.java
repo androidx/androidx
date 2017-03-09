@@ -295,19 +295,25 @@ public class BottomNavigationMenuView extends ViewGroup implements MenuView {
             return;
         }
         int previousSelectedId = mSelectedItemId;
+
         for (int i = 0; i < menuSize; i++) {
-            mPresenter.setUpdateSuspended(true);
             MenuItem item = mMenu.getItem(i);
             if (item.isChecked()) {
                 mSelectedItemId = item.getItemId();
                 mSelectedItemPosition = i;
             }
-            mButtons[i].initialize((MenuItemImpl) item, 0);
-            mPresenter.setUpdateSuspended(false);
         }
         if (previousSelectedId != mSelectedItemId) {
-            TransitionManager.beginDelayedTransition(this);
+            // Note: this has to be called before BottomNavigationItemView#initialize().
+            TransitionManager.beginDelayedTransition(this, mSet);
         }
+
+        for (int i = 0; i < menuSize; i++) {
+            mPresenter.setUpdateSuspended(true);
+            mButtons[i].initialize((MenuItemImpl) mMenu.getItem(i), 0);
+            mPresenter.setUpdateSuspended(false);
+        }
+
     }
 
     private BottomNavigationItemView getNewItem() {
