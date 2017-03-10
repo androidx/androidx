@@ -70,7 +70,6 @@ public class FullLifecycleTestActivity extends LifecycleActivity {
         @OnLifecycleEvent(Lifecycle.ON_DESTROY)
         void destroy(LifecycleProvider pr, int event) {
             mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
-            mLatch.countDown();
         }
     }
 
@@ -111,6 +110,7 @@ public class FullLifecycleTestActivity extends LifecycleActivity {
     protected void onDestroy() {
         super.onDestroy();
         mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.ON_DESTROY));
+        mLatch.countDown();
     }
 
     @Override
@@ -127,8 +127,6 @@ public class FullLifecycleTestActivity extends LifecycleActivity {
 
     /**
      * awaits for all events and returns them.
-     * @return
-     * @throws InterruptedException
      */
     public List<Pair<TestEvent, Integer>> waitForCollectedEvents() throws InterruptedException {
         mLatch.await(TIMEOUT, TimeUnit.SECONDS);

@@ -33,7 +33,7 @@ dependencies {
     testCompile project(":apptoolkit:core-testing")
     testCompile libs.junit
     testCompile libs.mockito.all
-    // TODO remove ?
+
     testCompile(libs.test_runner) {
         exclude module: 'support-annotations'
     }
@@ -48,4 +48,5 @@ dependencies {
 
 createAndroidCheckstyle(project)
 
+//noinspection GroovyUnusedAssignment
 archivesBaseName = "extensions"

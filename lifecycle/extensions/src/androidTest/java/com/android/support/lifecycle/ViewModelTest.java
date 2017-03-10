@@ -16,6 +16,8 @@
 
 package com.android.support.lifecycle;
 
+import static com.android.support.lifecycle.Lifecycle.ON_RESUME;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -23,10 +25,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 
 import com.android.support.lifecycle.viewmodeltest.TestViewModel;
 import com.android.support.lifecycle.viewmodeltest.ViewModelActivity;
@@ -37,9 +41,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ViewModelTest {
+    private static final int TIMEOUT = 2; // secs
+
     @Rule
     public ActivityTestRule<ViewModelActivity> mActivityRule =
             new ActivityTestRule<>(ViewModelActivity.class);
@@ -96,6 +105,7 @@ public class ViewModelTest {
     }
 
     @Test
+    @UiThreadTest
     public void testGetApplication() {
         TestViewModel activityModel = mActivityRule.getActivity().activityModel;
         assertThat(activityModel.getApplication(),
@@ -103,7 +113,8 @@ public class ViewModelTest {
     }
 
     @Test
-    public void twoViewModels() {
+    @UiThreadTest
+    public void twoViewModels() throws Throwable {
         ViewModelActivity activity = mActivityRule.getActivity();
         ViewModel1 model1 = ViewModelStore.get(activity, ViewModel1.class);
         ViewModel2 model2 = ViewModelStore.get(activity, ViewModel2.class);
@@ -112,7 +123,20 @@ public class ViewModelTest {
     }
 
     @Test
-    public void localViewModel() {
+    @UiThreadTest
+    public void twoViewModelsWithSameKey() throws Throwable {
+        ViewModelActivity activity = mActivityRule.getActivity();
+        String key = "the_key";
+        ViewModel1 vm1 = ViewModelStore.get(activity, key, ViewModel1.class);
+        assertThat(vm1.mCleared, is(false));
+        ViewModel2 vw2 = ViewModelStore.get(activity, key, ViewModel2.class);
+        assertThat(vw2, notNullValue());
+        assertThat(vm1.mCleared, is(true));
+    }
+
+    @Test
+    @UiThreadTest
+    public void localViewModel() throws Throwable {
         ViewModelActivity activity = mActivityRule.getActivity();
         class VM extends ViewModel1 {
         }
@@ -123,7 +147,44 @@ public class ViewModelTest {
         }
     }
 
+    @Test
+    public void testOnClear() throws Throwable {
+        final ViewModelActivity activity = mActivityRule.getActivity();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final LifecycleObserver observer = new LifecycleObserver() {
+            @SuppressWarnings("unused")
+            @OnLifecycleEvent(ON_RESUME)
+            void onResume() {
+                try {
+                    final FragmentManager manager = activity.getSupportFragmentManager();
+                    LifecycleFragment fragment = new LifecycleFragment();
+                    manager.beginTransaction().add(fragment, "temp").commitNow();
+                    ViewModel1 vm = ViewModelStore.get(fragment, ViewModel1.class);
+                    assertThat(vm.mCleared, is(false));
+                    manager.beginTransaction().remove(fragment).commitNow();
+                    assertThat(vm.mCleared, is(true));
+                } finally {
+                    latch.countDown();
+                }
+            }
+        };
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.getLifecycle().addObserver(observer);
+            }
+        });
+        assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS), is(true));
+    }
+
     public static class ViewModel1 extends ViewModel {
+        boolean mCleared = false;
+
+        @Override
+        protected void onCleared() {
+            mCleared = true;
+        }
     }
 
     public static class ViewModel2 extends ViewModel {

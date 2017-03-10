@@ -146,6 +146,9 @@ class LifecycleDispatcher {
             return;
         }
         for (Fragment fragment : fragments) {
+            if (fragment == null) {
+                continue;
+            }
             markStateIn(fragment, state);
             markState(fragment.getChildFragmentManager(), state);
         }

@@ -16,23 +16,15 @@
 
 package com.android.support.lifecycle;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
+import android.util.Log;
 
-import com.android.support.lifecycle.state.HolderFragment;
-import com.android.support.lifecycle.state.RetainedStateProvider;
 import com.android.support.lifecycle.state.StateProviders;
-import com.android.support.lifecycle.state.StateValue;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Utility class to create managed ViewModels.
@@ -40,14 +32,12 @@ import java.util.Map;
  * @see ViewModel ViewModel - for samples and usage patterns.
  */
 public class ViewModelStore {
-    /**
-     * The state key prefix used by ViewModel utility.
-     */
-    private static final String KEY_PREFIX = "com.android.support.lifecycle.extensions.viewModel.";
+    private static final String LOG_TAG = "ViewModelStore";
 
     private static final String DEFAULT_KEY =
             "com.android.support.lifecycle.extensions.ViewModelStore.DefaultKey";
 
+    @SuppressLint("StaticFieldLeak")
     private static Application sApplication;
 
     /**
@@ -92,58 +82,36 @@ public class ViewModelStore {
     @MainThread
     public static <T extends ViewModel> T get(LifecycleProvider scope, String key,
             Class<T> modelClass) {
-        final RetainedStateProvider stateProvider = StateProviders.retainedStateProvider(scope);
-        final StateValue<T> stateValue = stateProvider.stateValue(KEY_PREFIX + key);
-        T viewModel = stateValue.get();
-        if (viewModel == null) {
-            //noinspection TryWithIdenticalCatches
-            try {
-                HolderFragment holderFragment = StateProviders.holderFragmentFor(scope);
-                if (sApplication == null) {
-                    FragmentActivity activity = holderFragment.getActivity();
-                    if (activity == null) {
-                        throw new IllegalStateException("Can't create VM for detached fragment");
-                    }
-                    sApplication = activity.getApplication();
-                }
-                viewModel = createViewModel(modelClass);
-                stateValue.set(viewModel);
-                add(holderFragment, viewModel);
-                holderFragment.getFragmentManager().registerFragmentLifecycleCallbacks(
-                        new FragmentManager.FragmentLifecycleCallbacks() {
-                            @Override
-                            public void onFragmentDestroyed(FragmentManager fm, Fragment f) {
-                                removeAndClear(f);
-                            }
-                        }, false);
-
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Cannot create an instance of " + modelClass, e);
-            } catch (InstantiationException e) {
-                throw new RuntimeException("Cannot create an instance of " + modelClass, e);
+        HolderFragment holderFragment = StateProviders.holderFragmentFor(scope);
+        if (sApplication == null) {
+            FragmentActivity activity = holderFragment.getActivity();
+            if (activity == null) {
+                throw new IllegalStateException("Can't create VM for detached fragment");
             }
+            sApplication = activity.getApplication();
         }
-        return viewModel;
-    }
 
-    private static Map<Fragment, List<ViewModel>> sHolderToVm = new HashMap<>();
-
-    private static void add(Fragment fragment, ViewModel vm) {
-        List<ViewModel> viewModels = sHolderToVm.get(fragment);
-        if (viewModels == null) {
-            viewModels = new ArrayList<>();
-            sHolderToVm.put(fragment, viewModels);
+        ViewModel viewModel = holderFragment.getViewModel(key);
+        if (modelClass.isInstance(viewModel)) {
+            //noinspection unchecked
+            return (T) viewModel;
+        } else if (viewModel != null) {
+            Log.w(LOG_TAG, "Using same key = " + key + " with different ViewModel classes.");
         }
-        viewModels.add(vm);
-    }
-
-    private static void removeAndClear(Fragment fragment) {
-        List<ViewModel> remove = sHolderToVm.remove(fragment);
-        if (remove == null) {
-            return;
-        }
-        for (ViewModel vm : remove) {
-            vm.onCleared();
+        //noinspection TryWithIdenticalCatches
+        try {
+            ViewModel oldViewModel = viewModel;
+            viewModel = createViewModel(modelClass);
+            if (oldViewModel != null) {
+                oldViewModel.onCleared();
+            }
+            holderFragment.putViewModel(key, viewModel);
+            //noinspection unchecked
+            return (T) viewModel;
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Cannot create an instance of " + modelClass, e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException("Cannot create an instance of " + modelClass, e);
         }
     }
 

@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle.state;
+package com.android.support.lifecycle;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.Fragment;
+
+import com.android.support.lifecycle.state.RetainedStateProvider;
+import com.android.support.lifecycle.state.SavedStateProvider;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @hide
@@ -29,6 +35,7 @@ public class HolderFragment extends Fragment {
 
     private SavedStateProvider mSavedStateProvider = new SavedStateProvider();
     private RetainedStateProvider mRetainedStateProvider = new RetainedStateProvider();
+    private Map<String, ViewModel> mViewModels = new HashMap<>();
 
     public HolderFragment() {
         setRetainInstance(true);
@@ -46,11 +53,33 @@ public class HolderFragment extends Fragment {
         mSavedStateProvider.saveState(outState);
     }
 
-    SavedStateProvider getSavedStateProvider() {
+    /**
+     * get ViewModel by key
+     */
+    public ViewModel getViewModel(String key) {
+        return mViewModels.get(key);
+    }
+
+    /**
+     * adds new ViewModels
+     */
+    public void putViewModel(String key, ViewModel viewModel) {
+        mViewModels.put(key, viewModel);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        for (ViewModel vm : mViewModels.values()) {
+            vm.onCleared();
+        }
+    }
+
+    public SavedStateProvider getSavedStateProvider() {
         return mSavedStateProvider;
     }
 
-    RetainedStateProvider getRetainedStateProvider() {
+    public RetainedStateProvider getRetainedStateProvider() {
         return mRetainedStateProvider;
     }
 }

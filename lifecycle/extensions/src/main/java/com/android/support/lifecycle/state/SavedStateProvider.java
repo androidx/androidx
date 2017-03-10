@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import java.util.Map;
 
@@ -119,11 +120,19 @@ public class SavedStateProvider {
         return mStateMap.intValue(key, defaultValue);
     }
 
-    void restoreState(Bundle savedState) {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void restoreState(Bundle savedState) {
         mStateMap.mSavedState = savedState;
     }
 
-    void saveState(Bundle outBundle) {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void saveState(Bundle outBundle) {
         if (mStateMap.mSavedState != null) {
             outBundle.putAll(mStateMap.mSavedState);
         }
